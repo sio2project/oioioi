@@ -9,18 +9,19 @@ from oioioi.contests.models import Contest
 check_django_app_dependencies(__name__, ['oioioi.participants'])
 
 
-@date_registry.register('start_date',
-                        name_generator=(lambda obj: _("Enable complaints")))
-@date_registry.register('end_date',
-                        name_generator=(lambda obj: _("Disable complaints")))
+@date_registry.register(
+    'start_date', name_generator=(lambda obj: _("Enable complaints"))
+)
+@date_registry.register(
+    'end_date', name_generator=(lambda obj: _("Disable complaints"))
+)
 class ComplaintsConfig(models.Model):
-    contest = models.OneToOneField(Contest,
-                                   related_name='complaints_config',
-                                   on_delete=models.CASCADE)
+    contest = models.OneToOneField(
+        Contest, related_name='complaints_config', on_delete=models.CASCADE
+    )
     enabled = models.BooleanField(default=False, verbose_name=_("enabled"))
     start_date = models.DateTimeField(verbose_name=_("start date"))
-    end_date = models.DateTimeField(blank=True, null=True,
-            verbose_name=_("end date"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("end date"))
 
     class Meta(object):
         verbose_name = _("complaints configuration")

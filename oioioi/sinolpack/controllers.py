@@ -10,9 +10,11 @@ class SinolProblemController(ProgrammingProblemController):
 
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         super(SinolProblemController, self).fill_evaluation_environ(
-                environ, submission, **kwargs)
+            environ, submission, **kwargs
+        )
         add_extra_files(environ, self.problem)
 
     def mixins_for_admin(self):
-        return super(SinolProblemController, self).mixins_for_admin() + \
-               (SinolpackProblemAdminMixin,)
+        return super(SinolProblemController, self).mixins_for_admin() + (
+            SinolpackProblemAdminMixin,
+        )

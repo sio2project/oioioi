@@ -9,9 +9,12 @@ from oioioi.contestexcl.models import ExclusivenessConfig
 class ExclusivenessConfigForm(AlwaysChangedModelForm):
     disable = forms.BooleanField(
         label=_('disable?'),
-        help_text=_("Caution! If you disable exclusiveness, "
-                    "it can only be re-enabled by a superadmin!"),
-        required=False)
+        help_text=_(
+            "Caution! If you disable exclusiveness, "
+            "it can only be re-enabled by a superadmin!"
+        ),
+        required=False,
+    )
 
     class Meta(object):
         fields = '__all__'
@@ -20,8 +23,7 @@ class ExclusivenessConfigForm(AlwaysChangedModelForm):
     def clean(self):
         super(ExclusivenessConfigForm, self).clean()
         if self.cleaned_data['disable'] and not self.instance.enabled:
-            raise ValidationError(
-                _("This exclusiveness config is already disabled!"))
+            raise ValidationError(_("This exclusiveness config is already disabled!"))
 
     def save(self, commit=True):
         instance = super(ExclusivenessConfigForm, self).save(commit=False)

@@ -8,8 +8,13 @@ from oioioi.similarsubmits.models import SubmissionsSimilarityGroup
 
 
 class TestSimilarSubmitViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_similarsubmits_extra_data']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_similarsubmits_extra_data',
+    ]
 
     def test_bulk_add_similar_submits_view(self):
         # superuser
@@ -20,8 +25,13 @@ class TestSimilarSubmitViews(TestCase):
         self.assertEqual(len(groups), 0)
 
         submissions_unions = [
-            (('1:test_user:zad1.cpp 2:test_user2:zad1.cpp\n'
-              '3:test_user3:zad1.cpp 4:test_user4:zad1.cpp'), 2),
+            (
+                (
+                    '1:test_user:zad1.cpp 2:test_user2:zad1.cpp\n'
+                    '3:test_user3:zad1.cpp 4:test_user4:zad1.cpp'
+                ),
+                2,
+            ),
             ('1:test_user:zad1.cpp 2:test_user2:zad1.cpp\n', 2),
             ('2:test_user2:zad1.cpp 3:test_user3:zad1.cpp', 1),
         ]
@@ -42,8 +52,7 @@ class TestSimilarSubmitViews(TestCase):
         mock_request.contest = None
         for bulk in invalid_bulks:
             form_data = {'similar_groups': bulk}
-            form = BulkAddSubmissionsSimilarityForm(
-                    mock_request, data=form_data)
+            form = BulkAddSubmissionsSimilarityForm(mock_request, data=form_data)
             self.assertFalse(form.is_valid())
 
     def test_permissions(self):

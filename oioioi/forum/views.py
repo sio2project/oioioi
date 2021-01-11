@@ -1,51 +1,72 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.http import HttpResponseBadRequest
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   is_contest_admin, can_admin_contest)
-from oioioi.forum.forms import NewThreadForm, PostForm, BanForm, ReportForm
+from oioioi.contests.utils import (
+    can_admin_contest,
+    can_enter_contest,
+    contest_exists,
+    is_contest_admin,
+)
+from oioioi.forum.forms import BanForm, NewThreadForm, PostForm, ReportForm
 from oioioi.forum.models import Category, Post
-from oioioi.forum.utils import (forum_exists_and_visible,
-                                get_forum_ct, get_forum_ctp, get_msgs,
-                                is_proper_forum, can_interact_with_users,
-                                forum_exists, can_interact_with_admins,
-                                move_category,)
+from oioioi.forum.utils import (
+    can_interact_with_admins,
+    can_interact_with_users,
+    forum_exists,
+    forum_exists_and_visible,
+    get_forum_ct,
+    get_forum_ctp,
+    get_msgs,
+    is_proper_forum,
+    move_category,
+)
 
 
 # registering forum
-@menu_registry.register_decorator(_("Forum"), lambda request:
-        reverse('forum', kwargs={'contest_id': request.contest.id}),
-    order=500)
-@contest_admin_menu_registry.register_decorator(_("Forum"), lambda request:
-        reverse('oioioiadmin:forum_forum_change',
-                args=(request.contest.forum.id,)),
-        is_contest_admin, order=50)
+@menu_registry.register_decorator(
+    _("Forum"),
+    lambda request: reverse('forum', kwargs={'contest_id': request.contest.id}),
+    order=500,
+)
+@contest_admin_menu_registry.register_decorator(
+    _("Forum"),
+    lambda request: reverse(
+        'oioioiadmin:forum_forum_change', args=(request.contest.forum.id,)
+    ),
+    is_contest_admin,
+    order=50,
+)
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request):
-    category_set = request.contest.forum.category_set \
-        .prefetch_related('thread_set', 'thread_set__post_set') \
-        .all()
+    category_set = request.contest.forum.category_set.prefetch_related(
+        'thread_set', 'thread_set__post_set'
+    ).all()
 
-    return TemplateResponse(request, 'forum/forum.html', {
-        'forum': request.contest.forum, 'msgs': get_msgs(request),
-        'can_interact_with_users': can_interact_with_users(request),
-        'can_interact_with_admins': can_interact_with_admins(request),
-        'is_locked': request.contest.forum.is_locked(),
-        'category_set': category_set,
-    })
+    return TemplateResponse(
+        request,
+        'forum/forum.html',
+        {
+            'forum': request.contest.forum,
+            'msgs': get_msgs(request),
+            'can_interact_with_users': can_interact_with_users(request),
+            'can_interact_with_admins': can_interact_with_admins(request),
+            'is_locked': request.contest.forum.is_locked(),
+            'category_set': category_set,
+        },
+    )
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -73,17 +94,24 @@ def latest_posts_forum_view(request):
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def category_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
-    threads = category.thread_set \
-        .prefetch_related('post_set') \
-        .select_related('last_post', 'last_post__author') \
+    threads = (
+        category.thread_set.prefetch_related('post_set')
+        .select_related('last_post', 'last_post__author')
         .all()
+    )
 
-    return TemplateResponse(request, 'forum/category.html', {
-        'forum': request.contest.forum, 'category': category,
-        'threads': threads, 'msgs': get_msgs(request),
-        'can_interact_with_users': can_interact_with_users(request),
-        'can_interact_with_admins': can_interact_with_admins(request)
-    })
+    return TemplateResponse(
+        request,
+        'forum/category.html',
+        {
+            'forum': request.contest.forum,
+            'category': category,
+            'threads': threads,
+            'msgs': get_msgs(request),
+            'can_interact_with_users': can_interact_with_users(request),
+            'can_interact_with_admins': can_interact_with_admins(request),
+        },
+    )
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -92,13 +120,15 @@ def thread_view(request, category_id, thread_id):
     category, thread = get_forum_ct(category_id, thread_id)
     forum = request.contest.forum
 
-    context = {'forum': forum,
-               'category': category,
-               'thread': thread,
-               'msgs': get_msgs(request),
-               'post_set': thread.post_set.select_related('author').all(),
-               'can_interact_with_users': can_interact_with_users(request),
-               'can_interact_with_admins': can_interact_with_admins(request)}
+    context = {
+        'forum': forum,
+        'category': category,
+        'thread': thread,
+        'msgs': get_msgs(request),
+        'post_set': thread.post_set.select_related('author').all(),
+        'can_interact_with_users': can_interact_with_users(request),
+        'can_interact_with_admins': can_interact_with_admins(request),
+    }
 
     if can_interact_with_users(request):
         if request.method == "POST":
@@ -109,9 +139,12 @@ def thread_view(request, category_id, thread_id):
                 instance.thread = thread
                 instance.add_date = request.timestamp
                 instance.save()
-                return redirect('forum_thread', contest_id=request.contest.id,
-                                category_id=category.id,
-                                thread_id=thread.id)
+                return redirect(
+                    'forum_thread',
+                    contest_id=request.contest.id,
+                    category_id=category.id,
+                    thread_id=thread.id,
+                )
         else:
             form = PostForm(request)
         context['form'] = form
@@ -120,8 +153,7 @@ def thread_view(request, category_id, thread_id):
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-@enforce_condition(forum_exists_and_visible & is_proper_forum
-                   & can_interact_with_users)
+@enforce_condition(forum_exists_and_visible & is_proper_forum & can_interact_with_users)
 def thread_add_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     if request.method == 'POST':
@@ -137,20 +169,29 @@ def thread_add_view(request, category_id):
                 inst_post.thread = instance
                 inst_post.add_date = request.timestamp
                 inst_post.save()
-                return redirect('forum_thread', contest_id=request.contest.id,
-                                category_id=category.id,
-                                thread_id=instance.id)
+                return redirect(
+                    'forum_thread',
+                    contest_id=request.contest.id,
+                    category_id=category.id,
+                    thread_id=instance.id,
+                )
     else:
         form = NewThreadForm(request)
 
-    return TemplateResponse(request, 'forum/thread_add.html',
-        {'forum': request.contest.forum, 'category': category,
-         'form': form, 'msgs': get_msgs(request)})
+    return TemplateResponse(
+        request,
+        'forum/thread_add.html',
+        {
+            'forum': request.contest.forum,
+            'category': category,
+            'form': form,
+            'msgs': get_msgs(request),
+        },
+    )
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-@enforce_condition(forum_exists_and_visible & is_proper_forum
-                   & can_interact_with_users)
+@enforce_condition(forum_exists_and_visible & is_proper_forum & can_interact_with_users)
 def edit_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     is_admin = is_contest_admin(request)
@@ -165,22 +206,31 @@ def edit_post_view(request, category_id, thread_id, post_id):
             instance.approved = False
             instance.last_edit_date = request.timestamp
             instance.save()
-            return redirect('forum_thread', contest_id=request.contest.id,
-                            category_id=category.id,
-                            thread_id=thread.id)
+            return redirect(
+                'forum_thread',
+                contest_id=request.contest.id,
+                category_id=category.id,
+                thread_id=thread.id,
+            )
     else:
         form = PostForm(request, instance=post)
 
-    return TemplateResponse(request, 'forum/edit_post.html', {
-        'forum': request.contest.forum, 'category': category,
-        'thread': thread, 'form': form, 'post': post,
-        'msgs': get_msgs(request)
-    })
+    return TemplateResponse(
+        request,
+        'forum/edit_post.html',
+        {
+            'forum': request.contest.forum,
+            'category': category,
+            'thread': thread,
+            'form': form,
+            'post': post,
+            'msgs': get_msgs(request),
+        },
+    )
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-@enforce_condition(forum_exists_and_visible & is_proper_forum
-                   & can_interact_with_users)
+@enforce_condition(forum_exists_and_visible & is_proper_forum & can_interact_with_users)
 def delete_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     is_admin = is_contest_admin(request)
@@ -195,8 +245,9 @@ def delete_post_view(request, category_id, thread_id, post_id):
     ):
         raise PermissionDenied
     else:
-        choice = confirmation_view(request, 'forum/confirm_delete_post.html',
-                {'thread': thread, 'post': post})
+        choice = confirmation_view(
+            request, 'forum/confirm_delete_post.html', {'thread': thread, 'post': post}
+        )
         if not isinstance(choice, bool):
             return choice
         if choice:
@@ -204,23 +255,28 @@ def delete_post_view(request, category_id, thread_id, post_id):
 
             if not thread.post_set.exists():
                 thread.delete()
-                return redirect('forum_category',
-                                contest_id=request.contest.id,
-                                category_id=category.id)
+                return redirect(
+                    'forum_category',
+                    contest_id=request.contest.id,
+                    category_id=category.id,
+                )
 
-    return redirect('forum_thread', contest_id=request.contest.id,
-                    category_id=category.id, thread_id=thread.id)
+    return redirect(
+        'forum_thread',
+        contest_id=request.contest.id,
+        category_id=category.id,
+        thread_id=thread.id,
+    )
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-@enforce_condition(forum_exists_and_visible & is_proper_forum
-                   & can_interact_with_admins)
+@enforce_condition(
+    forum_exists_and_visible & is_proper_forum & can_interact_with_admins
+)
 def report_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
 
-    context = {'category': category,
-               'thread': thread,
-               'post': post}
+    context = {'category': category, 'thread': thread, 'post': post}
 
     if not post.reported and not post.approved:
         if request.method == "POST":
@@ -230,9 +286,12 @@ def report_post_view(request, category_id, thread_id, post_id):
                 instance.reported = True
                 instance.reported_by = request.user
                 instance.save()
-                return redirect('forum_thread', contest_id=request.contest.id,
-                                category_id=category.id,
-                                thread_id=thread.id)
+                return redirect(
+                    'forum_thread',
+                    contest_id=request.contest.id,
+                    category_id=category.id,
+                    thread_id=thread.id,
+                )
         else:
             form = ReportForm(instance=post)
         context['form'] = form
@@ -247,8 +306,13 @@ def approve_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.approved = True
     post.save()
-    return redirect('forum_thread', contest_id=request.contest.id,
-                    category_id=category.id, thread_id=thread.id)
+    return redirect(
+        'forum_thread',
+        contest_id=request.contest.id,
+        category_id=category.id,
+        thread_id=thread.id,
+    )
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
@@ -257,8 +321,12 @@ def revoke_approval_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.approved = False
     post.save()
-    return redirect('forum_thread', contest_id=request.contest.id,
-                    category_id=category.id, thread_id=thread.id)
+    return redirect(
+        'forum_thread',
+        contest_id=request.contest.id,
+        category_id=category.id,
+        thread_id=thread.id,
+    )
 
 
 @enforce_condition(contest_exists & is_contest_admin)
@@ -270,8 +338,12 @@ def hide_post_view(request, category_id, thread_id, post_id):
     post.reported = False
     post.report_reason = ""
     post.save()
-    return redirect('forum_thread', contest_id=request.contest.id,
-                    category_id=category.id, thread_id=thread.id)
+    return redirect(
+        'forum_thread',
+        contest_id=request.contest.id,
+        category_id=category.id,
+        thread_id=thread.id,
+    )
 
 
 @enforce_condition(contest_exists & is_contest_admin)
@@ -282,8 +354,12 @@ def show_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.hidden = False
     post.save()
-    return redirect('forum_thread', contest_id=request.contest.id,
-                    category_id=category.id, thread_id=thread.id)
+    return redirect(
+        'forum_thread',
+        contest_id=request.contest.id,
+        category_id=category.id,
+        thread_id=thread.id,
+    )
 
 
 @enforce_condition(contest_exists & is_contest_admin)
@@ -291,14 +367,14 @@ def show_post_view(request, category_id, thread_id, post_id):
 @require_POST
 def delete_thread_view(request, category_id, thread_id):
     category, thread = get_forum_ct(category_id, thread_id)
-    choice = confirmation_view(request, 'forum/confirm_delete.html',
-                               {'elem': thread})
+    choice = confirmation_view(request, 'forum/confirm_delete.html', {'elem': thread})
     if not isinstance(choice, bool):
         return choice
     if choice:
         thread.delete()
-    return redirect('forum_category', contest_id=request.contest.id,
-                    category_id=category.id)
+    return redirect(
+        'forum_category', contest_id=request.contest.id, category_id=category.id
+    )
 
 
 @enforce_condition(contest_exists & is_contest_admin)
@@ -306,8 +382,7 @@ def delete_thread_view(request, category_id, thread_id):
 @require_POST
 def delete_category_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
-    choice = confirmation_view(request, 'forum/confirm_delete.html',
-                               {'elem': category})
+    choice = confirmation_view(request, 'forum/confirm_delete.html', {'elem': category})
     if not isinstance(choice, bool):
         return choice
     if choice:
@@ -388,18 +463,23 @@ def ban_user_view(request, user_id):
             messages.success(request, _("Banned user: ") + str(user))
 
             if form.cleaned_data['delete_reports']:
-                removed_reports_count = \
-                    Post.objects.filter(reported=True, reported_by=user,
-                                        thread__category__forum=forum)\
-                        .update(reported=False, reported_by=None)
-                messages.success(request, _("Removed %d reports") %
-                                 removed_reports_count)
+                removed_reports_count = Post.objects.filter(
+                    reported=True, reported_by=user, thread__category__forum=forum
+                ).update(reported=False, reported_by=None)
+                messages.success(
+                    request, _("Removed %d reports") % removed_reports_count
+                )
             return redirect(redirect_url)
     else:
         form = BanForm()
 
-    return TemplateResponse(request, 'forum/ban_user.html',
-                            {'banned_user': user,
-                             'form': form,
-                             'next': redirect_url,
-                             'msgs': get_msgs(request)})
+    return TemplateResponse(
+        request,
+        'forum/ban_user.html',
+        {
+            'banned_user': user,
+            'form': form,
+            'next': redirect_url,
+            'msgs': get_msgs(request),
+        },
+    )

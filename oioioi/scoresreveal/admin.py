@@ -15,10 +15,7 @@ class RevealedFilter(SimpleListFilter):
     parameter_name = 'revealed'
 
     def lookups(self, request, model_admin):
-        return (
-            (1, _("Yes")),
-            (0, _("No"))
-        )
+        return ((1, _("Yes")), (0, _("No")))
 
     def queryset(self, request, queryset):
         if self.value():
@@ -36,11 +33,10 @@ class ScoresRevealConfigInline(admin.TabularInline):
 
 
 class ScoresRevealProblemInstanceAdminMixin(object):
-    """Adds `ScoreRevealConfigForInstance` to an admin panel.
-    """
+    """Adds `ScoreRevealConfigForInstance` to an admin panel."""
+
     def __init__(self, *args, **kwargs):
-        super(ScoresRevealProblemInstanceAdminMixin, self) \
-            .__init__(*args, **kwargs)
+        super(ScoresRevealProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ScoresRevealConfigInline]
 
 
@@ -48,28 +44,32 @@ ProblemInstanceAdmin.mix_in(ScoresRevealProblemInstanceAdminMixin)
 
 
 class ScoresRevealSubmissionAdminMixin(object):
-    """Adds reveal info and filter to an admin panel.
-    """
+    """Adds reveal info and filter to an admin panel."""
 
     def __init__(self, *args, **kwargs):
         super(ScoresRevealSubmissionAdminMixin, self).__init__(*args, **kwargs)
 
     def get_list_display(self, request):
-        return super(ScoresRevealSubmissionAdminMixin, self) \
-                    .get_list_display(request) + ['reveal_display']
+        return super(ScoresRevealSubmissionAdminMixin, self).get_list_display(
+            request
+        ) + ['reveal_display']
 
     def get_list_filter(self, request):
-        return super(ScoresRevealSubmissionAdminMixin, self) \
-                    .get_list_filter(request) + [RevealedFilter]
+        return super(ScoresRevealSubmissionAdminMixin, self).get_list_filter(
+            request
+        ) + [RevealedFilter]
 
     def reveal_display(self, instance):
         return is_revealed(instance)
+
     reveal_display.short_description = _("Revealed")
     reveal_display.admin_order_field = 'revealed'
     reveal_display.boolean = True
 
     def get_custom_list_select_related(self):
-        return super(ScoresRevealSubmissionAdminMixin, self). \
-                   get_custom_list_select_related() + ['revealed']
+        return super(
+            ScoresRevealSubmissionAdminMixin, self
+        ).get_custom_list_select_related() + ['revealed']
+
 
 SubmissionAdmin.mix_in(ScoresRevealSubmissionAdminMixin)

@@ -1,9 +1,9 @@
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.contests.admin import ContestAdmin
 from oioioi.contests.utils import is_contest_admin
 from oioioi.statistics.models import StatisticsConfig
-
-from django.utils.translation import ugettext_lazy as _
 
 
 class StatisticsConfigInline(admin.TabularInline):
@@ -22,11 +22,12 @@ class StatisticsConfigInline(admin.TabularInline):
 
 class StatisticsAdminMixin(object):
     """Adds :class:`~oioioi.statistics.models.StatisticsConfig` to an admin
-       panel.
+    panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(StatisticsAdminMixin, self) \
-            .__init__(*args, **kwargs)
+        super(StatisticsAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [StatisticsConfigInline]
+
+
 ContestAdmin.mix_in(StatisticsAdminMixin)

@@ -5,6 +5,7 @@ from django.utils.translation import ugettext
 
 from oioioi.programs.models import ContestCompiler
 
+
 class CompilerInlineForm(forms.ModelForm):
     COMPILER_CHOICES = [
         ('', 'Choose language first'),
@@ -18,12 +19,22 @@ class CompilerInlineForm(forms.ModelForm):
         default_compilers = getattr(settings, 'DEFAULT_COMPILERS')
         model = self._meta.model
         if model == ContestCompiler:
-            for lang, lang_info in getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items():
-                self.LANGUAGE_CHOICES.append((lang, lang_info['display_name'] +
-                    ugettext(" (default compiler: ") + default_compilers.get(lang) +
-                    ")"))
+            for lang, lang_info in getattr(
+                settings, 'SUBMITTABLE_LANGUAGES', {}
+            ).items():
+                self.LANGUAGE_CHOICES.append(
+                    (
+                        lang,
+                        lang_info['display_name']
+                        + ugettext(" (default compiler: ")
+                        + default_compilers.get(lang)
+                        + ")",
+                    )
+                )
         else:
-            for lang, lang_info in getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items():
+            for lang, lang_info in getattr(
+                settings, 'SUBMITTABLE_LANGUAGES', {}
+            ).items():
                 self.LANGUAGE_CHOICES.append((lang, lang_info['display_name']))
 
         FINAL_COMPILER_CHOICES = self.COMPILER_CHOICES
@@ -37,12 +48,11 @@ class CompilerInlineForm(forms.ModelForm):
             for compiler in compilers_for_lang:
                 if compiler != instance.compiler:
                     FINAL_COMPILER_CHOICES.append((compiler, compiler))
-        self.fields['compiler'].widget=forms.Select(
-                choices=FINAL_COMPILER_CHOICES)
-        self.fields['language'] = forms.ChoiceField(
-                choices=self.LANGUAGE_CHOICES)
+        self.fields['compiler'].widget = forms.Select(choices=FINAL_COMPILER_CHOICES)
+        self.fields['language'] = forms.ChoiceField(choices=self.LANGUAGE_CHOICES)
         self.fields['language'].widget.attrs.update(
-                {'data-compilerchoicesurl' : reverse('get_compiler_hints')})
+            {'data-compilerchoicesurl': reverse('get_compiler_hints')}
+        )
 
     class Media(object):
         js = ('common/choose_compiler.js',)

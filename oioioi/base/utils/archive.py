@@ -28,6 +28,7 @@ import tempfile
 import zipfile
 
 import six
+
 from oioioi.filetracker.utils import stream_file
 
 
@@ -67,7 +68,9 @@ class Archive(object):
           guess that is normally performed using the file extension of the
           given 'file'.  Should start with a dot, e.g. '.tar.gz'.
         """
-        self.filename, self.stored_temporarily = self._resolve_streamed_files(file, ext=ext)
+        self.filename, self.stored_temporarily = self._resolve_streamed_files(
+            file, ext=ext
+        )
         self._archive = self._archive_cls(self.filename, ext=ext)(self.filename)
 
     def __del__(self):
@@ -76,7 +79,11 @@ class Archive(object):
 
     @staticmethod
     def _resolve_streamed_files(file, ext):
-        if isinstance(file, six.string_types) or hasattr(file, 'seek') or hasattr(file, 'tell'):
+        if (
+            isinstance(file, six.string_types)
+            or hasattr(file, 'seek')
+            or hasattr(file, 'tell')
+        ):
             return file, False
         lookup_filename = file.name + ext
         base, tail_ext = os.path.splitext(lookup_filename.lower())
@@ -99,7 +106,8 @@ class Archive(object):
                 filename = file.name
             except AttributeError:
                 raise UnrecognizedArchiveFormat(
-                    "File object not a recognized archive format.")
+                    "File object not a recognized archive format."
+                )
         lookup_filename = filename + ext
         base, tail_ext = os.path.splitext(lookup_filename.lower())
         cls = extension_map.get(tail_ext)
@@ -108,7 +116,8 @@ class Archive(object):
             cls = extension_map.get(ext)
         if not cls:
             raise UnrecognizedArchiveFormat(
-                "Path not a recognized archive format: %s" % filename)
+                "Path not a recognized archive format: %s" % filename
+            )
         return cls
 
     def extract(self, *args, **kwargs):
@@ -174,7 +183,8 @@ class BaseArchive(object):
             if not extract_path.startswith(target_path):
                 raise UnsafeArchive(
                     "Archive member destination is outside the target"
-                    " directory.  member: %s" % filename)
+                    " directory.  member: %s" % filename
+                )
 
 
 class TarArchive(BaseArchive):
@@ -186,8 +196,9 @@ class TarArchive(BaseArchive):
             self._archive = tarfile.open(fileobj=file)
 
     def filenames(self):
-        return [tarinfo.name for tarinfo in self._archive.getmembers()
-                if tarinfo.isfile()]
+        return [
+            tarinfo.name for tarinfo in self._archive.getmembers() if tarinfo.isfile()
+        ]
 
     def extracted_size(self):
         total = 0
@@ -218,11 +229,13 @@ class ZipArchive(BaseArchive):
 
     def filenames(self):
         if six.PY3:
-            return [zipinfo.filename for zipinfo in self._archive.infolist()
-                    if not zipinfo.is_dir()]
+            return [
+                zipinfo.filename
+                for zipinfo in self._archive.infolist()
+                if not zipinfo.is_dir()
+            ]
         elif six.PY2:
-            return [name for name in self._archive.namelist()
-                    if not name.endswith('/')]
+            return [name for name in self._archive.namelist() if not name.endswith('/')]
 
 
 extension_map = {

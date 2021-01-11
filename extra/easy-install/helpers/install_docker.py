@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # A script that installs docker
-import sys
 import subprocess
+
 import requests
 
 url = 'https://get.docker.com'

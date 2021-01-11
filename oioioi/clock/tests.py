@@ -36,8 +36,9 @@ class TestClock(TestCase):
         r1.save()
         r2.save()
 
-        response = self.client.get(reverse('get_status',
-            kwargs={'contest_id': contest.id})).json()
+        response = self.client.get(
+            reverse('get_status', kwargs={'contest_id': contest.id})
+        ).json()
         round_start_date = response['round_start_date']
         round_end_date = response['round_end_date']
         self.assertEqual(round_start_date, time.mktime(r2_start.timetuple()))
@@ -54,8 +55,9 @@ class TestClock(TestCase):
         RoundTimeExtension(user=user, round=r1, extra_time=10).save()
 
         self.assertTrue(self.client.login(username='test_user'))
-        response = self.client.get(reverse('get_status',
-            kwargs={'contest_id': contest.id})).json()
+        response = self.client.get(
+            reverse('get_status', kwargs={'contest_id': contest.id})
+        ).json()
         round_start_date = response['round_start_date']
         round_end_date = response['round_end_date']
         self.assertEqual(round_start_date, time.mktime(r1_start.timetuple()))
@@ -69,5 +71,7 @@ class TestClock(TestCase):
         session.save()
         response = self.client.get(reverse('get_status')).json()
         self.assertTrue(response['is_admin_time_set'])
-        self.assertEqual(response['time'],
-            calendar.timegm(parse_date(session['admin_time']).timetuple()))
+        self.assertEqual(
+            response['time'],
+            calendar.timegm(parse_date(session['admin_time']).timetuple()),
+        )

@@ -7,8 +7,7 @@ from oioioi.contests.scores import ScoreValue
 
 
 class ScoreField(models.CharField):
-    """Model field for storing :class:`~oioioi.contests.scores.ScoreValue`s
-    """
+    """Model field for storing :class:`~oioioi.contests.scores.ScoreValue`s"""
 
     description = _("Score")
 

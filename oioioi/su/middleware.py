@@ -1,6 +1,6 @@
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
-from django.shortcuts import redirect
 from django.http.response import HttpResponseForbidden
+from django.shortcuts import redirect
 
 from oioioi.base.utils.middleware import was_response_generated_by_exception
 from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY
@@ -12,8 +12,8 @@ REDIRECTION_AFTER_SU_KEY = "redirection_after_su"
 class SuAuthenticationMiddleware(object):
     """Middleware overriding current request.user object with that switched to.
 
-       User object representing real user privileges are stored in
-       ``request.real_user``.
+    User object representing real user privileges are stored in
+    ``request.real_user``.
     """
 
     def __init__(self, get_response):
@@ -29,13 +29,16 @@ class SuAuthenticationMiddleware(object):
             raise ImproperlyConfigured(
                 "The SuAuthenticationMiddleware requires the"
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
-                " earlier in MIDDLEWARE.")
+                " earlier in MIDDLEWARE."
+            )
 
         request.real_user = request.user
         if SU_UID_SESSION_KEY in request.session:
-            request.user = get_user(request,
-                    request.session[SU_UID_SESSION_KEY],
-                    request.session[SU_BACKEND_SESSION_KEY])
+            request.user = get_user(
+                request,
+                request.session[SU_UID_SESSION_KEY],
+                request.session[SU_BACKEND_SESSION_KEY],
+            )
 
 
 class SuFirstTimeRedirectionMiddleware(object):

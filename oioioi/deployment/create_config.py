@@ -57,17 +57,22 @@ def generate_from_template(dir, filename, context, mode=None):
 def generate_all(dir, verbose):
     generate_from_template(dir, 'basic_settings.py', {})
 
-    generate_from_template(dir, 'settings.py', {
+    generate_from_template(
+        dir,
+        'settings.py',
+        {
             '__CONFIG_VERSION__': str(INSTALLATION_CONFIG_VERSION),
             '__DIR__': dir,
             '__SECRET__': str(uuid.uuid4()),
             '__TIMEZONE__': get_timezone(),
-        })
+        },
+    )
 
     settings = {}
     settings_py = os.path.join(dir, 'settings.py')
-    six.exec_(compile(open(settings_py).read(), settings_py, 'exec'), globals(),
-            settings)
+    six.exec_(
+        compile(open(settings_py).read(), settings_py, 'exec'), globals(), settings
+    )
     media_root = settings['MEDIA_ROOT']
     os.mkdir(media_root)
 
@@ -81,37 +86,63 @@ def generate_all(dir, verbose):
     user = pwd.getpwuid(os.getuid())[0]
 
     manage_py = os.path.join(dir, 'manage.py')
-    generate_from_template(dir, 'manage.py', {
+    generate_from_template(
+        dir,
+        'manage.py',
+        {
             '__DIR__': dir,
             '__PYTHON_EXECUTABLE__': sys.executable,
             '__VIRTUAL_ENV__': virtual_env,
-        }, mode=0o755)
+        },
+        mode=0o755,
+    )
 
-    generate_from_template(dir, 'supervisord.conf', {
+    generate_from_template(
+        dir,
+        'supervisord.conf',
+        {
             '__USER__': user,
-        })
+        },
+    )
 
-    generate_from_template(dir, 'wsgi.py', {
+    generate_from_template(
+        dir,
+        'wsgi.py',
+        {
             '__DIR__': dir,
             '__VIRTUAL_ENV__': virtual_env,
-        })
+        },
+    )
 
-    generate_from_template(dir, 'start_supervisor.sh', {
+    generate_from_template(
+        dir,
+        'start_supervisor.sh',
+        {
             '__DIR__': dir,
             '__VIRTUAL_ENV__': virtual_env,
-        }, mode=0o755)
+        },
+        mode=0o755,
+    )
 
-    generate_from_template(dir, 'apache-site.conf', {
+    generate_from_template(
+        dir,
+        'apache-site.conf',
+        {
             '__DIR__': dir,
             '__STATIC_URL__': settings['STATIC_URL'],
             '__STATIC_ROOT__': settings['STATIC_ROOT'],
-        })
+        },
+    )
 
-    generate_from_template(dir, 'nginx-site.conf', {
+    generate_from_template(
+        dir,
+        'nginx-site.conf',
+        {
             '__DIR__': dir,
             '__STATIC_URL__': settings['STATIC_URL'],
             '__STATIC_ROOT__': settings['STATIC_ROOT'],
-        })
+        },
+    )
 
     # Having DJANGO_SETTINGS_MODULE here would probably cause collectstatic to
     # run with wrong settings.
@@ -122,8 +153,7 @@ def generate_all(dir, verbose):
     cmd = [sys.executable, manage_py, 'collectstatic', '--noinput']
     if not verbose:
         cmd += ['-v', '0']
-    execute(cmd,
-            capture_output=False)
+    execute(cmd, capture_output=False)
 
 
 def main():
@@ -136,8 +166,7 @@ def main():
     absolute_dir = os.path.abspath(args.dir)
 
     if os.path.exists(absolute_dir):
-        error("%s already exists; please specify another location" %
-              (absolute_dir,))
+        error("%s already exists; please specify another location" % (absolute_dir,))
 
     os.makedirs(absolute_dir)
 

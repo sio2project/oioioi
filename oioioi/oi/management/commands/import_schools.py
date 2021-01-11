@@ -12,25 +12,24 @@ from django.utils.translation import ugettext as _
 
 from oioioi.oi.models import School
 
-COLUMNS = ['name', 'address', 'postal_code', 'city',
-           'province', 'phone', 'email']
+COLUMNS = ['name', 'address', 'postal_code', 'city', 'province', 'phone', 'email']
 
 
 class Command(BaseCommand):
     columns_str = ', '.join(COLUMNS)
 
-    help = _("Updates the list of schools from the given CSV file "
-             "<filename or url>, with the following columns: %(columns)s.\n\n"
-             "Given CSV file should contain a header row with column names "
-             "(respectively %(columns)s) separated by commas. Following rows "
-             "should contain school data.") % {'columns': columns_str}
+    help = _(
+        "Updates the list of schools from the given CSV file "
+        "<filename or url>, with the following columns: %(columns)s.\n\n"
+        "Given CSV file should contain a header row with column names "
+        "(respectively %(columns)s) separated by commas. Following rows "
+        "should contain school data."
+    ) % {'columns': columns_str}
 
     requires_model_validation = True
 
     def add_arguments(self, parser):
-        parser.add_argument('filename_or_url',
-                            type=str,
-                            help='Source CSV file')
+        parser.add_argument('filename_or_url', type=str, help='Source CSV file')
 
     def handle(self, *args, **options):
         arg = options['filename_or_url']
@@ -47,9 +46,9 @@ class Command(BaseCommand):
         fields = reader.fieldnames
         if fields != COLUMNS:
             raise CommandError(
-                _("Missing header or invalid columns: %(h)s."
-                  " Expected: %(col)s")
-                % {'h': ', '.join(fields), 'col': ', '.join(COLUMNS)})
+                _("Missing header or invalid columns: %(h)s." " Expected: %(col)s")
+                % {'h': ', '.join(fields), 'col': ', '.join(COLUMNS)}
+            )
 
         with transaction.atomic():
             ok = True
@@ -79,9 +78,9 @@ class Command(BaseCommand):
                 row['email'] = row['email'].split(',')[0]
                 row['email'] = row['email'].split(';')[0]
 
-                school, created = School.objects \
-                        .get_or_create(name=row['name'],
-                                       postal_code=row['postal_code'])
+                school, created = School.objects.get_or_create(
+                    name=row['name'], postal_code=row['postal_code']
+                )
                 if created:
                     created_count += 1
 
@@ -100,19 +99,25 @@ class Command(BaseCommand):
                             if k == '__all__':
                                 self.stdout.write(
                                     _("Line %(lineNum)s: %(msg)s\n")
-                                    % {'lineNum': reader.line_num, 'msg': msg})
+                                    % {'lineNum': reader.line_num, 'msg': msg}
+                                )
                             else:
                                 self.stdout.write(
-                                    _("Line %(lineNum)s,"
-                                      " field %(field)s: %(msg)s\n")
-                                    % {'lineNum': reader.line_num, 'field': k,
-                                       'msg': msg})
+                                    _("Line %(lineNum)s," " field %(field)s: %(msg)s\n")
+                                    % {
+                                        'lineNum': reader.line_num,
+                                        'field': k,
+                                        'msg': msg,
+                                    }
+                                )
                     ok = False
 
             if ok:
                 self.stdout.write(
                     _("Processed %(all_count)d entries (%(new_count)d new)\n")
-                    % {'all_count': all_count, 'new_count': created_count})
+                    % {'all_count': all_count, 'new_count': created_count}
+                )
             else:
-                raise CommandError(_("There were some errors."
-                                     " Database not changed\n"))
+                raise CommandError(
+                    _("There were some errors." " Database not changed\n")
+                )

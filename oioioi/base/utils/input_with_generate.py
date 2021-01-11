@@ -1,14 +1,15 @@
 import django
-
 from django import forms
 from django.utils.safestring import mark_safe
 
 
 class TextInputWithGenerate(forms.TextInput):
-    html_template = "<div id={id}>\n" \
-                    "   {input_html}\n" \
-                    "   <input type=\"button\" value=\"Generate\" />\n" \
-                    "</div>"
+    html_template = (
+        "<div id={id}>\n"
+        "   {input_html}\n"
+        "   <input type=\"button\" value=\"Generate\" />\n"
+        "</div>"
+    )
 
     def __init__(self, *args, **kwargs):
         attrs = kwargs.setdefault('attrs', {})
@@ -28,7 +29,9 @@ class TextInputWithGenerate(forms.TextInput):
         if django.VERSION < (1, 11):
             html = super(TextInputWithGenerate, self).render(name, value, attrs)
         else:
-            html = super(TextInputWithGenerate, self).render(name, value, attrs, renderer)
+            html = super(TextInputWithGenerate, self).render(
+                name, value, attrs, renderer
+            )
 
         html = mark_safe(self.html_template.format(id=id, input_html=html))
         return html

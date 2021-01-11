@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.db.models import Q
 from django.shortcuts import redirect
@@ -7,20 +9,25 @@ from django.utils.translation import ugettext_lazy as _
 from six.moves import range
 
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.controllers import (PastRoundsHiddenContestControllerMixin,
-                                         PublicContestRegistrationController)
+from oioioi.contests.controllers import (
+    PastRoundsHiddenContestControllerMixin,
+    PublicContestRegistrationController,
+)
 from oioioi.contests.models import Submission, SubmissionReport
-from oioioi.contests.utils import (can_see_personal_data, is_contest_admin,
-                                   is_contest_observer)
+from oioioi.contests.utils import (
+    can_see_personal_data,
+    is_contest_admin,
+    is_contest_observer,
+)
 from oioioi.oi.models import OIRegistration
-from oioioi.participants.controllers import (OnsiteContestControllerMixin,
-                                             ParticipantsController)
+from oioioi.participants.controllers import (
+    OnsiteContestControllerMixin,
+    ParticipantsController,
+)
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.scoresreveal.utils import is_revealed
-
-import logging
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
@@ -29,11 +36,13 @@ class OIRegistrationController(ParticipantsController):
     @property
     def form_class(self):
         from oioioi.oi.forms import OIRegistrationForm
+
         return OIRegistrationForm
 
     @property
     def participant_admin(self):
         from oioioi.oi.admin import OIRegistrationParticipantAdmin
+
         return OIRegistrationParticipantAdmin
 
     @classmethod
@@ -58,8 +67,7 @@ class OIRegistrationController(ParticipantsController):
 
         if 'oi_oiregistrationformdata' in request.session:
             # pylint: disable=not-callable
-            form = self.form_class(request.session[
-                                   'oi_oiregistrationformdata'])
+            form = self.form_class(request.session['oi_oiregistrationformdata'])
             del request.session['oi_oiregistrationformdata']
         else:
             form = self.get_form(request, participant)
@@ -73,51 +81,58 @@ class OIRegistrationController(ParticipantsController):
                 request.session['oi_oiregistrationformdata'] = data
                 return redirect('add_school')
             elif form.is_valid():  # pylint: disable=maybe-no-member
-                participant, created = Participant.objects \
-                        .get_or_create(contest=self.contest, user=request.user)
+                participant, created = Participant.objects.get_or_create(
+                    contest=self.contest, user=request.user
+                )
 
-                auditLogger.info("User %d (%s) registered in %s from IP %s UA: %s",
-                            request.user.id,
-                            request.user.username,
-                            self.contest.id,
-                            request.META.get('REMOTE_ADDR', '?'),
-                            request.META.get('HTTP_USER_AGENT', '?')
-                        )
+                auditLogger.info(
+                    "User %d (%s) registered in %s from IP %s UA: %s",
+                    request.user.id,
+                    request.user.username,
+                    self.contest.id,
+                    request.META.get('REMOTE_ADDR', '?'),
+                    request.META.get('HTTP_USER_AGENT', '?'),
+                )
                 self.handle_validated_form(request, form, participant)
                 if 'next' in request.GET:
                     return safe_redirect(request, request.GET['next'])
                 else:
-                    return redirect('default_contest_view',
-                            contest_id=self.contest.id)
+                    return redirect('default_contest_view', contest_id=self.contest.id)
 
         context = {'form': form, 'participant': participant}
         return TemplateResponse(request, self.registration_template, context)
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(OIRegistrationController, self) \
-                .get_contest_participant_info_list(request, user)
+        prev = super(OIRegistrationController, self).get_contest_participant_info_list(
+            request, user
+        )
 
         if can_see_personal_data(request):
             sensitive_info = OIRegistration.objects.filter(
-                    participant__user=user,
-                    participant__contest=request.contest)
+                participant__user=user, participant__contest=request.contest
+            )
             if sensitive_info.exists():
                 context = {'model': sensitive_info[0]}
                 rendered_sensitive_info = render_to_string(
-                        'oi/sensitive_participant_info.html',
-                        context=context, request=request)
+                    'oi/sensitive_participant_info.html',
+                    context=context,
+                    request=request,
+                )
                 prev.append((2, rendered_sensitive_info))
 
         return prev
 
     def mixins_for_admin(self):
         from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
-        return super(OIRegistrationController, self).mixins_for_admin() \
-                + (TermsAcceptedPhraseAdminMixin,)
+
+        return super(OIRegistrationController, self).mixins_for_admin() + (
+            TermsAcceptedPhraseAdminMixin,
+        )
 
     def can_change_terms_accepted_phrase(self, request):
         return not OIRegistration.objects.filter(
-                    participant__contest=request.contest).exists()
+            participant__contest=request.contest
+        ).exists()
 
 
 class OIContestController(ProgrammingContestController):
@@ -126,12 +141,10 @@ class OIContestController(ProgrammingContestController):
     show_email_in_participants_data = True
 
     def fill_evaluation_environ(self, environ, submission):
-        super(OIContestController, self) \
-                .fill_evaluation_environ(environ, submission)
+        super(OIContestController, self).fill_evaluation_environ(environ, submission)
 
         environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
-        environ['test_scorer'] = \
-                'oioioi.programs.utils.threshold_linear_test_scorer'
+        environ['test_scorer'] = 'oioioi.programs.utils.threshold_linear_test_scorer'
 
     def registration_controller(self):
         return OIRegistrationController(self.contest)
@@ -143,8 +156,9 @@ class OIContestController(ProgrammingContestController):
             return True
         if not is_participant(request):
             return False
-        return super(OIContestController, self) \
-                .can_submit(request, problem_instance, check_round_times)
+        return super(OIContestController, self).can_submit(
+            request, problem_instance, check_round_times
+        )
 
     def can_see_stats(self, request):
         return is_contest_admin(request) or is_contest_observer(request)
@@ -154,17 +168,18 @@ class OIContestController(ProgrammingContestController):
 
     def update_user_result_for_problem(self, result):
         try:
-            latest_submission = Submission.objects \
-                .filter(problem_instance=result.problem_instance) \
-                .filter(user=result.user) \
-                .filter(score__isnull=False) \
-                .exclude(status='CE') \
-                .filter(kind='NORMAL') \
+            latest_submission = (
+                Submission.objects.filter(problem_instance=result.problem_instance)
+                .filter(user=result.user)
+                .filter(score__isnull=False)
+                .exclude(status='CE')
+                .filter(kind='NORMAL')
                 .latest()
+            )
             try:
                 report = SubmissionReport.objects.get(
-                        submission=latest_submission, status='ACTIVE',
-                        kind='NORMAL')
+                    submission=latest_submission, status='ACTIVE', kind='NORMAL'
+                )
             except SubmissionReport.DoesNotExist:
                 report = None
             result.score = latest_submission.score
@@ -182,12 +197,16 @@ class OIContestController(ProgrammingContestController):
         return '%(url)soi/logo.png' % {'url': settings.STATIC_URL}
 
     def default_contesticons_urls(self):
-        return ['%(url)simages/menu/menu-icon-%(i)d.png' %
-                {'url': settings.STATIC_URL, 'i': i} for i in range(1, 4)]
+        return [
+            '%(url)simages/menu/menu-icon-%(i)d.png'
+            % {'url': settings.STATIC_URL, 'i': i}
+            for i in range(1, 4)
+        ]
 
 
 class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")
+
 
 OIOnsiteContestController.mix_in(OnsiteContestControllerMixin)
 OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)
@@ -200,20 +219,21 @@ class OIFinalOnsiteContestController(OIOnsiteContestController):
         return True
 
     def update_user_result_for_problem(self, result):
-        submissions = Submission.objects \
-            .filter(problem_instance=result.problem_instance) \
-            .filter(user=result.user) \
-            .filter(score__isnull=False) \
-            .exclude(status='CE') \
+        submissions = (
+            Submission.objects.filter(problem_instance=result.problem_instance)
+            .filter(user=result.user)
+            .filter(score__isnull=False)
+            .exclude(status='CE')
             .filter(kind='NORMAL')
+        )
 
         if submissions:
             max_submission = submissions.order_by('-score')[0]
 
             try:
                 report = SubmissionReport.objects.get(
-                        submission=max_submission, status='ACTIVE',
-                        kind='NORMAL')
+                    submission=max_submission, status='ACTIVE', kind='NORMAL'
+                )
             except SubmissionReport.DoesNotExist:
                 report = None
 
@@ -232,22 +252,21 @@ class BOIOnsiteContestController(OIOnsiteContestController):
 
     def can_see_test_comments(self, request, submissionreport):
         submission = submissionreport.submission
-        return is_contest_admin(request) or \
-                self.results_visible(request, submission)
+        return is_contest_admin(request) or self.results_visible(request, submission)
 
     def reveal_score(self, request, submission):
-        super(BOIOnsiteContestController, self).reveal_score(request,
-                submission)
+        super(BOIOnsiteContestController, self).reveal_score(request, submission)
         self.update_user_results(submission.user, submission.problem_instance)
 
     def update_user_result_for_problem(self, result):
         try:
-            submissions = Submission.objects \
-                .filter(problem_instance=result.problem_instance) \
-                .filter(user=result.user) \
-                .filter(score__isnull=False) \
-                .exclude(status='CE') \
+            submissions = (
+                Submission.objects.filter(problem_instance=result.problem_instance)
+                .filter(user=result.user)
+                .filter(score__isnull=False)
+                .exclude(status='CE')
                 .filter(kind='NORMAL')
+            )
 
             chosen_submission = submissions.latest()
 
@@ -259,8 +278,8 @@ class BOIOnsiteContestController(OIOnsiteContestController):
 
             try:
                 report = SubmissionReport.objects.get(
-                        submission=chosen_submission, status='ACTIVE',
-                        kind='NORMAL')
+                    submission=chosen_submission, status='ACTIVE', kind='NORMAL'
+                )
             except SubmissionReport.DoesNotExist:
                 report = None
 
@@ -273,8 +292,7 @@ class BOIOnsiteContestController(OIOnsiteContestController):
             result.submission_report = None
 
     def get_visible_reports_kinds(self, request, submission):
-        if is_revealed(submission) or \
-                self.results_visible(request, submission):
+        if is_revealed(submission) or self.results_visible(request, submission):
             return ['USER_OUTS', 'INITIAL', 'NORMAL']
         else:
             return ['USER_OUTS', 'INITIAL']
@@ -289,8 +307,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
         return []
 
     def fill_evaluation_environ(self, environ, submission):
-        super(BOIOnsiteContestController, self) \
-                .fill_evaluation_environ(environ, submission)
+        super(BOIOnsiteContestController, self).fill_evaluation_environ(
+            environ, submission
+        )
 
         environ['test_scorer'] = 'oioioi.programs.utils.discrete_test_scorer'
 

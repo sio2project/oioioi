@@ -11,11 +11,12 @@ logger = logging.getLogger(__name__)
 class IpDnsBackend(ModelBackend):
     """Authenticates users by their ip or dns hostname.
 
-       This backend checks given arguments against models
-       :class:'IpToUser' and :class:'DnsToUser' (in this order).
-       When dns_name is not given, then it tries to call
-       reverse-dns service on ip_addr.
+    This backend checks given arguments against models
+    :class:'IpToUser' and :class:'DnsToUser' (in this order).
+    When dns_name is not given, then it tries to call
+    reverse-dns service on ip_addr.
     """
+
     description = _("IP/DNS based authentication")
     supports_authentication = True
 

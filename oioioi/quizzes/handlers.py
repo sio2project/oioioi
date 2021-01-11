@@ -1,7 +1,8 @@
+from django.db import transaction
+
 from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.scores import IntegerScore
 from oioioi.quizzes.models import QuestionReport, QuizAnswer, QuizSubmission
-from django.db import transaction
 
 
 @transaction.atomic
@@ -9,7 +10,9 @@ def score_quiz(env, **kwargs):
     is_rejudge = env['is_rejudge']
     submission = QuizSubmission.objects.get(id=env['submission_id'])
     quiz = submission.problem_instance.problem.quiz
-    questions = quiz.controller.select_questions(submission.user, submission.problem_instance, submission)
+    questions = quiz.controller.select_questions(
+        submission.user, submission.problem_instance, submission
+    )
     if is_rejudge:
         submission = QuizSubmission.objects.get(pk=submission)
     submission_report = _create_submission_report(submission)
@@ -17,8 +20,9 @@ def score_quiz(env, **kwargs):
     score = 0
     max_score = 0
     for question in questions:
-        score_tmp, ignore_question = _score_question(submission, submission_report,
-                                                     question, submission.problem_instance)
+        score_tmp, ignore_question = _score_question(
+            submission, submission_report, question, submission.problem_instance
+        )
         if not ignore_question:
             score += score_tmp
             max_score += question.points
@@ -37,8 +41,10 @@ def _match_text_input(question, user_input, answer, problem_instance):
 
 
 def _is_answer_correct(submitted_answer):
-    return submitted_answer.is_selected == QuizAnswer.objects.get(
-        pk=submitted_answer.answer.id).is_correct
+    return (
+        submitted_answer.is_selected
+        == QuizAnswer.objects.get(pk=submitted_answer.answer.id).is_correct
+    )
 
 
 def _create_score_report(max_score, score, submission_report):
@@ -46,7 +52,7 @@ def _create_score_report(max_score, score, submission_report):
         submission_report=submission_report,
         score=IntegerScore(score),
         status='OK',
-        max_score=IntegerScore(max_score)
+        max_score=IntegerScore(max_score),
     )
 
 
@@ -59,8 +65,7 @@ def _create_submission_report(submission):
     return submission_report
 
 
-def _score_question(submission, submission_report,
-                    question, problem_instance):
+def _score_question(submission, submission_report, question, problem_instance):
     points = question.points
     question_report = QuestionReport(
         submission_report=submission_report,
@@ -76,13 +81,21 @@ def _score_question(submission, submission_report,
         if text_answers.exists():
             text_answer = text_answers.get().text_answer
             correct_answers = question.quizanswer_set.filter(is_correct=True)
-            award_points = any(_match_text_input(question, text_answer, answer.answer, problem_instance)
-                               for answer in correct_answers)
+            award_points = any(
+                _match_text_input(
+                    question, text_answer, answer.answer, problem_instance
+                )
+                for answer in correct_answers
+            )
             ignore_question = False
     else:
-        submitted_answers = submission.quizsubmissionanswer_set.filter(answer__question=question)
+        submitted_answers = submission.quizsubmissionanswer_set.filter(
+            answer__question=question
+        )
         if submitted_answers.exists():
-            award_points = all(_is_answer_correct(answer) for answer in submitted_answers)
+            award_points = all(
+                _is_answer_correct(answer) for answer in submitted_answers
+            )
             ignore_question = False
 
     if not ignore_question:

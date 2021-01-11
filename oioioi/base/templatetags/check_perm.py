@@ -20,8 +20,9 @@ class CheckPermNode(Node):
         else:
             user = context['user']
             if perm == 'contests.contest_basicadmin':
-                context[self.var] = (user.has_perm(perm, obj) or \
-                        user.has_perm('contests.contest_admin', obj))
+                context[self.var] = user.has_perm(perm, obj) or user.has_perm(
+                    'contests.contest_admin', obj
+                )
             else:
                 context[self.var] = user.has_perm(perm, obj)
         return ''
@@ -31,25 +32,24 @@ class CheckPermNode(Node):
 def check_perm(parser, token):
     """A template tag to look up object permissions.
 
-       The current user is tested agains the given permission on the given
-       object. Current user is taken from the template context, so the
-       ``django.contrib.auth.context_processors.auth`` template context
-       processor must be present in ``settings.TEMPLATE_CONTEXT_PROCESSORS``.
+    The current user is tested agains the given permission on the given
+    object. Current user is taken from the template context, so the
+    ``django.contrib.auth.context_processors.auth`` template context
+    processor must be present in ``settings.TEMPLATE_CONTEXT_PROCESSORS``.
 
-       Usage:
+    Usage:
 
-       .. code-block:: html+django
+    .. code-block:: html+django
 
-           {% load check_perm %}
+        {% load check_perm %}
 
-           {% check_perm "some_permission" for some_object as variable %}
-           {% if variable %}
-           <p>This is shown if the user has some_permission on some_object.</p>
-           {% endif %}
+        {% check_perm "some_permission" for some_object as variable %}
+        {% if variable %}
+        <p>This is shown if the user has some_permission on some_object.</p>
+        {% endif %}
     """
     bits = token.split_contents()
     format = '{% has_perm "some_permission" for some_object as variable %}'
     if len(bits) != 6 or bits[2] != 'for' or bits[4] != 'as':
-        raise TemplateSyntaxError("check_perm tag should look like this: "
-                + format)
+        raise TemplateSyntaxError("check_perm tag should look like this: " + format)
     return CheckPermNode(bits[1], bits[3], bits[5])

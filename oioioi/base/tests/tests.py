@@ -10,58 +10,70 @@ import sys
 import tempfile
 from importlib import import_module
 
+import six
+from captcha.models import CaptchaStore
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, get_user
 from django.contrib.auth.models import AnonymousUser, User
 from django.core import mail
 from django.core.exceptions import PermissionDenied
-from django.core.files.uploadedfile import (SimpleUploadedFile,
-                                            TemporaryUploadedFile)
+from django.core.files.uploadedfile import SimpleUploadedFile, TemporaryUploadedFile
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.urlresolvers import reverse
 from django.forms import ValidationError
 from django.forms.fields import CharField, IntegerField
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import Context, Template
 from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from django import VERSION as DJANGO_VERSION
-import six
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APITestCase
 from six.moves import reload_module, zip
 
 from oioioi.base import utils
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
-from oioioi.base.main_page import (register_main_page_view,
-                                   unregister_main_page_view)
+from oioioi.base.main_page import register_main_page_view, unregister_main_page_view
 from oioioi.base.management.commands import import_users
-from oioioi.base.menu import (MenuRegistry, OrderedRegistry, menu_registry,
-                              side_pane_menus_registry)
+from oioioi.base.menu import (
+    MenuRegistry,
+    OrderedRegistry,
+    menu_registry,
+    side_pane_menus_registry,
+)
 from oioioi.base.middleware import UserInfoInErrorMessage
 from oioioi.base.notification import NotificationHandler
-from oioioi.base.permissions import (Condition, RequestBasedCondition,
-                                     enforce_condition, is_superuser,
-                                     make_condition, make_request_condition)
+from oioioi.base.permissions import (
+    Condition,
+    RequestBasedCondition,
+    enforce_condition,
+    is_superuser,
+    make_condition,
+    make_request_condition,
+)
 from oioioi.base.tests import TestCase
-from oioioi.base.utils import (RegisteredSubclassesBase, archive,
-                               split_extension, strip_num_or_hash)
+from oioioi.base.utils import (
+    RegisteredSubclassesBase,
+    archive,
+    split_extension,
+    strip_num_or_hash,
+)
 from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
 
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APITestCase
-
-from captcha.models import CaptchaStore
-
-
 if not getattr(settings, 'TESTS', False):
-    print('The tests are not using the required test '
-            'settings from test_settings.py.', file=sys.stderr)
-    print('Make sure the tests are run '
-            'using \'python setup.py test\' or '
-            '\'DJANGO_SETTINGS_MODULE=oioioi.test_settings python '
-            'manage.py test\'.', file=sys.stderr)
+    print(
+        'The tests are not using the required test ' 'settings from test_settings.py.',
+        file=sys.stderr,
+    )
+    print(
+        'Make sure the tests are run '
+        'using \'python setup.py test\' or '
+        '\'DJANGO_SETTINGS_MODULE=oioioi.test_settings python '
+        'manage.py test\'.',
+        file=sys.stderr,
+    )
     sys.exit(1)
 
 basedir = os.path.dirname(__file__)
@@ -74,9 +86,10 @@ class TestPermsTemplateTags(TestCase):
         admin = User.objects.get(username='test_admin')
         user = User.objects.get(username='test_user')
         template = Template(
-                '{% load check_perm %}'
-                '{% check_perm "auth.add_user" for "whatever" as p %}'
-                '{% if p %}yes{% endif %}')
+            '{% load check_perm %}'
+            '{% check_perm "auth.add_user" for "whatever" as p %}'
+            '{% if p %}yes{% endif %}'
+        )
         self.assertEqual(template.render(Context(dict(user=admin))), 'yes')
         self.assertEqual(template.render(Context(dict(user=user))), '')
 
@@ -97,15 +110,15 @@ class TestIndex(TestCase):
             response = self.client.get(login_url)
         self.assertEqual(302, response.status_code)
         with self.assertNumQueriesLessThan(50):
-            response = self.client.get(login_url,
-                {REDIRECT_FIELD_NAME: '/test'})
+            response = self.client.get(login_url, {REDIRECT_FIELD_NAME: '/test'})
         self.assertEqual(302, response.status_code)
         self.assertTrue(response['Location'].endswith('/test'))
 
     def test_admin_login_redirect(self):
         response = self.client.get('/c/c/admin/login/?next=/admin/')
-        self.assertRedirects(response, '/login/?next=%2Fadmin%2F',
-                             target_status_code=302)
+        self.assertRedirects(
+            response, '/login/?next=%2Fadmin%2F', target_status_code=302
+        )
 
     def test_logout(self):
         self.client.get('/', follow=True)
@@ -146,7 +159,9 @@ class TestIndexNoContest(TestCase):
         unregister_main_page_view(szkopul_main_page)
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/')
-            self.assertContains(response, 'There are no contests available to logged out')
+            self.assertContains(
+                response, 'There are no contests available to logged out'
+            )
         with self.assertNumQueriesLessThan(50):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/')
@@ -169,8 +184,7 @@ class TestMainPage(TestCase):
 
     @override_settings(TEMPLATES=custom_templates)
     def test_custom_main_page(self):
-        @register_main_page_view(order=0,
-                                 condition=Condition(lambda request: False))
+        @register_main_page_view(order=0, condition=Condition(lambda request: False))
         def inaccessible(request):
             pass
 
@@ -216,36 +230,46 @@ class TestMenu(TestCase):
         return self.client.get(reverse('index'), follow=True).content.decode('utf-8')
 
     def test_menu(self):
-        menu_registry.register('test2', 'Test Menu Item 2',
-                lambda request: '/test_menu_link2', order=2)
-        menu_registry.register('test1', 'Test Menu Item 1',
-                lambda request: '/test_menu_link1', order=1)
+        menu_registry.register(
+            'test2', 'Test Menu Item 2', lambda request: '/test_menu_link2', order=2
+        )
+        menu_registry.register(
+            'test1', 'Test Menu Item 1', lambda request: '/test_menu_link1', order=1
+        )
         response = self._render_menu()
         self.assertIn('Test Menu Item 1', response)
         self.assertIn('Test Menu Item 2', response)
         self.assertIn('/test_menu_link1', response)
         self.assertIn('/test_menu_link2', response)
-        self.assertLess(response.index('Test Menu Item 1'),
-                response.index('Test Menu Item 2'))
+        self.assertLess(
+            response.index('Test Menu Item 1'), response.index('Test Menu Item 2')
+        )
 
     def test_is_contest_admin(self):
         admin = User.objects.get(username='test_admin')
         user = User.objects.get(username='test_user')
-        menu_registry.register('test', 'Test Admin Menu',
-                lambda request: '/test_admin_link',
-                condition=is_contest_admin)
+        menu_registry.register(
+            'test',
+            'Test Admin Menu',
+            lambda request: '/test_admin_link',
+            condition=is_contest_admin,
+        )
         response = self._render_menu(user=admin)
         self.assertIn('test_admin_link', response)
         response = self._render_menu(user=user)
         self.assertNotIn('test_admin_link', response)
 
     def test_menu_item_attrs_escape(self):
-        menu_registry.register('test', 'Test Menu',
-                lambda request: '/test_link',
-                attrs={'name<>\'"&': 'value<>\'"&'})
+        menu_registry.register(
+            'test',
+            'Test Menu',
+            lambda request: '/test_link',
+            attrs={'name<>\'"&': 'value<>\'"&'},
+        )
         response = self._render_menu()
-        self.assertIn('name&lt;&gt;&#39;&quot;&amp;='
-                '"value&lt;&gt;&#39;&quot;&amp;"', response)
+        self.assertIn(
+            'name&lt;&gt;&#39;&quot;&amp;=' '"value&lt;&gt;&#39;&quot;&amp;"', response
+        )
 
     def test_side_menus_registry(self):
         admin = User.objects.get(username='test_admin')
@@ -259,10 +283,12 @@ class TestMenu(TestCase):
             admin_menu_registry = MenuRegistry("Admin Menu", is_superuser)
             side_pane_menus_registry.register(admin_menu_registry, order=100)
 
-            menu_registry.register('test', 'Test Menu Item',
-                lambda request: '/test_menu_link', order=2)
-            admin_menu_registry.register('test_admin', 'Test Admin Item',
-                lambda request: '/spam', order=100)
+            menu_registry.register(
+                'test', 'Test Menu Item', lambda request: '/test_menu_link', order=2
+            )
+            admin_menu_registry.register(
+                'test_admin', 'Test Admin Item', lambda request: '/spam', order=100
+            )
 
             response = self._render_menu(user=user)
             self.assertIn('class="contesticon"', response)
@@ -273,8 +299,9 @@ class TestMenu(TestCase):
             self.assertIn('class="contesticon"', response)
             self.assertIn('User Menu', response)
             self.assertIn('Admin Menu', response)
-            self.assertLess(response.index('Test Admin Item'),
-                    response.index('Test Menu Item'))
+            self.assertLess(
+                response.index('Test Admin Item'), response.index('Test Menu Item')
+            )
         finally:
             side_pane_menus_registry.keys = old_keys
             side_pane_menus_registry.items = old_items
@@ -285,7 +312,7 @@ class TestErrorHandlers(TestCase):
 
     def setUp(self):
         """Modify the client so that it follows to handler500 view on error,
-           retaining cookies."""
+        retaining cookies."""
         self._orig_handler = self.client.handler
         self._orig_get = self.client.get
         self._orig_login = self.client.login
@@ -295,6 +322,7 @@ class TestErrorHandlers(TestCase):
 
         def wrapped_handler500(request):
             from oioioi.base.views import handler500
+
             r = WSGIRequest(request)
             r.session = import_module(settings.SESSION_ENGINE).SessionStore()
             if self._user:
@@ -341,14 +369,12 @@ class TestErrorHandlers(TestCase):
 
     def test_ajax_errors(self):
         self.assertPlain(self.ajax_get('/nonexistant'), 404)
-        self.assertPlain(self.ajax_get(reverse('force_permission_denied')),
-                         403)
+        self.assertPlain(self.ajax_get(reverse('force_permission_denied')), 403)
         self.assertPlain(self.ajax_get(reverse('force_error')), 500)
 
     def test_errors(self):
         self.assertHtml(self.client.get('/nonexistant'), 404)
-        self.assertHtml(self.client.get(reverse('force_permission_denied')),
-                        403)
+        self.assertHtml(self.client.get(reverse('force_permission_denied')), 403)
         self.assertHtml(self.client.get(reverse('force_error')), 500)
 
     def test_user_in_500(self):
@@ -378,14 +404,17 @@ class TestUtils(TestCase):
     def test_classinit(self):
         TestUtils.classinit_called_counter = 0
         try:
+
             class C(utils.ClassInitBase):
                 @classmethod
                 def __classinit__(cls):
                     TestUtils.classinit_called_counter += 1
+
             self.assertEqual(TestUtils.classinit_called_counter, 1)
 
             class _D(C):
                 pass
+
             self.assertEqual(TestUtils.classinit_called_counter, 2)
         finally:
             del TestUtils.classinit_called_counter
@@ -393,19 +422,23 @@ class TestUtils(TestCase):
     def test_registered_subclasses_meta(self):
         class C(utils.RegisteredSubclassesBase):
             abstract = True
+
         self.assertEqual(C.subclasses, [])
 
         class C1(C):
             pass
+
         self.assertIn(C1, C.subclasses)
 
         class C2(C1):
             pass
+
         self.assertIn(C2, C.subclasses)
         self.assertIn(C2, C1.subclasses)
 
         class D(utils.RegisteredSubclassesBase):
             pass
+
         self.assertEqual(D.subclasses, [D])
         self.assertEqual(len(C.subclasses), 2)
 
@@ -435,10 +468,12 @@ class TestUtils(TestCase):
             def __init__(self, foo):
                 self.name = 'derived3'
                 self.foo = foo
+
         Derived3.mix_in(Mixin2)
 
         class Derived4(Base):
             name = 'derived4'
+
         self.assertEqual(Base().name, 'mixin1')
         self.assertEqual(Derived1().name, 'mixin2')
         self.assertEqual(Derived2().name, 'mixin2')
@@ -462,6 +497,7 @@ class TestUtils(TestCase):
 
             def foo(self):
                 return 'eggs'
+
         Base.mix_in(Mixin1)
 
         class Mixin2(object):
@@ -469,6 +505,7 @@ class TestUtils(TestCase):
 
             def foo(self):
                 return 'spam'
+
         Base.mix_in(Mixin2)
 
         self.assertEqual(Base().name, 'mixin1')
@@ -521,8 +558,9 @@ if 'oioioi.default_settings' in sys.modules:
     sys.exit(1)
 else:
     sys.exit(0)"""
-        ret = subprocess.call([sys.executable, '-c', subprocess_code],
-              env=subprocess_env)
+        ret = subprocess.call(
+            [sys.executable, '-c', subprocess_code], env=subprocess_env
+        )
         self.assertEqual(ret, 0)
 
 
@@ -552,11 +590,16 @@ class TestFields(TestCase):
         with self.assertRaises(ValidationError):
             field.validate('something.stupid', None)
         with self.assertRaises(ValidationError):
-            field.validate('oioioi.base.tests.tests.TestDottedFieldClass',
-                           None)
-        self.assertEqual(list(field.get_choices(include_blank=False)),
-                [('oioioi.base.tests.tests.TestDottedFieldSubclass',
-                    TestDottedFieldSubclass.description)])
+            field.validate('oioioi.base.tests.tests.TestDottedFieldClass', None)
+        self.assertEqual(
+            list(field.get_choices(include_blank=False)),
+            [
+                (
+                    'oioioi.base.tests.tests.TestDottedFieldSubclass',
+                    TestDottedFieldSubclass.description,
+                )
+            ],
+        )
 
     def test_dotted_name_field_module_loading(self):
         if 'oioioi.base.tests.test_dotted_field_classes' in sys.modules:
@@ -564,8 +607,7 @@ class TestFields(TestCase):
             # TestDottedFieldClass.load_subclasses...
             return
         TestDottedFieldClass.load_subclasses()
-        self.assertIn('oioioi.base.tests.test_dotted_field_classes',
-                sys.modules)
+        self.assertIn('oioioi.base.tests.test_dotted_field_classes', sys.modules)
 
 
 class TestEnumField(TestCase):
@@ -577,8 +619,7 @@ class TestEnumField(TestCase):
 
     def test_basic_usage(self):
         field = EnumField(self.registry)
-        self.assertEqual(sorted(list(field.choices)),
-                [('ERR', 'Error'), ('OK', 'OK')])
+        self.assertEqual(sorted(list(field.choices)), [('ERR', 'Error'), ('OK', 'OK')])
         with self.assertRaises(ValidationError):
             field.validate('FOO', None)
 
@@ -620,27 +661,33 @@ class TestExecute(TestCase):
             execute('return 14')
 
     def test_line_splitting(self):
-        self.assertListEqual([b'foo', b'lol'],
-                             execute('echo "foo\nlol"', split_lines=True))
+        self.assertListEqual(
+            [b'foo', b'lol'], execute('echo "foo\nlol"', split_lines=True)
+        )
 
     def test_env(self):
         self.assertEqual(b'bar\n', execute('echo $foo', env={'foo': 'bar'}))
 
     def test_cwd(self):
-        self.assertEqual(execute(['cat', os.path.basename(__file__)],
-                cwd=os.path.dirname(__file__)), open(__file__, 'rb').read())
+        self.assertEqual(
+            execute(['cat', os.path.basename(__file__)], cwd=os.path.dirname(__file__)),
+            open(__file__, 'rb').read(),
+        )
 
 
 class TestMisc(TestCase):
     def test_reload_settings_for_coverage(self):
         import oioioi.test_settings
+
         reload_module(oioioi.test_settings)
         import oioioi.default_settings
+
         reload_module(oioioi.default_settings)
 
     def test_uploaded_file_name(self):
-        tmp_file = TemporaryUploadedFile('whatever',
-                'application/octet-stream', 0, 'utf-8')
+        tmp_file = TemporaryUploadedFile(
+            'whatever', 'application/octet-stream', 0, 'utf-8'
+        )
         with utils.uploaded_file_name(tmp_file) as name:
             self.assertEqual(name, tmp_file.file.name)
         mem_file = SimpleUploadedFile('whatever', b'hello42')
@@ -650,8 +697,7 @@ class TestMisc(TestCase):
         self.assertFalse(os.path.exists(name))
 
     def test_make_html_links(self):
-        test = [('url1', 'name1'), ('url2', 'name2'), ('url3', 'name3',
-                                                       'POST')]
+        test = [('url1', 'name1'), ('url2', 'name2'), ('url3', 'name3', 'POST')]
         links = utils.make_html_links(test)
         self.assertEqual(len(links.split(' | ')), 3)
         self.assertIn('url1', links)
@@ -678,20 +724,23 @@ class TestRegistration(TestCase):
         response = self.client.get(reverse('registration_register'))
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 1)
-        captcha = CaptchaStore.objects.all()[0];
+        captcha = CaptchaStore.objects.all()[0]
         if not pass_captcha:
             captcha.response += "z"
-        self.client.post(reverse('registration_register'), {
-            'username': 'test_foo',
-            'first_name': 'Foo',
-            'last_name': 'Bar',
-            'email': 'foo@bar.com',
-            'password1': 'xxx',
-            'password2': 'xxx',
-            'terms_accepted': terms_accepted,
-            'captcha_0':  captcha.hashkey,
-            'captcha_1':  captcha.response,
-        })
+        self.client.post(
+            reverse('registration_register'),
+            {
+                'username': 'test_foo',
+                'first_name': 'Foo',
+                'last_name': 'Bar',
+                'email': 'foo@bar.com',
+                'password1': 'xxx',
+                'password2': 'xxx',
+                'terms_accepted': terms_accepted,
+                'captcha_0': captcha.hashkey,
+                'captcha_1': captcha.response,
+            },
+        )
 
     def _assert_user_active(self):
         user = User.objects.get(username='test_foo')
@@ -746,20 +795,17 @@ class TestArchive(TestCase):
                 self.assertEqual(open(b, 'rb').read().strip(), b'bar')
                 os.unlink(a)
                 os.unlink(b)
-                self.assertEqual(archive.Archive(filename).filenames(), ['a',
-                                                                         'b'])
+                self.assertEqual(archive.Archive(filename).filenames(), ['a', 'b'])
             for bad_file in self.bad_files:
                 with self.assertRaises(archive.UnsafeArchive):
-                    archive.extract(os.path.join(self.base_dir, bad_file),
-                                    tmpdir)
+                    archive.extract(os.path.join(self.base_dir, bad_file), tmpdir)
         finally:
             shutil.rmtree(tmpdir)
 
     def test_size_calc(self):
         for good_file, expected_size in zip(self.good_files, (8, 8)):
             filename = os.path.join(self.base_dir, good_file)
-            self.assertEqual(archive.Archive(filename).extracted_size(),
-                             expected_size)
+            self.assertEqual(archive.Archive(filename).extracted_size(), expected_size)
 
 
 class TestAdmin(TestCase):
@@ -800,13 +846,18 @@ class TestBaseViews(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('edit_profile')
         response = self.client.get(url)
-        self.assertIn('registration/registration_form.html',
-                [t.name for t in response.templates])
+        self.assertIn(
+            'registration/registration_form.html', [t.name for t in response.templates]
+        )
         self.assertEqual(response.context['form'].instance, user)
 
-        data = {'username': 'test_user', 'first_name': 'fn',
-                'last_name': 'ln', 'email': 'foo@bar.com',
-                'terms_accepted': True}
+        data = {
+            'username': 'test_user',
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': 'foo@bar.com',
+            'terms_accepted': True,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
@@ -818,9 +869,13 @@ class TestBaseViews(TestCase):
     def test_terms_not_accepted(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
-        data = {'username': 'test_user', 'first_name': 'fn',
-                'last_name': 'ln', 'email': 'foo@bar.com',
-                'terms_accepted': False}
+        data = {
+            'username': 'test_user',
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': 'foo@bar.com',
+            'terms_accepted': False,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -829,8 +884,12 @@ class TestBaseViews(TestCase):
         # and that the user sees an error
         self.assertContains(response, 'field is required')
 
-        data = {'username': 'test_user', 'first_name': 'fn',
-                'last_name': 'ln', 'email': 'foo@bar.com'}
+        data = {
+            'username': 'test_user',
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': 'foo@bar.com',
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -842,21 +901,28 @@ class TestBaseViews(TestCase):
     def test_username_change_attempt(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
-        data = {'username': 'changed_user', 'first_name': 'fn',
-                'last_name': 'ln', 'email': 'foo@bar.com',
-                'terms_accepted': True}
+        data = {
+            'username': 'changed_user',
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': 'foo@bar.com',
+            'terms_accepted': True,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username='changed_user')
-                .count(), 0)
+        self.assertEqual(User.objects.filter(username='changed_user').count(), 0)
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
 
     def test_unicode_wrong_first_name(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
-        data = {'username': u'test_user', 'first_name': u'good_name',
-                'last_name': u'wrong_unicode_\U0001F923', 'email': u'foo@bar.com',
-                'terms_accepted': True}
+        data = {
+            'username': u'test_user',
+            'first_name': u'good_name',
+            'last_name': u'wrong_unicode_\U0001F923',
+            'email': u'foo@bar.com',
+            'terms_accepted': True,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -867,9 +933,13 @@ class TestBaseViews(TestCase):
     def test_unicode_wrong_last_name(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
-        data = {'username': u'test_user', 'first_name': u'wrong_unicode_\U0001f600',
-                'last_name': u'good_name', 'email': u'foo@bar.com',
-                'terms_accepted': True}
+        data = {
+            'username': u'test_user',
+            'first_name': u'wrong_unicode_\U0001f600',
+            'last_name': u'good_name',
+            'email': u'foo@bar.com',
+            'terms_accepted': True,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -880,9 +950,13 @@ class TestBaseViews(TestCase):
     def test_names_with_valid_spaces(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
-        data = {'username': u'test_user', 'first_name': u'Jan Maria',
-                'last_name': u'Le Guien', 'email': u'foo@bar.com',
-                'terms_accepted': True}
+        data = {
+            'username': u'test_user',
+            'first_name': u'Jan Maria',
+            'last_name': u'Le Guien',
+            'email': u'foo@bar.com',
+            'terms_accepted': True,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -893,18 +967,26 @@ class TestBaseViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
 
-        data = {'username': u'test_user', 'first_name': u'\u00a0Jan',
-                'last_name': u'correct', 'email': u'foo@bar.com',
-                'terms_accepted': True}
+        data = {
+            'username': u'test_user',
+            'first_name': u'\u00a0Jan',
+            'last_name': u'correct',
+            'email': u'foo@bar.com',
+            'terms_accepted': True,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
         # Check that the name is euther not changed or truncated
         self.assertIn(user.first_name, ['Test', 'Jan'])
 
-        data = {'username': u'test_user', 'first_name': u'Jan\u2003',
-                'last_name': u'correct', 'email': u'foo@bar.com',
-                'terms_accepted': True}
+        data = {
+            'username': u'test_user',
+            'first_name': u'Jan\u2003',
+            'last_name': u'correct',
+            'email': u'foo@bar.com',
+            'terms_accepted': True,
+        }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -912,8 +994,8 @@ class TestBaseViews(TestCase):
         self.assertIn(user.first_name, ['Test', 'Jan'])
 
     def test_profile_dynamic_fields(self):
-        from oioioi.base.preferences import PreferencesFactory
         from oioioi.base.models import PreferencesSaved
+        from oioioi.base.preferences import PreferencesFactory
 
         def callback_func(sender, **kwargs):
             self.assertEqual(sender.cleaned_data['dog'], 'Janusz')
@@ -921,16 +1003,13 @@ class TestBaseViews(TestCase):
 
         try:
             PreferencesFactory.add_field(
-                'dog',
-                CharField,
-                lambda n, u: 'Andrzej',
-                label='Doggy'
+                'dog', CharField, lambda n, u: 'Andrzej', label='Doggy'
             )
             PreferencesFactory.add_field(
                 'answer',
                 IntegerField,
                 lambda n, u: 72,
-                label="The answer to everything"
+                label="The answer to everything",
             )
             PreferencesSaved.connect(callback_func)
 
@@ -942,10 +1021,15 @@ class TestBaseViews(TestCase):
             for text in ['Doggy', 'Andrzej', '72', 'The answer to everything']:
                 self.assertContains(response, text)
 
-            data = {'username': 'test_user', 'first_name': 'fn',
-                    'last_name': 'ln', 'email': 'foo@bar.com',
-                    'dog': 'Janusz', 'answer': '42',
-                    'terms_accepted': True}
+            data = {
+                'username': 'test_user',
+                'first_name': 'fn',
+                'last_name': 'ln',
+                'email': 'foo@bar.com',
+                'dog': 'Janusz',
+                'answer': '42',
+                'terms_accepted': True,
+            }
             self.client.post(url, data, follow=True)
             # callback_func should be called already
         finally:
@@ -962,8 +1046,10 @@ class TestBackendMiddleware(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('index'))
         self.assertEqual('test_user', response.context['user'].username)
-        self.assertEqual('oioioi.base.tests.IgnorePasswordAuthBackend',
-            response.context['user'].backend)
+        self.assertEqual(
+            'oioioi.base.tests.IgnorePasswordAuthBackend',
+            response.context['user'].backend,
+        )
 
 
 class TestNotifications(TestCase):
@@ -977,14 +1063,16 @@ class TestNotifications(TestCase):
             message = "Test"
             message_arguments = {}
             user = User.objects.get(username='test_user')
-            NotificationHandler.send_notification(user,
-                    'test_notification', message, message_arguments)
+            NotificationHandler.send_notification(
+                user, 'test_notification', message, message_arguments
+            )
             flags['got_notification'] = True
-        NotificationHandler.register_notification('test_notification',
-                notification_function)
+
+        NotificationHandler.register_notification(
+            'test_notification', notification_function
+        )
         logger = logging.getLogger('oioioi')
-        logger.info("Test notification",
-            extra={'notification': 'test_notification'})
+        logger.info("Test notification", extra={'notification': 'test_notification'})
         self.assertTrue(flags['got_notification'])
 
 
@@ -1135,26 +1223,32 @@ class TestLoginChange(TestCase):
 
             response = self.client.get(self.url_edit_profile)
             # The html strings underneath may change with any django upgrade.
-            self.assertContains(response,
-                                '<input type="text" id="id_username" name="username" '
-                                'value="%s" class="form-control" '
-                                'maxlength="150" required />' % l,
-                                html=True)
+            self.assertContains(
+                response,
+                '<input type="text" id="id_username" name="username" '
+                'value="%s" class="form-control" '
+                'maxlength="150" required />' % l,
+                html=True,
+            )
 
-            self.client.post(self.url_edit_profile,
-                    {'username': 'valid_user', 'terms_accepted': True},
-                    follow=True)
+            self.client.post(
+                self.url_edit_profile,
+                {'username': 'valid_user', 'terms_accepted': True},
+                follow=True,
+            )
             self.assertEqual(self.user.username, l)
 
             response = self.client.post(self.url_index, follow=True)
             self.assertNotContains(response, 'contains not allowed characters')
 
             response = self.client.get(self.url_edit_profile)
-            self.assertContains(response,
-                                '<input type="text" id="id_username" name="username" '
-                                'value="valid_user" class="form-control" '
-                                'maxlength="150" readonly required />',
-                                html=True)
+            self.assertContains(
+                response,
+                '<input type="text" id="id_username" name="username" '
+                'value="valid_user" class="form-control" '
+                'maxlength="150" readonly required />',
+                html=True,
+            )
 
     def test_login_cannot_change_from_valid(self):
         for l in self.valid_logins:
@@ -1162,15 +1256,19 @@ class TestLoginChange(TestCase):
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
-            self.assertContains(response,
-                                '<input type="text" id="id_username" name="username" '
-                                'value="%s" class="form-control" '
-                                'maxlength="150" readonly required />' % l,
-                                html=True)
+            self.assertContains(
+                response,
+                '<input type="text" id="id_username" name="username" '
+                'value="%s" class="form-control" '
+                'maxlength="150" readonly required />' % l,
+                html=True,
+            )
 
-            response = self.client.post(self.url_edit_profile,
-                    {'username': 'valid_user', 'terms_accepted': True},
-                    follow=True)
+            response = self.client.post(
+                self.url_edit_profile,
+                {'username': 'valid_user', 'terms_accepted': True},
+                follow=True,
+            )
             self.assertEqual(self.user.username, l)
             self.assertContains(response, 'You cannot change your username.')
 
@@ -1187,9 +1285,9 @@ class TestLoginChange(TestCase):
         self.user.save()
 
         for l in self.invalid_logins:
-            self.client.post(url_edit_profile,
-                    {'username': l, 'terms_accepted': True},
-                    follow=True)
+            self.client.post(
+                url_edit_profile, {'username': l, 'terms_accepted': True}, follow=True
+            )
             self.assertEqual(self.user.username, self.invalid_logins[0])
 
 
@@ -1205,9 +1303,18 @@ class TestTranslate(TestCase):
 
 class TestFileUtils(TestCase):
     def test_split_ext(self):
-        normal = ['a.b.c.d.pdf', '.bashrc', '.a.conf', '/a/b/c/a2.cpp',
-                  'a.xml', 'aaaaa...avi', '/a-b.png', '_ab_123.jpg', 'abc.tar',
-                  'my_file']
+        normal = [
+            'a.b.c.d.pdf',
+            '.bashrc',
+            '.a.conf',
+            '/a/b/c/a2.cpp',
+            'a.xml',
+            'aaaaa...avi',
+            '/a-b.png',
+            '_ab_123.jpg',
+            'abc.tar',
+            'my_file',
+        ]
         for name in normal:
             their = os.path.splitext(name)
             ours = split_extension(name)
@@ -1283,8 +1390,11 @@ class TestObtainingAPIToken(TestCase):
         self.assertContains(response, reverse('api_regenerate_key'))
         old_token = Token.objects.get(user=self.user)
         response = self.client.get(reverse('api_regenerate_key'))
-        self.assertEqual(old_token, Token.objects.get(user=self.user),
-                         'Get request should not trigger token regeneration')
+        self.assertEqual(
+            old_token,
+            Token.objects.get(user=self.user),
+            'Get request should not trigger token regeneration',
+        )
         response = self.client.post(reverse('api_regenerate_key'))
         new_token = Token.objects.get(user=self.user)
         self.assertNotEqual(old_token, new_token)
@@ -1303,17 +1413,28 @@ class TestPingEndpointsAndAuthentication(APITestCase):
     def test_auth_ping(self):
         self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
         self.client.force_authenticate(user=User.objects.get(username='test_user'))
-        self.assertEqual(self.client.get('/api/auth_ping').content.decode('utf-8'), '"pong test_user"')
+        self.assertEqual(
+            self.client.get('/api/auth_ping').content.decode('utf-8'),
+            '"pong test_user"',
+        )
 
     # Below tests test authentication methods. For endpoints tests use
     # force_authenticate rather than specific method like token or session.
     def test_auth_ping_with_token(self):
         self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
-        token, _ = Token.objects.get_or_create(user=User.objects.get(username='test_user'))
+        token, _ = Token.objects.get_or_create(
+            user=User.objects.get(username='test_user')
+        )
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        self.assertEqual(self.client.get('/api/auth_ping').content.decode('utf-8'), '"pong test_user"')
+        self.assertEqual(
+            self.client.get('/api/auth_ping').content.decode('utf-8'),
+            '"pong test_user"',
+        )
 
     def test_auth_ping_with_session(self):
         self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
         self.assertTrue(self.client.login(username='test_user'))
-        self.assertEqual(self.client.get('/api/auth_ping').content.decode('utf-8'), '"pong test_user"')
+        self.assertEqual(
+            self.client.get('/api/auth_ping').content.decode('utf-8'),
+            '"pong test_user"',
+        )

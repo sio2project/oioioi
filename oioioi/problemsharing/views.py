@@ -19,12 +19,11 @@ account_menu_registry.register(
     text=_("Friends"),
     url_generator=lambda request: reverse('problemsharing_friends'),
     condition=is_teacher,
-    order=170
+    order=170,
 )
 
 
-@method_decorator(enforce_condition(not_anonymous & is_teacher),
-                  name='dispatch')
+@method_decorator(enforce_condition(not_anonymous & is_teacher), name='dispatch')
 class FriendshipsView(TemplateView):
     template_name = 'problemsharing/friendship.html'
 
@@ -32,7 +31,8 @@ class FriendshipsView(TemplateView):
         ctx = super(FriendshipsView, self).get_context_data(**kwargs)
         ctx['form'] = AddFriendshipForm()
         ctx['friends'] = User.objects.filter(
-            friendships_received__creator=self.request.user)
+            friendships_received__creator=self.request.user
+        )
         return ctx
 
     def post(self, request):
@@ -44,8 +44,9 @@ class FriendshipsView(TemplateView):
             if ctx['form'].is_valid():
                 receiver = ctx['form'].cleaned_data['user']
 
-                if Friendship.objects.filter(creator=request.user,
-                                             receiver=receiver).exists():
+                if Friendship.objects.filter(
+                    creator=request.user, receiver=receiver
+                ).exists():
                     messages.warning(request, _("This user is already your friend"))
                     return render(request, self.template_name, ctx)
                 if receiver == request.user:
@@ -59,12 +60,14 @@ class FriendshipsView(TemplateView):
         elif 'unfriend' in request.POST:
             try:
                 friendship = Friendship.objects.get(
-                    creator=request.user,
-                    receiver_id=request.POST.get('id'))
+                    creator=request.user, receiver_id=request.POST.get('id')
+                )
                 friendship.delete()
                 ctx['friends'].exclude(id=request.POST.get('id'))
             except Friendship.DoesNotExist:
-                messages.error(request, _("Invalid request (this user is not your friend)"))
+                messages.error(
+                    request, _("Invalid request (this user is not your friend)")
+                )
         else:
             raise SuspiciousOperation
         return render(request, self.template_name, ctx)
@@ -72,7 +75,9 @@ class FriendshipsView(TemplateView):
 
 @enforce_condition(is_teacher)
 def friend_hints_view(request):
-    queryset = User.objects.filter(teacher__isnull=False).\
-        exclude(friendships_received__creator=request.user).\
-        exclude(id=request.user.id)
+    queryset = (
+        User.objects.filter(teacher__isnull=False)
+        .exclude(friendships_received__creator=request.user)
+        .exclude(id=request.user.id)
+    )
     return get_user_hints_view(request, 'substr', queryset)

@@ -10,14 +10,8 @@ class Command(BaseCommand):
     help = _("Sets maintenance mode state")
 
     def add_arguments(self, parser):
-        parser.add_argument('mode',
-                            type=str,
-                            choices=('on', 'off'),
-                            help='Mode')
-        parser.add_argument('message',
-                            nargs='?',
-                            default="",
-                            type=str)
+        parser.add_argument('mode', type=str, choices=('on', 'off'), help='Mode')
+        parser.add_argument('message', nargs='?', default="", type=str)
 
     def handle(self, *args, **options):
         state_value = options['mode']

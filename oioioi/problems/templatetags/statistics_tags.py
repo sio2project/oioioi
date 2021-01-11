@@ -23,9 +23,9 @@ def ordered_col(GET, col_name, desc_default=False):
             del params['desc']
 
     return format_html(
-        u'?{}',
-        '&'.join((k + ('=' + v if v else '')) for k, v in params.items())
+        u'?{}', '&'.join((k + ('=' + v if v else '')) for k, v in params.items())
     )
+
 
 @register.simple_tag
 def prob_filter(GET, filter_name):
@@ -35,6 +35,5 @@ def prob_filter(GET, filter_name):
     params['filter'] = filter_name
 
     return format_html(
-        u'?{}',
-        '&'.join((k + ('=' + v if v else '')) for k, v in params.items())
+        u'?{}', '&'.join((k + ('=' + v if v else '')) for k, v in params.items())
     )

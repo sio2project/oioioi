@@ -4,8 +4,8 @@ from django import forms
 from django.forms import ValidationError
 from django.forms.widgets import SelectDateWidget
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 from six.moves import range, zip
 
 from oioioi.oi.models import PROVINCES, OIRegistration, School
@@ -18,16 +18,23 @@ class AddSchoolForm(forms.ModelForm):
 
 
 def city_options(province):
-    cities = School.objects.filter(province=province, is_active=True) \
-            .order_by('city').distinct().values_list('city', flat=True)
+    cities = (
+        School.objects.filter(province=province, is_active=True)
+        .order_by('city')
+        .distinct()
+        .values_list('city', flat=True)
+    )
     cities = list(zip(cities, cities))
     cities.insert(0, ('', _("-- Choose city --")))
     return cities
 
 
 def school_options(province, city):
-    schools = School.objects.filter(province=province, city=city,
-            is_active=True).order_by('name').only('name', 'address')
+    schools = (
+        School.objects.filter(province=province, city=city, is_active=True)
+        .order_by('name')
+        .only('name', 'address')
+    )
     schools = [(s.id, u'%s (%s)' % (s.name, s.address)) for s in schools]
     schools.insert(0, ('', _("-- Choose school --")))
     return schools
@@ -36,8 +43,9 @@ def school_options(province, city):
 class SchoolSelect(forms.Select):
     def render(self, name, value, attrs=None, renderer=None):
         # check if this is the default renderer
-        if renderer is not None and \
-            type(renderer) != forms.renderers.DjangoTemplates:
+        if renderer is not None and not isinstance(
+            renderer, forms.renderers.DjangoTemplates
+        ):
             raise AssertionError
         school_id = -1
         province = ''
@@ -56,8 +64,11 @@ class SchoolSelect(forms.Select):
         schools = school_options(province, city)
 
         attr = {'name': name, 'id': 'id_' + name}
-        options = [('_province', provinces, province), ('_city', cities, city),
-                   ('', schools, school_id)]
+        options = [
+            ('_province', provinces, province),
+            ('_city', cities, city),
+            ('', schools, school_id),
+        ]
         selects = {
             'attr': attr,
             'options': options,
@@ -89,8 +100,7 @@ class OIRegistrationForm(forms.ModelForm):
         if terms_accepted_phrase is None:
             self.fields['terms_accepted'].label = _("terms accepted")
         else:
-            self.fields['terms_accepted'].label = \
-                mark_safe(terms_accepted_phrase.text)
+            self.fields['terms_accepted'].label = mark_safe(terms_accepted_phrase.text)
 
     def clean_school(self):
         school = self.cleaned_data['school']

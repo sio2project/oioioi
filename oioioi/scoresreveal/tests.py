@@ -6,14 +6,24 @@ from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
-from oioioi.contests.models import (Contest, Round, RoundTimeExtension,
-                                    Submission, ProblemInstance)
+from oioioi.contests.models import (
+    Contest,
+    ProblemInstance,
+    Round,
+    RoundTimeExtension,
+    Submission,
+)
 from oioioi.scoresreveal.models import ScoreRevealConfig
 
 
 class TestScoresReveal(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_multiple_submissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_multiple_submissions',
+    ]
 
     def reveal_submit(self, submission_id, success=True):
         contest = Contest.objects.get()
@@ -72,7 +82,9 @@ class TestScoresReveal(TestCase):
             kwargs = {'contest_id': contest.id, 'submission_id': 1}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, 'is disabled during the last <strong>60</strong>')
+            self.assertContains(
+                response, 'is disabled during the last <strong>60</strong>'
+            )
             self.reveal_submit(1, success=False)
 
     def test_round_time_extension(self):
@@ -116,8 +128,12 @@ class TestScoresReveal(TestCase):
             kwargs = {'contest_id': contest.id, 'submission_id': 4}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, 'already used <strong>1</strong> out of 2 reveals.')
+            self.assertContains(
+                response, 'already used <strong>1</strong> out of 2 reveals.'
+            )
 
-            no_whitespaces_response = re.sub(r'\s*', '', response.content.decode('utf-8'))
+            no_whitespaces_response = re.sub(
+                r'\s*', '', response.content.decode('utf-8')
+            )
             self.assertIn('<td>100</td>', no_whitespaces_response)
             self.reveal_submit(5, success=False)

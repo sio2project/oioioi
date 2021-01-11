@@ -1,5 +1,6 @@
-import six
 import json
+
+import six
 from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
@@ -11,8 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.models import Contest, ProblemInstance, Round
-from oioioi.contests.utils import (is_contest_admin, is_contest_basicadmin,
-                                   submittable_problem_instances)
+from oioioi.contests.utils import is_contest_basicadmin, submittable_problem_instances
 from oioioi.programs.models import Test
 
 
@@ -26,13 +26,14 @@ class SimpleContestForm(forms.ModelForm):
         fields = ['controller_name', 'name', 'id']
 
     start_date = forms.SplitDateTimeField(
-        label=_("Start date"), widget=widgets.AdminSplitDateTime())
+        label=_("Start date"), widget=widgets.AdminSplitDateTime()
+    )
     end_date = forms.SplitDateTimeField(
-        required=False, label=_("End date"),
-        widget=widgets.AdminSplitDateTime())
+        required=False, label=_("End date"), widget=widgets.AdminSplitDateTime()
+    )
     results_date = forms.SplitDateTimeField(
-        required=False, label=_("Results date"),
-        widget=widgets.AdminSplitDateTime())
+        required=False, label=_("Results date"), widget=widgets.AdminSplitDateTime()
+    )
 
     def _generate_default_dates(self):
         now = timezone.now()
@@ -50,8 +51,10 @@ class SimpleContestForm(forms.ModelForm):
         if instance is not None:
             rounds = instance.round_set.all()
             if len(rounds) > 1:
-                raise ValueError("SimpleContestForm does not support contests "
-                        "with more than one round.")
+                raise ValueError(
+                    "SimpleContestForm does not support contests "
+                    "with more than one round."
+                )
             if len(rounds) == 1:
                 round = rounds[0]
                 self.initial['start_date'] = round.start_date
@@ -73,8 +76,10 @@ class SimpleContestForm(forms.ModelForm):
         instance = super(SimpleContestForm, self).save(commit=False)
         rounds = instance.round_set.all()
         if len(rounds) > 1:
-            raise ValueError("SimpleContestForm does not support contests "
-                    "with more than one round.")
+            raise ValueError(
+                "SimpleContestForm does not support contests "
+                "with more than one round."
+            )
         if len(rounds) == 1:
             round = rounds[0]
         else:
@@ -101,14 +106,15 @@ class ProblemInstanceForm(forms.ModelForm):
 class SubmissionForm(forms.Form):
     """Represents base submission form containing task selector.
 
-       Recognized optional ``**kwargs`` fields:
-         * ``problem_filter`` Function filtering submittable tasks.
-         * ``kind`` Kind of submission accessible with ``kind`` property.
-         * ``problem_instance`` When SubmissionForm is used only for one
-             problem_instance. Otherwise ``problem_instance`` is None.
-         * ``add_kind_and_user_fields`` Option deciding whether form should
-             add kind and user fields to itself.
+    Recognized optional ``**kwargs`` fields:
+      * ``problem_filter`` Function filtering submittable tasks.
+      * ``kind`` Kind of submission accessible with ``kind`` property.
+      * ``problem_instance`` When SubmissionForm is used only for one
+          problem_instance. Otherwise ``problem_instance`` is None.
+      * ``add_kind_and_user_fields`` Option deciding whether form should
+          add kind and user fields to itself.
     """
+
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
     class Media(object):
@@ -124,8 +130,7 @@ class SubmissionForm(forms.Form):
             # ALSO in mailsubmit.forms
             contest = request.contest
             assert contest is not None
-            problem_instances = ProblemInstance.objects \
-                    .filter(contest=contest)
+            problem_instances = ProblemInstance.objects.filter(contest=contest)
             problem_instance = problem_instances[0]
         else:
             problem_instances = [problem_instance]
@@ -135,9 +140,12 @@ class SubmissionForm(forms.Form):
         # Default kind is selected based on
         # the first problem_instance assigned to this form.
         # This is an arbitrary choice.
-        self.kind = getattr(self, 'kind', None) or kwargs.pop('kind',
-                               problem_instance.controller.get_default_submission_kind(request,
-                                       problem_instance=problem_instance))
+        self.kind = getattr(self, 'kind', None) or kwargs.pop(
+            'kind',
+            problem_instance.controller.get_default_submission_kind(
+                request, problem_instance=problem_instance
+            ),
+        )
         problem_filter = kwargs.pop('problem_filter', None)
         self.request = request
 
@@ -164,10 +172,12 @@ class SubmissionForm(forms.Form):
         # if contest admin, add kind and 'as other user' field
         if add_kind_and_user_fields and contest and is_contest_basicadmin(request):
             self.fields['user'] = UserSelectionField(
-                    label=_("User"),
-                    hints_url=reverse('contest_user_hints',
-                            kwargs={'contest_id': request.contest.id}),
-                    initial=request.user)
+                label=_("User"),
+                hints_url=reverse(
+                    'contest_user_hints', kwargs={'contest_id': request.contest.id}
+                ),
+                initial=request.user,
+            )
             self._set_field_show_always('user')
 
             def clean_user():
@@ -176,18 +186,21 @@ class SubmissionForm(forms.Form):
                     if user == request.user:
                         return user
                     if not request.user.is_superuser:
-                        contest.controller.registration_controller() \
-                            .filter_participants(
-                                User.objects.filter(pk=user.pk)).get()
+                        contest.controller.registration_controller().filter_participants(
+                            User.objects.filter(pk=user.pk)
+                        ).get()
                     return user
                 except User.DoesNotExist:
-                    raise forms.ValidationError(_(
-                            "User does not exist or "
-                            "you do not have enough privileges"))
+                    raise forms.ValidationError(
+                        _("User does not exist or " "you do not have enough privileges")
+                    )
+
             self.clean_user = clean_user
-            self.fields['kind'] = forms.ChoiceField(choices=[
-                ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
-                initial=self.kind, label=_("Kind"))
+            self.fields['kind'] = forms.ChoiceField(
+                choices=[('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
+                initial=self.kind,
+                label=_("Kind"),
+            )
             self._set_field_show_always('kind')
             narrow_input_fields([self.fields['kind'], self.fields['user']])
 
@@ -199,7 +212,9 @@ class SubmissionForm(forms.Form):
 
         self._set_default_fields_attributes()
 
-        hide_default_fields_script = "startShowingFields(" + json.dumps(self.hide_default_fields_pi_ids) + ")"
+        hide_default_fields_script = (
+            "startShowingFields(" + json.dumps(self.hide_default_fields_pi_ids) + ")"
+        )
         self.additional_scripts = [hide_default_fields_script]
 
         # fix field order (put kind and user at the end)
@@ -221,8 +236,7 @@ class SubmissionForm(forms.Form):
         :param field_name: Name of custom field
         :param problem_instance: Problem instance which they are assigned to
         """
-        self.fields[field_name].widget.attrs['data-submit'] = \
-            str(problem_instance.id)
+        self.fields[field_name].widget.attrs['data-submit'] = str(problem_instance.id)
 
     def hide_default_fields(self, problem_instance):
         """
@@ -230,7 +244,6 @@ class SubmissionForm(forms.Form):
         :param problem_instance: Problem instance which will have fields hidden
         """
         self.hide_default_fields_pi_ids.append(problem_instance.id)
-
 
     def _set_field_show_always(self, field_name):
         self.fields[field_name].widget.attrs['data-submit'] = 'always'
@@ -260,37 +273,38 @@ class SubmissionForm(forms.Form):
             return cleaned_data
 
         try:
-            pi = ProblemInstance.objects \
-                    .get(id=cleaned_data['problem_instance_id'])
+            pi = ProblemInstance.objects.get(id=cleaned_data['problem_instance_id'])
             cleaned_data['problem_instance'] = pi
         except ProblemInstance.DoesNotExist:
-            self._errors['problem_instance_id'] = \
-                    self.error_class([_("Invalid problem")])
+            self._errors['problem_instance_id'] = self.error_class(
+                [_("Invalid problem")]
+            )
             del cleaned_data['problem_instance_id']
             return cleaned_data
 
         kind = cleaned_data['kind']
-        if check_submission_limit and pi.controller \
-                .is_submissions_limit_exceeded(self.request, pi, kind):
-            raise ValidationError(_("Submission limit for the problem '%s' "
-                                    "exceeded.") % pi.problem.name)
+        if check_submission_limit and pi.controller.is_submissions_limit_exceeded(
+            self.request, pi, kind
+        ):
+            raise ValidationError(
+                _("Submission limit for the problem '%s' " "exceeded.")
+                % pi.problem.name
+            )
 
-        decision = pi.controller.can_submit(self.request, pi,
-                                            check_round_times)
+        decision = pi.controller.can_submit(self.request, pi, check_round_times)
         if not decision:
-            raise ValidationError(str(getattr(decision, 'exc',
-                                              _("Permission denied"))))
+            raise ValidationError(str(getattr(decision, 'exc', _("Permission denied"))))
 
-        return pi.controller.validate_submission_form(self.request, pi, self,
-                                                    cleaned_data)
+        return pi.controller.validate_submission_form(
+            self.request, pi, self, cleaned_data
+        )
 
 
 class SubmissionFormForProblemInstance(SubmissionForm):
     def __init__(self, request, problem_instance, *args, **kwargs):
         self.problem_instance = problem_instance
         kwargs['problem_instance'] = problem_instance
-        super(SubmissionFormForProblemInstance, self).__init__(request, *args,
-                **kwargs)
+        super(SubmissionFormForProblemInstance, self).__init__(request, *args, **kwargs)
         pis = self.fields['problem_instance_id']
         pis.widget.attrs['readonly'] = 'True'
         pis.widget.attrs['data-submit'] = 'hidden'
@@ -304,43 +318,47 @@ class GetUserInfoForm(forms.Form):
 
     def __init__(self, request, *args, **kwargs):
         super(GetUserInfoForm, self).__init__(*args, **kwargs)
-        self.fields['user'].hints_url = reverse('contest_user_hints',
-                kwargs={'contest_id': request.contest.id})
+        self.fields['user'].hints_url = reverse(
+            'contest_user_hints', kwargs={'contest_id': request.contest.id}
+        )
 
 
 class TestsSelectionForm(forms.Form):
-    def __init__(self, request, queryset, pis_count, uses_is_active, *args,
-                 **kwargs):
+    def __init__(self, request, queryset, pis_count, uses_is_active, *args, **kwargs):
         super(TestsSelectionForm, self).__init__(*args, **kwargs)
         problem_instance = queryset[0].problem_instance
-        tests = Test.objects.filter(problem_instance=problem_instance,
-                is_active=True)
+        tests = Test.objects.filter(problem_instance=problem_instance, is_active=True)
 
-        widget = forms.RadioSelect(
-            attrs={'onChange': 'rejudgeTypeOnChange(this)'})
+        widget = forms.RadioSelect(attrs={'onChange': 'rejudgeTypeOnChange(this)'})
         self.fields['rejudge_type'] = forms.ChoiceField(widget=widget)
         if uses_is_active:
-            self.fields['rejudge_type'].choices = \
-                    [('FULL', _("Rejudge submissions on all current active "
-                                "tests")),
-                     ('NEW', _("Rejudge submissions on active tests which "
-                               "haven't been judged yet"))]
+            self.fields['rejudge_type'].choices = [
+                ('FULL', _("Rejudge submissions on all current active " "tests")),
+                (
+                    'NEW',
+                    _(
+                        "Rejudge submissions on active tests which "
+                        "haven't been judged yet"
+                    ),
+                ),
+            ]
         else:
-            self.fields['rejudge_type'].choices = \
-                    [('FULL', _("Rejudge submissions on all tests"))]
+            self.fields['rejudge_type'].choices = [
+                ('FULL', _("Rejudge submissions on all tests"))
+            ]
 
         self.initial['rejudge_type'] = 'FULL'
 
         if pis_count == 1:
             self.fields['rejudge_type'].choices.append(
-                ('JUDGED', _("Rejudge submissions on judged tests only")))
+                ('JUDGED', _("Rejudge submissions on judged tests only"))
+            )
 
             self.fields['tests'] = forms.MultipleChoiceField(
-                widget=forms.CheckboxSelectMultiple(
-                    attrs={'disabled': 'disabled'}),
-                choices=[(test.name, test.name) for test in tests])
+                widget=forms.CheckboxSelectMultiple(attrs={'disabled': 'disabled'}),
+                choices=[(test.name, test.name) for test in tests],
+            )
 
         self.fields['submissions'] = forms.ModelMultipleChoiceField(
-            widget=forms.CheckboxSelectMultiple,
-            queryset=queryset,
-            initial=queryset)
+            widget=forms.CheckboxSelectMultiple, queryset=queryset, initial=queryset
+        )

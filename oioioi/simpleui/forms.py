@@ -12,7 +12,8 @@ class ProblemInstanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProblemInstanceForm, self).__init__(*args, **kwargs)
         self.fields['round'].queryset = Round.objects.filter(
-            contest=kwargs['instance'].contest)
+            contest=kwargs['instance'].contest
+        )
 
     class Meta(object):
         model = ProblemInstance
@@ -24,8 +25,7 @@ class AttachmentForm(forms.ModelForm):
         super(AttachmentForm, self).__init__(*args, **kwargs)
         try:
             self.instance = kwargs['instance']
-            self.fields['content'].name = \
-                self.instance.content.name.split('/')[-1]
+            self.fields['content'].name = self.instance.content.name.split('/')[-1]
             self.fields['content'].exists = True  # Instance is bound.
         except KeyError:
             self.fields['content'].exists = False
@@ -38,11 +38,10 @@ class AttachmentForm(forms.ModelForm):
         if self.instance is None or self.instance.id is None:
             self.fields['content'].link = '#'
             return
-        self.fields['content'].link = reverse('problem_attachment',
-                kwargs={
-                    'contest_id': contest_id,
-                    'attachment_id': self.instance.id
-                })
+        self.fields['content'].link = reverse(
+            'problem_attachment',
+            kwargs={'contest_id': contest_id, 'attachment_id': self.instance.id},
+        )
 
     class Meta(object):
         model = ProblemAttachment
@@ -79,24 +78,32 @@ class TestForm(forms.ModelForm):
 
     class Meta(object):
         model = Test
-        fields = ('name', 'time_limit', 'memory_limit', 'max_score', 'kind',
-                  'input_file', 'output_file', 'is_active', 'id')
-        readonly_fields = ('name', 'kind', 'group', 'input_file',
-                           'output_file', 'id')
+        fields = (
+            'name',
+            'time_limit',
+            'memory_limit',
+            'max_score',
+            'kind',
+            'input_file',
+            'output_file',
+            'is_active',
+            'id',
+        )
+        readonly_fields = ('name', 'kind', 'group', 'input_file', 'output_file', 'id')
         ordering = ('kind', 'order', 'name')
 
     def input_file_link(self, instance):
         if instance.id is not None:
-            href = reverse('download_input_file',
-                    kwargs={'test_id': instance.id})
+            href = reverse('download_input_file', kwargs={'test_id': instance.id})
             return make_html_link(href, _("in"))
         return None
+
     input_file_link.short_description = _("Input file")
 
     def output_file_link(self, instance):
         if instance.id is not None:
-            href = reverse('download_output_file',
-                    kwargs={'test_id': instance.id})
+            href = reverse('download_output_file', kwargs={'test_id': instance.id})
             return make_html_link(href, _("out"))
         return None
+
     output_file_link.short_description = _("Output/hint file")

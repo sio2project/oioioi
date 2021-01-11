@@ -1,13 +1,13 @@
 import json
-
+import types
 from copy import copy
+
+import six
 from django import template
 from django.forms import CheckboxInput, CheckboxSelectMultiple, RadioSelect
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
-import six
 from six.moves import range, zip
-import types
 
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
@@ -57,7 +57,7 @@ def indent_string(value, num_spaces=4):
     Adds ``num_spaces`` spaces at the
     beginning of every line in value.
     """
-    return ' '*num_spaces + value.replace('\n', '\n' + ' '*num_spaces)
+    return ' ' * num_spaces + value.replace('\n', '\n' + ' ' * num_spaces)
 
 
 def _append_attr(field, attribute, value):
@@ -166,10 +166,10 @@ def partition(thelist, n):
     p = len(thelist) // n
     num_longer = len(thelist) - p * n
 
-    return [thelist[((p + 1) * i):((p + 1) * (i + 1))]
-            for i in range(num_longer)] + \
-            [thelist[(p * i + num_longer):(p * (i + 1) + num_longer)]
-            for i in range(num_longer, n)]
+    return [thelist[((p + 1) * i) : ((p + 1) * (i + 1))] for i in range(num_longer)] + [
+        thelist[(p * i + num_longer) : (p * (i + 1) + num_longer)]
+        for i in range(num_longer, n)
+    ]
 
 
 @register.filter

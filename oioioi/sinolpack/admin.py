@@ -47,19 +47,18 @@ class SinolpackExtraFilesInline(admin.StackedInline):
 
     def file_link(self, instance):
         if instance.id is not None:
-            href = reverse('download_extra_file',
-                kwargs={'file_id': str(instance.id)})
+            href = reverse('download_extra_file', kwargs={'file_id': str(instance.id)})
             return make_html_link(href, instance.name)
         return None
+
     file_link.short_description = _("Extra file")
 
 
 class SinolpackProblemAdminMixin(object):
     """Adds :class:`~oioioi.sinolpack.models.ExtraConfig` and
-       :class:`~oioioi.sinolpack.models.ExtraFile` to an admin panel.
+    :class:`~oioioi.sinolpack.models.ExtraFile` to an admin panel.
     """
 
     def __init__(self, *args, **kwargs):
         super(SinolpackProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + \
-                       [SinolpackConfigInline, SinolpackExtraFilesInline]
+        self.inlines = self.inlines + [SinolpackConfigInline, SinolpackExtraFilesInline]

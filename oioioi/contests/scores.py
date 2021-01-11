@@ -29,7 +29,7 @@ from oioioi.base.utils import ClassInitBase
 @total_ordering
 class ScoreValue(ClassInitBase):
     """Base class of all classes that represent a score. Subclass
-       :class:`ScoreValue` to implement a custom score."""
+    :class:`ScoreValue` to implement a custom score."""
 
     #: A unique, short class identifier prepended to the database
     #: representation of the value. This must be overridden in all subclasses.
@@ -51,9 +51,10 @@ class ScoreValue(ClassInitBase):
         if cls.symbol == this_class.symbol:
             raise AssertionError('Symbol attribute not defined in %r' % (cls,))
         if cls.symbol in this_class._subclasses:
-            raise AssertionError('Duplicate symbol \'%s\' used in both '
-                    '%r and %r' % (cls.symbol,
-                        this_class._subclasses[cls.symbol], cls))
+            raise AssertionError(
+                'Duplicate symbol \'%s\' used in both '
+                '%r and %r' % (cls.symbol, this_class._subclasses[cls.symbol], cls)
+            )
         this_class._subclasses[cls.symbol] = cls
 
     def serialize(self):
@@ -70,58 +71,60 @@ class ScoreValue(ClassInitBase):
             return None
         parts = serialized.split(':', 1)
         if len(parts) < 2:
-            raise ValidationError(_("Score must look like this: "
-                "'<type>:<value>', for example 'int:100', not '%s'."
-                % (serialized,)))
+            raise ValidationError(
+                _(
+                    "Score must look like this: "
+                    "'<type>:<value>', for example 'int:100', not '%s'." % (serialized,)
+                )
+            )
         symbol, value = parts
         if symbol in ScoreValue._subclasses:
             return ScoreValue._subclasses[symbol]._from_repr(value)
         else:
-            raise ValidationError(_("Unrecognized score type '%s'")
-                    % (symbol,))
+            raise ValidationError(_("Unrecognized score type '%s'") % (symbol,))
 
     def __add__(self, other):
         """Implementation of operator ``+``.
 
-           Used for example when creating user result for round based on scores
-           from all problems of the round.
+        Used for example when creating user result for round based on scores
+        from all problems of the round.
 
-           Must be overridden in all subclasses.
+        Must be overridden in all subclasses.
         """
         raise NotImplementedError
 
     def __eq__(self, other):
         """Implementation of operator ``==``. Used to produce ranking,
-           being greater means better result.
+        being greater means better result.
 
-           Must be overridden in all subclasses.
+        Must be overridden in all subclasses.
         """
         raise NotImplementedError
 
     def __lt__(self, other):
         """Implementation of operator ``<``. Used to produce ranking,
-           being greater means better result.
+        being greater means better result.
 
-           Must be overridden in all subclasses.
+        Must be overridden in all subclasses.
         """
         raise NotImplementedError
 
     def __unicode__(self):
         """Returns string representing score, suitable to display to the user.
 
-           Must be overridden in all subclasses.
+        Must be overridden in all subclasses.
         """
         raise NotImplementedError
 
     def _to_repr(self):
         """Returns score data serialized to string, without the class's
-           symbol.
+        symbol.
 
-           Must be overridden in all subclasses.
+        Must be overridden in all subclasses.
 
-           Lexicographical order of serialized data has to correspond to
-           the given by :meth:`__eq__` and :meth:`__lt__`, it will be used for
-           sorting at db level.
+        Lexicographical order of serialized data has to correspond to
+        the given by :meth:`__eq__` and :meth:`__lt__`, it will be used for
+        sorting at db level.
         """
         raise NotImplementedError
 
@@ -129,7 +132,7 @@ class ScoreValue(ClassInitBase):
     def _from_repr(cls, encoded_value):
         """Creates an instance based on data from :meth:`_to_repr`.
 
-           Must be overridden in all subclasses.
+        Must be overridden in all subclasses.
         """
         raise NotImplementedError
 
@@ -138,9 +141,9 @@ class ScoreValue(ClassInitBase):
 class IntegerScore(ScoreValue):
     """Score consisting of integer number.
 
-       Database format: ``"int:<value>"``
+    Database format: ``"int:<value>"``
 
-       Value is padded with zeros to 19 characters.
+    Value is padded with zeros to 19 characters.
     """
 
     symbol = 'int'

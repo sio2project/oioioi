@@ -13,9 +13,11 @@ def is_zeus_problem(problem):
 
 def filter_zeus_problem_instances(problem_instances):
     # Not returning new query_set because `instances` may have some cache in it
-    problems = frozenset(Problem.objects
-            .filter(pk__in=[p.problem.pk for p in problem_instances])
-            .exclude(zeusproblemdata=None))
+    problems = frozenset(
+        Problem.objects.filter(
+            pk__in=[p.problem.pk for p in problem_instances]
+        ).exclude(zeusproblemdata=None)
+    )
     return [pi for pi in problem_instances if pi.problem in problems]
 
 

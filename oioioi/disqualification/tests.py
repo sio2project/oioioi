@@ -16,15 +16,21 @@ def _disqualify_contestwide():
         user=User.objects.get(username="test_user"),
         contest=Contest.objects.get(),
         title="I cannot tell!",
-        content="Suffice to say, is one of the words "
-                "the Knights of Ni cannot hear!")
+        content="Suffice to say, is one of the words " "the Knights of Ni cannot hear!",
+    )
     disqualification.save()
 
 
 class TestContestController(TestCase):
-    fixtures = ["test_contest", "test_users", "test_submission",
-        "test_full_package", "test_problem_instance",
-        "test_another_submission", "test_submission_disqualification"]
+    fixtures = [
+        "test_contest",
+        "test_users",
+        "test_submission",
+        "test_full_package",
+        "test_problem_instance",
+        "test_another_submission",
+        "test_submission_disqualification",
+    ]
 
     def _get_fake_request(self, user, contest):
         def wrapped():
@@ -33,6 +39,7 @@ class TestContestController(TestCase):
             fake_request.contest = contest
             fake_request.timestamp = datetime(2013, 1, 1, tzinfo=utc)
             return fake_request
+
         return wrapped
 
     def test_disqualified(self):
@@ -46,31 +53,39 @@ class TestContestController(TestCase):
         self.assertTrue(controller.is_submission_disqualified(submission))
         self.assertFalse(controller.is_submission_disqualified(submission_ok))
         self.assertTrue(controller.has_disqualification_history(submission))
-        self.assertFalse(controller.has_disqualification_history(
-            submission_ok))
-        self.assertTrue(controller.is_any_submission_to_problem_disqualified(
-            user, submission.problem_instance))
+        self.assertFalse(controller.has_disqualification_history(submission_ok))
+        self.assertTrue(
+            controller.is_any_submission_to_problem_disqualified(
+                user, submission.problem_instance
+            )
+        )
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
-        self.assertTrue(controller.user_has_disqualification_history(
-            fake_request(), user))
-        self.assertTrue(controller.results_visible(fake_request(),
-                                                    submission))
+        self.assertTrue(
+            controller.user_has_disqualification_history(fake_request(), user)
+        )
+        self.assertTrue(controller.results_visible(fake_request(), submission))
 
         # submission_ok is a submission to the same problem
-        self.assertTrue(controller.results_visible(
-            fake_request(), submission_ok))
-        self.assertNotIn(user, controller.exclude_disqualified_users(
-            User.objects.all()))
+        self.assertTrue(controller.results_visible(fake_request(), submission_ok))
+        self.assertNotIn(
+            user, controller.exclude_disqualified_users(User.objects.all())
+        )
 
-        other_contest = Contest(name="finding_another_shrubbery",
-                                controller_name=contest.controller_name,
-                                creation_date=contest.creation_date)
+        other_contest = Contest(
+            name="finding_another_shrubbery",
+            controller_name=contest.controller_name,
+            creation_date=contest.creation_date,
+        )
         other_contest.save()
         other_fake_request = self._get_fake_request(user, other_contest)
-        self.assertFalse(other_contest.controller.is_user_disqualified(
-            other_fake_request(), user))
-        self.assertFalse(other_contest.controller.
-            user_has_disqualification_history(other_fake_request(), user))
+        self.assertFalse(
+            other_contest.controller.is_user_disqualified(other_fake_request(), user)
+        )
+        self.assertFalse(
+            other_contest.controller.user_has_disqualification_history(
+                other_fake_request(), user
+            )
+        )
 
     def test_not_disqualified(self):
         user = User.objects.get(username="test_user2")
@@ -83,12 +98,14 @@ class TestContestController(TestCase):
 
         self.assertFalse(controller.is_submission_disqualified(submission))
         self.assertFalse(controller.has_disqualification_history(submission))
-        self.assertFalse(controller.is_any_submission_to_problem_disqualified(
-            user, submission.problem_instance))
+        self.assertFalse(
+            controller.is_any_submission_to_problem_disqualified(
+                user, submission.problem_instance
+            )
+        )
         self.assertFalse(controller.is_user_disqualified(fake_request(), user))
         self.assertTrue(controller.results_visible(fake_request(), submission))
-        self.assertIn(user, controller.exclude_disqualified_users(
-            User.objects.all()))
+        self.assertIn(user, controller.exclude_disqualified_users(User.objects.all()))
 
     def test_disqualified_contestwide(self):
         Disqualification.objects.all().delete()
@@ -101,20 +118,31 @@ class TestContestController(TestCase):
 
         self.assertFalse(controller.is_submission_disqualified(submission))
         self.assertFalse(controller.has_disqualification_history(submission))
-        self.assertFalse(controller.is_any_submission_to_problem_disqualified(
-            user, submission.problem_instance))
+        self.assertFalse(
+            controller.is_any_submission_to_problem_disqualified(
+                user, submission.problem_instance
+            )
+        )
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
-        self.assertTrue(controller.user_has_disqualification_history(
-            fake_request(), user))
+        self.assertTrue(
+            controller.user_has_disqualification_history(fake_request(), user)
+        )
         self.assertTrue(controller.results_visible(fake_request(), submission))
-        self.assertNotIn(user, controller.exclude_disqualified_users(
-            User.objects.all()))
+        self.assertNotIn(
+            user, controller.exclude_disqualified_users(User.objects.all())
+        )
 
 
 class TestViews(TestCase):
-    fixtures = ["test_contest", "test_users", "test_full_package",
-        "test_problem_instance", "test_submission", "test_another_submission",
-        "test_submission_disqualification"]
+    fixtures = [
+        "test_contest",
+        "test_users",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+        "test_another_submission",
+        "test_submission_disqualification",
+    ]
 
     def setUp(self):
         self.contest_kwargs = {"contest_id": Contest.objects.get().id}
@@ -152,15 +180,16 @@ class TestViews(TestCase):
 
     def test_dashboard(self):
         self.assertTrue(self.client.login(username="test_user"))
-        response_cb = lambda: self.client.get(reverse("contest_dashboard",
-                                           kwargs=self.contest_kwargs),
-                                   follow=True)
+        response_cb = lambda: self.client.get(
+            reverse("contest_dashboard", kwargs=self.contest_kwargs), follow=True
+        )
         self._assert_disqualification_box(response_cb)
 
     def test_my_submissions(self):
         self.assertTrue(self.client.login(username="test_user"))
-        response_cb = lambda: self.client.get(reverse("my_submissions",
-            kwargs=self.contest_kwargs))
+        response_cb = lambda: self.client.get(
+            reverse("my_submissions", kwargs=self.contest_kwargs)
+        )
 
         self._assert_disqualification_box(response_cb)
 
@@ -169,9 +198,15 @@ class TestViews(TestCase):
         submission = Submission.objects.get(id=1)
 
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
-            response = self.client.get(reverse("submission",
-                kwargs={"submission_id": submission.id,
-                        "contest_id": Contest.objects.get().id}))
+            response = self.client.get(
+                reverse(
+                    "submission",
+                    kwargs={
+                        "submission_id": submission.id,
+                        "contest_id": Contest.objects.get().id,
+                    },
+                )
+            )
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
             self.assertIn(">34<", self.remove_whitespaces(response))
@@ -179,9 +214,15 @@ class TestViews(TestCase):
         # Not disqualified submission
         submission = Submission.objects.get(id=2)
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
-            response = self.client.get(reverse("submission",
-                kwargs={"submission_id": submission.id,
-                        "contest_id": Contest.objects.get().id}))
+            response = self.client.get(
+                reverse(
+                    "submission",
+                    kwargs={
+                        "submission_id": submission.id,
+                        "contest_id": Contest.objects.get().id,
+                    },
+                )
+            )
             self.assertNotContains(response, "Disqualification")
             self.assertNotContains(response, "Ni in code")
             self.assertNotContains(response, "ninininini")
@@ -205,8 +246,7 @@ class TestViews(TestCase):
 
     def test_ranking_csv(self):
         contest = Contest.objects.get()
-        url = reverse("ranking_csv", kwargs={"contest_id": contest.id,
-                                             "key": "c"})
+        url = reverse("ranking_csv", kwargs={"contest_id": contest.id, "key": "c"})
 
         self.assertTrue(self.client.login(username="test_admin"))
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -220,8 +260,9 @@ class TestViews(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         user = User.objects.get(username="test_user")
         contest = Contest.objects.get()
-        response_callback = lambda: self.client.get(reverse('user_info',
-            kwargs={'contest_id': contest.id, 'user_id': user.id}))
+        response_callback = lambda: self.client.get(
+            reverse('user_info', kwargs={'contest_id': contest.id, 'user_id': user.id})
+        )
 
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = response_callback()

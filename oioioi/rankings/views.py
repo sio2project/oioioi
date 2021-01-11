@@ -12,8 +12,11 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.models import Submission
-from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   is_contest_basicadmin)
+from oioioi.contests.utils import (
+    can_enter_contest,
+    contest_exists,
+    is_contest_basicadmin,
+)
 from oioioi.rankings.forms import FilterUsersInRankingForm
 from oioioi.rankings.models import Ranking
 
@@ -22,8 +25,9 @@ from oioioi.rankings.models import Ranking
 def has_any_ranking_visible(request):
     ccontroller = request.contest.controller
     rcontroller = ccontroller.ranking_controller()
-    return ccontroller.can_see_ranking(request) and \
-            bool(rcontroller.available_rankings(request))
+    return ccontroller.can_see_ranking(request) and bool(
+        rcontroller.available_rankings(request)
+    )
 
 
 @enforce_condition(contest_exists & can_enter_contest & is_contest_basicadmin)
@@ -33,12 +37,15 @@ def get_users_in_ranking_view(request):
     return get_user_hints_view(request, 'substr', queryset, 'user')
 
 
-@menu_registry.register_decorator(_("Ranking"), lambda request:
-        reverse('default_ranking', kwargs={'contest_id': request.contest.id}),
-    order=440)
+@menu_registry.register_decorator(
+    _("Ranking"),
+    lambda request: reverse(
+        'default_ranking', kwargs={'contest_id': request.contest.id}
+    ),
+    order=440,
+)
 @enforce_condition(contest_exists & can_enter_contest)
-@enforce_condition(has_any_ranking_visible,
-                   template='rankings/no_rankings.html')
+@enforce_condition(has_any_ranking_visible, template='rankings/no_rankings.html')
 def ranking_view(request, key=None):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)
@@ -59,18 +66,17 @@ def ranking_view(request, key=None):
             user = form.cleaned_data.get('user')
             # Everybody can search for themselves.
             # Contest admins can search for anyone.
-            if user and (is_contest_basicadmin(request) \
-                         or user == request.user):
+            if user and (is_contest_basicadmin(request) or user == request.user):
                 found_pos = rcontroller.find_user_position(request, key, user)
                 if found_pos:
-                    users_per_page = getattr(settings, 'PARTICIPANTS_ON_PAGE',
-                                             100)
+                    users_per_page = getattr(settings, 'PARTICIPANTS_ON_PAGE', 100)
                     found_page = ((found_pos - 1) // users_per_page) + 1
                     get_dict = request.GET.copy()
                     get_dict.pop('user')
                     get_dict['page'] = found_page
-                    return redirect(request.path + '?' + get_dict.urlencode()
-                            + '#' + str(user.id))
+                    return redirect(
+                        request.path + '?' + get_dict.urlencode() + '#' + str(user.id)
+                    )
                 else:
                     msg = _("User is not in the ranking.")
                     # Admin should receive error in form,
@@ -122,6 +128,7 @@ def ranking_csv_view(request, key):
         raise Http404
 
     return rcontroller.render_ranking_to_csv(request, key)
+
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 @require_POST

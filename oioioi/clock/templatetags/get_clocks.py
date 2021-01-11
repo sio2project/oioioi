@@ -10,10 +10,14 @@ def navbar_clock(context):
     if not timestamp:
         return {}
     if 'admin_time' in context['request'].session:
-        return {'current_time': timezone.localtime(timestamp)
-                .strftime('%x %X'), 'is_admin_time_set': True}
-    return {'current_time': timezone.localtime(timestamp).strftime('%X'),
-            'is_admin_time_set': False}
+        return {
+            'current_time': timezone.localtime(timestamp).strftime('%x %X'),
+            'is_admin_time_set': True,
+        }
+    return {
+        'current_time': timezone.localtime(timestamp).strftime('%X'),
+        'is_admin_time_set': False,
+    }
 
 
 @register.inclusion_tag('clock/navbar-admin-clock.html', takes_context=True)

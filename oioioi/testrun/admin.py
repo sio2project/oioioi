@@ -12,11 +12,11 @@ class TestRunConfigInline(admin.TabularInline):
 
 
 class TestRunAdminMixin(object):
-    """Adds `TestRunConfigForInstance` to an admin panel.
-    """
+    """Adds `TestRunConfigForInstance` to an admin panel."""
+
     def __init__(self, *args, **kwargs):
-        super(TestRunAdminMixin, self) \
-            .__init__(*args, **kwargs)
+        super(TestRunAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [TestRunConfigInline]
+
 
 ProblemInstanceAdmin.mix_in(TestRunAdminMixin)

@@ -15,6 +15,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from two_factor.views import LoginView as Login2FAView
 
+import oioioi.base.forms
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.preferences import PreferencesFactory
@@ -22,12 +23,19 @@ from oioioi.base.processors import site_name
 from oioioi.base.utils import generate_key, jsonify
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user import has_valid_username
-import oioioi.base.forms
 
-account_menu_registry.register('change_password', _("Change password"),
-        lambda request: reverse('auth_password_change'), order=100)
-account_menu_registry.register('two_factor_auth', _("Two factor authentication"),
-        lambda request: reverse('two_factor:profile'), order=150)
+account_menu_registry.register(
+    'change_password',
+    _("Change password"),
+    lambda request: reverse('auth_password_change'),
+    order=100,
+)
+account_menu_registry.register(
+    'two_factor_auth',
+    _("Two factor authentication"),
+    lambda request: reverse('two_factor:profile'),
+    order=150,
+)
 
 
 class ForcedError(Exception):
@@ -66,8 +74,7 @@ def handler500(request):
 
 def handler404(request, exception):
     if request.is_ajax():
-        return HttpResponse('404 Not Found', status=404,
-                            content_type='text/plain')
+        return HttpResponse('404 Not Found', status=404, content_type='text/plain')
     # DO NOT USE django.views.defaults.page_not_found here
     # It has a known vulnaribility before 1.11.18
     # DO NOT DISPLAY request.path without using urllib.parse.quote() first
@@ -81,15 +88,14 @@ def handler404(request, exception):
 
 def handler403(request, exception):
     if request.is_ajax():
-        return HttpResponse('403 Forbidden', status=403,
-                content_type='text/plain')
-    message = render_to_string('403.html',
-            request=request)
+        return HttpResponse('403 Forbidden', status=403, content_type='text/plain')
+    message = render_to_string('403.html', request=request)
     return HttpResponseForbidden(message)
 
 
-@account_menu_registry.register_decorator(_("Edit profile"),
-    lambda request: reverse('edit_profile'), order=99)
+@account_menu_registry.register_decorator(
+    _("Edit profile"), lambda request: reverse('edit_profile'), order=99
+)
 @enforce_condition(not_anonymous)
 def edit_profile_view(request):
     if request.method == 'POST':
@@ -97,7 +103,7 @@ def edit_profile_view(request):
             oioioi.base.forms.UserForm,
             request.user,
             request.POST,
-            allow_login_change=not has_valid_username(request.user)
+            allow_login_change=not has_valid_username(request.user),
         )
         if form.is_valid():
             form.save()
@@ -106,18 +112,26 @@ def edit_profile_view(request):
         form = PreferencesFactory().create_form(
             oioioi.base.forms.UserForm,
             request.user,
-            allow_login_change=not has_valid_username(request.user)
+            allow_login_change=not has_valid_username(request.user),
         )
-    return TemplateResponse(request, 'registration/registration_form.html',
-            {'form': form})
+    return TemplateResponse(
+        request, 'registration/registration_form.html', {'form': form}
+    )
 
 
-@account_menu_registry.register_decorator(_("Log out"), lambda request: '#',
-    order=200, attrs={'data-post-url': reverse_lazy('logout')})
+@account_menu_registry.register_decorator(
+    _("Log out"),
+    lambda request: '#',
+    order=200,
+    attrs={'data-post-url': reverse_lazy('logout')},
+)
 @require_POST
 def logout_view(request):
-    return auth_logout(request, template_name='registration/logout.html',
-            extra_context=site_name(request))
+    return auth_logout(
+        request,
+        template_name='registration/logout.html',
+        extra_context=site_name(request),
+    )
 
 
 def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
@@ -149,11 +163,11 @@ def delete_account_view(request):
             participant.erase_data()
         request.user.is_active = False
         request.user.save()
-        return auth_logout(request,
-                template_name='registration/delete_account_done.html')
+        return auth_logout(
+            request, template_name='registration/delete_account_done.html'
+        )
 
-    return TemplateResponse(request,
-            'registration/delete_account_confirmation.html')
+    return TemplateResponse(request, 'registration/delete_account_confirmation.html')
 
 
 def generate_key_view(request):

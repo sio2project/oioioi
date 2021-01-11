@@ -10,8 +10,13 @@ from oioioi.timeline.views import _get_date_id
 
 
 class TestTimelineView(TestCase):
-    fixtures = ['test_contest', 'test_full_package', 'test_problem_instance',
-            'test_extra_rounds', 'test_users']
+    fixtures = [
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_extra_rounds',
+        'test_users',
+    ]
 
     def test_response(self):
         contest = Contest.objects.get()
@@ -31,8 +36,9 @@ class TestTimelineView(TestCase):
                 self.assertContains(response, date.strftime('%Y-%m-%d %H:%M'))
 
         for round in Round.objects.filter(contest=contest.id).values():
-            self.assertContains(response,
-                                round['start_date'].strftime('%Y-%m-%d %H:%M'))
+            self.assertContains(
+                response, round['start_date'].strftime('%Y-%m-%d %H:%M')
+            )
 
     def test_menu(self):
         contest = Contest.objects.get()
@@ -47,13 +53,26 @@ class TestTimelineView(TestCase):
 
 
 class TestChangingDates(TestCase):
-    fixtures = ['test_contest', 'test_empty_package', 'test_extra_rounds',
-            'test_users', 'test_permissions', 'test_one_round_contest']
+    fixtures = [
+        'test_contest',
+        'test_empty_package',
+        'test_extra_rounds',
+        'test_users',
+        'test_permissions',
+        'test_one_round_contest',
+    ]
 
     # pylint: disable=dangerous-default-value
-    def _send_post(self, contest=None, data={}, user_code=403, admin_code=200,
-                   contest_admin_code=200, admin_assertin=None,
-                   admin_assertnotin=None):
+    def _send_post(
+        self,
+        contest=None,
+        data={},
+        user_code=403,
+        admin_code=200,
+        contest_admin_code=200,
+        admin_assertin=None,
+        admin_assertnotin=None,
+    ):
         if contest is None:
             contest = Contest.objects.get(pk='c')
 
@@ -63,8 +82,10 @@ class TestChangingDates(TestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, user_code)
 
-        admin_codes = {'test_contest_admin': contest_admin_code,
-                       'test_admin': admin_code}
+        admin_codes = {
+            'test_contest_admin': contest_admin_code,
+            'test_admin': admin_code,
+        }
 
         for admin in admin_codes:
             self.assertTrue(self.client.login(username=admin))
@@ -72,12 +93,14 @@ class TestChangingDates(TestCase):
             self.assertEqual(response.status_code, admin_codes[admin])
 
             if admin_assertin is not None:
-                self.assertContains(response, admin_assertin,
-                                    status_code=admin_codes[admin])
+                self.assertContains(
+                    response, admin_assertin, status_code=admin_codes[admin]
+                )
 
             if admin_assertnotin is not None:
-                self.assertNotContains(response, admin_assertnotin,
-                                       status_code=admin_codes[admin])
+                self.assertNotContains(
+                    response, admin_assertnotin, status_code=admin_codes[admin]
+                )
 
         return response
 
@@ -96,8 +119,9 @@ class TestChangingDates(TestCase):
                 new_date = (old_date + delta).strftime("%Y-%m-%d %H:%M")
                 new_dates[_get_date_id(item)] = new_date
 
-        response = self._send_post(contest, data=new_dates,
-                                   admin_assertnotin='alert-danger')
+        response = self._send_post(
+            contest, data=new_dates, admin_assertnotin='alert-danger'
+        )
 
         for item in date_registry.tolist(contest.id):
             obj = item['model'].objects.get(pk=item['id'])
@@ -124,8 +148,9 @@ class TestChangingDates(TestCase):
         self._send_post(data=new_dates)
 
         obj = Round.objects.get(pk=2)
-        self.assertEqual(obj.end_date, datetime.datetime(2021, 10, 10, 10, 10,
-            tzinfo=utc))
+        self.assertEqual(
+            obj.end_date, datetime.datetime(2021, 10, 10, 10, 10, tzinfo=utc)
+        )
 
     def test_invalid_date_change(self):
         contest = Contest.objects.get(pk='c')
@@ -144,8 +169,9 @@ class TestChangingDates(TestCase):
         invalid_item_id = _get_date_id(invalid_item)
         new_dates[invalid_item_id] = invalid_date
 
-        response = self._send_post(contest, data=new_dates,
-                                   admin_assertin='alert-danger')
+        response = self._send_post(
+            contest, data=new_dates, admin_assertin='alert-danger'
+        )
 
         for item in date_registry.tolist(contest.id):
             obj = item['model'].objects.get(pk=item['id'])
@@ -153,8 +179,7 @@ class TestChangingDates(TestCase):
             if old_date is not None:
                 new_date = new_dates[_get_date_id(item)]
                 self.assertContains(response, new_date)
-                self.assertNotEqual(new_date,
-                                    old_date.strftime("%Y-%m-%d %H:%M"))
+                self.assertNotEqual(new_date, old_date.strftime("%Y-%m-%d %H:%M"))
 
     def test_invalid_date_format(self):
         contest = Contest.objects.get(pk='c')
@@ -168,8 +193,9 @@ class TestChangingDates(TestCase):
                 new_date = (old_date + delta).strftime("%d/%m/%Y %H:%M")
                 new_dates[_get_date_id(item)] = new_date
 
-        self._send_post(contest, data=new_dates,
-                        admin_assertin='Date format is invalid')
+        self._send_post(
+            contest, data=new_dates, admin_assertin='Date format is invalid'
+        )
 
     def test_changing_date_in_wrong_contest(self):
         contest_c = Contest.objects.get(pk='c')

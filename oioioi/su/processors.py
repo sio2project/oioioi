@@ -10,7 +10,4 @@ def real_user(request):
             'is_under_su': False,
         }
     else:
-        return {
-            'real_user': request.real_user,
-            'is_under_su': is_under_su(request)
-        }
+        return {'real_user': request.real_user, 'is_under_su': is_under_su(request)}

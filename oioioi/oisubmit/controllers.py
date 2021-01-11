@@ -6,22 +6,27 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 class OiSubmitContestControllerMixin(object):
     """ContestController mixin that adds extra information about submission
-       from the oisubmit app to the submission footer.
+    from the oisubmit app to the submission footer.
     """
 
     def render_submission_footer(self, request, submission):
-        super_footer = super(OiSubmitContestControllerMixin, self). \
-                render_submission_footer(request, submission)
+        super_footer = super(
+            OiSubmitContestControllerMixin, self
+        ).render_submission_footer(request, submission)
 
-        if not hasattr(submission, 'oisubmitextradata') or \
-               submission.oisubmitextradata is None or \
-               not is_contest_admin(request):
+        if (
+            not hasattr(submission, 'oisubmitextradata')
+            or submission.oisubmitextradata is None
+            or not is_contest_admin(request)
+        ):
             return super_footer
 
         def _get_extra(s):
             return getattr(submission.oisubmitextradata, s, '')
 
-        return render_to_string('oisubmit/submission-footer.html',
+        return (
+            render_to_string(
+                'oisubmit/submission-footer.html',
                 request=request,
                 context={
                     'received_suspected': _get_extra('received_suspected'),
@@ -29,7 +34,10 @@ class OiSubmitContestControllerMixin(object):
                     'localtime': _get_extra('localtime'),
                     'siotime': _get_extra('siotime'),
                     'servertime': _get_extra('servertime'),
-                }) + super_footer
+                },
+            )
+            + super_footer
+        )
 
 
 ProgrammingContestController.mix_in(OiSubmitContestControllerMixin)

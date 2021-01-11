@@ -7,39 +7,42 @@ from oioioi.ipdnsauth.models import DnsToUser, IpToUser
 
 
 class Command(BaseCommand):
-    help = "Manages ipdnsauth module.\n" \
-           "First argument specifies, which bindings should be handled.\n" \
-           "Load/export format is simple csv-like 'user binding'.\n\n" \
-           "Options can be chained like this (ordering is ignored):\n" \
-           "manage.py ipdnsauth --export X.bak --unload X.old --load X.new"
+    help = (
+        "Manages ipdnsauth module.\n"
+        "First argument specifies, which bindings should be handled.\n"
+        "Load/export format is simple csv-like 'user binding'.\n\n"
+        "Options can be chained like this (ordering is ignored):\n"
+        "manage.py ipdnsauth --export X.bak --unload X.old --load X.new"
+    )
 
     def add_arguments(self, parser):
-        parser.add_argument('--clear',
-                            action='store_true',
-                            dest='clear',
-                            default=False,
-                            help="Clears all current bindings for ip/dns")
-        parser.add_argument('--export',
-                            dest='exportfile',
-                            help="Exports current settings into FILE",
-                            metavar='FILE')
-        parser.add_argument('--unload',
-                            dest='unloadfile',
-                            help="Deletes bindings from FILE.",
-                            metavar='FILE')
-        parser.add_argument('--load',
-                            dest='loadfile',
-                            help="Loads bindings from FILE.",
-                            metavar='FILE')
-        parser.add_argument('model',
-                            type=str,
-                            choices=('ip', 'dns'),
-                            help='Model')
+        parser.add_argument(
+            '--clear',
+            action='store_true',
+            dest='clear',
+            default=False,
+            help="Clears all current bindings for ip/dns",
+        )
+        parser.add_argument(
+            '--export',
+            dest='exportfile',
+            help="Exports current settings into FILE",
+            metavar='FILE',
+        )
+        parser.add_argument(
+            '--unload',
+            dest='unloadfile',
+            help="Deletes bindings from FILE.",
+            metavar='FILE',
+        )
+        parser.add_argument(
+            '--load', dest='loadfile', help="Loads bindings from FILE.", metavar='FILE'
+        )
+        parser.add_argument('model', type=str, choices=('ip', 'dns'), help='Model')
 
     def _write(self, data, filename):
         with open(filename, 'w') as csvfile:
-            writer = csv.writer(csvfile, delimiter=' ',
-                                lineterminator='\n')
+            writer = csv.writer(csvfile, delimiter=' ', lineterminator='\n')
             for username, binding in data:
                 writer.writerow([username, binding])
 
@@ -64,11 +67,13 @@ class Command(BaseCommand):
         for row in data:
             try:
                 if module == 'ip':
-                    binding = IpToUser(user=User.objects.get(username=row[0]),
-                                        ip_addr=row[1])
+                    binding = IpToUser(
+                        user=User.objects.get(username=row[0]), ip_addr=row[1]
+                    )
                 elif module == 'dns':
-                    binding = DnsToUser(user=User.objects.get(username=row[0]),
-                                        dns_name=row[1])
+                    binding = DnsToUser(
+                        user=User.objects.get(username=row[0]), dns_name=row[1]
+                    )
                 binding.full_clean()
                 binding.save()
             # pylint: disable=broad-except
@@ -83,11 +88,9 @@ class Command(BaseCommand):
         for row in data:
             try:
                 if module == 'ip':
-                    modelMgr.get(user__username=row[0],
-                                ip_addr=row[1]).delete()
+                    modelMgr.get(user__username=row[0], ip_addr=row[1]).delete()
                 elif module == 'dns':
-                    modelMgr.get(user__username=row[0],
-                                dns_name=row[1]).delete()
+                    modelMgr.get(user__username=row[0], dns_name=row[1]).delete()
             # pylint: disable=broad-except
             except Exception as e:
                 self.stderr.write("Error for %s: %s\n" % (row, e))
@@ -96,11 +99,12 @@ class Command(BaseCommand):
         self.unload_data(module, modelMgr, self._read(filename))
 
     def handle(self, *args, **options):
-        command_map = {'exportfile': self.export,
-                       'clear': self.clear,
-                       'unloadfile': self.unload,
-                       'loadfile': self.load,
-                       }
+        command_map = {
+            'exportfile': self.export,
+            'clear': self.clear,
+            'unloadfile': self.unload,
+            'loadfile': self.load,
+        }
         command_seq = ('exportfile', 'clear', 'unloadfile', 'loadfile')
 
         if options['model'] == 'ip':

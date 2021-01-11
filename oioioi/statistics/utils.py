@@ -6,9 +6,9 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 def render_head(requirements):
     """For a given list of paths for required files produces a HTML which
-       includes the paths. The output contains only unique paths. Currently
-       supported extensions: .css .js
-       Order of the included paths is stable.
+    includes the paths. The output contains only unique paths. Currently
+    supported extensions: .css .js
+    Order of the included paths is stable.
     """
     unique = set()
     result = ''
@@ -19,11 +19,13 @@ def render_head(requirements):
             unique.add(name)
             ext = name.split('.')[-1].strip().lower()
             if ext == 'css':
-                result += render_to_string('statistics/include-css.html',
-                                           {'file_name': prefix+name})
+                result += render_to_string(
+                    'statistics/include-css.html', {'file_name': prefix + name}
+                )
             if ext == 'js':
-                result += render_to_string('statistics/include-js.html',
-                                           {'file_name': prefix+name})
+                result += render_to_string(
+                    'statistics/include-js.html', {'file_name': prefix + name}
+                )
     return result
 
 

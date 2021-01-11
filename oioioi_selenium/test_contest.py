@@ -1,10 +1,11 @@
+import os
 import time
 
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import StaleElementReferenceException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+
 from . import OIOIOISeleniumTestCase
-import os
 
 
 class TestSimpleContest(OIOIOISeleniumTestCase):
@@ -17,8 +18,9 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         contest_name = "simple contest " + contest_id
         driver.get("/admin/contests/contest/add/")
         driver.wait_for_load()
-        Select(driver.find_element_by_id("id_controller_name")). \
-            select_by_visible_text("Simple programming contest")
+        Select(driver.find_element_by_id("id_controller_name")).select_by_visible_text(
+            "Simple programming contest"
+        )
         driver.find_element_by_id("id_name").click()
         driver.find_element_by_id("id_name").clear()
         driver.find_element_by_id("id_name").send_keys(contest_name)
@@ -32,9 +34,13 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         driver.get("/c/" + contest_id + "/admin/contests/probleminstance/")
         driver.find_element_by_link_text("Add problem").click()
         driver.find_element_by_id("id_package_file").clear()
-        driver.find_element_by_id("id_package_file").send_keys(os.path.dirname(
-            os.path.dirname(os.path.abspath(__file__))) + "/oioioi/sinolpack/files/test_full_package.tgz")
-        submit_problem_button = driver.find_element_by_xpath("/html/body/div[2]/div/div/section/div/form/div[2]/button")
+        driver.find_element_by_id("id_package_file").send_keys(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            + "/oioioi/sinolpack/files/test_full_package.tgz"
+        )
+        submit_problem_button = driver.find_element_by_xpath(
+            "/html/body/div[2]/div/div/section/div/form/div[2]/button"
+        )
         submit_problem_button.click()
         try:
             submit_problem_button.send_keys(Keys.RETURN)
@@ -46,8 +52,12 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         # Wait for problem package to process, at most ~20s.
         time.sleep(20)
         driver.get("/c/" + contest_id + "/admin/problems/problempackage/")
-        self.assertEqual("Uploaded", driver.find_element_by_xpath(
-            "/html/body/div[2]/div[1]/div/section/div/div[2]/div/div/form/div[2]/table/tbody/tr[1]/td[4]/span").text)
+        self.assertEqual(
+            "Uploaded",
+            driver.find_element_by_xpath(
+                "/html/body/div[2]/div[1]/div/section/div/div[2]/div/div/form/div[2]/table/tbody/tr[1]/td[4]/span"
+            ).text,
+        )
 
         # Submit some dummy code as administrator.
         driver.get("/c/" + contest_id + "/submit/")
@@ -60,7 +70,8 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         Select(driver.find_element_by_id("id_kind")).select_by_visible_text("Normal")
         driver.find_element_by_id("id_kind").click()
         submit_solution_button = driver.find_element_by_xpath(
-            "(.//*[normalize-space(text()) and normalize-space(.)='Kind'])[1]/following::button[1]")
+            "(.//*[normalize-space(text()) and normalize-space(.)='Kind'])[1]/following::button[1]"
+        )
         submit_solution_button.click()
         try:
             submit_solution_button.send_keys(Keys.RETURN)
@@ -70,12 +81,15 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         # Check if it was submitted.
         time.sleep(30)
         driver.get("/c/" + contest_id + "/submissions/")
-        self.assertEqual("0", driver.find_element_by_xpath(
-            "(.//*[normalize-space(text()) and normalize-space(.)='Score'])[1]/following::td[6]").text)
+        self.assertEqual(
+            "0",
+            driver.find_element_by_xpath(
+                "(.//*[normalize-space(text()) and normalize-space(.)='Score'])[1]/following::td[6]"
+            ).text,
+        )
 
     def wait_for_package(self):
-        state = self.get_from_result_table(
-            self.xpath_contains('prob-pack--'), 1).text
+        state = self.get_from_result_table(self.xpath_contains('prob-pack--'), 1).text
 
         if state == "Uploaded":
             return True
@@ -86,8 +100,8 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
 
     def wait_for_submission_result(self):
         state = self.get_from_table(
-            "@id='submission-status-table'",
-            self.xpath_contains('submission--'), 1).text
+            "@id='submission-status-table'", self.xpath_contains('submission--'), 1
+        ).text
 
         if state == "Pending":
             return False

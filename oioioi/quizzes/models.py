@@ -1,16 +1,14 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumField
 from oioioi.contests.fields import ScoreField
-from oioioi.contests.models import Submission, SubmissionReport, \
-    submission_statuses
+from oioioi.contests.models import Submission, SubmissionReport, submission_statuses
 from oioioi.problems.models import Problem
 
 
 class Quiz(Problem):
-
     class Meta(object):
         verbose_name = _("Quiz")
         verbose_name_plural = _("Quizzes")
@@ -19,12 +17,18 @@ class Quiz(Problem):
 class QuizQuestion(models.Model):
     question = models.TextField(verbose_name=_("Question"))
     points = models.IntegerField(default=1, verbose_name=_("Points"))
-    is_multiple_choice = models.BooleanField(default=False, verbose_name=_(
-        "Is multiple choice"))
-    quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"),
-                             on_delete=models.CASCADE)
+    is_multiple_choice = models.BooleanField(
+        default=False, verbose_name=_("Is multiple choice")
+    )
+    quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"), on_delete=models.CASCADE)
     order = models.IntegerField(default=0, verbose_name=_("Order"))
-    is_text_input = models.BooleanField(default=False, verbose_name=_("Hide answers"), help_text=_("Instead of listing answers, expect the contestant to type in their answer."))
+    is_text_input = models.BooleanField(
+        default=False,
+        verbose_name=_("Hide answers"),
+        help_text=_(
+            "Instead of listing answers, expect the contestant to type in their answer."
+        ),
+    )
 
     class Meta(object):
         ordering = ['order']
@@ -33,11 +37,11 @@ class QuizQuestion(models.Model):
 
 
 class QuizAnswer(models.Model):
-    question = models.ForeignKey(QuizQuestion, verbose_name=_("Question"),
-                                 on_delete=models.CASCADE)
+    question = models.ForeignKey(
+        QuizQuestion, verbose_name=_("Question"), on_delete=models.CASCADE
+    )
     answer = models.TextField(verbose_name=_("Answer"))
-    is_correct = models.BooleanField(default=False,
-                                     verbose_name=_("Is answer correct"))
+    is_correct = models.BooleanField(default=False, verbose_name=_("Is answer correct"))
     order = models.IntegerField(default=0, verbose_name=_("Order"))
 
     class Meta(object):
@@ -56,7 +60,7 @@ class QuizPicture(models.Model):
 
     @property
     def quiz(self):
-       raise NotImplementedError
+        raise NotImplementedError
 
     class Meta(object):
         abstract = True
@@ -94,20 +98,21 @@ class QuizAnswerPicture(QuizPicture):
 
 
 class QuizSubmission(Submission):
-
     class Meta(object):
         verbose_name = _("Quiz submission")
         verbose_name_plural = _("Quiz submissions")
 
 
 class QuizSubmissionAnswer(models.Model):
-    quiz_submission = models.ForeignKey(QuizSubmission,
-                                        verbose_name=_("Quiz submission"),
-                                        on_delete=models.CASCADE)
-    answer = models.ForeignKey(QuizAnswer, verbose_name=_("Answer"),
-                               on_delete=models.SET_NULL, null=True)
-    is_selected = models.BooleanField(default=False,
-                                      verbose_name=_("Is answer selected"))
+    quiz_submission = models.ForeignKey(
+        QuizSubmission, verbose_name=_("Quiz submission"), on_delete=models.CASCADE
+    )
+    answer = models.ForeignKey(
+        QuizAnswer, verbose_name=_("Answer"), on_delete=models.SET_NULL, null=True
+    )
+    is_selected = models.BooleanField(
+        default=False, verbose_name=_("Is answer selected")
+    )
 
     class Meta(object):
         verbose_name = _("Quiz submission answer")
@@ -115,11 +120,12 @@ class QuizSubmissionAnswer(models.Model):
 
 
 class QuizSubmissionTextAnswer(models.Model):
-    quiz_submission = models.ForeignKey(QuizSubmission,
-                                        verbose_name=_("Quiz submission"),
-                                        on_delete=models.CASCADE)
-    question = models.ForeignKey(QuizQuestion, verbose_name=_("Question"),
-                                 on_delete=models.SET_NULL, null=True)
+    quiz_submission = models.ForeignKey(
+        QuizSubmission, verbose_name=_("Quiz submission"), on_delete=models.CASCADE
+    )
+    question = models.ForeignKey(
+        QuizQuestion, verbose_name=_("Question"), on_delete=models.SET_NULL, null=True
+    )
     text_answer = models.TextField(verbose_name=_("Text answer"))
 
     class Meta(object):
@@ -129,14 +135,18 @@ class QuizSubmissionTextAnswer(models.Model):
 
 
 class QuestionReport(models.Model):
-    submission_report = models.ForeignKey(SubmissionReport,
-                                          verbose_name=_("Submission report"),
-                                          on_delete=models.CASCADE)
-    comment = models.TextField(blank=True, null=True,
-                                    verbose_name=_("Comment"))
+    submission_report = models.ForeignKey(
+        SubmissionReport, verbose_name=_("Submission report"), on_delete=models.CASCADE
+    )
+    comment = models.TextField(blank=True, null=True, verbose_name=_("Comment"))
     score = ScoreField(verbose_name=_("Score"))
-    question = models.ForeignKey(QuizQuestion, blank=True, null=True,
-                             on_delete=models.SET_NULL, verbose_name=_("Question"))
+    question = models.ForeignKey(
+        QuizQuestion,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Question"),
+    )
     question_max_score = models.IntegerField(verbose_name=_("Question max score"))
     status = EnumField(submission_statuses, default='WA', verbose_name=_("Status"))
 

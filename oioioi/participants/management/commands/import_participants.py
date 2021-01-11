@@ -12,19 +12,17 @@ from oioioi.participants.models import Participant
 
 
 class Command(BaseCommand):
-    help = _("Updates the list of participants of <contest_id> from the given "
-             "text file (one login per line).\n"
-             "Lines starting with '#' are ignored.")
+    help = _(
+        "Updates the list of participants of <contest_id> from the given "
+        "text file (one login per line).\n"
+        "Lines starting with '#' are ignored."
+    )
 
     requires_model_validation = True
 
     def add_arguments(self, parser):
-        parser.add_argument('contest_id',
-                            type=str,
-                            help='Contest to import to')
-        parser.add_argument('filename_or_url',
-                            type=str,
-                            help='Source CSV file')
+        parser.add_argument('contest_id', type=str, help='Contest to import to')
+        parser.add_argument('filename_or_url', type=str, help='Source CSV file')
 
     def handle(self, *args, **options):
         try:
@@ -33,8 +31,9 @@ class Command(BaseCommand):
             raise CommandError(_("Contest %s does not exist") % options['contest_id'])
 
         rcontroller = contest.controller.registration_controller()
-        if not issubclass(getattr(rcontroller, 'participant_admin', type(None)),
-                          ParticipantAdmin):
+        if not issubclass(
+            getattr(rcontroller, 'participant_admin', type(None)), ParticipantAdmin
+        ):
             raise CommandError(_("Wrong type of contest"))
 
         arg = options['filename_or_url']
@@ -63,23 +62,28 @@ class Command(BaseCommand):
 
                 try:
                     user = User.objects.get(username=login)
-                    _participant, created = Participant.objects \
-                            .get_or_create(contest=contest, user=user)
+                    _participant, created = Participant.objects.get_or_create(
+                        contest=contest, user=user
+                    )
                 except User.DoesNotExist:
-                    self.stdout.write(_("Error for user=%(user)s: user does"
-                        " not exist\n") % {'user': login})
+                    self.stdout.write(
+                        _("Error for user=%(user)s: user does" " not exist\n")
+                        % {'user': login}
+                    )
                     ok = False
                 except DatabaseError as e:
                     # This assumes that we'll get the message in this
                     # encoding. It is not perfect, but much better than
                     # ascii.
                     message = e.message.decode('utf-8')
-                    self.stdout.write(_(
-                        "DB Error for user=%(user)s: %(message)s\n")
-                            % {'user': login, 'message': message})
+                    self.stdout.write(
+                        _("DB Error for user=%(user)s: %(message)s\n")
+                        % {'user': login, 'message': message}
+                    )
                     ok = False
             if ok:
                 self.stdout.write(_("Processed %d entries") % (all_count))
             else:
-                raise CommandError(_("There were some errors. Database not "
-                    "changed.\n"))
+                raise CommandError(
+                    _("There were some errors. Database not " "changed.\n")
+                )

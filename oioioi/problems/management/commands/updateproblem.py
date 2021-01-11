@@ -13,10 +13,8 @@ class Command(BaseCommand):
     help = _("Updates an existing problem using the given package file.")
 
     def add_arguments(self, parser):
-        parser.add_argument('problem_id',
-                            type=int)
-        parser.add_argument('filename',
-                            type=str)
+        parser.add_argument('problem_id', type=int)
+        parser.add_argument('filename', type=str)
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -31,8 +29,7 @@ class Command(BaseCommand):
             raise CommandError(_("Problem #%d does not exist") % (problem_id,))
 
         try:
-            backend = \
-                    import_string(backend_for_package(filename))()
+            backend = import_string(backend_for_package(filename))()
         except NoBackend:
             raise CommandError(_("Package format not recognized"))
 

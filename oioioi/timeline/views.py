@@ -18,9 +18,13 @@ from oioioi.contests.utils import contest_exists, is_contest_admin
 
 
 def _get_date_id(registry_item):
-    date_id = six.text_type(registry_item['model']._meta.verbose_name) + ":" + \
-            str(registry_item['id']) + ":" + \
-            six.text_type(registry_item['date_field'])
+    date_id = (
+        six.text_type(registry_item['model']._meta.verbose_name)
+        + ":"
+        + str(registry_item['id'])
+        + ":"
+        + six.text_type(registry_item['date_field'])
+    )
     return date_id.replace(' ', '_')
 
 
@@ -45,8 +49,10 @@ def _translate_field(field, obj):
     return obj._meta.get_field(field).verbose_name
 
 
-@contest_admin_menu_registry.register_decorator(_("Timeline"), lambda request:
-        reverse('timeline_view', kwargs={'contest_id': request.contest.id}))
+@contest_admin_menu_registry.register_decorator(
+    _("Timeline"),
+    lambda request: reverse('timeline_view', kwargs={'contest_id': request.contest.id}),
+)
 @enforce_condition(contest_exists & is_contest_admin)
 def timeline_view(request):
     registry = date_registry.tolist(request.contest.id)
@@ -65,10 +71,15 @@ def timeline_view(request):
                 try:
                     current_tz = timezone.get_current_timezone()
                     parsed_date = current_tz.localize(
-                            datetime.datetime.strptime(date, "%Y-%m-%d %H:%M"))
+                        datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+                    )
                 except ValueError:
-                    error_list.append((six.text_type(item['text']),
-                            {None: [_("Date format is invalid")]}))
+                    error_list.append(
+                        (
+                            six.text_type(item['text']),
+                            {None: [_("Date format is invalid")]},
+                        )
+                    )
                     continue
             else:
                 if not getattr(obj, item['date_field']):
@@ -90,21 +101,29 @@ def timeline_view(request):
             except ValidationError as e:
                 object_name = getattr(obj, 'name', None)
                 if not object_name:
-                    object_name = '%s (%s)' % (obj._meta.verbose_name.title(),
-                            obj.id)
-                message_dict = dict((_translate_field(field, obj), value)
-                        for (field, value) in e.message_dict.items())
+                    object_name = '%s (%s)' % (obj._meta.verbose_name.title(), obj.id)
+                message_dict = dict(
+                    (_translate_field(field, obj), value)
+                    for (field, value) in e.message_dict.items()
+                )
                 error_list.append((object_name, message_dict))
 
         if error_list:
-            return TemplateResponse(request, 'timeline/timeline_view.html',
-                    {'registry': group_registry,
+            return TemplateResponse(
+                request,
+                'timeline/timeline_view.html',
+                {
+                    'registry': group_registry,
                     'error_list': sorted(error_list),
-                    'server_timezone': settings.TIME_ZONE})
+                    'server_timezone': settings.TIME_ZONE,
+                },
+            )
 
         for obj in tosave.values():
             obj.save()
 
-    return TemplateResponse(request, 'timeline/timeline_view.html',
-                {'registry': group_registry,
-                 'server_timezone': settings.TIME_ZONE})
+    return TemplateResponse(
+        request,
+        'timeline/timeline_view.html',
+        {'registry': group_registry, 'server_timezone': settings.TIME_ZONE},
+    )

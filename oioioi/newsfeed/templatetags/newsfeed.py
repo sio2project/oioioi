@@ -1,4 +1,5 @@
 from django.template import Library
+
 from oioioi.newsfeed.models import News
 
 register = Library()

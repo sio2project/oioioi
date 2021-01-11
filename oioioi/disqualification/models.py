@@ -9,14 +9,23 @@ from oioioi.contests.models import Contest, Submission
 
 
 class Disqualification(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
+    contest = models.ForeignKey(
+        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
+    )
     user = models.ForeignKey(User, verbose_name=_("user"), on_delete=models.CASCADE)
     # Leave submission empty to make contest-wide disqualification
-    submission = models.ForeignKey(Submission, null=True, blank=True,
-            verbose_name=_("submission"), on_delete=models.CASCADE)
-    title = models.CharField(max_length=255,
-            validators=[MaxLengthValidator(255), validate_whitespaces],
-            verbose_name=_("title"))
+    submission = models.ForeignKey(
+        Submission,
+        null=True,
+        blank=True,
+        verbose_name=_("submission"),
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(
+        max_length=255,
+        validators=[MaxLengthValidator(255), validate_whitespaces],
+        verbose_name=_("title"),
+    )
     content = models.TextField(verbose_name=_("content"))
     guilty = models.BooleanField(default=True)
 
@@ -30,8 +39,7 @@ class Disqualification(models.Model):
 
     def save(self, *args, **kwargs):
         if self.submission:
-            assert self.contest.id == \
-                   self.submission.problem_instance.contest_id
+            assert self.contest.id == self.submission.problem_instance.contest_id
             assert self.user.id == self.submission.user_id
 
         super(Disqualification, self).save(*args, **kwargs)

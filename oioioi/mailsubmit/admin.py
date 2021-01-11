@@ -3,8 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import (ContestAdmin, ProblemNameListFilter,
-                                   contest_site)
+from oioioi.contests.admin import ContestAdmin, ProblemNameListFilter, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
 from oioioi.mailsubmit.models import MailSubmission, MailSubmissionConfig
@@ -31,18 +30,27 @@ class MailSubmissionConfigInline(admin.TabularInline):
 
 class MailSubmissionConfigAdminMixin(object):
     """Adds :class:`~oioioi.mailsubmit.models.MailSubmissionConfig` to an admin
-       panel.
+    panel.
     """
 
     def __init__(self, *args, **kwargs):
         super(MailSubmissionConfigAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [MailSubmissionConfigInline]
+
+
 ContestAdmin.mix_in(MailSubmissionConfigAdminMixin)
 
 
 class MailSubmissionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user_login', 'user_full_name', 'date',
-                    'problem_instance', 'related_submission', 'accepted_by']
+    list_display = [
+        'id',
+        'user_login',
+        'user_full_name',
+        'date',
+        'problem_instance',
+        'related_submission',
+        'accepted_by',
+    ]
     list_display_links = None
     list_filter = [ProblemNameListFilter]
     date_hierarchy = 'date'
@@ -50,12 +58,14 @@ class MailSubmissionAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__last_name']
 
     def get_custom_list_select_related(self):
-        return super(MailSubmissionAdmin, self)\
-                   .get_custom_list_select_related() \
-            + ['user', 'accepted_by', 'problem_instance__problem',
-               'submission',
-               'submission__problem_instance',
-               'submission__problem_instance__contest']
+        return super(MailSubmissionAdmin, self).get_custom_list_select_related() + [
+            'user',
+            'accepted_by',
+            'problem_instance__problem',
+            'submission',
+            'submission__problem_instance',
+            'submission__problem_instance__contest',
+        ]
 
     def has_add_permission(self, request):
         return False
@@ -72,6 +82,7 @@ class MailSubmissionAdmin(admin.ModelAdmin):
         if not instance.user:
             return ''
         return instance.user.username
+
     user_login.short_description = _("Login")
     user_login.admin_order_field = 'user__username'
 
@@ -79,6 +90,7 @@ class MailSubmissionAdmin(admin.ModelAdmin):
         if not instance.user:
             return ''
         return instance.user.get_full_name()
+
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
 
@@ -86,16 +98,19 @@ class MailSubmissionAdmin(admin.ModelAdmin):
         if not instance.submission:
             return ''
         contest = instance.submission.problem_instance.contest
-        href = reverse('submission',
-                       kwargs={'contest_id': contest.id,
-                               'submission_id': instance.submission.id})
+        href = reverse(
+            'submission',
+            kwargs={'contest_id': contest.id, 'submission_id': instance.submission.id},
+        )
         return make_html_link(href, instance.submission.id)
+
     related_submission.short_description = _("Related submission")
 
     def accept_action(self, request, queryset):
         queryset = queryset.order_by('id')
         for mailsubmission in queryset:
             accept_mail_submission(request, mailsubmission)
+
     accept_action.short_description = _("Accept selected submissions")
 
     def get_queryset(self, request):
@@ -105,12 +120,17 @@ class MailSubmissionAdmin(admin.ModelAdmin):
         return queryset
 
     def changelist_view(self, request, extra_context=None):
-        return super(MailSubmissionAdmin, self) \
-                .changelist_view(request, extra_context=extra_context)
+        return super(MailSubmissionAdmin, self).changelist_view(
+            request, extra_context=extra_context
+        )
+
 
 contest_site.contest_register(MailSubmission, MailSubmissionAdmin)
 
-contest_admin_menu_registry.register('mail_submissions_admin',
-        _("Postal submissions"), lambda request:
-            reverse('oioioiadmin:mailsubmit_mailsubmission_changelist'),
-        order=40, condition=is_mailsubmit_used)
+contest_admin_menu_registry.register(
+    'mail_submissions_admin',
+    _("Postal submissions"),
+    lambda request: reverse('oioioiadmin:mailsubmit_mailsubmission_changelist'),
+    order=40,
+    condition=is_mailsubmit_used,
+)

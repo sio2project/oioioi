@@ -3,14 +3,15 @@ from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+
+from oioioi.base.utils import generate_key
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import ProblemInstance
+from oioioi.problems.models import ProblemSite, Tag, TagThrough
 from oioioi.problems.problem_sources import ProblemSource
 from oioioi.problems.utils import get_new_problem_instance
 from oioioi.quizzes.forms import EmptyQuizSourceForm
 from oioioi.quizzes.models import Quiz
-from oioioi.base.utils import generate_key
-from oioioi.problems.models import ProblemSite, Tag, TagThrough
 
 
 class EmptyQuizSource(ProblemSource):
@@ -36,20 +37,13 @@ class EmptyQuizSource(ProblemSource):
                     name=form.cleaned_data['name'],
                     short_name=form.cleaned_data['short_name'],
                     controller_name=controller,
-                    author=request.user
+                    author=request.user,
                 )
                 tag = Tag.objects.get_or_create(name='quiz')[0]
-                TagThrough.objects.create(
-                    problem=quiz,
-                    tag=tag
-                )
-                ProblemSite.objects.create(
-                    problem=quiz,
-                    url_key=generate_key()
-                )
+                TagThrough.objects.create(problem=quiz, tag=tag)
+                ProblemSite.objects.create(problem=quiz, url_key=generate_key())
                 pi = ProblemInstance.objects.create(
-                    problem=quiz,
-                    short_name=quiz.short_name
+                    problem=quiz, short_name=quiz.short_name
                 )
                 quiz.main_problem_instance = pi
                 quiz.save()
@@ -58,8 +52,8 @@ class EmptyQuizSource(ProblemSource):
                     get_new_problem_instance(quiz, contest)
 
                 messages.success(request, _("Quiz successfully added"))
-                return safe_redirect(request, reverse(
-                    'oioioiadmin:contests_probleminstance_changelist'))
+                return safe_redirect(
+                    request, reverse('oioioiadmin:contests_probleminstance_changelist')
+                )
 
-        return TemplateResponse(request, "quizzes/emptyquiz-source.html",
-                                post_data)
+        return TemplateResponse(request, "quizzes/emptyquiz-source.html", post_data)

@@ -9,48 +9,52 @@ from oioioi.contests.models import Submission
 
 class BalloonsDeliveryACMControllerMixin(object):
     """Creates a :class:`~oioioi.balloons.models.BalloonDelivery` object for
-       every submission that has been successfully judged, but only if it's
-       the first judged submission for that problem instance or
-       a `BalloonDelivery` object was already created for that problem
-       instance.
+    every submission that has been successfully judged, but only if it's
+    the first judged submission for that problem instance or
+    a `BalloonDelivery` object was already created for that problem
+    instance.
     """
 
     def submission_judged(self, submission, rejudged=False):
-        super(BalloonsDeliveryACMControllerMixin, self) \
-                .submission_judged(submission, rejudged)
+        super(BalloonsDeliveryACMControllerMixin, self).submission_judged(
+            submission, rejudged
+        )
         self._create_balloon_delivery(submission)
 
     @transaction.atomic
     def _create_balloon_delivery(self, submission):
-        this_problem_instance = \
-            Q(problem_instance=submission.problem_instance)
+        this_problem_instance = Q(problem_instance=submission.problem_instance)
         if submission.user is None:
             return
         if BalloonDelivery.objects.filter(this_problem_instance).exists():
             # First solver has been determined, just create a request if OK.
             user_qs = User.objects.filter(id=submission.user.id)
-            participant_qs = submission.problem_instance.contest.controller \
-                    .registration_controller().filter_participants(user_qs)
-            if submission.status == 'OK' and submission.kind == 'NORMAL' \
-                    and participant_qs.exists():
+            registration_controller = (
+                submission.problem_instance.contest.controller.registration_controller()
+            )
+            participant_qs = registration_controller.filter_participants(user_qs)
+            if (
+                submission.status == 'OK'
+                and submission.kind == 'NORMAL'
+                and participant_qs.exists()
+            ):
                 BalloonDelivery.objects.get_or_create(
-                    user=submission.user,
-                    problem_instance=submission.problem_instance
+                    user=submission.user, problem_instance=submission.problem_instance
                 )
         else:
             # First solver has not been determined yet.
             # It may be necessary to wait for some submissions to be judged.
-            accepted_or_unjudged = \
-                    Q(status='OK') | Q(status='?') | Q(status='SE')
+            accepted_or_unjudged = Q(status='OK') | Q(status='?') | Q(status='SE')
             not_ignored = Q(kind='NORMAL')
             user_is_participant = Q(
-                user__participant__contest=submission
-                    .problem_instance.contest_id
+                user__participant__contest=submission.problem_instance.contest_id
             )
-            submissions = Submission.objects \
-                .filter(accepted_or_unjudged & this_problem_instance
-                        & not_ignored & user_is_participant) \
-                .order_by('date')
+            submissions = Submission.objects.filter(
+                accepted_or_unjudged
+                & this_problem_instance
+                & not_ignored
+                & user_is_participant
+            ).order_by('date')
 
             first_not_found = True
             for submission in submissions:
@@ -62,7 +66,9 @@ class BalloonsDeliveryACMControllerMixin(object):
                     BalloonDelivery.objects.get_or_create(
                         user=submission.user,
                         problem_instance=submission.problem_instance,
-                        first_accepted_solution=first_not_found
+                        first_accepted_solution=first_not_found,
                     )
                     first_not_found = False
+
+
 ACMContestController.mix_in(BalloonsDeliveryACMControllerMixin)

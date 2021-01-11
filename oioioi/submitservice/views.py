@@ -13,10 +13,12 @@ from six.moves import range
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify
 from oioioi.contests.forms import SubmissionForm
-from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   visible_problem_instances)
-from oioioi.programs.problem_instance_utils import \
-    get_allowed_languages_extensions
+from oioioi.contests.utils import (
+    can_enter_contest,
+    contest_exists,
+    visible_problem_instances,
+)
+from oioioi.programs.problem_instance_utils import get_allowed_languages_extensions
 from oioioi.submitservice.models import SubmitServiceToken
 
 
@@ -52,39 +54,44 @@ def submit_view(request):
         if not can_enter_contest(request):
             raise PermissionDenied('AUTHORIZATION_FAILED')
         task_name = request.POST['task']
-        file_name, file_extension = \
-            os.path.splitext(request.FILES['file'].name)
+        file_name, file_extension = os.path.splitext(request.FILES['file'].name)
         if task_name:
             file_name = task_name
         pi = match_problem(visible_problem_instances(request), file_name)
         if not pi:
-            raise SubmitServiceException('NO_SUCH_PROBLEM', ', '.join([
-                    x.short_name for x in visible_problem_instances(request)]))
+            raise SubmitServiceException(
+                'NO_SUCH_PROBLEM',
+                ', '.join([x.short_name for x in visible_problem_instances(request)]),
+            )
 
         lang_exts = get_allowed_languages_extensions(pi)
         if file_extension[1:] not in lang_exts:
             raise ValueError('UNSUPPORTED_EXTENSION')
 
-        form = SubmissionForm(request, {
-            'problem_instance_id': pi.id,
-            'user': request.user,
-            'kind': 'NORMAL'
-        }, request.FILES)
+        form = SubmissionForm(
+            request,
+            {'problem_instance_id': pi.id, 'user': request.user, 'kind': 'NORMAL'},
+            request.FILES,
+        )
         if not form.is_valid():
             raise SubmitServiceException('INVALID_SUBMISSION', form.errors)
-        submission = request.contest.controller \
-            .create_submission(request, pi, form.cleaned_data)
-        result_url = reverse('submission',
-                             kwargs={'contest_id': request.contest.id,
-                                     'submission_id': submission.id})
+        submission = request.contest.controller.create_submission(
+            request, pi, form.cleaned_data
+        )
+        result_url = reverse(
+            'submission',
+            kwargs={'contest_id': request.contest.id, 'submission_id': submission.id},
+        )
         result = {'result_url': result_url, 'submission_id': submission.id}
     except SubmitServiceException as exception_info:
-        result = {'error_code': exception_info.args[0],
-                  'error_data': exception_info.args[1]
-                  if len(exception_info.args) == 2 else ''}
+        result = {
+            'error_code': exception_info.args[0],
+            'error_data': exception_info.args[1]
+            if len(exception_info.args) == 2
+            else '',
+        }
     except Exception as e:
-        result = {'error_code': 'UNKNOWN_ERROR',
-                  'error_data': str(e)}
+        result = {'error_code': 'UNKNOWN_ERROR', 'error_data': str(e)}
     return result
 
 
@@ -98,17 +105,24 @@ def view_user_token(request):
         current_token.save()
     else:
         current_token = current_token[0]
-    return TemplateResponse(request, 'submitservice/view-user-token.html',
-                            {'token': current_token.token,
-                             'contest_url': request.build_absolute_uri(reverse(
-                                 'default_contest_view',
-                                 kwargs={'contest_id': request.contest.id}))
-                             })
+    return TemplateResponse(
+        request,
+        'submitservice/view-user-token.html',
+        {
+            'token': current_token.token,
+            'contest_url': request.build_absolute_uri(
+                reverse(
+                    'default_contest_view', kwargs={'contest_id': request.contest.id}
+                )
+            ),
+        },
+    )
 
 
 def generate_token():
-    new_token = ''.join(random.choice(string.ascii_uppercase + string.digits)
-                        for _ in range(32))
+    new_token = ''.join(
+        random.choice(string.ascii_uppercase + string.digits) for _ in range(32)
+    )
     # It is very improbable, but it could happen that the generated token
     # is already present in the dictionary. Let's generate new one.
     if SubmitServiceToken.objects.filter(token=new_token).exists():
@@ -122,5 +136,8 @@ def clear_user_token(request):
     current_token = SubmitServiceToken.objects.filter(user=request.user)
     if current_token.exists():
         current_token.delete()
-    return redirect(reverse('submitservice_view_user_token',
-                     kwargs={'contest_id': request.contest.id}))
+    return redirect(
+        reverse(
+            'submitservice_view_user_token', kwargs={'contest_id': request.contest.id}
+        )
+    )

@@ -33,9 +33,7 @@ AUTHENTICATION_BACKENDS += (
     'oioioi.teachers.auth.TeacherAuthBackend',
 )
 
-MIDDLEWARE += (
-    'oioioi.base.tests.FakeTimeMiddleware',
-)
+MIDDLEWARE += ('oioioi.base.tests.FakeTimeMiddleware',)
 
 TESTS = True
 MOCK_RANKINGSD = True
@@ -50,20 +48,13 @@ COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 WARN_ABOUT_REPEATED_SUBMISSION = False
 
-PROBLEM_SOURCES += (
-    'oioioi.zeus.problem_sources.ZeusProblemSource',
-)
+PROBLEM_SOURCES += ('oioioi.zeus.problem_sources.ZeusProblemSource',)
 
 ZEUS_INSTANCES = {
-    'dummy': ('__use_object__',
-              'oioioi.zeus.tests.ZeusDummyServer', ('', '', '')),
+    'dummy': ('__use_object__', 'oioioi.zeus.tests.ZeusDummyServer', ('', '', '')),
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
-    }
-}
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
 
 # Do not print migrations DEBUG to console.
 LOGGING['loggers']['django.db.backends.schema'] = {

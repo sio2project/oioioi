@@ -1,6 +1,5 @@
 from collections import defaultdict
-from datetime import timedelta, datetime  # pylint: disable=E0611
-from pytz import UTC
+from datetime import datetime, timedelta  # pylint: disable=E0611
 
 import six
 from django.conf import settings
@@ -9,16 +8,29 @@ from django.db.models import Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
+from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
-from oioioi.contests.models import (Contest, ProblemInstance, Round,
-                                    RoundTimeExtension, Submission)
+from oioioi.contests.models import (
+    Contest,
+    ProblemInstance,
+    Round,
+    RoundTimeExtension,
+    Submission,
+)
 
 
 class RoundTimes(object):
-    def __init__(self, start, end, contest, show_results=None,
-            show_public_results=None, extra_time=0):
+    def __init__(
+        self,
+        start,
+        end,
+        contest,
+        show_results=None,
+        show_public_results=None,
+        extra_time=0,
+    ):
         self.start = start
         self.end = end
         self.show_results = show_results
@@ -33,8 +45,7 @@ class RoundTimes(object):
 
     def is_active(self, current_datetime):
         """Returns True if the round is still active for a user"""
-        return not (self.is_past(current_datetime) or
-                    self.is_future(current_datetime))
+        return not (self.is_past(current_datetime) or self.is_future(current_datetime))
 
     def is_future(self, current_datetime):
         """Returns True if the round is not started for a user"""
@@ -44,29 +55,30 @@ class RoundTimes(object):
     def results_visible(self, current_datetime):
         """Returns True if results are visible for a user.
 
-           Usually show_results date decides.
+        Usually show_results date decides.
 
-           When a RoundTimeExtension is set for a given user and the round
-           is still active, results publication is delayed.
+        When a RoundTimeExtension is set for a given user and the round
+        is still active, results publication is delayed.
         """
         if self.show_results is None:
             return False
 
         if self.is_active(current_datetime):
-            return current_datetime >= \
-                    self.show_results + timedelta(minutes=self.extra_time)
+            return current_datetime >= self.show_results + timedelta(
+                minutes=self.extra_time
+            )
 
         return current_datetime >= self.show_results
 
     def public_results_visible(self, current_datetime):
         """Returns True if the results of the round have already been made
-           public
+        public
 
-           It the contest's controller makes no distinction between personal
-           and public results, this function returns the same as
-           :meth:'results_visible'.
+        It the contest's controller makes no distinction between personal
+        and public results, this function returns the same as
+        :meth:'results_visible'.
 
-           Otherwise the show_public_results date is used.
+        Otherwise the show_public_results date is used.
         """
         if not self.contest.controller.separate_public_results():
             return self.results_visible(current_datetime)
@@ -81,7 +93,7 @@ class RoundTimes(object):
 
     def get_end(self):
         """Returns end of user roundtime
-           having regard to the extension of the rounds
+        having regard to the extension of the rounds
         """
         if self.end:
             return self.end + timedelta(minutes=self.extra_time)
@@ -89,8 +101,10 @@ class RoundTimes(object):
             return self.end
 
     def get_key_for_comparison(self):
-        return self.get_start() or UTC.localize(datetime.min), \
-               self.get_end() or UTC.localize(datetime.max)
+        return (
+            self.get_start() or UTC.localize(datetime.min),
+            self.get_end() or UTC.localize(datetime.max),
+        )
 
 
 def generic_rounds_times(request=None, contest=None):
@@ -105,19 +119,34 @@ def generic_rounds_times(request=None, contest=None):
         elif contest.id in getattr(request, cache_attribute):
             return getattr(request, cache_attribute)[contest.id]
 
-    rounds = [r for r in Round.objects.filter(contest=contest)
-              .select_related('contest')]
+    rounds = [
+        r for r in Round.objects.filter(contest=contest).select_related('contest')
+    ]
     rids = [r.id for r in rounds]
-    if not request or not hasattr(request, 'user') or \
-            request.user.is_anonymous:
+    if not request or not hasattr(request, 'user') or request.user.is_anonymous:
         rtexts = {}
     else:
-        rtexts = dict((x['round_id'], x) for x in RoundTimeExtension.objects
-                      .filter(user=request.user, round__id__in=rids).values())
+        rtexts = dict(
+            (x['round_id'], x)
+            for x in RoundTimeExtension.objects.filter(
+                user=request.user, round__id__in=rids
+            ).values()
+        )
 
-    result = dict((r, RoundTimes(r.start_date, r.end_date, r.contest,
-        r.results_date, r.public_results_date,
-        rtexts[r.id]['extra_time'] if r.id in rtexts else 0)) for r in rounds)
+    result = dict(
+        (
+            r,
+            RoundTimes(
+                r.start_date,
+                r.end_date,
+                r.contest,
+                r.results_date,
+                r.public_results_date,
+                rtexts[r.id]['extra_time'] if r.id in rtexts else 0,
+            ),
+        )
+        for r in rounds
+    )
     if request is not None:
         getattr(request, cache_attribute)[contest.id] = result
     return result
@@ -161,7 +190,7 @@ def _public_results_visible(request, **kwargs):
 @request_cached
 def all_public_results_visible(request):
     """Checks if results of all rounds of the current contest are visible to
-       public.
+    public.
     """
     return _public_results_visible(request)
 
@@ -170,7 +199,7 @@ def all_public_results_visible(request):
 @request_cached
 def all_non_trial_public_results_visible(request):
     """Checks if results of all non-trial rounds of the current contest are
-       visible to public.
+    visible to public.
     """
     return _public_results_visible(request, is_trial=False)
 
@@ -190,16 +219,22 @@ def has_any_visible_problem_instance(request):
 @request_cached
 def submittable_problem_instances(request):
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related('problem').prefetch_related('round')
+    queryset = (
+        ProblemInstance.objects.filter(contest=request.contest)
+        .select_related('problem')
+        .prefetch_related('round')
+    )
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
 
 @request_cached
 def visible_problem_instances(request):
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related('problem').prefetch_related('round')
+    queryset = (
+        ProblemInstance.objects.filter(contest=request.contest)
+        .select_related('problem')
+        .prefetch_related('round')
+    )
     return [pi for pi in queryset if controller.can_see_problem(request, pi)]
 
 
@@ -222,7 +257,7 @@ def aggregate_statuses(statuses):
 
 def used_controllers():
     """Returns list of dotted paths to contest controller classes in use
-       by contests on this instance.
+    by contests on this instance.
     """
     return Contest.objects.values_list('controller_name', flat=True).distinct()
 
@@ -237,8 +272,9 @@ def visible_contests(request):
             # HACK: we pass None contest just to call visible_contests_query.
             # This is a workaround for mixins not taking classmethods very well.
             controller = controller_class(None)
-            subquery = (Contest.objects.filter(controller_name=controller_name)
-                    .filter(controller.registration_controller().visible_contests_query(request)))
+            subquery = Contest.objects.filter(controller_name=controller_name).filter(
+                controller.registration_controller().visible_contests_query(request)
+            )
             visible_query = visible_query.union(subquery, all=False)
         return set(visible_query)
     visible_query = Q(pk__isnull=True)  # (False)
@@ -247,43 +283,48 @@ def visible_contests(request):
         # HACK: we pass None contest just to call visible_contests_query.
         # This is a workaround for mixins not taking classmethods very well.
         controller = controller_class(None)
-        visible_query |= (Q(controller_name=controller_name) & controller
-                          .registration_controller().visible_contests_query(request))
+        visible_query |= Q(
+            controller_name=controller_name
+        ) & controller.registration_controller().visible_contests_query(request)
     return set(Contest.objects.filter(visible_query).distinct())
 
 
 @request_cached
 def administered_contests(request):
     """Returns a list of contests for which the logged
-       user has contest_admin permission for.
+    user has contest_admin permission for.
     """
-    return [contest for contest in visible_contests(request) \
-            if can_admin_contest(request.user, contest)]
+    return [
+        contest
+        for contest in visible_contests(request)
+        if can_admin_contest(request.user, contest)
+    ]
 
 
 @make_request_condition
 @request_cached
 def is_contest_admin(request):
-    """ Checks if the user is the contest admin of the current contest.
-        This permission level allows full access to all contest functionality.
+    """Checks if the user is the contest admin of the current contest.
+    This permission level allows full access to all contest functionality.
     """
     return request.user.has_perm('contests.contest_admin', request.contest)
 
 
 def can_admin_contest(user, contest):
-    """ Checks if the user should be allowed on the admin pages of the contest.
-        This is the same level of permissions as is_contest_basicadmin.
+    """Checks if the user should be allowed on the admin pages of the contest.
+    This is the same level of permissions as is_contest_basicadmin.
     """
-    return user.has_perm('contests.contest_admin', contest) \
-        or user.has_perm('contests.contest_basicadmin', contest)
+    return user.has_perm('contests.contest_admin', contest) or user.has_perm(
+        'contests.contest_basicadmin', contest
+    )
 
 
 @make_request_condition
 @request_cached
 def is_contest_basicadmin(request):
-    """ Checks if the user is a basic admin of the current contest.
-        This permission level allows edit access to basic contest functionality.
-        It is also implied by having full admin privileges (is_contest_admin).
+    """Checks if the user is a basic admin of the current contest.
+    This permission level allows edit access to basic contest functionality.
+    It is also implied by having full admin privileges (is_contest_admin).
     """
     return can_admin_contest(request.user, request.contest)
 
@@ -309,8 +350,7 @@ def can_enter_contest(request):
     return rcontroller.can_enter_contest(request)
 
 
-def get_submission_or_error(request, submission_id,
-                            submission_class=Submission):
+def get_submission_or_error(request, submission_id, submission_class=Submission):
     """Returns the submission if it exists and user has rights to see it."""
     submission = get_object_or_404(submission_class, id=submission_id)
     if hasattr(request, 'user') and request.user.is_superuser:
@@ -332,18 +372,24 @@ def get_submission_or_error(request, submission_id,
 @request_cached
 def last_break_between_rounds(request_or_context):
     """Returns the end_date of the latest past round and the start_date
-       of the closest future round.
+    of the closest future round.
 
-       Assumes that none of the rounds is active.
+    Assumes that none of the rounds is active.
     """
     if isinstance(request_or_context, HttpRequest):
         rtimes = rounds_times(request_or_context, request_or_context.contest)
     else:
         rtimes = generic_rounds_times(None, request_or_context.contest)
-    ends = [rt.get_end() for rt in six.itervalues(rtimes)
-            if rt.is_past(request_or_context.timestamp)]
-    starts = [rt.get_start() for rt in six.itervalues(rtimes)
-              if rt.is_future(request_or_context.timestamp)]
+    ends = [
+        rt.get_end()
+        for rt in six.itervalues(rtimes)
+        if rt.is_past(request_or_context.timestamp)
+    ]
+    starts = [
+        rt.get_start()
+        for rt in six.itervalues(rtimes)
+        if rt.is_future(request_or_context.timestamp)
+    ]
 
     max_end = max(ends) if ends else None
     min_start = min(starts) if starts else None
@@ -361,16 +407,20 @@ def best_round_to_display(request, allow_past_rounds=False):
 
     if timestamp and contest:
         rtimes = dict(
-                (round, contest.controller.get_round_times(request, round))
-                for round in Round.objects.filter(contest=contest))
-        next_rtimes = [(r, rt) for r, rt in six.iteritems(rtimes)
-                if rt.is_future(timestamp)]
+            (round, contest.controller.get_round_times(request, round))
+            for round in Round.objects.filter(contest=contest)
+        )
+        next_rtimes = [
+            (r, rt) for r, rt in six.iteritems(rtimes) if rt.is_future(timestamp)
+        ]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
-        current_rtimes = [(r, rt) for r, rt in rtimes
-                                if rt.is_active(timestamp) and rt.get_end()]
+        current_rtimes = [
+            (r, rt) for r, rt in rtimes if rt.is_active(timestamp) and rt.get_end()
+        ]
         current_rtimes.sort(key=lambda r_rt1: r_rt1[1].get_end())
-        past_rtimes = [(r, rt) for r, rt in six.iteritems(rtimes)
-                if rt.is_past(timestamp)]
+        past_rtimes = [
+            (r, rt) for r, rt in six.iteritems(rtimes) if rt.is_past(timestamp)
+        ]
         past_rtimes.sort(key=lambda r_rt2: r_rt2[1].get_end())
 
     if current_rtimes:

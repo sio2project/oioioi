@@ -10,14 +10,17 @@ class TestAuth(OIOIOISeleniumTestCase):
         driver.find_element_by_id("navbar-username").click()
         driver.find_element_by_link_text("Register").click()
         driver.wait_for_load()
-        driver.submit_form({
-            'username': username,
-            'first_name': username,
-            'last_name': username,
-            'email': username + '@example.com',
-            'password1': password,
-            'password2': password},
-            "//button[text()='Submit']")
+        driver.submit_form(
+            {
+                'username': username,
+                'first_name': username,
+                'last_name': username,
+                'email': username + '@example.com',
+                'password1': password,
+                'password2': password,
+            },
+            "//button[text()='Submit']",
+        )
         driver.wait_for_load()
         driver.login(username, password)
         driver.logout()

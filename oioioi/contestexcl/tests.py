@@ -23,7 +23,6 @@ def add_ex_conf(contest, start_date, end_date=None, enabled=True):
 
 
 class ContestIdViewCheckMixin(object):
-
     def _assertContestVisible(self, contest_id):
         response = self.client.get('/c/' + contest_id + '/id/')
         self.assertEqual(response.status_code, 200)
@@ -35,9 +34,11 @@ class ContestIdViewCheckMixin(object):
         self.assertIn(where, response['Location'])
 
 
-@override_settings(MIDDLEWARE=MIDDLEWARE +
-                   ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
-                   ROOT_URLCONF='oioioi.contests.tests.test_urls')
+@override_settings(
+    MIDDLEWARE=MIDDLEWARE
+    + ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
+    ROOT_URLCONF='oioioi.contests.tests.test_urls',
+)
 class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
     fixtures = ['test_permissions', 'test_users', 'test_contest']
 
@@ -77,59 +78,75 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
         self._check_superadmin_access()
 
     def test_exclusiveness_on(self):
-        add_ex_conf(self.c,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 14, tzinfo=utc))
+        add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+        )
 
         self._check_user_access()
         self._check_contestadmin_access(visible=True)
         self._check_superadmin_access()
 
     def test_exclusiveness_off(self):
-        add_ex_conf(self.c,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 14, tzinfo=utc),
-                    False)
+        add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+            False,
+        )
 
         self._check_user_access()
         self._check_contestadmin_access(visible=False)
         self._check_superadmin_access()
 
     def test_exclusiveness_multiple_on(self):
-        add_ex_conf(self.c,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 14, tzinfo=utc))
+        add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+        )
 
-        add_ex_conf(self.c,
-                    datetime(2012, 1, 1, 12, tzinfo=utc),
-                    datetime(2012, 1, 1, 16, tzinfo=utc))
+        add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 12, tzinfo=utc),
+            datetime(2012, 1, 1, 16, tzinfo=utc),
+        )
         self._check_user_access()
         self._check_contestadmin_access(visible=True)
         self._check_superadmin_access()
 
     def test_exclusiveness_multiple_off(self):
-        add_ex_conf(self.c,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 14, tzinfo=utc),
-                    False)
+        add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+            False,
+        )
 
-        add_ex_conf(self.c,
-                    datetime(2012, 1, 1, 12, tzinfo=utc),
-                    datetime(2012, 1, 1, 16, tzinfo=utc),
-                    False)
+        add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 12, tzinfo=utc),
+            datetime(2012, 1, 1, 16, tzinfo=utc),
+            False,
+        )
         self._check_user_access()
         self._check_contestadmin_access(visible=False)
         self._check_superadmin_access()
 
     def test_exclusiveness_multiple_mixed_on_off(self):
-        ex_conf_1 = add_ex_conf(self.c,
-                                datetime(2012, 1, 1, 10, tzinfo=utc),
-                                datetime(2012, 1, 1, 14, tzinfo=utc))
+        ex_conf_1 = add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+        )
 
-        ex_conf_2 = add_ex_conf(self.c,
-                                datetime(2012, 1, 1, 12, tzinfo=utc),
-                                datetime(2012, 1, 1, 16, tzinfo=utc),
-                                False)
+        ex_conf_2 = add_ex_conf(
+            self.c,
+            datetime(2012, 1, 1, 12, tzinfo=utc),
+            datetime(2012, 1, 1, 16, tzinfo=utc),
+            False,
+        )
         self._check_user_access()
         self._check_contestadmin_access(visible=True)
         self._check_superadmin_access()
@@ -142,11 +159,13 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
         self._check_contestadmin_access(visible=True)
         self._check_superadmin_access()
 
-    def _modify_contestexcl(self,
-                            round_start_date_form,
-                            round_end_date_form=('', ''),
-                            excl_start_date_forms=(),
-                            excl_end_date_forms=()):
+    def _modify_contestexcl(
+        self,
+        round_start_date_form,
+        round_end_date_form=('', ''),
+        excl_start_date_forms=(),
+        excl_end_date_forms=(),
+    ):
         response = self.admin.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         formsets = (
@@ -171,148 +190,182 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
         )
         data = dict()
         for (name, total, initial, min_num, max_num) in formsets:
-            data.update({
-                '{}-TOTAL_FORMS'.format(name): total,
-                '{}-INITIAL_FORMS'.format(name): initial,
-                '{}-MIN_NUM_FORMS'.format(name): min_num,
-                '{}-MAX_NUM_FORMS'.format(name): max_num,
-            })
-        data.update({
-            'name': 'Contestexcl Test Contest',
-            'start_date_0': '2000-01-01',
-            'start_date_1': '00:00:00',
-            'end_date_0': '',
-            'end_date_1': '',
-            'results_date_0': '',
-            'results_date_1': '',
-            'round_set-0-id': 1,
-            'round_set-0-contest': 'c',
-            'round_set-0-name': 'Contestexcl Test Round',
-            'round_set-0-start_date_0': round_start_date_form[0],
-            'round_set-0-start_date_1': round_start_date_form[1],
-            'round_set-0-end_date_0': round_end_date_form[0],
-            'round_set-0-end_date_1': round_end_date_form[1],
-        })
+            data.update(
+                {
+                    '{}-TOTAL_FORMS'.format(name): total,
+                    '{}-INITIAL_FORMS'.format(name): initial,
+                    '{}-MIN_NUM_FORMS'.format(name): min_num,
+                    '{}-MAX_NUM_FORMS'.format(name): max_num,
+                }
+            )
+        data.update(
+            {
+                'name': 'Contestexcl Test Contest',
+                'start_date_0': '2000-01-01',
+                'start_date_1': '00:00:00',
+                'end_date_0': '',
+                'end_date_1': '',
+                'results_date_0': '',
+                'results_date_1': '',
+                'round_set-0-id': 1,
+                'round_set-0-contest': 'c',
+                'round_set-0-name': 'Contestexcl Test Round',
+                'round_set-0-start_date_0': round_start_date_form[0],
+                'round_set-0-start_date_1': round_start_date_form[1],
+                'round_set-0-end_date_0': round_end_date_form[0],
+                'round_set-0-end_date_1': round_end_date_form[1],
+            }
+        )
         for i in range(len(excl_start_date_forms)):
-            data.update({
-                'exclusivenessconfig_set-{}-id'.format(i): '',
-                'exclusivenessconfig_set-{}-contest'.format(i): 'c',
-                'exclusivenessconfig_set-{}-enabled'.format(i): 'on',
-                'exclusivenessconfig_set-{}-start_date_0'.format(i):
-                    excl_start_date_forms[i][0],
-                'exclusivenessconfig_set-{}-start_date_1'.format(i):
-                    excl_start_date_forms[i][1],
-                'exclusivenessconfig_set-{}-end_date_0'.format(i): '',
-                'exclusivenessconfig_set-{}-end_date_1'.format(i): '',
-            })
+            data.update(
+                {
+                    'exclusivenessconfig_set-{}-id'.format(i): '',
+                    'exclusivenessconfig_set-{}-contest'.format(i): 'c',
+                    'exclusivenessconfig_set-{}-enabled'.format(i): 'on',
+                    'exclusivenessconfig_set-{}-start_date_0'.format(
+                        i
+                    ): excl_start_date_forms[i][0],
+                    'exclusivenessconfig_set-{}-start_date_1'.format(
+                        i
+                    ): excl_start_date_forms[i][1],
+                    'exclusivenessconfig_set-{}-end_date_0'.format(i): '',
+                    'exclusivenessconfig_set-{}-end_date_1'.format(i): '',
+                }
+            )
         for i in range(len(excl_end_date_forms)):
-            data.update({
-                'exclusivenessconfig_set-{}-end_date_0'.format(i):
-                    excl_end_date_forms[i][0],
-                'exclusivenessconfig_set-{}-end_date_1'.format(i):
-                    excl_end_date_forms[i][1],
-            })
+            data.update(
+                {
+                    'exclusivenessconfig_set-{}-end_date_0'.format(
+                        i
+                    ): excl_end_date_forms[i][0],
+                    'exclusivenessconfig_set-{}-end_date_1'.format(
+                        i
+                    ): excl_end_date_forms[i][1],
+                }
+            )
 
-        post_url = reverse('oioioiadmin:contests_contest_change',
-                           args=[self.c.id]) + '?simple=true'
+        post_url = (
+            reverse('oioioiadmin:contests_contest_change', args=[self.c.id])
+            + '?simple=true'
+        )
         response = self.admin.post(post_url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         return response
 
     def test_exclusiveness_round_warning(self):
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:00:00'), ('', ''),
-            [('2019-01-01', '12:00:00')], []
+            ('2019-01-01', '10:00:00'), ('', ''), [('2019-01-01', '12:00:00')], []
         )
         self.assertContains(response, "is not exclusive from")
 
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:00:00'), ('', ''),
-            [('2019-01-01', '10:00:00')], []
+            ('2019-01-01', '10:00:00'), ('', ''), [('2019-01-01', '10:00:00')], []
         )
         self.assertNotContains(response, "is not exclusive from")
 
         for h in (7, 9, 11):
             response = self._modify_contestexcl(
-                ('2019-01-01', '10:00:00'), ('', ''),
+                ('2019-01-01', '10:00:00'),
+                ('', ''),
                 [('2019-01-01', '{}:00:00'.format(h))],
-                [('2019-01-01', '{}:00:00'.format(h+2))]
+                [('2019-01-01', '{}:00:00'.format(h + 2))],
             )
             self.assertContains(response, "is not exclusive from")
 
         for h in (6, 8, 10, 12, 14):
             response = self._modify_contestexcl(
-                ('2019-01-01', '09:30:00'),('2019-01-01', '12:30:00'),
+                ('2019-01-01', '09:30:00'),
+                ('2019-01-01', '12:30:00'),
                 [('2019-01-01', '{}:00:00'.format(h))],
-                [('2019-01-01', '{}:00:00'.format(h+2))]
+                [('2019-01-01', '{}:00:00'.format(h + 2))],
             )
             self.assertContains(response, "is not exclusive from")
 
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:30:00'), ('2019-01-01', '11:30:00'),
-            [('2019-01-01', '10:00:00')], [('2019-01-01', '12:00:00')]
+            ('2019-01-01', '10:30:00'),
+            ('2019-01-01', '11:30:00'),
+            [('2019-01-01', '10:00:00')],
+            [('2019-01-01', '12:00:00')],
         )
         self.assertNotContains(response, "is not exclusive from")
 
-
     def test_exclusiveness_round_warning_multiple_configs(self):
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:00:00'), ('', ''),
+            ('2019-01-01', '10:00:00'),
+            ('', ''),
             [('2019-01-01', '13:00:00'), ('2019-01-01', '10:00:00')],
             [('', ''), ('2019-01-01', '12:00:00')],
         )
         self.assertContains(response, "is not exclusive from")
 
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:00:00'), ('', ''),
+            ('2019-01-01', '10:00:00'),
+            ('', ''),
             [('2019-01-01', '12:00:00'), ('2019-01-01', '10:00:00')],
             [('', ''), ('2019-01-01', '12:00:00')],
         )
         self.assertNotContains(response, "is not exclusive from")
 
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:00:00'), ('2019-01-01', '15:00:00'),
-            [('2019-01-01', '13:00:00'),
-             ('2019-01-01', '12:00:00'),
-             ('2019-01-01', '11:00:00'),
-             ('2019-01-01', '10:00:00')],
-            [('2019-01-01', '14:00:00'),
-             ('2019-01-01', '13:00:00'),
-             ('2019-01-01', '12:00:00'),
-             ('2019-01-01', '11:00:00')]
+            ('2019-01-01', '10:00:00'),
+            ('2019-01-01', '15:00:00'),
+            [
+                ('2019-01-01', '13:00:00'),
+                ('2019-01-01', '12:00:00'),
+                ('2019-01-01', '11:00:00'),
+                ('2019-01-01', '10:00:00'),
+            ],
+            [
+                ('2019-01-01', '14:00:00'),
+                ('2019-01-01', '13:00:00'),
+                ('2019-01-01', '12:00:00'),
+                ('2019-01-01', '11:00:00'),
+            ],
         )
         self.assertContains(response, "is not exclusive from")
 
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:00:00'), ('2019-01-01', '15:00:00'),
-            [('2019-01-01', '14:00:00'),
-             ('2019-01-01', '13:00:00'),
-             ('2019-01-01', '11:00:00'),
-             ('2019-01-01', '10:00:00')],
-            [('2019-01-01', '15:00:00'),
-             ('2019-01-01', '14:00:00'),
-             ('2019-01-01', '12:00:00'),
-             ('2019-01-01', '11:00:00')]
+            ('2019-01-01', '10:00:00'),
+            ('2019-01-01', '15:00:00'),
+            [
+                ('2019-01-01', '14:00:00'),
+                ('2019-01-01', '13:00:00'),
+                ('2019-01-01', '11:00:00'),
+                ('2019-01-01', '10:00:00'),
+            ],
+            [
+                ('2019-01-01', '15:00:00'),
+                ('2019-01-01', '14:00:00'),
+                ('2019-01-01', '12:00:00'),
+                ('2019-01-01', '11:00:00'),
+            ],
         )
         self.assertContains(response, "is not exclusive from")
 
         response = self._modify_contestexcl(
-            ('2019-01-01', '10:00:00'), ('2019-01-01', '15:00:00'),
-            [('2019-01-01', '14:00:00'),
-             ('2019-01-01', '12:00:00'),
-             ('2019-01-01', '11:00:00'),
-             ('2019-01-01', '10:00:00')],
-            [('2019-01-01', '15:00:00'),
-             ('', ''),
-             ('2019-01-01', '12:00:00'),
-             ('2019-01-01', '11:00:00')]
+            ('2019-01-01', '10:00:00'),
+            ('2019-01-01', '15:00:00'),
+            [
+                ('2019-01-01', '14:00:00'),
+                ('2019-01-01', '12:00:00'),
+                ('2019-01-01', '11:00:00'),
+                ('2019-01-01', '10:00:00'),
+            ],
+            [
+                ('2019-01-01', '15:00:00'),
+                ('', ''),
+                ('2019-01-01', '12:00:00'),
+                ('2019-01-01', '11:00:00'),
+            ],
         )
         self.assertNotContains(response, "is not exclusive from")
 
 
-@override_settings(MIDDLEWARE=MIDDLEWARE +
-                    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
-                   ROOT_URLCONF='oioioi.contests.tests.test_urls')
+@override_settings(
+    MIDDLEWARE=MIDDLEWARE
+    + ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
+    ROOT_URLCONF='oioioi.contests.tests.test_urls',
+)
 class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
     fixtures = ['test_users', 'test_two_empty_contests']
 
@@ -329,9 +382,11 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
         self._assertContestVisible('c1')
         self._assertContestVisible('c2')
 
-        add_ex_conf(self.c2,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 14, tzinfo=utc))
+        add_ex_conf(
+            self.c2,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+        )
 
         with fake_time(datetime(2012, 1, 1, 9, 59, tzinfo=utc)):
             self._assertContestVisible('c1')
@@ -346,13 +401,17 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
             self._assertContestVisible('c2')
 
     def test_exclusive_contest_multiple_configs(self):
-        add_ex_conf(self.c2,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 12, tzinfo=utc))
+        add_ex_conf(
+            self.c2,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 12, tzinfo=utc),
+        )
 
-        add_ex_conf(self.c2,
-                    datetime(2012, 1, 1, 14, tzinfo=utc),
-                    datetime(2012, 1, 1, 16, tzinfo=utc))
+        add_ex_conf(
+            self.c2,
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 16, tzinfo=utc),
+        )
 
         with fake_time(datetime(2012, 1, 1, 9, 59, 59, tzinfo=utc)):
             self._assertContestVisible('c1')
@@ -386,12 +445,13 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
-
     def test_enabled_field(self):
-        ex_conf = add_ex_conf(self.c2,
-                              datetime(2012, 1, 1, 10, tzinfo=utc),
-                              datetime(2012, 1, 1, 14, tzinfo=utc),
-                              False)
+        ex_conf = add_ex_conf(
+            self.c2,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+            False,
+        )
 
         with fake_time(datetime(2012, 1, 1, 11, tzinfo=utc)):
             self._assertContestVisible('c1')
@@ -407,18 +467,23 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
         self._assertContestVisible('c1')
         self._assertContestVisible('c2')
 
-        add_ex_conf(self.c1,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 14, tzinfo=utc))
+        add_ex_conf(
+            self.c1,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+        )
 
-        add_ex_conf(self.c2,
-                    datetime(2012, 1, 1, 12, tzinfo=utc),
-                    datetime(2012, 1, 1, 16, tzinfo=utc))
+        add_ex_conf(
+            self.c2,
+            datetime(2012, 1, 1, 12, tzinfo=utc),
+            datetime(2012, 1, 1, 16, tzinfo=utc),
+        )
 
         with fake_time(datetime(2012, 1, 1, 13, tzinfo=utc)):
             response = self.client.get('/c/c1/id/')
-            self.assertContains(response,
-                    'participate in more than one contest that exc')
+            self.assertContains(
+                response, 'participate in more than one contest that exc'
+            )
             self.assertEqual(len(mail.outbox), 1)
             message = mail.outbox[0]
             self.assertEqual(list(message.to), ['admin@example.com'])
@@ -429,9 +494,11 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
     def test_default_selector(self):
         self.assertTrue(self.client.login(username='test_admin'))
 
-        add_ex_conf(self.c1,
-                    datetime(2012, 1, 1, 10, tzinfo=utc),
-                    datetime(2012, 1, 1, 14, tzinfo=utc))
+        add_ex_conf(
+            self.c1,
+            datetime(2012, 1, 1, 10, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=utc),
+        )
 
         with fake_time(datetime(2012, 1, 1, 12, tzinfo=utc)):
             self._assertContestVisible('c1')

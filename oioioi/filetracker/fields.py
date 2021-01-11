@@ -25,7 +25,8 @@ class _FileDescriptor(files.FileDescriptor):
         if instance is None:
             raise AttributeError(
                 "The '%s' attribute can only be accessed from %s instances."
-                % (self.field.name, owner.__name__))
+                % (self.field.name, owner.__name__)
+            )
         file = instance.__dict__[self.field.name]
         if isinstance(file, six.string_types) and file == 'none':
             instance.__dict__[self.field.name] = None
@@ -52,17 +53,17 @@ class _FileDescriptor(files.FileDescriptor):
 class FileField(files.FileField):
     """A :class:`~django.db.models.FileField` with fixtures support.
 
-       Default value of max_length is increased from 100 to 255.
+    Default value of max_length is increased from 100 to 255.
 
-       Values of ``FileFields`` are serialized as::
+    Values of ``FileFields`` are serialized as::
 
-         data:<filename>:<base64-encoded data>
+      data:<filename>:<base64-encoded data>
 
-       It is also possible to decode a more human-friendly representaion::
+    It is also possible to decode a more human-friendly representaion::
 
-         data:<filename>:raw:<raw data>
+      data:<filename>:raw:<raw data>
 
-       but this works only for ASCII content.
+    but this works only for ASCII content.
     """
 
     descriptor_class = _FileDescriptor
@@ -74,8 +75,7 @@ class FileField(files.FileField):
         super(FileField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
-        if hasattr(value, 'name') \
-                and isinstance(value.name, FiletrackerFilename):
+        if hasattr(value, 'name') and isinstance(value.name, FiletrackerFilename):
             value = value.name.versioned_name
         return super(FileField, self).get_prep_value(value)
 

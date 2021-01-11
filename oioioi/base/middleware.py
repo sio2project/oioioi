@@ -9,18 +9,18 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.utils.user import has_valid_username, has_valid_name
 from oioioi.base.utils.middleware import was_response_generated_by_exception
+from oioioi.base.utils.user import has_valid_name, has_valid_username
 from oioioi.su.utils import is_under_su
 
 
 class TimestampingMiddleware(object):
     """Middleware which adds an attribute ``timestamp`` to each ``request``
-       object, representing the request time as :class:`datetime.datetime`
-       instance.
+    object, representing the request time as :class:`datetime.datetime`
+    instance.
 
-       It should be placed as close to the begging of the list of middlewares
-       as possible.
+    It should be placed as close to the begging of the list of middlewares
+    as possible.
     """
 
     def __init__(self, get_response):
@@ -49,14 +49,15 @@ class HttpResponseNotAllowedMiddleware(object):
 
     def _process_response(self, request, response):
         if isinstance(response, HttpResponseNotAllowed):
-            response.content = render_to_string("405.html",
-                    request=request, context={'allowed': response['Allow']})
+            response.content = render_to_string(
+                "405.html", request=request, context={'allowed': response['Allow']}
+            )
         return response
 
 
 class AnnotateUserBackendMiddleware(object):
     """Middleware annotating user object with path of authentication
-       backend.
+    backend.
     """
 
     def __init__(self, get_response):
@@ -76,7 +77,8 @@ class AnnotateUserBackendMiddleware(object):
                 " authentication middleware to be installed.  Edit your"
                 " MIDDLEWARE setting to insert"
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
-                " before the AnnotateUserBackendMiddleware class.")
+                " before the AnnotateUserBackendMiddleware class."
+            )
 
         if BACKEND_SESSION_KEY in request.session:
             # Barbarously discard request.user laziness.
@@ -85,7 +87,7 @@ class AnnotateUserBackendMiddleware(object):
 
 class UserInfoInErrorMessage(object):
     """Add username and email of a user who caused an exception
-       to error message."""
+    to error message."""
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -106,8 +108,7 @@ class UserInfoInErrorMessage(object):
 
             # This is because is_authenticated is a CallableBool not bool until Django 2.0,
             # so its str is not True/False as expected.
-            request.META['IS_AUTHENTICATED'] = \
-                str(bool(request.user.is_authenticated))
+            request.META['IS_AUTHENTICATED'] = str(bool(request.user.is_authenticated))
             request.META['IS_UNDER_SU'] = str(is_under_su(request))
 
             if request.user.is_authenticated:
@@ -137,20 +138,18 @@ class CheckLoginMiddleware(object):
             return
 
         storage = messages.get_messages(request)
-        check_login_message = \
-            _("Your login - %(login)s - contains forbidden characters. ") \
-            % {'login': request.user.username}
+        check_login_message = _(
+            "Your login - %(login)s - contains forbidden characters. "
+        ) % {'login': request.user.username}
 
-        check_name_message = \
-            _("Your name - %(name)s %(surname)s - "
-              "contains forbidden characters. ") \
-            % {'name': request.user.first_name,
-               'surname': request.user.last_name}
+        check_name_message = _(
+            "Your name - %(name)s %(surname)s - " "contains forbidden characters. "
+        ) % {'name': request.user.first_name, 'surname': request.user.last_name}
 
-        message_appendix = \
-            _("Please click <a href='%(link)s'>here</a> to change it. "
-              "It will take only a while.") \
-            % {'link': reverse('edit_profile')}
+        message_appendix = _(
+            "Please click <a href='%(link)s'>here</a> to change it. "
+            "It will take only a while."
+        ) % {'link': reverse('edit_profile')}
 
         final_message = ""
         if not valid_username:
@@ -165,5 +164,4 @@ class CheckLoginMiddleware(object):
 
         if final_message in all_messages:
             return
-        messages.add_message(request, messages.INFO,
-                             mark_safe(final_message))
+        messages.add_message(request, messages.INFO, mark_safe(final_message))

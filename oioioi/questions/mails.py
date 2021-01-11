@@ -17,14 +17,16 @@ def notify_about_new_question(sender, request, instance, **kwargs):
 
 
 def send_email_about_new_question(recipient, request, msg_obj):
-    context = {'recipient': recipient, 'msg': msg_obj,
-               'msg_link': request.build_absolute_uri(
-                   reverse('message',
-                           kwargs={
-                               'contest_id': request.contest.id,
-                               'message_id': msg_obj.id
-                           })
-               )}
+    context = {
+        'recipient': recipient,
+        'msg': msg_obj,
+        'msg_link': request.build_absolute_uri(
+            reverse(
+                'message',
+                kwargs={'contest_id': request.contest.id, 'message_id': msg_obj.id},
+            )
+        ),
+    }
 
     subject = render_to_string('questions/new_msg_mail_subject.txt', context)
 

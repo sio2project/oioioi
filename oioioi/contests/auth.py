@@ -13,8 +13,8 @@ class ContestPermissionsAuthBackend(object):
 
     def filter_for_perm(self, obj_class, perm, user):
         """Provides a :class:`django.db.models.Q` expression which can be used
-           to filter `obj_class` queryset for objects `o` such that
-           `has_perm(user, perm, o)` is True.
+        to filter `obj_class` queryset for objects `o` such that
+        `has_perm(user, perm, o)` is True.
         """
         if not user.is_authenticated or not user.is_active:
             return Q(pk__isnull=True)  # (False)
@@ -32,11 +32,14 @@ class ContestPermissionsAuthBackend(object):
             return False
         if obj is None or not isinstance(obj, Contest):
             return False
-        if perm == 'contests.contest_basicadmin' \
-                and self.has_perm(user_obj, 'contests.contest_admin', obj):
+        if perm == 'contests.contest_basicadmin' and self.has_perm(
+            user_obj, 'contests.contest_admin', obj
+        ):
             return True
         if not hasattr(user_obj, '_contest_perms_cache'):
-            user_obj._contest_perms_cache = set(ContestPermission.objects
-                .filter(user=user_obj)
-                .values_list('contest', 'permission'))
+            user_obj._contest_perms_cache = set(
+                ContestPermission.objects.filter(user=user_obj).values_list(
+                    'contest', 'permission'
+                )
+            )
         return (obj.id, perm) in user_obj._contest_perms_cache

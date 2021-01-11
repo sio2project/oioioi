@@ -2,9 +2,11 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from oioioi.base.permissions import enforce_condition, is_superuser
-from oioioi.maintenancemode.models import (get_maintenance_mode,
-                                           is_maintenance_mode_enabled,
-                                           set_maintenance_mode)
+from oioioi.maintenancemode.models import (
+    get_maintenance_mode,
+    is_maintenance_mode_enabled,
+    set_maintenance_mode,
+)
 
 
 def maintenance_view(request):
@@ -13,8 +15,7 @@ def maintenance_view(request):
     if not is_maintenance_mode_enabled():
         return HttpResponseRedirect('/')
     maintenance_info = get_maintenance_mode()
-    return render(request, 'maintenance.html',
-                  {'message': maintenance_info['message']})
+    return render(request, 'maintenance.html', {'message': maintenance_info['message']})
 
 
 @enforce_condition(is_superuser)
@@ -27,8 +28,11 @@ def set_maintenance_mode_view(request):
             set_maintenance_mode(False)
 
     maintenance_info = get_maintenance_mode()
-    return render(request, 'set_maintenance.html',
-                  {
-                      'message': maintenance_info['message'],
-                      'state': maintenance_info['state'],
-                  })
+    return render(
+        request,
+        'set_maintenance.html',
+        {
+            'message': maintenance_info['message'],
+            'state': maintenance_info['state'],
+        },
+    )

@@ -10,16 +10,24 @@ from django.utils.timezone import utc
 from six.moves import range, zip
 
 from oioioi.base.templatetags.simple_filters import result_color_class
-from oioioi.base.tests import (TestCase, check_not_accessible, fake_time,
-                               fake_timezone_now)
-from oioioi.contests.models import (Contest, ProblemInstance,
-                                    UserResultForProblem)
+from oioioi.base.tests import (
+    TestCase,
+    check_not_accessible,
+    fake_time,
+    fake_timezone_now,
+)
+from oioioi.contests.models import Contest, ProblemInstance, UserResultForProblem
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController
-from oioioi.rankings.models import (Ranking, RankingPage, RankingRecalc,
-                                    choose_for_recalculation, recalculate)
+from oioioi.rankings.models import (
+    Ranking,
+    RankingPage,
+    RankingRecalc,
+    choose_for_recalculation,
+    recalculate,
+)
 
 VISIBLE_TASKS = ["zad1", "zad2"]
 HIDDEN_TASKS = ["zad3", "zad4"]
@@ -34,9 +42,16 @@ class StatementHiderForContestController(ProgrammingContestController):
 
 
 class TestRankingViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission', 'test_extra_rounds',
-            'test_ranking_data', 'test_permissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_rounds',
+        'test_ranking_data',
+        'test_permissions',
+    ]
 
     @override_settings(PARTICIPANTS_ON_PAGE=3)
     def test_find_user(self):
@@ -49,8 +64,9 @@ class TestRankingViews(TestCase):
 
         # Creates user and adds him a score for problem pis
         def create_score(username, score):
-            user = User.objects.create_user(username, username + '@example.pl',
-                                            username)
+            user = User.objects.create_user(
+                username, username + '@example.pl', username
+            )
             result = UserResultForProblem()
             result.user = user
             result.problem_instance = pis
@@ -68,8 +84,7 @@ class TestRankingViews(TestCase):
 
         self.assertTrue(self.client.login(username='test_contest_admin'))
 
-        url = reverse('ranking', kwargs={'contest_id': contest.id,
-                                         'key': pis.round.id})
+        url = reverse('ranking', kwargs={'contest_id': contest.id, 'key': pis.round.id})
 
         def get_url_for_user(username):
             get = QueryDict('', mutable=True)
@@ -83,8 +98,7 @@ class TestRankingViews(TestCase):
             return url + '?' + get.urlencode() + '#' + str(user.id)
 
         user_not_in_ranking = User.objects.get(username='test_user')
-        response = self.client.get(
-                get_url_for_user(user_not_in_ranking.username))
+        response = self.client.get(get_url_for_user(user_not_in_ranking.username))
 
         # Because there are two possible sources of error message,
         # check also if there's only one displayed.
@@ -109,8 +123,7 @@ class TestRankingViews(TestCase):
         # Login as someone who is in the ranking
         user_num = 6  # a users list index
         self.assertTrue(self.client.login(username=users[user_num].username))
-        response = self.client.get(
-                get_url_for_user(user_not_in_ranking.username))
+        response = self.client.get(get_url_for_user(user_not_in_ranking.username))
         self.assertNotContains(response, 'User is not in the ranking.')
         # Normal user shouldn't see the form
         self.assertNotContains(response, '<div class="search-for-user">')
@@ -120,8 +133,7 @@ class TestRankingViews(TestCase):
         # Test if users[0] can find himself
         response = self.client.get(get_url_for_user(users[user_num].username))
         page = ((number_of_users - user_num) // per_page) + 1
-        self.assertRedirects(response, get_url_found_user(users[user_num],
-                                                          page))
+        self.assertRedirects(response, get_url_found_user(users[user_num], page))
 
         for i in range(number_of_users):
             if i == user_num:
@@ -134,8 +146,7 @@ class TestRankingViews(TestCase):
 
         # Test if user who is not in the ranking receives error message.
         self.assertTrue(self.client.login(username=user_not_in_ranking.username))
-        response = self.client.get(
-                get_url_for_user(user_not_in_ranking.username))
+        response = self.client.get(get_url_for_user(user_not_in_ranking.username))
 
         self.assertContains(response, 'User is not in the ranking.', 1)
 
@@ -154,8 +165,12 @@ class TestRankingViews(TestCase):
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
 
-            self.assertFalse(re.search(USER_CELL_PATTERN % ('Test Admin',),
-                                       response.content.decode('utf-8')))
+            self.assertFalse(
+                re.search(
+                    USER_CELL_PATTERN % ('Test Admin',),
+                    response.content.decode('utf-8'),
+                )
+            )
             self.assertNotContains(response, 'Export to CSV')
             self.assertNotContains(response, 'Regenerate ranking')
 
@@ -167,14 +182,26 @@ class TestRankingViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         with fake_timezone_now(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertIn('rankings/ranking_view.html',
-                    [t.name for t in response.templates])
+            self.assertIn(
+                'rankings/ranking_view.html', [t.name for t in response.templates]
+            )
             self.assertEqual(len(response.context['choices']), 3)
-            self.assertEqual(len(re.findall(USER_CELL_PATTERN % ('Test User',),
-                                            response.content.decode('utf-8'))), 1)
+            self.assertEqual(
+                len(
+                    re.findall(
+                        USER_CELL_PATTERN % ('Test User',),
+                        response.content.decode('utf-8'),
+                    )
+                ),
+                1,
+            )
 
-            self.assertFalse(re.search(USER_CELL_PATTERN % ('Test Admin',),
-                                       response.content.decode('utf-8')))
+            self.assertFalse(
+                re.search(
+                    USER_CELL_PATTERN % ('Test Admin',),
+                    response.content.decode('utf-8'),
+                )
+            )
 
         with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
@@ -186,35 +213,48 @@ class TestRankingViews(TestCase):
                 pattern_match = re.search(pattern, content)
                 self.assertTrue(pattern_match)
                 pos = pattern_match.start()
-                self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
-                    'position' % (user,)))
+                self.assertGreater(
+                    pos, prev_pos, msg=('User %s has incorrect ' 'position' % (user,))
+                )
                 prev_pos = pos
 
-            response = self.client.get(reverse('ranking',
-                kwargs={'contest_id': contest.id, 'key': '1'}))
-            self.assertEqual(len(re.findall(
-                USER_CELL_PATTERN_LEFT % ('Test User',), response.content.decode('utf-8'))), 1)
+            response = self.client.get(
+                reverse('ranking', kwargs={'contest_id': contest.id, 'key': '1'})
+            )
+            self.assertEqual(
+                len(
+                    re.findall(
+                        USER_CELL_PATTERN_LEFT % ('Test User',),
+                        response.content.decode('utf-8'),
+                    )
+                ),
+                1,
+            )
 
         # Test visibility of links to problem statements
-        contest.controller_name = \
+        contest.controller_name = (
             'oioioi.rankings.tests.StatementHiderForContestController'
+        )
         contest.save()
 
         with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
 
             for task in VISIBLE_TASKS:
-                self.assertTrue(re.search(task + r'\s*</a>\s*</th>',
-                                          response.content.decode('utf-8')))
+                self.assertTrue(
+                    re.search(
+                        task + r'\s*</a>\s*</th>', response.content.decode('utf-8')
+                    )
+                )
 
             for task in HIDDEN_TASKS:
-                self.assertTrue(re.search(task + r'\s*</th>',
-                                          response.content.decode('utf-8')))
+                self.assertTrue(
+                    re.search(task + r'\s*</th>', response.content.decode('utf-8'))
+                )
 
     def test_ranking_csv_view(self):
         contest = Contest.objects.get()
-        url = reverse('ranking_csv', kwargs={'contest_id': contest.id,
-                                            'key': 'c'})
+        url = reverse('ranking_csv', kwargs={'contest_id': contest.id, 'key': 'c'})
 
         self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
@@ -234,23 +274,26 @@ class TestRankingViews(TestCase):
                 pattern = '%s,' % (user,)
                 self.assertContains(response, user)
                 pos = content.find(pattern)
-                self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
-                       'position' % (user,)))
+                self.assertGreater(
+                    pos, prev_pos, msg=('User %s has incorrect ' 'position' % (user,))
+                )
                 prev_pos = pos
 
             for task in ['zad1', 'zad2', 'zad3', 'zad3']:
                 self.assertContains(response, task)
 
-            response = self.client.get(reverse('ranking',
-                kwargs={'contest_id': contest.id, 'key': '1'}))
+            response = self.client.get(
+                reverse('ranking', kwargs={'contest_id': contest.id, 'key': '1'})
+            )
             self.assertContains(response, 'zad1')
             for task in ['zad2', 'zad3', 'zad3']:
                 self.assertNotContains(response, task)
 
     def test_invalidate_view(self):
         contest = Contest.objects.get()
-        url = reverse('ranking_invalidate', kwargs={'contest_id': contest.id,
-                                            'key': 'key'})
+        url = reverse(
+            'ranking_invalidate', kwargs={'contest_id': contest.id, 'key': 'key'}
+        )
 
         self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2019, 1, 27, tzinfo=utc)):
@@ -258,8 +301,9 @@ class TestRankingViews(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2019, 1, 27, tzinfo=utc)):
-            ranking, _ = Ranking.objects.get_or_create(contest=contest,
-                key='admin#key', needs_recalculation=False)
+            ranking, _ = Ranking.objects.get_or_create(
+                contest=contest, key='admin#key', needs_recalculation=False
+            )
             ranking.save()
             self.assertTrue(ranking.is_up_to_date())
             recalc = choose_for_recalculation()
@@ -280,15 +324,21 @@ class MockRankingController(DefaultRankingController):
 
 
 class MockRankingContestController(ProgrammingContestController):
-
     def ranking_controller(self):
         return MockRankingController(self.contest)
 
 
 class TestRecalc(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission', 'test_extra_rounds',
-            'test_ranking_data', 'test_permissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_rounds',
+        'test_ranking_data',
+        'test_permissions',
+    ]
 
     def test_empty(self):
         contest = Contest.objects.get()
@@ -299,8 +349,7 @@ class TestRecalc(TestCase):
 
     def test_simple_flow(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-            'oioioi.rankings.tests.MockRankingContestController'
+        contest.controller_name = 'oioioi.rankings.tests.MockRankingContestController'
         contest.save()
         ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key')
         ranking.save()
@@ -314,18 +363,18 @@ class TestRecalc(TestCase):
         ranking.refresh_from_db()
         self.assertTrue(ranking.is_up_to_date())
         self.assertEqual(ranking.serialized, 'serialized')
-        self.assertEqual([page.data for page in ranking.pages.all()],
-                         ['1st', '2nd', '3rd'])
-        self.assertEqual([page.nr for page in ranking.pages.all()],
-                         [1, 2, 3])
+        self.assertEqual(
+            [page.data for page in ranking.pages.all()], ['1st', '2nd', '3rd']
+        )
+        self.assertEqual([page.nr for page in ranking.pages.all()], [1, 2, 3])
 
     def test_simple_invalidate(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-            'oioioi.rankings.tests.MockRankingContestController'
+        contest.controller_name = 'oioioi.rankings.tests.MockRankingContestController'
         contest.save()
-        ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key',
-            needs_recalculation=False)
+        ranking, _ = Ranking.objects.get_or_create(
+            contest=contest, key='key', needs_recalculation=False
+        )
         ranking.save()
         self.assertTrue(ranking.is_up_to_date())
         recalc = choose_for_recalculation()
@@ -345,14 +394,15 @@ class TestRecalc(TestCase):
                 self.cleaned_data = {'terms_accepted': True}
 
         from oioioi.base.models import PreferencesSaved
+
         result = UserResultForProblem.objects.first()
         sender = MockSender()
         contest = Contest.objects.get()
-        contest.controller_name = \
-            'oioioi.rankings.tests.MockRankingContestController'
+        contest.controller_name = 'oioioi.rankings.tests.MockRankingContestController'
         contest.save()
-        ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key',
-            needs_recalculation=False)
+        ranking, _ = Ranking.objects.get_or_create(
+            contest=contest, key='key', needs_recalculation=False
+        )
         ranking.save()
         self.assertTrue(ranking.is_up_to_date())
         recalc = choose_for_recalculation()
@@ -384,15 +434,21 @@ class TestRecalc(TestCase):
 
 
 class TestRankingsdFrontend(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission', 'test_extra_rounds',
-            'test_ranking_data', 'test_permissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_rounds',
+        'test_ranking_data',
+        'test_permissions',
+    ]
 
     @override_settings(MOCK_RANKINGSD=False)
     def test_first_ranking_view(self):
         contest = Contest.objects.get()
-        ranking_url = reverse('ranking',
-            kwargs={'contest_id': contest.id, 'key': '1'})
+        ranking_url = reverse('ranking', kwargs={'contest_id': contest.id, 'key': '1'})
         response = self.client.get(ranking_url)
 
         self.assertEqual(Ranking.objects.count(), 1)
@@ -402,14 +458,12 @@ class TestRankingsdFrontend(TestCase):
         self.assertContains(response, "We're generating the ranking right now")
 
         response = self.client.get(ranking_url + '?page=2')
-        self.assertContains(response,
-                "You have requested a non-existent ranking page")
+        self.assertContains(response, "You have requested a non-existent ranking page")
 
     @override_settings(MOCK_RANKINGSD=False)
     def test_display_ranking(self):
         contest = Contest.objects.get()
-        ranking_url = reverse('ranking',
-            kwargs={'contest_id': contest.id, 'key': '1'})
+        ranking_url = reverse('ranking', kwargs={'contest_id': contest.id, 'key': '1'})
         response = self.client.get(ranking_url)
 
         ranking = Ranking.objects.get(key='regular#1')
@@ -427,14 +481,12 @@ class TestRankingsdFrontend(TestCase):
 
         # Check if the user still can't request pages beyond available limit
         response = self.client.get(ranking_url + '?page=3')
-        self.assertContains(response,
-                "You have requested a non-existent ranking page")
+        self.assertContains(response, "You have requested a non-existent ranking page")
 
     @override_settings(MOCK_RANKINGSD=False)
     def test_display_outdated(self):
         contest = Contest.objects.get()
-        ranking_url = reverse('ranking',
-            kwargs={'contest_id': contest.id, 'key': '1'})
+        ranking_url = reverse('ranking', kwargs={'contest_id': contest.id, 'key': '1'})
         response = self.client.get(ranking_url)
 
         # Add a page to the ranking
@@ -463,8 +515,7 @@ class TestRankingsdFrontend(TestCase):
 
         # Check if the user still can't request pages beyond available limit
         response = self.client.get(ranking_url + '?page=2')
-        self.assertContains(response,
-                "You have requested a non-existent ranking page")
+        self.assertContains(response, "You have requested a non-existent ranking page")
 
 
 class TestResultColorClassFilter(TestCase):
@@ -479,9 +530,9 @@ class TestResultColorClassFilter(TestCase):
         results = ['WA', 'OK0', 'OK0', 'OK25', 'OK50', 'OK75', 'OK100']
 
         for value, result in zip(values, results):
-            self.check_score_color(value * score_multiply,
-                                   'submission--' + result,
-                                   score_class_factory)
+            self.check_score_color(
+                value * score_multiply, 'submission--' + result, score_class_factory
+            )
 
     @staticmethod
     def pa_score_factory(int_score):
@@ -491,7 +542,6 @@ class TestResultColorClassFilter(TestCase):
         self.assertEqual(result_color_class(''), '')
         self.assertEqual(result_color_class(None), '')
 
-    def check_score_color(self, int_score,
-                          color_class_name, score_class_factory):
+    def check_score_color(self, int_score, color_class_name, score_class_factory):
         score = score_class_factory(int_score)
         self.assertEqual(result_color_class(score), color_class_name)

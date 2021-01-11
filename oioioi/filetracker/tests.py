@@ -4,21 +4,22 @@ import datetime
 import shutil
 import tempfile
 
+from django import VERSION as DJANGO_VERSION
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.db.models.fields.files import FieldFile, FileField
-from django import VERSION as DJANGO_VERSION
-
 from filetracker.client import Client as FiletrackerClient
 from filetracker.client.dummy import DummyClient
 
 from oioioi.base.tests import TestCase
 from oioioi.filetracker.models import FileTestModel
 from oioioi.filetracker.storage import FiletrackerStorage
-from oioioi.filetracker.utils import (django_to_filetracker_path,
-                                      filetracker_to_django_file,
-                                      make_content_disposition_header)
+from oioioi.filetracker.utils import (
+    django_to_filetracker_path,
+    filetracker_to_django_file,
+    make_content_disposition_header,
+)
 
 
 class TestFileField(TestCase):
@@ -53,8 +54,9 @@ class TestFileField(TestCase):
                 # File field is ignoring preferred name, as we can't copy file
                 # in filetracker to another location
                 with self.assertRaises(NotImplementedError):
-                    model.file_field.save('xx',
-                                          filetracker_to_django_file(abspath, storage))
+                    model.file_field.save(
+                        'xx', filetracker_to_django_file(abspath, storage)
+                    )
 
             model.file_field = filetracker_to_django_file(abspath, storage)
             model.save()
@@ -67,8 +69,7 @@ class TestFileField(TestCase):
 
             model = FileTestModel.objects.get(pk=pk)
             self.assertEqual(model.file_field.name, path)
-            self.assertEqual(django_to_filetracker_path(model.file_field),
-                                abspath)
+            self.assertEqual(django_to_filetracker_path(model.file_field), abspath)
             self.assertEqual(model.file_field.read(), data)
         finally:
             default_storage.delete(path)
@@ -82,8 +83,12 @@ class TestFileField(TestCase):
         with self.assertRaises(ValueError):
             django_to_filetracker_path(ContentFile('whatever', name='gizmo'))
 
-        self.assertEqual('/foo/bar', django_to_filetracker_path(
-                filetracker_to_django_file('/foo/bar', storage=storage)))
+        self.assertEqual(
+            '/foo/bar',
+            django_to_filetracker_path(
+                filetracker_to_django_file('/foo/bar', storage=storage)
+            ),
+        )
 
 
 class TestFileStorage(TestCase):
@@ -173,6 +178,8 @@ class TestFileUtils(TestCase):
         self.assertIn(b'filename="\\"EURO\\" rates.txt"', value)
 
         value = make_content_disposition_header('attachment', u'€ rates.txt')
-        self.assertEqual(value.lower(),
-                b'attachment; filename="rates.txt"; '
-                b'filename*=utf-8\'\'%e2%82%ac%20rates.txt')
+        self.assertEqual(
+            value.lower(),
+            b'attachment; filename="rates.txt"; '
+            b'filename*=utf-8\'\'%e2%82%ac%20rates.txt',
+        )

@@ -37,13 +37,14 @@ def oisubmit_view(request):
             request.timestamp = submission_date
             pi = form.cleaned_data['problem_instance']
 
-            task_submission_no = Submission.objects \
-                .filter(user=request.user, problem_instance__id=pi.id) \
-                .filter(kind=form.cleaned_data['kind']) \
-                .count() + 1
+            task_submission_no = (
+                Submission.objects.filter(user=request.user, problem_instance__id=pi.id)
+                .filter(kind=form.cleaned_data['kind'])
+                .count()
+                + 1
+            )
 
-            submissions_limit = \
-                pi.controller.get_submissions_limit(request, pi)
+            submissions_limit = pi.controller.get_submissions_limit(request, pi)
 
             errors = []
 
@@ -66,20 +67,26 @@ def oisubmit_view(request):
             if received_suspected:
                 form.cleaned_data['kind'] = 'SUSPECTED'
 
-            submission = request.contest.controller.create_submission(request,
-                    pi, form.cleaned_data, judge_after_create=(not errors))
+            submission = request.contest.controller.create_submission(
+                request, pi, form.cleaned_data, judge_after_create=(not errors)
+            )
 
-            extra_data = OISubmitExtraData(submission=submission,
-                                localtime=form.cleaned_data['localtime'],
-                                siotime=form.cleaned_data['siotime'],
-                                servertime=servertime,
-                                received_suspected=received_suspected,
-                                comments=err_msg)
+            extra_data = OISubmitExtraData(
+                submission=submission,
+                localtime=form.cleaned_data['localtime'],
+                siotime=form.cleaned_data['siotime'],
+                servertime=servertime,
+                received_suspected=received_suspected,
+                comments=err_msg,
+            )
             extra_data.save()
 
             if errors:
-                msg = '\n'.join(six.text_type(SUSPICION_REASONS[err]) for err
-                                in errors if err in SUSPICION_REASONS)
+                msg = '\n'.join(
+                    six.text_type(SUSPICION_REASONS[err])
+                    for err in errors
+                    if err in SUSPICION_REASONS
+                )
                 return oisubmit_response(True, msg)
             else:
                 msg = submission_date.strftime("%Y-%m-%d %H:%M:%S")

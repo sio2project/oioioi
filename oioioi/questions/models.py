@@ -32,25 +32,33 @@ logger = logging.getLogger('oioioi')
 
 @python_2_unicode_compatible
 class Message(models.Model):
-    contest = models.ForeignKey(Contest, null=True, blank=True,
-                                on_delete=models.CASCADE)
-    round = models.ForeignKey(Round, null=True, blank=True,
-                              on_delete=models.CASCADE)
-    problem_instance = models.ForeignKey(ProblemInstance, null=True,
-                                         blank=True, on_delete=models.CASCADE)
-    top_reference = models.ForeignKey('self', null=True, blank=True,
-                                      on_delete=models.CASCADE)
+    contest = models.ForeignKey(
+        Contest, null=True, blank=True, on_delete=models.CASCADE
+    )
+    round = models.ForeignKey(Round, null=True, blank=True, on_delete=models.CASCADE)
+    problem_instance = models.ForeignKey(
+        ProblemInstance, null=True, blank=True, on_delete=models.CASCADE
+    )
+    top_reference = models.ForeignKey(
+        'self', null=True, blank=True, on_delete=models.CASCADE
+    )
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     kind = EnumField(message_kinds, default='QUESTION', verbose_name=_("kind"))
-    topic = models.CharField(max_length=255, verbose_name=_("topic"),
-            validators=[MaxLengthValidator(255), validate_whitespaces])
+    topic = models.CharField(
+        max_length=255,
+        verbose_name=_("topic"),
+        validators=[MaxLengthValidator(255), validate_whitespaces],
+    )
     content = models.TextField(verbose_name=_("content"))
-    date = models.DateTimeField(default=timezone.now, editable=False,
-            verbose_name=_("date"))
-    pub_date = models.DateTimeField(default=None, blank=True, null=True,
-            verbose_name=_("publication date"))
-    mail_sent = models.BooleanField(default=False,
-            verbose_name=_("mail notification sent"))
+    date = models.DateTimeField(
+        default=timezone.now, editable=False, verbose_name=_("date")
+    )
+    pub_date = models.DateTimeField(
+        default=None, blank=True, null=True, verbose_name=_("publication date")
+    )
+    mail_sent = models.BooleanField(
+        default=False, verbose_name=_("mail notification sent")
+    )
 
     def save(self, *args, **kwargs):
         # Assert integrity in this Message
@@ -64,14 +72,18 @@ class Message(models.Model):
 
         # Propagate to all related Messages
         if self.top_reference:
-            related = Message.objects.filter(Q(id=self.top_reference_id) |
-                      Q(top_reference_id=self.top_reference_id))
+            related = Message.objects.filter(
+                Q(id=self.top_reference_id) | Q(top_reference_id=self.top_reference_id)
+            )
         else:
             related = self.message_set.all()
         if self.id:
             related.exclude(id=self.id)
-        related.update(round=self.round, contest=self.contest,
-                       problem_instance=self.problem_instance)
+        related.update(
+            round=self.round,
+            contest=self.contest,
+            problem_instance=self.problem_instance,
+        )
 
         super(Message, self).save(*args, **kwargs)
 
@@ -82,8 +94,7 @@ class Message(models.Model):
         return self.round is not None or self.problem_instance is not None
 
     def __str__(self):
-        return u'%s - %s' % (message_kinds.get(self.kind, self.kind),
-                             self.topic)
+        return u'%s - %s' % (message_kinds.get(self.kind, self.kind), self.topic)
 
     @property
     def to_quote(self):
@@ -91,11 +102,15 @@ class Message(models.Model):
         return ''.join('> ' + l for l in lines)
 
     def get_absolute_url(self):
-        link = reverse('message', kwargs={
-            'contest_id': self.contest.id,
-            'message_id': self.top_reference_id
-                if self.top_reference_id is not None else self.id
-            })
+        link = reverse(
+            'message',
+            kwargs={
+                'contest_id': self.contest.id,
+                'message_id': self.top_reference_id
+                if self.top_reference_id is not None
+                else self.id,
+            },
+        )
         return link
 
     def get_user_date(self):
@@ -108,10 +123,10 @@ class Message(models.Model):
 
 @python_2_unicode_compatible
 class ReplyTemplate(models.Model):
-    contest = models.ForeignKey(Contest, null=True, blank=True,
-                                on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, verbose_name=_("visible name"),
-                            blank=True)
+    contest = models.ForeignKey(
+        Contest, null=True, blank=True, on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=255, verbose_name=_("visible name"), blank=True)
     content = models.TextField(verbose_name=_("content"))
     # Incremented every time admin includes this template in a reply.
     usage_count = models.IntegerField(verbose_name=_("usage count"), default=0)
@@ -138,8 +153,7 @@ class MessageView(models.Model):
 
 class MessageNotifierConfig(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, verbose_name=_("username"),
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_("username"), on_delete=models.CASCADE)
 
     class Meta(object):
         unique_together = ('contest', 'user')
@@ -161,24 +175,23 @@ def send_notification(sender, instance, created, **kwargs):
                 " about problem \"%(short_name)s\" was created",
                 {
                     'topic': instance.topic,
-                    'short_name': instance.problem_instance.short_name
+                    'short_name': instance.problem_instance.short_name,
                 },
                 extra={
                     'notification': 'new_public_message',
                     'message_instance': instance,
-                    'contest': instance.contest
-                }
+                    'contest': instance.contest,
+                },
             )
         else:
             logger.info(
-                "Public message \"%(topic)s\""
-                " was created",
+                "Public message \"%(topic)s\"" " was created",
                 {'topic': instance.topic},
                 extra={
                     'notification': 'new_public_message',
                     'message_instance': instance,
-                    'contest': instance.contest
-                }
+                    'contest': instance.contest,
+                },
             )
 
     # Send a notification if this is a new answer for question
@@ -189,15 +202,14 @@ def send_notification(sender, instance, created, **kwargs):
                 " about problem \"%(short_name)s\" was sent",
                 {
                     'topic': instance.topic,
-                    'short_name': instance.top_reference
-                        .problem_instance.short_name
+                    'short_name': instance.top_reference.problem_instance.short_name,
                 },
                 extra={
                     'notification': 'question_answered',
                     'question_instance': instance.top_reference,
                     'answer_instance': instance,
-                    'user': instance.top_reference.author
-                }
+                    'user': instance.top_reference.author,
+                },
             )
 
         else:
@@ -208,8 +220,8 @@ def send_notification(sender, instance, created, **kwargs):
                     'notification': 'question_answered',
                     'question_instance': instance.top_reference,
                     'answer_instance': instance,
-                    'user': instance.top_reference.author
-                }
+                    'user': instance.top_reference.author,
+                },
             )
 
 

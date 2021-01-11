@@ -1,30 +1,38 @@
 import mimetypes
 import sys
 import zipfile
-import django
-
 from collections import defaultdict
 
+import django
 from django.conf import settings
-from django.core.exceptions import SuspiciousOperation, PermissionDenied
+from django.core.exceptions import SuspiciousOperation
 from django.http import Http404, HttpResponse
 from django.utils import translation
-from django.shortcuts import get_object_or_404
 
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import (administered_contests, can_admin_contest,
-                                   is_contest_basicadmin, is_contest_admin)
-from oioioi.problems.models import (ProblemStatement, AlgorithmTagProposal, DifficultyProposal,
-                                    ProblemStatistics, UserStatistics)
+from oioioi.contests.utils import (
+    administered_contests,
+    can_admin_contest,
+    is_contest_admin,
+    is_contest_basicadmin,
+)
+from oioioi.problems.models import (
+    AlgorithmTagProposal,
+    DifficultyProposal,
+    ProblemStatement,
+    ProblemStatistics,
+    UserStatistics,
+)
 from oioioi.programs.models import GroupReport, ModelProgramSubmission, TestReport
 
 
 @request_cached
 def can_add_problems(request):
-    return request.user.has_perm('problems.problems_db_admin') \
-           or is_contest_basicadmin(request)
+    return request.user.has_perm('problems.problems_db_admin') or is_contest_basicadmin(
+        request
+    )
 
 
 def can_upload_problems(request):
@@ -51,20 +59,24 @@ def can_admin_problem(request, problem):
 
 def can_admin_instance_of_problem(request, problem):
     """Checks if the user has admin permission in a ProblemInstace
-       of the given Problem.
-       If request.contest is not None then ProblemInstaces from this contest
-       are taken into account, problem.main_problem_instance otherwise.
+    of the given Problem.
+    If request.contest is not None then ProblemInstaces from this contest
+    are taken into account, problem.main_problem_instance otherwise.
 
-       If there is no ProblemInstace of problem in request.contest then
-       the function returns False.
+    If there is no ProblemInstace of problem in request.contest then
+    the function returns False.
 
-       If the user has permission to admin problem then the function
-       will always return True.
+    If the user has permission to admin problem then the function
+    will always return True.
     """
     if can_admin_problem(request, problem):
         return True
-    return is_contest_basicadmin(request) and ProblemInstance.objects \
-        .filter(problem=problem, contest=request.contest).exists()
+    return (
+        is_contest_basicadmin(request)
+        and ProblemInstance.objects.filter(
+            problem=problem, contest=request.contest
+        ).exists()
+    )
 
 
 def can_admin_problem_instance(request, pi):
@@ -77,10 +89,10 @@ def can_admin_problem_instance(request, pi):
 @request_cached
 def can_add_to_problemset(request):
     """Returns True if request.user is authenticated and:
-        EVERYBODY_CAN_ADD_TO_PROBLEMSET in settings.py is set on True or
-        user is a teacher or
-        user is a superuser or
-        user is a database admin
+    EVERYBODY_CAN_ADD_TO_PROBLEMSET in settings.py is set on True or
+    user is a teacher or
+    user is a superuser or
+    user is a database admin
     """
     if not request.user.is_authenticated:
         return False
@@ -98,8 +110,9 @@ def query_statement(problem_id):
     if not statements:
         return None
 
-    lang_prefs = [translation.get_language()] + ['', None] + \
-                 [l[0] for l in settings.LANGUAGES]
+    lang_prefs = (
+        [translation.get_language()] + ['', None] + [l[0] for l in settings.LANGUAGES]
+    )
     ext_prefs = ['.zip', '.pdf', '.ps', '.html', '.txt']
 
     def sort_key(statement):
@@ -127,8 +140,7 @@ def query_zip(statement, path):
     except KeyError:
         raise Http404
 
-    content_type = mimetypes.guess_type(path)[0] or \
-                   'application/octet-stream'
+    content_type = mimetypes.guess_type(path)[0] or 'application/octet-stream'
     response = HttpResponse(zip.read(path), content_type=content_type)
     response['Content-Length'] = info.file_size
     return response
@@ -136,13 +148,12 @@ def query_zip(statement, path):
 
 def update_tests_from_main_pi(problem_instance, source_instance=None):
     """Deletes all tests assigned to problem_instance
-        and replaces them by new ones copied from source_instance,
-        or - if not specified - main_problem_instance of appropiate Problem
+    and replaces them by new ones copied from source_instance,
+    or - if not specified - main_problem_instance of appropiate Problem
     """
     if problem_instance == problem_instance.problem.main_problem_instance:
         return
-    source_instance = \
-            source_instance or problem_instance.problem.main_problem_instance
+    source_instance = source_instance or problem_instance.problem.main_problem_instance
     if problem_instance == source_instance:
         return
 
@@ -157,8 +168,8 @@ def update_tests_from_main_pi(problem_instance, source_instance=None):
 
 def get_new_problem_instance(problem, contest=None):
     """Returns a deep copy of problem.main_problem_instance,
-        with an independent set of test. Returned ProblemInstance
-        is already saved and contains model solutions.
+    with an independent set of test. Returned ProblemInstance
+    is already saved and contains model solutions.
     """
     pi = problem.main_problem_instance
     return copy_problem_instance(pi, contest)
@@ -166,8 +177,8 @@ def get_new_problem_instance(problem, contest=None):
 
 def copy_problem_instance(pi, contest=None):
     """Returns a deep copy of pi,
-        with an independent set of test. Returned ProblemInstance
-        is already saved and contains model solutions.
+    with an independent set of test. Returned ProblemInstance
+    is already saved and contains model solutions.
     """
     orig_pk = pi.pk
 
@@ -186,8 +197,8 @@ def copy_problem_instance(pi, contest=None):
 
 
 def generate_add_to_contest_metadata(request):
-    """ This generates all metadata needed for
-        "add to contest" functionality in problemset.
+    """This generates all metadata needed for
+    "add to contest" functionality in problemset.
     """
 
     administered = administered_contests(request)
@@ -201,44 +212,41 @@ def generate_add_to_contest_metadata(request):
     rcontests = recent_contests(request)
     administered_recent_contests = None
     if rcontests:
-        administered_recent_contests = \
-            [contest
-             for contest in rcontests
-             if request.user.has_perm('contests.contest_admin', contest)]
+        administered_recent_contests = [
+            contest
+            for contest in rcontests
+            if request.user.has_perm('contests.contest_admin', contest)
+        ]
     return show_add_button, administered_recent_contests
 
 
 def generate_model_solutions_context(request, problem_instance):
-    """ Generates context dictionary for model solutions view
-        for "problem_instance"'s package.
+    """Generates context dictionary for model solutions view
+    for "problem_instance"'s package.
     """
 
     filter_kwargs = {
         'test__isnull': False,
-        'submission_report__submission__problem_instance':
-            problem_instance,
+        'submission_report__submission__problem_instance': problem_instance,
         'submission_report__submission__programsubmission'
         '__modelprogramsubmission__isnull': False,
         'submission_report__status': 'ACTIVE',
     }
-    test_reports = TestReport.objects.filter(**filter_kwargs) \
-        .select_related()
+    test_reports = TestReport.objects.filter(**filter_kwargs).select_related()
     filter_kwargs = {
-        'submission_report__submission__problem_instance':
-            problem_instance,
+        'submission_report__submission__problem_instance': problem_instance,
         'submission_report__submission__programsubmission'
         '__modelprogramsubmission__isnull': False,
         'submission_report__status': 'ACTIVE',
     }
-    group_reports = GroupReport.objects.filter(**filter_kwargs) \
-        .select_related()
-    submissions = ModelProgramSubmission.objects \
-        .filter(problem_instance=problem_instance) \
-        .order_by('model_solution__order_key') \
-        .select_related('model_solution') \
+    group_reports = GroupReport.objects.filter(**filter_kwargs).select_related()
+    submissions = (
+        ModelProgramSubmission.objects.filter(problem_instance=problem_instance)
+        .order_by('model_solution__order_key')
+        .select_related('model_solution')
         .all()
-    tests = problem_instance.test_set \
-        .order_by('order', 'group', 'name').all()
+    )
+    tests = problem_instance.test_set.order_by('order', 'group', 'name').all()
 
     group_results = defaultdict(lambda: defaultdict(lambda: None))
     for gr in group_reports:
@@ -257,8 +265,10 @@ def generate_model_solutions_context(request, problem_instance):
         percentage_statuses = {s.id: '100' for s in submissions}
         for s in submissions:
             if row_test_results[s.id] is not None:
-                time_ratio = float(row_test_results[s.id].time_used) / \
-                             row_test_results[s.id].test_time_limit
+                time_ratio = (
+                    float(row_test_results[s.id].time_used)
+                    / row_test_results[s.id].test_time_limit
+                )
                 if time_ratio <= 0.25:
                     percentage_statuses[s.id] = '25'
                 elif time_ratio <= 0.50:
@@ -269,33 +279,36 @@ def generate_model_solutions_context(request, problem_instance):
                     percentage_statuses[s.id] = '100'
                     submissions_percentage_statuses[s.id] = '100'
 
-        rows.append({
-            'test': t,
-            'results': [{
-                'test_report': row_test_results[s.id],
-                'group_report': row_group_results[s.id],
-                'is_partial_score': s.problem_instance.controller
-                    ._is_partial_score(row_test_results[s.id]),
-                'percentage_status': percentage_statuses[s.id]}
-                for s in submissions]
-        })
+        rows.append(
+            {
+                'test': t,
+                'results': [
+                    {
+                        'test_report': row_test_results[s.id],
+                        'group_report': row_group_results[s.id],
+                        'is_partial_score': s.problem_instance.controller._is_partial_score(
+                            row_test_results[s.id]
+                        ),
+                        'percentage_status': percentage_statuses[s.id],
+                    }
+                    for s in submissions
+                ],
+            }
+        )
 
     for s in submissions:
         status = s.status
         if s.status == 'OK' or s.status == 'INI_OK':
             status = 'OK' + submissions_percentage_statuses[s.id]
 
-        submissions_row.append({
-            'submission': s,
-            'status': status
-        })
+        submissions_row.append({'submission': s, 'status': status})
 
     total_row = {
         'test': sum(t.time_limit for t in tests),
-        'results':
-            [sum(t[s.id].time_used if t[s.id] else 0
-                 for t in test_results.values())
-             for s in submissions],
+        'results': [
+            sum(t[s.id].time_used if t[s.id] else 0 for t in test_results.values())
+            for s in submissions
+        ],
     }
 
     return {
@@ -303,22 +316,22 @@ def generate_model_solutions_context(request, problem_instance):
         'submissions_row': submissions_row,
         'submissions': submissions,
         'rows': rows,
-        'total_row': total_row
+        'total_row': total_row,
     }
 
 
 def get_prefetched_value(problem, category):
     """Returns OriginInfoValue for the given Problem and OriginInfoCategory.
 
-       You can't filter the prefetched sets and since the OriginInfoValue set
-       only has a few elements it should be faster to choose from all of them.
+    You can't filter the prefetched sets and since the OriginInfoValue set
+    only has a few elements it should be faster to choose from all of them.
 
-       If there is no OriginInfoValue for this OriginInfoCategory and Problem,
-       a fake object with .value == None and .order == infinity is returned.
+    If there is no OriginInfoValue for this OriginInfoCategory and Problem,
+    a fake object with .value == None and .order == infinity is returned.
 
-       Avoids database queries if and only if the problem was from a queryset on
-       which `prefetch_related('origininfovalue_set__category')` was called. If
-       prefetching was impossible you should just filter instead.
+    Avoids database queries if and only if the problem was from a queryset on
+    which `prefetch_related('origininfovalue_set__category')` was called. If
+    prefetching was impossible you should just filter instead.
     """
     for oiv in problem.origininfovalue_set.all():
         if oiv.category == category:
@@ -342,8 +355,9 @@ def show_proposal_form(problem, user):
     if not user.is_authenticated:
         return False
 
-    if AlgorithmTagProposal.objects.all().filter(problem=problem, user=user) or \
-        DifficultyProposal.objects.all().filter(problem=problem, user=user):
+    if AlgorithmTagProposal.objects.all().filter(
+        problem=problem, user=user
+    ) or DifficultyProposal.objects.all().filter(problem=problem, user=user):
         return False
 
     ps = ProblemStatistics.objects.all().filter(problem=problem)
@@ -355,13 +369,13 @@ def show_proposal_form(problem, user):
 
 
 def filter_my_all_visible_submissions(request, queryset):
-    """ Filters all solusion visible for the currently logged in user
-        from the given queryset. Returns the result as a list (Django
-        versions below 1.11) or queryset (Django 1.11 and higher).
+    """Filters all solusion visible for the currently logged in user
+    from the given queryset. Returns the result as a list (Django
+    versions below 1.11) or queryset (Django 1.11 and higher).
 
-        The filtering is not stable: the order of entries in the returned list
-        (in Django versions below 1.11) or queryset (in Django 1.11 and higher)
-        may differ from the original.
+    The filtering is not stable: the order of entries in the returned list
+    (in Django versions below 1.11) or queryset (in Django 1.11 and higher)
+    may differ from the original.
     """
     django_11 = django.VERSION >= (1, 11)
     if django_11:
@@ -388,7 +402,9 @@ def filter_my_all_visible_submissions(request, queryset):
             resolved.add(pi)
 
         request.contest = pi.contest
-        current_queryset = controller.filter_my_visible_submissions(request, current_queryset)
+        current_queryset = controller.filter_my_visible_submissions(
+            request, current_queryset
+        )
         if django_11:
             result = result.union(current_queryset)
         else:

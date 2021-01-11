@@ -39,25 +39,27 @@ class OrderedRegistry(object):
         def decorator(func):
             self.register(func, order)
             return func
+
         return decorator
 
 
 class MenuItem(object):
     """Used to store single menu entry.
 
-       :param name: a short identifier, for example used to find a matching
-                       icon etc.
-       :param text: text to display
-       :param url_generator: generates menu link URL
-       :type url_generator: fun: request → str
-       :param order: value determining the order of items in menu
-       :type order: int
-       :param condition: decides if the item should be shown
-       :type condition: :class:`oioioi.base.permissions.Condition`
+    :param name: a short identifier, for example used to find a matching
+                    icon etc.
+    :param text: text to display
+    :param url_generator: generates menu link URL
+    :type url_generator: fun: request → str
+    :param order: value determining the order of items in menu
+    :type order: int
+    :param condition: decides if the item should be shown
+    :type condition: :class:`oioioi.base.permissions.Condition`
     """
 
-    def __init__(self, name, text, url_generator, condition=None, attrs=None,
-                 order=sys.maxsize):
+    def __init__(
+        self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize
+    ):
 
         if condition is None:
             condition = Condition(lambda request: True)
@@ -79,9 +81,9 @@ class MenuItem(object):
 class MenuRegistry(object):
     """Maintains a collection of menu items.
 
-       :param text: menu name to display (if appropriate)
-       :param condition: decides if menu should be considered as available
-       :type condition: :class:`oioioi.base.permissions.Condition`
+    :param text: menu name to display (if appropriate)
+    :param condition: decides if menu should be considered as available
+    :type condition: :class:`oioioi.base.permissions.Condition`
     """
 
     def _get_all_registered_items(self, request):
@@ -101,50 +103,52 @@ class MenuRegistry(object):
         self._registry = []
         self._generators = {}
 
-    def register(self, name, text, url_generator, condition=None, attrs=None,
-                 order=sys.maxsize):
+    def register(
+        self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize
+    ):
         """Registers a new menu item.
 
-           Menu items should be registered in ``views.py`` of Django apps.
+        Menu items should be registered in ``views.py`` of Django apps.
         """
 
-        menu_item = MenuItem(name, text, url_generator, condition,
-                             attrs, order)
+        menu_item = MenuItem(name, text, url_generator, condition, attrs, order)
         self._registry.append(menu_item)
 
-    def register_decorator(self, text, url_generator, condition=None,
-                           attrs=None, order=sys.maxsize):
+    def register_decorator(
+        self, text, url_generator, condition=None, attrs=None, order=sys.maxsize
+    ):
         """Decorator for a view which registers a new menu item. It accepts the
-           same arguments as the :meth:`MenuRegistry.register`, except for
-           ``name``, which is inferred from the view function name ('_view'
-           suffix is stripped). ``condition`` is combined with the condition
-           taken from the view attribute of the same name (assigned for example
-           by :func:`oioioi.base.permissions.enforce_condition`).
-           ``condition`` parameter influences only on visibility of menu entry
-           but not on permission to see the page.
+        same arguments as the :meth:`MenuRegistry.register`, except for
+        ``name``, which is inferred from the view function name ('_view'
+        suffix is stripped). ``condition`` is combined with the condition
+        taken from the view attribute of the same name (assigned for example
+        by :func:`oioioi.base.permissions.enforce_condition`).
+        ``condition`` parameter influences only on visibility of menu entry
+        but not on permission to see the page.
         """
+
         def decorator(view_func):
             name = view_func.__name__
             suffix_to_remove = '_view'
             if name.endswith(suffix_to_remove):
-                name = name[:-len(suffix_to_remove)]
+                name = name[: -len(suffix_to_remove)]
             if hasattr(view_func, 'condition'):
                 current_condition = view_func.condition
             else:
                 current_condition = Condition(lambda request: True)
             if condition is not None:
                 current_condition = current_condition & condition
-            self.register(name, text, url_generator, current_condition, attrs,
-                          order)
+            self.register(name, text, url_generator, current_condition, attrs, order)
             return view_func
+
         return decorator
 
     def register_generator(self, name, items_generator):
         """Registers a new menu items generator.
 
-           :param name: a short identifier
-           :param items_generator: generates list of menu items
-           :type items_generator: fun: request → [MenuItem]
+        :param name: a short identifier
+        :param items_generator: generates list of menu items
+        :type items_generator: fun: request → [MenuItem]
         """
         assert name not in self._generators
         self._generators[name] = items_generator
@@ -152,7 +156,7 @@ class MenuRegistry(object):
     def unregister(self, name):
         """Unregisters a menu item.
 
-           Does nothing if not found.
+        Does nothing if not found.
         """
 
         for item in self._registry:
@@ -164,7 +168,7 @@ class MenuRegistry(object):
     def unregister_generator(self, name):
         """Unregisters a menu items generator.
 
-           Does nothing if not found.
+        Does nothing if not found.
         """
 
         if name in self._generators:
@@ -180,14 +184,21 @@ class MenuRegistry(object):
         context_items = []
         for item in sorted(items, key=attrgetter('order')):
             if item.condition(request):
-                attrs_str = ' '.join(['%s="%s"' % (escape(k), escape(v))
-                    for (k, v) in item.attrs.items()])
+                attrs_str = ' '.join(
+                    [
+                        '%s="%s"' % (escape(k), escape(v))
+                        for (k, v) in item.attrs.items()
+                    ]
+                )
                 attrs_str = mark_safe(attrs_str)
-                context_items.append(dict(
-                    url=item.url_generator(request),
-                    text=item.text,
-                    attrs=attrs_str,
-                    has_icon=self.show_icons))
+                context_items.append(
+                    dict(
+                        url=item.url_generator(request),
+                        text=item.text,
+                        attrs=attrs_str,
+                        has_icon=self.show_icons,
+                    )
+                )
         return context_items
 
     def is_anything_accessible(self, request):
@@ -209,8 +220,9 @@ menu_registry = MenuRegistry(_("User Menu"), show_icons=True)
 
 #: The menu registry for the user menu, shown as a drop down when a logged in
 #: user clicks on its login in the navbar.
-account_menu_registry = MenuRegistry(_("Account Menu"),
-        lambda request: request.user.is_authenticated)
+account_menu_registry = MenuRegistry(
+    _("Account Menu"), lambda request: request.user.is_authenticated
+)
 
 #: The registry for *menus* displayed on the side.
 side_pane_menus_registry = OrderedRegistry()

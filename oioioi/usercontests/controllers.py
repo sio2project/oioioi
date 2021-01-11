@@ -20,8 +20,9 @@ class UserContestController(ProgrammingContestController):
     def can_submit(self, request, problem_instance, check_round_times=True):
         if settings.ARCHIVE_USERCONTESTS:
             return False
-        return super(UserContestController, self) \
-                .can_submit(request, problem_instance, check_round_times)
+        return super(UserContestController, self).can_submit(
+            request, problem_instance, check_round_times
+        )
 
     def filter_visible_sources(self, request, queryset):
         # With ARCHIVE_USERCONTESTS=True observers can be regular users who were
@@ -29,8 +30,9 @@ class UserContestController(ProgrammingContestController):
         if not is_contest_admin(request):
             queryset = filter_model_submissions(queryset)
 
-        return super(UserContestController, self) \
-                .filter_visible_sources(request, queryset)
+        return super(UserContestController, self).filter_visible_sources(
+            request, queryset
+        )
 
     def can_see_source(self, request, submission):
         # With ARCHIVE_USERCONTESTS=True observers can be regular users who were
@@ -38,5 +40,4 @@ class UserContestController(ProgrammingContestController):
         if not is_contest_admin(request) and is_model_submission(submission):
             return False
 
-        return super(UserContestController, self) \
-                .can_see_source(request, submission)
+        return super(UserContestController, self).can_see_source(request, submission)

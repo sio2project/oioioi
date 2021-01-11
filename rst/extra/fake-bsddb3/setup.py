@@ -1,7 +1,7 @@
 try:
-  from setuptools import setup
+    from setuptools import setup
 except:
-  from distutils.core import setup
+    from distutils.core import setup
 
 setup(
     name='bsddb3',

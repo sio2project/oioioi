@@ -2,8 +2,11 @@ from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 
-from oioioi.contests.controllers import ContestController, \
-        RegistrationController, PastRoundsHiddenContestControllerMixin
+from oioioi.contests.controllers import (
+    ContestController,
+    PastRoundsHiddenContestControllerMixin,
+    RegistrationController,
+)
 
 
 class PrivateRegistrationController(RegistrationController):
@@ -28,29 +31,26 @@ class PrivateContestController(ContestController):
     def render_submission(self, request, submission):
         raise NotImplementedError
 
-    def create_submission(self, request, problem_instance, form_data,
-                          **kwargs):
+    def create_submission(self, request, problem_instance, form_data, **kwargs):
         raise NotImplementedError
 
 
 class PastRoundsHiddenContestController(ContestController):
     pass
-PastRoundsHiddenContestController.mix_in(
-    PastRoundsHiddenContestControllerMixin
-)
+
+
+PastRoundsHiddenContestController.mix_in(PastRoundsHiddenContestControllerMixin)
 
 
 class SubmitMixin(object):
     def _assertSubmitted(self, contest, response):
         self.assertEqual(302, response.status_code)
-        submissions = reverse('my_submissions',
-                              kwargs={'contest_id': contest.id})
+        submissions = reverse('my_submissions', kwargs={'contest_id': contest.id})
         self.assertTrue(response["Location"].endswith(submissions))
 
     def _assertNotSubmitted(self, contest, response):
         self.assertEqual(302, response.status_code)
-        submissions = reverse('my_submissions',
-                              kwargs={'contest_id': contest.id})
+        submissions = reverse('my_submissions', kwargs={'contest_id': contest.id})
         self.assertFalse(response["Location"].endswith(submissions))
 
 

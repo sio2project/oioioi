@@ -1,12 +1,12 @@
 from datetime import datetime  # pylint: disable=E0611
 
+import six
+from django import VERSION as DJANGO_VERSION
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
-from django import VERSION as DJANGO_VERSION
-
-import six
 from six import BytesIO
+
 if six.PY2:
     import slate
 else:
@@ -20,9 +20,14 @@ from oioioi.participants.models import Participant
 
 
 class TestReportViews(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission',
-                'test_rounds_with_different_end_dates']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_rounds_with_different_end_dates',
+    ]
 
     def setUp(self):
         contest = Contest.objects.get()
@@ -41,7 +46,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
             'report_region': CONTEST_REPORT_KEY,
             'testgroup[zad1]': ['0', '1', '2', '3'],
             'form_type': 'pdf_report',
-            'single_report_user': ''
+            'single_report_user': '',
         }
 
         # Let's check if report is not available for regular user.
@@ -68,7 +73,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
             'report_region': CONTEST_REPORT_KEY,
             'testgroup[zad1]': ['0', '1', '2', '3'],
             'form_type': 'xml_report',
-            'single_report_user': ''
+            'single_report_user': '',
         }
 
         # Let's check if report is not available for regular user.
@@ -97,7 +102,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
             'testgroup[zad1]': ['0', '1', '2', '3'],
             'form_type': 'xml_report',
             'is_single_report': 'on',
-            'single_report_user': 'test_user2'
+            'single_report_user': 'test_user2',
         }
 
         self.assertTrue(self.client.login(username='test_admin'))

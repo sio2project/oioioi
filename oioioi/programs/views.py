@@ -1,7 +1,11 @@
 import difflib
+
+# Workaround for race condition in fnmatchcase which is used by pygments
+import fnmatch
 import logging
 import os
 import shutil
+import sys
 import tempfile
 import zipfile
 
@@ -15,6 +19,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from pygments import highlight
+
 # pylint: disable=no-name-in-module
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import guess_lexer_for_filename
@@ -23,21 +28,30 @@ from six.moves import range
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import jsonify, strip_num_or_hash
-from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   get_submission_or_error, is_contest_admin,
-                                   is_contest_basicadmin, submittable_problem_instances)
+from oioioi.contests.utils import (
+    can_enter_contest,
+    contest_exists,
+    get_submission_or_error,
+    is_contest_basicadmin,
+    submittable_problem_instances,
+)
 from oioioi.filetracker.utils import stream_file
-from oioioi.problems.utils import can_admin_instance_of_problem
-from oioioi.programs.models import (OutputChecker, ProgramSubmission,
-                                    SubmissionReport, Test, TestReport,
-                                    UserOutGenStatus, ProblemInstance)
+from oioioi.programs.models import (
+    OutputChecker,
+    ProblemInstance,
+    ProgramSubmission,
+    SubmissionReport,
+    Test,
+    TestReport,
+    UserOutGenStatus,
+)
 from oioioi.programs.problem_instance_utils import get_language_by_extension
-from oioioi.programs.utils import (decode_str, get_extension,
-                                   get_submission_source_file_or_error)
+from oioioi.programs.utils import (
+    decode_str,
+    get_extension,
+    get_submission_source_file_or_error,
+)
 
-# Workaround for race condition in fnmatchcase which is used by pygments
-import fnmatch
-import sys
 fnmatch._MAXCACHE = sys.maxsize
 
 logger = logging.getLogger(__name__)
@@ -45,35 +59,36 @@ logger = logging.getLogger(__name__)
 
 @enforce_condition(~contest_exists | can_enter_contest)
 def show_submission_source_view(request, submission_id):
-    source_file = get_submission_source_file_or_error(request,
-            submission_id)
+    source_file = get_submission_source_file_or_error(request, submission_id)
     raw_source, decode_error = decode_str(source_file.read())
     filename = source_file.file.name
     is_source_safe = False
     try:
-        lexer = guess_lexer_for_filename(
-            filename,
-            raw_source
+        lexer = guess_lexer_for_filename(filename, raw_source)
+        formatter = HtmlFormatter(
+            linenos=True, line_number_chars=3, cssclass='syntax-highlight'
         )
-        formatter = HtmlFormatter(linenos=True, line_number_chars=3,
-                            cssclass='syntax-highlight')
         formatted_source = highlight(raw_source, lexer, formatter)
-        formatted_source_css = HtmlFormatter() \
-                .get_style_defs('.syntax-highlight')
+        formatted_source_css = HtmlFormatter().get_style_defs('.syntax-highlight')
         is_source_safe = True
     except ClassNotFound:
         formatted_source = raw_source
         formatted_source_css = ''
-    download_url = reverse('download_submission_source',
-            kwargs={'submission_id': submission_id})
-    return TemplateResponse(request, 'programs/source.html', {
-        'source': formatted_source,
-        'css': formatted_source_css,
-        'is_source_safe': is_source_safe,
-        'download_url': download_url,
-        'decode_error': decode_error,
-        'submission_id': submission_id
-    })
+    download_url = reverse(
+        'download_submission_source', kwargs={'submission_id': submission_id}
+    )
+    return TemplateResponse(
+        request,
+        'programs/source.html',
+        {
+            'source': formatted_source,
+            'css': formatted_source_css,
+            'is_source_safe': is_source_safe,
+            'download_url': download_url,
+            'decode_error': decode_error,
+            'submission_id': submission_id,
+        },
+    )
 
 
 @enforce_condition(~contest_exists | can_enter_contest)
@@ -88,10 +103,8 @@ def save_diff_id_view(request, submission_id):
 def source_diff_view(request, submission1_id, submission2_id):
     if request.session.get('saved_diff_id'):
         request.session.pop('saved_diff_id')
-    source1 = get_submission_source_file_or_error(request,
-        submission1_id).read()
-    source2 = get_submission_source_file_or_error(request,
-        submission2_id).read()
+    source1 = get_submission_source_file_or_error(request, submission1_id).read()
+    source2 = get_submission_source_file_or_error(request, submission2_id).read()
 
     source1, decode_error1 = decode_str(source1)
     source2, decode_error2 = decode_str(source2)
@@ -139,27 +152,39 @@ def source_diff_view(request, submission1_id, submission2_id):
         if diffline.startswith('+ ') or diffline.startswith('  '):
             count2 += 1
 
-    download_url1 = reverse('download_submission_source',
-            kwargs={'submission_id': submission1_id})
-    download_url2 = reverse('download_submission_source',
-            kwargs={'submission_id': submission2_id})
+    download_url1 = reverse(
+        'download_submission_source', kwargs={'submission_id': submission1_id}
+    )
+    download_url2 = reverse(
+        'download_submission_source', kwargs={'submission_id': submission2_id}
+    )
 
-    return TemplateResponse(request, 'programs/source_diff.html',
-            {'source1': diff1, 'decode_error1': decode_error1,
-             'download_url1': download_url1,
-             'source2': diff2, 'decode_error2': decode_error2,
-             'download_url2': download_url2,
-             'submission1_id': submission1_id,
-             'submission2_id': submission2_id,
-             'reverse_diff_url': reverse('source_diff', kwargs={
-                 'submission1_id': submission2_id,
-                 'submission2_id': submission1_id})})
+    return TemplateResponse(
+        request,
+        'programs/source_diff.html',
+        {
+            'source1': diff1,
+            'decode_error1': decode_error1,
+            'download_url1': download_url1,
+            'source2': diff2,
+            'decode_error2': decode_error2,
+            'download_url2': download_url2,
+            'submission1_id': submission1_id,
+            'submission2_id': submission2_id,
+            'reverse_diff_url': reverse(
+                'source_diff',
+                kwargs={
+                    'submission1_id': submission2_id,
+                    'submission2_id': submission1_id,
+                },
+            ),
+        },
+    )
 
 
 @enforce_condition(~contest_exists | can_enter_contest)
 def download_submission_source_view(request, submission_id):
-    source_file = get_submission_source_file_or_error(request,
-        submission_id)
+    source_file = get_submission_source_file_or_error(request, submission_id)
     return stream_file(source_file)
 
 
@@ -167,16 +192,14 @@ def download_input_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
     if not test.problem_instance.controller.can_see_test(request, test):
         raise PermissionDenied
-    return stream_file(test.input_file,
-                       strip_num_or_hash(test.input_file.name))
+    return stream_file(test.input_file, strip_num_or_hash(test.input_file.name))
 
 
 def download_output_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
     if not test.problem_instance.controller.can_see_test(request, test):
         raise PermissionDenied
-    return stream_file(test.output_file,
-                       strip_num_or_hash(test.output_file.name))
+    return stream_file(test.output_file, strip_num_or_hash(test.output_file.name))
 
 
 def download_checker_exe_view(request, checker_id):
@@ -185,23 +208,25 @@ def download_checker_exe_view(request, checker_id):
         raise PermissionDenied
     if not checker.exe_file:
         raise Http404
-    return stream_file(checker.exe_file,
-                       strip_num_or_hash(checker.exe_file.name))
+    return stream_file(checker.exe_file, strip_num_or_hash(checker.exe_file.name))
 
 
 def _check_generate_out_permission(request, submission_report):
-    if request.contest.id != \
-            submission_report.submission.problem_instance.contest_id:
+    if request.contest.id != submission_report.submission.problem_instance.contest_id:
         raise PermissionDenied
-    if not request.contest.controller.can_generate_user_out(request,
-                                                            submission_report):
+    if not request.contest.controller.can_generate_user_out(request, submission_report):
         raise PermissionDenied
 
 
 def _userout_filename(testreport):
-    return testreport.test_name + '_user_out_' + \
-        str(testreport.submission_report.submission.user) + '_' + \
-        str(testreport.submission_report.id) + '.out'
+    return (
+        testreport.test_name
+        + '_user_out_'
+        + str(testreport.submission_report.submission.user)
+        + '_'
+        + str(testreport.submission_report.id)
+        + '.out'
+    )
 
 
 def _check_generated_out_visibility_for_user(testreport):
@@ -232,12 +257,10 @@ def download_user_one_output_view(request, testreport_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def download_user_all_output_view(request, submission_report_id):
-    submission_report = get_object_or_404(SubmissionReport,
-                                          id=submission_report_id)
+    submission_report = get_object_or_404(SubmissionReport, id=submission_report_id)
     _check_generate_out_permission(request, submission_report)
 
-    testreports = TestReport.objects.filter(
-                                        submission_report=submission_report)
+    testreports = TestReport.objects.filter(submission_report=submission_report)
     if not all(bool(report.output_file) for report in testreports):
         raise Http404
 
@@ -259,20 +282,32 @@ def download_user_all_output_view(request, submission_report_id):
                 os.unlink(tmp_test_filename)
 
         name = submission_report.submission.problem_instance.problem.short_name
-        return stream_file(File(open(tmp_zip_filename, 'rb'),
-            name=name + '_' + str(submission_report.submission.user) +
-            '_' + str(submission_report.id) + '_user_outs.zip'))
+        return stream_file(
+            File(
+                open(tmp_zip_filename, 'rb'),
+                name=name
+                + '_'
+                + str(submission_report.submission.user)
+                + '_'
+                + str(submission_report.id)
+                + '_user_outs.zip',
+            )
+        )
 
 
 def _testreports_to_generate_outs(request, testreports):
     """Gets tests' ids from ``testreports`` without generated or processing
-       right now outs. Returns list of tests' ids.
+    right now outs. Returns list of tests' ids.
     """
     test_ids = []
 
     for testreport in testreports:
-        download_control, created = UserOutGenStatus.objects. \
-                select_for_update().get_or_create(testreport=testreport)
+        (
+            download_control,
+            created,
+        ) = UserOutGenStatus.objects.select_for_update().get_or_create(
+            testreport=testreport
+        )
 
         if not created:
             if not is_contest_basicadmin(request):
@@ -297,8 +332,7 @@ def _testreports_to_generate_outs(request, testreports):
         else:
             download_control.status = '?'
             # invisible to the the user when first generated by the admin
-            download_control.visible_for_user = \
-                    not is_contest_basicadmin(request)
+            download_control.visible_for_user = not is_contest_basicadmin(request)
             download_control.save()
 
         test_ids.append(testreport.test.id)
@@ -308,25 +342,22 @@ def _testreports_to_generate_outs(request, testreports):
 
 @enforce_condition(contest_exists & can_enter_contest)
 @require_POST
-def generate_user_output_view(request, testreport_id=None,
-                              submission_report_id=None):
+def generate_user_output_view(request, testreport_id=None, submission_report_id=None):
     """Prepares re-submission for generating user outputs and runs judging.
 
-       If there are no test reports' ids given as argument, then all tests from
-       reports with the ``submission_report_id`` would be used for generating
-       user outs. In that case ``submission_report_id`` is required.
-       Note that it uses only tests without already generated outs.
+    If there are no test reports' ids given as argument, then all tests from
+    reports with the ``submission_report_id`` would be used for generating
+    user outs. In that case ``submission_report_id`` is required.
+    Note that it uses only tests without already generated outs.
 
-       Also adjusts already generated outs visibility for users
-       on tests originally generated by admin.
+    Also adjusts already generated outs visibility for users
+    on tests originally generated by admin.
     """
-    assert testreport_id or submission_report_id, \
-            _("Not enough information given")
+    assert testreport_id or submission_report_id, _("Not enough information given")
 
     # taking test report with given id
     if testreport_id is not None:
-        testreport = get_object_or_404(TestReport,
-                                       id=testreport_id)
+        testreport = get_object_or_404(TestReport, id=testreport_id)
 
         if submission_report_id is not None:
             # testreport_id is not related to given submission_report_id
@@ -337,12 +368,12 @@ def generate_user_output_view(request, testreport_id=None,
         testreports = [testreport]
     # taking all test reports related to submission report
     elif submission_report_id is not None:
-        testreports = TestReport.objects \
-                .filter(submission_report__id=submission_report_id)
+        testreports = TestReport.objects.filter(
+            submission_report__id=submission_report_id
+        )
 
     # check download out permission
-    submission_report = get_object_or_404(SubmissionReport,
-                                          id=submission_report_id)
+    submission_report = get_object_or_404(SubmissionReport, id=submission_report_id)
     _check_generate_out_permission(request, submission_report)
 
     # filtering tests for judge
@@ -350,24 +381,31 @@ def generate_user_output_view(request, testreport_id=None,
 
     # creating re-submission with appropriate tests
     s_id = submission_report.submission.id
-    submission = get_submission_or_error(request, s_id,
-                                         submission_class=ProgramSubmission)
+    submission = get_submission_or_error(
+        request, s_id, submission_class=ProgramSubmission
+    )
     if test_ids:
         # Note that submission comment should not be copied to re-submission!
         # It will be overwritten in handler anyway.
-        resubmission = ProgramSubmission(problem_instance=submission.
-                                            problem_instance,
-                                         user=request.user,
-                                         date=request.timestamp,
-                                         kind='USER_OUTS',
-                                         source_file=submission.source_file)
+        resubmission = ProgramSubmission(
+            problem_instance=submission.problem_instance,
+            user=request.user,
+            date=request.timestamp,
+            kind='USER_OUTS',
+            source_file=submission.source_file,
+        )
         resubmission.save()
-        resubmission.problem_instance.controller.judge(resubmission,
-                extra_args={'tests_subset': test_ids,
-                            'submission_report_id': submission_report.id})
+        resubmission.problem_instance.controller.judge(
+            resubmission,
+            extra_args={
+                'tests_subset': test_ids,
+                'submission_report_id': submission_report.id,
+            },
+        )
 
-    return redirect('submission', contest_id=request.contest.id,
-                    submission_id=submission.id)
+    return redirect(
+        'submission', contest_id=request.contest.id, submission_id=submission.id
+    )
 
 
 @jsonify
@@ -389,15 +427,21 @@ def get_language_hints_view(request):
 
     if contest_exists(request):
         submittable_pis = submittable_problem_instances(request)
-        lang_dict = {pi: lang for (pi, lang) in lang_dict.items()
-                     if pi in submittable_pis}
+        lang_dict = {
+            pi: lang for (pi, lang) in lang_dict.items() if pi in submittable_pis
+        }
     else:
         problemsite_key = request.GET.get(u'problemsite_key', u'')
-        lang_dict = {pi: lang for (pi, lang) in lang_dict.items()
-                     if pi.problem.problemsite.url_key == problemsite_key}
+        lang_dict = {
+            pi: lang
+            for (pi, lang) in lang_dict.items()
+            if pi.problem.problemsite.url_key == problemsite_key
+        }
 
     langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
-    lang_display_dict = {pi.id: langs.get(lang, {'display_name': ''})['display_name']
-                         for (pi, lang) in lang_dict.items()}
+    lang_display_dict = {
+        pi.id: langs.get(lang, {'display_name': ''})['display_name']
+        for (pi, lang) in lang_dict.items()
+    }
 
     return lang_display_dict

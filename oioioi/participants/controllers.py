@@ -11,11 +11,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import get_user_display_name, request_cached
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.controllers import (ContestController,
-                                         RegistrationController)
+from oioioi.contests.controllers import ContestController, RegistrationController
 from oioioi.contests.utils import can_see_personal_data, is_contest_admin
-from oioioi.participants.models import (OnsiteRegistration, Participant,
-                                        RegistrationModel, TermsAcceptedPhrase)
+from oioioi.participants.models import (
+    OnsiteRegistration,
+    Participant,
+    RegistrationModel,
+    TermsAcceptedPhrase,
+)
 
 
 class ParticipantsController(RegistrationController):
@@ -28,6 +31,7 @@ class ParticipantsController(RegistrationController):
     @property
     def participant_admin(self):
         from oioioi.participants.admin import ParticipantAdmin
+
         return ParticipantAdmin
 
     @classmethod
@@ -36,13 +40,14 @@ class ParticipantsController(RegistrationController):
 
     def allow_login_as_public_name(self):
         """Determines if participants may choose to stay anonymous,
-           i.e. use their logins as public names.
+        i.e. use their logins as public names.
         """
         return False
 
     def filter_participants(self, queryset):
-        return queryset.filter(participant__contest=self.contest,
-                participant__status='ACTIVE')
+        return queryset.filter(
+            participant__contest=self.contest, participant__status='ACTIVE'
+        )
 
     def user_contests_query(self, request):
         return Q(participant__user__id=request.user.id, participant__status='ACTIVE')
@@ -67,28 +72,34 @@ class ParticipantsController(RegistrationController):
 
     def no_entry_view(self, request):
         if self.can_register(request):
-            url = reverse('participants_register',
-                        kwargs={'contest_id': self.contest.id}) + '?' + \
-                    six.moves.urllib.parse.urlencode({'next': request.build_absolute_uri()})
+            url = (
+                reverse('participants_register', kwargs={'contest_id': self.contest.id})
+                + '?'
+                + six.moves.urllib.parse.urlencode(
+                    {'next': request.build_absolute_uri()}
+                )
+            )
             return HttpResponseRedirect(url)
         return super(ParticipantsController, self).no_entry_view(request)
 
     def get_model_class(self):
         """Returns registration model class used within current registration
-           controller.
+        controller.
 
-           The default implementation infers it from form_class form metadata.
-           If there is no form_class, the default implementation returns
-           ``None``.
+        The default implementation infers it from form_class form metadata.
+        If there is no form_class, the default implementation returns
+        ``None``.
         """
         if self.form_class is None:
             return None
-        assert issubclass(self.form_class, forms.ModelForm), \
-            'ParticipantsController.form_class must be a ModelForm'
+        assert issubclass(
+            self.form_class, forms.ModelForm
+        ), 'ParticipantsController.form_class must be a ModelForm'
         model_class = self.form_class._meta.model
-        assert issubclass(model_class, RegistrationModel), \
-            'ParticipantsController.form_class\'s model must be a ' \
+        assert issubclass(model_class, RegistrationModel), (
+            'ParticipantsController.form_class\'s model must be a '
             'subclass of RegistrationModel'
+        )
         return model_class
 
     def get_form(self, request, participant=None):
@@ -108,10 +119,15 @@ class ParticipantsController(RegistrationController):
 
         if self.allow_login_as_public_name():
             initial = participant.anonymous if participant else False
-            form.fields['anonymous'] = forms.BooleanField(required=False,
-                    label=_("Anonymous"), initial=initial,
-                    help_text=_("Anonymous participant uses the account name "
-                        "instead of the real name in rankings."))
+            form.fields['anonymous'] = forms.BooleanField(
+                required=False,
+                label=_("Anonymous"),
+                initial=initial,
+                help_text=_(
+                    "Anonymous participant uses the account name "
+                    "instead of the real name in rankings."
+                ),
+            )
         return form
 
     def handle_validated_form(self, request, form, participant):
@@ -123,8 +139,9 @@ class ParticipantsController(RegistrationController):
 
     def _get_participant_for_form(self, request):
         try:
-            participant = Participant.objects.get(contest=self.contest,
-                    user=request.user)
+            participant = Participant.objects.get(
+                contest=self.contest, user=request.user
+            )
             if not self.can_edit_registration(request, participant):
                 raise PermissionDenied
         except Participant.DoesNotExist:
@@ -137,19 +154,21 @@ class ParticipantsController(RegistrationController):
         participant = self._get_participant_for_form(request)
 
         form = self.get_form(request, participant)
-        assert form is not None, "can_register or can_edit_registration " \
+        assert form is not None, (
+            "can_register or can_edit_registration "
             "returned True, but controller returns no registration form"
+        )
 
         if request.method == 'POST':
             if form.is_valid():
                 participant, created = Participant.objects.get_or_create(
-                        contest=self.contest, user=request.user)
+                    contest=self.contest, user=request.user
+                )
                 self.handle_validated_form(request, form, participant)
                 if 'next' in request.GET:
                     return safe_redirect(request, request.GET['next'])
                 else:
-                    return redirect('default_contest_view',
-                            contest_id=self.contest.id)
+                    return redirect('default_contest_view', contest_id=self.contest.id)
         can_unregister = False
         if participant:
             can_unregister = self.can_unregister(request, participant)
@@ -179,6 +198,7 @@ class OpenParticipantsController(ParticipantsController):
     @property
     def form_class(self):
         from oioioi.participants.forms import OpenRegistrationForm
+
         return OpenRegistrationForm
 
     @classmethod
@@ -206,48 +226,58 @@ class OpenParticipantsController(ParticipantsController):
 def anonymous_participants(request):
     if not hasattr(request, 'contest'):
         return frozenset({})
-    return frozenset((p.user for p in Participant.objects
-            .filter(contest=request.contest, anonymous=True)
-            .select_related('user')))
+    return frozenset(
+        (
+            p.user
+            for p in Participant.objects.filter(
+                contest=request.contest, anonymous=True
+            ).select_related('user')
+        )
+    )
 
 
 class EmailShowContestControllerMixin(object):
     """Contest controller defines whether in participants' data view email
-       should be shown. That is a case in OI-type contest.
+    should be shown. That is a case in OI-type contest.
     """
 
     show_email_in_participants_data = False
+
 
 ContestController.mix_in(EmailShowContestControllerMixin)
 
 
 class AnonymousContestControllerMixin(object):
     """ContestController mixin that adds participants info for anonymous
-       contests.
+    contests.
     """
 
     def get_user_public_name(self, request, user):
         assert self.contest == request.contest
-        if request.user.is_superuser or can_see_personal_data(request) \
-                or user not in anonymous_participants(request):
+        if (
+            request.user.is_superuser
+            or can_see_personal_data(request)
+            or user not in anonymous_participants(request)
+        ):
             return get_user_display_name(user)
         else:
             return user.username
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(AnonymousContestControllerMixin, self).\
-                get_contest_participant_info_list(request, user)
+        prev = super(
+            AnonymousContestControllerMixin, self
+        ).get_contest_participant_info_list(request, user)
         try:
-            part = Participant.objects.get(user=user,
-                                          contest=request.contest)
+            part = Participant.objects.get(user=user, contest=request.contest)
             context = {'participant': part}
             rendered_info = render_to_string(
-                    'participants/participant_info.html',
-                    context=context, request=request)
+                'participants/participant_info.html', context=context, request=request
+            )
             prev.append((98, rendered_info))
         except Participant.DoesNotExist:
             pass
         return prev
+
 
 ContestController.mix_in(AnonymousContestControllerMixin)
 
@@ -255,8 +285,8 @@ ContestController.mix_in(AnonymousContestControllerMixin)
 class OnsiteRegistrationController(ParticipantsController):
     @property
     def participant_admin(self):
-        from oioioi.participants.admin import \
-                OnsiteRegistrationParticipantAdmin
+        from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
+
         return OnsiteRegistrationParticipantAdmin
 
     def get_model_class(self):
@@ -269,24 +299,26 @@ class OnsiteRegistrationController(ParticipantsController):
         return False
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(OnsiteRegistrationController, self) \
-                .get_contest_participant_info_list(request, user)
+        prev = super(
+            OnsiteRegistrationController, self
+        ).get_contest_participant_info_list(request, user)
 
-        info = OnsiteRegistration.objects.filter(participant__user=user,
-                participant__contest=request.contest)
+        info = OnsiteRegistration.objects.filter(
+            participant__user=user, participant__contest=request.contest
+        )
 
         if info.exists():
             context = {'model': info[0]}
-            rendered_info = render_to_string('oi/participant_info.html',
-                    context=context, request=request)
+            rendered_info = render_to_string(
+                'oi/participant_info.html', context=context, request=request
+            )
             prev.append((98, rendered_info))
 
         return prev
 
 
 class OnsiteContestControllerMixin(object):
-    """ContestController mixin that sets up an onsite contest.
-    """
+    """ContestController mixin that sets up an onsite contest."""
 
     create_forum = False
 

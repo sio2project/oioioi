@@ -4,5 +4,4 @@ from oioioi.base.menu import MenuRegistry
 from oioioi.base.permissions import not_anonymous
 from oioioi.contests.utils import contest_exists
 
-top_links_registry = MenuRegistry(_("Top Links Menu"),
-    contest_exists & not_anonymous)
+top_links_registry = MenuRegistry(_("Top Links Menu"), contest_exists & not_anonymous)

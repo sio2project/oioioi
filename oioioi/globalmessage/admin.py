@@ -29,9 +29,7 @@ class GlobalMessageAdmin(admin.ModelAdmin):
         urls = super(GlobalMessageAdmin, self).get_urls()
 
         custom_urls = [
-            url(r'^$',
-                self.admin_site.admin_view(self.change_view),
-                {'object_id': pk}),
+            url(r'^$', self.admin_site.admin_view(self.change_view), {'object_id': pk}),
         ]
 
         return custom_urls + urls
@@ -41,11 +39,9 @@ admin.site.register(GlobalMessage, GlobalMessageAdmin)
 
 
 admin.system_admin_menu_registry.register(
-        'globalmessage',
-        _("Global message"),
-        lambda request: reverse(
-            'oioioiadmin:globalmessage_globalmessage_changelist'
-        ),
-        condition=is_superuser,
-        order=20
+    'globalmessage',
+    _("Global message"),
+    lambda request: reverse('oioioiadmin:globalmessage_globalmessage_changelist'),
+    condition=is_superuser,
+    order=20,
 )

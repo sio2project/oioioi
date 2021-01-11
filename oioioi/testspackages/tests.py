@@ -15,8 +15,12 @@ from oioioi.testspackages.models import TestsPackage
 
 
 class TestTestsPackages(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def _assertTestsInPackage(self, tests, tp):
         zipf = zipfile.ZipFile(tp.package, 'r')
@@ -33,23 +37,28 @@ class TestTestsPackages(TestCase):
         for t in tests:
             for f in [t.input_file, t.output_file]:
                 with self.assertRaises(KeyError):
-                    file_name = strip_num_or_hash(os.path.basename(
-                            f.file.name))
+                    file_name = strip_num_or_hash(os.path.basename(f.file.name))
                     zipf.open(file_name)
         zipf.close()
 
     def test_validating_packages(self):
         problem = Problem.objects.get()
-        tp = TestsPackage(problem=problem, name='some name',
-                description='some desc',
-                publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc))
+        tp = TestsPackage(
+            problem=problem,
+            name='some name',
+            description='some desc',
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+        )
 
         with self.assertRaises(ValidationError):
             tp.full_clean()
 
-        tp = TestsPackage(problem=problem, name='some_name',
-                description='some desc',
-                publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc))
+        tp = TestsPackage(
+            problem=problem,
+            name='some_name',
+            description='some desc',
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+        )
         tp.full_clean()
         tp.save()
 
@@ -60,9 +69,12 @@ class TestTestsPackages(TestCase):
         test3 = Test.objects.get(name='1b')
         test4 = Test.objects.get(name='2')
 
-        tp = TestsPackage(problem=problem, name='some_name',
-                description='some desc',
-                publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc))
+        tp = TestsPackage(
+            problem=problem,
+            name='some_name',
+            description='some desc',
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+        )
         tp.save()
         tp.tests.add(test1, test3)
 
@@ -77,16 +89,22 @@ class TestTestsPackages(TestCase):
         test1 = Test.objects.get(name='0')
         test2 = Test.objects.get(name='1a')
 
-        tp = TestsPackage(problem=problem, name='some_name',
-                description='some desc',
-                publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc))
+        tp = TestsPackage(
+            problem=problem,
+            name='some_name',
+            description='some desc',
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+        )
         tp.full_clean()
         tp.save()
         tp.tests.add(test1, test2)
 
-        tp2 = TestsPackage(problem=problem, name='some_name2',
-                description='some desc2',
-                publish_date=datetime(2012, 8, 5, 1, 11, tzinfo=utc))
+        tp2 = TestsPackage(
+            problem=problem,
+            name='some_name2',
+            description='some desc2',
+            publish_date=datetime(2012, 8, 5, 1, 11, tzinfo=utc),
+        )
         tp2.full_clean()
         tp2.save()
         tp2.tests.add(test2)
@@ -111,8 +129,7 @@ class TestTestsPackages(TestCase):
             self.assertContains(response, 'some_name2.zip')
             self.assertEqual(200, response.status_code)
 
-        url = reverse('test', kwargs={'contest_id': contest.id,
-                'package_id': 1})
+        url = reverse('test', kwargs={'contest_id': contest.id, 'package_id': 1})
 
         with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=utc)):
             response = self.client.get(url)

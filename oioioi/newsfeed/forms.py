@@ -9,7 +9,11 @@ from oioioi.newsfeed.models import NewsLanguageVersion
 class NewsLanguageVersionForm(forms.ModelForm):
     class Meta(object):
         model = NewsLanguageVersion
-        fields = ['language', 'title', 'content', ]
+        fields = [
+            'language',
+            'title',
+            'content',
+        ]
 
     language = forms.ChoiceField(
         label=_("Language"),
@@ -29,7 +33,12 @@ class NewsLanguageVersionForm(forms.ModelForm):
 
 
 NewsLanguageVersionFormset = modelformset_factory(
-    NewsLanguageVersion, form=NewsLanguageVersionForm,
-    extra=len(settings.LANGUAGES), min_num=1, max_num=len(settings.LANGUAGES),
-    validate_min=True, validate_max=True, can_delete=True,
+    NewsLanguageVersion,
+    form=NewsLanguageVersionForm,
+    extra=len(settings.LANGUAGES),
+    min_num=1,
+    max_num=len(settings.LANGUAGES),
+    validate_min=True,
+    validate_max=True,
+    can_delete=True,
 )

@@ -20,10 +20,9 @@ class IpAuthSyncConfigInline(admin.TabularInline):
 
 class ContestAdminWithIpAuthSyncInlineMixin(object):
     """Adds :class:`~oioioi.ipauthsync.models.IpAuthSyncConfig` to an admin
-       panel.
+    panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(ContestAdminWithIpAuthSyncInlineMixin, self) \
-            .__init__(*args, **kwargs)
+        super(ContestAdminWithIpAuthSyncInlineMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [IpAuthSyncConfigInline]

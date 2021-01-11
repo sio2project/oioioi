@@ -22,11 +22,12 @@ class ComplaintsConfigInline(admin.TabularInline):
 
 class ComplaintsAdminMixin(object):
     """Adds :class:`~oioioi.complaints.models.ComplaintConfig` to an admin
-       panel.
+    panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(ComplaintsAdminMixin, self) \
-            .__init__(*args, **kwargs)
+        super(ComplaintsAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ComplaintsConfigInline]
+
+
 ContestAdmin.mix_in(ComplaintsAdminMixin)

@@ -17,15 +17,26 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify
 from oioioi.base.utils.user_selection import get_user_hints_view
-from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   is_contest_basicadmin, visible_rounds)
-from oioioi.questions.forms import (AddContestMessageForm, AddReplyForm,
-                                    FilterMessageAdminForm, FilterMessageForm)
+from oioioi.contests.utils import (
+    can_enter_contest,
+    contest_exists,
+    is_contest_basicadmin,
+    visible_rounds,
+)
+from oioioi.questions.forms import (
+    AddContestMessageForm,
+    AddReplyForm,
+    FilterMessageAdminForm,
+    FilterMessageForm,
+)
 from oioioi.questions.mails import new_question_signal
-from oioioi.questions.models import (Message, MessageView,
-                                     QuestionSubscription, ReplyTemplate)
-from oioioi.questions.utils import (get_categories, log_addition,
-                                    unanswered_questions)
+from oioioi.questions.models import (
+    Message,
+    MessageView,
+    QuestionSubscription,
+    ReplyTemplate,
+)
+from oioioi.questions.utils import get_categories, log_addition, unanswered_questions
 
 
 def visible_messages(request, author=None, category=None, kind=None):
@@ -39,27 +50,34 @@ def visible_messages(request, author=None, category=None, kind=None):
         if category_type == 'p':
             q_expression = q_expression & Q(problem_instance__id=category_id)
         elif category_type == 'r':
-            q_expression = q_expression & Q(round__id=category_id,
-                                            problem_instance=None)
+            q_expression = q_expression & Q(
+                round__id=category_id, problem_instance=None
+            )
     if kind:
         q_expression = q_expression & Q(kind=kind)
     messages = Message.objects.filter(q_expression).order_by('-date')
     if not is_contest_basicadmin(request):
         q_expression = Q(kind='PUBLIC')
         if request.user.is_authenticated:
-            q_expression = q_expression \
-                    | (Q(author=request.user) & Q(kind='QUESTION')) \
-                    | Q(top_reference__author=request.user)
-        q_time = Q(date__lte=request.timestamp) \
-                 & ((Q(pub_date__isnull=True)
-                    | Q(pub_date__lte=request.timestamp))) \
-                 & ((Q(top_reference__isnull=True))
-                    | Q(top_reference__pub_date__isnull=True)
-                    | Q(top_reference__pub_date__lte=request.timestamp))
+            q_expression = (
+                q_expression
+                | (Q(author=request.user) & Q(kind='QUESTION'))
+                | Q(top_reference__author=request.user)
+            )
+        q_time = (
+            Q(date__lte=request.timestamp)
+            & ((Q(pub_date__isnull=True) | Q(pub_date__lte=request.timestamp)))
+            & (
+                (Q(top_reference__isnull=True))
+                | Q(top_reference__pub_date__isnull=True)
+                | Q(top_reference__pub_date__lte=request.timestamp)
+            )
+        )
         messages = messages.filter(q_expression, q_time)
 
-    return messages.select_related('top_reference', 'author',
-            'problem_instance', 'problem_instance__problem')
+    return messages.select_related(
+        'top_reference', 'author', 'problem_instance', 'problem_instance__problem'
+    )
 
 
 def new_messages(request, messages=None):
@@ -67,8 +85,7 @@ def new_messages(request, messages=None):
         return messages.none()
     if messages is None:
         messages = visible_messages(request)
-    return messages.exclude(messageview__user=request.user) \
-            .exclude(author=request.user)
+    return messages.exclude(messageview__user=request.user).exclude(author=request.user)
 
 
 def request_time_seconds(request):
@@ -84,16 +101,20 @@ def messages_template_context(request, messages):
     else:
         unanswered = []
 
-    to_display = [{
+    to_display = [
+        {
             'message': m,
-            'link_message': m.top_reference
-                    if m.top_reference in messages else m,
+            'link_message': m.top_reference if m.top_reference in messages else m,
             'needs_reply': m in unanswered,
             'read': m.id not in new_ids,
-        } for m in messages if m.id not in replied_ids]
+        }
+        for m in messages
+        if m.id not in replied_ids
+    ]
 
     def key(entry):
         return entry['needs_reply'], entry['message'].get_user_date()
+
     to_display.sort(key=key, reverse=True)
     return to_display
 
@@ -108,26 +129,38 @@ def process_filter_form(request):
         category = form.cleaned_data['category']
         author = form.cleaned_data.get('author')
         message_type = form.cleaned_data.get(
-            'message_type', FilterMessageForm.TYPE_ALL_MESSAGES)
-        message_kind = 'PUBLIC' if message_type == \
-            FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS else None
+            'message_type', FilterMessageForm.TYPE_ALL_MESSAGES
+        )
+        message_kind = (
+            'PUBLIC'
+            if message_type == FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS
+            else None
+        )
     else:
         category = author = message_kind = None
-    return (form, {
-        'author': author,
-        'category': category,
-        'kind': message_kind,
-    })
+    return (
+        form,
+        {
+            'author': author,
+            'category': category,
+            'kind': message_kind,
+        },
+    )
 
 
-@menu_registry.register_decorator(_("Questions and news"), lambda request:
-        reverse('contest_messages', kwargs={'contest_id': request.contest.id}),
-    order=450)
+@menu_registry.register_decorator(
+    _("Questions and news"),
+    lambda request: reverse(
+        'contest_messages', kwargs={'contest_id': request.contest.id}
+    ),
+    order=450,
+)
 @enforce_condition(contest_exists & can_enter_contest)
 def messages_view(request):
     form, vmsg_kwargs = process_filter_form(request)
     messages = messages_template_context(
-        request, visible_messages(request, **vmsg_kwargs))
+        request, visible_messages(request, **vmsg_kwargs)
+    )
 
     if request.user.is_authenticated:
         subscribe_records = QuestionSubscription.objects.filter(
@@ -139,15 +172,18 @@ def messages_view(request):
         already_subscribed = None
         no_email = None
 
-    return TemplateResponse(request, 'questions/list.html',
+    return TemplateResponse(
+        request,
+        'questions/list.html',
         {
-            'records': messages, 'form': form,
+            'records': messages,
+            'form': form,
             'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
             'categories': get_categories(request),
             'already_subscribed': already_subscribed,
             'no_email': no_email,
-            'onsite': request.contest.controller.is_onsite()
-        }
+            'onsite': request.contest.controller.is_onsite(),
+        },
     )
 
 
@@ -157,11 +193,12 @@ def all_messages_view(request):
         return {
             'message': m,
             'replies': [],
-            'timestamp': m.get_user_date(),    # only for messages ordering
+            'timestamp': m.get_user_date(),  # only for messages ordering
             'is_new': m in new_msgs,
             'has_new_message': m in new_msgs,  # only for messages ordering
             'needs_reply': m in unanswered,
         }
+
     form, vmsg_kwargs = process_filter_form(request)
     vmessages = visible_messages(request, **vmsg_kwargs)
     new_msgs = frozenset(new_messages(request, vmessages))
@@ -176,17 +213,16 @@ def all_messages_view(request):
             parent = tree[m.top_reference_id]
             parent['replies'].append(entry)
             parent['timestamp'] = max(parent['timestamp'], entry['timestamp'])
-            parent['has_new_message'] = max(parent['has_new_message'],
-                                            entry['has_new_message'])
+            parent['has_new_message'] = max(
+                parent['has_new_message'], entry['has_new_message']
+            )
         else:
             tree[m.id] = entry
 
     if is_contest_basicadmin(request):
-        sort_key = lambda x: (x['needs_reply'], x['has_new_message'],
-                              x['timestamp'])
+        sort_key = lambda x: (x['needs_reply'], x['has_new_message'], x['timestamp'])
     else:
-        sort_key = lambda x: (x['has_new_message'], x['needs_reply'],
-                              x['timestamp'])
+        sort_key = lambda x: (x['has_new_message'], x['needs_reply'], x['timestamp'])
     tree_list = sorted(list(tree.values()), key=sort_key, reverse=True)
     for entry in tree_list:
         entry['replies'].sort(key=sort_key, reverse=True)
@@ -194,10 +230,14 @@ def all_messages_view(request):
     if request.user.is_authenticated:
         mark_messages_read(request.user, vmessages)
 
-    return TemplateResponse(request, 'questions/tree.html', {
-        'tree_list': tree_list,
-        'form': form,
-    })
+    return TemplateResponse(
+        request,
+        'questions/tree.html',
+        {
+            'tree_list': tree_list,
+            'form': form,
+        },
+    )
 
 
 def mark_messages_read(user, messages):
@@ -212,8 +252,7 @@ def mark_messages_read(user, messages):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def message_visit_view(request, message_id):
-    message = get_object_or_404(Message, id=message_id,
-            contest_id=request.contest.id)
+    message = get_object_or_404(Message, id=message_id, contest_id=request.contest.id)
     vmessages = visible_messages(request)
     if message.top_reference_id is None:
         replies = list(vmessages.filter(top_reference=message))
@@ -227,8 +266,7 @@ def message_visit_view(request, message_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, message_id):
-    message = get_object_or_404(Message, id=message_id,
-            contest_id=request.contest.id)
+    message = get_object_or_404(Message, id=message_id, contest_id=request.contest.id)
     vmessages = visible_messages(request)
     if not vmessages.filter(id=message_id):
         raise PermissionDenied
@@ -237,8 +275,11 @@ def message_view(request, message_id):
         replies.sort(key=Message.get_user_date)
     else:
         replies = []
-    if is_contest_basicadmin(request) and message.kind == 'QUESTION' and \
-            message.can_have_replies:
+    if (
+        is_contest_basicadmin(request)
+        and message.kind == 'QUESTION'
+        and message.can_have_replies
+    ):
         if request.method == 'POST':
             form = AddReplyForm(request, request.POST)
 
@@ -250,22 +291,31 @@ def message_view(request, message_id):
                 instance.save()
 
                 log_addition(request, instance)
-                return redirect('contest_messages',
-                        contest_id=request.contest.id)
+                return redirect('contest_messages', contest_id=request.contest.id)
             elif request.POST.get('just_reload') == 'yes':
                 form.is_bound = False
         else:
-            form = AddReplyForm(request, initial={
+            form = AddReplyForm(
+                request,
+                initial={
                     'topic': _("Re: ") + message.topic,
-                })
+                },
+            )
     else:
         form = None
     if request.user.is_authenticated:
         mark_messages_read(request.user, [message] + replies)
-    return TemplateResponse(request, 'questions/message.html',
-            {'message': message, 'replies': replies, 'form': form,
-                 'reply_to_id': message.top_reference_id or message.id,
-                 'timestamp': request_time_seconds(request)})
+    return TemplateResponse(
+        request,
+        'questions/message.html',
+        {
+            'message': message,
+            'replies': replies,
+            'form': form,
+            'reply_to_id': message.top_reference_id or message.id,
+            'timestamp': request_time_seconds(request),
+        },
+    )
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
@@ -284,8 +334,9 @@ def add_contest_message_view(request):
             instance.date = request.timestamp
             instance.save()
             if instance.kind == 'QUESTION':
-                new_question_signal.send(sender=Message, request=request,
-                                         instance=instance)
+                new_question_signal.send(
+                    sender=Message, request=request, instance=instance
+                )
             log_addition(request, instance)
             return redirect('contest_messages', contest_id=request.contest.id)
 
@@ -301,8 +352,11 @@ def add_contest_message_view(request):
     else:
         title = _("Ask question")
 
-    return TemplateResponse(request, 'questions/add.html',
-            {'form': form, 'title': title, 'is_news': is_admin})
+    return TemplateResponse(
+        request,
+        'questions/add.html',
+        {'form': form, 'title': title, 'is_news': is_admin},
+    )
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
@@ -314,19 +368,22 @@ def get_messages_authors_view(request):
 @jsonify
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def get_reply_templates_view(request):
-    templates = ReplyTemplate.objects \
-            .filter(Q(contest=request.contest.id) | Q(contest__isnull=True)) \
-            .order_by('-usage_count')
-    return [{'id': t.id, 'name': t.visible_name, 'content': t.content}
-            for t in templates]
+    templates = ReplyTemplate.objects.filter(
+        Q(contest=request.contest.id) | Q(contest__isnull=True)
+    ).order_by('-usage_count')
+    return [
+        {'id': t.id, 'name': t.visible_name, 'content': t.content} for t in templates
+    ]
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def increment_template_usage_view(request, template_id=None):
     try:
-        template = ReplyTemplate.objects.filter(id=template_id) \
-                                        .filter(Q(contest=request.contest.id) |
-                                                Q(contest__isnull=True)).get()
+        template = (
+            ReplyTemplate.objects.filter(id=template_id)
+            .filter(Q(contest=request.contest.id) | Q(contest__isnull=True))
+            .get()
+        )
     except ReplyTemplate.DoesNotExist:
         raise Http404
 
@@ -340,13 +397,16 @@ def increment_template_usage_view(request, template_id=None):
 def check_new_messages_view(request, topic_id):
     timestamp = request.GET['timestamp']
     unix_date = datetime.datetime.fromtimestamp(int(timestamp))
-    output = [[x.topic,
-              Truncator(x.content)
-              .chars(settings.MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH),
-              x.id]
-              for x in visible_messages(request)
-              .filter(top_reference_id=topic_id)
-              .filter(date__gte=unix_date)]
+    output = [
+        [
+            x.topic,
+            Truncator(x.content).chars(settings.MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH),
+            x.id,
+        ]
+        for x in visible_messages(request)
+        .filter(top_reference_id=topic_id)
+        .filter(date__gte=unix_date)
+    ]
     return {'timestamp': request_time_seconds(request), 'messages': output}
 
 
@@ -362,9 +422,9 @@ def subscription(request):
         incorrect = should_add == subscribed
 
         if incorrect:
-            return HttpResponseBadRequest("Inconsistent POST request, "
-                "should_add = {}, subscribed = {}"
-                .format(should_add, subscribed)
+            return HttpResponseBadRequest(
+                "Inconsistent POST request, "
+                "should_add = {}, subscribed = {}".format(should_add, subscribed)
             )
         elif not should_add:
             entries.delete()

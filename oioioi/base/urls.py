@@ -1,12 +1,11 @@
-from django.conf.urls import include, url
-from django.conf import settings
 from django import VERSION as DJANGO_VERSION
-
-from oioioi.base import admin, views, api
-from oioioi.base.main_page import main_page_view
-
+from django.conf import settings
+from django.conf.urls import include, url
 from rest_framework.documentation import include_docs_urls
 from two_factor.urls import urlpatterns as tf_urls
+
+from oioioi.base import admin, api, views
+from oioioi.base.main_page import main_page_view
 
 app_name = 'base'
 
@@ -18,19 +17,20 @@ if DJANGO_VERSION < (1, 11):
 urlpatterns = [
     url(r'', include((tf_urls, 'two_factor'))),
     url(r'^force_error/$', views.force_error_view, name='force_error'),
-    url(r'^force_permission_denied/$', views.force_permission_denied_view,
-        name='force_permission_denied'),
+    url(
+        r'^force_permission_denied/$',
+        views.force_permission_denied_view,
+        name='force_permission_denied',
+    ),
     url(r'^edit_profile/$', views.edit_profile_view, name='edit_profile'),
     url(r'^logout/$', views.logout_view, name='logout'),
     url(r'^translate/$', views.translate_view, name='translate'),
     url(r'^login/$', views.login_view, name='login'),
-    url(r'^delete_account/$', views.delete_account_view,
-        name='delete_account'),
+    url(r'^delete_account/$', views.delete_account_view, name='delete_account'),
     url(r'^generate_key/$', views.generate_key_view, name='generate_key'),
-
-# don't include without appropriate patching! admincdocs provides its own
-# login view which can be used to bypass 2FA.
-#   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    # don't include without appropriate patching! admincdocs provides its own
+    # login view which can be used to bypass 2FA.
+    #   url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/logout/$', views.logout_view),
     url(r'^admin/', admin.site.urls),
 ]

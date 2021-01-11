@@ -1,7 +1,7 @@
 import hashlib
 import hmac
-import six
 
+import six
 from django.conf import settings
 
 from oioioi.base.permissions import make_request_condition
@@ -25,11 +25,12 @@ def is_mailsubmit_used(request):
 def is_mailsubmit_allowed(request):
     try:
         msc = request.contest.mail_submission_config
-        return msc.enabled \
-                   and msc.start_date is not None \
-                   and msc.start_date <= request.timestamp \
-            and (msc.end_date is None
-                 or request.timestamp < msc.end_date)
+        return (
+            msc.enabled
+            and msc.start_date is not None
+            and msc.start_date <= request.timestamp
+            and (msc.end_date is None or request.timestamp < msc.end_date)
+        )
     except MailSubmissionConfig.DoesNotExist:
         return False
 
@@ -43,10 +44,16 @@ def has_any_mailsubmittable_problem(request):
 @request_cached
 def mailsubmittable_problem_instances(request):
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest) \
-        .select_related('problem').prefetch_related('round')
-    return [pi for pi in queryset
-            if controller.can_submit(request, pi, check_round_times=False)]
+    queryset = (
+        ProblemInstance.objects.filter(contest=request.contest)
+        .select_related('problem')
+        .prefetch_related('round')
+    )
+    return [
+        pi
+        for pi in queryset
+        if controller.can_submit(request, pi, check_round_times=False)
+    ]
 
 
 def accept_mail_submission(request, mailsubmission):
@@ -58,7 +65,7 @@ def accept_mail_submission(request, mailsubmission):
             'user': mailsubmission.user,
             'file': mailsubmission.source_file,
             'kind': 'NORMAL',
-        }
+        },
     )
     mailsubmission.submission = submission
     mailsubmission.accepted_by = request.user
@@ -81,7 +88,9 @@ def mail_submission_hashes(mailsubmission):
     submission_hash = hmac.new(
         settings.SECRET_KEY.encode('utf-8'),
         msg,
-        'sha256' if six.PY3 else None  # Name of the hashing algorithm is required from Python3.8.
+        'sha256'
+        if six.PY3
+        else None  # Name of the hashing algorithm is required from Python3.8.
         # Default hashing algorithm for Python2 is md5.
     ).hexdigest()[:MAILSUBMIT_CONFIRMATION_HASH_LENGTH]
 

@@ -10,6 +10,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            IpToUser.objects.filter(ipauthsynceduser__isnull=False) \
-                    .delete()
+            IpToUser.objects.filter(ipauthsynceduser__isnull=False).delete()
             IpAuthSyncedUser.objects.all().delete()

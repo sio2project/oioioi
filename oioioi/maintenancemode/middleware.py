@@ -7,7 +7,6 @@ from oioioi.maintenancemode.models import is_maintenance_mode_enabled
 
 
 class MaintenanceModeMiddleware(object):
-
     def __init__(self, get_response):
         self.get_response = get_response
 

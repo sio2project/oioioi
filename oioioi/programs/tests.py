@@ -3,6 +3,7 @@ import re
 from collections import defaultdict
 from datetime import datetime  # pylint: disable=E0611
 
+import six
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
@@ -13,26 +14,34 @@ from django.test.utils import override_settings
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
-import six
 from six import unichr
 from six.moves import map, range, zip
 
 from oioioi.base.notification import NotificationHandler
-from oioioi.base.tests import TestCase, check_not_accessible, fake_time, check_is_accessible
+from oioioi.base.tests import (
+    TestCase,
+    check_is_accessible,
+    check_not_accessible,
+    fake_time,
+)
 from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
-from oioioi.contests.tests import (PrivateRegistrationController, SubmitMixin,
-                                   make_empty_contest_formset)
+from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.handlers import make_report
-from oioioi.programs.models import (ModelSolution, ProgramSubmission,
-                                    ReportActionsConfig, Test, TestReport,
-                                    ContestCompiler, check_compilers_config)
+from oioioi.programs.models import (
+    ModelSolution,
+    ProgramSubmission,
+    ReportActionsConfig,
+    Test,
+    TestReport,
+    check_compilers_config,
+)
 from oioioi.programs.utils import form_field_id_for_langs
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
@@ -47,19 +56,19 @@ def extract_code(show_response):
     preStart = show_response.content.find(b'<pre>', preFirst) + len(b'<pre>')
     preEnd = show_response.content.find(b'</pre>', preFirst)
     # Get substring and strip tags.
-    show_response.content = strip_tags(
-        show_response.content[preStart:preEnd]
-    )
+    show_response.content = strip_tags(show_response.content[preStart:preEnd])
 
 
 class SubmitFileMixin(SubmitMixin):
-    def submit_file(self,
-                    contest,
-                    problem_instance,
-                    file_size=1024,
-                    file_name='submission.cpp',
-                    kind='NORMAL',
-                    user=None):
+    def submit_file(
+        self,
+        contest,
+        problem_instance,
+        file_size=1024,
+        file_name='submission.cpp',
+        kind='NORMAL',
+        user=None,
+    ):
         url = reverse('submit', kwargs={'contest_id': contest.id})
 
         file = ContentFile(b'a' * file_size, name=file_name)
@@ -69,36 +78,52 @@ class SubmitFileMixin(SubmitMixin):
         }
 
         if user:
-            post_data.update({
-                'kind': kind,
-                'user': user,
-            })
+            post_data.update(
+                {
+                    'kind': kind,
+                    'user': user,
+                }
+            )
         return self.client.post(url, post_data)
 
-    def submit_code(self, contest, problem_instance, code='', prog_lang='C',
-            send_file=False, kind='NORMAL', user=None):
+    def submit_code(
+        self,
+        contest,
+        problem_instance,
+        code='',
+        prog_lang='C',
+        send_file=False,
+        kind='NORMAL',
+        user=None,
+    ):
         url = reverse('submit', kwargs={'contest_id': contest.id})
         file = None
         if send_file:
             file = ContentFile('a' * 1024, name='a.c')
         langs_field_name = form_field_id_for_langs(problem_instance)
         post_data = {
-                'problem_instance_id': problem_instance.id,
-                'file': file,
-                'code': code.encode('utf-8'),
-                langs_field_name: prog_lang,
+            'problem_instance_id': problem_instance.id,
+            'file': file,
+            'code': code.encode('utf-8'),
+            langs_field_name: prog_lang,
         }
         if user:
-            post_data.update({
-                'kind': kind,
-                'user': user,
-            })
+            post_data.update(
+                {
+                    'kind': kind,
+                    'user': user,
+                }
+            )
         return self.client.post(url, post_data)
 
 
 class TestProgrammingProblemController(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def test_safe_exec_mode(self):
         problem_instance = ProblemInstance.objects.get(pk=1)
@@ -106,8 +131,12 @@ class TestProgrammingProblemController(TestCase):
 
 
 class TestProgrammingContestController(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def test_safe_exec_mode(self):
         # CAUTION: 'sio2jail' is default value with an important reason.
@@ -120,34 +149,48 @@ class TestProgrammingContestController(TestCase):
 
 
 class TestProgramsViews(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_permissions', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_permissions',
+        'test_submission',
+    ]
 
     def test_submission_views(self):
         self.assertTrue(self.client.login(username='test_user'))
         submission = ProgramSubmission.objects.get(pk=1)
-        kwargs = {'contest_id': submission.problem_instance.contest.id,
-                'submission_id': submission.id}
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
         # Download shown response.
-        show_response = self.client.get(reverse('show_submission_source',
-            kwargs=kwargs))
+        show_response = self.client.get(
+            reverse('show_submission_source', kwargs=kwargs)
+        )
         self.assertEqual(show_response.status_code, 200)
         # Download plain text response.
-        download_response = self.client.get(reverse(
-            'download_submission_source', kwargs=kwargs))
+        download_response = self.client.get(
+            reverse('download_submission_source', kwargs=kwargs)
+        )
         # Extract code from <pre>'s
         extract_code(show_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
-        download_response_content = \
-            escape(self.streamingContent(download_response).decode('utf-8'))
+        download_response_content = escape(
+            self.streamingContent(download_response).decode('utf-8')
+        )
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
         self.assertTrue(download_response.streaming)
-        self.assertEqual(show_response.content.decode('utf-8'), download_response_content)
+        self.assertEqual(
+            show_response.content.decode('utf-8'), download_response_content
+        )
         self.assertIn('main()', show_response.content.decode('utf-8'))
         self.assertTrue(show_response.content.strip().endswith(b'}'))
-        self.assertTrue(download_response['Content-Disposition'].startswith(
-            'attachment'))
+        self.assertTrue(
+            download_response['Content-Disposition'].startswith('attachment')
+        )
 
     def test_test_views(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -155,24 +198,32 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
 
         test = Test.objects.get(name='0')
         kwargs = {'test_id': test.id}
-        response = self.client.get(reverse('download_input_file',
-            kwargs=kwargs))
+        response = self.client.get(reverse('download_input_file', kwargs=kwargs))
         self.assertStreamingEqual(response, b'1 2\n')
-        response = self.client.get(reverse('download_output_file',
-            kwargs=kwargs))
+        response = self.client.get(reverse('download_output_file', kwargs=kwargs))
         self.assertStreamingEqual(response, b'3\n')
 
     def test_submissions_permissions(self):
         submission = Submission.objects.get(pk=1)
         test = Test.objects.get(name='0')
         for view in ['show_submission_source', 'download_submission_source']:
-            check_not_accessible(self, view, kwargs={
+            check_not_accessible(
+                self,
+                view,
+                kwargs={
+                    'contest_id': submission.problem_instance.contest.id,
+                    'submission_id': submission.id,
+                },
+            )
+        check_not_accessible(
+            self,
+            'source_diff',
+            kwargs={
                 'contest_id': submission.problem_instance.contest.id,
-                'submission_id': submission.id})
-        check_not_accessible(self, 'source_diff', kwargs={
-            'contest_id': submission.problem_instance.contest.id,
-            'submission1_id': submission.id,
-            'submission2_id': submission.id})
+                'submission1_id': submission.id,
+                'submission2_id': submission.id,
+            },
+        )
         for view in ['download_input_file', 'download_output_file']:
             check_not_accessible(self, view, kwargs={'test_id': test.id})
         self.assertTrue(self.client.login(username='test_user'))
@@ -195,8 +246,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         response = self.client.get(url)
 
         no_whitespaces_content = re.sub(r"\s*", "", response.content.decode('utf-8'))
-        for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<',
-                '>0<']:
+        for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<', '>0<']:
             self.assertIn(element, no_whitespaces_content)
 
         self.assertNotContains(response, 'submission--INI_OK')
@@ -214,74 +264,101 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
 
 
 class TestSourceWithoutContest(TestCase):
-    fixtures = ['test_users', 'test_problem_instance_without_contest',
-                'test_submission_source', 'test_full_package']
+    fixtures = [
+        'test_users',
+        'test_problem_instance_without_contest',
+        'test_submission_source',
+        'test_full_package',
+    ]
 
     # Regressive test for SIO-2211.
     def test_source_permissions(self):
         submission = Submission.objects.get(pk=1)
 
         self.assertTrue(self.client.login(username='test_user'))
-        check_is_accessible(self, 'show_submission_source',
-                            kwargs={'submission_id': submission.id})
+        check_is_accessible(
+            self, 'show_submission_source', kwargs={'submission_id': submission.id}
+        )
 
         self.assertTrue(self.client.login(username='test_admin'))
-        check_is_accessible(self, 'show_submission_source',
-                            kwargs={'submission_id': submission.id})
+        check_is_accessible(
+            self, 'show_submission_source', kwargs={'submission_id': submission.id}
+        )
 
         self.assertTrue(self.client.login(username='test_user2'))
-        check_not_accessible(self, 'show_submission_source',
-                            kwargs={'submission_id': submission.id})
+        check_not_accessible(
+            self, 'show_submission_source', kwargs={'submission_id': submission.id}
+        )
 
 
 class TestHeaderLinks(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     def test_link_to_changelist_visibility(self):
         submission = Submission.objects.get(pk=1)
-        kwargs = {'contest_id': submission.problem_instance.contest.id,
-                  'submission_id': submission.id}
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
 
         # First check if admin can see the link.
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('submission', kwargs=kwargs))
         link_url = reverse('oioioiadmin:contests_submission_changelist')
-        link_url += "?" + urlencode(
-            {'pi': submission.problem_instance.problem.name})
-        self.assertContains(response,
-                            '<a href="{}">{}</a>'
-                            .format(link_url, submission.problem_instance),
-                            html=True)
+        link_url += "?" + urlencode({'pi': submission.problem_instance.problem.name})
+        self.assertContains(
+            response,
+            '<a href="{}">{}</a>'.format(link_url, submission.problem_instance),
+            html=True,
+        )
 
         # And if normal user can't see it. Check just for href.
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('submission', kwargs=kwargs))
-        self.assertNotContains(response,
-                               '<a href="{}">'.format(link_url),
-                               html=True)
+        self.assertNotContains(response, '<a href="{}">'.format(link_url), html=True)
 
 
 class TestProgramsXssViews(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission_xss']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission_xss',
+    ]
 
     def test_submission_xss_views(self):
         self.assertTrue(self.client.login(username='test_user'))
         submission = Submission.objects.get(pk=1)
-        kwargs = {'contest_id': submission.problem_instance.contest.id,
-                'submission_id': submission.id}
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
         # Download shown response.
-        show_response = self.client.get(reverse('show_submission_source',
-            kwargs=kwargs))
+        show_response = self.client.get(
+            reverse('show_submission_source', kwargs=kwargs)
+        )
         # Download plain text response.
-        download_response = self.client.get(reverse(
-            'download_submission_source', kwargs=kwargs))
+        download_response = self.client.get(
+            reverse('download_submission_source', kwargs=kwargs)
+        )
         # Get code from diff view
-        diff_response = self.client.get(reverse('source_diff',
-            kwargs={'contest_id': submission.problem_instance.contest.id,
+        diff_response = self.client.get(
+            reverse(
+                'source_diff',
+                kwargs={
+                    'contest_id': submission.problem_instance.contest.id,
                     'submission1_id': submission.id,
-                    'submission2_id': submission.id}))
+                    'submission2_id': submission.id,
+                },
+            )
+        )
         # Response status before extract_code
         self.assertEqual(show_response.status_code, 200)
         self.assertEqual(diff_response.status_code, 200)
@@ -289,12 +366,15 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
         extract_code(show_response)
         extract_code(diff_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
-        download_response_content = \
-            escape(self.streamingContent(download_response).decode('utf-8'))
+        download_response_content = escape(
+            self.streamingContent(download_response).decode('utf-8')
+        )
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
         self.assertTrue(download_response.streaming)
-        self.assertEqual(show_response.content.decode('utf-8'), download_response_content)
+        self.assertEqual(
+            show_response.content.decode('utf-8'), download_response_content
+        )
         self.assertNotContains(show_response, u'<script>')
         self.assertNotContains(diff_response, u'<script>')
         self.assertNotIn(download_response_content, u'<script>')
@@ -302,19 +382,28 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
         self.assertContains(diff_response, 'main()')
         self.assertTrue(show_response.content.strip().endswith(b'}'))
         self.assertTrue(diff_response.content.strip().endswith(b'}'))
-        self.assertTrue(download_response['Content-Disposition'].startswith(
-            'attachment'))
+        self.assertTrue(
+            download_response['Content-Disposition'].startswith('attachment')
+        )
 
 
 class TestOtherSubmissions(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission', 'test_submissions_CE']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_submissions_CE',
+    ]
 
     def _test_get(self, username):
         self.assertTrue(self.client.login(username=username))
         submission = Submission.objects.get(pk=1)
-        kwargs = {'contest_id': submission.problem_instance.contest.id,
-                'submission_id': submission.id}
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Other submissions for this problem')
@@ -329,14 +418,21 @@ class TestOtherSubmissions(TestCase):
 
 
 class TestNoOtherSubmissions(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     def _test_get(self, username):
         self.assertTrue(self.client.login(username=username))
         submission = Submission.objects.get(pk=1)
-        kwargs = {'contest_id': submission.problem_instance.contest.id,
-                'submission_id': submission.id}
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Other submissions for this problem')
@@ -350,25 +446,34 @@ class TestNoOtherSubmissions(TestCase):
 
 
 class TestDiffView(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission',
-            'test_another_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_another_submission',
+    ]
 
     def test_saving_button(self):
         self.assertTrue(self.client.login(username='test_admin'))
         submission = Submission.objects.get(pk=1)
         submission2 = Submission.objects.get(pk=2)
-        kwargs = {'contest_id': submission.problem_instance.contest.id,
-                  'submission_id': submission.id}
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertContains(response, 'id="diff-button-save"')
         response = self.client.get(reverse('save_diff_id', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertContains(response, 'id="diff-button-do"')
-        kwargs2 = {'contest_id': submission.problem_instance.contest.id,
-                   'submission1_id': submission2.id,
-                   'submission2_id': submission.id}
+        kwargs2 = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission1_id': submission2.id,
+            'submission2_id': submission.id,
+        }
         self.assertContains(response, reverse('source_diff', kwargs=kwargs2))
         response = self.client.get(reverse('source_diff', kwargs=kwargs2))
         self.assertEqual(response.status_code, 200)
@@ -379,15 +484,18 @@ class TestDiffView(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         submission1 = Submission.objects.get(pk=1)
         submission2 = Submission.objects.get(pk=2)
-        kwargs = {'contest_id': submission1.problem_instance.contest.id,
-                  'submission1_id': submission1.id,
-                  'submission2_id': submission2.id}
-        kwargsrev = {'contest_id': submission1.problem_instance.contest.id,
-                     'submission1_id': submission2.id,
-                     'submission2_id': submission1.id}
+        kwargs = {
+            'contest_id': submission1.problem_instance.contest.id,
+            'submission1_id': submission1.id,
+            'submission2_id': submission2.id,
+        }
+        kwargsrev = {
+            'contest_id': submission1.problem_instance.contest.id,
+            'submission1_id': submission2.id,
+            'submission2_id': submission1.id,
+        }
         response = self.client.get(reverse('source_diff', kwargs=kwargs))
-        self.assertContains(response, reverse('source_diff',
-                                              kwargs=kwargsrev))
+        self.assertContains(response, reverse('source_diff', kwargs=kwargsrev))
         self.assertContains(response, 'diff-highlight diff-highlight__line left')
         self.assertContains(response, 'diff-highlight diff-highlight__line right')
         self.assertContains(response, 'diff-highlight diff-highlight__num left')
@@ -395,9 +503,14 @@ class TestDiffView(TestCase):
 
 
 class TestSubmission(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission',
-                'test_extra_problem']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_problem',
+    ]
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -407,8 +520,13 @@ class TestSubmission(TestCase, SubmitFileMixin):
         messages = []
 
         @classmethod
-        def fake_send_notification(cls, user, notification_type,
-                    notification_message, notificaion_message_arguments):
+        def fake_send_notification(
+            cls,
+            user,
+            notification_type,
+            notification_message,
+            notificaion_message_arguments,
+        ):
             if user.pk == 1002:
                 msg_count['user_1002_notifications'] += 1
             if user.pk == 1001:
@@ -421,8 +539,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         submission = Submission.objects.get(pk=1)
         controller = submission.problem_instance.contest.controller
         controller.submission_judged(submission)
-        controller.submission_judged(submission,
-                rejudged=True)
+        controller.submission_judged(submission, rejudged=True)
 
         # Check if a notification for user 1001 was send
         # And user 1002 doesn't received a notification
@@ -496,11 +613,9 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def test_huge_submission(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
-        response = self.submit_file(contest, problem_instance,
-                                    file_size=102405)
+        response = self.submit_file(contest, problem_instance, file_size=102405)
         self.assertContains(response, 'File size limit exceeded.')
-        self.assertNotContains(response,
-                               'You have to either choose file or paste')
+        self.assertNotContains(response, 'You have to either choose file or paste')
 
     def test_huge_code_length(self):
         contest = Contest.objects.get()
@@ -512,8 +627,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
-        response = self.submit_file(contest, problem_instance,
-                                    file_size=102400)
+        response = self.submit_file(contest, problem_instance, file_size=102400)
         self._assertSubmitted(contest, response)
 
     def test_submissions_limitation(self):
@@ -527,10 +641,10 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self.assertEqual(200, response.status_code)
         self.assertContains(response, 'Submission limit for the problem')
 
-    def _assertUnsupportedExtension(self, contest, problem_instance, name,
-                                    ext):
-        response = self.submit_file(contest, problem_instance,
-                file_name='%s.%s' % (name, ext))
+    def _assertUnsupportedExtension(self, contest, problem_instance, name, ext):
+        response = self.submit_file(
+            contest, problem_instance, file_name='%s.%s' % (name, ext)
+        )
         self.assertContains(response, 'Unknown or not supported file extension.')
 
     def test_extension_checking(self):
@@ -538,10 +652,8 @@ class TestSubmission(TestCase, SubmitFileMixin):
         problem_instance = ProblemInstance.objects.get(pk=1)
         self._assertUnsupportedExtension(contest, problem_instance, 'xxx', '')
         self._assertUnsupportedExtension(contest, problem_instance, 'xxx', 'e')
-        self._assertUnsupportedExtension(contest, problem_instance,
-                'xxx', 'cppp')
-        response = self.submit_file(contest, problem_instance,
-                file_name='a.tar.cpp')
+        self._assertUnsupportedExtension(contest, problem_instance, 'xxx', 'cppp')
+        response = self.submit_file(contest, problem_instance, file_name='a.tar.cpp')
         self._assertSubmitted(contest, response)
 
     def test_code_pasting(self):
@@ -553,30 +665,38 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self.assertContains(response, 'You have to choose programming language.')
         response = self.submit_code(contest, problem_instance, '')
         self.assertContains(response, 'You have to either choose file or paste code.')
-        response = self.submit_code(contest, problem_instance, 'some code',
-                send_file=True)
+        response = self.submit_code(
+            contest, problem_instance, 'some code', send_file=True
+        )
         self.assertContains(response, 'You have to either choose file or paste code.')
 
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_pasting_unicode_code(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
-        response = self.submit_code(contest, problem_instance, unichr(12345),
-                user='test_user')
+        response = self.submit_code(
+            contest, problem_instance, unichr(12345), user='test_user'
+        )
         self._assertSubmitted(contest, response)
 
     def test_limiting_extensions(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
-        self._assertUnsupportedExtension(contest, problem_instance,
-                'xxx', 'inv4l1d_3xt')
+        self._assertUnsupportedExtension(
+            contest, problem_instance, 'xxx', 'inv4l1d_3xt'
+        )
         response = self.submit_file(contest, problem_instance, file_name='a.c')
         self._assertSubmitted(contest, response)
 
 
 class TestSubmissionAdmin(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     def test_submissions_changelist(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -595,8 +715,12 @@ class TestSubmissionAdmin(TestCase):
 
 
 class TestSubmittingAsAdmin(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_problem_instance',
-            'test_full_package']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_problem_instance',
+        'test_full_package',
+    ]
 
     def test_ignored_submission(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -616,7 +740,7 @@ class TestSubmittingAsAdmin(TestCase):
             'problem_instance_id': pi.id,
             'file': open(get_test_filename('sum-various-results.cpp'), 'rb'),
             'user': 'test_user',
-            'kind': 'IGNORED'
+            'kind': 'IGNORED',
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -653,7 +777,7 @@ class TestSubmittingAsAdmin(TestCase):
             'problem_instance_id': pi.id,
             'file': f,
             'user': 'test_admin',
-            'kind': 'NORMAL'
+            'kind': 'NORMAL',
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -679,13 +803,19 @@ class PrivateProgrammingContestController(ProgrammingContestController):
 
 
 class TestSubmittingAsContestAdmin(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_permissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_permissions',
+    ]
 
     def test_missing_permission(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.programs.tests.PrivateProgrammingContestController'
+        contest.controller_name = (
+            'oioioi.programs.tests.PrivateProgrammingContestController'
+        )
         contest.save()
         pi = ProblemInstance.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
@@ -699,7 +829,7 @@ class TestSubmittingAsContestAdmin(TestCase):
             'problem_instance_id': pi.id,
             'file': open(get_test_filename('sum-various-results.cpp'), 'rb'),
             'user': 'test_user',
-            'kind': 'NORMAL'
+            'kind': 'NORMAL',
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -708,8 +838,13 @@ class TestSubmittingAsContestAdmin(TestCase):
 
 
 class TestSubmittingAsObserver(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_permissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_permissions',
+    ]
 
     def test_ignored_submission(self):
         self.assertTrue(self.client.login(username='test_observer'))
@@ -743,24 +878,44 @@ class TestSubmittingAsObserver(TestCase):
 
 
 class TestNotifications(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_permissions', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_permissions',
+        'test_submission',
+    ]
 
     def test_initial_results_notification(self):
         msg_count = defaultdict(int)
 
         @classmethod
-        def fake_send_notification(cls, user, notification_type,
-                    notification_message, notificaion_message_arguments):
+        def fake_send_notification(
+            cls,
+            user,
+            notification_type,
+            notification_message,
+            notificaion_message_arguments,
+        ):
             if user.pk == 1001 and notification_type == 'initial_results':
                 msg_count['user_1001_notifications'] += 1
 
         send_notification_backup = NotificationHandler.send_notification
         NotificationHandler.send_notification = fake_send_notification
-        make_report({'compilation_result': 'OK', 'submission_id': 1,
-            'status': 'OK', 'score': None, 'max_score': None,
-            'compilation_message': '', 'tests': {}, 'rejudge': False},
-            'INITIAL')
+        make_report(
+            {
+                'compilation_result': 'OK',
+                'submission_id': 1,
+                'status': 'OK',
+                'score': None,
+                'max_score': None,
+                'compilation_message': '',
+                'tests': {},
+                'rejudge': False,
+            },
+            'INITIAL',
+        )
 
         # Check if a notification for user 1001 was sent
         self.assertEqual(msg_count['user_1001_notifications'], 1)
@@ -769,56 +924,80 @@ class TestNotifications(TestCase):
 
 class TestScorers(TestCase):
     t_results_ok = (
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 0}),
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 50}),
-        ({'exec_time_limit': 1000, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 501}),
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 75}),
-        ({'exec_time_limit': 1000, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 999}),
-        ({'max_score': 100},
-            {'result_code': 'OK', 'time_used': 0}),
-        ({'max_score': 100},
-            {'result_code': 'OK', 'time_used': 99999}),
-        )
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 0},
+        ),
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 50},
+        ),
+        (
+            {'exec_time_limit': 1000, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 501},
+        ),
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 75},
+        ),
+        (
+            {'exec_time_limit': 1000, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 999},
+        ),
+        ({'max_score': 100}, {'result_code': 'OK', 'time_used': 0}),
+        ({'max_score': 100}, {'result_code': 'OK', 'time_used': 99999}),
+    )
 
     t_results_ok_perc = (
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 0, 'result_percentage': 99}),
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 50}),
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 0}),
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 99, 'result_percentage': 1}),
-        )
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 0, 'result_percentage': 99},
+        ),
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 50},
+        ),
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 0},
+        ),
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 99, 'result_percentage': 1},
+        ),
+    )
 
     t_results_unequal_max_scores = (
-        ({'exec_time_limit': 100, 'max_score': 10},
-            {'result_code': 'OK', 'time_used': 10}),
-        ({'exec_time_limit': 1000, 'max_score': 20},
-            {'result_code': 'WA', 'time_used': 50}),
-        )
+        (
+            {'exec_time_limit': 100, 'max_score': 10},
+            {'result_code': 'OK', 'time_used': 10},
+        ),
+        (
+            {'exec_time_limit': 1000, 'max_score': 20},
+            {'result_code': 'WA', 'time_used': 50},
+        ),
+    )
 
     t_expected_unequal_max_scores = [
         (IntegerScore(10), IntegerScore(10), 'OK'),
         (IntegerScore(0), IntegerScore(20), 'WA'),
-        ]
+    ]
 
     t_results_wrong = [
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'WA', 'time_used': 75}),
-        ({'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'RV', 'time_used': 75}),
-        ]
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'WA', 'time_used': 75},
+        ),
+        (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'RV', 'time_used': 75},
+        ),
+    ]
 
     t_expected_wrong = [
         (IntegerScore(0), IntegerScore(100), 'WA'),
         (IntegerScore(0), IntegerScore(100), 'RV'),
-        ]
+    ]
 
     def test_discrete_test_scorer(self):
         exp_scores = [100] * len(self.t_results_ok)
@@ -826,16 +1005,20 @@ class TestScorers(TestCase):
         exp_statuses = ['OK'] * len(self.t_results_ok)
         expected = list(zip(exp_scores, exp_max_scores, exp_statuses))
 
-        results = list(map(utils.discrete_test_scorer,
-                *list(zip(*self.t_results_ok))))
+        results = list(map(utils.discrete_test_scorer, *list(zip(*self.t_results_ok))))
         self.assertEqual(expected, results)
 
-        results = list(map(utils.discrete_test_scorer,
-                *list(zip(*self.t_results_wrong))))
+        results = list(
+            map(utils.discrete_test_scorer, *list(zip(*self.t_results_wrong)))
+        )
         self.assertEqual(self.t_expected_wrong, results)
 
-        results = list(map(utils.discrete_test_scorer,
-                *list(zip(*self.t_results_unequal_max_scores))))
+        results = list(
+            map(
+                utils.discrete_test_scorer,
+                *list(zip(*self.t_results_unequal_max_scores))
+            )
+        )
         self.assertEqual(self.t_expected_unequal_max_scores, results)
 
     def test_threshold_linear_test_scorer(self):
@@ -844,8 +1027,9 @@ class TestScorers(TestCase):
         exp_statuses = ['OK'] * len(self.t_results_ok)
         expected = list(zip(exp_scores, exp_max_scores, exp_statuses))
 
-        results = list(map(utils.threshold_linear_test_scorer,
-                        *list(zip(*self.t_results_ok))))
+        results = list(
+            map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_ok)))
+        )
         self.assertEqual(expected, results)
 
         exp_scores = [99, 25, 0, 1]
@@ -853,88 +1037,125 @@ class TestScorers(TestCase):
         exp_statuses = ['OK'] * len(self.t_results_ok_perc)
         expected = list(zip(exp_scores, exp_max_scores, exp_statuses))
 
-        results = list(map(utils.threshold_linear_test_scorer,
-                        *list(zip(*self.t_results_ok_perc))))
+        results = list(
+            map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_ok_perc)))
+        )
         self.assertEqual(expected, results)
 
-        malformed = ({'exec_time_limit': 100, 'max_score': 100},
-                        {'result_code': 'OK', 'time_used': 101})
-        self.assertEqual(utils.threshold_linear_test_scorer(*malformed),
-                        (0, 100, 'TLE'))
+        malformed = (
+            {'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 101},
+        )
+        self.assertEqual(
+            utils.threshold_linear_test_scorer(*malformed), (0, 100, 'TLE')
+        )
 
-        results = list(map(utils.threshold_linear_test_scorer,
-                        *list(zip(*self.t_results_wrong))))
+        results = list(
+            map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_wrong)))
+        )
         self.assertEqual(self.t_expected_wrong, results)
 
-        results = list(map(utils.threshold_linear_test_scorer,
-                        *list(zip(*self.t_results_unequal_max_scores))))
+        results = list(
+            map(
+                utils.threshold_linear_test_scorer,
+                *list(zip(*self.t_results_unequal_max_scores))
+            )
+        )
         self.assertEqual(self.t_expected_unequal_max_scores, results)
 
     @memoized_property
     def g_results_ok(self):
         # Tested elsewhere
-        results = list(map(utils.threshold_linear_test_scorer,
-                        *list(zip(*self.t_results_ok[:4]))))
-        dicts = [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st, order=i) for i, (sc, msc, st) in enumerate(results)]
+        results = list(
+            map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_ok[:4])))
+        )
+        dicts = [
+            dict(score=sc.serialize(), max_score=msc.serialize(), status=st, order=i)
+            for i, (sc, msc, st) in enumerate(results)
+        ]
         return dict(list(zip(list(range(len(dicts))), dicts)))
 
     @memoized_property
     def g_results_wrong(self):
-        results = list(map(utils.threshold_linear_test_scorer,
-                        *list(zip(*self.t_results_wrong))))
+        results = list(
+            map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_wrong)))
+        )
         dicts = list(self.g_results_ok.values())
-        dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st, order=(i + 10))
-                for i, (sc, msc, st) in enumerate(results)]
+        dicts += [
+            dict(
+                score=sc.serialize(),
+                max_score=msc.serialize(),
+                status=st,
+                order=(i + 10),
+            )
+            for i, (sc, msc, st) in enumerate(results)
+        ]
         return dict(list(zip(list(range(len(dicts))), dicts)))
 
     @memoized_property
     def g_results_unequal_max_scores(self):
-        results = list(map(utils.threshold_linear_test_scorer,
-                        *list(zip(*self.t_results_unequal_max_scores))))
+        results = list(
+            map(
+                utils.threshold_linear_test_scorer,
+                *list(zip(*self.t_results_unequal_max_scores))
+            )
+        )
         dicts = list(self.g_results_wrong.values())
-        dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st, order=(i + 20))
-                for i, (sc, msc, st) in enumerate(results)]
+        dicts += [
+            dict(
+                score=sc.serialize(),
+                max_score=msc.serialize(),
+                status=st,
+                order=(i + 20),
+            )
+            for i, (sc, msc, st) in enumerate(results)
+        ]
         return dict(list(zip(list(range(len(dicts))), dicts)))
 
     def test_min_group_scorer(self):
-        self.assertEqual((50, 100, 'OK'),
-                utils.min_group_scorer(self.g_results_ok))
-        self.assertEqual((0, 100, 'WA'),
-                utils.min_group_scorer(self.g_results_wrong))
+        self.assertEqual((50, 100, 'OK'), utils.min_group_scorer(self.g_results_ok))
+        self.assertEqual((0, 100, 'WA'), utils.min_group_scorer(self.g_results_wrong))
         with self.assertRaises(utils.UnequalMaxScores):
             utils.min_group_scorer(self.g_results_unequal_max_scores)
 
     def test_sum_group_scorer(self):
-        self.assertEqual((349, 400, 'OK'),
-                utils.sum_group_scorer(self.g_results_ok))
-        self.assertEqual((349, 600, 'WA'),
-                utils.sum_group_scorer(self.g_results_wrong))
-        self.assertEqual((359, 630, 'WA'),
-                utils.sum_group_scorer(self.g_results_unequal_max_scores))
+        self.assertEqual((349, 400, 'OK'), utils.sum_group_scorer(self.g_results_ok))
+        self.assertEqual((349, 600, 'WA'), utils.sum_group_scorer(self.g_results_wrong))
+        self.assertEqual(
+            (359, 630, 'WA'), utils.sum_group_scorer(self.g_results_unequal_max_scores)
+        )
 
     def test_sum_score_aggregator(self):
-        self.assertEqual((349, 400, 'OK'),
-                utils.sum_score_aggregator(self.g_results_ok))
-        self.assertEqual((349, 600, 'WA'),
-                utils.sum_score_aggregator(self.g_results_wrong))
-        self.assertEqual((359, 630, 'WA'),
-                utils.sum_score_aggregator(self.g_results_unequal_max_scores))
+        self.assertEqual(
+            (349, 400, 'OK'), utils.sum_score_aggregator(self.g_results_ok)
+        )
+        self.assertEqual(
+            (349, 600, 'WA'), utils.sum_score_aggregator(self.g_results_wrong)
+        )
+        self.assertEqual(
+            (359, 630, 'WA'),
+            utils.sum_score_aggregator(self.g_results_unequal_max_scores),
+        )
 
 
 class TestUserOutsGenerating(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission',
-                'test_another_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_another_submission',
+    ]
 
     def test_report_after_generate(self):
         self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         submission = ProgramSubmission.objects.get(pk=1)
-        url = reverse('submission', kwargs={'contest_id': contest.id,
-                                            'submission_id': submission.id})
+        url = reverse(
+            'submission',
+            kwargs={'contest_id': contest.id, 'submission_id': submission.id},
+        )
         # test generate out href visibility
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -976,8 +1197,9 @@ class TestUserOutsGenerating(TestCase):
         self.assertNotContains(response, 'Generate all')
 
         # test report visibility for user with permission
-        ReportActionsConfig(problem=submission.problem_instance.problem,
-                            can_user_generate_outs=True).save()
+        ReportActionsConfig(
+            problem=submission.problem_instance.problem, can_user_generate_outs=True
+        ).save()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         # Note that 3 test are processing (by admin), what user does not see
@@ -1000,10 +1222,10 @@ class TestUserOutsGenerating(TestCase):
 
         submission = ProgramSubmission.objects.get(pk=1)
         gen_url = reverse('generate_user_output', kwargs={'testreport_id': 5})
-        down_one_url = reverse('download_user_output',
-                               kwargs={'testreport_id': 5})
-        down_all_url = reverse('download_user_output',
-                               kwargs={'submission_report_id': 2})
+        down_one_url = reverse('download_user_output', kwargs={'testreport_id': 5})
+        down_all_url = reverse(
+            'download_user_output', kwargs={'submission_report_id': 2}
+        )
 
         # post required for generate
         response = self.client.get(gen_url, follow=True)
@@ -1016,8 +1238,9 @@ class TestUserOutsGenerating(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # test report visibility for user with permission
-        ReportActionsConfig(problem=submission.problem_instance.problem,
-                            can_user_generate_outs=True).save()
+        ReportActionsConfig(
+            problem=submission.problem_instance.problem, can_user_generate_outs=True
+        ).save()
         response = self.client.post(gen_url, follow=True)
         self.assertEqual(response.status_code, 200)
         response = self.client.get(down_one_url, follow=True)
@@ -1032,15 +1255,22 @@ class TestUserOutsGenerating(TestCase):
 
 
 class TestAdminInOutDownload(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     def test_report_href_visibility(self):
         self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         submission = ProgramSubmission.objects.get(pk=1)
-        url = reverse('submission', kwargs={'contest_id': contest.id,
-                                            'submission_id': submission.id})
+        url = reverse(
+            'submission',
+            kwargs={'contest_id': contest.id, 'submission_id': submission.id},
+        )
         # test download in / out hrefs visibility
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -1055,28 +1285,41 @@ class ContestWithJudgeInfoController(ProgrammingContestController):
     judged = False
 
     def submission_judged(self, submission, rejudged=False):
-        super(ContestWithJudgeInfoController, self) \
-                .submission_judged(submission, rejudged)
+        super(ContestWithJudgeInfoController, self).submission_judged(
+            submission, rejudged
+        )
         ContestWithJudgeInfoController.judged = True
 
 
 class TestRejudge(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission',
-                'test_extra_problem', 'test_another_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_problem',
+        'test_another_submission',
+    ]
 
     def _set_active_tests(self, active_tests, all_tests):
         for test in all_tests:
             test.is_active = test.name in active_tests
             test.save()
 
-    def _test_rejudge(self, submit_active_tests, rejudge_active_tests,
-            rejudge_type, tests_subset, expected_ok, expected_re):
+    def _test_rejudge(
+        self,
+        submit_active_tests,
+        rejudge_active_tests,
+        rejudge_type,
+        tests_subset,
+        expected_ok,
+        expected_re,
+    ):
         self.assertTrue(self.client.login(username='test_user'))
 
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.programs.tests.ContestWithJudgeInfoController'
+        contest.controller_name = 'oioioi.programs.tests.ContestWithJudgeInfoController'
         contest.save()
 
         pi = ProblemInstance.objects.get(id=1)
@@ -1098,8 +1341,8 @@ class TestRejudge(TestCase, SubmitFileMixin):
         submission = ProgramSubmission.objects.all().latest('id')
 
         reports = TestReport.objects.filter(
-            submission_report__submission=submission,
-            submission_report__status='ACTIVE')
+            submission_report__submission=submission, submission_report__status='ACTIVE'
+        )
         for r in reports:
             self.assertIn(r.test_name, submit_active_tests)
             self.assertNotEqual(r.status, 'RE')
@@ -1109,15 +1352,16 @@ class TestRejudge(TestCase, SubmitFileMixin):
         self._set_active_tests(rejudge_active_tests, all_tests)
 
         ContestWithJudgeInfoController.judged = False
-        submission.problem_instance.controller.judge(submission,
-                                 is_rejudge=True,
-                                 extra_args={'tests_to_judge': tests_subset,
-                                             'rejudge_type': rejudge_type})
+        submission.problem_instance.controller.judge(
+            submission,
+            is_rejudge=True,
+            extra_args={'tests_to_judge': tests_subset, 'rejudge_type': rejudge_type},
+        )
         self.assertTrue(ContestWithJudgeInfoController.judged)
 
         reports = TestReport.objects.filter(
-            submission_report__submission=submission,
-            submission_report__status='ACTIVE')
+            submission_report__submission=submission, submission_report__status='ACTIVE'
+        )
 
         for r in reports:
             name = r.test_name
@@ -1126,47 +1370,55 @@ class TestRejudge(TestCase, SubmitFileMixin):
             self.assertTrue((status == 'OK') == (name in expected_ok))
 
     def test_rejudge_full(self):
-        self._test_rejudge(['0', '1ocen', '1b', '3'],
-                           ['0', '1a', '1b', '2'],
-                           'FULL',
-                           [],
-                           [],
-                           ['0', '1a', '1b', '2'])
+        self._test_rejudge(
+            ['0', '1ocen', '1b', '3'],
+            ['0', '1a', '1b', '2'],
+            'FULL',
+            [],
+            [],
+            ['0', '1a', '1b', '2'],
+        )
 
-        self._test_rejudge(['0', '1ocen'],
-                           [],
-                           'FULL',
-                           {},
-                           [],
-                           [])
+        self._test_rejudge(['0', '1ocen'], [], 'FULL', {}, [], [])
 
     def test_rejudge_judged(self):
-        self._test_rejudge(['0', '1ocen', '1b', '3'],
-                           ['0', '1ocen', '1b', '3'],
-                           'JUDGED',
-                           ['0', '1a', '2', '3'],
-                           ['1ocen', '1b'],
-                           ['0', '3'])
+        self._test_rejudge(
+            ['0', '1ocen', '1b', '3'],
+            ['0', '1ocen', '1b', '3'],
+            'JUDGED',
+            ['0', '1a', '2', '3'],
+            ['1ocen', '1b'],
+            ['0', '3'],
+        )
 
-        self._test_rejudge(['0', '1ocen', '1b', '3'],
-                           [],
-                           'JUDGED',
-                           ['0', '1a', '2', '3'],
-                           ['1ocen', '1b'],
-                           ['0', '3'])
+        self._test_rejudge(
+            ['0', '1ocen', '1b', '3'],
+            [],
+            'JUDGED',
+            ['0', '1a', '2', '3'],
+            ['1ocen', '1b'],
+            ['0', '3'],
+        )
 
     def test_rejudge_new(self):
-        self._test_rejudge(['0', '1ocen', '1b', '3'],
-                           ['0', '1a', '1b', '2', '3'],
-                           'NEW',
-                           [],
-                           ['0', '1b', '3'],
-                           ['1a', '2'])
+        self._test_rejudge(
+            ['0', '1ocen', '1b', '3'],
+            ['0', '1a', '1b', '2', '3'],
+            'NEW',
+            [],
+            ['0', '1b', '3'],
+            ['1a', '2'],
+        )
 
 
 class TestLimitsLimits(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     form_data = {
         'test_set-TOTAL_FORMS': 6,
@@ -1230,73 +1482,95 @@ class TestLimitsLimits(TestCase):
         'paprobleminstancedata-TOTAL_FORMS': 1,
         'paprobleminstancedata-INITIAL_FORMS': 0,
         'paprobleminstancedata-MIN_NUM_FORMS': 0,
-        'paprobleminstancedata-MAX_NUM_FORMS': 1
+        'paprobleminstancedata-MAX_NUM_FORMS': 1,
     }
 
     def edit_settings(self):
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')
         return self.client.post(
-                reverse('oioioiadmin:contests_probleminstance_change',
-                        kwargs={'contest_id': 'c'}, args=[1]),
-                self.form_data, follow=True)
+            reverse(
+                'oioioiadmin:contests_probleminstance_change',
+                kwargs={'contest_id': 'c'},
+                args=[1],
+            ),
+            self.form_data,
+            follow=True,
+        )
 
     @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=6000)
     def test_time_limit(self):
         response = self.edit_settings()
-        self.assertContains(response,
-                    "Sum of time limits for all tests is too big. It&#39;s "
-                    "7s, but it shouldn&#39;t exceed 6s.")
+        self.assertContains(
+            response,
+            "Sum of time limits for all tests is too big. It&#39;s "
+            "7s, but it shouldn&#39;t exceed 6s.",
+        )
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=100)
     def test_memory_limit(self):
         response = self.edit_settings()
-        self.assertContains(response,
-                        "Memory limit mustn&#39;t be greater than %dKiB."
-                        % settings.MAX_MEMORY_LIMIT_FOR_TEST)
+        self.assertContains(
+            response,
+            "Memory limit mustn&#39;t be greater than %dKiB."
+            % settings.MAX_MEMORY_LIMIT_FOR_TEST,
+        )
 
 
 class TestCompiler(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_permissions', 'test_compilers']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_permissions',
+        'test_compilers',
+    ]
 
-    @override_settings(SUBMITTABLE_LANGUAGES={
-        'C': {'display_name': 'C'},
-        'C++': {'display_name': 'C++'}
-    })
-    @override_settings(SUBMITTABLE_EXTENSIONS={
-        'C': ['c'],
-        'C++': ['cpp', 'cc']
-    })
-    @override_settings(AVAILABLE_COMPILERS={
-        'C': {'gcc': {'display_name': 'GNU C Compiler'}},
-        'C++': {
-            'gcc': {'display_name': 'GNU C Compiler'},
-            'clang': {'display_name': 'Clang - LLVM compiler front end'}
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'C++': {'display_name': 'C++'},
         }
-    })
+    )
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'C++': ['cpp', 'cc']})
+    @override_settings(
+        AVAILABLE_COMPILERS={
+            'C': {'gcc': {'display_name': 'GNU C Compiler'}},
+            'C++': {
+                'gcc': {'display_name': 'GNU C Compiler'},
+                'clang': {'display_name': 'Clang - LLVM compiler front end'},
+            },
+        }
+    )
     def test_submit_view(self):
         self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
-        self.assertContains(response, '<option value="C">C (GNU C Compiler)</option>', html=True)
-        self.assertContains(response,
-                '<option value="C++">C++ (Clang - LLVM compiler front end)</option>', html=True)
+        self.assertContains(
+            response, '<option value="C">C (GNU C Compiler)</option>', html=True
+        )
+        self.assertContains(
+            response,
+            '<option value="C++">C++ (Clang - LLVM compiler front end)</option>',
+            html=True,
+        )
         self.assertNotContains(response, 'gcc')
         self.assertNotContains(response, 'clang')
 
-    @override_settings(AVAILABLE_COMPILERS={
-        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
-        'Python': {'python': {'display_name': 'python'}}
-    })
+    @override_settings(
+        AVAILABLE_COMPILERS={
+            'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
+            'Python': {'python': {'display_name': 'python'}},
+        }
+    )
     def test_compiler_hints_view(self):
         self.assertTrue(self.client.login(username='test_admin'))
 
         def get_query_url(query):
             url = reverse('get_compiler_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode(
-                    {'language': query})
+            return url + '?' + six.moves.urllib.parse.urlencode({'language': query})
 
         response = self.client.get(get_query_url('C'), follow=True)
         self.assertEqual(response.status_code, 200)
@@ -1319,60 +1593,60 @@ class TestCompiler(TestCase):
         self.assertNotContains(response, 'python')
         self.assertNotContains(response, 'clang')
 
-    @override_settings(SUBMITTABLE_LANGUAGES={
-        'C': {'display_name': 'C'},
-        'Python': {'display_name': 'Python'}
-    })
-    @override_settings(SUBMITTABLE_EXTENSIONS={
-        'C': ['c'],
-        'Python': ['py']
-    })
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'Python': {'display_name': 'Python'},
+        }
+    )
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'Python': ['py']})
     def test_contest_admin_inline(self):
         self.assertTrue(self.client.login(username='test_admin'))
 
         contest = Contest.objects.get()
-        url = reverse('oioioiadmin:contests_contest_change',
-                args=(quote(contest.id),)) + '?simple=true'
+        url = (
+            reverse('oioioiadmin:contests_contest_change', args=(quote(contest.id),))
+            + '?simple=true'
+        )
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
 
-    @override_settings(SUBMITTABLE_LANGUAGES={
-        'C': {'display_name': 'C'},
-        'Python': {'display_name': 'Python'}
-    })
-    @override_settings(SUBMITTABLE_EXTENSIONS={
-        'C': ['c'],
-        'Python': ['py']
-    })
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'Python': {'display_name': 'Python'},
+        }
+    )
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'Python': ['py']})
     def test_contest_contest_admin_inline(self):
         self.assertTrue(self.client.login(username='test_contest_admin'))
 
         contest = Contest.objects.get()
-        url = reverse('oioioiadmin:contests_contest_change',
-                args=(quote(contest.id),)) + '?simple=true'
+        url = (
+            reverse('oioioiadmin:contests_contest_change', args=(quote(contest.id),))
+            + '?simple=true'
+        )
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
 
-    @override_settings(SUBMITTABLE_LANGUAGES={
-        'C': {'display_name': 'C'},
-        'Python': {'display_name': 'Python'}
-    })
-    @override_settings(SUBMITTABLE_EXTENSIONS={
-        'C': ['c'],
-        'Python': ['py']
-    })
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'Python': {'display_name': 'Python'},
+        }
+    )
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'Python': ['py']})
     def test_problem_admin_inline(self):
         self.assertTrue(self.client.login(username='test_admin'))
 
         problem = Problem.objects.get()
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioiadmin:problems_problem_change',
-                args=(problem.id,))
+        url = reverse('oioioiadmin:problems_problem_change', args=(problem.id,))
 
         response = self.client.get(url, follow=True)
         response = self.client.get(url, follow=True)
@@ -1380,44 +1654,40 @@ class TestCompiler(TestCase):
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
 
-    @override_settings(SUBMITTABLE_LANGUAGES={
-        'C': {'display_name': 'C'},
-        'Python': {'display_name': 'Python'}
-    })
-    @override_settings(SUBMITTABLE_EXTENSIONS={
-        'C': ['c'],
-        'Python': ['py']
-    })
-    @override_settings(AVAILABLE_COMPILERS={
-        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
-        'Python': {'python': {'display_name': 'python'}}
-    })
-    @override_settings(DEFAULT_COMPILERS={
-        'C': 'gcc',
-        'Python': 'python'
-    })
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'Python': {'display_name': 'Python'},
+        }
+    )
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'Python': ['py']})
+    @override_settings(
+        AVAILABLE_COMPILERS={
+            'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
+            'Python': {'python': {'display_name': 'python'}},
+        }
+    )
+    @override_settings(DEFAULT_COMPILERS={'C': 'gcc', 'Python': 'python'})
     def test_check_compiler_config_valid(self):
         try:
             check_compilers_config()
         except:
             self.assertFalse(True)
 
-    @override_settings(SUBMITTABLE_LANGUAGES={
-        'C': {'display_name': 'C'},
-        'Python': {'display_name': 'Python'}
-    })
-    @override_settings(SUBMITTABLE_EXTENSIONS={
-        'C': ['c'],
-        'Python': ['py']
-    })
-    @override_settings(AVAILABLE_COMPILERS={
-        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
-        'Python': {'python': {'display_name': 'python'}}
-    })
-    @override_settings(DEFAULT_COMPILERS={
-        'C': 'gcc',
-        'Python': 'python3'
-    })
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'Python': {'display_name': 'Python'},
+        }
+    )
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'Python': ['py']})
+    @override_settings(
+        AVAILABLE_COMPILERS={
+            'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
+            'Python': {'python': {'display_name': 'python'}},
+        }
+    )
+    @override_settings(DEFAULT_COMPILERS={'C': 'gcc', 'Python': 'python3'})
     def test_check_compiler_config_invalid_compiler(self):
         try:
             check_compilers_config()
@@ -1425,21 +1695,19 @@ class TestCompiler(TestCase):
         except:
             pass
 
-    @override_settings(SUBMITTABLE_LANGUAGES={
-        'C': {'display_name': 'C'},
-        'Python': {'display_name': 'Python'}
-    })
-    @override_settings(SUBMITTABLE_EXTENSIONS={
-        'C': ['c'],
-        'Python': ['py']
-    })
-    @override_settings(AVAILABLE_COMPILERS={
-        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}}
-    })
-    @override_settings(DEFAULT_COMPILERS={
-        'C': 'gcc',
-        'Python': 'python'
-    })
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'Python': {'display_name': 'Python'},
+        }
+    )
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'Python': ['py']})
+    @override_settings(
+        AVAILABLE_COMPILERS={
+            'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}}
+        }
+    )
+    @override_settings(DEFAULT_COMPILERS={'C': 'gcc', 'Python': 'python'})
     def test_check_compiler_config_no_compiler(self):
         try:
             check_compilers_config()
@@ -1462,24 +1730,30 @@ class TestMaxScoreMigration(TestCaseMigrations):
             contest=contest,
             short_name=str(problem_id),
             contest_id=contest.id,
-            problem_id=problem_id)
+            problem_id=problem_id,
+        )
 
         submission = Submission.objects.create(problem_instance=problem_instance)
         submission_report = SubmissionReport.objects.create(submission=submission)
 
         test_report = TestReport.objects.create(
-            submission_report=submission_report,
-            test_max_score=max_score,
-            time_used=1)
+            submission_report=submission_report, test_max_score=max_score, time_used=1
+        )
 
         return test_report
 
     def setUpBeforeMigration(self, apps):
         Contest = apps.get_model('contests', 'Contest')
 
-        default_contest = Contest.objects.create(id=1, controller_name='oioioi.contests.controllers.ContestController')
-        pa_contest = Contest.objects.create(id=2, controller_name='oioioi.pa.controllers.PAContestController')
-        acm_contest = Contest.objects.create(id=3, controller_name='oioioi.acm.controllers.ACMContestController')
+        default_contest = Contest.objects.create(
+            id=1, controller_name='oioioi.contests.controllers.ContestController'
+        )
+        pa_contest = Contest.objects.create(
+            id=2, controller_name='oioioi.pa.controllers.PAContestController'
+        )
+        acm_contest = Contest.objects.create(
+            id=3, controller_name='oioioi.acm.controllers.ACMContestController'
+        )
 
         self.default_report_id = self.make_report(1, default_contest, apps, 100).id
 
@@ -1491,10 +1765,16 @@ class TestMaxScoreMigration(TestCaseMigrations):
     def test(self):
         TestReport = self.apps.get_model('programs', 'TestReport')
 
-        self.assertEqual(TestReport.objects.get(pk=self.default_report_id).max_score.to_int(), 100)
+        self.assertEqual(
+            TestReport.objects.get(pk=self.default_report_id).max_score.to_int(), 100
+        )
 
-        self.assertEqual(TestReport.objects.get(pk=self.pa_report_id).max_score.to_int(), 1)
-        self.assertEqual(TestReport.objects.get(pk=self.pa_report_zero_id).max_score.to_int(), 0)
+        self.assertEqual(
+            TestReport.objects.get(pk=self.pa_report_id).max_score.to_int(), 1
+        )
+        self.assertEqual(
+            TestReport.objects.get(pk=self.pa_report_zero_id).max_score.to_int(), 0
+        )
 
         self.assertTrue(TestReport.objects.get(pk=self.acm_report_id).max_score is None)
 
@@ -1504,8 +1784,7 @@ class TestReportDisplayTypes(TestCase):
 
     def test_oi_display(self):
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('submission', kwargs={'contest_id': 'oi',
-                                            'submission_id': 7})
+        url = reverse('submission', kwargs={'contest_id': 'oi', 'submission_id': 7})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
@@ -1524,8 +1803,7 @@ class TestReportDisplayTypes(TestCase):
 
     def test_acm_display(self):
         self.assertTrue(self.client.login(username='admin'))
-        url = reverse('submission', kwargs={'contest_id': 'acm',
-                                            'submission_id': 9})
+        url = reverse('submission', kwargs={'contest_id': 'acm', 'submission_id': 9})
         response = self.client.get(url, follow=True)
 
         self.assertContains(response, 'submission--TLE', count=2)
@@ -1543,8 +1821,7 @@ class TestReportDisplayTypes(TestCase):
 
     def test_pa_display(self):
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('submission', kwargs={'contest_id': 'pa',
-                                            'submission_id': 11})
+        url = reverse('submission', kwargs={'contest_id': 'pa', 'submission_id': 11})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
@@ -1560,4 +1837,3 @@ class TestReportDisplayTypes(TestCase):
         self.assertNotContains(response, 'submission--OK50')
         self.assertContains(response, 'submission--OK25', count=1)
         self.assertNotContains(response, 'submission--OK0')
-

@@ -19,14 +19,14 @@ js_info_dict = {
 }
 
 urlpatterns = [
-    url(r'^jsi18n/$', i18n.javascript_catalog, js_info_dict,
-        name='javascript_catalog'),
+    url(r'^jsi18n/$', i18n.javascript_catalog, js_info_dict, name='javascript_catalog'),
     url(r'^nested_admin/', include('nested_admin.urls')),
     url(r'^captcha/', include('captcha.urls')),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
+
     urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ]
@@ -43,8 +43,10 @@ for app in settings.INSTALLED_APPS:
         except ImportError:
             pass
 
-urlpatterns.extend([
-    url(r'^file/(?P<filename>.*)/$', raw_file_view, name='raw_file'),
-])
+urlpatterns.extend(
+    [
+        url(r'^file/(?P<filename>.*)/$', raw_file_view, name='raw_file'),
+    ]
+)
 
 urlpatterns += registration_backend.urlpatterns

@@ -5,8 +5,11 @@ from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 from six.moves import filter, map
 
-from oioioi.sinolpack.package import (SinolPackage, SinolPackageBackend,
-                                      SinolPackageCreator)
+from oioioi.sinolpack.package import (
+    SinolPackage,
+    SinolPackageBackend,
+    SinolPackageCreator,
+)
 from oioioi.zeus.models import ZeusProblemData
 
 logger = logging.getLogger(__name__)
@@ -28,8 +31,9 @@ class ZeusPackage(SinolPackage):
         return folder
 
     def _save_zeus_data(self):
-        problem_data, _created = ZeusProblemData.objects \
-                .get_or_create(problem=self.problem)
+        problem_data, _created = ZeusProblemData.objects.get_or_create(
+            problem=self.problem
+        )
         problem_data.zeus_id = self.env['zeus_id']
         problem_data.zeus_problem_id = self.env['zeus_problem_id']
         problem_data.save()

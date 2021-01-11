@@ -12,8 +12,7 @@ class AMPPZContestController(ACMContestController):
     create_forum = False
 
     def get_round_freeze_time(self, round):
-        """Returns time after which any further updates should be non-public.
-        """
+        """Returns time after which any further updates should be non-public."""
         if not round.end_date:
             return None
         if round.is_trial:
@@ -21,8 +20,7 @@ class AMPPZContestController(ACMContestController):
         else:
             frozen_ranking_minutes = 60
 
-        return round.end_date - \
-               datetime.timedelta(minutes=frozen_ranking_minutes)
+        return round.end_date - datetime.timedelta(minutes=frozen_ranking_minutes)
 
     def default_can_see_statement(self, request_or_context, problem_instance):
         return False

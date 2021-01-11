@@ -10,20 +10,32 @@ from django.test.utils import override_settings
 from django.utils.encoding import force_text
 from django.utils.timezone import utc
 
-from oioioi.base.tests import (TestCase, check_not_accessible, fake_time,
-                               fake_timezone_now)
+from oioioi.base.tests import (
+    TestCase,
+    check_not_accessible,
+    fake_time,
+    fake_timezone_now,
+)
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
 from oioioi.contests.current_contest import ContestMode
-from oioioi.contests.models import (Contest, ContestPermission,
-                                    ProblemInstance, Round)
+from oioioi.contests.models import Contest, ContestPermission, ProblemInstance, Round
 from oioioi.oi.controllers import OIContestController, OIRegistrationController
-from oioioi.participants.controllers import (OnsiteContestControllerMixin,
-                                             ParticipantsController)
-from oioioi.participants.management.commands import (import_onsite_participants,
-                                                     import_participants)
-from oioioi.participants.models import (OnsiteRegistration, OpenRegistration,
-                                        Participant, Region, TestRegistration)
+from oioioi.participants.controllers import (
+    OnsiteContestControllerMixin,
+    ParticipantsController,
+)
+from oioioi.participants.management.commands import (
+    import_onsite_participants,
+    import_participants,
+)
+from oioioi.participants.models import (
+    OnsiteRegistration,
+    OpenRegistration,
+    Participant,
+    Region,
+    TestRegistration,
+)
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.tests import SubmitFileMixin
 from oioioi.test_settings import MIDDLEWARE
@@ -38,23 +50,31 @@ class ParticipantsContestController(ProgrammingContestController):
 
 class OnsiteContestController(ProgrammingContestController):
     pass
+
+
 OnsiteContestController.mix_in(OnsiteContestControllerMixin)
 
 
 class TestParticipantsContestViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_participants_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
         user = User.objects.get(username='test_user')
         response = self.client.get(reverse('select_contest'))
-        self.assertIn('contests/select_contest.html',
-                [t.name for t in response.templates])
+        self.assertIn(
+            'contests/select_contest.html', [t.name for t in response.templates]
+        )
         self.assertEqual(len(response.context['contests']), 1)
 
         self.assertTrue(self.client.login(username='test_user'))
@@ -80,16 +100,16 @@ class TestParticipantsContestViews(TestCase):
 
     def test_participants_contest_access(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(url, follow=True)
@@ -111,13 +131,18 @@ class TestParticipantsContestViews(TestCase):
 
 
 class TestParticipantsSubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def test_submit_permissions(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
 
         round = Round.objects.get(pk=1)
@@ -153,8 +178,9 @@ class TestParticipantsRegistration(TestCase):
 
     def test_participants_accounts_menu(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
         user = User.objects.get(username='test_user')
 
@@ -162,26 +188,26 @@ class TestParticipantsRegistration(TestCase):
         p.save()
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertNotContains(response, 'Register to the contest')
         self.assertNotContains(response, 'Edit contest registration')
 
     def test_participants_registration(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
 
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
 
-        register_url = reverse('participants_register',
-                kwargs={'contest_id': contest.id})
+        register_url = reverse(
+            'participants_register', kwargs={'contest_id': contest.id}
+        )
         response = self.client.get(register_url)
         self.assertEqual(403, response.status_code)
         response = self.client.post(register_url)
@@ -190,12 +216,12 @@ class TestParticipantsRegistration(TestCase):
 
     def test_participants_unregister(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
 
-        url = reverse('participants_unregister',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_unregister', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(url, {'post': 'yes'})
@@ -216,8 +242,7 @@ class TestOpenParticipantsRegistration(TestCase):
 
     def setUp(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.acm.controllers.ACMOpenContestController'
+        contest.controller_name = 'oioioi.acm.controllers.ACMOpenContestController'
         contest.save()
         self.reg_data = {
             'terms_accepted': 't',
@@ -226,8 +251,7 @@ class TestOpenParticipantsRegistration(TestCase):
     def test_participants_registration(self):
         contest = Contest.objects.get()
         user = User.objects.get(username='test_user')
-        url = reverse('participants_register',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertContains(response, 'Terms accepted')
@@ -269,14 +293,14 @@ class TestOnsiteAdmin(TestCase):
 
     def setUp(self):
         self.contest = Contest.objects.get()
-        self.contest.controller_name = \
-                'oioioi.participants.tests.OnsiteContestController'
+        self.contest.controller_name = (
+            'oioioi.participants.tests.OnsiteContestController'
+        )
         self.contest.save()
 
     def test_admin_menu(self):
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': self.contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': self.contest.id})
         response = self.client.get(url, follow=True)
         self.assertContains(response, 'Regions')
 
@@ -306,11 +330,13 @@ class TestOnsiteAdmin(TestCase):
         r = Region(short_name='waw', name='Warszawa', contest=self.contest)
         r.save()
 
-        filename = os.path.join(os.path.dirname(__file__), 'files',
-                                'onsite_participants.csv')
+        filename = os.path.join(
+            os.path.dirname(__file__), 'files', 'onsite_participants.csv'
+        )
         manager = import_onsite_participants.Command()
-        manager.run_from_argv(['manage.py', 'import_onsite_participants',
-                               str(self.contest.id), filename])
+        manager.run_from_argv(
+            ['manage.py', 'import_onsite_participants', str(self.contest.id), filename]
+        )
         self.assertEqual(Participant.objects.count(), 3)
         self.assertEqual(OnsiteRegistration.objects.count(), 3)
 
@@ -324,8 +350,9 @@ class TestParticipantsModelAdmin(TestCase):
 
     def test_participants_admin_visibility(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
         user = User.objects.get(username='test_user')
 
@@ -348,9 +375,9 @@ class TestParticipantsModelAdmin(TestCase):
 
     def test_noadmin_admin_visibility(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.' \
-                'NoAdminParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.' 'NoAdminParticipantsContestController'
+        )
         contest.save()
         user = User.objects.get(username='test_user')
 
@@ -370,14 +397,16 @@ class TestParticipantsModelAdmin(TestCase):
 
     def test_participants_import(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
 
         filename = os.path.join(basedir, 'files', 'participants.csv')
         manager = import_participants.Command()
-        manager.run_from_argv(['manage.py', 'import_participants',
-                               str(contest.id), filename])
+        manager.run_from_argv(
+            ['manage.py', 'import_participants', str(contest.id), filename]
+        )
 
         self.assertEqual(Participant.objects.count(), 2)
 
@@ -387,12 +416,14 @@ class TestParticipantsModelAdmin(TestCase):
         self.assertEqual(p.contest, contest)
 
 
-@override_settings(MIDDLEWARE=MIDDLEWARE +
-                   ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
-                   ROOT_URLCONF='oioioi.contests.tests.test_urls')
-class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
-                                                       ContestIdViewCheckMixin
-                                                       ):
+@override_settings(
+    MIDDLEWARE=MIDDLEWARE
+    + ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
+    ROOT_URLCONF='oioioi.contests.tests.test_urls',
+)
+class TestParticipantsExclusiveContestsMiddlewareMixin(
+    TestCase, ContestIdViewCheckMixin
+):
     fixtures = ['test_users', 'test_two_empty_contests']
 
     def setUp(self):
@@ -401,8 +432,9 @@ class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
         self.user = User.objects.get(username='test_user')
 
     def test_participants_selector(self):
-        self.c1.controller_name = \
+        self.c1.controller_name = (
             'oioioi.participants.tests.ParticipantsContestController'
+        )
         self.c1.save()
 
         Participant(user=self.user, contest=self.c1).save()
@@ -425,12 +457,14 @@ class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
             self._assertContestVisible('c2')
 
     def test_contest_admin_with_participant(self):
-        self.c2.controller_name = \
+        self.c2.controller_name = (
             'oioioi.participants.tests.ParticipantsContestController'
+        )
         self.c2.save()
 
-        ContestPermission(user=self.user, contest=self.c1,
-                          permission='contests.contest_admin').save()
+        ContestPermission(
+            user=self.user, contest=self.c1, permission='contests.contest_admin'
+        ).save()
         Participant(user=self.user, contest=self.c2).save()
 
         ex_conf1 = ExclusivenessConfig()
@@ -456,14 +490,16 @@ class TestRegistrationModel(TestCase):
 
     def test_both_hands_cascading_on_registration_delete(self):
         def _assert_equals_len(expectedLen=None):
-            self.assertEqual(Participant.objects.count(),
-                              TestRegistration.objects.count())
+            self.assertEqual(
+                Participant.objects.count(), TestRegistration.objects.count()
+            )
             if expectedLen:
                 self.assertEqual(Participant.objects.count(), expectedLen)
 
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
 
         reg = []
@@ -495,14 +531,20 @@ class AnonymousContestController(OIContestController):
 
 
 class TestAnonymousParticipants(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_schools',
-            'test_full_package', 'test_problem_instance', 'test_ranking_data',
-            'test_extra_rounds', 'test_permissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_schools',
+        'test_full_package',
+        'test_problem_instance',
+        'test_ranking_data',
+        'test_extra_rounds',
+        'test_permissions',
+    ]
 
     def _register(self, user, anonymous=False, possible=False):
         contest = Contest.objects.get()
-        url = reverse('participants_register',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username=user.username))
         response = self.client.get(url)
         if possible:
@@ -531,8 +573,7 @@ class TestAnonymousParticipants(TestCase):
 
     def test_no_anonymous_participants(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                "oioioi.oi.controllers.OIContestController"
+        contest.controller_name = "oioioi.oi.controllers.OIContestController"
         contest.save()
 
         u1 = User.objects.get(pk=1001)
@@ -547,15 +588,20 @@ class TestAnonymousParticipants(TestCase):
 
             user_pattern = r'>\s*%s\s*</a>'
 
-            self.assertFalse(re.search(user_pattern % ('test_user',),
-                                       response.content.decode('utf-8')))
-            self.assertTrue(re.search(user_pattern % ('Test User',),
-                                       response.content.decode('utf-8')))
+            self.assertFalse(
+                re.search(
+                    user_pattern % ('test_user',), response.content.decode('utf-8')
+                )
+            )
+            self.assertTrue(
+                re.search(
+                    user_pattern % ('Test User',), response.content.decode('utf-8')
+                )
+            )
 
     def test_anonymous_participants(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                "oioioi.participants.tests.AnonymousContestController"
+        contest.controller_name = "oioioi.participants.tests.AnonymousContestController"
         contest.save()
 
         u1 = User.objects.get(pk=1001)
@@ -572,14 +618,26 @@ class TestAnonymousParticipants(TestCase):
             response = self.client.get(url)
             user_pattern = r'>\s*%s\s*</a>'
 
-            self.assertFalse(re.search(user_pattern % ('test_user',),
-                                       response.content.decode('utf-8')))
-            self.assertTrue(re.search(user_pattern % ('Test User',),
-                                       response.content.decode('utf-8')))
-            self.assertTrue(re.search(user_pattern % ('test_user2',),
-                                       response.content.decode('utf-8')))
-            self.assertFalse(re.search(user_pattern % ('Test User 2',),
-                                       response.content.decode('utf-8')))
+            self.assertFalse(
+                re.search(
+                    user_pattern % ('test_user',), response.content.decode('utf-8')
+                )
+            )
+            self.assertTrue(
+                re.search(
+                    user_pattern % ('Test User',), response.content.decode('utf-8')
+                )
+            )
+            self.assertTrue(
+                re.search(
+                    user_pattern % ('test_user2',), response.content.decode('utf-8')
+                )
+            )
+            self.assertFalse(
+                re.search(
+                    user_pattern % ('Test User 2',), response.content.decode('utf-8')
+                )
+            )
 
             # Edit contest registration
             self._register(u2, anonymous=False, possible=True)
@@ -588,35 +646,47 @@ class TestAnonymousParticipants(TestCase):
 
             self.assertTrue(self.client.login(username='test_contest_admin'))
             response = self.client.get(url)
-            self.assertFalse(re.search(user_pattern % ('test_user2',),
-                                      response.content.decode('utf-8')))
+            self.assertFalse(
+                re.search(
+                    user_pattern % ('test_user2',), response.content.decode('utf-8')
+                )
+            )
 
-            self.assertTrue(re.search(user_pattern % ('Test User 2',),
-                                       response.content.decode('utf-8')))
+            self.assertTrue(
+                re.search(
+                    user_pattern % ('Test User 2',), response.content.decode('utf-8')
+                )
+            )
 
     def test_user_info_page(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                "oioioi.participants.tests.ParticipantsContestController"
+        contest.controller_name = (
+            "oioioi.participants.tests.ParticipantsContestController"
+        )
         contest.save()
 
         user = User.objects.get(pk=1001)
         p = Participant(contest=contest, user=user)
         p.save()
-        url = reverse('user_info', kwargs={'contest_id': contest.id,
-                                           'user_id': user.id})
+        url = reverse(
+            'user_info', kwargs={'contest_id': contest.id, 'user_id': user.id}
+        )
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertContains(response, 'Participant info')
 
 
 class TestParticipantsDataViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_schools']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_schools',
+    ]
 
     def register(self, contest):
-        reg_url = reverse('participants_register',
-                      kwargs={'contest_id': contest.id})
+        reg_url = reverse('participants_register', kwargs={'contest_id': contest.id})
 
         self.client.get(reg_url)
         reg_data = {
@@ -638,14 +708,16 @@ class TestParticipantsDataViews(TestCase):
 
     def test_no_email_data_view(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.ParticipantsContestController'
+        contest.controller_name = (
+            'oioioi.participants.tests.ParticipantsContestController'
+        )
         contest.save()
 
         user = User.objects.get(username='test_user')
         url = reverse('participants_data', kwargs={'contest_id': contest.id})
-        perm = ContestPermission(user=user, contest=contest,
-                                 permission='contests.personal_data')
+        perm = ContestPermission(
+            user=user, contest=contest, permission='contests.personal_data'
+        )
         perm.save()
         if hasattr(user, '_contest_perms_cache'):
             delattr(user, '_contest_perms_cache')
@@ -658,8 +730,7 @@ class TestParticipantsDataViews(TestCase):
 
     def test_data_view(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                "oioioi.oi.controllers.OIContestController"
+        contest.controller_name = "oioioi.oi.controllers.OIContestController"
         contest.save()
 
         user = User.objects.get(username='test_user')
@@ -670,8 +741,9 @@ class TestParticipantsDataViews(TestCase):
             self.assertEqual(response.status_code, 403)
 
             self.client.logout()
-            perm = ContestPermission(user=user, contest=contest,
-                                     permission='contests.personal_data')
+            perm = ContestPermission(
+                user=user, contest=contest, permission='contests.personal_data'
+            )
             perm.save()
             if hasattr(user, '_contest_perms_cache'):
                 delattr(user, '_contest_perms_cache')
@@ -698,14 +770,14 @@ class TestParticipantsDataViews(TestCase):
         user2 = User.objects.get(username='test_user2')
 
         contest = Contest.objects.get()
-        contest.controller_name = \
-                "oioioi.oi.controllers.OIContestController"
+        contest.controller_name = "oioioi.oi.controllers.OIContestController"
         contest.save()
 
         url = reverse('participants_data', kwargs={'contest_id': contest.id})
 
-        perm = ContestPermission(user=user2, contest=contest,
-                                 permission='contests.personal_data')
+        perm = ContestPermission(
+            user=user2, contest=contest, permission='contests.personal_data'
+        )
         perm.save()
         if hasattr(user2, '_contest_perms_cache'):
             delattr(user2, '_contest_perms_cache')
@@ -725,19 +797,23 @@ class TestParticipantsDataViews(TestCase):
 
 
 class TestOnsiteViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
-        contest.controller_name = \
-                'oioioi.participants.tests.OnsiteContestController'
+        contest.controller_name = 'oioioi.participants.tests.OnsiteContestController'
         contest.save()
         user = User.objects.get(username='test_user')
         response = self.client.get(reverse('select_contest'))
-        self.assertIn('contests/select_contest.html',
-                [t.name for t in response.templates])
+        self.assertIn(
+            'contests/select_contest.html', [t.name for t in response.templates]
+        )
         self.assertEqual(len(response.context['contests']), 1)
 
         self.assertTrue(self.client.login(username='test_user'))
@@ -763,16 +839,14 @@ class TestOnsiteViews(TestCase):
 
     def test_contest_access(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.OnsiteContestController'
+        contest.controller_name = 'oioioi.participants.tests.OnsiteContestController'
         contest.save()
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(url, follow=True)
@@ -801,8 +875,7 @@ class TestOnsiteRegistration(TestCase):
 
     def setUp(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.OnsiteContestController'
+        contest.controller_name = 'oioioi.participants.tests.OnsiteContestController'
         contest.save()
 
     def test_missing_registration_model(self):
@@ -812,8 +885,7 @@ class TestOnsiteRegistration(TestCase):
         p = Participant(contest=contest, user=user)
         p.save()
 
-        self.assertRaises(ObjectDoesNotExist,
-            lambda: getattr(p, 'registration_model'))
+        self.assertRaises(ObjectDoesNotExist, lambda: getattr(p, 'registration_model'))
 
     def test_participants_accounts_menu(self):
         contest = Contest.objects.get()
@@ -823,8 +895,7 @@ class TestOnsiteRegistration(TestCase):
         p.save()
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertNotContains(response, 'Register to the contest')
         self.assertNotContains(response, 'Edit contest registration')
@@ -832,8 +903,7 @@ class TestOnsiteRegistration(TestCase):
     def test_participants_unregister_forbidden(self):
         contest = Contest.objects.get()
 
-        url = reverse('participants_unregister',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_unregister', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(url, {'post': 'yes'})
@@ -861,8 +931,7 @@ class TestUserInfo(TestCase):
 
     def test_onsite_user_info_page(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.participants.tests.OnsiteContestController'
+        contest.controller_name = 'oioioi.participants.tests.OnsiteContestController'
         contest.save()
         user = User.objects.get(username='test_user')
 
@@ -872,8 +941,9 @@ class TestUserInfo(TestCase):
         reg.save()
 
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse('user_info', kwargs={'contest_id': contest.id,
-                                           'user_id': user.id})
+        url = reverse(
+            'user_info', kwargs={'contest_id': contest.id, 'user_id': user.id}
+        )
         response = self.client.get(url)
 
         self.assertContains(response, '<h4>OI info:</h4>')

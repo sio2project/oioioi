@@ -19,9 +19,11 @@ def validate_file_size(file):
 
 
 class PrintForm(forms.Form):
-    file = forms.FileField(allow_empty_file=False, label=_("File"),
-                           validators=[is_text_file_validator,
-                                       validate_file_size])
+    file = forms.FileField(
+        allow_empty_file=False,
+        label=_("File"),
+        validators=[is_text_file_validator, validate_file_size],
+    )
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -34,7 +36,9 @@ class PrintForm(forms.Form):
             cleaned_data['file'] = generator(
                 source=orig.expandtabs(4),
                 header=six.text_type(
-                    '%s (%s)' % (self.user.get_full_name(), self.user)))
+                    '%s (%s)' % (self.user.get_full_name(), self.user)
+                ),
+            )
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))
         return cleaned_data['file']

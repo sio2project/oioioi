@@ -1,8 +1,6 @@
-import BaseHTTPServer
 import cgi
 import json
 import logging
-import SocketServer
 
 import six.moves.BaseHTTPServer
 import six.moves.socketserver
@@ -22,9 +20,11 @@ class ServerHandler(six.moves.BaseHTTPServer.BaseHTTPRequestHandler):
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
-            environ={'REQUEST_METHOD': 'POST',
-                     'CONTENT_TYPE': self.headers['Content-Type'],
-                     })
+            environ={
+                'REQUEST_METHOD': 'POST',
+                'CONTENT_TYPE': self.headers['Content-Type'],
+            },
+        )
         if "data" not in form:
             self.send_error(404)
         else:
@@ -53,6 +53,7 @@ class Server(six.moves.socketserver.TCPServer):
 class Command(BaseCommand):
     def handle(self, *args, **options):
         Handler = ServerHandler
-        httpd = Server((settings.SIOWORKERS_LISTEN_ADDR,
-            settings.SIOWORKERS_LISTEN_PORT), Handler)
+        httpd = Server(
+            (settings.SIOWORKERS_LISTEN_ADDR, settings.SIOWORKERS_LISTEN_PORT), Handler
+        )
         httpd.serve_forever()

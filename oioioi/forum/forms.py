@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.forum.models import Post, Thread, Ban
+from oioioi.forum.models import Ban, Post, Thread
 
 
 class PostForm(forms.ModelForm):
@@ -33,9 +33,9 @@ class BanForm(forms.ModelForm):
         model = Ban
         fields = ['reason']
 
-    delete_reports = forms.BooleanField(widget=forms.CheckboxInput(),
-                                        label=_("Remove user reports"),
-                                        required=False)
+    delete_reports = forms.BooleanField(
+        widget=forms.CheckboxInput(), label=_("Remove user reports"), required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super(BanForm, self).__init__(*args, **kwargs)

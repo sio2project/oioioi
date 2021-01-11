@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # A script that updates oioioi from a Github release
-import sys
-import os
-import requests
 import json
-import tarfile
+import os
 import shutil
+import sys
+import tarfile
+
+import requests
 from packaging import version
 
 API_REPOS = 'https://api.github.com/repos/'
@@ -46,7 +47,11 @@ def download_tgz(tag_name, asset_name, output_name):
 
 def main():
     if len(sys.argv) != 4:
-        print('Usage: {} deployment_directory current_version target_version'.format(sys.argv[0]))
+        print(
+            'Usage: {} deployment_directory current_version target_version'.format(
+                sys.argv[0]
+            )
+        )
         sys.exit(2)
 
     deployment_directory = sys.argv[1]

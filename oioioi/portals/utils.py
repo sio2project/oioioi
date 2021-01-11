@@ -35,9 +35,8 @@ def resolve_path(portal, path):
 
 def problems_in_tree(node, include_self=True):
     """Returns a queryset of problems which can be accessed
-       from one of the node's descendants (or, if include_self
-       is True, from the node's content itself).
+    from one of the node's descendants (or, if include_self
+    is True, from the node's content itself).
     """
     descendants = node.get_descendants(include_self)
-    return Problem.objects.filter(
-            node=descendants).distinct()
+    return Problem.objects.filter(node=descendants).distinct()

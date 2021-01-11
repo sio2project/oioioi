@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save, post_migrate
+from django.db.models.signals import post_migrate, post_save
 from django.dispatch import receiver
 from six.moves import filter
 
@@ -9,11 +9,11 @@ from oioioi.problems.models import Problem
 
 def parse_node_for_problems(node):
     """Parses node's content in search for links to problems
-       and returns a queryset of problems accessible from the node.
+    and returns a queryset of problems accessible from the node.
     """
     widgets_with_links = filter(
-                            lambda w: hasattr(w, 'get_problem_ids'),
-                            REGISTERED_WIDGETS)
+        lambda w: hasattr(w, 'get_problem_ids'), REGISTERED_WIDGETS
+    )
 
     ids = []
     for widget in widgets_with_links:
@@ -35,4 +35,3 @@ def rebuild_handler(sender, **kwargs):
     # post_migrate is called after each app's migrations
     if sender.name == 'oioioi.portals':
         Node.objects.rebuild()
-

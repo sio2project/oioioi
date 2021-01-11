@@ -1,5 +1,4 @@
 import six
-
 from django.conf import settings
 from django.core.urlresolvers import get_script_prefix
 from django.utils.module_loading import import_string

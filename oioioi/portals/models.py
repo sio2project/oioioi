@@ -1,37 +1,46 @@
 import six
-
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError, ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.dispatch import Signal
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _, \
-    get_language_from_request, get_language
+from django.utils.translation import get_language, get_language_from_request
+from django.utils.translation import ugettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
-from oioioi.base.utils.validators import (validate_db_string_id,
-                                          validate_whitespaces)
+from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 from oioioi.portals.utils import join_paths
 
-if 'oioioi.portals.processors.portal_processor' \
-        not in settings.TEMPLATES[0]['OPTIONS']['context_processors']:
-    raise ImproperlyConfigured("When using portals module "
-                               "you have to add oioioi.portals.processors.portal_processor "
-                               "to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py")
+if (
+    'oioioi.portals.processors.portal_processor'
+    not in settings.TEMPLATES[0]['OPTIONS']['context_processors']
+):
+    raise ImproperlyConfigured(
+        "When using portals module "
+        "you have to add oioioi.portals.processors.portal_processor "
+        "to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py"
+    )
 
 
 @python_2_unicode_compatible
 class Node(MPTTModel):
-    short_name = models.CharField(max_length=32, verbose_name=_("short name"),
-                                  help_text=_("Shown in the URL."),
-                                  validators=[validate_db_string_id])
-    parent = TreeForeignKey('self', null=True, blank=False,
-                            related_name='children', verbose_name=_("parent"),
-                            on_delete=models.CASCADE)
+    short_name = models.CharField(
+        max_length=32,
+        verbose_name=_("short name"),
+        help_text=_("Shown in the URL."),
+        validators=[validate_db_string_id],
+    )
+    parent = TreeForeignKey(
+        'self',
+        null=True,
+        blank=False,
+        related_name='children',
+        verbose_name=_("parent"),
+        on_delete=models.CASCADE,
+    )
 
-    problems_in_content = models.ManyToManyField('problems.problem',
-                                                 blank=True)
+    problems_in_content = models.ManyToManyField('problems.problem', blank=True)
 
     class Meta(object):
         unique_together = (('parent', 'short_name'),)
@@ -100,16 +109,17 @@ class Node(MPTTModel):
             if self.is_root_node():
                 self._path = self.short_name
             else:
-                self._path = join_paths(self.parent.get_path(),
-                                        self.short_name)
+                self._path = join_paths(self.parent.get_path(), self.short_name)
 
                 if self._connected_parent != self.parent:
                     if self._connected_parent is not None:
                         self._connected_parent._path_changed.disconnect(
-                                self._parent_path_changed_callback)
+                            self._parent_path_changed_callback
+                        )
                     if self.parent is not None:
                         self.parent._path_changed.connect(
-                                self._parent_path_changed_callback)
+                            self._parent_path_changed_callback
+                        )
                     self._connected_parent = self.parent
 
         return self._path
@@ -120,47 +130,63 @@ class Node(MPTTModel):
 
 
 class NodeLanguageVersion(models.Model):
-    node = models.ForeignKey(Node, related_name='language_versions',
-                             on_delete=models.CASCADE)
+    node = models.ForeignKey(
+        Node, related_name='language_versions', on_delete=models.CASCADE
+    )
     language = models.CharField(max_length=6, verbose_name=_("language code"))
-    full_name = models.CharField(max_length=32, verbose_name=_("full name"),
-                                 help_text=_("Shown in the navigation menu."),
-                                 validators=[validate_whitespaces])
-    panel_code = models.TextField(null=False, blank=True,
-                                  verbose_name=_("panel code"))
+    full_name = models.CharField(
+        max_length=32,
+        verbose_name=_("full name"),
+        help_text=_("Shown in the navigation menu."),
+        validators=[validate_whitespaces],
+    )
+    panel_code = models.TextField(null=False, blank=True, verbose_name=_("panel code"))
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
         try:
             existing_language_version = self.node.language_versions.get(
-                language=self.language)
+                language=self.language
+            )
             if self.pk != existing_language_version.pk:
-                raise ValueError('Creating NodeLanguageVersion for Node object'
-                                 ' that already has a NodeLanguageVersion with'
-                                 ' the given language.')
+                raise ValueError(
+                    'Creating NodeLanguageVersion for Node object'
+                    ' that already has a NodeLanguageVersion with'
+                    ' the given language.'
+                )
         except NodeLanguageVersion.DoesNotExist:
             pass
 
         return super(NodeLanguageVersion, self).save(
-            force_insert=force_insert, force_update=force_update,
-            using=using, update_fields=update_fields
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
         )
 
 
 class Portal(models.Model):
-    owner = models.OneToOneField(User, null=True, unique=True,
-                                 on_delete=models.CASCADE)
+    owner = models.OneToOneField(User, null=True, unique=True, on_delete=models.CASCADE)
     root = models.OneToOneField(Node, unique=True, on_delete=models.CASCADE)
-    short_description = models.CharField(max_length=256, null=True,
-                                         default=_("My portal."),
-                                         verbose_name=_("short description"))
+    short_description = models.CharField(
+        max_length=256,
+        null=True,
+        default=_("My portal."),
+        verbose_name=_("short description"),
+    )
     is_public = models.BooleanField(default=False, verbose_name=_("is public"))
-    link_name = models.CharField(max_length=40, null=True, unique=True,
-                                 help_text=_("Shown in the URL."),
-                                 validators=[validate_db_string_id])
+    link_name = models.CharField(
+        max_length=40,
+        null=True,
+        unique=True,
+        help_text=_("Shown in the URL."),
+        validators=[validate_db_string_id],
+    )
 
     def clean(self):
         super(Portal, self).clean()
         if (self.owner is None) == (self.link_name is None):  # !xor
-            raise ValidationError(_("Exactly one from following should be "
-                                    "chosen: owner, link_name"))
+            raise ValidationError(
+                _("Exactly one from following should be " "chosen: owner, link_name")
+            )

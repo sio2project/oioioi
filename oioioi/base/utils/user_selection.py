@@ -1,6 +1,5 @@
-import six
 import django
-
+import six
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -31,33 +30,24 @@ def _get_user_q_expression(substr, user_field_name=None):
 
     if len(substr) > 2:
         q_dict = {
-            _prefix(user_field_name, 'first_name__icontains'):
-                ' '.join(substr[:-1]),
-            _prefix(user_field_name, 'last_name__icontains'):
-                substr[-1]
+            _prefix(user_field_name, 'first_name__icontains'): ' '.join(substr[:-1]),
+            _prefix(user_field_name, 'last_name__icontains'): substr[-1],
         }
         q_expression = Q(**q_dict)
     elif len(substr) == 2:
         q_dict_first_last = {
             _prefix(user_field_name, 'first_name__icontains'): substr[0],
-            _prefix(user_field_name, 'last_name__icontains'): substr[1]
+            _prefix(user_field_name, 'last_name__icontains'): substr[1],
         }
         q_dict_two_first = {
             _prefix(user_field_name, 'first_name__icontains'): ' '.join(substr)
         }
         q_expression = Q(**q_dict_first_last) | Q(**q_dict_two_first)
     else:
-        q_dict_username = {
-                _prefix(user_field_name, 'username__icontains'): substr[0]
-            }
-        q_dict_first = {
-                _prefix(user_field_name, 'first_name__icontains'): substr[0]
-            }
-        q_dict_last = {
-                _prefix(user_field_name, 'last_name__icontains'): substr[0]
-            }
-        q_expression = Q(**q_dict_username) | Q(**q_dict_first) \
-                       | Q(**q_dict_last)
+        q_dict_username = {_prefix(user_field_name, 'username__icontains'): substr[0]}
+        q_dict_first = {_prefix(user_field_name, 'first_name__icontains'): substr[0]}
+        q_dict_last = {_prefix(user_field_name, 'last_name__icontains'): substr[0]}
+        q_expression = Q(**q_dict_username) | Q(**q_dict_first) | Q(**q_dict_last)
 
     return q_expression
 
@@ -72,19 +62,25 @@ def _get_user_hints(substr, queryset, user_field_name=None):
     if user_field_name is not None:
         queryset = queryset.order_by(user_field_name)
     num_hints = getattr(settings, 'NUM_HINTS', 10)
-    users = queryset.filter(q_expression).distinct() \
+    users = (
+        queryset.filter(q_expression)
+        .distinct()
         .values_list(
             _prefix(user_field_name, 'username'),
             _prefix(user_field_name, 'first_name'),
-            _prefix(user_field_name, 'last_name'))
+            _prefix(user_field_name, 'last_name'),
+        )
+    )
     return ['%s (%s %s)' % u for u in users[:num_hints]]
 
 
 @jsonify
-def get_user_hints_view(request, request_field_name, queryset=None,
-        user_field_name=None):
-    user_hints = _get_user_hints(request.GET.get(request_field_name, ''),
-            queryset, user_field_name)
+def get_user_hints_view(
+    request, request_field_name, queryset=None, user_field_name=None
+):
+    user_hints = _get_user_hints(
+        request.GET.get(request_field_name, ''), queryset, user_field_name
+    )
     if user_hints is None:
         raise Http404
     return user_hints
@@ -98,16 +94,14 @@ def _parse_user_hint(value, queryset=None, user_field_name=None):
 
     value = value.split()
 
-    if len(value) == 1 or \
-            (len(value) > 1
-            and value[1].startswith('(')
-            and value[-1].endswith(')')):
+    if len(value) == 1 or (
+        len(value) > 1 and value[1].startswith('(') and value[-1].endswith(')')
+    ):
 
         value = value[0]
 
         try:
-            queryset = queryset \
-                .filter(**{_prefix(user_field_name, 'username'): value})
+            queryset = queryset.filter(**{_prefix(user_field_name, 'username'): value})
             if not queryset:
                 return None
             return User.objects.get(username=value)
@@ -118,9 +112,9 @@ def _parse_user_hint(value, queryset=None, user_field_name=None):
 
 
 class UserSelectionWidget(forms.TextInput):
-    html_template = "<script>" \
-            "init_user_selection('%(id)s', %(num_hints)s)" \
-            "</script>"
+    html_template = (
+        "<script>" "init_user_selection('%(id)s', %(num_hints)s)" "</script>"
+    )
 
     def __init__(self, attrs=None):
         if attrs is None:
@@ -137,18 +131,22 @@ class UserSelectionWidget(forms.TextInput):
         else:
             html = super(UserSelectionWidget, self).render(name, value, attrs, renderer)
 
-        html += mark_safe(self.html_template % {
+        html += mark_safe(
+            self.html_template
+            % {
                 'id': attrs['id'],
                 'num_hints': getattr(settings, 'NUM_HINTS', 10),
-            })
+            }
+        )
         return html
 
 
 class UserSelectionField(forms.CharField):
     widget = UserSelectionWidget
 
-    def __init__(self, hints_url=None, queryset=None, user_field_name=None,
-            *args, **kwargs):
+    def __init__(
+        self, hints_url=None, queryset=None, user_field_name=None, *args, **kwargs
+    ):
         super(UserSelectionField, self).__init__(*args, **kwargs)
         self.hints_url = hints_url
         self.queryset = queryset
@@ -174,6 +172,11 @@ class UserSelectionField(forms.CharField):
         else:
             user = _parse_user_hint(value, self.queryset, self.user_field_name)
             if value and not user:
-                raise ValidationError(_("User not found or you do not have "
-                    "access to this user account: %s") % (value,))
+                raise ValidationError(
+                    _(
+                        "User not found or you do not have "
+                        "access to this user account: %s"
+                    )
+                    % (value,)
+                )
         return user

@@ -1,5 +1,4 @@
 import six
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
@@ -13,23 +12,22 @@ from oioioi.contests.models import Contest
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
 
-if 'oioioi.teachers.auth.TeacherAuthBackend' \
-        not in settings.AUTHENTICATION_BACKENDS:
-    raise ImproperlyConfigured("When using teacher module "
-                               "you have to activate TeacherAuthBackend")
+if 'oioioi.teachers.auth.TeacherAuthBackend' not in settings.AUTHENTICATION_BACKENDS:
+    raise ImproperlyConfigured(
+        "When using teacher module " "you have to activate TeacherAuthBackend"
+    )
 
 
 @python_2_unicode_compatible
 class Teacher(models.Model):
-    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"),
-                                on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE
+    )
     is_active = models.BooleanField(default=False, verbose_name=_("active"))
     school = models.CharField(max_length=255, verbose_name=_("school"))
 
     class Meta(object):
-        permissions = (
-            ('teacher', _("Is a teacher")),
-        )
+        permissions = (('teacher', _("Is a teacher")),)
 
     def __str__(self):
         return six.text_type(self.user)
@@ -48,8 +46,7 @@ class ContestTeacher(models.Model):
 
 
 class RegistrationConfig(models.Model):
-    contest = models.OneToOneField(Contest, primary_key=True,
-                                   on_delete=models.CASCADE)
+    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
     is_active_pupil = models.BooleanField(default=True)
     is_active_teacher = models.BooleanField(default=True)
     pupil_key = models.CharField(max_length=40)

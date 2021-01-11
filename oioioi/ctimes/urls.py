@@ -4,6 +4,4 @@ from oioioi.ctimes import views
 
 app_name = 'ctimes'
 
-urlpatterns = [
-    url(r'^ctimes/$', views.ctimes_view, name='ctimes')
-]
+urlpatterns = [url(r'^ctimes/$', views.ctimes_view, name='ctimes')]

@@ -1,7 +1,7 @@
-from django.apps import apps
 from django import test
-from django.db.migrations.executor import MigrationExecutor
+from django.apps import apps
 from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
 
 
 class TestCaseMigrations(test.TestCase):
@@ -13,6 +13,7 @@ class TestCaseMigrations(test.TestCase):
 
     source: https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
     """
+
     @property
     def app(self):
         return apps.get_containing_app_config(type(self).__module__).name.split('.')[-1]
@@ -23,8 +24,11 @@ class TestCaseMigrations(test.TestCase):
     apps = None
 
     def setUp(self):
-        assert self.migrate_from and self.migrate_to, \
-            "TestCase '{}' must define migrate_from and migrate_to properties".format(type(self).__name__)
+        assert (
+            self.migrate_from and self.migrate_to
+        ), "TestCase '{}' must define migrate_from and migrate_to properties".format(
+            type(self).__name__
+        )
         self.migrate_from = [(self.app, self.migrate_from)]
         self.migrate_to = [(self.app, self.migrate_to)]
         executor = MigrationExecutor(connection)

@@ -12,8 +12,12 @@ from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.status.registry import status_registry
 from oioioi.su.forms import SuForm
 from oioioi.su.middleware import REDIRECTION_AFTER_SU_KEY
-from oioioi.su.utils import (is_real_superuser, is_under_su,
-                             reset_to_real_user, su_to_user)
+from oioioi.su.utils import (
+    is_real_superuser,
+    is_under_su,
+    reset_to_real_user,
+    su_to_user,
+)
 
 
 @enforce_condition(is_superuser)
@@ -21,9 +25,15 @@ from oioioi.su.utils import (is_real_superuser, is_under_su,
 def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
     form = SuForm(request.POST)
     if not form.is_valid():
-        return TemplateResponse(request, 'simple-centered-form.html',
-                {'form': form, 'action': reverse('su'),
-                'title': _("Login as another user")})
+        return TemplateResponse(
+            request,
+            'simple-centered-form.html',
+            {
+                'form': form,
+                'action': reverse('su'),
+                'title': _("Login as another user"),
+            },
+        )
 
     user = form.cleaned_data['user']
     if is_under_su(request):
@@ -43,8 +53,7 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
 
 @enforce_condition(is_under_su)
 @require_POST
-def su_reset_view(request, next_page=None,
-        redirect_field_name=REDIRECT_FIELD_NAME):
+def su_reset_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
     reset_to_real_user(request)
     if redirect_field_name in request.GET:
         next_page = request.GET[redirect_field_name]

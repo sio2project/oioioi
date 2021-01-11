@@ -30,12 +30,12 @@ class ZeusProblemDataInline(admin.StackedInline):
         if zeus_id in settings.ZEUS_INSTANCES:
             return '%s: %s' % (zeus_id, settings.ZEUS_INSTANCES[zeus_id][0])
         return zeus_id
+
     zeus_instance.short_description = _("Zeus instance")
 
 
 class ZeusProblemAdminMixin(object):
-    """Adds :class:`~oioioi.zeus.models.ZeusProblemData` to an admin panel.
-    """
+    """Adds :class:`~oioioi.zeus.models.ZeusProblemData` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
         super(ZeusProblemAdminMixin, self).__init__(*args, **kwargs)

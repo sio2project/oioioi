@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # A script that creates basic_settings.py file in a given directory
-import sys
-import os
+from __future__ import print_function
+
 import getpass
+import os
 import re
+import sys
 import uuid
 from urllib.parse import urlparse
 
@@ -17,6 +19,7 @@ basic_settings_file = os.path.join(config_directory, 'basic_settings.py')
 open(basic_settings_file, 'a').close()
 sys.path.insert(1, config_directory)
 import basic_settings  # noqa: E402
+
 regex_default = re.compile(r'^(?!\s*$).+')
 regex_num = re.compile(r'^[0-9]*$')
 
@@ -49,8 +52,7 @@ def parse_question(question, example, original_value):
 
 def get_value(question, example, requirement, original_value, secure, is_number):
     if not secure:
-        print(parse_question(question, example, original_value),
-              end=': ')
+        print(parse_question(question, example, original_value), end=': ')
         reg = regex_num if is_number else regex_default
         text = query_string(original_value is not None, requirement, reg)
         text = repr(text) if text is not None else original_value
@@ -76,8 +78,7 @@ def query_string(has_original, requirement, regex):
 
 
 def query_yes_no(question, default):
-    valid = {'tak': True, 't': True, 'ta': True,
-             'nie': False, 'n': False, 'ni': False}
+    valid = {'tak': True, 't': True, 'ta': True, 'nie': False, 'n': False, 'ni': False}
     prompt = ' [T/N] '
 
     while True:
@@ -91,11 +92,18 @@ def query_yes_no(question, default):
             sys.stdout.write('\tDozwolone odpowiedzi to \'tak\' albo \'nie\'\n')
 
 
-def evaluate_setting(name, question, example, requirement, settings_dict, new_settings_dict, secure=False,
-                     is_number=False):
+def evaluate_setting(
+    name,
+    question,
+    example,
+    requirement,
+    settings_dict,
+    new_settings_dict,
+    secure=False,
+    is_number=False,
+):
     original_value = settings_dict.get(name, None)
-    value = get_value(question, example, requirement, original_value, secure,
-                      is_number)
+    value = get_value(question, example, requirement, original_value, secure, is_number)
     new_settings_dict[name] = value
 
 
@@ -110,12 +118,10 @@ simple_names = [
     'EMAIL_HOST_PASSWORD',
     'DEFAULT_FROM_EMAIL',
     'SERVER_EMAIL',
-    'SEND_USER_ACTIVATION_EMAIL'
+    'SEND_USER_ACTIVATION_EMAIL',
 ]
 
-tuple_of_tuples_names = [
-    'ADMINS'
-]
+tuple_of_tuples_names = ['ADMINS']
 
 tuple_of_tuples_aliases = {
     tuple_of_tuples_names[0]: ('ADMIN_NAME', 'ADMIN_EMAIL'),
@@ -142,37 +148,89 @@ for n in names:
     if n in settings:
         settings[n] = repr(settings[n])
 
-print('Witaj w kreatorze ustawień sio2.\nWpisz wymaganą wartość, bądź, w '
-      'przypadku gdy ta już istnieje,\npo prostu wciśnij '
-      'klawisz ENTER, aby ją pozostawić.')
+print(
+    'Witaj w kreatorze ustawień sio2.\nWpisz wymaganą wartość, bądź, w '
+    'przypadku gdy ta już istnieje,\npo prostu wciśnij '
+    'klawisz ENTER, aby ją pozostawić.'
+)
 
 evaluate_setting('SITE_NAME', 'Nazwa strony', 'OIOIOI', '', settings, new_settings)
-evaluate_setting('PUBLIC_ROOT_URL', 'Nazwa domeny', 'https://example.com', '',
-                 settings, new_settings)
+evaluate_setting(
+    'PUBLIC_ROOT_URL', 'Nazwa domeny', 'https://example.com', '', settings, new_settings
+)
 if '//' not in new_settings['PUBLIC_ROOT_URL']:
     new_settings['PUBLIC_ROOT_URL'] = "'http://" + new_settings['PUBLIC_ROOT_URL'][1:]
 if not new_settings['PUBLIC_ROOT_URL'].endswith("/'"):
     new_settings['PUBLIC_ROOT_URL'] = new_settings['PUBLIC_ROOT_URL'][:-1] + "/'"
 
-new_settings['ALLOWED_HOSTS'] = "['" + urlparse(new_settings['PUBLIC_ROOT_URL'][1:-1]).hostname + "']"
+new_settings['ALLOWED_HOSTS'] = (
+    "['" + urlparse(new_settings['PUBLIC_ROOT_URL'][1:-1]).hostname + "']"
+)
 new_settings['SECRET_KEY'] = settings.get('SECRET_KEY') or "'" + str(uuid.uuid4()) + "'"
 
-evaluate_setting('ADMIN_NAME', 'Imię i nazwisko administratora', 'Jan Kowalski',
-                 '', settings, new_settings)
-evaluate_setting('ADMIN_EMAIL', 'Adres e-mail administratora',
-                 'jan.kowalski@example.com', '', settings, new_settings)
+evaluate_setting(
+    'ADMIN_NAME',
+    'Imię i nazwisko administratora',
+    'Jan Kowalski',
+    '',
+    settings,
+    new_settings,
+)
+evaluate_setting(
+    'ADMIN_EMAIL',
+    'Adres e-mail administratora',
+    'jan.kowalski@example.com',
+    '',
+    settings,
+    new_settings,
+)
 
-if query_yes_no('Czy chcesz skonfigurować serwer pocztowy? (zalecane)', settings.get('SEND_USER_ACTIVATION_EMAIL') == 'True'):
-    evaluate_setting('EMAIL_HOST', 'Adres serwera smtp', 'smtp.example.com', '',
-                     settings, new_settings)
-    evaluate_setting('EMAIL_PORT', 'Port serwera smtp', '587', 'Tylko cyfry',
-                     settings, new_settings, is_number=True)
-    evaluate_setting('EMAIL_HOST_USER', 'Nazwa użytkownika (do serwera SMTP)',
-                     'user@example.com', '', settings, new_settings)
-    evaluate_setting('EMAIL_HOST_PASSWORD', 'Hasło (do serwera SMTP)', None, '', settings, new_settings,
-                     secure=True)
-    evaluate_setting('DEFAULT_FROM_EMAIL', 'Adres e-mail nadawcy',
-                     'user@example.com', '', settings, new_settings)
+if query_yes_no(
+    'Czy chcesz skonfigurować serwer pocztowy? (zalecane)',
+    settings.get('SEND_USER_ACTIVATION_EMAIL') == 'True',
+):
+    evaluate_setting(
+        'EMAIL_HOST',
+        'Adres serwera smtp',
+        'smtp.example.com',
+        '',
+        settings,
+        new_settings,
+    )
+    evaluate_setting(
+        'EMAIL_PORT',
+        'Port serwera smtp',
+        '587',
+        'Tylko cyfry',
+        settings,
+        new_settings,
+        is_number=True,
+    )
+    evaluate_setting(
+        'EMAIL_HOST_USER',
+        'Nazwa użytkownika (do serwera SMTP)',
+        'user@example.com',
+        '',
+        settings,
+        new_settings,
+    )
+    evaluate_setting(
+        'EMAIL_HOST_PASSWORD',
+        'Hasło (do serwera SMTP)',
+        None,
+        '',
+        settings,
+        new_settings,
+        secure=True,
+    )
+    evaluate_setting(
+        'DEFAULT_FROM_EMAIL',
+        'Adres e-mail nadawcy',
+        'user@example.com',
+        '',
+        settings,
+        new_settings,
+    )
     new_settings['SERVER_EMAIL'] = 'DEFAULT_FROM_EMAIL'
     new_settings['SEND_USER_ACTIVATION_EMAIL'] = 'True'
 

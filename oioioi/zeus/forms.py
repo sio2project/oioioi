@@ -6,8 +6,7 @@ from oioioi.problems.forms import PackageUploadForm
 
 class ZeusProblemForm(PackageUploadForm):
     zeus_id = forms.ChoiceField(label=_("Zeus ID"))
-    zeus_problem_id = forms.IntegerField(required=True,
-                                         label=_("Zeus Problem ID"))
+    zeus_problem_id = forms.IntegerField(required=True, label=_("Zeus Problem ID"))
 
     def __init__(self, zeus_instances, contest, *args, **kwargs):
         super(ZeusProblemForm, self).__init__(contest, *args, **kwargs)

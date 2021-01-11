@@ -9,11 +9,15 @@ register = Library()
 
 @register.simple_tag
 def prefetch_tags(problems):
-    prefetch_related_objects(problems,
-                              'tag_set', 'algorithmtag_set', 'difficultytag_set',
-                              'origintag_set__localizations',
-                              'origininfovalue_set__localizations',
-                              'origininfovalue_set__parent_tag__localizations')
+    prefetch_related_objects(
+        problems,
+        'tag_set',
+        'algorithmtag_set',
+        'difficultytag_set',
+        'origintag_set__localizations',
+        'origininfovalue_set__localizations',
+        'origininfovalue_set__parent_tag__localizations',
+    )
     return u''
 
 
@@ -26,7 +30,7 @@ def tag_label(tag):
         tooltip=getattr(tag, 'full_name', tag.name),
         name=tag.name,
         cls=prefix,
-        href="?" + prefix + "=" + tag.name
+        href="?" + prefix + "=" + tag.name,
     )
 
 
@@ -39,5 +43,5 @@ def origininfo_label(info):
         tooltip=info.full_name,
         name=info.value,
         cls=prefix,
-        href="?" + prefix + "=" + info.name
+        href="?" + prefix + "=" + info.name,
     )

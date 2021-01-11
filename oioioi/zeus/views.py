@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 # View for use as Zeus callback
 
+
 @csrf_exempt
 @require_POST
 def push_grade(request, saved_environ_id, signature):
@@ -29,8 +30,8 @@ def push_grade(request, saved_environ_id, signature):
     except ValueError:
         logger.info('Invalid b64 JSON: %s', request.body)
         return HttpResponse(
-            'Got invalid payload. It is not JSON with base64 strings.',
-            status=400)
+            'Got invalid payload. It is not JSON with base64 strings.', status=400
+        )
     logger.info(' >>>> ')
     logger.info(body)
     logger.info(' <<<< ')

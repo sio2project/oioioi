@@ -5,9 +5,12 @@ from oioioi.contests.models import ProblemInstance, Submission
 
 
 class ScoreReveal(models.Model):
-    submission = models.OneToOneField(Submission, related_name='revealed',
-                                      verbose_name=_("submission"),
-                                      on_delete=models.CASCADE)
+    submission = models.OneToOneField(
+        Submission,
+        related_name='revealed',
+        verbose_name=_("submission"),
+        on_delete=models.CASCADE,
+    )
 
     class Meta(object):
         verbose_name = _("score reveal")
@@ -15,13 +18,16 @@ class ScoreReveal(models.Model):
 
 
 class ScoreRevealConfig(models.Model):
-    problem_instance = models.OneToOneField(ProblemInstance,
-                                   verbose_name=_("problem instance"),
-                                   related_name='scores_reveal_config',
-                                   on_delete=models.CASCADE)
+    problem_instance = models.OneToOneField(
+        ProblemInstance,
+        verbose_name=_("problem instance"),
+        related_name='scores_reveal_config',
+        on_delete=models.CASCADE,
+    )
     reveal_limit = models.IntegerField(verbose_name=_("reveal limit"))
-    disable_time = models.IntegerField(blank=True, null=True,
-        verbose_name=_("disable for last minutes of the round"))
+    disable_time = models.IntegerField(
+        blank=True, null=True, verbose_name=_("disable for last minutes of the round")
+    )
 
     class Meta(object):
         verbose_name = _("score reveal config")

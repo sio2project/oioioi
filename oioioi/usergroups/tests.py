@@ -8,12 +8,12 @@ from oioioi.contests.models import Contest
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.participants.models import Participant
 from oioioi.teachers.tests import change_contest_type
-from oioioi.usergroups.models import UserGroup, ActionConfig
 from oioioi.usergroups import utils
+from oioioi.usergroups.models import ActionConfig, UserGroup
+
 
 class TestAdmin(TestCase):
-    fixtures = ['test_users', 'teachers', 'test_action_configs',
-                'test_usergroups']
+    fixtures = ['test_users', 'teachers', 'test_action_configs', 'test_usergroups']
 
     def test_visibility(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -51,8 +51,12 @@ class TestAdmin(TestCase):
         self.assertContains(response, 'Confirm deletion')
         self.assertContains(response, 'User group: empty default group')
 
-        self.assertRaises(NoReverseMatch, reverse, 'oioioiadmin:usergroups_actionconfig_changelist')
-        self.assertRaises(NoReverseMatch, reverse,'oioioiadmin:usergroups_actionconfig_add')
+        self.assertRaises(
+            NoReverseMatch, reverse, 'oioioiadmin:usergroups_actionconfig_changelist'
+        )
+        self.assertRaises(
+            NoReverseMatch, reverse, 'oioioiadmin:usergroups_actionconfig_add'
+        )
 
     def test_permissions(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -91,7 +95,7 @@ class TestAdmin(TestCase):
 
         data = {
             'name': 'group 1',
-            'members': (1000, ),
+            'members': (1000,),
         }
         self.assertContains(self.client.post(url, data), 'This field is required')
 
@@ -100,7 +104,9 @@ class TestAdmin(TestCase):
             'owners': (1003,),
             'members': (1000,),
         }
-        self.assertContains(self.client.post(url, data), 'is not one of the available choices')
+        self.assertContains(
+            self.client.post(url, data), 'is not one of the available choices'
+        )
 
         data = {
             'name': 'group 1',
@@ -113,7 +119,7 @@ class TestTeachersViews(TestCase):
     fixtures = ['test_users', 'teachers', 'test_action_configs', 'test_usergroups']
 
     def test_visibility(self):
-        self.assertTrue(self.client.login(username='test_user')) # teacher
+        self.assertTrue(self.client.login(username='test_user'))  # teacher
 
         url = reverse('teacher_usergroups_list')
         response = self.client.get(url)
@@ -144,10 +150,11 @@ class TestTeachersViews(TestCase):
         self.assertContains(response, 'Confirm deletion')
         self.assertContains(response, 'User group: addition false group')
 
-        self.assertTrue(self.client.login(username='test_user3')) # normal user
-        url = reverse('usergroups_user_join', kwargs={
-            'key': ActionConfig.objects.filter(id=1000).first().key
-        })
+        self.assertTrue(self.client.login(username='test_user3'))  # normal user
+        url = reverse(
+            'usergroups_user_join',
+            kwargs={'key': ActionConfig.objects.filter(id=1000).first().key},
+        )
         response = self.client.get(url)
         self.assertContains(response, 'Confirm joining group group 1')
 
@@ -182,20 +189,18 @@ class TestTeachersViews(TestCase):
         self.assertEqual(self.client.get(url).status_code, 403)
         self.assertEqual(self.client.post(url).status_code, 403)
 
-        self.assertTrue(self.client.login(username='teacher2005')) # active teacher
+        self.assertTrue(self.client.login(username='teacher2005'))  # active teacher
 
         url = reverse('teacher_usergroup_detail', kwargs={'usergroup_id': 1004})
         self.assertEqual(self.client.get(url).status_code, 403)
 
     def test_addition(self):
-        self.assertTrue(self.client.login(username='test_user')) # teacher
+        self.assertTrue(self.client.login(username='test_user'))  # teacher
 
         url = reverse('teacher_usergroups_add_group')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        data = {
-            'name': 'new group'
-        }
+        data = {'name': 'new group'}
 
         self.assertEqual(UserGroup.objects.count(), 5)
         self.assertEqual(ActionConfig.objects.count(), 9)
@@ -241,9 +246,7 @@ class TestTeachersViews(TestCase):
 
         url = reverse('teacher_usergroup_detail', kwargs={'usergroup_id': 1004})
         self.assertEqual(self.client.get(url).status_code, 200)
-        data = {
-            'member': [1002, 1003]
-        }
+        data = {'member': [1002, 1003]}
 
         url = reverse('usergroups_delete_members', kwargs={'usergroup_id': 1004})
         self.assertEqual(UserGroup.objects.filter(id=1004).first().members.count(), 2)
@@ -264,20 +267,21 @@ class TestTeachersViews(TestCase):
         url = reverse('usergroups_user_join', kwargs={'key': key})
 
         user = User.objects.filter(username='test_user3').first()
-        data = {
-            'confirmation': True,
-            'confirmation_sent': True
-        }
+        data = {'confirmation': True, 'confirmation_sent': True}
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(UserGroup.objects.filter(id=1001).first().members.count(), 2)
-        self.assertFalse(UserGroup.objects.filter(id=1001).filter(members__in=[user]).exists())
+        self.assertFalse(
+            UserGroup.objects.filter(id=1001).filter(members__in=[user]).exists()
+        )
 
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(UserGroup.objects.filter(id=1001).first().members.count(), 3)
-        self.assertTrue(UserGroup.objects.filter(id=1001).filter(members__in=[user]).exists())
+        self.assertTrue(
+            UserGroup.objects.filter(id=1001).filter(members__in=[user]).exists()
+        )
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
@@ -298,19 +302,23 @@ class TestSharing(TestCase):
     def test_deleting_owners(self):
         self.assertTrue(self.client.login(username='test_user'))  # teacher
 
-        self.assertEqual(UserGroup.objects.filter(id=1005).first().owners.values().count(), 2)
+        self.assertEqual(
+            UserGroup.objects.filter(id=1005).first().owners.values().count(), 2
+        )
         url = reverse('usergroups_delete_owners', kwargs={'usergroup_id': 1005})
-        data = {
-            'owner': (1001, 1002)
-        }
+        data = {'owner': (1001, 1002)}
 
         response = self.client.post(url, data, follow=True)
         self.assertContains(response, 'You cannot renounce ownership')
-        self.assertEqual(UserGroup.objects.filter(id=1005).first().owners.values().count(), 2)
+        self.assertEqual(
+            UserGroup.objects.filter(id=1005).first().owners.values().count(), 2
+        )
 
         data['owner'] = (1002,)
         self.assertEqual(self.client.post(url, data).status_code, 302)
-        self.assertEqual(UserGroup.objects.filter(id=1005).first().owners.values().count(), 1)
+        self.assertEqual(
+            UserGroup.objects.filter(id=1005).first().owners.values().count(), 1
+        )
 
     def test_becoming_owner(self):
         self.assertTrue(self.client.login(username='test_user'))  # teacher
@@ -318,17 +326,23 @@ class TestSharing(TestCase):
         key = UserGroup.objects.filter(id=1003).first().sharing_config.key
         url = reverse('usergroups_become_owner', kwargs={'key': key})
         self.assertEqual(self.client.get(url).status_code, 302)
-        self.assertEqual(UserGroup.objects.filter(id=1003).first().owners.values().count(), 1)
+        self.assertEqual(
+            UserGroup.objects.filter(id=1003).first().owners.values().count(), 1
+        )
 
         self.assertTrue(self.client.login(username='teacher2005'))  # teacher
 
         self.assertEqual(self.client.get(url).status_code, 302)
-        self.assertEqual(UserGroup.objects.filter(id=1003).first().owners.values().count(), 2)
+        self.assertEqual(
+            UserGroup.objects.filter(id=1003).first().owners.values().count(), 2
+        )
 
         key = UserGroup.objects.filter(id=1005).first().sharing_config.key
         url = reverse('usergroups_become_owner', kwargs={'key': key})
         self.assertEqual(self.client.get(url).status_code, 302)
-        self.assertEqual(UserGroup.objects.filter(id=1005).first().owners.values().count(), 2)
+        self.assertEqual(
+            UserGroup.objects.filter(id=1005).first().owners.values().count(), 2
+        )
 
         self.assertTrue(self.client.login(username='test_user3'))  # regular user
 
@@ -338,8 +352,13 @@ class TestSharing(TestCase):
 
 
 class TestContestRegistrationWithUsergroups(TestCase):
-    fixtures = ['test_users', 'teachers', 'test_action_configs', 'test_usergroups',
-                'test_contest']
+    fixtures = [
+        'test_users',
+        'teachers',
+        'test_action_configs',
+        'test_usergroups',
+        'test_contest',
+    ]
 
     def _assertGroupAttached(self, contest, group):
         self.assertTrue(utils.is_usergroup_attached(contest, group))
@@ -353,8 +372,7 @@ class TestContestRegistrationWithUsergroups(TestCase):
         contest = Contest.objects.get(id='c')
         group = UserGroup.objects.get(pk=1001)
 
-        url = reverse('usergroup_attach_to_contest',
-                      kwargs={'contest_id': 'c'})
+        url = reverse('usergroup_attach_to_contest', kwargs={'contest_id': 'c'})
 
         self._assertGroupNotAttached(contest, group)
 
@@ -378,8 +396,7 @@ class TestContestRegistrationWithUsergroups(TestCase):
 
     def test_registration_controller_mixin(self):
         contest = Contest.objects.get(id='c')
-        contest.controller_name = \
-            'oioioi.teachers.controllers.TeacherContestController'
+        contest.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
         contest.save()
         rc = contest.controller.registration_controller()
         group = UserGroup.objects.get(pk=1001)
@@ -391,7 +408,9 @@ class TestContestRegistrationWithUsergroups(TestCase):
         request.user = user
 
         self.assertNotIn(user, rc.filter_participants(User.objects.all()))
-        self.assertNotIn(contest, rc.filter_user_contests(request, Contest.objects.all()))
+        self.assertNotIn(
+            contest, rc.filter_user_contests(request, Contest.objects.all())
+        )
         self.assertEqual(self.client.get(url).status_code, 403)
 
         group.contests.add(contest)
@@ -407,19 +426,27 @@ class TestContestRegistrationWithUsergroups(TestCase):
         group_name = 'new group'
         Participant.objects.create(contest=contest, user=user).save()
 
-        self.assertRaises(UserGroup.DoesNotExist, UserGroup.objects.get, name=group_name)
+        self.assertRaises(
+            UserGroup.DoesNotExist, UserGroup.objects.get, name=group_name
+        )
         self.client.login(username='test_admin')
 
-        url = reverse('teacher_usergroups_add_group', kwargs={
-            'contest_id': contest.id}) + '?create_from_contest=True'
+        url = (
+            reverse('teacher_usergroups_add_group', kwargs={'contest_id': contest.id})
+            + '?create_from_contest=True'
+        )
 
         response = self.client.post(url, {'name': group_name})
         self.assertEqual(response.status_code, 302)
 
         group = UserGroup.objects.get(name=group_name)
         self.assertIn(user, group.members.all())
-        self.assertRaises(Participant.DoesNotExist, Participant.objects.get,
-                          contest=contest, user=user)
+        self.assertRaises(
+            Participant.DoesNotExist,
+            Participant.objects.get,
+            contest=contest,
+            user=user,
+        )
 
         self._assertGroupAttached(contest, group)
 
@@ -427,12 +454,11 @@ class TestContestRegistrationWithUsergroups(TestCase):
         contest = Contest.objects.get(id='c')
         group = UserGroup.objects.get(pk=1001)
         group.contests.add(contest)
-        url = reverse('usergroup_detach_from_contest',
-                      kwargs={'contest_id': 'c', 'usergroup_id': 1001})
-        data = {
-            'confirmation': True,
-            'confirmation_sent': True
-        }
+        url = reverse(
+            'usergroup_detach_from_contest',
+            kwargs={'contest_id': 'c', 'usergroup_id': 1001},
+        )
+        data = {'confirmation': True, 'confirmation_sent': True}
 
         self._assertGroupAttached(contest, group)
 
@@ -468,8 +494,9 @@ class TestContestRegistrationWithUsergroups(TestCase):
         self.assertContains(response, "Groups")
         self.assertContains(response, "Members")
         self.assertNotContains(response, "Create new group from members below")
-        self.assertContains(response,
-                            "You have not added any group to this contest yet.")
+        self.assertContains(
+            response, "You have not added any group to this contest yet."
+        )
 
         participant = Participant(contest=contest, user=user)
         participant.save()
@@ -479,8 +506,9 @@ class TestContestRegistrationWithUsergroups(TestCase):
 
         self.assertContains(response, "Add new group to this contest")
         self.assertContains(response, "Create new group from members below")
-        self.assertContains(response,
-                            "You have not added any group to this contest yet.")
+        self.assertContains(
+            response, "You have not added any group to this contest yet."
+        )
 
         group = UserGroup.objects.get(id=1003)
         group.contests.add(contest)
@@ -495,8 +523,9 @@ class TestContestRegistrationWithUsergroups(TestCase):
         self.assertContains(response, "Modify group")
         self.assertContains(response, "Test User 3")
         self.assertContains(response, "Remove group from this contest")
-        self.assertNotContains(response,
-                            "You have not added any group to this contest yet.")
+        self.assertNotContains(
+            response, "You have not added any group to this contest yet."
+        )
 
         with self.modify_settings(INSTALLED_APPS={'remove': 'oioioi.usergroups'}):
             url = reverse('show_members', kwargs={'member_type': 'pupil'})
@@ -505,8 +534,9 @@ class TestContestRegistrationWithUsergroups(TestCase):
             self.assertNotContains(response, "Add new group to this contest")
             self.assertNotContains(response, "Create new group from members below")
             self.assertNotContains(response, "Modify groups")
-            self.assertNotContains(response,
-                                   "You have not added any group to this contest yet.")
+            self.assertNotContains(
+                response, "You have not added any group to this contest yet."
+            )
 
         groups = UserGroup.objects.all()
         for usergroup in groups:
@@ -518,8 +548,9 @@ class TestContestRegistrationWithUsergroups(TestCase):
         self.assertNotContains(response, "Add new group to this contest")
         self.assertContains(response, "Create new group from members below")
         self.assertNotContains(response, "Remove group from this contest")
-        self.assertNotContains(response,
-                               "You have not added any group to this contest yet.")
+        self.assertNotContains(
+            response, "You have not added any group to this contest yet."
+        )
 
         participant.delete()
 

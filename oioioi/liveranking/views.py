@@ -31,8 +31,7 @@ def liveranking_auto_view(request, round_id=None):
         round_id = DEFAULT_ROUND
 
     ranking_variables = _ranking_settings(request.contest, round_id)
-    return TemplateResponse(request, 'liveranking/auto.html',
-            ranking_variables)
+    return TemplateResponse(request, 'liveranking/auto.html', ranking_variables)
 
 
 @enforce_condition(contest_exists & can_see_livedata)
@@ -41,8 +40,7 @@ def liveranking_simple_view(request, round_id=None):
         round_id = DEFAULT_ROUND
 
     ranking_variables = _ranking_settings(request.contest, round_id)
-    return TemplateResponse(request, 'liveranking/simple.html',
-            ranking_variables)
+    return TemplateResponse(request, 'liveranking/simple.html', ranking_variables)
 
 
 @enforce_condition(contest_exists & can_see_livedata)
@@ -51,8 +49,7 @@ def liveranking_autoDonuts_view(request, round_id=None):
         round_id = DEFAULT_ROUND
 
     ranking_variables = _ranking_settings(request.contest, round_id)
-    return TemplateResponse(request, 'liveranking/autoDonuts.html',
-            ranking_variables)
+    return TemplateResponse(request, 'liveranking/autoDonuts.html', ranking_variables)
 
 
 @enforce_condition(contest_exists & can_see_livedata)
@@ -61,5 +58,4 @@ def liveranking_simpleDonuts_view(request, round_id=None):
         round_id = DEFAULT_ROUND
 
     ranking_variables = _ranking_settings(request.contest, round_id)
-    return TemplateResponse(request, 'liveranking/simpleDonuts.html',
-            ranking_variables)
+    return TemplateResponse(request, 'liveranking/simpleDonuts.html', ranking_variables)

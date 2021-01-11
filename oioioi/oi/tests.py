@@ -21,8 +21,12 @@ from oioioi.programs.tests import SubmitFileMixin
 
 
 class TestOIAdmin(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_oi_registration',
-                'test_permissions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_oi_registration',
+        'test_permissions',
+    ]
 
     def test_admin_menu(self):
         contest = Contest.objects.get()
@@ -30,15 +34,13 @@ class TestOIAdmin(TestCase):
         contest.save()
 
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertContains(response, 'Schools')
         self.assertNotContains(response, 'Regions')
 
     def test_schools_import(self):
-        filename = os.path.join(os.path.dirname(__file__), 'files',
-                                'schools.csv')
+        filename = os.path.join(os.path.dirname(__file__), 'files', 'schools.csv')
         manager = import_schools.Command()
         manager.run_from_argv(['manage.py', 'import_schools', filename])
         self.assertEqual(School.objects.count(), 3)
@@ -59,12 +61,10 @@ class TestOIAdmin(TestCase):
         # Logging as superuser.
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioiadmin:contests_contest_change',
-                      args=(quote('c'),))
+        url = reverse('oioioiadmin:contests_contest_change', args=(quote('c'),))
 
         response = self.client.get(url)
-        self.assertContains(response,
-                            'Text asking participant to accept contest terms')
+        self.assertContains(response, 'Text asking participant to accept contest terms')
 
         # Checks if the field is editable.
         self.assertContains(response, 'id_terms_accepted_phrase-0-text')
@@ -72,12 +72,10 @@ class TestOIAdmin(TestCase):
         # Logging as contest admin.
         self.assertTrue(self.client.login(username='test_contest_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioiadmin:contests_contest_change',
-                      args=(quote('c'),))
+        url = reverse('oioioiadmin:contests_contest_change', args=(quote('c'),))
 
         response = self.client.get(url)
-        self.assertContains(response,
-                            'Text asking participant to accept contest terms')
+        self.assertContains(response, 'Text asking participant to accept contest terms')
 
         # Checks if the field is editable.
         self.assertContains(response, 'id_terms_accepted_phrase-0-text')
@@ -89,33 +87,32 @@ class TestOIAdmin(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioiadmin:contests_contest_change',
-                      args=(quote('c'),))
+        url = reverse('oioioiadmin:contests_contest_change', args=(quote('c'),))
 
         response = self.client.get(url)
-        self.assertContains(response,
-                            'Text asking participant to accept contest terms')
+        self.assertContains(response, 'Text asking participant to accept contest terms')
 
         # Checks if the field is not editable.
         self.assertNotContains(response, 'id_terms_accepted_phrase-0-text')
 
 
-
 class TestOIRegistration(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_schools',
-                'test_terms_accepted_phrase']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_schools',
+        'test_terms_accepted_phrase',
+    ]
 
     def setUp(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
     def test_participants_accounts_menu(self):
         contest = Contest.objects.get()
 
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
@@ -134,8 +131,7 @@ class TestOIRegistration(TestCase):
     def test_participants_unregister_forbidden(self):
         contest = Contest.objects.get()
 
-        url = reverse('participants_unregister',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_unregister', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(url, {'post': 'yes'})
@@ -161,8 +157,7 @@ class TestOIRegistration(TestCase):
     def test_default_terms_accepted_phrase(self):
         TermsAcceptedPhrase.objects.get().delete()
         contest = Contest.objects.get()
-        url = reverse('participants_register',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
@@ -172,8 +167,7 @@ class TestOIRegistration(TestCase):
     def test_participants_registration(self):
         contest = Contest.objects.get()
         user = User.objects.get(username='test_user')
-        url = reverse('participants_register',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
@@ -211,8 +205,7 @@ class TestOIRegistration(TestCase):
     def test_registration_with_new_school(self):
         contest = Contest.objects.get()
         user = User.objects.get(username='test_user')
-        url = reverse('participants_register',
-            kwargs={'contest_id': contest.id})
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertContains(response, 'Postal code')
@@ -227,7 +220,7 @@ class TestOIRegistration(TestCase):
             'postal_code': '31-337',
             'school': '999',
             'terms_accepted': 't',
-            '_add_school': 'add it'
+            '_add_school': 'add it',
         }
 
         response = self.client.post(url, reg_data, follow=True)
@@ -258,14 +251,18 @@ class TestOIRegistration(TestCase):
 
 
 class TestOIViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_contest_visibility(self):
         contest = Contest(id='visible', name='Visible Contest')
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
         response = self.client.get(reverse('select_contest'))
@@ -278,16 +275,14 @@ class TestOIViews(TestCase):
 
     def test_contest_access(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        url = reverse('default_contest_view',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(url, follow=True)
@@ -306,8 +301,7 @@ class TestOIViews(TestCase):
 
     def test_ranking_access(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-            'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
         round = contest.round_set.get()
         user = User.objects.get(username='test_user')
@@ -331,8 +325,7 @@ class TestSchoolAdding(TestCase):
 
     def setUp(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
     def test_schools_similar_view(self):
@@ -368,13 +361,11 @@ class TestSchoolMerging(TestCase):
 
     def test_schools_merging_unsuccessfull(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
         user = User.objects.get(username='test_user')
-        url = reverse('participants_register',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
@@ -430,13 +421,16 @@ class TestSchoolMerging(TestCase):
 
 
 class TestOISubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def setUp(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
     def test_submit_permissions(self):
@@ -478,13 +472,16 @@ class TestOISubmit(TestCase, SubmitFileMixin):
 
 
 class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def setUp(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIOnsiteContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIOnsiteContestController'
         contest.save()
 
     def test_submit_permissions(self):
@@ -523,8 +520,14 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
 
 
 class TestIgnoringCE(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission', 'test_submissions_CE']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_submissions_CE',
+    ]
 
     def _test(self, controller_name):
         contest = Contest.objects.get()
@@ -554,18 +557,15 @@ class TestIgnoringCE(TestCase):
 
 
 class TestUserInfo(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_schools',
-                'test_permissions']
+    fixtures = ['test_users', 'test_contest', 'test_schools', 'test_permissions']
 
     def test_user_info_page(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.oi.controllers.OIContestController'
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
         user = User.objects.get(username='test_user')
-        url = reverse('participants_register',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
         self.client.get(url)
 
@@ -589,20 +589,23 @@ class TestUserInfo(TestCase):
 
         response = self.client.post(url, reg_data)
         self.assertEqual(302, response.status_code)
-        url = reverse('user_info', kwargs={'contest_id': contest.id,
-                                           'user_id': user.id})
+        url = reverse(
+            'user_info', kwargs={'contest_id': contest.id, 'user_id': user.id}
+        )
 
         reg_data['birthday_day'] = 'May 25, 1975'
-        to_delete = ['school', 'birthday_month', 'birthday_year',
-                     'terms_accepted']
+        to_delete = ['school', 'birthday_month', 'birthday_year', 'terms_accepted']
         for k in to_delete:
             del reg_data[k]
 
         for k in reg_data:
             reg_data[k] = ': ' + reg_data[k]
 
-        can_see_list = [('test_admin', True), ('test_observer', False),
-                   ('test_personal_data_user', True)]
+        can_see_list = [
+            ('test_admin', True),
+            ('test_observer', False),
+            ('test_personal_data_user', True),
+        ]
 
         for (username, can_see) in can_see_list:
             self.assertTrue(self.client.login(username=username))

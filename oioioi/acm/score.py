@@ -15,8 +15,8 @@ def format_time(seconds):
 class BinaryScore(ScoreValue):
     """Score representing binary grading: accepted or rejected.
 
-       Sum of binary scores is accepted only when every single score were
-       accepted.
+    Sum of binary scores is accepted only when every single score were
+    accepted.
     """
 
     symbol = 'bool'
@@ -61,14 +61,14 @@ class BinaryScore(ScoreValue):
 @total_ordering
 class ACMScore(ScoreValue):
     """ACM style score consisting of number of solved problems, total time
-       needed for solving problems and time penalty for each
-       unsuccessful submission.
+    needed for solving problems and time penalty for each
+    unsuccessful submission.
 
-       NOTE: When adding :class:`ACMScore`s only scores with positive
-       :attr:`problems_solved` are considered to avoid adding
-       :attr:`time_passed` or :attr:`penalties_count`
-       when :attr:`problems_solved` equals zero. That's because ACM ICPC rules
-       states that team doesn't obtain any penalty for nonsolved problems.
+    NOTE: When adding :class:`ACMScore`s only scores with positive
+    :attr:`problems_solved` are considered to avoid adding
+    :attr:`time_passed` or :attr:`penalties_count`
+    when :attr:`problems_solved` equals zero. That's because ACM ICPC rules
+    states that team doesn't obtain any penalty for nonsolved problems.
     """
 
     symbol = 'ACM'
@@ -98,14 +98,18 @@ class ACMScore(ScoreValue):
     def __eq__(self, other):
         if other is None:
             return False
-        return (self.problems_solved, -self.total_time) == \
-                (other.problems_solved, -other.total_time)
+        return (self.problems_solved, -self.total_time) == (
+            other.problems_solved,
+            -other.total_time,
+        )
 
     def __lt__(self, other):
         if other is None:
             return False
-        return (self.problems_solved, -self.total_time) < \
-                (other.problems_solved, -other.total_time)
+        return (self.problems_solved, -self.total_time) < (
+            other.problems_solved,
+            -other.total_time,
+        )
 
     def __hash__(self):
         return self.total_time
@@ -131,9 +135,11 @@ class ACMScore(ScoreValue):
             return '*(%d)' % (self.penalties_count,)
 
     def total_time_repr(self):
-        return '%d:%02d:%02d' % (self.total_time / 3600,
-                                (self.total_time % 3600) / 60,
-                                self.total_time % 60)
+        return '%d:%02d:%02d' % (
+            self.total_time / 3600,
+            (self.total_time % 3600) / 60,
+            self.total_time % 60,
+        )
 
     def time_passed_repr(self):
         return format_time(self.time_passed)
@@ -158,9 +164,13 @@ class ACMScore(ScoreValue):
 
            ``penalties_count`` is number of unsuccessful submissions.
         """
-        ordering = 10**10 * (self.problems_solved + 1) - self.total_time
-        return '%020d:%010d:%010d:%010d' % (ordering,
-                self.problems_solved, self.time_passed, self.penalties_count)
+        ordering = 10 ** 10 * (self.problems_solved + 1) - self.total_time
+        return '%020d:%010d:%010d:%010d' % (
+            ordering,
+            self.problems_solved,
+            self.time_passed,
+            self.penalties_count,
+        )
 
     @property
     def total_time(self):

@@ -1,17 +1,23 @@
+import nested_admin
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-import nested_admin
+
+import oioioi.contests.admin
+from oioioi.base.admin import NO_CATEGORY
+from oioioi.contests.current_contest import reverse
+from oioioi.quizzes.models import (
+    Quiz,
+    QuizAnswer,
+    QuizAnswerPicture,
+    QuizQuestion,
+    QuizQuestionPicture,
+)
+
 # If there was a need to get rid of nested_admin, you can create dummy inlines,
 # that add links to ModelAdmin with nested inlines on another page,
 # see how QuizInline works.
-
-from oioioi.base.admin import NO_CATEGORY
-from oioioi.quizzes.models import QuizQuestionPicture, QuizAnswerPicture, \
-    QuizQuestion, QuizAnswer, Quiz
-import oioioi.contests.admin
-from oioioi.contests.current_contest import reverse
 
 
 class QuizAnswerFormset(nested_admin.formsets.NestedInlineFormSet):
@@ -84,9 +90,7 @@ class QuizModelAdmin(nested_admin.NestedModelAdmin):
     inlines = [QuizQuestionInline]
 
     class Media(object):
-        css = {
-            'all': ('quizzes/quizadmin.css',)
-        }
+        css = {'all': ('quizzes/quizadmin.css',)}
 
     def __init__(self, parent_model, admin_site):
         super(QuizModelAdmin, self).__init__(parent_model, admin_site)
@@ -123,8 +127,9 @@ class QuizInline(admin.StackedInline):
 
     def edit(self, instance):
         url = reverse('oioioiadmin:quizzes_quiz_change', args=[instance.pk])
-        return mark_safe(u'<a href="{url}">{text}</a>'.
-                         format(url=url, text=_("Edit quiz questions")))
+        return mark_safe(
+            u'<a href="{url}">{text}</a>'.format(url=url, text=_("Edit quiz questions"))
+        )
 
     def __init__(self, parent_model, admin_site):
         super(QuizInline, self).__init__(parent_model, admin_site)
@@ -132,8 +137,7 @@ class QuizInline(admin.StackedInline):
 
 
 class QuizAdminMixin(object):
-    """Adds :class:`~oioioi.quizzes.models.Quiz` to an admin panel.
-    """
+    """Adds :class:`~oioioi.quizzes.models.Quiz` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
         super(QuizAdminMixin, self).__init__(*args, **kwargs)

@@ -38,6 +38,7 @@ def site_displayed_tag(context):
         del request.session['first_view_after_logging']
     return ''
 
+
 # https://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates
 @register.simple_tag
 def call_method_with_arguments(obj, method_name, *args):

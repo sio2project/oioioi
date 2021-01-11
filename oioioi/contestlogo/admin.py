@@ -15,20 +15,23 @@ class ContestLogoInline(admin.TabularInline):
 
     def logo_link(self, instance):
         if instance.id is not None:
-            href = reverse('logo_image_view',
-                    kwargs={'contest_id': str(instance.contest.id)})
+            href = reverse(
+                'logo_image_view', kwargs={'contest_id': str(instance.contest.id)}
+            )
             return make_html_link(href, instance.filename)
         return None
+
     logo_link.short_description = _("Filename")
 
 
 class ContestLogoAdminMixin(object):
-    """Adds :class:`~oioioi.contestlogo.models.ContestLogo` to an admin panel.
-    """
+    """Adds :class:`~oioioi.contestlogo.models.ContestLogo` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
         super(ContestLogoAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ContestLogoInline]
+
+
 ContestAdmin.mix_in(ContestLogoAdminMixin)
 
 
@@ -41,19 +44,25 @@ class ContestIconInline(admin.TabularInline):
 
     def icon_link(self, instance):
         if instance.id is not None:
-            href = reverse('icon_image_view',
-                    kwargs={'icon_id': str(instance.id),
-                            'contest_id': str(instance.contest.id)})
+            href = reverse(
+                'icon_image_view',
+                kwargs={
+                    'icon_id': str(instance.id),
+                    'contest_id': str(instance.contest.id),
+                },
+            )
             return make_html_link(href, instance.filename)
         return None
+
     icon_link.short_description = _("Filename")
 
 
 class ContestIconAdminMixin(object):
-    """Adds :class:`~oioioi.contestlogo.models.ContestIcon` to an admin panel.
-    """
+    """Adds :class:`~oioioi.contestlogo.models.ContestIcon` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
         super(ContestIconAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ContestIconInline]
+
+
 ContestAdmin.mix_in(ContestIconAdminMixin)

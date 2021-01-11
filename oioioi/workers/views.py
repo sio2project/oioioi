@@ -1,19 +1,18 @@
 import json
 from operator import itemgetter  # pylint: disable=E0611
 
+import six.moves.xmlrpc_client
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
-import six.moves.xmlrpc_client
 from six.moves import map
 
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.permissions import enforce_condition, is_superuser
 
-server = six.moves.xmlrpc_client.ServerProxy(settings.SIOWORKERSD_URL,
-        allow_none=True)
+server = six.moves.xmlrpc_client.ServerProxy(settings.SIOWORKERSD_URL, allow_none=True)
 
 
 def get_info_about_workers():
@@ -38,12 +37,13 @@ def show_info_about_workers(request):
     if request.method == 'POST':
         if request.POST.get('delete'):
             readonly = True
-            announce = _("""You are about to delete the selected workers.
-                Please confirm""")
+            announce = _(
+                """You are about to delete the selected workers.
+                Please confirm"""
+            )
             delete = True
         if request.POST.get('confirm'):
-            selected = [x for x in get_all_names() if
-                request.POST.get("work-%s" % x)]
+            selected = [x for x in get_all_names() if request.POST.get("work-%s" % x)]
             del_worker(selected)
             announce = _("Successfully deleted selected workers")
     workers_info = get_info_about_workers()
@@ -59,10 +59,13 @@ def show_info_about_workers(request):
             'select': select,
         }
         return result
+
     workers_info = list(map(transform_dict, workers_info))
 
-    if not any(map(itemgetter('can_run_cpu_exec'), workers_info)) and \
-            not settings.USE_UNSAFE_EXEC:
+    if (
+        not any(map(itemgetter('can_run_cpu_exec'), workers_info))
+        and not settings.USE_UNSAFE_EXEC
+    ):
         warning = _("There aren't any workers allowed to run cpu-exec jobs.")
 
     context = {
@@ -90,7 +93,9 @@ def get_load_json(request):
     return JsonResponse({'capacity': capacity, 'load': load})
 
 
-system_admin_menu_registry.register('workers_management_admin',
-        _("Manage workers"), lambda request:
-        reverse('show_workers'),
-        order=100)
+system_admin_menu_registry.register(
+    'workers_management_admin',
+    _("Manage workers"),
+    lambda request: reverse('show_workers'),
+    order=100,
+)

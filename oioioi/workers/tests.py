@@ -6,11 +6,14 @@ from oioioi.workers import views
 
 class TestServer(object):
     def get_workers(self):
-        return [{'name': 'Komp4',
-            'info': {'concurrency': 2,
-                     'can_run_cpu_exec': True},
-            'tasks': [],
-            'is_running_cpu_exec': False}]
+        return [
+            {
+                'name': 'Komp4',
+                'info': {'concurrency': 2, 'can_run_cpu_exec': True},
+                'tasks': [],
+                'is_running_cpu_exec': False,
+            }
+        ]
 
 
 class TestWorkersInfo(TestCase):

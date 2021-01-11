@@ -12,13 +12,10 @@ class Command(BaseCommand):
     help = _("Adds the problem from the given package to the database.")
 
     def add_arguments(self, parser):
-        parser.add_argument('filename',
-                            type=str)
-        parser.add_argument('no_throw',
-                            type=str,
-                            nargs='?',
-                            default='',
-                            choices=['', 'nothrow'])
+        parser.add_argument('filename', type=str)
+        parser.add_argument(
+            'no_throw', type=str, nargs='?', default='', choices=['', 'nothrow']
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -35,8 +32,7 @@ class Command(BaseCommand):
         if not os.path.exists(filename):
             raise CommandError(_("File not found: ") + filename)
         try:
-            backend = \
-                    import_string(backend_for_package(filename))()
+            backend = import_string(backend_for_package(filename))()
         except NoBackend:
             raise CommandError(_("Package format not recognized"))
 

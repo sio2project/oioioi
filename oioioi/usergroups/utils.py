@@ -6,8 +6,7 @@ from oioioi.usergroups.models import UserGroup
 
 # If the requested usergroup does not exist then we return false.
 def is_usergroup_owner(user, usergroup_id):
-    return UserGroup.objects.filter(id=usergroup_id).\
-        filter(owners__in=[user]).exists()
+    return UserGroup.objects.filter(id=usergroup_id).filter(owners__in=[user]).exists()
 
 
 def is_usergroup_attached(contest, usergroup):
@@ -32,8 +31,9 @@ def filter_usergroup_exclusive_members(contest, usergroup, queryset=None):
     else:
         group_users = queryset.filter(usergroups__id=usergroup.id)
     other_groups = contest.usergroups.exclude(id=usergroup.id)
-    return group_users.exclude(usergroups__in=other_groups)\
-        .exclude(participant__contest__id=contest.id)
+    return group_users.exclude(usergroups__in=other_groups).exclude(
+        participant__contest__id=contest.id
+    )
 
 
 def add_usergroup_to_members(contest, usergroup, only_exclusive=True):
@@ -42,7 +42,8 @@ def add_usergroup_to_members(contest, usergroup, only_exclusive=True):
         users = filter_usergroup_exclusive_members(contest, usergroup, users)
     users = users.exclude(participant__contest__id=contest.id)
     Participant.objects.bulk_create(
-        [Participant(contest=contest, user=u) for u in users])
+        [Participant(contest=contest, user=u) for u in users]
+    )
 
 
 def move_members_to_usergroup(contest, usergroup):

@@ -20,7 +20,10 @@ class TeacherAuthBackend(object):
         if perm == 'teachers.teacher':
             raise ValueError("teachers.teacher is not a per-object permission")
         if perm == 'contests.contest_admin' and obj_class is Contest:
-            return Q(contestteacher__teacher__user=user, contestteacher__teacher__is_active=True)
+            return Q(
+                contestteacher__teacher__user=user,
+                contestteacher__teacher__is_active=True,
+            )
         return Q(pk__isnull=True)  # (False)
 
     def has_perm(self, user_obj, perm, obj=None):
@@ -29,11 +32,14 @@ class TeacherAuthBackend(object):
         if perm == 'teachers.teacher':
             if not hasattr(user_obj, '_is_teacher'):
                 user_obj._is_teacher = Teacher.objects.filter(
-                    user=user_obj, is_active=True).exists()
+                    user=user_obj, is_active=True
+                ).exists()
             return user_obj._is_teacher
         if perm == 'contests.contest_admin' and isinstance(obj, Contest):
             if not hasattr(user_obj, '_teacher_perms_cache'):
-                user_obj._teacher_perms_cache = set(ContestTeacher.objects
-                    .filter(teacher__user=user_obj, teacher__is_active=True)
-                    .values_list('contest', flat=True))
+                user_obj._teacher_perms_cache = set(
+                    ContestTeacher.objects.filter(
+                        teacher__user=user_obj, teacher__is_active=True
+                    ).values_list('contest', flat=True)
+                )
             return obj.id in user_obj._teacher_perms_cache

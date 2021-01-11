@@ -1,16 +1,16 @@
 import django
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.main_page import register_main_page_view
-from oioioi.szkopul.menu import navbar_links_registry
-from oioioi.contests.utils import visible_contests
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
 from oioioi.contests.processors import recent_contests
+from oioioi.contests.utils import visible_contests
 from oioioi.problems.utils import filter_my_all_visible_submissions
+from oioioi.szkopul.menu import navbar_links_registry
 
 navbar_links_registry.register(
     name='contests_list',
@@ -40,6 +40,7 @@ navbar_links_registry.register(
 #     ...
 # )
 
+
 @register_main_page_view(order=100)
 def main_page_view(request):
     navbar_links = navbar_links_registry.template_context(request)
@@ -53,9 +54,7 @@ def main_page_view(request):
     submissions = []
     show_scores = False
     if request.user.is_authenticated:
-        queryset = Submission.objects \
-            .filter(user=request.user) \
-            .order_by('-date')
+        queryset = Submission.objects.filter(user=request.user).order_by('-date')
 
         # current_contest = request.contest
         #
@@ -70,12 +69,13 @@ def main_page_view(request):
         # limit queryset size, because filtering all submissions is slow
         queryset = queryset[:to_show]
         limit_queryset_ids = [submission.id for submission in queryset]
-        queryset = Submission.objects \
-            .filter(id__in=limit_queryset_ids) \
-            .select_related('user', 'problem_instance',
-                            'problem_instance__contest',
-                            'problem_instance__round',
-                            'problem_instance__problem')
+        queryset = Submission.objects.filter(id__in=limit_queryset_ids).select_related(
+            'user',
+            'problem_instance',
+            'problem_instance__contest',
+            'problem_instance__round',
+            'problem_instance__problem',
+        )
 
         submissions_list = filter_my_all_visible_submissions(request, queryset)
 
@@ -84,7 +84,9 @@ def main_page_view(request):
         else:
             submissions_list.sort(reverse=True, key=lambda s: s.date)
 
-        submissions = [submission_template_context(request, s) for s in submissions_list]
+        submissions = [
+            submission_template_context(request, s) for s in submissions_list
+        ]
 
         show_scores = any(s['can_see_score'] for s in submissions)
 

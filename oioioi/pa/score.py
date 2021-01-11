@@ -17,8 +17,7 @@ class ScoreDistribution(object):
             self.scores = [0] * 10
 
     def __add__(self, other):
-        return ScoreDistribution([a + b for (a, b) in zip(self.scores,
-                other.scores)])
+        return ScoreDistribution([a + b for (a, b) in zip(self.scores, other.scores)])
 
     def __eq__(self, other):
         return self.scores == other.scores
@@ -32,9 +31,9 @@ class ScoreDistribution(object):
             self.scores[10 - score] += 1
 
     def __repr__(self):
-        return 'ScoreDistribution(%s)' % \
-                ', '.join(['%d: %d' % p for p in
-                    zip(reversed(list(range(1, 11))), self.scores)])
+        return 'ScoreDistribution(%s)' % ', '.join(
+            ['%d: %d' % p for p in zip(reversed(list(range(1, 11))), self.scores)]
+        )
 
     def _to_repr(self):
         return ':'.join(['%05d' % p for p in self.scores])
@@ -48,12 +47,12 @@ class ScoreDistribution(object):
 class PAScore(ScoreValue):
     """PA style score.
 
-       It consists of a number of points scored, together with their
-       distribution.
-       When two users get the same number of points, then the number of tasks
-       for which they got 10pts (maximal score) is taken into consideration.
-       If this still does not break the tie, number of 9 point scores is
-       considered, then 8 point scores etc.
+    It consists of a number of points scored, together with their
+    distribution.
+    When two users get the same number of points, then the number of tasks
+    for which they got 10pts (maximal score) is taken into consideration.
+    If this still does not break the tie, number of 9 point scores is
+    considered, then 8 point scores etc.
     """
 
     symbol = 'PA'
@@ -72,20 +71,19 @@ class PAScore(ScoreValue):
             self.distribution.update(self.points.value)
 
     def __add__(self, other):
-        return PAScore(self.points + other.points,
-                self.distribution + other.distribution)
+        return PAScore(
+            self.points + other.points, self.distribution + other.distribution
+        )
 
     def __eq__(self, other):
         if not isinstance(other, PAScore):
             return self.points == other
-        return (self.points, self.distribution) == \
-                (other.points, other.distribution)
+        return (self.points, self.distribution) == (other.points, other.distribution)
 
     def __lt__(self, other):
         if not isinstance(other, PAScore):
             return self.points < other
-        return (self.points, self.distribution) < \
-                (other.points, other.distribution)
+        return (self.points, self.distribution) < (other.points, other.distribution)
 
     def __unicode__(self):
         return six.text_type(self.points)
@@ -96,8 +94,10 @@ class PAScore(ScoreValue):
     @classmethod
     def _from_repr(cls, value):
         points, distribution = value.split(';')
-        return cls(points=IntegerScore._from_repr(points),
-                distribution=ScoreDistribution._from_repr(distribution))
+        return cls(
+            points=IntegerScore._from_repr(points),
+            distribution=ScoreDistribution._from_repr(distribution),
+        )
 
     def _to_repr(self):
         return '%s;%s' % (self.points._to_repr(), self.distribution._to_repr())

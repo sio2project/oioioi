@@ -29,8 +29,7 @@ def from_csv_metadata(metadata):
         data = metadata.split(',')
         test, group, max_score = [f.strip() for f in data]
     except Exception:
-        test, group, max_score = \
-            ('unknown-%d' % random.randint(1, 100000)), '', '1'
+        test, group, max_score = ('unknown-%d' % random.randint(1, 100000)), '', '1'
     if group == '':
         group = test
     return {
@@ -44,25 +43,26 @@ def from_csv_metadata(metadata):
 @transaction.atomic
 @_get_submission_or_skip(submission_class=ProgramSubmission)
 def submit_job(env, submission, kind):
-    """Recipe handler that sends the job to Zeus.
-    """
+    """Recipe handler that sends the job to Zeus."""
     with submission.source_file as f:
         source_code = f.read()
-    return evalmgr_transfer_job(env,
-            'oioioi.zeus.handlers.transfer_job',
-            'oioioi.zeus.handlers.restore_job',
-            transfer_kwargs={'kind': kind, 'source_code': source_code})
+    return evalmgr_transfer_job(
+        env,
+        'oioioi.zeus.handlers.transfer_job',
+        'oioioi.zeus.handlers.restore_job',
+        transfer_kwargs={'kind': kind, 'source_code': source_code},
+    )
 
 
 def transfer_job(env, kind, source_code):
-    """"Sends the job to Zeus for given ``kind``.
+    """ "Sends the job to Zeus for given ``kind``.
 
-        Used ``env`` keys:
-          * ``submission_id``
-          * ``language``
-          * ``saved_environ_id``
-          * ``zeus_problem_id``
-          * ``zeus_id``
+    Used ``env`` keys:
+      * ``submission_id``
+      * ``language``
+      * ``saved_environ_id``
+      * ``zeus_problem_id``
+      * ``zeus_id``
     """
     # Env is already saved in evalmgr, use saved_environ_id to
     # identify results.
@@ -73,16 +73,18 @@ def transfer_job(env, kind, source_code):
         'zeus_push_grade_callback',
         kwargs={
             'saved_environ_id': saved_environ_id,
-            'signature': zeus_url_signature(saved_environ_id)
-        }
+            'signature': zeus_url_signature(saved_environ_id),
+        },
     )
 
-    zeus.send_regular(kind=kind,
-            return_url=return_url,
-            source_code=source_code,
-            zeus_problem_id=env['zeus_problem_id'],
-            language=env['language'],
-            submission_id=['submission_id'])
+    zeus.send_regular(
+        kind=kind,
+        return_url=return_url,
+        source_code=source_code,
+        zeus_problem_id=env['zeus_problem_id'],
+        language=env['language'],
+        submission_id=['submission_id'],
+    )
 
 
 def restore_job(env, results_env):
@@ -101,66 +103,67 @@ MAP_VERDICT_TO_STATUS = {
     "Output limit exceeded": "OLE",
     "Messages size limit exceeded": "MSE",
     "Messages count limit exceeded": "MCE",
-    "Compilation error": "CE"
+    "Compilation error": "CE",
 }
 
 
 def import_results(env, **kwargs):
     """Imports the results returned by Zeus.
 
-       The ``env['zeus_metadata_decoder']``, which is used by this ``Handler``,
-       should be a path to a function which gets Zeus metadata for test
-       (e.g.  a ``env['zeus_results'][0]['metadata']`` string) and returns
-       a dictionary which will be a base for ``test`` information
-       (at least containing keys ``name``, ``group`` and ``max_score``
-       defined as below).
+    The ``env['zeus_metadata_decoder']``, which is used by this ``Handler``,
+    should be a path to a function which gets Zeus metadata for test
+    (e.g.  a ``env['zeus_results'][0]['metadata']`` string) and returns
+    a dictionary which will be a base for ``test`` information
+    (at least containing keys ``name``, ``group`` and ``max_score``
+    defined as below).
 
-       Used ``environ`` keys:
-         * ``zeus_results`` - retrieved from Zeus callback
+    Used ``environ`` keys:
+      * ``zeus_results`` - retrieved from Zeus callback
 
-         * ``compilation_result`` - may be OK if the file compiled
-                                    successfully or CE otherwise.
+      * ``compilation_result`` - may be OK if the file compiled
+                                 successfully or CE otherwise.
 
-       Produced ``environ`` keys:
+    Produced ``environ`` keys:
 
-          * ``tests`` - a dictionary mapping test names into
-            dictionaries with following keys:
+       * ``tests`` - a dictionary mapping test names into
+         dictionaries with following keys:
 
-            ``name``
-              test name
-            ``kind``
-              kind of the test (EXAMPLE, NORMAL)
-            ``group``
-              group the test belongs to
-            ``max_score``
-              maximum score the user can get for this test
-            ``exec_time_limit``
-              time limit for the test (in ms)
-            ``exec_memory_limit``
-              memory limit for the test (in KiB)
-            ``zeus_metadata``
-              raw metadata for the test as returned by Zeus
+         ``name``
+           test name
+         ``kind``
+           kind of the test (EXAMPLE, NORMAL)
+         ``group``
+           group the test belongs to
+         ``max_score``
+           maximum score the user can get for this test
+         ``exec_time_limit``
+           time limit for the test (in ms)
+         ``exec_memory_limit``
+           memory limit for the test (in KiB)
+         ``zeus_metadata``
+           raw metadata for the test as returned by Zeus
 
-          * ``test_results`` - a dictionary, mapping test names into
-            dictionaries with the following keys:
+       * ``test_results`` - a dictionary, mapping test names into
+         dictionaries with the following keys:
 
-              ``result_code``
-                test status: OK, WA, RE, ...
-              ``result_string``
-                detailed supervisor information (for example, where the
-                required and returned outputs differ)
-              ``time_used``
-                total time used, in milliseconds
-              ``zeus_test_result``
-                raw result returned by Zeus
+           ``result_code``
+             test status: OK, WA, RE, ...
+           ``result_string``
+             detailed supervisor information (for example, where the
+             required and returned outputs differ)
+           ``time_used``
+             total time used, in milliseconds
+           ``zeus_test_result``
+             raw result returned by Zeus
     """
     zeus_results = env['zeus_results']
 
     if env['compilation_result'] != 'OK':
         return env
 
-    decoder = import_string(env.get('zeus_metadata_decoder')
-            or DEFAULT_METADATA_DECODER)
+    decoder = import_string(
+        env.get('zeus_metadata_decoder') or DEFAULT_METADATA_DECODER
+    )
 
     tests = env.setdefault('tests', {})
     test_results = env.setdefault('test_results', {})
@@ -178,14 +181,16 @@ def import_results(env, **kwargs):
         else:
             kind = 'NORMAL'
 
-        test.update({
-            'zeus_metadata': result['metadata'],
-            'kind': kind,
-            'exec_time_limit': result['time_limit_ms'],
-            'exec_memory_limit': result['memory_limit_byte'] / 1024,
-            'nodes': result.get('nof_nodes'),
-            'to_judge': True,
-        })
+        test.update(
+            {
+                'zeus_metadata': result['metadata'],
+                'kind': kind,
+                'exec_time_limit': result['time_limit_ms'],
+                'exec_memory_limit': result['memory_limit_byte'] / 1024,
+                'nodes': result.get('nof_nodes'),
+                'to_judge': True,
+            }
+        )
         tests[test['name']] = test
 
         test_result = {
@@ -198,8 +203,9 @@ def import_results(env, **kwargs):
 
         # Fix/hack? for missing time_limit
         if test_result['time_used'] is None or test_result['time_used'] == '':
-            test_result['time_used'] = test['exec_time_limit'] \
-                    if test_result['result_code'] == 'TLE' else 0
+            test_result['time_used'] = (
+                test['exec_time_limit'] if test_result['result_code'] == 'TLE' else 0
+            )
 
         test_results[test['name']] = test_result
 
@@ -210,29 +216,34 @@ def import_results(env, **kwargs):
 @transaction.atomic
 def update_problem_tests_set(env, kind, **kwargs):
     """Creates or updates problem :class:`oioioi.programs.models.Test` objects
-       basing on ``env['tests']`` dict.
+    basing on ``env['tests']`` dict.
 
-       Sends email to all admins when tests set differ.
+    Sends email to all admins when tests set differ.
 
-       Considers only tests with given ``kind``.
+    Considers only tests with given ``kind``.
 
-       Used ``environ`` keys:
-           * ``problem_id``
-           * ``tests``
-           * ``zeus_problem_id``
-           * ``zeus_id``
+    Used ``environ`` keys:
+        * ``problem_id``
+        * ``tests``
+        * ``zeus_problem_id``
+        * ``zeus_id``
     """
 
     if env['compilation_result'] != 'OK':
         return
 
-    data = ZeusProblemData.objects.get(problem_id=env['problem_id'],
-                                       zeus_id=env['zeus_id'],
-                                       zeus_problem_id=env['zeus_problem_id'])
+    data = ZeusProblemData.objects.get(
+        problem_id=env['problem_id'],
+        zeus_id=env['zeus_id'],
+        zeus_problem_id=env['zeus_problem_id'],
+    )
     problem = data.problem
 
-    env_tests = {key: value for key, value in six.iteritems(env['tests'])
-                 if value['kind'] == kind}
+    env_tests = {
+        key: value
+        for key, value in six.iteritems(env['tests'])
+        if value['kind'] == kind
+    }
     test_names = list(env_tests.keys())
 
     new_tests = []
@@ -245,7 +256,8 @@ def update_problem_tests_set(env, kind, **kwargs):
         updated = False
         test = env_tests[name]
         instance, created = Test.objects.select_for_update().get_or_create(
-            problem_instance=problem.main_problem_instance, name=name)
+            problem_instance=problem.main_problem_instance, name=name
+        )
         env['tests'][name]['id'] = instance.id
         old_dict = model_to_dict(instance, exclude=exclude)
 
@@ -277,8 +289,8 @@ def update_problem_tests_set(env, kind, **kwargs):
 
     # Delete nonexistent tests
     for test in Test.objects.filter(
-            problem_instance=problem.main_problem_instance, kind=kind) \
-            .exclude(name__in=test_names):
+        problem_instance=problem.main_problem_instance, kind=kind
+    ).exclude(name__in=test_names):
         deleted_tests.append((test.name, model_to_dict(test, exclude=exclude)))
         tests_set_changed = True
         test.delete()
@@ -291,22 +303,22 @@ def update_problem_tests_set(env, kind, **kwargs):
         # we have no information about them.
         logger.info("%s: %s tests set changed", problem.short_name, kind)
 
-        title = "Zeus problem %s: %s tests set changed" \
-                % (problem.short_name, kind)
-        content = ["%s tests set for zeus problem %s has changed:"
-                   % (kind, problem.short_name)]
+        title = "Zeus problem %s: %s tests set changed" % (problem.short_name, kind)
+        content = [
+            "%s tests set for zeus problem %s has changed:" % (kind, problem.short_name)
+        ]
         for name, old_dict in new_tests:
             content.append("    + added test %s: %s" % (name, old_dict))
         for name, old_dict in deleted_tests:
             content.append("    - deleted test %s: %s" % (name, old_dict))
         for name, old_dict, new_dict in updated_tests:
-            content.append("    * changed test %s: %s -> %s" %
-                           (name, old_dict, new_dict))
+            content.append(
+                "    * changed test %s: %s -> %s" % (name, old_dict, new_dict)
+            )
         try:
             mail_admins(title, '\n'.join(content))
         except (socket.error, SMTPException):
-            logger.error("An error occurred while sending email.\n%s",
-                         exc_info=True)
+            logger.error("An error occurred while sending email.\n%s", exc_info=True)
         logger.debug('Sent mail: ' + '\n'.join(content))
 
     return env
