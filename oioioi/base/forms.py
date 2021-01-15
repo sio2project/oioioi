@@ -176,7 +176,6 @@ class OioioiUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(OioioiUserCreationForm, self).__init__(*args, **kwargs)
         adjust_username_field(self)
-        adjust_name_fields(self)
 
 
 class OioioiUserChangeForm(UserChangeForm):
