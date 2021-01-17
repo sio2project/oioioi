@@ -55,14 +55,33 @@ as described `in Docker docs`_.
 Docker (for development)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-First prepare the image with::
+Make sure you installed docker properly. The easiest way to do this::
+
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
+
+Start docker service::
+
+    sudo systemctl start docker
+
+Then add yourself to group docker -- to create a group use::
+
+    sudo groupadd docker
+    gpasswd -a $USER docker
+    newgrp docker
+
+It is possible that you will need to log out and log in. Type docker ps into your terminal to check if everything was installed properly.
+If you skip the step above, you will either have to use sudo every time you use docker or use docker above 19.03 version with
+experimental features enabled.
+
+Prepare the image with::
 
     OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml build
 
 Then you can start oioioi with::
 
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml up
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web python manage.py runserver
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml up -d
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web python manage.py runserver 0.0.0.0:8000
 
 to start the infrastructure in the development mode. Current dirrectory with the source code will be bound to /sio2/oioioi/ inside the running container.
 
@@ -75,6 +94,15 @@ Additionally you can bind config files and logs folder to the host::
     docker rm -v $id  #Remove unneeded container
 
 Remember to also uncomment the appropriate volume binding in the web service description in the docker-compose-dev.yml.
+
+Running tests on Docker
+~~~~~~~~~~~~~~~~~~~~~~~
+
+For testing purposes we use test.sh script located in oioioi directory. Note it's not the same directory
+you are connected to after using docker exec -it “container-id” /bin/bash.
+
+    {dockercompose} exec "container-id" ../oioioi/test.sh
+    {dockercompose} exec "container-id" ../oioioi/test.sh oioioi/{name_of_the_app}/
 
 Manual installation
 ~~~~~~~~~~~~~~~~~~~
