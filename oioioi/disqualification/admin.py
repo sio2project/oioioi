@@ -1,3 +1,5 @@
+from django.db import models
+from django.forms import Textarea
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.encoding import force_text
@@ -5,11 +7,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import contest_site
+from oioioi.contests.admin import contest_site, ContestAdmin
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import is_contest_admin
-from oioioi.disqualification.models import Disqualification
+from oioioi.disqualification.models import Disqualification, DisqualificationsConfig
 
 
 class DisqualificationAdmin(admin.ModelAdmin):
@@ -107,3 +109,32 @@ contest_admin_menu_registry.register(
     is_contest_admin,
     order=100,
 )
+
+
+class DisqualificationsConfigInline(admin.TabularInline):
+    model = DisqualificationsConfig
+    category = _("Advanced")
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 2})},
+    }
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+
+class DisqualificationsAdminMixin(object):
+    """Adds :class:`~oioioi.disqualification.models.DisqualificationsConfigInline`
+    to an admin panel."""
+
+    def __init__(self, *args, **kwargs):
+        super(DisqualificationsAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [DisqualificationsConfigInline]
+
+
+ContestAdmin.mix_in(DisqualificationsAdminMixin)

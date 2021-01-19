@@ -70,6 +70,7 @@ def make_empty_contest_formset():
         ('statistics_config', 1, 0, 0, 1),
         ('exclusivenessconfig_set', 0, 0, 0, 1000),
         ('complaints_config', 1, 0, 0, 1),
+        ('disqualifications_config', 1, 0, 0, 1),
         ('contesticon_set', 0, 0, 0, 1000),
         ('contestlogo', 1, 0, 0, 1),
         ('programs_config', 1, 0, 0, 1),

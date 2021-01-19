@@ -43,3 +43,19 @@ class Disqualification(models.Model):
             assert self.user.id == self.submission.user_id
 
         super(Disqualification, self).save(*args, **kwargs)
+
+
+class DisqualificationsConfig(models.Model):
+    contest = models.OneToOneField(
+        Contest, related_name='disqualifications_config', on_delete=models.CASCADE
+    )
+
+    info = models.TextField(
+        verbose_name=_(
+            "information displayed on dashboard for every disqualified participant"
+        )
+    )
+
+    class Meta(object):
+        verbose_name = _("diqualifications configuration")
+        verbose_name_plural = _("disqualifications configurations")

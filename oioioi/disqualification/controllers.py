@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
-from oioioi.disqualification.models import Disqualification
+from oioioi.disqualification.models import Disqualification, DisqualificationsConfig
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController
 
@@ -107,6 +107,12 @@ class DisqualificationContestControllerMixin(object):
             },
         )
 
+    def _get_contest_disq_info(self):
+        try:
+            return DisqualificationsConfig.objects.get(contest=self.contest).info
+        except DisqualificationsConfig.DoesNotExist:
+            return None
+
     def render_submission_disqualifiaction(self, request, submission):
         """Renders the disqualification reason of the given submission to HTML."""
         reason = self._render_disqualification_reason(request, submission)
@@ -123,6 +129,7 @@ class DisqualificationContestControllerMixin(object):
                     request, submission.programsubmission
                 ),
                 'reason': reason,
+                'contest_disq_info': self._get_contest_disq_info(),
             },
         )
 
@@ -200,6 +207,7 @@ class DisqualificationContestControllerMixin(object):
             context={
                 'submissions': disqualified_submissions,
                 'contestwide': contestwide,
+                'contest_disq_info': self._get_contest_disq_info(),
             },
         )
 
