@@ -8,6 +8,8 @@
         href="#{{id}}">
         {{ value.full_value }}
     </a>
+    <span class="glyphicon glyphicon-link link-getter" data-link="#{{id}}" aria-hidden="true"
+          data-toggle="tooltip" data-placement="right" title="Copy link to clipboard!"></span>
     {% endif %}
         {% if parent_id == "problemgroups" and problems.attempted %}
         <span class="percentage-info" >
