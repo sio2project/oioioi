@@ -170,7 +170,9 @@ class TagSelectionWidget(forms.Widget):
 
     def render(self, name, value, attrs=None, renderer=None):
         # check if this is the default renderer
-        if renderer is not None and not type(renderer, forms.renderers.DjangoTemplates):
+        if renderer is not None and not isinstance(
+            renderer, forms.renderers.DjangoTemplates
+        ):
             raise AssertionError
         # Value can either be an integer (Tag's id) or a string (Tag's name)
         if value is None:
