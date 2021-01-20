@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.contests.utils import is_contest_admin
-from oioioi.forum.models import Ban, Category, Post, Thread
+from oioioi.forum.models import Ban, Category, Post, PostReaction, Thread
 
 
 @make_request_condition
@@ -159,3 +159,27 @@ def move_category(category_id, direction):
 
     swap_categories_order(category, swap_with, categories)
     return True
+
+
+def annotate_posts_with_current_user_reactions(request, qs):
+    if request.user.is_anonymous:
+        qs = qs.annotate(user_upvoted=models.Value(False, models.BooleanField()))
+        qs = qs.annotate(user_downvoted=models.Value(False, models.BooleanField()))
+    else:
+        for f_name, rtype in [
+            ('user_upvoted', 'UPVOTE'),
+            ('user_downvoted', 'DOWNVOTE'),
+        ]:
+            qs = qs.annotate(
+                **{
+                    f_name: models.Exists(
+                        PostReaction.objects.filter(
+                            author=request.user,
+                            type_of_reaction=rtype,
+                            post=models.OuterRef('pk'),
+                        )
+                    )
+                }
+            )
+
+    return qs

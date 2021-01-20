@@ -168,9 +168,13 @@ class DottedNameField(models.CharField):
 
 
 class EnumRegistry(object):
-    def __init__(self, max_length=64):
+    def __init__(self, max_length=64, entries=None):
         self.entries = []
         self.max_length = max_length
+
+        if entries:
+            for value, description in entries:
+                self.register(value, description)
 
     def __iter__(self):
         return self.entries.__iter__()

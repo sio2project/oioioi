@@ -58,6 +58,13 @@
                             <td>{{ c.count_posts }}</td>
                             {% if is_admin %}
                                 <td>
+                                    <a href="#" data-post-url="{% url 'forum_category_toggle_reactions' contest_id=contest.id category_id=c.id %}">
+                                        {% if c.reactions_enabled %}
+                                            {% trans "Disable post reactions" %}
+                                        {% else %}
+                                            {% trans "Enable post reactions" %}
+                                        {% endif %}
+                                    </a>
                                     <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.id %}">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>

@@ -8,8 +8,34 @@
 {% url 'forum_post_approve' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_approve_url %}
 {% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_report_url %}
 {% url 'forum_post_revoke_approval' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_revoke_approval_url %}
+{% url 'forum_post_toggle_reaction' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_toggle_reaction_url %}
 
 {% block links_to_post %}<a href="#forum-anchor-{{ post.id }}">#{{ post.id }}</a>{% endblock %}
+
+{% if category.reactions_enabled %}
+    <span class="post_reactions">|
+        {% if can_interact_with_users %}
+            <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=upvote">
+        {% endif %}
+        <span class="{% if post.user_upvoted %} text-success {% else %} text-muted {% endif %}">
+            <span class="glyphicon glyphicon-plus"></span> {{ post.upvotes_count }}
+        </span>
+        {% if can_interact_with_users %}
+            </a>
+        {% endif %}
+
+        {% if can_interact_with_users %}
+            <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=downvote">
+        {% endif %}
+        <span class="{% if post.user_downvoted %} text-danger {% else %} text-muted {% endif %}">
+            <span class="glyphicon glyphicon-minus"></span> {{ post.downvotes_count }}
+        </span>
+        {% if can_interact_with_users %}
+            </a>
+        {% endif %}
+    </span>
+{% endif %}
+
 | {% full_name post.author %}
 
 {% if is_admin %}

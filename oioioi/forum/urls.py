@@ -16,6 +16,11 @@ forum_patterns = [
         name='forum_category_delete',
     ),
     url(
+        r'^(?P<category_id>\d+)/toggle_reactions/$',
+        views.toggle_reactions_in_category,
+        name='forum_category_toggle_reactions',
+    ),
+    url(
         r'^(?P<category_id>\d+)/move_up/$',
         views.move_up_category_view,
         name='forum_category_move_up',
@@ -75,6 +80,11 @@ forum_patterns = [
         r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/$',
         views.show_post_view,
         name='forum_post_show',
+    ),
+    url(
+        r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/toggle_reaction/$',
+        views.post_toggle_reaction,
+        name='forum_post_toggle_reaction',
     ),
     url(r'^user/(?P<user_id>\d+)/ban/$', views.ban_user_view, name='forum_user_ban'),
 ]

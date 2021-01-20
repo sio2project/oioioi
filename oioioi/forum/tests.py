@@ -10,7 +10,7 @@ from django.utils import timezone
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest
 from oioioi.forum.forms import PostForm
-from oioioi.forum.models import Ban, Category, Post, Thread
+from oioioi.forum.models import Ban, Category, Post, PostReaction, Thread
 from oioioi.participants.models import Participant
 
 
@@ -232,6 +232,41 @@ class TestCategory(TestCase):
         refresh_orders()
         self.assertTrue(c.order < b.order < a.order)
 
+    def test_toggling_reactions(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        toggle_reactions_url = reverse(
+            "forum_category_toggle_reactions", kwargs={"category_id": self.category.id}
+        )
+        forum_view_url = reverse('forum')
+
+        response = self.client.post(toggle_reactions_url, follow=True)
+        self.assertEqual(403, response.status_code)
+        self.client.logout()
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        self.assertFalse(self.category.reactions_enabled)
+        response = self.client.get(forum_view_url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'Enable post reactions')
+        self.assertNotContains(response, 'Disable post reactions')
+
+        response = self.client.post(toggle_reactions_url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.category.refresh_from_db()
+        self.assertTrue(self.category.reactions_enabled)
+        response = self.client.get(forum_view_url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'Disable post reactions')
+
+        self.client.post(toggle_reactions_url, follow=True)
+        self.category.refresh_from_db()
+        self.assertFalse(self.category.reactions_enabled)
+        response = self.client.get(forum_view_url, follow=True)
+        self.assertContains(response, 'Enable post reactions')
+
 
 class TestThread(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -374,6 +409,25 @@ class TestPost(TestCase):
             thread=self.thr, content='Test post!', author=self.user, add_date=self.past
         )
         self.p.save()
+        self.thread_url = reverse(
+            'forum_thread',
+            kwargs={
+                'contest_id': self.contest.id,
+                'category_id': self.cat.id,
+                'thread_id': self.thr.id,
+            },
+        )
+
+    def reverse_post(self, view_name):
+        return reverse(
+            view_name,
+            kwargs={
+                'contest_id': self.contest.id,
+                'category_id': self.cat.id,
+                'thread_id': self.thr.id,
+                'post_id': self.p.id,
+            },
+        )
 
     def assertContainsReportOption(self, response):
         self.assertNotContains(response, 'This post was reported')
@@ -390,15 +444,7 @@ class TestPost(TestCase):
 
     def test_report(self):
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse(
-            'forum_post_report',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-                'post_id': self.p.id,
-            },
-        )
+        url = self.reverse_post('forum_post_report')
         name = self.user.first_name
         surname = self.user.last_name
         response = self.client.get(url, follow=True)
@@ -419,59 +465,30 @@ class TestPost(TestCase):
 
     def test_approve_after_report(self):
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+
+        response = self.client.get(self.thread_url, follow=True)
         self.assertContainsReportOption(response)
         self.assertContainsApproveOption(response)
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+
+        response = self.client.get(self.thread_url, follow=True)
         self.assertContainsReportOption(response)
         self.assertNotContains(response, 'approve')
 
         self.report_post()
-        response = self.client.post(url, follow=True)
+        response = self.client.post(self.thread_url, follow=True)
         self.assertContains(response, 'This post was reported')
 
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse(
-            'forum_post_approve',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-                'post_id': self.p.id,
-            },
-        )
+        url = self.reverse_post('forum_post_approve')
         response = self.client.post(url, follow=True)
         self.assertContains(response, 'revoke approval')
         self.assertContains(response, 'This post was approved.')
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+
+        response = self.client.get(self.thread_url, follow=True)
         self.assertNotContains(response, 'report')
         self.assertNotContains(response, 'revoke approval')
 
@@ -481,39 +498,16 @@ class TestPost(TestCase):
 
     def test_approve_without_report(self):
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+
+        response = self.client.get(self.thread_url, follow=True)
         self.assertContainsReportOption(response)
         self.assertContainsApproveOption(response)
 
-        url = reverse(
-            'forum_post_approve',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-                'post_id': self.p.id,
-            },
-        )
+        url = self.reverse_post('forum_post_approve')
         self.client.post(url, follow=True)
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+        response = self.client.get(self.thread_url, follow=True)
         self.assertNotContains(response, 'report')
 
         self.p.refresh_from_db()
@@ -525,15 +519,7 @@ class TestPost(TestCase):
         self.p.save()
 
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse(
-            'forum_post_report',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-                'post_id': self.p.id,
-            },
-        )
+        url = self.reverse_post('forum_post_report')
         self.client.post(url)
 
         self.p.refresh_from_db()
@@ -541,15 +527,7 @@ class TestPost(TestCase):
         self.assertFalse(self.p.reported)
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+        response = self.client.get(self.thread_url, follow=True)
         self.assertNotContains(response, 'report')
 
     def test_revoking_approval_after_edit(self):
@@ -557,29 +535,12 @@ class TestPost(TestCase):
         self.p.save()
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse(
-            'forum_post_edit',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-                'post_id': self.p.id,
-            },
-        )
+        url = self.reverse_post('forum_post_edit')
         self.client.get(url, follow=True)
 
         self.p.refresh_from_db()
         self.assertTrue(self.p.approved)
 
-        url = reverse(
-            'forum_post_edit',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-                'post_id': self.p.id,
-            },
-        )
         self.client.post(url, {'content': 'Test content'})
 
         self.p.refresh_from_db()
@@ -647,44 +608,109 @@ class TestPost(TestCase):
         self.p.save()
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+        response = self.client.get(self.thread_url, follow=True)
         self.assertNotContains(response, 'revoke approval')
 
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse(
-            'forum_thread',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-            },
-        )
-        response = self.client.get(url, follow=True)
+        response = self.client.get(self.thread_url, follow=True)
         self.assertContains(response, 'revoke approval')
 
-        url = reverse(
-            'forum_post_revoke_approval',
-            kwargs={
-                'contest_id': self.contest.id,
-                'category_id': self.cat.id,
-                'thread_id': self.thr.id,
-                'post_id': self.p.id,
-            },
-        )
+        url = self.reverse_post('forum_post_revoke_approval')
         response = self.client.post(url, follow=True)
         self.assertNotContains(response, 'revoke approval')
 
         self.p.refresh_from_db()
         self.assertFalse(self.p.approved)
         self.assertFalse(self.p.reported)
+
+    def test_reactions_visible_only_if_enabled(self):
+        self.cat.reactions_enabled = False
+        self.cat.save()
+        response = self.client.get(self.thread_url, follow=True)
+        self.assertNotContains(response, 'post_reactions')
+
+        self.cat.reactions_enabled = True
+        self.cat.save()
+        response = self.client.get(self.thread_url, follow=True)
+        self.assertContains(response, 'post_reactions')
+
+    def test_reactions_not_clickable_for_anon(self):
+        react_url = self.reverse_post('forum_post_toggle_reaction')
+        downvote_url = react_url + '?reaction=downvote'
+
+        self.cat.reactions_enabled = True
+        self.cat.save()
+
+        response = self.client.get(self.thread_url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, downvote_url)
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(self.thread_url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, downvote_url)
+
+    def test_reactions_from_multiple_users(self):
+        react_url = self.reverse_post('forum_post_toggle_reaction')
+        downvote_url = react_url + '?reaction=downvote'
+
+        self.cat.reactions_enabled = True
+        self.cat.save()
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.post(downvote_url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(self.client.login(username='test_user2'))
+        response = self.client.post(downvote_url, follow=True)
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(
+            2, self.p.reactions.filter(type_of_reaction='DOWNVOTE').count()
+        )
+        self.assertEqual(2, self.p.reactions.count())
+
+    def test_remove_reaction(self):
+        react_url = self.reverse_post('forum_post_toggle_reaction')
+        downvote_url = react_url + '?reaction=downvote'
+        self.cat.reactions_enabled = True
+        self.cat.save()
+        self.assertTrue(self.client.login(username='test_user'))
+
+        def count_reactions(r):
+            return self.p.reactions.filter(type_of_reaction=r).count()
+
+        self.assertEqual(0, count_reactions('DOWNVOTE'))
+        self.assertEqual(0, self.p.reactions.count())
+
+        self.client.post(downvote_url, follow=True)
+        self.assertEqual(1, count_reactions('DOWNVOTE'))
+        self.assertEqual(1, self.p.reactions.count())
+
+        self.client.post(downvote_url, follow=True)
+        self.assertEqual(0, count_reactions('DOWNVOTE'))
+        self.assertEqual(0, self.p.reactions.count())
+
+    def test_switch_reaction(self):
+        react_url = self.reverse_post('forum_post_toggle_reaction')
+        downvote_url = react_url + '?reaction=downvote'
+        upvote_url = react_url + '?reaction=upvote'
+        self.cat.reactions_enabled = True
+        self.cat.save()
+        self.assertTrue(self.client.login(username='test_user'))
+
+        def count_reactions(r):
+            return self.p.reactions.filter(type_of_reaction=r).count()
+
+        self.assertEqual(0, self.p.reactions.count())
+
+        self.client.post(upvote_url, follow=True)
+        self.assertEqual(1, count_reactions('UPVOTE'))
+        self.assertEqual(0, count_reactions('DOWNVOTE'))
+        self.assertEqual(1, self.p.reactions.count())
+
+        self.client.post(downvote_url, follow=True)
+        self.assertEqual(0, count_reactions('UPVOTE'))
+        self.assertEqual(1, count_reactions('DOWNVOTE'))
+        self.assertEqual(1, self.p.reactions.count())
 
 
 class TestBan(TestCase):

@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import Contest
 
@@ -64,14 +65,14 @@ class Category(models.Model):
     forum = models.ForeignKey(Forum, verbose_name=_("forum"), on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("category"))
     order = models.IntegerField(verbose_name=_("order"))
+    reactions_enabled = models.BooleanField(
+        default=False, verbose_name=_("reactions enabled")
+    )
 
     class Meta(object):
         verbose_name = _("category")
         verbose_name_plural = _("categories")
-        unique_together = (
-            "forum",
-            "order",
-        )
+        unique_together = ("forum", "order")
         ordering = ("order",)
 
     def __str__(self):
@@ -101,7 +102,7 @@ class Category(models.Model):
     def get_admin_url(self):
         return reverse('oioioiadmin:forum_category_change', args=(self.id,))
 
-    def save(self, *args, **kwargs):
+    def save(self, **kwargs):
         if self.pk is None:
             forum_categories = Category.objects.filter(forum__pk=self.forum_id)
             if forum_categories.exists():
@@ -111,7 +112,7 @@ class Category(models.Model):
             else:
                 self.order = 0
 
-        super(Category, self).save(*args, **kwargs)
+        super(Category, self).save(**kwargs)
 
 
 @python_2_unicode_compatible
@@ -185,6 +186,29 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
     )
 
+    class PostsWithReactionsSummaryManager(models.Manager):
+        def get_queryset(self):
+            qs = super(Post.PostsWithReactionsSummaryManager, self).get_queryset()
+            for field_name, rtype in [
+                ('upvotes_count', 'UPVOTE'),
+                ('downvotes_count', 'DOWNVOTE'),
+            ]:
+                # In Django >=2.0 it can can be simplified with Count(filter=Q(...))
+                reaction_count_agg = {
+                    field_name: models.Sum(
+                        models.Case(
+                            models.When(reactions__type_of_reaction=rtype, then=1),
+                            default=0,
+                            output_field=models.IntegerField(),
+                        )
+                    )
+                }
+                qs = qs.annotate(**reaction_count_agg)
+
+            return qs
+
+    objects = PostsWithReactionsSummaryManager()
+
     @property
     def edited(self):
         return bool(self.last_edit_date)
@@ -226,7 +250,29 @@ class Post(models.Model):
     def is_reporter_banned(self):
         if not self.reported:
             return False
+
         return Ban.is_banned(self.thread.category.forum, self.reported_by)
+
+
+post_reaction_types = EnumRegistry(
+    entries=[
+        ('UPVOTE', _("Upvote")),
+        ('DOWNVOTE', _("Downvote")),
+    ]
+)
+
+
+class PostReaction(models.Model):
+    """PostReaction - represents a reaction to a post on the forum."""
+
+    post = models.ForeignKey(
+        Post,
+        verbose_name=_("post"),
+        related_name='reactions',
+        on_delete=models.CASCADE,
+    )
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    type_of_reaction = EnumField(post_reaction_types)
 
 
 @python_2_unicode_compatible

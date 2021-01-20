@@ -20,8 +20,9 @@ from oioioi.contests.utils import (
     is_contest_admin,
 )
 from oioioi.forum.forms import BanForm, NewThreadForm, PostForm, ReportForm
-from oioioi.forum.models import Category, Post
+from oioioi.forum.models import Category, Post, PostReaction, post_reaction_types
 from oioioi.forum.utils import (
+    annotate_posts_with_current_user_reactions,
     can_interact_with_admins,
     can_interact_with_users,
     forum_exists,
@@ -79,12 +80,15 @@ def latest_posts_forum_view(request):
         .prefetch_related('thread')
         .order_by('-add_date')
     )
+    posts = annotate_posts_with_current_user_reactions(request, posts)
 
     context = {
         'forum': request.contest.forum,
         'msgs': get_msgs(request),
         'post_set': posts,
         'posts_per_page': settings.FORUM_PAGE_SIZE,
+        'can_interact_with_users': can_interact_with_users(request),
+        'can_interact_with_admins': can_interact_with_admins(request),
     }
 
     return TemplateResponse(request, 'forum/latest_posts.html', context)
@@ -120,12 +124,15 @@ def thread_view(request, category_id, thread_id):
     category, thread = get_forum_ct(category_id, thread_id)
     forum = request.contest.forum
 
+    posts = thread.post_set.select_related('author').all()
+    posts = annotate_posts_with_current_user_reactions(request, posts)
+
     context = {
         'forum': forum,
         'category': category,
         'thread': thread,
         'msgs': get_msgs(request),
-        'post_set': thread.post_set.select_related('author').all(),
+        'post_set': posts,
         'can_interact_with_users': can_interact_with_users(request),
         'can_interact_with_admins': can_interact_with_admins(request),
     }
@@ -362,6 +369,39 @@ def show_post_view(request, category_id, thread_id, post_id):
     )
 
 
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
+@enforce_condition(forum_exists_and_visible & is_proper_forum & can_interact_with_users)
+@require_POST
+def post_toggle_reaction(request, category_id, thread_id, post_id):
+    (category, _, post) = get_forum_ctp(category_id, thread_id, post_id)
+    redirect_url = post.get_in_thread_url()
+
+    if not category.reactions_enabled:
+        messages.error(request, _("Post reactions are not enabled."))
+        return redirect(redirect_url)
+
+    reaction_type = request.GET.get('reaction', '').upper()
+
+    if not reaction_type or post_reaction_types.get(reaction_type, None) is None:
+        messages.error(request, _("Invalid reaction type."))
+        return redirect(redirect_url)
+
+    reaction = post.reactions.filter(author=request.user.pk)
+    if reaction.exists():
+        reaction = reaction.first()
+        if reaction.type_of_reaction == reaction_type:
+            reaction.delete()
+        else:
+            reaction.type_of_reaction = reaction_type
+            reaction.save(update_fields=['type_of_reaction'])
+    else:
+        PostReaction.objects.create(
+            author=request.user, post_id=post.id, type_of_reaction=reaction_type
+        )
+
+    return redirect(redirect_url)
+
+
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
@@ -393,10 +433,20 @@ def delete_category_view(request, category_id):
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
+def toggle_reactions_in_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    category.reactions_enabled = not category.reactions_enabled
+    category.save(update_fields=['reactions_enabled'])
+    return redirect('forum', contest_id=request.contest.id)
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(forum_exists_and_visible & is_proper_forum)
+@require_POST
 def move_up_category_view(request, category_id):
     if not move_category(category_id, "up"):
         return HttpResponseBadRequest("Category is already on the top")
-    return redirect("forum", contest_id=request.contest.id)
+    return redirect('forum', contest_id=request.contest.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
@@ -405,7 +455,7 @@ def move_up_category_view(request, category_id):
 def move_down_category_view(request, category_id):
     if not move_category(category_id, "down"):
         return HttpResponseBadRequest("Category is already on the bottom")
-    return redirect("forum", contest_id=request.contest.id)
+    return redirect('forum', contest_id=request.contest.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
