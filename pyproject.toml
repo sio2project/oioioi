@@ -25,4 +25,4 @@ exclude = '''
   | migrations
 )/
 '''
-force-exclude = '(.*)?default_settings.py'
+force-exclude = '((.*)?default_settings.py|(.*)migrations(.*))'

@@ -99,10 +99,32 @@ Running tests on Docker
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 For testing purposes we use test.sh script located in oioioi directory. Note it's not the same directory
-you are connected to after using docker exec -it “container-id” /bin/bash.
+you are connected to after using docker exec -it “container-id” /bin/bash. The default "container-id" that you should use for running tests is "web"::
 
-    {dockercompose} exec "container-id" ../oioioi/test.sh
-    {dockercompose} exec "container-id" ../oioioi/test.sh oioioi/{name_of_the_app}/
+    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "container-id" ../oioioi/test.sh
+    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "container-id" ../oioioi/test.sh oioioi/{name_of_the_app}/
+
+Running static code analysis tools locally (requires Docker)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The static code analysis tools currently in use for python code are black, isort, pep8 and pylint.
+All of them can be run locally using the `run_static.sh` shell script.
+In order for the script to work the `web` container from docker-compose-dev.yml needs to be running.
+The docker image for the project needs to be rebuild if you are migrating from and older Dockerfile version (rebuild the image if you are getting error messages that isort or black are not installed).
+Commands for building the image and starting up the containers are listed in the paragraphs above.
+
+When running all tools at once or when running pep8 and pylint independently only the recently modified files (files modified in the most recent commit or staged changes) will be processed.
+
+To run all tools at once::
+
+    ./run_static.sh
+
+To run one of the tools::
+
+    ./run_static.sh black
+    ./run_static.sh isort
+    ./run_static.sh pylint
+    ./run_static.sh pep8
 
 Manual installation
 ~~~~~~~~~~~~~~~~~~~
