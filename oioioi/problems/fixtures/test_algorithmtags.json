@@ -14,6 +14,47 @@
     }
   },
   {
+    "pk": 3,
+    "model": "problems.algorithmtag",
+    "fields": {
+      "name": "DynamicProgramming"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.algorithmtag",
+    "fields": {
+      "name": "Zachlanne"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.algorithmtaglocalization",
+    "fields": {
+      "algorithm_tag": 3,
+      "name": "DynamicProgramming",
+      "language": "en"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.algorithmtaglocalization",
+    "fields": {
+      "algorithm_tag": 3,
+      "name": "ProgramowanieDynamiczne",
+      "language": "pl"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.algorithmtaglocalization",
+    "fields": {
+      "algorithm_tag": 4,
+      "name": "Greedy",
+      "language": "en"
+    }
+  },
+  {
     "pk": 1,
     "model": "problems.algorithmtagthrough",
     "fields": {

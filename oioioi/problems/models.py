@@ -842,6 +842,30 @@ class AlgorithmTagThrough(models.Model):
 
 
 @python_2_unicode_compatible
+class AlgorithmTagLocalization(models.Model):
+    algorithm_tag = models.ForeignKey(
+        AlgorithmTag, related_name='localizations', on_delete=models.CASCADE
+    )
+    language = models.CharField(
+        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
+    )
+
+    name = models.CharField(
+        max_length=32,
+        verbose_name=_("name translation"),
+        help_text=_("Human-readable name."),
+    )
+
+    class Meta(object):
+        unique_together = ('algorithm_tag', 'language')
+        verbose_name = _("algorithm tag localization")
+        verbose_name_plural = _("algorithm tag localizations")
+
+    def __str__(self):
+        return six.text_type("{} - {}".format(self.algorithm_tag, self.language))
+
+
+@python_2_unicode_compatible
 class Tag(models.Model):
     """Class used for old tags - deprecated."""
 

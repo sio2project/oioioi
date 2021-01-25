@@ -42,6 +42,7 @@ from oioioi.problems.forms import ProblemsetSourceForm
 from oioioi.problems.menu import navbar_links_registry
 from oioioi.problems.models import (
     AlgorithmTag,
+    AlgorithmTagLocalization,
     AlgorithmTagProposal,
     DifficultyProposal,
     DifficultyTag,
@@ -269,9 +270,7 @@ def search_problems_in_problemset(datadict):
 
 
 def generate_problemset_tabs(request):
-    tabs = []
-
-    tabs.append({'name': _('Public problems'), 'url': reverse('problemset_main')})
+    tabs = [{'name': _('Public problems'), 'url': reverse('problemset_main')}]
 
     if request.user.is_authenticated:
         tabs.append(
@@ -929,38 +928,41 @@ def get_last_submissions(request):
     )
 
 
+def _get_tag_hints(request, tags_manager):
+    substr = request.GET.get('substr', '')
+    if len(substr) < 2:
+        raise Http404
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
+    queryset_tags = tags_manager.filter(name__icontains=substr)[:num_hints]
+
+    return [tag.name for tag in queryset_tags]
+
+
+def uniquefy_tag_names(fn):
+    @wraps(fn)
+    def decorated(*args, **kwargs):
+        return list(set(tag_name for tag_name in fn(*args, **kwargs)))
+
+    return decorated
+
+
 @jsonify
 def get_difficultytag_hints_view(request):
-    substr = request.GET.get('substr', '')
-    if len(substr) < 2:
-        raise Http404
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    queryset_tags = DifficultyTag.objects.filter(name__icontains=substr)[
-        :num_hints
-    ].all()
-    return [str(tag.name) for tag in queryset_tags]
+    return _get_tag_hints(request, DifficultyTag.objects)
 
 
 @jsonify
+@uniquefy_tag_names
 def get_algorithmtag_hints_view(request):
-    substr = request.GET.get('substr', '')
-    if len(substr) < 2:
-        raise Http404
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    queryset_tags = AlgorithmTag.objects.filter(name__icontains=substr)[
-        :num_hints
-    ].all()
-    return [str(tag.name) for tag in queryset_tags]
+    base_hints = _get_tag_hints(request, AlgorithmTag.objects)
+    localized_hints = _get_tag_hints(request, AlgorithmTagLocalization.objects)
+
+    return base_hints + localized_hints
 
 
 @jsonify
 def get_tag_hints_view(request):
-    substr = request.GET.get('substr', '')
-    if len(substr) < 2:
-        raise Http404
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    queryset_tags = Tag.objects.filter(name__icontains=substr)[:num_hints].all()
-    return [str(tag.name) for tag in queryset_tags]
+    return _get_tag_hints(request, Tag.objects)
 
 
 def _uniquefy(key, list_of_dicts):
@@ -985,7 +987,7 @@ def get_origintag_category_hints(origintag):
         {
             'trigger': 'category-menu',
             'name': u'{} - {}'.format(origintag.full_name, category.full_name),
-            'category': _('Origin Tags'),
+            'category': _("Origin Tags"),
             'search_name': origintag.full_name,  # Avoids breaking the typeahead
             'value': category.name,
         }
@@ -1002,7 +1004,7 @@ def get_origininfovalue_hints(query):
             {
                 'trigger': 'origininfo',
                 'name': oiv.full_name,
-                'category': _('Origin Tags'),
+                'category': _("Origin Tags"),
                 'prefix': 'origin',
                 'value': oiv.name,
             }
@@ -1012,7 +1014,7 @@ def get_origininfovalue_hints(query):
             {
                 'trigger': 'origininfo',
                 'name': oivl.origin_info_value.full_name,
-                'category': _('Origin Tags'),
+                'category': _("Origin Tags"),
                 'prefix': 'origin',
                 'value': oivl.origin_info_value.name,
             }
@@ -1025,7 +1027,7 @@ def get_origininfovalue_hints(query):
                 {
                     'trigger': 'origininfo',
                     'name': oiv.full_name,
-                    'category': _('Origin Tags'),
+                    'category': _("Origin Tags"),
                     'prefix': 'origin',
                     'value': oiv.name,
                 }
@@ -1047,7 +1049,7 @@ def get_origintag_hints(query):
             {
                 'trigger': 'origintag-menu',
                 'name': otl.origin_tag.full_name,
-                'category': _('Origin Tags'),
+                'category': _("Origin Tags"),
                 'prefix': 'origin',
                 'value': otl.origin_tag.name,
             }
@@ -1056,40 +1058,38 @@ def get_origintag_hints(query):
     )
 
     res = list(res)
-
     if len(res) == 1:
         res[0]['trigger'] = 'origintag'
         res += get_origintag_category_hints(res[0]['value'])
+
     return res
 
 
+@uniquefy('name')
 def get_tag_hints(query):
-    return (
-        [
-            {
-                'name': tag.name,
-                'category': _('Tags'),
-                'prefix': 'tag',
-            }
-            for tag in Tag.objects.filter(name__icontains=query)
-        ]
-        + [
-            {
-                'name': tag.name,
-                'category': _('Algorithm Tags'),
-                'prefix': 'algorithm',
-            }
-            for tag in AlgorithmTag.objects.filter(name__icontains=query)
-        ]
-        + [
-            {
-                'name': tag.name,
-                'category': _('Difficulty Tags'),
-                'prefix': 'difficulty',
-            }
-            for tag in DifficultyTag.objects.filter(name__icontains=query)
-        ]
+    prefixes = ('tag', 'algorithm', 'algorithm', 'difficulty')
+    categories = (
+        _("Tags"),
+        _("Algorithm Tags"),
+        _("Algorithm Tags"),
+        _("Difficulty Tags"),
     )
+    models = (Tag, AlgorithmTag, AlgorithmTagLocalization, DifficultyTag)
+
+    results = []
+    for prefix, category, model in zip(prefixes, categories, models):
+        results.extend(
+            [
+                {
+                    'name': tag.name,
+                    'category': category,
+                    'prefix': prefix,
+                }
+                for tag in model.objects.filter(name__icontains=query)
+            ]
+        )
+
+    return results
 
 
 @uniquefy('name')
@@ -1110,7 +1110,7 @@ def get_problem_hints(query, view_type, user):
         {
             'trigger': 'problem',
             'name': problem.name,
-            'category': _('Problems'),
+            'category': _("Problems"),
         }
         for problem in problems[: getattr(settings, 'NUM_HINTS', 10)]
     ]
@@ -1175,22 +1175,31 @@ def get_origininfocategory_hints_view(request):
 
 
 @jsonify
+@uniquefy_tag_names
 def get_tag_proposal_hints_view(request):
     query = request.GET.get('query', '')
-    algorithm_tags = AlgorithmTag.objects.filter(name__istartswith=query)
-    return [str(tag.name) for tag in algorithm_tags]
+    base_hints = AlgorithmTag.objects.filter(name__istartswith=query).values_list(
+        'name', flat=True
+    )
+    localized_hints = AlgorithmTagLocalization.objects.filter(
+        name__istartswith=query
+    ).values_list('name', flat=True)
+
+    return base_hints + localized_hints
 
 
 @jsonify
+@uniquefy_tag_names
 def get_tag_label_view(request):
     name = request.GET.get('name', '')
-    tag = AlgorithmTag.objects.filter(name=name)
+    base_tags = AlgorithmTag.objects.filter(name=name)
+    localized_tags = AlgorithmTagLocalization.objects.filter(name=name)
     proposed = request.GET.get('proposed', -1)
 
-    if not tag or proposed != '-1':
+    if proposed != '-1' or not (base_tags or localized_tags):
         raise Http404
 
-    return [str(tag.name) for tag in tag]
+    return [tag.name for tag in base_tags] + [tag.name for tag in localized_tags]
 
 
 def save_proposals_view(request):
@@ -1207,9 +1216,19 @@ def save_proposals_view(request):
             return None
 
         for tag in tags:
+            tag_proposal = AlgorithmTag.objects.filter(name=tag)
+            if tag_proposal.exists():
+                tag_proposal = tag_proposal.first()
+            else:
+                tag_proposal = (
+                    AlgorithmTagLocalization.objects.filter(name=tag)
+                    .first()
+                    .algorithm_tag
+                )
+
             proposal = AlgorithmTagProposal(
                 problem=problem,
-                tag=AlgorithmTag.objects.filter(name=tag).first(),
+                tag=tag_proposal,
                 user=user,
             )
             proposal.save()

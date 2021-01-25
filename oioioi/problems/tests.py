@@ -1328,6 +1328,30 @@ class TestAlgorithmTags(TestCase):
         self.assertNotContains(response, 'mrowka')
         self.assertNotContains(response, 'XYZ')
 
+        response = self.client.get(get_query_url('namic'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'DynamicProgramming')
+        self.assertContains(response, 'ProgramowanieDynamiczne')
+        self.assertNotContains(response, 'Zachlanne')
+        self.assertNotContains(response, 'Greedy')
+        self.assertNotContains(response, 'mrowkowiec')
+        self.assertNotContains(response, 'mrowka')
+        self.assertNotContains(response, 'XYZ')
+
+        response = self.client.get(get_query_url('Zach'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Zachlanne')
+        self.assertNotContains(response, 'Greedy')
+        self.assertNotContains(response, 'DynamicProgramming')
+        self.assertNotContains(response, 'XYZ')
+
+        response = self.client.get(get_query_url('Greedy'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Greedy')
+        self.assertNotContains(response, 'Zachlanne')
+        self.assertNotContains(response, 'DynamicProgramming')
+        self.assertNotContains(response, 'XYZ')
+
 
 class TestDifficultyTags(TestCase):
     fixtures = [
@@ -2400,6 +2424,8 @@ class TestProblemSearchHintsTags(TestCase):
         'origintag',
         'round',
         'year',
+        'Grafy',
+        'Graphs',
     ]
 
     def assert_contains_only(self, response, hints):
@@ -2422,6 +2448,18 @@ class TestProblemSearchHintsTags(TestCase):
         response = self.client.get(self.url, {'q': 'tag_a'})
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['tag_a1', 'tag_a2'])
+
+        response = self.client.get(self.url, {'q': 'Gra'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['Grafy', 'Graphs'])
+
+        response = self.client.get(self.url, {'q': 'raph'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['Graphs'])
+
+        response = self.client.get(self.url, {'q': 'Dijkstra'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
 
     def test_search_hints_origininfo(self):
         self.client.get('/c/c/')

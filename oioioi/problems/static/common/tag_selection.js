@@ -10,7 +10,9 @@ function init_tag_addition(id, hints_url) {
 
         var changeInput = function() {
             var make_hint = function(tag, query) {
-                var index = tag.indexOf(query);
+                var tag_lower = tag.toLowerCase();
+                var query_lower = query.toLowerCase();
+                var index = tag_lower.indexOf(query_lower);
                 var pre = tag.substr(0, index);
                 var mid = tag.substr(index, query.length);
                 var suf = tag.substr(index + query.length);
@@ -19,6 +21,7 @@ function init_tag_addition(id, hints_url) {
                 label.html(pre + "<u>" + mid + "</u>" + suf);
                 label.click(function() { input.val(tag); changeInput(); });
                 label.css('cursor', 'pointer');
+                
                 return label;
             };
 

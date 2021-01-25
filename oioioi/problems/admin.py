@@ -10,7 +10,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.utils.encoding import force_text
 from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -40,6 +39,7 @@ from oioioi.problems.forms import (
 )
 from oioioi.problems.models import (
     AlgorithmTag,
+    AlgorithmTagLocalization,
     DifficultyTag,
     MainProblemInstance,
     OriginInfoCategory,
@@ -322,6 +322,28 @@ class AlgorithmTagInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+class AlgorithmTagLocalizationInline(admin.StackedInline):
+    model = AlgorithmTagLocalization
+    formset = LocalizationFormset
+
+
+class AlgorithmTagAdmin(admin.ModelAdmin):
+    filter_horizontal = ('problems',)
+    inlines = (AlgorithmTagLocalizationInline,)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'problems':
+            kwargs['queryset'] = Problem.objects.filter(
+                visibility=Problem.VISIBILITY_PUBLIC
+            )
+        return super(AlgorithmTagAdmin, self).formfield_for_manytomany(
+            db_field, request, **kwargs
+        )
+
+
+admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
 class TagInline(admin.StackedInline):
