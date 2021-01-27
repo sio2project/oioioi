@@ -1178,12 +1178,13 @@ def get_origininfocategory_hints_view(request):
 @uniquefy_tag_names
 def get_tag_proposal_hints_view(request):
     query = request.GET.get('query', '')
-    base_hints = AlgorithmTag.objects.filter(name__istartswith=query).values_list(
-        'name', flat=True
-    )
-    localized_hints = AlgorithmTagLocalization.objects.filter(
-        name__istartswith=query
-    ).values_list('name', flat=True)
+    base_hints = [
+        tag.name for tag in AlgorithmTag.objects.filter(name__istartswith=query)
+    ]
+    localized_hints = [
+        tag.name
+        for tag in AlgorithmTagLocalization.objects.filter(name__istartswith=query)
+    ]
 
     return base_hints + localized_hints
 

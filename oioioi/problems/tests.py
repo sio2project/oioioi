@@ -1302,33 +1302,50 @@ class TestAlgorithmTags(TestCase):
         'test_algorithmtags',
     ]
 
+    @staticmethod
+    def get_query_url(url_to_reverse, parameters):
+        url = reverse(url_to_reverse)
+        return url + '?' + six.moves.urllib.parse.urlencode(parameters)
+
     def test_tag_hints_view(self):
         self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        def get_query_url(query):
-            url = reverse('get_algorithmtag_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode({'substr': query})
-
-        response = self.client.get(get_query_url('rowk'))
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_algorithmtag_hints', {'substr': 'rowk'}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'mrowkowiec')
         self.assertContains(response, 'mrowka')
         self.assertNotContains(response, 'XYZ')
 
-        response = self.client.get(get_query_url('rowka'))
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_algorithmtag_hints', {'substr': 'rowka'}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'mrowkowiec')
         self.assertContains(response, 'mrowka')
         self.assertNotContains(response, 'XYZ')
 
-        response = self.client.get(get_query_url('bad_tag'))
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_algorithmtag_hints', {'substr': 'bad_tag'}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'mrowkowiec')
         self.assertNotContains(response, 'mrowka')
         self.assertNotContains(response, 'XYZ')
 
-        response = self.client.get(get_query_url('namic'))
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_algorithmtag_hints', {'substr': 'namic'}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'DynamicProgramming')
         self.assertContains(response, 'ProgramowanieDynamiczne')
@@ -1338,14 +1355,54 @@ class TestAlgorithmTags(TestCase):
         self.assertNotContains(response, 'mrowka')
         self.assertNotContains(response, 'XYZ')
 
-        response = self.client.get(get_query_url('Zach'))
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_algorithmtag_hints', {'substr': 'Zach'}
+            )
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Zachlanne')
         self.assertNotContains(response, 'Greedy')
         self.assertNotContains(response, 'DynamicProgramming')
         self.assertNotContains(response, 'XYZ')
 
-        response = self.client.get(get_query_url('Greedy'))
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_algorithmtag_hints', {'substr': 'Greedy'}
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Greedy')
+        self.assertNotContains(response, 'Zachlanne')
+        self.assertNotContains(response, 'DynamicProgramming')
+        self.assertNotContains(response, 'XYZ')
+
+    def test_tag_proposal_hints_view(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_tag_proposal_hints', {'query': 'mrowk'}
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'mrowkowiec')
+        self.assertContains(response, 'mrowka')
+        self.assertNotContains(response, 'XYZ')
+
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url(
+                'get_tag_proposal_hints', {'query': 'Dynamic'}
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'DynamicProgramming')
+        self.assertNotContains(response, 'ProgramowanieDynamiczne')
+
+        response = self.client.get(
+            TestAlgorithmTags.get_query_url('get_tag_proposal_hints', {'query': 'gre'})
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Greedy')
         self.assertNotContains(response, 'Zachlanne')
