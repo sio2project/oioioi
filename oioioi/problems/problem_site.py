@@ -44,6 +44,7 @@ from oioioi.problems.utils import (
     query_zip,
 )
 from oioioi.sinolpack.models import OriginalPackage
+from oioioi.testspackages.models import TestsPackage
 
 problem_site_tab_registry = OrderedRegistry()
 logger = logging.getLogger(__name__)
@@ -263,10 +264,18 @@ def problem_site_settings(request, problem):
 def problem_site_add_to_contest(request, problem):
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
+    tests_package = TestsPackage.objects.filter(problem=problem)
+    tests_package_visible = any(
+        [tp.is_visible(request.timestamp) for tp in tests_package]
+    )
     return TemplateResponse(
         request,
         'problems/add-to-contest.html',
-        {'site_key': problem.problemsite.url_key, 'contests': administered},
+        {
+            'site_key': problem.problemsite.url_key,
+            'contests': administered,
+            'tests_package_visible': tests_package_visible,
+        },
     )
 
 

@@ -1,5 +1,9 @@
 {% load i18n %}
-
+{% if tests_package_visible %}
+    <div class="alert alert-warning">
+        {% trans "Beware, this problem has its tests published." %}
+    </div>
+{% endif %}
 {% url 'problemset_add_to_contest' site_key=site_key as contest_url %}
 
 {% include "problems/problemset/contest-list.html" with contests=contests %}
