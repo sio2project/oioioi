@@ -17,8 +17,12 @@ body {
   min-width: $oioioi-body-min-width;
 }
 
-form {
+form:not(.form-wide) {
   max-width: $oioioi-form-max-width;
+}
+
+textarea.non-resizable {
+  resize: none;
 }
 
 img {

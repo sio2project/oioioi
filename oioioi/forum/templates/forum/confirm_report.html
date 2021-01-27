@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block form %}
-    <form method="post">
+    <form method="post" class="form-wide">
         {% csrf_token %}
         {% include "ingredients/form.html" %}
         <div class="form-group">

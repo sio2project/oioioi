@@ -51,4 +51,4 @@ class ReportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['report_reason'].label = _("Reason")
-        self.fields['report_reason'].widget.attrs['class'] = 'monospace'
+        self.fields['report_reason'].widget.attrs['class'] = 'monospace non-resizable'
