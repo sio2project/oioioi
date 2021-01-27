@@ -28,7 +28,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-08 12:31+0000\n"
+"POT-Creation-Date: 2021-01-27 15:30+0000\n"
 "PO-Revision-Date: 2020-01-28 12:41+0000\n"
 "Last-Translator: Michał Niedziółka <michalekniedziolka@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -222,20 +222,20 @@ msgstr "Tak, proszę!"
 msgid "Never ask again on this computer"
 msgstr "Nie pytaj ponownie na tym komputerze"
 
-#: problems/static/common/tag_selection.js:49
+#: problems/static/common/tag_selection.js:52
 msgid "Try: "
 msgstr "Spróbuj: "
 
-#: problems/static/common/tag_selection.js:56
+#: problems/static/common/tag_selection.js:59
 msgid ""
 "Tag '%(query)s' doesn't exist. It will be added if you save the problem."
 msgstr "Tag '%(query)s' nie istnieje. Zostanie utworzony jeśli zapiszesz zadanie."
 
-#: problems/static/common/tag_selection.js:60
+#: problems/static/common/tag_selection.js:63
 msgid "Tag exists."
 msgstr "Tag istnieje."
 
-#: problems/static/common/tag_selection.js:65
+#: problems/static/common/tag_selection.js:68
 msgid "Type tag name."
 msgstr "Wpisz nazwę tagu."
 
