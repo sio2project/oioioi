@@ -56,12 +56,23 @@
             {% endblock %}
         {% endif %}
         {% block controls_buttons %}
-        <a role="button"
-            class="btn btn-sm btn-default"
-            href="{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
-            <span class="glyphicon glyphicon-upload"></span>
-            {% trans "Submit another" %}
-        </a>
+        {% if contest %}
+            <a role="button"
+                class="btn btn-sm btn-default"
+                href= "{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
+                <span class="glyphicon glyphicon-upload"></span>
+                {% trans "Submit another" %}
+            </a>
+        {% else %}
+            {% if submission.submission.problem_instance.problem.problemsite %}
+                <a role="button"
+                    class="btn btn-sm btn-default"
+                    href= "{% url 'problem_site' site_key=submission.submission.problem_instance.problem.problemsite.url_key %}">
+                    <span class="glyphicon glyphicon-upload"></span>
+                    {% trans "Submit another" %}
+                </a>
+            {% endif %}
+        {% endif %}
         {% endblock %}
     </div>
     <h1 class="pull-left">{% trans "Submission" %} {{ submission.submission.id }}</h1>

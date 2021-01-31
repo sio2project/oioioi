@@ -2836,6 +2836,38 @@ class TestAdministeredContests(TestCase):
 
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)
+class TestSubmissionViewWithoutContest(TestCase):
+    fixtures = [
+        'test_contest',
+        'test_users',
+        'test_full_package',
+        'test_problem_site',
+        'test_problem_instance_with_no_contest',
+        'test_submission',
+    ]
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+    def test_submission_view_without_contest(self):
+        submission = Submission.objects.get(id=1)
+        response = self.client.get(
+            reverse('submission', kwargs={'submission_id': 1})
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Submit another button
+        problemsite = submission.problem_instance.problem.problemsite
+        problemsite_url = reverse(
+            'problem_site',
+            kwargs={
+                'site_key': problemsite.url_key,
+            },
+        )
+        self.assertContains(response, problemsite_url)
+
+
+@override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestSubmissionAdminWithoutContest(TestCase, SubmitFileMixin):
     fixtures = [
         'test_extra_contests',
