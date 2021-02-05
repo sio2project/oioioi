@@ -23,6 +23,7 @@ def auth_ping(request):
     return Response("pong " + str(request.user))
 
 
+@enforce_condition(not_anonymous, login_redirect=False)
 def api_token(request, regenerated=False):
     if request.method != 'POST':
         return TemplateResponse(request, 'api-key.html', {})
