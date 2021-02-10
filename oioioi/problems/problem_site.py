@@ -318,7 +318,12 @@ def _problem_can_be_reuploaded(request, problem):
     condition=can_admin_problem,
 )
 def problem_site_package_download_file(request, problem):
-    original_package = OriginalPackage.objects.get(problem=problem)
+    original_package = OriginalPackage.objects.filter(problem=problem)
+
+    # Check for existence of original package -- e.g. quizzes don't have it.
+    if not original_package.exists():
+        return TemplateResponse(request, 'problems/files.html', {'files': False})
+    original_package = original_package.get()
     problem = original_package.problem
     package = original_package.problem_package
     contest = problem.contest
