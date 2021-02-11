@@ -25,6 +25,7 @@ from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
 from unidecode import unidecode
 
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.archive import Archive
 from oioioi.base.utils.redirect import safe_redirect
@@ -909,6 +910,7 @@ def rejudge_model_solutions_view(request, problem_instance_id):
     return redirect('model_solutions', problem_instance.id)
 
 
+@enforce_condition(not_anonymous)
 def get_last_submissions(request):
     queryset = (
         Submission.objects.filter(user=request.user)
