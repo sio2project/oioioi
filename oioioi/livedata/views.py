@@ -106,6 +106,7 @@ def livedata_events_view(request, round_id):
     reports = (
         SubmissionReport.objects.filter(user_is_participant)
         .exclude(submission_ignored)
+        .exclude(kind='TESTRUN')
         .select_related('submission')
         .prefetch_related('scorereport_set')
     )

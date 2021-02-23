@@ -58,9 +58,17 @@ class ACMContestController(ProgrammingContestController):
         super(ACMContestController, self).fill_evaluation_environ(environ, submission)
 
     def update_report_statuses(self, submission, queryset):
+        if submission.kind == 'TESTRUN':
+            self._activate_newest_report(submission, queryset,
+                    kind=['TESTRUN', 'FAILURE'])
+            return
+
         self._activate_newest_report(submission, queryset, kind=['FULL', 'FAILURE'])
 
     def update_submission_score(self, submission):
+        if submission.kind == 'TESTRUN':
+            super(ACMContestController, self).update_submission_score(submission)
+            return
         try:
             report = SubmissionReport.objects.get(
                 submission=submission, status='ACTIVE', kind='FULL'
@@ -155,9 +163,9 @@ class ACMContestController(ProgrammingContestController):
 
     def get_visible_reports_kinds(self, request, submission):
         if submission.status == 'CE':
-            return ['FULL']
+            return ['FULL', 'TESTRUN']
         else:
-            return []
+            return ['TESTRUN']
 
     def can_see_submission_score(self, request, submission):
         return True
