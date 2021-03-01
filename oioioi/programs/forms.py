@@ -7,49 +7,43 @@ from oioioi.programs.models import ContestCompiler
 
 
 class CompilerInlineForm(forms.ModelForm):
-    COMPILER_CHOICES = [
-        ('', 'Choose language first'),
-    ]
-
     def __init__(self, *args, **kwargs):
         super(CompilerInlineForm, self).__init__(*args, **kwargs)
-        self.LANGUAGE_CHOICES = [
-            ('', 'Choose language'),
-        ]
+        self.language_choices = [('', 'Choose language')]
         default_compilers = getattr(settings, 'DEFAULT_COMPILERS')
         model = self._meta.model
+        submittable_languages = getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items()
         if model == ContestCompiler:
-            for lang, lang_info in getattr(
-                settings, 'SUBMITTABLE_LANGUAGES', {}
-            ).items():
-                self.LANGUAGE_CHOICES.append(
-                    (
-                        lang,
-                        lang_info['display_name']
-                        + ugettext(" (default compiler: ")
-                        + default_compilers.get(lang)
-                        + ")",
-                    )
+            self.language_choices = [
+                (
+                    lang,
+                    lang_info['display_name']
+                    + ugettext(" (default compiler: ")
+                    + default_compilers.get(lang)
+                    + ")",
                 )
+                for lang, lang_info in submittable_languages
+            ]
         else:
-            for lang, lang_info in getattr(
-                settings, 'SUBMITTABLE_LANGUAGES', {}
-            ).items():
-                self.LANGUAGE_CHOICES.append((lang, lang_info['display_name']))
+            self.language_choices = [
+                (lang, lang_info['display_name'])
+                for lang, lang_info in submittable_languages
+            ]
 
-        FINAL_COMPILER_CHOICES = self.COMPILER_CHOICES
+        final_compiler_choices = [('', 'Choose language first')]
         if kwargs.get('instance'):
             instance = kwargs.get('instance')
             available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
             compilers_for_lang = available_compilers.get(instance.language)
             # we can't just add all the compilers_for_lang, because first one
             # is the default option, so it has to be current compiler
-            FINAL_COMPILER_CHOICES = [(instance.compiler, instance.compiler)]
-            for compiler in compilers_for_lang:
-                if compiler != instance.compiler:
-                    FINAL_COMPILER_CHOICES.append((compiler, compiler))
-        self.fields['compiler'].widget = forms.Select(choices=FINAL_COMPILER_CHOICES)
-        self.fields['language'] = forms.ChoiceField(choices=self.LANGUAGE_CHOICES)
+            final_compiler_choices = [(instance.compiler, instance.compiler)] + [
+                (compiler, compiler)
+                for compiler in compilers_for_lang
+                if compiler != instance.compiler
+            ]
+        self.fields['compiler'].widget = forms.Select(choices=final_compiler_choices)
+        self.fields['language'] = forms.ChoiceField(choices=self.language_choices)
         self.fields['language'].widget.attrs.update(
             {'data-compilerchoicesurl': reverse('get_compiler_hints')}
         )
@@ -65,3 +59,17 @@ class ProblemCompilerInlineForm(CompilerInlineForm):
         if commit:
             instance.save()
         return instance
+
+
+class ProblemAllowedLanguageInlineForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProblemAllowedLanguageInlineForm, self).__init__(*args, **kwargs)
+        submittable_languages = getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items()
+        self.language_choices = [
+            (lang, lang_info['display_name'])
+            for lang, lang_info in submittable_languages
+        ]
+        self.fields['language'] = forms.ChoiceField(choices=self.language_choices)
+        self.fields['language'].widget.attrs.update(
+            {'data-compilerchoicesurl': reverse('get_compiler_hints')}
+        )

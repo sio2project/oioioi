@@ -171,7 +171,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                     (
                         'update_problem_statistics',
                         'oioioi.contests.handlers.update_problem_statistics',
-                    ),
+                    )
                 ]
                 if settings.PROBLEM_STATISTICS_AVAILABLE
                 else []

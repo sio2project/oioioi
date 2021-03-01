@@ -398,6 +398,21 @@ class ContestCompiler(models.Model):
         unique_together = ('contest', 'language')
 
 
+class ProblemAllowedLanguage(models.Model):
+    """Represents allowed language for specific problem."""
+
+    problem = models.ForeignKey(
+        Problem, verbose_name=_('problem'), on_delete=models.CASCADE
+    )
+    language = models.CharField(max_length=20, verbose_name=_('language'))
+
+    class Meta(object):
+        verbose_name = _('problem allowed language')
+        verbose_name_plural = _('problem allowed languages')
+        ordering = ('problem',)
+        unique_together = ('problem', 'language')
+
+
 def check_compilers_config():
     SUBMITTABLE_LANGUAGES = getattr(settings, "SUBMITTABLE_LANGUAGES", {})
     SUBMITTABLE_EXTENSIONS = getattr(settings, "SUBMITTABLE_EXTENSIONS", {})

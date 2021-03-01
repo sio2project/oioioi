@@ -34,6 +34,7 @@ from oioioi.programs.models import (
     GroupReport,
     ModelProgramSubmission,
     OutputChecker,
+    ProblemAllowedLanguage,
     ProblemCompiler,
     ProgramSubmission,
     Submission,
@@ -197,9 +198,7 @@ class ProgrammingProblemController(ProblemController):
         environ['untrusted_checker'] = not settings.USE_UNSAFE_CHECKER
 
     def generate_recipe(self, kinds):
-        recipe_body = [
-            ('collect_tests', 'oioioi.programs.handlers.collect_tests'),
-        ]
+        recipe_body = [('collect_tests', 'oioioi.programs.handlers.collect_tests')]
 
         if 'INITIAL' in kinds:
             recipe_body.extend(
@@ -388,12 +387,8 @@ class ProgrammingProblemController(ProblemController):
                 submission=submission, status='ACTIVE', kind=kind_for_status
             ).get()
             score_report = ScoreReport.objects.get(submission_report=report)
-            submission.status = (
-                submission.problem_instance.controller._map_report_to_submission_status(
-                    score_report.status,
-                    submission.problem_instance,
-                    kind=kind_for_status,
-                )
+            submission.status = submission.problem_instance.controller._map_report_to_submission_status(
+                score_report.status, submission.problem_instance, kind=kind_for_status
             )
         except SubmissionReport.DoesNotExist:
             if SubmissionReport.objects.filter(
@@ -531,7 +526,7 @@ class ProgrammingProblemController(ProblemController):
         controller = problem_instance.controller
 
         choices = [('', '')]
-        for lang in controller.get_allowed_languages():
+        for lang in get_allowed_languages_dict(problem_instance).keys():
             compiler_name = None
             compiler = controller.get_compiler_for_language(problem_instance, lang)
             if compiler is not None:
@@ -635,11 +630,7 @@ class ProgrammingProblemController(ProblemController):
                         problem_instance, ext
                     )
 
-        form.media.add_js(
-            [
-                'common/submit_view.js',
-            ]
-        )
+        form.media.add_js(['common/submit_view.js'])
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
@@ -834,6 +825,17 @@ class ProgrammingProblemController(ProblemController):
                 'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 15),
             },
         )
+
+    def get_allowed_languages_for_problem(self, problem):
+        allowed_langs = list(
+            ProblemAllowedLanguage.objects.filter(problem=problem).values_list(
+                'language', flat=True
+            )
+        )
+        # If the whitelist is empty, allow every language
+        if not allowed_langs:
+            return problem.controller.get_allowed_languages()
+        return allowed_langs
 
 
 class ProgrammingContestController(ContestController):
