@@ -1,5 +1,6 @@
 # pylint: disable=dangerous-default-value
 import codecs
+import io
 import os.path
 import shutil
 import tempfile
@@ -28,7 +29,7 @@ def generate_pdf(tex_code, filename, extra_args=[], num_passes=3):
             execute(command, cwd=tmp_folder)
 
         # Get PDF file contents
-        pdf_file = open(os.path.splitext(tex_path)[0] + '.pdf')
+        pdf_file = io.open(os.path.splitext(tex_path)[0] + '.pdf', "rb")
         return stream_file(File(pdf_file), filename)
     finally:
         shutil.rmtree(tmp_folder)

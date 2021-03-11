@@ -412,7 +412,7 @@ def generate_user_output_view(request, testreport_id=None, submission_report_id=
 def get_compiler_hints_view(request):
     language = request.GET.get('language', '')
     available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
-    return available_compilers.get(language, {}).keys()
+    return list(available_compilers.get(language, {}).keys())
 
 
 @jsonify

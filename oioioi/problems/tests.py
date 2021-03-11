@@ -2,6 +2,7 @@
 
 import os.path
 from datetime import datetime  # pylint: disable=E0611
+from functools import cmp_to_key
 
 import pytest
 import six.moves.urllib.parse
@@ -1993,14 +1994,29 @@ class TestProblemStatisticsDisplay(TestCase):
                     pos = pos2 + len('</td>')
         return rows
 
+    @staticmethod
+    def _cmp_str_with_none(key_fn):
+        def _cmp(a, b):
+            key_a = key_fn(a)
+            key_b = key_fn(b)
+            if key_a is None:
+                return True
+            if key_b is None:
+                return False
+            return key_a < key_b
+
+        return _cmp
+
     def _assert_rows_sorted(self, rows, order_by=0, desc=False):
         # Nones should be treated as if they were less than zeroes
         # (i.e. listed last when desc=True and listed first otherwise).
-        denullified_rows = [map(lambda x: -1 if x is None else x, row) for row in rows]
-
         self.assertEqual(
-            denullified_rows,
-            sorted(denullified_rows, key=lambda x: x[order_by], reverse=desc),
+            rows,
+            sorted(
+                rows,
+                key=cmp_to_key(self._cmp_str_with_none(lambda x: x[order_by])),
+                reverse=desc,
+            ),
         )
 
     def test_statistics_problem_list(self):

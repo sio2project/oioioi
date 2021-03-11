@@ -39,6 +39,10 @@ class TestReportViews(TestCase, TestStreamingMixin):
         p.save()
 
     def test_pdf_report_view(self):
+        # fixme PDF is same for human eye but slate output differs
+        # even slate3k doesn't support python3 properly
+        # detail outputs are in file slate.out in this directory
+
         contest = Contest.objects.get()
         url = reverse('oireports', kwargs={'contest_id': contest.id})
         post_vars = {
