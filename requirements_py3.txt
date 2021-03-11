@@ -2,6 +2,6 @@
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
 http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
-http://github.com/lordyupa/django-supervisor/zipball/master#egg=djsupervisor==0.4.0
+http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
 http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers==1.3
 -e .
