@@ -1,5 +1,4 @@
 import threading
-import urllib
 from functools import partial
 
 import six.moves.urllib.parse
@@ -10,17 +9,19 @@ from django.contrib.admin.utils import quote, unquote
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Value
 from django.db.models.functions import Coalesce
+from django.forms import ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils.encoding import force_text
-from django.utils.html import conditional_escape, format_html
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
 from oioioi.base.utils import make_html_link, make_html_links
+from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.current_contest import set_cc_id
 from oioioi.contests.forms import (
     ProblemInstanceForm,
@@ -990,10 +991,19 @@ contest_admin_menu_registry.register(
 )
 
 
+class ContestPermissionAdminForm(ModelForm):
+    user = UserSelectionField(label=_("Username"))
+
+    class Meta(object):
+        model = ContestPermission
+        fields = ('user', 'contest', 'permission')
+
+
 class ContestPermissionAdmin(admin.ModelAdmin):
     list_display = ['permission', 'user', 'user_full_name']
     list_display_links = ['user']
     ordering = ['permission', 'user']
+    form = ContestPermissionAdminForm
 
     def user_full_name(self, instance):
         if not instance.user:
