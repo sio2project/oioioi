@@ -2,6 +2,8 @@ import os
 import string
 import subprocess
 
+import six
+
 # Reliable quoting, taken as-is from `pipes` standard module.
 # There is a slight chance it may work on non-Unix platforms, but
 # I wouldn't count on it. Either way tests will show.
@@ -47,7 +49,7 @@ def execute(
          returned a non-zero return code.
     :param errors_to_ignore: tuple of return codes not to be interpreted as
          errors
-    :param stdin: a bytestring passed to the subprocess
+    :param stdin: a string (bytes in python3, str in python2) passed to the subprocess
     :param cwd: working directory to temporarily chdir to
     :param capture_output: if False, output will be passed to stdout/stderr
 
@@ -94,7 +96,7 @@ def execute(
             preexec_fn=set_cwd,
         )
 
-    stdout, _ = p.communicate(stdin)
+    stdout, _ = p.communicate(six.ensure_binary(stdin))
     rc = p.returncode
 
     if split_lines:
