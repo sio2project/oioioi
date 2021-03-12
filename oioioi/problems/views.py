@@ -1137,12 +1137,11 @@ def get_search_hints_view(request, view_type):
         raise PermissionDenied
     query = unidecode(request.GET.get('q', ''))
 
-    result = (
-        list(get_problem_hints(query, view_type, request.user))
-        + get_tag_hints(query)
-        + list(get_origintag_hints(query))
-        + list(get_origininfovalue_hints(query))
-    )
+    result = []
+    result.extend(list(get_problem_hints(query, view_type, request.user)))
+    result.extend(get_tag_hints(query))
+    result.extend(get_origintag_hints(query))
+    result.extend(get_origininfovalue_hints(query))
 
     # Convert category names in results from lazy translation to strings
     # Since jsonify throws error if given lazy translation objects

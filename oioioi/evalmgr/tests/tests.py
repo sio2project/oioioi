@@ -189,11 +189,13 @@ class TestRemoteJobs(TestCase):
         self._run_with_dummy_sioworkers(self.test_multiple_source_file_evaluation)
 
     def test_full_source_file_evaluation(self):
+        # Problem is in sio.executors.checkers _run_diff doesn't return byte-string.
         env = self.evaluation_env.copy()
         env = delay_environ_wrapper(env).get()
         self.assertEqual('OK', env['result_code'])
 
     def test_multiple_source_file_evaluation(self):
+        # Problem is same as above.
         good_env = self.evaluation_env.copy()
         wrong_env = self.evaluation_env.copy()
         wrong_env.update(
