@@ -57,12 +57,12 @@ python23_universal_requirements = [
     "django-extensions>=2.2.9,<3.0",  # latest version for Django 1.11
     "djangorestframework==3.8.2",  # latest version for Django 1.10
     "werkzeug",
-    'pytest',
-    'pytest-django',
-    'pytest-html',
-    'pytest-xdist',
-    'pytest-cov',
-    'requests',
+    'pytest==4.6.11',
+    'pytest-django==3.10.0',
+    'pytest-html==1.22.1',
+    'pytest-xdist==1.34.0',
+    'pytest-cov>=2.11,<2.12',
+    'requests<3',
     # http://stackoverflow.com/questions/31417964/importerror-cannot-import-name-wraps
     # ¯\_(ツ)_/¯
     "mock==1.0.1",
@@ -83,7 +83,7 @@ python23_universal_requirements = [
     "unidecode",
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.
-    "django-nested-admin",
+    "django-nested-admin<3.4",
     # SIO2 dependencies:
     "filetracker>=2.1,<3.0",
     # Python 2 has class AppConf(metaclass=AppConfMetaClass):
