@@ -22,22 +22,18 @@ if os.getuid() == 0:  # root
 PYTHON_VERSION = sys.version_info[0]
 
 python2_specific_requirements = [
-    "pdfminer>=20110515,<20131113",
-    "slate",
     "django-supervisor",
     "supervisor",
 ]
 
-python3_specific_requirements = [
-    "pdfminer3k",
-    "slate3k",
-]
+python3_specific_requirements = []
 
 python23_universal_requirements = [
     "Django>=1.11,<1.12",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b",
     "sqlalchemy",
-    "django-otp>=0.4.3,<0.5",  # latest version for Django 1.10 and django-two-factor-auth 1.6.*
+    # latest version of django-otp for Django 1.10 and django-two-factor-auth 1.6.*
+    "django-otp>=0.4.3,<0.5",
     "beautifulsoup4",
     "PyYAML",
     "python-dateutil",
@@ -95,6 +91,8 @@ python23_universal_requirements = [
     "django-simple-captcha==0.5.12",
     # HOTFIX
     "phonenumbers",
+    # this is the last pdfminer.six version to support python2
+    "pdfminer.six==20191110",
 ]
 
 if PYTHON_VERSION == 2:

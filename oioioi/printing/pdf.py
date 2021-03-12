@@ -1,5 +1,6 @@
 import os
 
+import six
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from fpdf import FPDF
@@ -111,4 +112,4 @@ def generator(source, header):
     pdf.multi_cell(
         w=pdf.column_width, h=pdf.cell_height, txt=source, border=0, align='L'
     )
-    return pdf.output(dest='S')
+    return six.ensure_binary(pdf.output(dest='S'), 'latin-1')
