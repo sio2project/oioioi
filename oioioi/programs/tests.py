@@ -1,7 +1,7 @@
 import os
 import re
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
 import six
 from django.conf import settings

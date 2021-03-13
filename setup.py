@@ -24,6 +24,7 @@ PYTHON_VERSION = sys.version_info[0]
 python2_specific_requirements = [
     "django-supervisor",
     "supervisor",
+    "enum34",
 ]
 
 python3_specific_requirements = []
@@ -65,7 +66,6 @@ python23_universal_requirements = [
     "fpdf",
     "unicodecsv",
     "shortuuid",
-    "enum34",
     "dnslib",
     "bleach>=3.1.0,<3.2",
     "chardet",
