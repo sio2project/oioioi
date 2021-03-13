@@ -1,12 +1,13 @@
 import os
 import re
 from collections import defaultdict
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime
 
 import six
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
@@ -15,7 +16,7 @@ from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
 from six import unichr
-from six.moves import map, range, zip
+from six.moves import map, range, urllib, zip
 
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import (
@@ -1574,7 +1575,7 @@ class TestCompiler(TestCase):
 
         def get_query_url(query):
             url = reverse('get_compiler_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode({'language': query})
+            return url + '?' + urllib.parse.urlencode({'language': query})
 
         response = self.client.get(get_query_url('C'), follow=True)
         self.assertEqual(response.status_code, 200)
@@ -1673,10 +1674,7 @@ class TestCompiler(TestCase):
     )
     @override_settings(DEFAULT_COMPILERS={'C': 'gcc', 'Python': 'python'})
     def test_check_compiler_config_valid(self):
-        try:
-            check_compilers_config()
-        except:
-            self.assertFalse(True)
+        check_compilers_config()
 
     @override_settings(
         SUBMITTABLE_LANGUAGES={
@@ -1693,11 +1691,8 @@ class TestCompiler(TestCase):
     )
     @override_settings(DEFAULT_COMPILERS={'C': 'gcc', 'Python': 'python3'})
     def test_check_compiler_config_invalid_compiler(self):
-        try:
+        with self.assertRaises(ImproperlyConfigured):
             check_compilers_config()
-            self.assertFalse(True)
-        except:
-            pass
 
     @override_settings(
         SUBMITTABLE_LANGUAGES={
@@ -1713,11 +1708,8 @@ class TestCompiler(TestCase):
     )
     @override_settings(DEFAULT_COMPILERS={'C': 'gcc', 'Python': 'python'})
     def test_check_compiler_config_no_compiler(self):
-        try:
+        with self.assertRaises(ImproperlyConfigured):
             check_compilers_config()
-            self.assertFalse(True)
-        except:
-            pass
 
 
 class TestMaxScoreMigration(TestCaseMigrations):
@@ -1725,37 +1717,39 @@ class TestMaxScoreMigration(TestCaseMigrations):
     migrate_to = '0014_remove_testreport_test_max_score'
 
     def make_report(self, problem_id, contest, apps, max_score):
-        ProblemInstance = apps.get_model('contests', 'ProblemInstance')
-        Submission = apps.get_model('contests', 'Submission')
-        SubmissionReport = apps.get_model('contests', 'SubmissionReport')
-        TestReport = apps.get_model('programs', 'TestReport')
+        problem_instance_model = apps.get_model('contests', 'ProblemInstance')
+        submission_model = apps.get_model('contests', 'Submission')
+        submission_report_model = apps.get_model('contests', 'SubmissionReport')
+        test_report_model = apps.get_model('programs', 'TestReport')
 
-        problem_instance = ProblemInstance.objects.create(
+        problem_instance = problem_instance_model.objects.create(
             contest=contest,
             short_name=str(problem_id),
             contest_id=contest.id,
             problem_id=problem_id,
         )
 
-        submission = Submission.objects.create(problem_instance=problem_instance)
-        submission_report = SubmissionReport.objects.create(submission=submission)
+        submission = submission_model.objects.create(problem_instance=problem_instance)
+        submission_report = submission_report_model.objects.create(
+            submission=submission
+        )
 
-        test_report = TestReport.objects.create(
+        test_report = test_report_model.objects.create(
             submission_report=submission_report, test_max_score=max_score, time_used=1
         )
 
         return test_report
 
     def setUpBeforeMigration(self, apps):
-        Contest = apps.get_model('contests', 'Contest')
+        contest_model = apps.get_model('contests', 'Contest')
 
-        default_contest = Contest.objects.create(
+        default_contest = contest_model.objects.create(
             id=1, controller_name='oioioi.contests.controllers.ContestController'
         )
-        pa_contest = Contest.objects.create(
+        pa_contest = contest_model.objects.create(
             id=2, controller_name='oioioi.pa.controllers.PAContestController'
         )
-        acm_contest = Contest.objects.create(
+        acm_contest = contest_model.objects.create(
             id=3, controller_name='oioioi.acm.controllers.ACMContestController'
         )
 
@@ -1767,20 +1761,24 @@ class TestMaxScoreMigration(TestCaseMigrations):
         self.acm_report_id = self.make_report(3, acm_contest, apps, 100).id
 
     def test(self):
-        TestReport = self.apps.get_model('programs', 'TestReport')
+        test_report_model = self.apps.get_model('programs', 'TestReport')
 
         self.assertEqual(
-            TestReport.objects.get(pk=self.default_report_id).max_score.to_int(), 100
+            test_report_model.objects.get(pk=self.default_report_id).max_score.to_int(),
+            100,
         )
 
         self.assertEqual(
-            TestReport.objects.get(pk=self.pa_report_id).max_score.to_int(), 1
+            test_report_model.objects.get(pk=self.pa_report_id).max_score.to_int(), 1
         )
         self.assertEqual(
-            TestReport.objects.get(pk=self.pa_report_zero_id).max_score.to_int(), 0
+            test_report_model.objects.get(pk=self.pa_report_zero_id).max_score.to_int(),
+            0,
         )
 
-        self.assertTrue(TestReport.objects.get(pk=self.acm_report_id).max_score is None)
+        self.assertTrue(
+            test_report_model.objects.get(pk=self.acm_report_id).max_score is None
+        )
 
 
 class TestReportDisplayTypes(TestCase):

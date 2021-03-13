@@ -113,13 +113,9 @@ def patch():
     from django import urls
 
     if urls.reverse is not reverse:
-        from django.core import urlresolvers as urls_old
-
         django_reverse = urls.reverse
         urls.reverse = reverse
         urls.reverse_lazy = lazy(reverse, str)
-        urls_old.reverse = reverse
-        urls_old.reverse_lazy = urls.reverse_lazy
 
 
 patch()
