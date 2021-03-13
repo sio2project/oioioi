@@ -101,10 +101,14 @@ class SubmitFileMixin(SubmitMixin):
         if send_file:
             file = ContentFile('a' * 1024, name='a.c')
         langs_field_name = form_field_id_for_langs(problem_instance)
+
+        if six.PY2:
+            code = code.encode('utf-8')
+
         post_data = {
             'problem_instance_id': problem_instance.id,
             'file': file,
-            'code': code.encode('utf-8'),
+            'code': code,
             langs_field_name: prog_lang,
         }
         if user:
