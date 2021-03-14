@@ -246,7 +246,7 @@ def filter_problems_by_origin(problems, origintags):
 
 
 def search_problems_in_problemset(datadict):
-    query = unidecode(datadict.get('q', ''))
+    query = unidecode(six.text_type(datadict.get('q', '')))
     tags = datadict.getlist('tag')
     algorithmtags = datadict.getlist('algorithm')
     difficultytags = datadict.getlist('difficulty')

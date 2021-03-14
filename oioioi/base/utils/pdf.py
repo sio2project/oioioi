@@ -1,4 +1,3 @@
-# pylint: disable=dangerous-default-value
 import codecs
 import io
 import os.path
