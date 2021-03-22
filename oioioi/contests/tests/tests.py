@@ -2851,9 +2851,7 @@ class TestSubmissionViewWithoutContest(TestCase):
 
     def test_submission_view_without_contest(self):
         submission = Submission.objects.get(id=1)
-        response = self.client.get(
-            reverse('submission', kwargs={'submission_id': 1})
-        )
+        response = self.client.get(reverse('submission', kwargs={'submission_id': 1}))
         self.assertEqual(response.status_code, 200)
 
         # Submit another button

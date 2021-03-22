@@ -49,7 +49,7 @@ def execute(
          returned a non-zero return code.
     :param errors_to_ignore: tuple of return codes not to be interpreted as
          errors
-    :param stdin: a string (bytes in python3, str in python2) passed to the subprocess
+    :param stdin: a bytestring passed to the subprocess
     :param cwd: working directory to temporarily chdir to
     :param capture_output: if False, output will be passed to stdout/stderr
 
