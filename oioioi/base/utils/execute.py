@@ -2,6 +2,8 @@ import os
 import string
 import subprocess
 
+import six
+
 # Reliable quoting, taken as-is from `pipes` standard module.
 # There is a slight chance it may work on non-Unix platforms, but
 # I wouldn't count on it. Either way tests will show.
@@ -94,7 +96,7 @@ def execute(
             preexec_fn=set_cwd,
         )
 
-    stdout, _ = p.communicate(stdin)
+    stdout, _ = p.communicate(six.ensure_binary(stdin))
     rc = p.returncode
 
     if split_lines:

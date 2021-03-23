@@ -95,7 +95,7 @@ def points_histogram_problem(request, problem):
     return results_histogram_for_queryset(request, results, max_score=max_score)
 
 
-def submissions_by_problem_histogram_for_queryset(request, qs):
+def submissions_by_problem_histogram_for_queryset(qs):
     agg = qs.values(
         'problem_instance',
         'problem_instance__short_name',
@@ -151,7 +151,7 @@ def submissions_histogram_contest(request, contest):
         .filter(problem_instance__contest=contest)
         .prefetch_related('problem_instance')
     )
-    return submissions_by_problem_histogram_for_queryset(request, subs)
+    return submissions_by_problem_histogram_for_queryset(subs)
 
 
 def points_to_source_length_problem(request, problem):

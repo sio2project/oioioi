@@ -91,7 +91,7 @@ class TestStatisticsPlotFunctions(TestCase):
     def test_submissions_by_round_ordering(self):
         plot = submissions_histogram_contest(self.request, 'c')
         self.assertEqual(
-            ['y_min', 'keys', 'series', 'titles', 'plot_name', 'data'], plot.keys()
+            {'y_min', 'keys', 'series', 'titles', 'plot_name', 'data'}, set(plot.keys())
         )
         # zad-extra, zad1 -- same round, sorted alphabetically by problem instance name
         # zad3, zad4 -- different rounds, same start date, sorted by round id

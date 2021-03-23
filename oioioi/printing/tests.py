@@ -1,15 +1,10 @@
-import six
+from six import BytesIO
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
-from six import StringIO
-
-if six.PY2:
-    import slate
-else:
-    import slate3k as slate
 
 from oioioi.base.tests import TestCase
+from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import Contest
 from oioioi.printing.pdf import generator
@@ -37,11 +32,11 @@ class PrintingTestContestController(ContestController):
 
 class TestPDFGenerator(TestCase):
     def test_pdf_generation(self):
-        pdf = StringIO(generator(source=SAMPLE_TEXT, header='header'))
-        text = slate.PDF(pdf)
+        pdf = BytesIO(generator(source=SAMPLE_TEXT, header='header'))
+        text = extract_text_from_pdf(pdf)
         self.assertEqual(9, len(text))
-        self.assertIn('Lorem ipsum dolor', text[0])
-        self.assertIn('Sed egestas dui tellus', text[4])
+        self.assertIn(b'Lorem ipsum dolor', text[0])
+        self.assertIn(b'Sed egestas dui tellus', text[4])
 
 
 class TestPrintingView(TestCase):

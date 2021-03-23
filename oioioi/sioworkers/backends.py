@@ -6,7 +6,6 @@ import json
 # code.
 from threading import Lock
 
-import sio.celery.job
 import sio.workers.runner
 import six
 from django.conf import settings

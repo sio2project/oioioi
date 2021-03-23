@@ -1,4 +1,3 @@
-# pylint: disable=wildcard-import
 import sys
 
 from oioioi.base.utils.finders import find_executable_path
@@ -497,22 +496,23 @@ LOGGING = {
 
 # Celery configuration
 
-from sio.celery.default_config import *
+CELERY_QUEUES = {}
+CELERY_RESULT_BACKEND = 'amqp'
+CELERY_ACKS_LATE = True
+CELERY_SEND_EVENTS = True
 
 BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
                                              'celerydb.sqlite')
 
-# pylint: disable=undefined-variable
-
-CELERY_IMPORTS += [
+CELERY_IMPORTS = [
     'oioioi.evalmgr.tasks',
     'oioioi.problems.unpackmgr',
 ]
 
-CELERY_ROUTES.update({
+CELERY_ROUTES = {
     'oioioi.evalmgr.tasks.evalmgr_job': dict(queue='evalmgr'),
     'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
-})
+}
 
 # Number of concurrently evaluated submissions
 EVALMGR_CONCURRENCY = 1

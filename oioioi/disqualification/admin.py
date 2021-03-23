@@ -1,13 +1,13 @@
-from django.db import models
-from django.forms import Textarea
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.forms import Textarea
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import contest_site, ContestAdmin
+from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import is_contest_admin

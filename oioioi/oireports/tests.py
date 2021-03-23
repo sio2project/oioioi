@@ -1,18 +1,13 @@
 from datetime import datetime  # pylint: disable=E0611
 
-import six
+from six import BytesIO
 from django import VERSION as DJANGO_VERSION
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
-from six import BytesIO
-
-if six.PY2:
-    import slate
-else:
-    import slate3k as slate
 
 from oioioi.base.tests import TestCase, fake_time
+from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.models import Contest
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.oireports.views import CONTEST_REPORT_KEY
@@ -58,12 +53,15 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
-            pages = slate.PDF(BytesIO(self.streamingContent(response)))
-            self.assertIn("test_user", pages[0])
-            self.assertIn("Wynik:34", pages[0])
-            self.assertIn("ZAD1", pages[0])
-            self.assertIn("1bRuntimeerror0.00s/0.10sprogramexited", pages[0])
-            self.assertNotIn("test_user2", pages.text())
+
+            pages = extract_text_from_pdf(BytesIO(self.streamingContent(response)))
+            self.assertIn(b"test_user", pages[0])
+            self.assertIn(b"Wynik:34", pages[0].replace(b' ', b''))
+            self.assertIn(b"ZAD1", pages[0])
+            self.assertIn(
+                b"1bRuntimeerror0.00s/0.10sprogramexited", pages[0].replace(b' ', b'')
+            )
+            self.assertTrue(all(b"test_user2" not in page for page in pages))
 
     def test_xml_view(self):
         contest = Contest.objects.get()

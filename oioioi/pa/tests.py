@@ -1,5 +1,4 @@
 import re
-import urllib
 from datetime import datetime  # pylint: disable=E0611
 
 import six
@@ -225,7 +224,7 @@ class TestPARanking(TestCase):
             # 28 (10, 8, 6, 4), 28 (9, 9, 7, 3), 10 (10)
             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
             check_order(response, [b'Test User', b'Test User 2', b'Test User 3'])
-            self.assertContains(response, '28</td>')
+            self.assertContains(response, b'28</td>')
 
             # 10 (10), 10 (7, 3), 10 (6, 4)
             response = self.client.get(self._ranking_url(B_RANKING_KEY))

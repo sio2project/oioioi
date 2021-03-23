@@ -161,7 +161,7 @@ class Problem(models.Model):
         }
 
     def save(self, *args, **kwargs):
-        self.ascii_name = unidecode(self.name)
+        self.ascii_name = unidecode(six.text_type(self.name))
         super(Problem, self).save(*args, **kwargs)
 
 

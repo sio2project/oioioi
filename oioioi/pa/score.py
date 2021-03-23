@@ -91,6 +91,9 @@ class PAScore(ScoreValue):
     def __repr__(self):
         return "PAScore(%r, %r)" % (self.points, self.distribution)
 
+    def __str__(self):
+        return str(self.points)
+
     @classmethod
     def _from_repr(cls, value):
         points, distribution = value.split(';')

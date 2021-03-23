@@ -674,8 +674,9 @@ class SinolPackage(object):
         """
         source = os.path.join(self.rootdir, 'doc', self.short_name + 'zad.tex')
         if os.path.isfile(source):
-            text = open(source, 'r').read()
-            r = re.search(r'^[^%]*\\RAM{(\d+)}', text, re.MULTILINE)
+            with open(source, 'rb') as f:
+                text = f.read()
+            r = re.search(br'^[^%]*\\RAM{(\d+)}', text, re.MULTILINE)
             if r is not None:
                 try:
                     value = int(r.group(1))
