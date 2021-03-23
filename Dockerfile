@@ -13,6 +13,10 @@ RUN dpkg --add-architecture i386 && \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
+        texlive-lang-german \
+        texlive-lang-european \
+        texlive-lang-czechslovak \
+        ghostscript \
         texlive-fonts-recommended \
         gcc-multilib \
         sudo \
