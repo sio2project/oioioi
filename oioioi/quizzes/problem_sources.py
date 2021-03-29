@@ -7,11 +7,17 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils import generate_key
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import ProblemInstance
-from oioioi.problems.models import ProblemSite, Tag, TagThrough
+from oioioi.problems.models import (
+    ProblemSite,
+    AlgorithmTag,
+    AlgorithmTagThrough,
+    AlgorithmTagLocalization,
+)
 from oioioi.problems.problem_sources import ProblemSource
 from oioioi.problems.utils import get_new_problem_instance
 from oioioi.quizzes.forms import EmptyQuizSourceForm
 from oioioi.quizzes.models import Quiz
+from oioioi.default_settings import LANGUAGES
 
 
 class EmptyQuizSource(ProblemSource):
@@ -28,6 +34,7 @@ class EmptyQuizSource(ProblemSource):
             form = EmptyQuizSourceForm(request.POST)
         else:
             form = EmptyQuizSourceForm()
+
         post_data = {'form': form, 'is_reupload': is_reupload}
 
         if request.method == "POST" and form.is_valid():
@@ -39,8 +46,17 @@ class EmptyQuizSource(ProblemSource):
                     controller_name=controller,
                     author=request.user,
                 )
-                tag = Tag.objects.get_or_create(name='quiz')[0]
-                TagThrough.objects.create(problem=quiz, tag=tag)
+
+                algorithm_tag, created = AlgorithmTag.objects.get_or_create(name='Quiz')
+                if not created:
+                    for language_code, _ in LANGUAGES:
+                        AlgorithmTagLocalization.objects.create(
+                            algorithm_tag=algorithm_tag,
+                            language=language_code,
+                            name='Quiz',
+                        )
+                AlgorithmTagThrough.objects.create(problem=quiz, tag=algorithm_tag)
+
                 ProblemSite.objects.create(problem=quiz, url_key=generate_key())
                 pi = ProblemInstance.objects.create(
                     problem=quiz, short_name=quiz.short_name
@@ -52,6 +68,7 @@ class EmptyQuizSource(ProblemSource):
                     get_new_problem_instance(quiz, contest)
 
                 messages.success(request, _("Quiz successfully added"))
+
                 return safe_redirect(
                     request, reverse('oioioiadmin:contests_probleminstance_changelist')
                 )

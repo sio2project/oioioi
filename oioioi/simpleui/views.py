@@ -4,9 +4,10 @@ from collections import defaultdict
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
 import six
+
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.forms import inlineformset_factory, modelformset_factory
+from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -35,12 +36,12 @@ from oioioi.contests.utils import (
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.portals.conditions import main_page_from_default_global_portal
 from oioioi.portals.models import Portal
-from oioioi.problems.models import Problem, ProblemAttachment, Tag, TagThrough
+from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.admin import ValidationFormset
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
 from oioioi.questions.views import messages_template_context, visible_messages
-from oioioi.simpleui.forms import AttachmentForm, ProblemInstanceForm, TagForm, TestForm
+from oioioi.simpleui.forms import ProblemInstanceForm, TestForm
 
 NUMBER_OF_RECENT_ACTIONS = 5
 RECENT_ACTIVITY_DAYS = 7
@@ -58,10 +59,7 @@ def score_report_is_valid(score_report):
 def get_round_context(request, round_pk):
     selected_round = get_object_or_404(Round, pk=round_pk)
 
-    round = {}
-
-    round['round'] = selected_round
-    round['problem_instances'] = []
+    round = {'round': selected_round, 'problem_instances': []}
 
     problem_instances = {}
 
@@ -301,26 +299,19 @@ def user_dashboard_view(request):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def problem_settings(request, problem_instance_id):
-    # Database objects.
     pi = get_object_or_404(
         ProblemInstance, id=problem_instance_id, contest=request.contest
     )
-    p = pi.problem
-    tags = p.tag_set.all()
-    attachments = p.attachments.all()
+    problem = pi.problem
     tests = pi.test_set.all()
-    # Formsets
-    TestFormset = modelformset_factory(Test, form=TestForm, extra=0)
-    PIFormset = modelformset_factory(ProblemInstance, form=ProblemInstanceForm, extra=0)
 
-    AttachmentFormset = inlineformset_factory(
-        Problem, ProblemAttachment, extra=0, form=AttachmentForm, can_delete=True
+    TestFormset = modelformset_factory(Test, form=TestForm, extra=0)
+    ProblemInstanceFormset = modelformset_factory(
+        ProblemInstance, form=ProblemInstanceForm, extra=0
     )
 
-    TagFormset = modelformset_factory(Tag, form=TagForm, extra=0, can_delete=True)
-
     if request.method == 'POST':
-        pif = PIFormset(request.POST, prefix='pif')
+        pi_formset = ProblemInstanceFormset(request.POST, prefix='pif')
 
         test_formset = TestFormset(request.POST)
         # Bind the clean method, which serves as a time limit and max
@@ -339,39 +330,10 @@ def problem_settings(request, problem_instance_id):
             ValidationFormset.__dict__['clean'], test_formset
         )
 
-        attachment_formset = AttachmentFormset(
-            request.POST, request.FILES, instance=p, prefix='attachment'
-        )
-        tag_formset = TagFormset(request.POST, prefix='tag', queryset=tags)
-
-        if (
-            pif.is_valid()
-            and test_formset.is_valid()
-            and attachment_formset.is_valid()
-            and tag_formset.is_valid()
-        ):
-
-            # Commit is set to False because of errors while deleting.
-            instances = attachment_formset.save(commit=False)
-            for inst in instances:
-                inst.save()
-            for inst in attachment_formset.deleted_objects:
-                inst.delete()
-
-            # Commit is set to false because we don't want to persist
-            # every Tag - we'll be persisting TagThrough instead.
-            instances = tag_formset.save(commit=False)
-            for inst in instances:
-                tag, _ = Tag.objects.get_or_create(name=inst)
-                tt = TagThrough()
-                tt.problem = p
-                tt.tag = tag
-                tt.save()
-            for inst in tag_formset.deleted_objects:
-                TagThrough.objects.filter(tag=inst, problem=p).delete()
-
-            pif.save()
+        if pi_formset.is_valid() and test_formset.is_valid():
+            pi_formset.save()
             test_formset.save()
+
             return redirect(
                 reverse(
                     'simpleui_problem_settings',
@@ -380,32 +342,22 @@ def problem_settings(request, problem_instance_id):
             )
 
         test_forms = test_formset
-        pi_form = pif
-
+        pi_form = pi_formset
     else:
         test_forms = TestFormset(queryset=tests)
-        pi_form = PIFormset(
-            queryset=ProblemInstance.objects.filter(id=pi.id), prefix='pif'
+        pi_form = ProblemInstanceFormset(
+            queryset=ProblemInstance.objects.filter(id=pi.id),
+            prefix='pif',
         )
-        attachment_formset = AttachmentFormset(
-            queryset=attachments, prefix='attachment', instance=p
-        )
-        tag_formset = TagFormset(prefix='tag', queryset=tags)
 
     context = {
         'problem_instance': pi,
-        'problem': p,
-        'tags': tags,
-        'attachments': attachments,
+        'problem': problem,
+        'can_admin_problem': can_admin_problem(request, problem),
         'tests': tests,
         'pi_form': pi_form,
         'test_forms': test_forms,
     }
-
-    for attachment_form in attachment_formset.forms:
-        attachment_form.update_link(request.contest.id)
-    context['attachment_formset'] = attachment_formset
-    context['tag_formset'] = tag_formset
 
     return TemplateResponse(request, 'simpleui/problem_settings/settings.html', context)
 

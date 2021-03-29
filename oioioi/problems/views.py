@@ -55,7 +55,6 @@ from oioioi.problems.models import (
     ProblemAttachment,
     ProblemPackage,
     ProblemStatement,
-    Tag,
     UserStatistics,
 )
 
@@ -465,7 +464,6 @@ def problemset_generate_view(request, page_title, problems, view_type):
             'page_title': page_title,
             'select_problem_src': request.GET.get('select_problem_src'),
             'problem_search': request.GET.get('q', ''),
-            'tags': request.GET.getlist('tag'),
             'origintags': origintags,
             'algorithmtags': request.GET.getlist('algorithm'),
             'difficultytags': request.GET.getlist('difficulty'),
@@ -982,11 +980,6 @@ def get_algorithmtag_hints_view(request):
     return results
 
 
-@jsonify
-def get_tag_hints_view(request):
-    return _get_tag_hints(request, Tag.objects)
-
-
 def _uniquefy(key, list_of_dicts):
     uniquefied = {item[key]: item for item in list_of_dicts}
     return uniquefied.values()
@@ -1112,13 +1105,12 @@ def get_nonselected_origintag_hints(query):
 
 @uniquefy('name')
 def get_tag_hints(query):
-    prefixes = ('tag', 'algorithm', 'difficulty')
+    prefixes = ('algorithm', 'difficulty')
     categories = (
-        _("Tags"),
         _("Algorithm Tags"),
         _("Difficulty Tags"),
     )
-    models = (Tag, AlgorithmTag, DifficultyTag)
+    models = (AlgorithmTag, DifficultyTag)
 
     results = []
     for prefix, category, model in zip(prefixes, categories, models):

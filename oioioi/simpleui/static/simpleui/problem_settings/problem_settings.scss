@@ -22,19 +22,18 @@
     @include make-sm-column(12);
   }
 
-  &__attachments {
+  &__tags_and_attachments {
     @extend .settings__section;
 
     @include make-sm-column(12);
-    @include make-md-column(8);
   }
 
-  &__tags {
+  &__links {
     @extend .settings__section;
 
     @include make-sm-column(6);
-    @include make-md-column(3);
-    @include make-md-column-offset(1);
+
+    text-align: center;
   }
 
   &__tests {

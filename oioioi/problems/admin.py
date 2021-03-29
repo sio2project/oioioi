@@ -35,7 +35,6 @@ from oioioi.problems.forms import (
     ProblemSiteForm,
     ProblemStatementConfigForm,
     RankingVisibilityConfigForm,
-    TagThroughForm,
 )
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -53,7 +52,6 @@ from oioioi.problems.models import (
     ProblemPackage,
     ProblemSite,
     ProblemStatement,
-    Tag,
 )
 from oioioi.problems.utils import can_add_problems, can_admin_problem
 
@@ -346,27 +344,8 @@ class AlgorithmTagAdmin(admin.ModelAdmin):
 admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
-class TagInline(admin.StackedInline):
-    model = Tag.problems.through
-    form = TagThroughForm
-    extra = 0
-    verbose_name = _("Tag (deprecated)")
-    verbose_name_plural = _("Tags (deprecated)")
-    category = _("Tags")
-
-    def has_add_permission(self, request):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [
-        TagInline,
         DifficultyTagInline,
         AlgorithmTagInline,
         OriginTagInline,

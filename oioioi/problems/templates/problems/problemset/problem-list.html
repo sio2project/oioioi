@@ -87,9 +87,6 @@
 
                     {% if show_tags %}
                         <td>
-                            {% for tag in problem.tag_set.all %}
-                                {% tag_label tag %}
-                            {% endfor %}
                             {% for tag in problem.algorithmtag_set.all %}
                                 {% tag_label tag %}
                             {% endfor %}

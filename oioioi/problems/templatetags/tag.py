@@ -11,9 +11,8 @@ register = Library()
 def prefetch_tags(problems):
     prefetch_related_objects(
         problems,
-        'tag_set',
-        'algorithmtag_set',
         'difficultytag_set',
+        'algorithmtag_set__localizations',
         'origintag_set__localizations',
         'origininfovalue_set__localizations',
         'origininfovalue_set__parent_tag__localizations',

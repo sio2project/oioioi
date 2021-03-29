@@ -92,7 +92,6 @@ class Problem(models.Model):
         choices=VISIBILITY_LEVELS_CHOICES,
         default=VISIBILITY_FRIENDS,
     )
-
     package_backend_name = DottedNameField(
         'oioioi.problems.package.ProblemPackageBackend',
         null=True,
@@ -556,7 +555,6 @@ class OriginTagLocalization(models.Model):
     language = models.CharField(
         max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
     )
-
     full_name = models.CharField(
         max_length=255,
         verbose_name=_("full name"),
@@ -650,7 +648,6 @@ class OriginInfoCategoryLocalization(models.Model):
     language = models.CharField(
         max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
     )
-
     full_name = models.CharField(
         max_length=32,
         verbose_name=_("name translation"),
@@ -690,7 +687,6 @@ class OriginInfoValue(models.Model):
             "e.g. for OriginTag 'pa' and OriginInfoValue '2011', this unique OriginInfoValue.name would be 'pa_2011'"
         ),
     )
-
     category = models.ForeignKey(
         OriginInfoCategory,
         related_name='values',
@@ -700,7 +696,6 @@ class OriginInfoValue(models.Model):
             "This information should be categorized under the selected category."
         ),
     )
-
     value = models.CharField(
         max_length=32,
         validators=(validate_origintag,),
@@ -711,7 +706,6 @@ class OriginInfoValue(models.Model):
             "Examples: for year: '2011', but for round: 'r1' (just '1' for round would be ambiguous)."
         ),
     )
-
     order = models.IntegerField(
         default=0,
         verbose_name=_("display order"),
@@ -754,7 +748,6 @@ class OriginInfoValueLocalization(models.Model):
     language = models.CharField(
         max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
     )
-
     full_value = models.CharField(
         max_length=64,
         verbose_name=_("translated value"),
@@ -865,6 +858,36 @@ class AlgorithmTagLocalization(models.Model):
 
 
 @python_2_unicode_compatible
+class AlgorithmTagProposal(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
+
+    class Meta(object):
+        verbose_name = _('algorithm tag proposal')
+        verbose_name_plural = _('algorithm tag proposals')
+
+
+@python_2_unicode_compatible
+class DifficultyProposal(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    difficulty = models.CharField(max_length=10)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return (
+            six.text_type(self.problem.name) + u' -- ' + six.text_type(self.difficulty)
+        )
+
+    class Meta(object):
+        verbose_name = _('difficulty proposal')
+        verbose_name_plural = _('difficulty proposals')
+
+
+@python_2_unicode_compatible
 class Tag(models.Model):
     """Class used for old tags - deprecated."""
 
@@ -901,33 +924,3 @@ class TagThrough(models.Model):
 
     class Meta(object):
         unique_together = ('problem', 'tag')
-
-
-@python_2_unicode_compatible
-class AlgorithmTagProposal(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
-
-    class Meta(object):
-        verbose_name = _('algorithm tag proposal')
-        verbose_name_plural = _('algorithm tag proposals')
-
-
-@python_2_unicode_compatible
-class DifficultyProposal(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    difficulty = models.CharField(max_length=10)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return (
-            six.text_type(self.problem.name) + u' -- ' + six.text_type(self.difficulty)
-        )
-
-    class Meta(object):
-        verbose_name = _('difficulty proposal')
-        verbose_name_plural = _('difficulty proposals')

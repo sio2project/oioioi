@@ -3,9 +3,6 @@
 
 <div class="settings-item">
     <h4 class="text-center item-title">{% trans "Current tags" %}</h4>
-    {% for tag in problem.tag_set.all %}
-        {% tag_label tag %}
-    {% endfor %}
     {% for tag in problem.origintag_set.all %}
         {% tag_label tag %}
     {% endfor %}

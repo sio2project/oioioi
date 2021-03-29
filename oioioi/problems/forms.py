@@ -17,8 +17,6 @@ from oioioi.problems.models import (
     OriginInfoValue,
     Problem,
     ProblemSite,
-    Tag,
-    TagThrough,
 )
 
 
@@ -286,11 +284,3 @@ class AlgorithmTagThroughForm(forms.ModelForm):
     class Meta(object):
         fields = ['problem']
         model = AlgorithmTagThrough
-
-
-class TagThroughForm(forms.ModelForm):
-    tag = TagSelectionField(Tag, 'get_tag_hints')
-
-    class Meta(object):
-        fields = ['problem']
-        model = TagThrough

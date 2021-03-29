@@ -6,7 +6,6 @@ def get_tag_prefix(tag):
         'OriginInfoValue': 'origin',
         'AlgorithmTag': 'algorithm',
         'DifficultyTag': 'difficulty',
-        'Tag': 'tag',
     }
 
     return prefixes[tag.__class__.__name__]

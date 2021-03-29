@@ -739,7 +739,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         'test_problem_instance',
         'test_submission',
         'test_problem_site',
-        'test_algorithmtags',
+        'test_algorithm_tags',
         'test_proposals',
     ]
 
@@ -1312,42 +1312,6 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertNotContains(response, 'REJUDGING')
 
 
-class TestTags(TestCase):
-    fixtures = [
-        'test_users',
-        'test_contest',
-        'test_problem_packages',
-        'test_problem_site',
-        'test_tags',
-    ]
-
-    def test_tag_hints_view(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_query_url(query):
-            url = reverse('get_tag_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode({'substr': query})
-
-        response = self.client.get(get_query_url('rowk'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(get_query_url('rowka'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(get_query_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertNotContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-
 class TestMigrateOldAlgorithmTags(TestCase):
     fixtures = ['test_old_algorithm_tags_migration']
 
@@ -1731,7 +1695,7 @@ class TestAlgorithmTags(TestCase):
         'test_contest',
         'test_problem_packages',
         'test_problem_site',
-        'test_algorithmtags',
+        'test_algorithm_tags',
     ]
 
     @staticmethod
@@ -1849,7 +1813,7 @@ class TestDifficultyTags(TestCase):
         'test_problem_packages',
         'test_problem_site',
         'test_tags',
-        'test_difficultytags',
+        'test_difficulty_tags',
     ]
 
     def test_tag_hints_view(self):
@@ -2789,9 +2753,6 @@ class TestProblemSearch(TestCase):
 
     def test_search_tags_basic(self):
         self.client.get('/c/c/')
-        response = self.client.get(self.url, {'tag': 'tag_t'})
-        self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Znacznik', 'Potagowany'))
 
         response = self.client.get(self.url, {'algorithm': 'tag_a'})
         self.assertEqual(response.status_code, 200)
@@ -2804,7 +2765,6 @@ class TestProblemSearch(TestCase):
         response = self.client.get(
             self.url,
             {
-                'tag': 'tag_t',
                 'algorithm': 'tag_a',
                 'difficulty': 'tag_d',
             },
@@ -2816,7 +2776,6 @@ class TestProblemSearch(TestCase):
             self.url,
             {
                 'q': 'nic',
-                'tag': 'tag_t',
                 'algorithm': 'tag_a',
                 'difficulty': 'tag_d',
             },
@@ -2913,8 +2872,6 @@ class TestProblemSearchHintsTags(TestCase):
     category_url = reverse('get_origininfocategory_hints')
     selected_origintag_url = reverse('get_selected_origintag_hints')
     hints = [
-        'tag_t1',
-        'tag_t2',
         'tag_d1',
         'tag_d2',
         'tag_a1',
@@ -2942,9 +2899,6 @@ class TestProblemSearchHintsTags(TestCase):
 
     def test_search_hints_tags_basic(self):
         self.client.get('/c/c/')
-        response = self.client.get(self.url, {'q': 'tag_t'})
-        self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['tag_t1', 'tag_t2'])
 
         response = self.client.get(self.url, {'q': 'tag_d'})
         self.assertEqual(response.status_code, 200)

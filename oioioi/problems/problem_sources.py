@@ -61,7 +61,7 @@ class ProblemSource(object):
         :class:`~django.template.response.TemplateResponse` is fine, too.
 
         If the request method is ``POST``, it should start the
-        unpacking proccess. If no errors occur, it should return
+        unpacking process. If no errors occur, it should return
         :class:`~django.http.HttpResponseRedirect`
         (e.g. to a view with problem packages queued for processing).
 
