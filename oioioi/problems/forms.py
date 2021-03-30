@@ -118,11 +118,29 @@ class ProblemsetSourceForm(forms.Form):
             self.initial = {'url_key': url_key}
 
 
+class ProblemStatementReplaceForm(forms.Form):
+    file_name = forms.ChoiceField(label=_("Statement filename"))
+    file_replacement = forms.FileField(label=_("Replacement file"), required=True)
+
+    def __init__(self, file_names, *args, **kwargs):
+        super(ProblemStatementReplaceForm, self).__init__(*args, **kwargs)
+        upload_file_field = self.fields['file_replacement']
+        file_name_field = self.fields['file_name']
+        file_name_field.choices = [('', '')] + [(name, name) for name in file_names]
+        self._set_field_show_always('file_name')
+        narrow_input_field(file_name_field)
+        narrow_input_field(upload_file_field)
+        self.initial.update({'file_name': ''})
+
+    def _set_field_show_always(self, field_name):
+        self.fields[field_name].widget.attrs['data-submit'] = 'always'
+
+
 class PackageFileReuploadForm(forms.Form):
     file_name = forms.ChoiceField(label=_("File name"))
     file_replacement = forms.FileField(label=_("Replacement file"), required=False)
 
-    def __init__(self, file_names, contest, *args, **kwargs):
+    def __init__(self, file_names, *args, **kwargs):
         super(PackageFileReuploadForm, self).__init__(*args, **kwargs)
         upload_file_field = self.fields['file_replacement']
         file_name_field = self.fields['file_name']

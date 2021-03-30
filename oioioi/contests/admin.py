@@ -398,6 +398,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             )
         )
 
+    def _replace_statement_href(self, instance):
+        return (
+            reverse('problem_site', args=(instance.problem.problemsite.url_key,))
+            + '?'
+            + six.moves.urllib.parse.urlencode({'key': 'replace_problem_statement'})
+        )
+
     def _package_manage_href(self, instance):
         return (
             reverse('problem_site', args=(instance.problem.problemsite.url_key,))
@@ -456,10 +463,12 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             result.append((rejudge_not_needed_href, _("Rejudge not needed")))
 
         problem_change_href = self._problem_change_href(instance)
+        replace_statement_href = self._replace_statement_href(instance)
         package_manage_href = self._package_manage_href(instance)
         request = self._request_local.request
         if can_admin_problem(request, instance.problem):
             result.append((problem_change_href, _("Advanced settings")))
+            result.append((replace_statement_href, _("Replace statement")))
             result.append((package_manage_href, _("Edit package")))
         return result
 

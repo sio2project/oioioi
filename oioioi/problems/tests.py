@@ -792,6 +792,41 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Model solutions')
         self.assertContains(response, 'mrowkowiec')
 
+    def test_statement_replacement(self):
+        url = (
+            reverse('problem_site', kwargs={'site_key': '123'})
+            + '?key=replace_problem_statement'
+        )
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url)
+        self.assertNotEqual(response.status_code, 200)
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'sum_7.pdf')
+        new_statement_filename = get_test_filename('blank.pdf')
+        response = self.client.post(
+            url,
+            {
+                'file_name': 'sum_7.pdf',
+                'file_replacement': open(new_statement_filename, 'rb'),
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'blank.pdf')
+        self.assertNotContains(response, 'sum_7.pdf')
+
+        problem = Problem.objects.get(pk=1)
+        statement = ProblemStatement.objects.get(problem=problem)
+        url = reverse('show_statement', kwargs={'statement_id': statement.id})
+        response = self.client.get(url)
+        content = self.streamingContent(response)
+        self.assertEqual(content, open(new_statement_filename, 'rb').read())
+
     def test_add_new_tab(self):
         tab_title = 'Test tab'
         tab_contents = 'Hello from test tab'
