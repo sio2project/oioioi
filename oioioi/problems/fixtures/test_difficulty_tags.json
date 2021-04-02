@@ -3,22 +3,126 @@
     "pk": 1,
     "model": "problems.difficultytag",
     "fields": {
-      "name": "trudne"
+      "name": "very-easy"
     }
   },
   {
     "pk": 2,
     "model": "problems.difficultytag",
     "fields": {
-      "name": "latwe"
+      "name": "easy"
     }
   },
   {
-    "pk": 1,
-    "model": "problems.difficultytagthrough",
+    "pk": 3,
+    "model": "problems.difficultytag",
     "fields": {
-        "problem": 1,
-        "tag": 1
+      "name": "medium"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.difficultytag",
+    "fields": {
+      "name": "hard"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.difficultytag",
+    "fields": {
+      "name": "very-hard"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 1,
+      "language": "en",
+      "full_name": "Very easy"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 1,
+      "language": "pl",
+      "full_name": "Bardzo łatwy"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 2,
+      "language": "en",
+      "full_name": "Easy"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 2,
+      "language": "pl",
+      "full_name": "Łatwy"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 3,
+      "language": "en",
+      "full_name": "Medium"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 3,
+      "language": "pl",
+      "full_name": "Średni"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 4,
+      "language": "en",
+      "full_name": "Hard"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 4,
+      "language": "pl",
+      "full_name": "Trudny"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 5,
+      "language": "en",
+      "full_name": "Very hard"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "problems.difficultytaglocalization",
+    "fields": {
+      "difficulty_tag": 5,
+      "language": "pl",
+      "full_name": "Bardzo trudny"
     }
   }
 ]

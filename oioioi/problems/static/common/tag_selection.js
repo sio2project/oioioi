@@ -1,83 +1,5 @@
-function init_tag_addition(id, hints_url) {
-    $(function(){
-        var input = $('#' + id);
-        var hints = $('#' + id + '-hints');
-
-        /* Prevent multiple-initialization */
-        if(input.data("init"))
-            return;
-        input.data("init", true);
-
-        var changeInput = function() {
-            var make_hint = function(tag, query) {
-                var tag_lower = tag.toLowerCase();
-                var query_lower = query.toLowerCase();
-                var index = tag_lower.indexOf(query_lower);
-                var pre = tag.substr(0, index);
-                var mid = tag.substr(index, query.length);
-                var suf = tag.substr(index + query.length);
-
-                var label = $("<strong></strong>");
-                label.html(pre + "<u>" + mid + "</u>" + suf);
-                label.click(function() { input.val(tag); changeInput(); });
-                label.css('cursor', 'pointer');
-                
-                return label;
-            };
-
-            var html_escape = function(str) {
-                return String(str)
-                    .replace(/&/g, '&amp;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#39;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;');
-            };
-
-            var query = input.val();
-
-            if(query.length >= 2) {
-                $.getJSON(hints_url, {substr: query},
-                    function(items) {
-                        var exists = false;
-                        var hint_chain = $('<span></span>');
-                        var count = 0;
-                        for(var i = 0; i < items.length; i++) {
-                            if(items[i] == query)
-                                exists = true;
-                            else {
-                                if(count !== 0)
-                                    hint_chain.append(", ");
-                                else
-                                    hint_chain.append(gettext("Try: "));
-                                hint_chain.append(make_hint(items[i], query));
-                                count++;
-                            }
-                        }
-                        if(!exists) {
-                            hints.html(gettext(
-                                "Tag '%(query)s' doesn't exist." +
-                                " It will be added if you save the problem.")
-                                    .fmt({query: html_escape(query)}) + " ");
-                        } else {
-                            hints.html(gettext("Tag exists.") + " ");
-                        }
-                        hints.append(hint_chain);
-                    });
-            } else {
-                hints.html(gettext("Type tag name."));
-            }
-        };
-
-        input.keyup(changeInput);
-        input.change(changeInput);
-
-        changeInput();
-    });
-}
-
 function add_search_tag(parent_node, key, value, text) {
-    var node = $('.search-tag-root').first().clone(true);
+    const node = $('.search-tag-root').first().clone(true);
     node.find('.label')
         .removeClass('tag-label-')
         .addClass('tag-label-' + key);
@@ -89,6 +11,7 @@ function add_search_tag(parent_node, key, value, text) {
     node.find('.search-tag-text')
         .text(text || value);
     node.appendTo(parent_node).show();
+
     return node;
 }
 
@@ -124,10 +47,10 @@ function enable_autoselect_and_reload_menu(
 
 function init_search_selection(id) {
     $(function(){
-        var input = $('#' + id);
+        const input = $('#' + id);
 
         // The default source - returns hints for all tags and problems.
-        var source_default = function(query, process) {
+        const source_default = function(query, process) {
             $.getJSON(input.data("hintsUrl"), {q: query}, process);
         };
 
@@ -138,8 +61,9 @@ function init_search_selection(id) {
             autoSelect: false,
             matcher: function(item) {
                 // Bug fix: backspace on empty input matched last results.
-                if( !input.val() )
+                if(!input.val()) {
                     return false;
+                }
 
                 // Every item returned by the hints url should have already
                 // been matched in python code.
@@ -147,20 +71,20 @@ function init_search_selection(id) {
             },
             updater: function(item) {
                 // We may want to change the selection pool.
-                var typeahead = input.data('typeahead');
+                const typeahead = input.data('typeahead');
 
                 // We also need to return a string to be put in the search box.
                 // Sometimes we will be forcing the search menu to reload
                 // immediately instead of just accepting a value - this can be
                 // done by by calling the typeahead.lookup() method.
                 // In such case the input box value has to be updated manually.
-                var result = item.search_name || item.name;
+                let result = item.search_name || item.name;
 
-                if (item.trigger == "origintag-menu") {
+                if (item.trigger === "origintag-menu") {
                     // When the search only matches one origintag, the hints url
                     // will return its categories too. This trigger is to help a
                     // user choose to match a particular tag only. Reloading the
-                    // menu immediately will show the categories
+                    // menu immediately will show the categories.
                     const source_origintag = make_source_function(
                         result,
                         typeahead,
@@ -171,7 +95,7 @@ function init_search_selection(id) {
                     enable_autoselect_and_reload_menu(
                         typeahead, source_origintag, input, result
                     );
-                } else if (item.trigger == "category-menu") {
+                } else if (item.trigger === "category-menu") {
                     // This trigger is to change the hints source to a specific
                     // tag's specific category's values instead of everything.
                     const source_origincategory = make_source_function(
@@ -185,27 +109,30 @@ function init_search_selection(id) {
                     enable_autoselect_and_reload_menu(
                         typeahead, source_origincategory, input, result
                     );
-                } else if (item.trigger != 'problem') {
+                } else if (item.trigger !== 'problem') {
                     // At this point for anything other than a problem we
                     // want to create a search tag
-                    var value = item.value || item.name;
+                    const value = item.value || item.name;
 
                     // Only create new search tag if it doesn't exist yet
-                    var tag = $(".search-tag-text:contains('" + value + "')")
-                    if (tag.length == 0) {
-                        var origintag = value.split('_')[0];
+                    const tag = $(".search-tag-text:contains('" + value + "')");
+                    if (tag.length === 0) {
+                        const tag = value.split('_')[0];
 
                         // Make sure OriginInfo is after its OriginTag
-                        var parent_node = $('#tag-row');
+                        let parent_node = $('#tag-row');
                         if (item.trigger && item.trigger.startsWith('origin')) {
-                            group_node = $('#origintag-group-' + origintag);
-                            if (group_node.length == 0) {
-                                group_node = $('<div>', {
-                                            'id': 'origintag-group-' + origintag,
-                                            'class': 'origintag-group',
-                                        }).appendTo(parent_node);
+                            group_node = $('#origintag-group-' + tag);
+                            if (group_node.length === 0) {
+                                group_node = $(
+                                    '<div>',
+                                    {
+                                        'id': 'origintag-group-' + tag,
+                                        'class': 'origintag-group',
+                                    }
+                                ).appendTo(parent_node);
 
-                                add_search_tag(group_node, 'origin', origintag)
+                                add_search_tag(group_node, 'origin', tag)
                                     .click(function() {
                                         group_node.remove();
                                     });
@@ -214,12 +141,17 @@ function init_search_selection(id) {
                         }
 
                         // OriginTag node already has a trigger
-                        if (item.trigger != 'origintag') {
-                            var text = value;
-                            if (item.trigger == 'origininfo')
+                        if (item.trigger !== 'origintag') {
+                            let text = value;
+                            if (item.trigger === 'origininfo') {
                                 text = value.split('_')[1];
-                            var node = add_search_tag(parent_node, item.prefix,
-                                                      value, text);
+                            } else if (item.trigger === 'difficulty') {
+                                text = item.name;
+                            }
+
+                            const node = add_search_tag(
+                                parent_node, item.prefix, value, text
+                            );
                             node.find('.search-tag-remove').click(function() {
                                 node.remove();
                             });
@@ -230,6 +162,7 @@ function init_search_selection(id) {
                     typeahead.setSource(source_default);
                     result = "";
                 }
+
                 return result;
             },
         });

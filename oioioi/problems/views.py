@@ -16,7 +16,7 @@ from django.core.files.base import File
 from django.db import transaction
 from django.db.models import Case, CharField, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -44,8 +44,9 @@ from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagLocalization,
     AlgorithmTagProposal,
-    DifficultyProposal,
     DifficultyTag,
+    DifficultyTagLocalization,
+    DifficultyTagProposal,
     OriginInfoCategory,
     OriginInfoValue,
     OriginInfoValueLocalization,
@@ -201,7 +202,7 @@ def add_or_update_problem_view(request):
     )
 
 
-def filter_problems_by_origin(problems, origintags):
+def filter_problems_by_origin(problems, origin_tags):
     """The filters are almost always logical ANDed, the only exception to
     this are OriginInfoValues within their OriginInfoCategory, which are
     logical ORred - it is possible to search for example for tasks from
@@ -209,7 +210,7 @@ def filter_problems_by_origin(problems, origintags):
     Searching in Problemset from the Task Archive relies on this behaviour.
     """
     info = {}
-    for tag in origintags:
+    for tag in origin_tags:
         tag = tag.split('_')
 
         if len(tag) in (1, 2):
@@ -238,7 +239,6 @@ def filter_problems_by_origin(problems, origintags):
     for tag, categories in info.items():
         problems = problems.filter(origintag__name=tag)
         for category, q in categories.items():
-            print(q)
             problems = problems.filter(q)
 
     return problems
@@ -246,10 +246,9 @@ def filter_problems_by_origin(problems, origintags):
 
 def search_problems_in_problemset(datadict):
     query = unidecode(six.text_type(datadict.get('q', '')))
-    tags = datadict.getlist('tag')
-    algorithmtags = datadict.getlist('algorithm')
-    difficultytags = datadict.getlist('difficulty')
-    origintags = datadict.getlist('origin')
+    algorithm_tags = datadict.getlist('algorithm')
+    difficulty_tags = datadict.getlist('difficulty')
+    origin_tags = datadict.getlist('origin')
 
     problems = Problem.objects.all()
 
@@ -257,14 +256,12 @@ def search_problems_in_problemset(datadict):
         problems = problems.filter(
             Q(ascii_name__icontains=query) | Q(short_name__icontains=query)
         )
-    if tags:  # Old tags, deprecated
-        problems = problems.filter(tag__name__in=tags)
-    if algorithmtags:
-        problems = problems.filter(algorithmtag__name__in=algorithmtags)
-    if difficultytags:
-        problems = problems.filter(difficultytag__name__in=difficultytags)
-    if origintags:
-        problems = filter_problems_by_origin(problems, origintags)
+    if algorithm_tags:
+        problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+    if difficulty_tags:
+        problems = problems.filter(difficultytag__name__in=difficulty_tags)
+    if origin_tags:
+        problems = filter_problems_by_origin(problems, origin_tags)
 
     return problems
 
@@ -443,16 +440,20 @@ def problemset_generate_view(request, page_title, problems, view_type):
     navbar_links = navbar_links_registry.template_context(request)
     problemset_tabs = generate_problemset_tabs(request)
 
-    origintags = {}
+    origin_tags = {}
     for param in request.GET.getlist('origin'):
         param = param.split('_')
         if len(param) in (1, 2):
-            if param[0] not in origintags:
-                origintags[param[0]] = []
+            if param[0] not in origin_tags:
+                origin_tags[param[0]] = []
             if len(param) == 2:
-                origintags[param[0]].append(param[1])
+                origin_tags[param[0]].append(param[1])
         else:
             raise Http404
+
+    difficulty_tags = DifficultyTag.objects.filter(
+        name__in=request.GET.getlist('difficulty')
+    )
 
     return TemplateResponse(
         request,
@@ -464,9 +465,9 @@ def problemset_generate_view(request, page_title, problems, view_type):
             'page_title': page_title,
             'select_problem_src': request.GET.get('select_problem_src'),
             'problem_search': request.GET.get('q', ''),
-            'origintags': origintags,
-            'algorithmtags': request.GET.getlist('algorithm'),
-            'difficultytags': request.GET.getlist('difficulty'),
+            'origin_tags': origin_tags,
+            'algorithm_tags': request.GET.getlist('algorithm'),
+            'difficulty_tags': difficulty_tags,
             'show_tags': show_tags,
             'show_statistics': show_statistics,
             'show_user_statistics': show_user_statistics,
@@ -533,9 +534,13 @@ def problem_site_view(request, site_key):
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append(
         {
-            'name': _('Problem view'),
+            'name': _("Problem view"),
             'url': reverse('problem_site', kwargs={'site_key': site_key}),
         }
+    )
+    difficulty_options = (
+        tag.full_name
+        for tag in DifficultyTagLocalization.objects.filter(language=get_language())
     )
     context = {
         'problem': problem,
@@ -546,6 +551,7 @@ def problem_site_view(request, site_key):
         'select_problem_src': request.GET.get('select_problem_src'),
         'show_add_button': show_add_button,
         'show_proposal_form': show_proposal_form(problem, request.user),
+        'difficulty_options': difficulty_options,
         'administered_recent_contests': administered_recent_contests,
         'navbar_links': navbar_links,
         'problemset_tabs': problemset_tabs,
@@ -716,7 +722,7 @@ def _recursive_group_problems(problems, result_info, categories, div_id):
             child_problems, result_info, categories[1:], child_id
         )
         node['subnodes'][value] = child
-        if child['attempted'] == True:
+        if child['attempted']:
             node['attempted'] = True
         total_percentage += child['progress_percentage'] * len(child_problems)
 
@@ -732,7 +738,7 @@ def _recursive_group_problems(problems, result_info, categories, div_id):
 
 
 def _get_results_info(request, problems):
-    if request.user.is_authenticated == False:
+    if not request.user.is_authenticated:
         return {problem: {'exists': False} for problem in problems}
 
     main_instances = [problem.main_problem_instance for problem in problems]
@@ -928,56 +934,12 @@ def get_last_submissions(request):
     )
 
 
-def _get_tag_hints(request, tags_manager):
-    substr = request.GET.get('substr', '')
-    if len(substr) < 2:
-        raise Http404
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    queryset_tags = tags_manager.filter(name__icontains=substr)[:num_hints]
-
-    return [tag.name for tag in queryset_tags]
-
-
 def uniquefy_tag_names(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
         return list(set(tag_name for tag_name in fn(*args, **kwargs)))
 
     return decorated
-
-
-@jsonify
-def get_difficultytag_hints_view(request):
-    return _get_tag_hints(request, DifficultyTag.objects)
-
-
-@jsonify
-@uniquefy_tag_names
-def get_algorithmtag_hints_view(request):
-    substr = request.GET.get('substr', '')
-    if len(substr) < 2:
-        raise Http404
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    if num_hints > 1:
-        num_hints //= 2
-
-    results = []
-    results.extend(
-        [
-            tag.name
-            for tag in AlgorithmTag.objects.filter(name__icontains=substr)[:num_hints]
-        ]
-    )
-    results.extend(
-        [
-            tag.full_name
-            for tag in AlgorithmTagLocalization.objects.filter(
-                full_name__icontains=substr
-            )[:num_hints]
-        ]
-    )
-
-    return results
 
 
 def _uniquefy(key, list_of_dicts):
@@ -1104,43 +1066,37 @@ def get_nonselected_origintag_hints(query):
 
 
 @uniquefy('name')
-def get_tag_hints(query):
-    prefixes = ('algorithm', 'difficulty')
-    categories = (
-        _("Algorithm Tags"),
-        _("Difficulty Tags"),
-    )
-    models = (AlgorithmTag, DifficultyTag)
-
-    results = []
-    for prefix, category, model in zip(prefixes, categories, models):
-        results.extend(
-            [
-                {
-                    'name': tag.name,
-                    'category': category,
-                    'prefix': prefix,
-                    'value': tag.name,
-                }
-                for tag in model.objects.filter(name__icontains=query)
-            ]
-        )
-
-    results.extend(
+def get_algorithm_and_difficulty_tag_hints(query):
+    result = []
+    result.extend(
         [
             {
-                'name': tag.full_name,
+                'name': atl.algorithm_tag.full_name,
                 'category': _("Algorithm Tags"),
                 'prefix': 'algorithm',
-                'value': tag.algorithm_tag.name,
+                'value': atl.algorithm_tag.name,
             }
-            for tag in AlgorithmTagLocalization.objects.filter(
+            for atl in AlgorithmTagLocalization.objects.filter(
+                full_name__icontains=query
+            )
+        ]
+    )
+    result.extend(
+        [
+            {
+                'trigger': 'difficulty',
+                'name': dtl.difficulty_tag.full_name,
+                'category': _("Difficulty Tags"),
+                'prefix': 'difficulty',
+                'value': dtl.difficulty_tag.name,
+            }
+            for dtl in DifficultyTagLocalization.objects.filter(
                 full_name__icontains=query
             )
         ]
     )
 
-    return results
+    return result
 
 
 @uniquefy('name')
@@ -1184,11 +1140,12 @@ def get_search_hints_view(request, view_type):
     """
     if view_type == 'all' and not request.user.is_superuser:
         raise PermissionDenied
-    query = unidecode(request.GET.get('q', ''))
+
+    query = request.GET.get('q', '')
 
     result = []
     result.extend(list(get_problem_hints(query, view_type, request.user)))
-    result.extend(get_tag_hints(query))
+    result.extend(get_algorithm_and_difficulty_tag_hints(query))
     result.extend(get_nonselected_origintag_hints(query))
     result.extend(get_origininfovalue_hints(query))
 
@@ -1207,6 +1164,7 @@ def get_origininfocategory_hints_view(request):
     category = get_object_or_404(
         OriginInfoCategory, parent_tag=tag, name=request.GET.get('category')
     )
+
     if not category:
         raise Http404
 
@@ -1223,36 +1181,42 @@ def get_origininfocategory_hints_view(request):
 
 @jsonify
 @uniquefy_tag_names
-def get_tag_proposal_hints_view(request):
+def get_algorithm_tag_proposal_hints_view(request):
     query = request.GET.get('query', '')
-    base_hints = [
-        tag.name for tag in AlgorithmTag.objects.filter(name__istartswith=query)
-    ]
-    localized_hints = [
-        tag.full_name
-        for tag in AlgorithmTagLocalization.objects.filter(full_name__istartswith=query)
-    ]
 
-    return base_hints + localized_hints
+    result = []
+    result.extend(
+        [tag.full_name for tag in AlgorithmTag.objects.filter(name__icontains=query)]
+    )
+    result.extend(
+        [
+            tag.algorithm_tag.full_name
+            for tag in AlgorithmTagLocalization.objects.filter(
+                full_name__icontains=query
+            )
+        ]
+    )
+
+    return result
 
 
 @jsonify
 @uniquefy_tag_names
-def get_tag_label_view(request):
+def get_algorithm_tag_label_view(request):
     name = request.GET.get('name', '')
-    base_tags = AlgorithmTag.objects.filter(name=name)
-    localized_tags = AlgorithmTagLocalization.objects.filter(full_name=name)
-    proposed = request.GET.get('proposed', -1)
+    proposed = request.GET.get('proposed', '-1')
+    tags = AlgorithmTagLocalization.objects.filter(full_name=name)
 
-    if proposed != '-1' or not (base_tags or localized_tags):
+    if proposed != '-1' or not tags:
         raise Http404
 
-    return [tag.name for tag in base_tags] + [tag.full_name for tag in localized_tags]
+    return [tag.full_name for tag in tags]
 
 
 def save_proposals_view(request):
     if request.method == 'POST':
-        tags = request.POST.getlist('tags[]')
+        tags = request.POST.getlist('tags[]', None)
+        difficulty = request.POST.get('difficulty', None)
         user = (
             User.objects.all().filter(username=request.POST.get('user', None)).first()
         )
@@ -1260,32 +1224,33 @@ def save_proposals_view(request):
             Problem.objects.all().filter(pk=request.POST.get('problem', None)).first()
         )
 
-        if not user or not problem:
-            return None
+        if not tags or not difficulty or not user or not problem:
+            return HttpResponseBadRequest()
 
         for tag in tags:
-            tag_proposal = AlgorithmTag.objects.filter(name=tag)
-            if tag_proposal.exists():
-                tag_proposal = tag_proposal.first()
-            else:
-                tag_proposal = (
-                    AlgorithmTagLocalization.objects.filter(full_name=tag)
-                    .first()
-                    .algorithm_tag
+            algorithm_tag = (
+                AlgorithmTagLocalization.objects.filter(
+                    full_name=tag, language=get_language()
                 )
-
-            proposal = AlgorithmTagProposal(
-                problem=problem,
-                tag=tag_proposal,
-                user=user,
+                .first()
+                .algorithm_tag
             )
-            proposal.save()
-
-        if request.POST.get('difficulty', None):
-            proposal = DifficultyProposal(
-                problem=problem, difficulty=request.POST['difficulty'], user=user
+            algorithm_tag_proposal = AlgorithmTagProposal(
+                problem=problem, tag=algorithm_tag, user=user
             )
-            proposal.save()
+            algorithm_tag_proposal.save()
+
+        difficulty_tag = (
+            DifficultyTagLocalization.objects.get(
+                full_name=difficulty, language=get_language()
+            )
+            .first()
+            .difficulty_tag
+        )
+        difficulty_tag_proposal = DifficultyTagProposal(
+            problem=problem, tag=difficulty_tag, user=user
+        )
+        difficulty_tag_proposal.save()
 
         return HttpResponse('success\n' + str(tags))
 
@@ -1294,6 +1259,7 @@ def download_problem_package_file_view(request, package_id, file_name):
     package = _get_package(request, package_id, 'contests.contest_admin')
     archive = Archive(package.package_file)
     dir_path = tempfile.mkdtemp(dir=tempfile.gettempdir())
+
     try:
         archive.extract(to_path=dir_path)
         filepath = os.path.join(dir_path, file_name)

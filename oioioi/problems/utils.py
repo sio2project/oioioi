@@ -19,7 +19,7 @@ from oioioi.contests.utils import (
 )
 from oioioi.problems.models import (
     AlgorithmTagProposal,
-    DifficultyProposal,
+    DifficultyTagProposal,
     ProblemStatement,
     ProblemStatistics,
     UserStatistics,
@@ -43,15 +43,17 @@ def can_upload_problems(request):
 
 
 def can_admin_problem(request, problem):
+    if request.user.is_superuser:
+        return True
     if request.user.has_perm('problems.problems_db_admin'):
         return True
-    if request.user.has_perm('problems.problem_admin', problem):
+    if problem and request.user.has_perm('problems.problem_admin', problem):
         return True
-    if request.user == problem.author:
+    if problem and request.user == problem.author:
         return True
-    # If a user is admining a contest where the task was initialy added,
-    # he is considered to be a co-author of the task, giving him rights to admin it
-    if problem.contest:
+    # If a user is administrating a contest where the task was initially added,
+    # he is considered to be a co-author of the task, giving him rights to admin it.
+    if problem and problem.contest:
         return can_admin_contest(request.user, problem.contest)
     return False
 
@@ -356,7 +358,7 @@ def show_proposal_form(problem, user):
 
     if AlgorithmTagProposal.objects.all().filter(
         problem=problem, user=user
-    ) or DifficultyProposal.objects.all().filter(problem=problem, user=user):
+    ) or DifficultyTagProposal.objects.all().filter(problem=problem, user=user):
         return False
 
     ps = ProblemStatistics.objects.all().filter(problem=problem).first()

@@ -3,36 +3,37 @@
     "pk": 1,
     "model": "problems.algorithmtag",
     "fields": {
-      "name": "mrowkowiec"
+      "name": "dp"
     }
   },
   {
     "pk": 2,
     "model": "problems.algorithmtag",
     "fields": {
-      "name": "mrowka"
+      "name": "lcis"
     }
   },
   {
     "pk": 3,
     "model": "problems.algorithmtag",
     "fields": {
-      "name": "DynamicProgramming"
+      "name": "knapsack"
     }
   },
   {
     "pk": 4,
     "model": "problems.algorithmtag",
     "fields": {
-      "name": "Zachlanne"
+      "name": "greedy"
     }
   },
+
   {
     "pk": 1,
     "model": "problems.algorithmtaglocalization",
     "fields": {
-      "algorithm_tag": 3,
-      "full_name": "DynamicProgramming",
+      "algorithm_tag": 1,
+      "full_name": "Dynamic programming",
       "language": "en"
     }
   },
@@ -40,13 +41,49 @@
     "pk": 2,
     "model": "problems.algorithmtaglocalization",
     "fields": {
-      "algorithm_tag": 3,
-      "full_name": "ProgramowanieDynamiczne",
+      "algorithm_tag": 1,
+      "full_name": "Programowanie dynamiczne",
       "language": "pl"
     }
   },
   {
     "pk": 3,
+    "model": "problems.algorithmtaglocalization",
+    "fields": {
+      "algorithm_tag": 2,
+      "full_name": "Longest common increasing subsequence",
+      "language": "en"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.algorithmtaglocalization",
+    "fields": {
+      "algorithm_tag": 2,
+      "full_name": "Najdłuższy wspólny podciąg rosnący",
+      "language": "pl"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.algorithmtaglocalization",
+    "fields": {
+      "algorithm_tag": 3,
+      "full_name": "Knapsack problem",
+      "language": "en"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.algorithmtaglocalization",
+    "fields": {
+      "algorithm_tag": 3,
+      "full_name": "Problem plecakowy",
+      "language": "pl"
+    }
+  },
+  {
+    "pk": 7,
     "model": "problems.algorithmtaglocalization",
     "fields": {
       "algorithm_tag": 4,
@@ -55,11 +92,12 @@
     }
   },
   {
-    "pk": 1,
-    "model": "problems.algorithmtagthrough",
+    "pk": 8,
+    "model": "problems.algorithmtaglocalization",
     "fields": {
-        "problem": 1,
-        "tag": 1
+      "algorithm_tag": 4,
+      "full_name": "Zachłanny",
+      "language": "pl"
     }
   }
 ]

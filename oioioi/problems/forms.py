@@ -3,21 +3,11 @@ from collections import OrderedDict
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.urls import reverse
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.contests.models import ProblemStatementConfig, RankingVisibilityConfig
-from oioioi.problems.models import (
-    AlgorithmTag,
-    AlgorithmTagThrough,
-    DifficultyTag,
-    DifficultyTagThrough,
-    OriginInfoValue,
-    Problem,
-    ProblemSite,
-)
+from oioioi.problems.models import OriginInfoValue, Problem, ProblemSite
 
 
 class ProblemUploadForm(forms.Form):
@@ -153,8 +143,6 @@ class PackageFileReuploadForm(forms.Form):
 
 class LocalizationFormset(forms.models.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
-        self.min_num = len(settings.LANGUAGES)
-        self.max_num = len(settings.LANGUAGES)
         kwargs['initial'] = [
             {'language': lang[0]}
             for lang in settings.LANGUAGES
@@ -162,68 +150,11 @@ class LocalizationFormset(forms.models.BaseInlineFormSet):
         ]
         super(LocalizationFormset, self).__init__(*args, **kwargs)
 
+        self.min_num = len(settings.LANGUAGES)
+        self.max_num = len(settings.LANGUAGES)
 
-# TagSelectionWidget is designed to work with django-admin
-
-
-class TagSelectionWidget(forms.Widget):
-    html_template = (
-        "<div>"
-        "<input type=\"text\" autocomplete=\"off\" "
-        "id=\"%(id)s\" "
-        "name=\"%(name)s\" "
-        "onfocus=\"init_tag_addition(this.id, '%(data-hints-url)s')\" "
-        "value=\"%(value)s\" />"
-        "<span id=\"%(id)s-hints\" style=\"margin-left: 5px;\"></span>"
-        "</div>"
-    )
-
-    def __init__(self, tag_cls, hints_url=None, *args, **kwargs):
-        self.tag_cls = tag_cls
-        self.hints_url = hints_url
-        super(TagSelectionWidget, self).__init__(*args, **kwargs)
-
-    def render(self, name, value, attrs=None, renderer=None):
-        # check if this is the default renderer
-        if renderer is not None and not isinstance(
-            renderer, forms.renderers.DjangoTemplates
-        ):
-            raise AssertionError
-        # Value can either be an integer (Tag's id) or a string (Tag's name)
-        if value is None:
-            value = ''
-        elif isinstance(value, int):
-            value = self.tag_cls.objects.get(id=value).name
-        arguments = {
-            'id': attrs['id'],
-            'name': name,
-            'value': value,
-            'data-hints-url': reverse(self.hints_url),
-        }
-        return mark_safe(self.html_template % arguments)
-
-    class Meta(object):
-        js = ('common/tag_selection.js',)
-
-
-class TagSelectionField(forms.ModelChoiceField):
-    def __init__(self, tag_cls, data_hints_url):
-        self.tag_cls = tag_cls
-        for field in tag_cls._meta.fields:
-            if field.name == 'name':
-                self.default_validators = field.validators
-                break
-        else:
-            self.default_validators = []
-        self.widget = TagSelectionWidget(tag_cls, data_hints_url)
-        super(TagSelectionField, self).__init__(
-            self.tag_cls.objects, to_field_name='name'
-        )
-
-    def clean(self, value):
-        for validator in self.default_validators:
-            validator(value)
-        return self.tag_cls.objects.get_or_create(name=value)[0]
+        for form in self.forms:
+            form.empty_permitted = False
 
 
 class OriginInfoValueForm(forms.ModelForm):
@@ -250,37 +181,70 @@ class OriginInfoValueForm(forms.ModelForm):
         exclude = ('parent_tag',)
 
 
+def _label_from_instance(obj):
+    return obj.full_name
+
+
 class OriginTagThroughForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(OriginTagThroughForm, self).__init__(*args, **kwargs)
+        self.fields['origintag'].label_from_instance = _label_from_instance
+
     class Meta(object):
         labels = {'origintag': _("Origin Tag")}
         help_texts = {
             'origintag': _(
-                "Origin tags inform about the problem's general origin - e.g. a specific competition, olympiad, or programming camp."
+                "Origin tags inform about the problem's general origin "
+                "- e.g. a specific competition, olympiad, or programming camp."
             )
         }
 
 
 class OriginInfoValueThroughForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(OriginInfoValueThroughForm, self).__init__(*args, **kwargs)
+        self.fields['origininfovalue'].label_from_instance = _label_from_instance
+
     class Meta(object):
         labels = {'origininfovalue': _("Origin Information")}
         help_texts = {
             'origininfovalue': _(
-                "Origin information values inform about the problem's specific origin - a year, round, day, etc."
+                "Origin information values inform about the problem's specific origin"
+                "- a year, round, day, etc."
             )
         }
 
 
 class DifficultyTagThroughForm(forms.ModelForm):
-    tag = TagSelectionField(DifficultyTag, 'get_difficultytag_hints')
+    def __init__(self, *args, **kwargs):
+        super(DifficultyTagThroughForm, self).__init__(*args, **kwargs)
+        self.fields['tag'].label_from_instance = _label_from_instance
 
     class Meta(object):
-        fields = ['problem']
-        model = DifficultyTagThrough
+        labels = {'tag': _("Difficulty Tag")}
+        help_texts = {
+            'tag': _(
+                "Most problems fall into the 'Easy' and 'Medium' category. "
+                "However, there are problems that are meant for learning "
+                "the basics of programming (these are 'Very easy') and those "
+                "that are 'Hard' and exceptionally hard - the latter fall "
+                "into the 'Very hard' category."
+            )
+        }
 
 
 class AlgorithmTagThroughForm(forms.ModelForm):
-    tag = TagSelectionField(AlgorithmTag, 'get_algorithmtag_hints')
+    def __init__(self, *args, **kwargs):
+        super(AlgorithmTagThroughForm, self).__init__(*args, **kwargs)
+        self.fields['tag'].label_from_instance = _label_from_instance
 
     class Meta(object):
-        fields = ['problem']
-        model = AlgorithmTagThrough
+        labels = {'tag': _("Algorithm Tag")}
+        help_texts = {
+            'tag': _(
+                "Algorithm tags inform about the algorithms, theorems "
+                "and data structures needed to solve a problem. "
+                "Algorithm tags can also inform about the type of a "
+                "problem, e.g. if a problem is a quiz."
+            )
+        }

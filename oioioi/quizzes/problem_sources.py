@@ -47,15 +47,17 @@ class EmptyQuizSource(ProblemSource):
                     author=request.user,
                 )
 
-                algorithm_tag, created = AlgorithmTag.objects.get_or_create(name='Quiz')
-                if not created:
-                    for language_code, _ in LANGUAGES:
-                        AlgorithmTagLocalization.objects.create(
+                algorithm_tag, created = AlgorithmTag.objects.get_or_create(name='quiz')
+                if created:
+                    for language_code, language in LANGUAGES:
+                        AlgorithmTagLocalization.objects.get_or_create(
                             algorithm_tag=algorithm_tag,
                             language=language_code,
-                            name='Quiz',
+                            full_name='Quiz',
                         )
-                AlgorithmTagThrough.objects.create(problem=quiz, tag=algorithm_tag)
+                AlgorithmTagThrough.objects.get_or_create(
+                    problem=quiz, tag=algorithm_tag
+                )
 
                 ProblemSite.objects.create(problem=quiz, url_key=generate_key())
                 pi = ProblemInstance.objects.create(

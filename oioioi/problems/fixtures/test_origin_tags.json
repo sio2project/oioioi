@@ -1,71 +1,6 @@
 [
   {
     "pk": 1,
-    "model": "problems.algorithmtag",
-    "fields": {
-      "name": "tag_a1"
-    }
-  },
-  {
-    "pk": 2,
-    "model": "problems.algorithmtag",
-    "fields": {
-      "name": "tag_a2"
-    }
-  },
-  {
-    "pk": 3,
-    "model": "problems.algorithmtag",
-    "fields": {
-      "name": "Grafy"
-    }
-  },
-
-  {
-    "pk": 1,
-    "model": "problems.algorithmtaglocalization",
-    "fields": {
-      "algorithm_tag": 1,
-      "full_name": "tag_a1",
-      "language": "en"
-    }
-  },
-  {
-    "pk": 2,
-    "model": "problems.algorithmtaglocalization",
-    "fields": {
-      "algorithm_tag": 1,
-      "full_name": "tag_a1",
-      "language": "pl"
-    }
-  },
-  {
-    "pk": 3,
-    "model": "problems.algorithmtaglocalization",
-    "fields": {
-      "algorithm_tag": 3,
-      "full_name": "Graphs",
-      "language": "en"
-    }
-  },
-
-  {
-    "pk": 1,
-    "model": "problems.difficultytag",
-    "fields": {
-      "name": "tag_d1"
-    }
-  },
-  {
-    "pk": 2,
-    "model": "problems.difficultytag",
-    "fields": {
-      "name": "tag_d2"
-    }
-  },
-
-  {
-    "pk": 1,
     "model": "problems.origintag",
     "fields": {
       "name": "pa"
@@ -88,6 +23,7 @@
       "full_name": "Potyczki Algorytmiczne"
     }
   },
+
   {
     "pk": 2,
     "model": "problems.origintaglocalization",

@@ -28,6 +28,7 @@ from oioioi.contests.utils import administered_contests
 from oioioi.problems.forms import PackageFileReuploadForm, ProblemStatementReplaceForm
 from oioioi.problems.models import (
     AlgorithmTagProposal,
+    DifficultyTagProposal,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -36,7 +37,6 @@ from oioioi.problems.models import (
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (
     can_admin_problem,
-    can_admin_problem_instance,
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
     query_statement,
@@ -243,6 +243,10 @@ def problem_site_settings(request, problem):
     algorithm_tag_proposals = (
         AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
     )
+    difficulty_tag_proposals = (
+        DifficultyTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+    )
+
     return TemplateResponse(
         request,
         'problems/settings.html',
@@ -253,6 +257,7 @@ def problem_site_settings(request, problem):
             'package': package if package and package.package_file else None,
             'model_solutions': model_solutions,
             'algorithm_tag_proposals': algorithm_tag_proposals,
+            'difficulty_tag_proposals': difficulty_tag_proposals,
             'can_admin_problem': can_admin_problem(request, problem),
             'extra_actions': extra_actions,
         },

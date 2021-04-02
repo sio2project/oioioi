@@ -40,6 +40,7 @@ from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagLocalization,
     DifficultyTag,
+    DifficultyTagLocalization,
     MainProblemInstance,
     OriginInfoCategory,
     OriginInfoCategoryLocalization,
@@ -190,20 +191,66 @@ class ProblemSiteInline(admin.StackedInline):
         return False
 
 
-class OriginTagLocalizationInline(admin.StackedInline):
-    model = OriginTagLocalization
+def tag_inline(
+    model,
+    form,
+    verbose_name,
+    verbose_name_plural,
+    extra=0,
+    category=_("Tags"),
+    has_permission_func=lambda self, request, obj=None: can_admin_problem(request, obj),
+):
+    def decorator(cls):
+        cls.model = model
+        cls.form = form
+        cls.verbose_name = verbose_name
+        cls.verbose_name_plural = verbose_name_plural
+        cls.extra = extra
+        cls.category = category
+        cls.has_add_permission = has_permission_func
+        cls.has_change_permission = has_permission_func
+        cls.has_delete_permission = has_permission_func
+
+        return cls
+
+    return decorator
+
+
+def _update_queryset_if_problems(db_field, **kwargs):
+    if db_field.name == 'problems':
+        kwargs['queryset'] = Problem.objects.filter(
+            visibility=Problem.VISIBILITY_PUBLIC
+        )
+
+
+class BaseTagLocalizationInline(admin.StackedInline):
     formset = LocalizationFormset
 
 
-class OriginTagAdmin(admin.ModelAdmin):
+class BaseTagAdmin(admin.ModelAdmin):
     filter_horizontal = ('problems',)
+
+
+@tag_inline(
+    model=OriginTag.problems.through,
+    form=OriginTagThroughForm,
+    verbose_name=_("origin tag"),
+    verbose_name_plural=_("origin tags"),
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser,
+)
+class OriginTagInline(admin.StackedInline):
+    pass
+
+
+class OriginTagLocalizationInline(BaseTagLocalizationInline):
+    model = OriginTagLocalization
+
+
+class OriginTagAdmin(BaseTagAdmin):
     inlines = (OriginTagLocalizationInline,)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == 'problems':
-            kwargs['queryset'] = Problem.objects.filter(
-                visibility=Problem.VISIBILITY_PUBLIC
-            )
+        _update_queryset_if_problems(db_field, **kwargs)
         return super(OriginTagAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
@@ -212,9 +259,8 @@ class OriginTagAdmin(admin.ModelAdmin):
 admin.site.register(OriginTag, OriginTagAdmin)
 
 
-class OriginInfoCategoryLocalizationInline(admin.StackedInline):
+class OriginInfoCategoryLocalizationInline(BaseTagLocalizationInline):
     model = OriginInfoCategoryLocalization
-    formset = LocalizationFormset
 
 
 class OriginInfoCategoryAdmin(admin.ModelAdmin):
@@ -224,22 +270,27 @@ class OriginInfoCategoryAdmin(admin.ModelAdmin):
 admin.site.register(OriginInfoCategory, OriginInfoCategoryAdmin)
 
 
-class OriginInfoValueLocalizationInline(admin.StackedInline):
+@tag_inline(
+    model=OriginInfoValue.problems.through,
+    form=OriginInfoValueThroughForm,
+    verbose_name=_("origin information"),
+    verbose_name_plural=_("additional origin information"),
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser,
+)
+class OriginInfoValueInline(admin.StackedInline):
+    pass
+
+
+class OriginInfoValueLocalizationInline(BaseTagLocalizationInline):
     model = OriginInfoValueLocalization
-    formset = LocalizationFormset
 
 
 class OriginInfoValueAdmin(admin.ModelAdmin):
     form = OriginInfoValueForm
-
-    filter_horizontal = ('problems',)
     inlines = (OriginInfoValueLocalizationInline,)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == 'problems':
-            kwargs['queryset'] = Problem.objects.filter(
-                visibility=Problem.VISIBILITY_PUBLIC
-            )
+        _update_queryset_if_problems(db_field, **kwargs)
         return super(OriginInfoValueAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
@@ -248,94 +299,52 @@ class OriginInfoValueAdmin(admin.ModelAdmin):
 admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
 
 
-class OriginTagInline(admin.StackedInline):
-    model = OriginTag.problems.through
-    form = OriginTagThroughForm
-    extra = 0
-    verbose_name = _("origin tag")
-    verbose_name_plural = _("origin tags")
-    category = _("Tags")
-
-    # Prevent the problem owner from changing the problem's origin tags
-    def has_add_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-
-class OriginInfoValueInline(admin.StackedInline):
-    model = OriginInfoValue.problems.through
-    form = OriginInfoValueThroughForm
-    extra = 0
-    verbose_name = _("origin information")
-    verbose_name_plural = _("additional origin information")
-    category = _("Tags")
-
-    # Prevent the problem owner from changing the problem's origin meta
-    def has_add_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-
+@tag_inline(
+    model=DifficultyTag.problems.through,
+    form=DifficultyTagThroughForm,
+    verbose_name=_("Difficulty Tag"),
+    verbose_name_plural=_("Difficulty Tags"),
+)
 class DifficultyTagInline(admin.StackedInline):
-    model = DifficultyTag.problems.through
-    form = DifficultyTagThroughForm
-    extra = 0
-    verbose_name = _("Difficulty Tag")
-    verbose_name_plural = _("Difficulty Tags")
-    category = _("Tags")
-
-    def has_add_permission(self, request):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
+    pass
 
 
+class DifficultyTagLocalizationInline(BaseTagLocalizationInline):
+    model = DifficultyTagLocalization
+
+
+class DifficultyTagAdmin(BaseTagAdmin):
+    inlines = (DifficultyTagLocalizationInline,)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        _update_queryset_if_problems(db_field, **kwargs)
+        return super(DifficultyTagAdmin, self).formfield_for_manytomany(
+            db_field, request, **kwargs
+        )
+
+
+admin.site.register(DifficultyTag, DifficultyTagAdmin)
+
+
+@tag_inline(
+    model=AlgorithmTag.problems.through,
+    form=AlgorithmTagThroughForm,
+    verbose_name=_("Algorithm Tag"),
+    verbose_name_plural=_("Algorithm Tags"),
+)
 class AlgorithmTagInline(admin.StackedInline):
-    model = AlgorithmTag.problems.through
-    form = AlgorithmTagThroughForm
-    extra = 0
-    verbose_name = _("Algorithm Tag")
-    verbose_name_plural = _("Algorithm Tags")
-    category = _("Tags")
-
-    def has_add_permission(self, request):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
+    pass
 
 
-class AlgorithmTagLocalizationInline(admin.StackedInline):
+class AlgorithmTagLocalizationInline(BaseTagLocalizationInline):
     model = AlgorithmTagLocalization
-    formset = LocalizationFormset
 
 
-class AlgorithmTagAdmin(admin.ModelAdmin):
-    filter_horizontal = ('problems',)
+class AlgorithmTagAdmin(BaseTagAdmin):
     inlines = (AlgorithmTagLocalizationInline,)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
-        if db_field.name == 'problems':
-            kwargs['queryset'] = Problem.objects.filter(
-                visibility=Problem.VISIBILITY_PUBLIC
-            )
+        _update_queryset_if_problems(db_field, **kwargs)
         return super(AlgorithmTagAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
@@ -367,7 +376,7 @@ class ProblemAdmin(admin.ModelAdmin):
     exclude = ['contest']
     list_filter = ['short_name']
 
-    class Media:
+    class Media(object):
         js = ('problems/admin-origintag.js',)
 
     def has_add_permission(self, request):
@@ -395,7 +404,10 @@ class ProblemAdmin(admin.ModelAdmin):
             return super(ProblemAdmin, self).response_change(request, obj)
 
     def add_view(self, request, form_url='', extra_context=None):
-        return redirect('add_or_update_problem', contest_id=request.contest.id)
+        if request.contest:
+            return redirect('add_or_update_problem', contest_id=request.contest.id)
+        else:
+            return redirect('add_or_update_problem')
 
     def download_view(self, request, object_id):
         problem = self.get_object(request, unquote(object_id))

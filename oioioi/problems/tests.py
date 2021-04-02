@@ -46,6 +46,11 @@ from oioioi.problems.management.commands import (
 from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagLocalization,
+    AlgorithmTagProposal,
+    AlgorithmTagThrough,
+    DifficultyTag,
+    DifficultyTagProposal,
+    DifficultyTagThrough,
     OriginInfoCategory,
     OriginInfoCategoryLocalization,
     OriginInfoValue,
@@ -740,8 +745,24 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         'test_submission',
         'test_problem_site',
         'test_algorithm_tags',
+        'test_difficulty_tags',
         'test_proposals',
     ]
+
+    def setUp(self):
+        problem = Problem.objects.get(id=1)
+        AlgorithmTagThrough.objects.create(
+            problem=problem,
+            tag=AlgorithmTag.objects.get(name='dp'),
+        )
+        AlgorithmTagThrough.objects.create(
+            problem=problem,
+            tag=AlgorithmTag.objects.get(name='lcis'),
+        )
+        DifficultyTagThrough.objects.create(
+            problem=problem,
+            tag=DifficultyTag.objects.get(name='hard'),
+        )
 
     def _get_site_urls(self):
         url = reverse('problem_site', kwargs={'site_key': '123'})
@@ -789,6 +810,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         self.assertContains(response, '<tr', count=3)
 
+    @override_settings(LANGUAGE_CODE='en')
     def test_settings_tab(self):
         problemsite_url = self._get_site_urls()['statement']
         url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=settings'
@@ -806,7 +828,9 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Edit tests')
         self.assertContains(response, 'Reupload problem')
         self.assertContains(response, 'Model solutions')
-        self.assertContains(response, 'mrowkowiec')
+        self.assertContains(response, 'dp')
+        self.assertContains(response, 'lcis')
+        self.assertContains(response, 'Medium')
 
     def test_statement_replacement(self):
         url = (
@@ -1757,7 +1781,9 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
                     self.assertEqual(problem_en_original_statement.language, 'en')
 
 
-class TestAlgorithmTags(TestCase):
+class TestAlgorithmTagsProposalHintsBase(TestCase):
+    """Abstract base class with getting url utility for algorithm tags proposal tests."""
+
     fixtures = [
         'test_users',
         'test_contest',
@@ -1765,144 +1791,297 @@ class TestAlgorithmTags(TestCase):
         'test_problem_site',
         'test_algorithm_tags',
     ]
+    view_name = 'get_algorithm_tag_proposal_hints'
 
     @staticmethod
     def get_query_url(url_to_reverse, parameters):
         url = reverse(url_to_reverse)
         return url + '?' + six.moves.urllib.parse.urlencode(parameters)
 
-    def test_tag_hints_view(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'rowk'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'rowka'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'bad_tag'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertNotContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'namic'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'DynamicProgramming')
-        self.assertContains(response, 'ProgramowanieDynamiczne')
-        self.assertNotContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'Greedy')
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertNotContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'Zach'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'Greedy')
-        self.assertNotContains(response, 'DynamicProgramming')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'Greedy'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Greedy')
-        self.assertNotContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'DynamicProgramming')
-        self.assertNotContains(response, 'XYZ')
-
+@override_settings(LANGUAGE_CODE='en')
+class TestAlgorithmTagsProposalHintsEnglish(TestAlgorithmTagsProposalHintsBase):
     def test_tag_proposal_hints_view(self):
         self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_tag_proposal_hints', {'query': 'mrowk'}
-            )
+            self.get_query_url(self.view_name, {'query': 'pLeCaK'})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
+        self.assertContains(response, 'Knapsack problem')
+        self.assertNotContains(response, 'Problem plecakowy')
+        self.assertNotContains(response, 'pLeCaK')
+        self.assertNotContains(response, 'plecak')
+        self.assertNotContains(response, 'Longest common increasing subsequence')
 
         response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_tag_proposal_hints', {'query': 'Dynamic'}
-            )
+            self.get_query_url(self.view_name, {'query': 'PROBLEM'})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'DynamicProgramming')
-        self.assertNotContains(response, 'ProgramowanieDynamiczne')
+        self.assertContains(response, 'Knapsack problem')
+        self.assertNotContains(response, 'Problem plecakowy')
+        self.assertNotContains(response, 'Longest common increasing subsequence')
 
         response = self.client.get(
-            TestAlgorithmTags.get_query_url('get_tag_proposal_hints', {'query': 'gre'})
+            self.get_query_url(self.view_name, {'query': 'dynam'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Dynamic programming')
+        self.assertNotContains(response, 'dp')
+        self.assertNotContains(response, 'Programowanie dynamiczne')
+
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'greedy'})
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Greedy')
-        self.assertNotContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'DynamicProgramming')
+        self.assertNotContains(response, 'Dynamic programming')
         self.assertNotContains(response, 'XYZ')
 
+        # Use a byte string in the query to ensure a proper url encoding.
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'najdłuższy'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'lcis')
 
-class TestDifficultyTags(TestCase):
-    fixtures = [
-        'test_users',
-        'test_contest',
-        'test_problem_packages',
-        'test_problem_site',
-        'test_tags',
-        'test_difficulty_tags',
-    ]
+        response = self.client.get(self.get_query_url(self.view_name, {'query': 'l'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'lcis')
+        self.assertNotContains(response, 'Problem plecakowy')
 
-    def test_tag_hints_view(self):
+
+@override_settings(LANGUAGE_CODE='pl')
+class TestAlgorithmTagsProposalHintsPolish(TestAlgorithmTagsProposalHintsBase):
+    def test_tag_proposal_hints_view(self):
         self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        def get_query_url(query):
-            url = reverse('get_difficultytag_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode({'substr': query})
-
-        response = self.client.get(get_query_url('rud'))
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'plecak'})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'trudne')
-        self.assertNotContains(response, 'latwe')
-        self.assertNotContains(response, 'XYZ')
+        self.assertContains(response, 'Problem plecakowy')
+        self.assertNotContains(response, 'Knapsack problem')
+        self.assertNotContains(response, 'Longest common increasing subsequence')
 
-        response = self.client.get(get_query_url('bad_tag'))
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'dynam'})
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'trudne')
-        self.assertNotContains(response, 'latwe')
-        self.assertNotContains(response, 'XYZ')
+        self.assertContains(response, 'Programowanie dynamiczne')
+        self.assertNotContains(response, 'dp')
+        self.assertNotContains(response, 'Dynamic programming')
+
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'greedy'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, b'Zach\u0142anny')
+        self.assertNotContains(response, 'Greedy')
+
+        # Use a byte string in the query to ensure a proper url encoding.
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'ZAchłan'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, b'Zach\u0142anny')
+        self.assertNotContains(response, 'Greedy')
+
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'longest'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(response, 'lcis')
+
+        response = self.client.get(
+            self.get_query_url(self.view_name, {'query': 'lcis'})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(response, 'lcis')
+
+
+class TestAlgorithmTagLabel(TestCase):
+    fixtures = ['test_algorithm_tags']
+    view_name = 'get_algorithm_tag_label'
+
+    @staticmethod
+    def get_query_url(url_to_reverse, parameters):
+        url = reverse(url_to_reverse)
+        return url + '?' + six.moves.urllib.parse.urlencode(parameters)
+
+    def test_algorithm_tag_label_view(self):
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {'name': 'Najdłuższy wspólny podciąg rosnący', 'proposed': '-1'},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {'name': 'Programowanie dynamiczne', 'proposed': '-1'},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Programowanie dynamiczne')
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {'name': 'Knapsack problem', 'proposed': '-1'},
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Knapsack problem')
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {'name': 'Programowanie dynamiczne', 'proposed': '0'},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {'name': '', 'proposed': '-1'},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {'name': 'XYZ', 'proposed': '-1'},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+
+class TestSaveProposals(TestCase):
+    fixtures = [
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+        'test_users',
+        'test_problem_search',
+    ]
+    view_name = 'save_proposals'
+
+    @staticmethod
+    def get_query_url(url_to_reverse, parameters):
+        url = reverse(url_to_reverse)
+        return url + '?' + six.moves.urllib.parse.urlencode(parameters)
+
+    def save_proposals_view(self):
+        problem = Problem.objects.get(pk=0)
+        user = User.objects.get(username='test_admin')
+
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 0)
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {
+                    'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                    'difficulty': 'Easy',
+                    'username': 'test_admin',
+                    'problem': '0',
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 2)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 1)
+        self.assertTrue(
+            AlgorithmTagProposal.objects.filter(
+                problem=problem, tag=AlgorithmTag.objects.get(name='dp'), user=user
+            ).exists()
+        )
+        self.assertTrue(
+            AlgorithmTagProposal.objects.filter(
+                problem=problem,
+                tag=AlgorithmTag.objects.get(name='knapsack'),
+                user=user,
+            ).exists()
+        )
+        self.assertTrue(
+            DifficultyTagProposal.objects.filter(
+                problem=problem, tag=DifficultyTag.objects.get(name='easy'), user=user
+            ).exists()
+        )
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {
+                    'difficulty': 'Easy',
+                    'username': 'test_admin',
+                    'problem': '0',
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {
+                    'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                    'username': 'test_admin',
+                    'problem': '0',
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {
+                    'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                    'difficulty': 'Easy',
+                    'problem': '0',
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 400)
+
+        response = self.client.get(
+            self.get_query_url(
+                self.view_name,
+                {
+                    'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                    'difficulty': 'Easy',
+                    'username': 'test_admin',
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 400)
 
 
 class TestNavigationBarItems(TestCase):
@@ -2744,7 +2923,6 @@ class TestProblemSearchPermissions(TestCase):
 class TestProblemSearch(TestCase):
     fixtures = ['test_problem_search']
     url = reverse('problemset_main')
-    hints_url = reverse('get_search_hints', args=('public',))
     task_names = [
         'Prywatne',
         'Zadanko',
@@ -2935,15 +3113,22 @@ class TestProblemSearchOrigin(TestCase):
 
 
 class TestProblemSearchHintsTags(TestCase):
-    fixtures = ['test_problem_search_hints_tags']
+    fixtures = [
+        'test_origin_tags',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+    ]
     url = reverse('get_search_hints', args=('public',))
     category_url = reverse('get_origininfocategory_hints')
     selected_origintag_url = reverse('get_selected_origintag_hints')
     hints = [
-        'tag_d1',
-        'tag_d2',
-        'tag_a1',
-        'tag_a2',
+        'very-easy',
+        'easy',
+        'medium',
+        'hard',
+        'very-hard',
+        'dp',
+        'lcis',
         'pa_2011',
         'pa_2012',
         'pa_r1',
@@ -2954,8 +3139,6 @@ class TestProblemSearchHintsTags(TestCase):
         'origintag',
         'round',
         'year',
-        'Grafy',
-        'Graphs',
     ]
 
     def assert_contains_only(self, response, hints):
@@ -2965,31 +3148,40 @@ class TestProblemSearchHintsTags(TestCase):
             else:
                 self.assertNotContains(response, hint)
 
+    def get_query_url(self, parameters):
+        return self.url + '?' + six.moves.urllib.parse.urlencode(parameters)
+
+    @override_settings(LANGUAGE_CODE="en")
     def test_search_hints_tags_basic(self):
         self.client.get('/c/c/')
 
-        response = self.client.get(self.url, {'q': 'tag_d'})
+        response = self.client.get(self.get_query_url({'q': 'najdłuższy'}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['tag_d1', 'tag_d2'])
+        self.assert_contains_only(response, ['lcis'])
 
-        response = self.client.get(self.url, {'q': 'tag_a'})
+        response = self.client.get(self.get_query_url({'q': 'easy'}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['tag_a1', 'tag_a2'])
+        self.assert_contains_only(response, ['very-easy', 'easy'])
 
-        response = self.client.get(self.url, {'q': 'Gra'})
+        response = self.client.get(self.get_query_url({'q': 'Mediu'}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['Grafy', 'Graphs'])
+        self.assert_contains_only(response, ['medium'])
 
-        response = self.client.get(self.url, {'q': 'raph'})
+        response = self.client.get(self.get_query_url({'q': 'PROGRA'}))
         self.assertEqual(response.status_code, 200)
-        # String 'Grafy' is present in the response because of
-        # the value field, which is the name field of
-        # AlgorithmTag object.
-        self.assert_contains_only(response, ['Graphs', 'Grafy'])
+        self.assert_contains_only(response, ['dp'])
 
-        response = self.client.get(self.url, {'q': 'Dijkstra'})
+        response = self.client.get(self.get_query_url({'q': 'dYNAM'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['dp'])
+
+        response = self.client.get(self.get_query_url({'q': 'dp'}))
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'increasing'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['lcis'])
 
     def test_search_hints_origininfo(self):
         self.client.get('/c/c/')
