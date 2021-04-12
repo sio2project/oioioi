@@ -2,7 +2,7 @@ import copy
 import os.path
 import uuid
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.test.utils import override_settings
 from six.moves import range

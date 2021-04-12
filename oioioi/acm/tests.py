@@ -1,7 +1,7 @@
 import re
 from datetime import datetime  # pylint: disable=E0611
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_timezone_now

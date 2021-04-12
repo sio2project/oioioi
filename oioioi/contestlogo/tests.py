@@ -2,7 +2,7 @@ import calendar
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.http import http_date
 from django.utils.timezone import timedelta
 

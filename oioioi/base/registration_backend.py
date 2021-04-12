@@ -7,7 +7,7 @@ from django.conf.urls import url
 from django.contrib.auth.models import User
 from django.contrib.auth.views import password_reset
 from django.contrib.sites.requests import RequestSite
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from registration import signals
 from registration.backends.default.views import (

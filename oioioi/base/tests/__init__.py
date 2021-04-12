@@ -7,7 +7,7 @@ import six.moves.urllib.parse
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.template.loaders.cached import Loader as CachedLoader
 from django.test import TestCase as DjangoTestCase

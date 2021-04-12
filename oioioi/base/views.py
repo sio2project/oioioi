@@ -3,7 +3,7 @@ import traceback
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import logout as auth_logout
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string

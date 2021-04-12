@@ -4,7 +4,7 @@ from operator import attrgetter  # pylint: disable=E0611
 from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _

@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.utils import can_enter_contest

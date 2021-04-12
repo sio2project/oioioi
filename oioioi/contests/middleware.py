@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import NoReverseMatch, resolve, reverse
+from django.urls import NoReverseMatch, resolve, reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 

@@ -1,7 +1,7 @@
 import six.moves.urllib.parse
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect

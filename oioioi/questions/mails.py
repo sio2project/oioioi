@@ -1,5 +1,5 @@
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.dispatch import Signal, receiver
 from django.template.loader import render_to_string
 

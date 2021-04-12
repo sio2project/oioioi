@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _

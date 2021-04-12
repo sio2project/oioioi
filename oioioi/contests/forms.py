@@ -4,7 +4,7 @@ import six
 from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _

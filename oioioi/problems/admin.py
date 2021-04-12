@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
 from django.contrib.admin.utils import unquote
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect

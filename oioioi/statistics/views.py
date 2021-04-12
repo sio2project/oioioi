@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _

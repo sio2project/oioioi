@@ -6,7 +6,7 @@ from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q, Value
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm

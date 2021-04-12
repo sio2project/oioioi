@@ -4,7 +4,7 @@ from __future__ import print_function
 from datetime import datetime
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse
 from django.test.utils import override_settings
 
 from oioioi.base.tests import TestCase

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.mail import mail_admins
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse

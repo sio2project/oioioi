@@ -1,7 +1,7 @@
 import os.path
 from datetime import datetime
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import RequestFactory
 from django.utils.timezone import utc
 

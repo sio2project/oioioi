@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.files.base import File
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.db.models import Case, CharField, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce

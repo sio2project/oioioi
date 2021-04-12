@@ -8,7 +8,7 @@ from django import VERSION as DJANGO_VERSION
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files import File
 from django.core.files.storage import Storage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.filename import FiletrackerFilename

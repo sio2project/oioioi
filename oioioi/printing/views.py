@@ -1,6 +1,6 @@
 import six
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 

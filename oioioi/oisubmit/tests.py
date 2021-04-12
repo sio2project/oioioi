@@ -2,7 +2,7 @@ from datetime import datetime, timedelta  # pylint: disable=E0611
 
 import six
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import get_current_timezone, utc
 
 from oioioi.base.tests import TestCase, fake_time

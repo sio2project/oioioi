@@ -4,7 +4,7 @@ import sys
 from django.conf import settings
 from django.contrib import messages
 from django.core.files import File
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse

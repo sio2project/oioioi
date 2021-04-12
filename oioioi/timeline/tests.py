@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, check_not_accessible

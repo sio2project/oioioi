@@ -1,7 +1,7 @@
 import json
 
 import six.moves.urllib.parse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase, TestsUtilsMixin
 from oioioi.contests.models import Contest, ProblemInstance

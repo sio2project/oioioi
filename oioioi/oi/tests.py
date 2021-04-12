@@ -5,7 +5,7 @@ from datetime import datetime, timedelta  # pylint: disable=E0611
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 

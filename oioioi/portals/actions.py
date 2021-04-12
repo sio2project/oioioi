@@ -1,6 +1,6 @@
 import sys
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.base.menu import MenuRegistry
 from oioioi.base.permissions import Condition, enforce_condition
@@ -98,7 +98,7 @@ def register_node_action(name, condition=None, menu_text=None, menu_order=sys.ma
 def portal_url(portal=None, node=None, path=None, action=DEFAULT_ACTION_NAME):
     """Generates a portal action URL.
 
-    This is an analog of :func:`django.core.urlresolvers.reverse` for portal
+    This is an analog of :func:`django.urls.reverse` for portal
     actions. Three parameter sets are possible:
     - ``portal`` - generates URL to a portal action for ``portal`` or to
                    a node action for ``portal`` root

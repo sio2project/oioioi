@@ -2,7 +2,7 @@ import re
 from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import RequestFactory
 from pytz import utc
 

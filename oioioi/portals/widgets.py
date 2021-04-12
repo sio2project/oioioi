@@ -2,7 +2,7 @@ import re
 
 import six.moves.urllib.parse
 from django.conf import settings
-from django.core.urlresolvers import resolve, reverse
+from django.urls import resolve, reverse
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe

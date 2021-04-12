@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.utils.module_loading import import_string

@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _

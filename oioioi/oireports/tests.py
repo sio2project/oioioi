@@ -3,7 +3,7 @@ from datetime import datetime  # pylint: disable=E0611
 from six import BytesIO
 from django import VERSION as DJANGO_VERSION
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time

@@ -3,7 +3,7 @@ from operator import itemgetter  # pylint: disable=E0611
 
 import six.moves.xmlrpc_client
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _

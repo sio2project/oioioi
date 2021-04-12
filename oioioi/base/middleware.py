@@ -2,7 +2,7 @@ from dateutil.parser import parse as parse_date
 from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.core.exceptions import ImproperlyConfigured
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseNotAllowed
 from django.template.loader import render_to_string
 from django.utils import timezone

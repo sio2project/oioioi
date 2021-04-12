@@ -1,5 +1,5 @@
 import six
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template import loader
 from django.utils.functional import lazy
 

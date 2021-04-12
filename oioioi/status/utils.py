@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.base.permissions import is_superuser
 from oioioi.status.registry import status_registry
