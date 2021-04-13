@@ -16,6 +16,7 @@ RUN dpkg --add-architecture i386 && \
         texlive-lang-german \
         texlive-lang-european \
         texlive-lang-czechslovak \
+        texlive-pstricks \
         ghostscript \
         texlive-fonts-recommended \
         gcc-multilib \
