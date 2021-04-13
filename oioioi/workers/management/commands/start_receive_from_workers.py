@@ -41,7 +41,7 @@ class ServerHandler(six.moves.BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_response(200, 'OK')
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
-            self.wfile.write('OK')
+            self.wfile.write(b'OK')
 
 
 class Server(six.moves.socketserver.TCPServer):

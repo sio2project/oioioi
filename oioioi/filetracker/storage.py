@@ -2,6 +2,7 @@ import datetime
 import os
 import os.path
 import tempfile
+import warnings
 
 import six
 from django import VERSION as DJANGO_VERSION
@@ -9,6 +10,7 @@ from django.core.exceptions import SuspiciousFileOperation
 from django.core.files import File
 from django.core.files.storage import Storage
 from django.urls import reverse
+from django.utils import timezone
 
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.filename import FiletrackerFilename
@@ -133,6 +135,12 @@ class FiletrackerStorage(Storage):
         return self.client.file_size(path)
 
     def modified_time(self, name):
+        warnings.warn(
+            """The old, non-timezone-aware methods accessed_time(), created_time(), and modified_time() are deprecated in favor of the new get_*_time() methods.
+                https://docs.djangoproject.com/en/1.10/releases/1.10/#non-timezone-aware-storage-api""",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
         path = self._make_filetracker_path(name)
         return datetime.datetime.fromtimestamp(self.client.file_version(path))
 
@@ -141,6 +149,17 @@ class FiletrackerStorage(Storage):
 
     def accessed_time(self, name):
         return self.modified_time(name)
+
+    def get_modified_time(self, name):
+        path = self._make_filetracker_path(name)
+        tz = timezone.get_current_timezone()
+        return datetime.datetime.fromtimestamp(self.client.file_version(path), tz=tz)
+
+    def get_created_time(self, name):
+        return self.get_modified_time(name)
+
+    def get_accessed_time(self, name):
+        return self.get_modified_time(name)
 
     def url(self, name):
         if isinstance(name, FiletrackerFilename):

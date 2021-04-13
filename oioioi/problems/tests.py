@@ -1,23 +1,25 @@
 # coding: utf-8
+
 import csv
+import io
 import os.path
 from datetime import datetime  # pylint: disable=E0611
 from functools import cmp_to_key
 
 import pytest
 import six.moves.urllib.parse
-from six.moves import range
-
 from django import forms
 from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
-from django.urls import reverse
 from django.db import transaction
 from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.timezone import utc
+from six.moves import range
+
 from oioioi.base.tests import TestCase, check_not_accessible, needs_linux
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.current_contest import ContestMode
@@ -163,10 +165,14 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         contest = Contest.objects.get()
         statement = ProblemStatement.objects.get()
+
+        with io.open(__file__, 'rb') as f:
+            file = six.ensure_text(f.read())
+
         check_not_accessible(
             self,
             'oioioiadmin:problems_problem_add',
-            data={'package_file': open(__file__, 'rb'), 'contest_id': contest.id},
+            data={'package_file': file, 'contest_id': contest.id},
         )
         check_not_accessible(
             self,
@@ -902,7 +908,7 @@ class TestProblemsetPage(TestCase):
         url = reverse('problemset_my_problems')
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        author_user = User.objects.filter(username='test_user')
+        author_user = User.objects.filter(username='test_user').get()
         author_problems = Problem.objects.filter(author=author_user)
         for problem in author_problems:
             self.assertContains(response, problem.name)

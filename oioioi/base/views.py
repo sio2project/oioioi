@@ -1,13 +1,13 @@
 import traceback
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.views import logout as auth_logout
+from django.contrib.auth.views import LogoutView as AuthLogoutView
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_control
@@ -127,7 +127,7 @@ def edit_profile_view(request):
 )
 @require_POST
 def logout_view(request):
-    return auth_logout(
+    return AuthLogoutView.as_view()(
         request,
         template_name='registration/logout.html',
         extra_context=site_name(request),
@@ -163,7 +163,7 @@ def delete_account_view(request):
             participant.erase_data()
         request.user.is_active = False
         request.user.save()
-        return auth_logout(
+        return AuthLogoutView.as_view()(
             request, template_name='registration/delete_account_done.html'
         )
 

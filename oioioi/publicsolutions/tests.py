@@ -164,7 +164,7 @@ class TestPublicSolutions(TestCase):
 
         with fake_time(self._rounds_14()):
             check_visibility([1])
-            check_visibility([1], 1, users=['test_user'])
+            check_visibility([1], "1", users=['test_user'])
 
             change_publication(True, 4)
             check_visibility([1, 4])

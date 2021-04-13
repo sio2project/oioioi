@@ -30,7 +30,9 @@ class RemoteClient(object):
             extra_data = {}
         post_data.update(extra_data)
         return six.moves.urllib.request.urlopen(
-            url, six.moves.urllib.parse.urlencode(post_data), **kwargs
+            url,
+            six.ensure_binary(six.moves.urllib.parse.urlencode(post_data)),
+            **kwargs
         )
 
 

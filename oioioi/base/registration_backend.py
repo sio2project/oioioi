@@ -5,7 +5,7 @@ import registration.views
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib.auth.models import User
-from django.contrib.auth.views import password_reset
+from django.contrib.auth.views import PasswordResetView
 from django.contrib.sites.requests import RequestSite
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
@@ -79,7 +79,7 @@ if not settings.SEND_USER_ACTIVATION_EMAIL:
 urlpatterns += [
     url(
         r'^password/reset/$',
-        password_reset,
+        PasswordResetView.as_view(),
         {
             'password_reset_form': OioioiPasswordResetForm,
             'post_reset_redirect': reverse_lazy('auth_password_reset_done'),

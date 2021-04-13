@@ -1,12 +1,13 @@
 import itertools
 from operator import attrgetter  # pylint: disable=E0611
 
+import six
 from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.files.base import ContentFile
-from django.urls import reverse
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.permissions import enforce_condition
@@ -162,7 +163,7 @@ def _serialize_report(user, problem_instances, test_groups):
                 max_score=max_problem_score,
                 compilation_report=compilation_report,
                 groups=groups,
-                code=source_file.read(),
+                code=six.ensure_text(source_file.read(), errors="replace"),
                 codefile=source_file.file.name,
             )
         )

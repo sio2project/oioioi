@@ -7,8 +7,8 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.core.files.base import ContentFile
-from django.urls import reverse
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -387,8 +387,12 @@ class ProgrammingProblemController(ProblemController):
                 submission=submission, status='ACTIVE', kind=kind_for_status
             ).get()
             score_report = ScoreReport.objects.get(submission_report=report)
-            submission.status = submission.problem_instance.controller._map_report_to_submission_status(
-                score_report.status, submission.problem_instance, kind=kind_for_status
+            submission.status = (
+                submission.problem_instance.controller._map_report_to_submission_status(
+                    score_report.status,
+                    submission.problem_instance,
+                    kind=kind_for_status,
+                )
             )
         except SubmissionReport.DoesNotExist:
             if SubmissionReport.objects.filter(

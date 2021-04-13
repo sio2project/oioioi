@@ -269,7 +269,7 @@ def update_md5(filenames):
     src = f.read()
     f.close()
 
-    match = re.search("\nmd5_data = {\n([^}]+)}", src)
+    match = re.search(r"\nmd5_data = {\n([^}]+)}", src)
     if not match:
         print("Internal error!", file=sys.stderr)
         sys.exit(2)

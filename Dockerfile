@@ -74,7 +74,7 @@ WORKDIR /sio2/deployment
 RUN sed -i -e \
        "s/SERVER = 'django'/SERVER = 'uwsgi-http'/g;\
         s/DEBUG = True/DEBUG = False/g;\
-        s/django.db.backends./django.db.backends.postgresql_psycopg2/g;\
+        s/django.db.backends./django.db.backends.postgresql/g;\
         s/'NAME': ''/'NAME': 'oioioi'/g;\
         s/'USER': ''/'USER': 'oioioi'/g;\
         s/'HOST': '',/'HOST': 'db',/g;\

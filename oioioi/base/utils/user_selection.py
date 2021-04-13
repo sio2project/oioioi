@@ -144,10 +144,8 @@ class UserSelectionWidget(forms.TextInput):
 class UserSelectionField(forms.CharField):
     widget = UserSelectionWidget
 
-    def __init__(
-        self, hints_url=None, queryset=None, user_field_name=None, *args, **kwargs
-    ):
-        super(UserSelectionField, self).__init__(*args, **kwargs)
+    def __init__(self, hints_url=None, queryset=None, user_field_name=None, **kwargs):
+        super(UserSelectionField, self).__init__(**kwargs)
         self.hints_url = hints_url
         self.queryset = queryset
         self.user_field_name = user_field_name

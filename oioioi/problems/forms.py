@@ -2,8 +2,8 @@ from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
-from django.urls import reverse
 from django.db import transaction
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
@@ -36,7 +36,7 @@ class ProblemUploadForm(forms.Form):
             if len(choices) >= 2:
                 fields = list(self.fields.items())
                 fields[0:0] = [
-                    ('round_id', forms.ChoiceField(choices, label=_("Round")))
+                    ('round_id', forms.ChoiceField(choices=choices, label=_("Round")))
                 ]
                 self.fields = OrderedDict(fields)
             elif len(choices) == 1:
@@ -66,7 +66,7 @@ class ProblemUploadForm(forms.Form):
                 self.fields.update(
                     {
                         'visibility': forms.ChoiceField(
-                            choices,
+                            choices=choices,
                             label=_("Visibility"),
                             required=True,
                             initial=default_visibility,

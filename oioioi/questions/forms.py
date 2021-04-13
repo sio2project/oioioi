@@ -18,7 +18,7 @@ class AddContestMessageForm(forms.ModelForm):
         fields = ['category', 'topic', 'content', 'pub_date']
         help_texts = {'pub_date': _("Leave empty for immediate publication")}
 
-    category = forms.ChoiceField([], label=_("Category"))
+    category = forms.ChoiceField(choices=[], label=_("Category"))
 
     def __init__(self, request, *args, **kwargs):
         super(AddContestMessageForm, self).__init__(*args, **kwargs)
@@ -111,14 +111,14 @@ class FilterMessageForm(forms.Form):
     TYPE_PUBLIC_ANNOUNCEMENTS = 'public'
 
     message_type = forms.ChoiceField(
-        [
+        choices=[
             (TYPE_ALL_MESSAGES, _("All messages")),
             (TYPE_PUBLIC_ANNOUNCEMENTS, _("Public announcements")),
         ],
         label=_("Message type"),
         required=False,
     )
-    category = forms.ChoiceField([], label=_("Category"), required=False)
+    category = forms.ChoiceField(choices=[], label=_("Category"), required=False)
 
     def __init__(self, request, *args, **kwargs):
         super(FilterMessageForm, self).__init__(*args, **kwargs)

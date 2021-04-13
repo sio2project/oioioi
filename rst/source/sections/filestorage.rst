@@ -42,7 +42,7 @@ it like this::
                 get_valid_filename(os.path.basename(filename)))
 
     class Test(models.Model):
-        problem = models.ForeignKey('Problem')
+        problem = models.ForeignKey('Problem', on_delete=models.CASCADE)
         input_file = FileField(upload_to=make_test_filename)
 
 To store an existing file, write something like this::

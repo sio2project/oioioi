@@ -8,12 +8,13 @@ from __future__ import print_function
 import itertools
 import json
 import mimetypes
+import random
+import string
 import sys
 import webbrowser
 from argparse import ArgumentParser
 from os.path import expanduser, splitext
 
-import mimetools
 import six.moves.urllib.parse
 import six.moves.urllib.request
 from six.moves import input
@@ -25,8 +26,15 @@ class MultiPartForm(object):
     def __init__(self):
         self.form_fields = []
         self.files = []
-        self.boundary = mimetools.choose_boundary()
+        self.boundary = self.generate_boundary()
         return
+
+    @staticmethod
+    def generate_boundary(n=16):
+        """https://stackoverflow.com/a/27174474"""
+        return ''.join(
+            random.choice(string.ascii_uppercase + string.digits) for _ in range(n)
+        )
 
     def get_content_type(self):
         return 'multipart/form-data; boundary=%s' % self.boundary
@@ -201,7 +209,7 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
                 '%ssubmitservice/submit/' % contest_url
             )
             request.add_header('Content-Type', form.get_content_type())
-            request.add_header('Content-Length', len(body))
+            request.add_header('Content-Length', str(len(body)))
             request.add_data(body)
 
             result = json.loads(six.moves.request.urlopen(request).read())

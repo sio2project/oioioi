@@ -9,9 +9,9 @@ from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.urls import reverse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.module_loading import import_string
 from six import BytesIO
 
@@ -325,7 +325,7 @@ class TestSinolPackage(TestCase):
             if settings.USE_SINOLPACK_MAKEFILES:
                 statements = ProblemStatement.objects.filter(problem=problem)
                 self.assertEqual(statements.count(), 1)
-                self.assertTrue(statements.get().content.read().startswith('%PDF'))
+                self.assertTrue(statements.get().content.read().startswith(b'%PDF'))
         else:
             self.assertEqual(problem.name, u'sum')
 
