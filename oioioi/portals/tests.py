@@ -554,6 +554,14 @@ class TestMarkdown(TestCase):
         self.assertIn("<summary>first</summary>", rendered_markdown)
         self.assertIn("<summary>second</summary>", rendered_markdown)
 
+    def test_table_element(self):
+        rendered_markdown = render_panel(self.request, '|a|b|\n|-|-|\n|1|2|\n')
+        self.assertIn("<table", rendered_markdown)
+        self.assertIn("<thead>", rendered_markdown)
+        self.assertIn("<tbody>", rendered_markdown)
+        self.assertIn("<th>a</th>", rendered_markdown)
+        self.assertIn("<td>1</td>", rendered_markdown)
+
 
 class TestMainPageAndPublicPortals(TestCase):
     fixtures = ['test_users', 'test_portals']

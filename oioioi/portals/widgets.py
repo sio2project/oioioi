@@ -33,6 +33,17 @@ class PortalRenderer(Renderer):
             {'summary': summary, 'body': mark_safe(body)},
         )
 
+    def table(self, header, body):
+        """Rendering table element. Wrap header and body in it.
+
+        :param header: header part of the table.
+        :param body: body part of the table.
+        """
+        return render_to_string(
+            'portals/widgets/table.html',
+            {'header': mark_safe(header), 'body': mark_safe(body)},
+        )
+
 
 class PortalInlineLexer(InlineLexer):
     default_rules = InlineLexer.default_rules[:]
