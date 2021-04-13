@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.db import transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.contests.models import ProblemStatementConfig, RankingVisibilityConfig

@@ -7,6 +7,7 @@ from itertools import groupby
 from operator import attrgetter
 
 import six.moves.urllib.parse
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -23,8 +24,6 @@ from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
-from unidecode import unidecode
-
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.archive import Archive
@@ -81,6 +80,7 @@ from oioioi.problems.utils import (
     show_proposal_form,
 )
 from oioioi.programs.models import ModelSolution
+from unidecode import unidecode
 
 if settings.CONTEST_MODE == ContestMode.neutral:
     navbar_links_registry.register(
@@ -956,10 +956,30 @@ def get_difficultytag_hints_view(request):
 @jsonify
 @uniquefy_tag_names
 def get_algorithmtag_hints_view(request):
-    base_hints = _get_tag_hints(request, AlgorithmTag.objects)
-    localized_hints = _get_tag_hints(request, AlgorithmTagLocalization.objects)
+    substr = request.GET.get('substr', '')
+    if len(substr) < 2:
+        raise Http404
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
+    if num_hints > 1:
+        num_hints //= 2
 
-    return base_hints + localized_hints
+    results = []
+    results.extend(
+        [
+            tag.name
+            for tag in AlgorithmTag.objects.filter(name__icontains=substr)[:num_hints]
+        ]
+    )
+    results.extend(
+        [
+            tag.full_name
+            for tag in AlgorithmTagLocalization.objects.filter(
+                full_name__icontains=substr
+            )[:num_hints]
+        ]
+    )
+
+    return results
 
 
 @jsonify
@@ -1069,14 +1089,13 @@ def get_origintag_hints(query):
 
 @uniquefy('name')
 def get_tag_hints(query):
-    prefixes = ('tag', 'algorithm', 'algorithm', 'difficulty')
+    prefixes = ('tag', 'algorithm', 'difficulty')
     categories = (
         _("Tags"),
         _("Algorithm Tags"),
-        _("Algorithm Tags"),
         _("Difficulty Tags"),
     )
-    models = (Tag, AlgorithmTag, AlgorithmTagLocalization, DifficultyTag)
+    models = (Tag, AlgorithmTag, DifficultyTag)
 
     results = []
     for prefix, category, model in zip(prefixes, categories, models):
@@ -1090,6 +1109,18 @@ def get_tag_hints(query):
                 for tag in model.objects.filter(name__icontains=query)
             ]
         )
+    results.extend(
+        [
+            {
+                'name': tag.full_name,
+                'category': _("Algorithm Tags"),
+                'prefix': 'algorithm',
+            }
+            for tag in AlgorithmTagLocalization.objects.filter(
+                full_name__icontains=query
+            )
+        ]
+    )
 
     return results
 
@@ -1183,8 +1214,8 @@ def get_tag_proposal_hints_view(request):
         tag.name for tag in AlgorithmTag.objects.filter(name__istartswith=query)
     ]
     localized_hints = [
-        tag.name
-        for tag in AlgorithmTagLocalization.objects.filter(name__istartswith=query)
+        tag.full_name
+        for tag in AlgorithmTagLocalization.objects.filter(full_name__istartswith=query)
     ]
 
     return base_hints + localized_hints
@@ -1201,7 +1232,7 @@ def get_tag_label_view(request):
     if proposed != '-1' or not (base_tags or localized_tags):
         raise Http404
 
-    return [tag.name for tag in base_tags] + [tag.name for tag in localized_tags]
+    return [tag.name for tag in base_tags] + [tag.full_name for tag in localized_tags]
 
 
 def save_proposals_view(request):
@@ -1223,7 +1254,7 @@ def save_proposals_view(request):
                 tag_proposal = tag_proposal.first()
             else:
                 tag_proposal = (
-                    AlgorithmTagLocalization.objects.filter(name=tag)
+                    AlgorithmTagLocalization.objects.filter(full_name=tag)
                     .first()
                     .algorithm_tag
                 )

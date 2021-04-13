@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from traceback import format_exception
 
 import six
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import validators
@@ -18,13 +19,12 @@ from django.utils.module_loading import import_string
 from django.utils.text import Truncator, get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
-from unidecode import unidecode
-
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.utils import split_extension, strip_num_or_hash
 from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.validators import validate_origintag
+from unidecode import unidecode
 
 logger = logging.getLogger(__name__)
 
@@ -813,7 +813,7 @@ class AlgorithmTag(models.Model):
         null=False,
         blank=False,
         validators=[
-            validators.MinLengthValidator(3),
+            validators.MinLengthValidator(2),
             validators.MaxLengthValidator(20),
             validators.validate_slug,
         ],
@@ -833,7 +833,7 @@ class AlgorithmTagThrough(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
 
-    # This string will be visible in admin form
+    # This string will be visible in an admin form.
     def __str__(self):
         return six.text_type(self.tag.name)
 
@@ -849,9 +849,8 @@ class AlgorithmTagLocalization(models.Model):
     language = models.CharField(
         max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
     )
-
-    name = models.CharField(
-        max_length=32,
+    full_name = models.CharField(
+        max_length=50,
         verbose_name=_("name translation"),
         help_text=_("Human-readable name."),
     )

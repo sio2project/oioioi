@@ -1,6 +1,7 @@
 import logging
 
 import six.moves.urllib.parse
+
 from django.conf.urls import url
 from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
@@ -12,7 +13,6 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, system_admin_menu_registry
 from oioioi.base.permissions import is_superuser, make_request_condition

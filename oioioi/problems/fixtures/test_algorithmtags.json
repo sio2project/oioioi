@@ -32,7 +32,7 @@
     "model": "problems.algorithmtaglocalization",
     "fields": {
       "algorithm_tag": 3,
-      "name": "DynamicProgramming",
+      "full_name": "DynamicProgramming",
       "language": "en"
     }
   },
@@ -41,7 +41,7 @@
     "model": "problems.algorithmtaglocalization",
     "fields": {
       "algorithm_tag": 3,
-      "name": "ProgramowanieDynamiczne",
+      "full_name": "ProgramowanieDynamiczne",
       "language": "pl"
     }
   },
@@ -50,7 +50,7 @@
     "model": "problems.algorithmtaglocalization",
     "fields": {
       "algorithm_tag": 4,
-      "name": "Greedy",
+      "full_name": "Greedy",
       "language": "en"
     }
   },

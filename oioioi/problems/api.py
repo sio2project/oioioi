@@ -1,12 +1,6 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
-from rest_framework import status
-from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import can_admin_contest
 from oioioi.problems.forms import PackageUploadForm
@@ -18,6 +12,11 @@ from oioioi.problems.serializers import (
     PackageUploadSerializer,
 )
 from oioioi.problems.utils import can_admin_problem
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class PackageUploadQueryView(APIView):

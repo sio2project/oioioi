@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import csv
 import os.path
 from datetime import datetime  # pylint: disable=E0611
 from functools import cmp_to_key
@@ -14,7 +14,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.db import transaction
-from django.http import HttpResponse
 from django.test import RequestFactory, TransactionTestCase
 from django.test.utils import override_settings
 from django.utils.html import strip_tags
@@ -35,12 +34,15 @@ from oioioi.contests.models import (
 from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
-from oioioi.problems.management.commands import migrate_old_tags, recalculate_statistics
+from oioioi.problems.management.commands import (
+    migrate_old_algorithm_tags,
+    recalculate_statistics,
+)
 from oioioi.problems.models import (
     AlgorithmTag,
+    AlgorithmTagLocalization,
     OriginInfoCategory,
     OriginInfoValue,
-    OriginTag,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -1332,106 +1334,51 @@ class TestTags(TestCase):
         self.assertNotContains(response, 'XYZ')
 
 
-class TestMigrateOldTags(TestCase):
-    fixtures = ['test_tags_migration']
+class TestMigrateOldAlgorithmTags(TestCase):
+    fixtures = ['test_old_algorithm_tags_migration']
 
-    def test_migrate_old_tags(self):
-        origin_tag_count_before = OriginTag.objects.count()
+    def test_migrate_old_algorithm_tags_command(self):
+        tag_count_before = Tag.objects.count()
         algorithm_tag_count_before = AlgorithmTag.objects.count()
 
-        dp_algorithm_tag_problem_set = AlgorithmTag.objects.get(
-            name='DynamicProgramming'
-        ).problems.all()
-        self.assertTrue(dp_algorithm_tag_problem_set.count(), 1)
-        self.assertTrue(
-            Problem.objects.get(name='Zadanko') in dp_algorithm_tag_problem_set
-        )
+        self.assertTrue(algorithm_tag_count_before < tag_count_before)
 
         basedir = os.path.dirname(__file__)
-        old_origin_tags_filename = os.path.join(
-            basedir, 'test_files', 'old_origin_tags.txt'
-        )
-        old_algorithm_tags_filename = os.path.join(
-            basedir, 'test_files', 'old_algorithm_tags.txt'
-        )
-        manager = migrate_old_tags.Command()
+        filename = os.path.join(basedir, 'test_files', 'old_algorithm_tags.csv')
+        manager = migrate_old_algorithm_tags.Command()
         manager.run_from_argv(
             [
                 'manage.py',
-                'migrate_old_tags',
-                '-o',
-                old_origin_tags_filename,
-                '-a',
-                old_algorithm_tags_filename,
+                'migrate_old_algorithm_tags',
+                '-f',
+                filename,
             ]
         )
 
-        def problems_match(old_tag, new_tag):
-            return set(old_tag.problems.all()) == set(new_tag.problems.all())
+        self.assertEqual(AlgorithmTag.objects.count(), tag_count_before)
 
-        self.assertEqual(OriginTag.objects.count(), origin_tag_count_before + 3)
-        self.assertEqual(AlgorithmTag.objects.count(), algorithm_tag_count_before + 2)
+        with open(filename, mode='r') as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=',')
+            for row in csv_reader:
+                old_tag = Tag.objects.get(name=row['old_name'])
+                old_tag_problems_set = set(old_tag.problems.all())
+                new_tag = AlgorithmTag.objects.get(name=row['new_name'])
+                new_tag_problems_set = set(new_tag.problems.all())
+                new_tag_localizations = AlgorithmTagLocalization.objects.filter(
+                    algorithm_tag=new_tag
+                )
 
-        self.assertTrue(OriginTag.objects.get(name='AMPPZ2013').problems.all().exists())
-        self.assertFalse(OriginTag.objects.get(name='CEOI2010').problems.all().exists())
-        self.assertTrue(
-            problems_match(
-                Tag.objects.get(name='AMPPZ2013'),
-                OriginTag.objects.get(name='AMPPZ2013'),
-            )
-        )
-        self.assertTrue(
-            problems_match(
-                Tag.objects.get(name='AMPPZ2012'),
-                OriginTag.objects.get(name='AMPPZ2012'),
-            )
-        )
-        self.assertTrue(
-            problems_match(
-                Tag.objects.get(name='CEOI2010'), OriginTag.objects.get(name='CEOI2010')
-            )
-        )
-        self.assertFalse(
-            problems_match(
-                Tag.objects.get(name='AMPPZ2013'),
-                OriginTag.objects.get(name='CEOI2010'),
-            )
-        )
-
-        self.assertTrue(AlgorithmTag.objects.get(name='NWD').problems.all().exists())
-        self.assertTrue(
-            AlgorithmTag.objects.get(name='DyskretnyProblemPlecakowy')
-            .problems.all()
-            .exists()
-        )
-        self.assertTrue(
-            problems_match(
-                Tag.objects.get(name='nwd'), AlgorithmTag.objects.get(name='NWD')
-            )
-        )
-        self.assertTrue(
-            problems_match(
-                Tag.objects.get(name='plecakowy'),
-                AlgorithmTag.objects.get(name='DyskretnyProblemPlecakowy'),
-            )
-        )
-        self.assertTrue(
-            problems_match(
-                Tag.objects.get(name='dp'),
-                AlgorithmTag.objects.get(name='DynamicProgramming'),
-            )
-        )
-
-        dp_algorithm_tag_problem_set = AlgorithmTag.objects.get(
-            name='DynamicProgramming'
-        ).problems.all()
-        self.assertTrue(dp_algorithm_tag_problem_set.count(), 2)
-        self.assertTrue(
-            Problem.objects.get(name='Zadanko') in dp_algorithm_tag_problem_set
-        )
-        self.assertTrue(
-            Problem.objects.get(name='Znacznik') in dp_algorithm_tag_problem_set
-        )
+                self.assertTrue(old_tag_problems_set == new_tag_problems_set)
+                self.assertTrue(
+                    len(old_tag_problems_set) == 1 and len(new_tag_problems_set) == 1
+                )
+                self.assertEqual(new_tag_localizations.count(), 2)
+                self.assertTrue(
+                    new_tag_localizations.filter(full_name=row['full_name_EN']).exists()
+                )
+                self.assertTrue(
+                    new_tag_localizations.filter(full_name=row['full_name_PL']).exists()
+                )
 
 
 class TestAlgorithmTags(TestCase):

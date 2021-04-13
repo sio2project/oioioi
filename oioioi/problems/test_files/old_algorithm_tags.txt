@@ -1,3 +1,0 @@
-nwd NWD
-plecakowy DyskretnyProblemPlecakowy
-dp DynamicProgramming
