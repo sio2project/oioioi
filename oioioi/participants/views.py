@@ -1,6 +1,6 @@
-from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.menu import account_menu_registry

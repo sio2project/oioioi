@@ -1,8 +1,8 @@
 from datetime import datetime  # pylint: disable=E0611
 
 import six
-from django.urls import reverse
 from django.test import RequestFactory
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.notification import NotificationHandler

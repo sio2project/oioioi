@@ -1,10 +1,10 @@
 from datetime import datetime  # pylint: disable=E0611
 
-from six import BytesIO
 from django import VERSION as DJANGO_VERSION
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.timezone import utc
+from six import BytesIO
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.base.utils.pdf import extract_text_from_pdf

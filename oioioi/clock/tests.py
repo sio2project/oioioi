@@ -4,8 +4,8 @@ from datetime import datetime  # pylint: disable=E0611
 
 from dateutil.parser import parse as parse_date
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase

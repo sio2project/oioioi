@@ -1,6 +1,6 @@
-from django.urls import reverse
 from django.db import models
 from django.forms import Textarea
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin

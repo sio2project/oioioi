@@ -4,12 +4,12 @@ from collections import OrderedDict
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
-from django.urls import reverse
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language_from_request
 from django.utils.translation import ugettext_lazy as _

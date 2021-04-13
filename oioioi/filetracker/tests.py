@@ -7,8 +7,8 @@ import tempfile
 from django import VERSION as DJANGO_VERSION
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.urls import reverse
 from django.db.models.fields.files import FieldFile, FileField
+from django.urls import reverse
 from filetracker.client import Client as FiletrackerClient
 from filetracker.client.dummy import DummyClient
 

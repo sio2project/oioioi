@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.urls import NoReverseMatch, resolve, reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import NoReverseMatch, resolve, reverse
 
 from oioioi.contests.current_contest import ContestMode, contest_re, set_cc_id
 from oioioi.contests.models import Contest, ContestView

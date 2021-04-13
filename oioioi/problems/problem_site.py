@@ -8,11 +8,11 @@ from operator import itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
 from django.core.files import File
-from django.urls import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import six
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe

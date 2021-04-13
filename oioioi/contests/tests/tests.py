@@ -13,11 +13,11 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.urls import NoReverseMatch, reverse
 from django.http import HttpResponse
 from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.urls import NoReverseMatch, reverse
 from django.utils.timezone import utc
 from rest_framework.test import APITestCase
 from six.moves import zip

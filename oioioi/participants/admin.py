@@ -1,9 +1,9 @@
 import six
 from django.contrib.admin import RelatedFieldListFilter, SimpleListFilter
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy

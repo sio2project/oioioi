@@ -9,9 +9,9 @@ from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
-from django.urls import reverse
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
@@ -37,12 +37,12 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.handlers import make_report
 from oioioi.programs.models import (
     ModelSolution,
+    ProblemAllowedLanguage,
     ProgramSubmission,
     ReportActionsConfig,
     Test,
     TestReport,
     check_compilers_config,
-    ProblemAllowedLanguage,
 )
 from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
 from oioioi.programs.utils import form_field_id_for_langs

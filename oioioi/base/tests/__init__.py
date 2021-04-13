@@ -7,11 +7,11 @@ import six.moves.urllib.parse
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
-from django.urls import reverse
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.template.loaders.cached import Loader as CachedLoader
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import CaptureQueriesContext
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from mock import patch

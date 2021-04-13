@@ -1,7 +1,7 @@
 import django
 from django.conf import settings
-from django.urls import reverse
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.main_page import register_main_page_view

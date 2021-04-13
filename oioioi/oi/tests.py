@@ -5,8 +5,8 @@ from datetime import datetime, timedelta  # pylint: disable=E0611
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now

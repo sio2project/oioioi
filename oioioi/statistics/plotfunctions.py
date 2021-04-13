@@ -3,8 +3,8 @@ from collections import defaultdict
 from itertools import groupby  # pylint: disable=E0611
 from operator import itemgetter  # pylint: disable=E0611
 
-from django.urls import reverse
 from django.db.models import Count
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 from six.moves import zip
 

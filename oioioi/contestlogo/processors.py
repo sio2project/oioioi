@@ -1,6 +1,6 @@
 import six
-from django.urls import reverse
 from django.template import loader
+from django.urls import reverse
 from django.utils.functional import lazy
 
 from oioioi.base.utils import memoized

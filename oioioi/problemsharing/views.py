@@ -1,8 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
-from django.urls import reverse
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.generic import TemplateView

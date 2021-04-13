@@ -1,7 +1,7 @@
 from django.contrib import messages
-from django.urls import reverse
 from django.db import transaction
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import generate_key

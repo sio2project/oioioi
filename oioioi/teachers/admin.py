@@ -2,9 +2,9 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.forms.models import modelform_factory
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin

@@ -1,6 +1,6 @@
 from django.core.files.base import ContentFile
-from django.urls import reverse
 from django.db.models import Q
+from django.urls import reverse
 
 from oioioi.contests.controllers import (
     ContestController,

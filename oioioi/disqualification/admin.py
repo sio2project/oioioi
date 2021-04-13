@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.db import models
 from django.forms import Textarea
+from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 

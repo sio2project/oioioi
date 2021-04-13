@@ -2,10 +2,10 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
 from django.core.exceptions import ValidationError
-from django.urls import reverse
 from django.db.models import Q
 from django.forms.models import BaseInlineFormSet
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.translation import ugettext_lazy as _
@@ -17,17 +17,16 @@ from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
 from oioioi.programs.forms import (
     CompilerInlineForm,
-    ProblemCompilerInlineForm,
     ProblemAllowedLanguageInlineForm,
+    ProblemCompilerInlineForm,
 )
-
 from oioioi.programs.models import (
     ContestCompiler,
     LibraryProblemData,
     ModelSolution,
     OutputChecker,
-    ProblemCompiler,
     ProblemAllowedLanguage,
+    ProblemCompiler,
     ProgramsConfig,
     ReportActionsConfig,
     Test,

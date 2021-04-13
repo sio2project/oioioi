@@ -4,10 +4,10 @@ import sys
 from django.conf import settings
 from django.contrib import messages
 from django.core.files import File
-from django.urls import reverse
 from django.db import transaction
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.http import urlencode
 from django.utils.module_loading import import_string

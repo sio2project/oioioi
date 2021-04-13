@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AnonymousUser
-from django.urls import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from six.moves import range
 

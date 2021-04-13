@@ -3,8 +3,10 @@ from django.conf import settings
 
 def get_allowed_languages_dict(problem_instance):
     lang_dict = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-    allowed_langs = problem_instance.problem.controller.get_allowed_languages_for_problem(
-        problem_instance.problem
+    allowed_langs = (
+        problem_instance.problem.controller.get_allowed_languages_for_problem(
+            problem_instance.problem
+        )
     )
     contest_langs = problem_instance.controller.get_allowed_languages()
     return {

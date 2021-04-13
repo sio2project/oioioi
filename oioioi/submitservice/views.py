@@ -3,9 +3,9 @@ import random
 import string
 
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from six.moves import range
