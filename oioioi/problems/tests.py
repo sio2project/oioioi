@@ -37,6 +37,8 @@ from oioioi.problems.controllers import ProblemController
 from oioioi.problems.management.commands import (
     migrate_old_algorithm_tags,
     recalculate_statistics,
+    migrate_old_origin_tags_create_new_tags,
+    migrate_old_origin_tags_copy_problem_statements,
 )
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -52,6 +54,11 @@ from oioioi.problems.models import (
     Tag,
     UserStatistics,
     make_problem_filename,
+    OriginTag,
+    OriginTagLocalization,
+    OriginInfoCategoryLocalization,
+    OriginInfoValueLocalization,
+    TagThrough,
 )
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
@@ -1379,6 +1386,298 @@ class TestMigrateOldAlgorithmTags(TestCase):
                 self.assertTrue(
                     new_tag_localizations.filter(full_name=row['full_name_PL']).exists()
                 )
+
+
+class TestMigrateOldOriginTagsCreateNewTags(TestCase):
+    problems_names = [
+        'Kurczak',
+        'Herbata',
+        'Mleko',
+        'Banan',
+        'Kanapka',
+        'Tost',
+        'Ketchup',
+        'Pizza',
+        'Frytki',
+        'Kebab',
+        'Piwo',
+        'Wino',
+        'Czekolada',
+        'Kakao',
+        'Marchewka',
+        'Por',
+    ]
+    tags_names = [
+        'ONTAK2013',
+        'ONTAK2012',
+        'AMPPZ2012',
+        'AMPPZ2011',
+        'BOI2015',
+        'BOI2008',
+        'ILOCAMP11',
+        'SERWY2010',
+    ]
+
+    def setUp(self):
+        for name in self.problems_names:
+            Problem.objects.create(
+                name=name,
+                short_name=name.lower()[:3],
+                visibility='PU',
+            )
+
+        Tag.objects.create(name='eng')
+        for name in self.tags_names:
+            Tag.objects.create(name=name)
+
+        for i, name in enumerate(self.problems_names):
+            tag = Tag.objects.get(name=self.tags_names[i % len(self.tags_names)])
+            problem = Problem.objects.get(name=name)
+            TagThrough.objects.create(problem=problem, tag=tag)
+
+    def test_migrate_old_origin_tags_create_new_tags_command(self):
+        basedir = os.path.dirname(__file__)
+        filename = os.path.join(
+            basedir, 'test_files', 'old_origin_tags_to_create_tags.csv'
+        )
+        manager = migrate_old_origin_tags_create_new_tags.Command()
+        manager.run_from_argv(
+            [
+                'manage.py',
+                'migrate_old_origin_tags_create_new_tags',
+                '-f',
+                filename,
+            ]
+        )
+
+        origin_tag_count = OriginTag.objects.count()
+        self.assertEqual(origin_tag_count, 5)
+        self.assertEqual(OriginInfoCategory.objects.count(), origin_tag_count)
+        self.assertEqual(OriginInfoValue.objects.count(), Tag.objects.count() - 1)
+
+        with open(filename, mode='r') as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=',')
+            for row in csv_reader:
+                old_tags = Tag.objects.filter(name__istartswith=row['OriginTag_name'])
+                if row['OriginTag_name'] == 'proserwy':
+                    old_tags = Tag.objects.filter(name__istartswith='serwy')
+                old_tags_problems = Problem.objects.none()
+                for old_tag in old_tags:
+                    old_tags_problems |= old_tag.problems.all()
+                old_tags_problems_set = set(old_tags_problems)
+
+                origin_tag = OriginTag.objects.get(name=row['OriginTag_name'])
+                origin_tag_problems_set = set(origin_tag.problems.all())
+                origin_tag_localizations = OriginTagLocalization.objects.filter(
+                    origin_tag=origin_tag
+                )
+
+                origin_info_category = OriginInfoCategory.objects.get(
+                    parent_tag=origin_tag
+                )
+                origin_info_category_localizations = (
+                    OriginInfoCategoryLocalization.objects.filter(
+                        origin_info_category=origin_info_category
+                    )
+                )
+
+                origin_info_value = OriginInfoValue.objects.get(
+                    parent_tag=origin_tag,
+                    value=row['OriginInfoValue_value'],
+                )
+                origin_info_value_localizations = (
+                    OriginInfoValueLocalization.objects.filter(
+                        origin_info_value=origin_info_value
+                    )
+                )
+
+                self.assertTrue(old_tags_problems_set == origin_tag_problems_set)
+                self.assertTrue(
+                    (
+                        len(old_tags_problems_set) == 4
+                        and len(origin_tag_problems_set) == 4
+                    )
+                    or (
+                        len(old_tags_problems_set) == 2
+                        and len(origin_tag_problems_set) == 2
+                    )
+                )
+                self.assertEqual(origin_tag_localizations.count(), 2)
+                self.assertTrue(
+                    origin_tag_localizations.filter(
+                        full_name=row['OriginTagLocalization_full_name_EN']
+                    ).exists()
+                )
+                self.assertTrue(
+                    origin_tag_localizations.filter(
+                        full_name=row['OriginTagLocalization_full_name_PL']
+                    ).exists()
+                )
+
+                self.assertEqual(origin_info_category.name, 'year')
+                self.assertEqual(origin_info_category.order, 1)
+                self.assertEqual(origin_info_category_localizations.count(), 2)
+                self.assertTrue(
+                    origin_info_category_localizations.filter(
+                        full_name=row['OriginInfoCategoryLocalization_full_name_EN']
+                    ).exists()
+                )
+                self.assertTrue(
+                    origin_info_category_localizations.filter(
+                        full_name=row['OriginInfoCategoryLocalization_full_name_PL']
+                    ).exists()
+                )
+
+                self.assertEqual(int(origin_info_value.value), -origin_info_value.order)
+                self.assertEqual(origin_info_value_localizations.count(), 2)
+                self.assertTrue(
+                    origin_info_value_localizations.filter(
+                        full_value=row['OriginInfoValueLocalization_full_value_EN']
+                    ).exists()
+                )
+                self.assertTrue(
+                    origin_info_value_localizations.filter(
+                        full_value=row['OriginInfoValueLocalization_full_value_PL']
+                    ).exists()
+                )
+
+
+class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
+    description = {
+        'OIG1': {'name_en': 'Kurczak en', 'name_pl': 'Kurczak pl'},
+        'IOI2009': {'name_en': 'Herbata en', 'name_pl': 'Herbata pl'},
+        'IOI2008': {'name_en': 'Mleko en', 'name_pl': 'Mleko pl'},
+        'CEOI2011': {'name_en': 'Banan en', 'name_pl': 'Banan pl'},
+        'CEOI2010': {
+            'name_en': 'Kanapka en',
+            'name_pl': 'Kanapka pl',
+        },
+        'CEOI2004': {
+            'name_en': 'Tost en',
+            'name_pl': 'Tost pl',
+        },
+        'PA2013': {
+            'name_en': 'Ketchup en',
+            'name_pl': 'Ketchup pl',
+        },
+        'PA2012': {
+            'name_en': 'Pizza en',
+            'name_pl': 'Pizza pl',
+        },
+        'OI21': {
+            'name_en': 'Frytki en',
+            'name_pl': 'Frytki pl',
+        },
+        'OI20': {
+            'name_en': 'Kebab en',
+            'name_pl': 'Kebab pl',
+        },
+        'OI19': {
+            'name_en': 'Piwo en',
+            'name_pl': 'Piwo pl',
+        },
+        'ONTAK2013': {
+            'name_en': 'Wino en',
+            'name_pl': 'Wino pl',
+        },
+        'ONTAK2012': {
+            'name_en': 'Czekolada en',
+            'name_pl': 'Czekolada pl',
+        },
+        'AMPPZ2012': {
+            'name_en': 'Kakao en',
+            'name_pl': 'Kakao pl',
+        },
+        'AMPPZ2011': {
+            'name_en': 'Marchewka en',
+            'name_pl': 'Marchewka pl',
+        },
+        'ILOCAMP11': {
+            'name_en': 'Por en',
+            'name_pl': 'Por pl',
+        },
+    }
+
+    def setUp(self):
+        tag_eng = Tag.objects.create(name='eng')
+
+        for tag_name in self.description:
+            tag = Tag.objects.create(name=tag_name)
+            problems = self.description[tag_name]
+
+            problem_en = Problem.objects.create(
+                name=problems['name_en'],
+                short_name=problems['name_en'].lower()[:3],
+                visibility='PU',
+            )
+            problem_pl = Problem.objects.create(
+                name=problems['name_pl'],
+                short_name=problems['name_pl'].lower()[:3],
+                visibility='PU',
+            )
+
+            ProblemStatement.objects.create(
+                problem=problem_en,
+                language='en',
+                content='data:problems/1/en.txt:raw:en-txt',
+            )
+            ProblemStatement.objects.create(
+                problem=problem_pl,
+                language='pl',
+                content='data:problems/1/pl.txt:raw:pl-txt',
+            )
+
+            TagThrough.objects.create(problem=problem_en, tag=tag_eng)
+            TagThrough.objects.create(problem=problem_en, tag=tag)
+            TagThrough.objects.create(problem=problem_pl, tag=tag)
+
+    def test_migrate_old_origin_tags_create_copy_problem_statements_command(self):
+        problems_count_before = Problem.objects.count()
+
+        basedir = os.path.dirname(__file__)
+        filename = os.path.join(
+            basedir, 'test_files', 'old_origin_tags_to_copy_statements.csv'
+        )
+        manager = migrate_old_origin_tags_copy_problem_statements.Command()
+        manager.run_from_argv(
+            [
+                'manage.py',
+                'migrate_old_origin_tags_copy_problem_statements',
+                '-f',
+                filename,
+            ]
+        )
+
+        self.assertEqual(Problem.objects.count(), problems_count_before)
+        self.assertEqual(
+            ProblemStatement.objects.count(), Problem.objects.count() * 3 // 2
+        )
+
+        tag_copied = Tag.objects.get(name='copied')
+
+        with open(filename, mode='r') as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=',')
+            for row in csv_reader:
+                problems = self.description[row['Tag_name']]
+                problem_en = Problem.objects.get(name=problems['name_en'])
+                problem_pl = Problem.objects.get(name=problems['name_pl'])
+
+                if row['language_version_with_no_origin'] == 'en':
+                    self.assertTrue(problem_en in tag_copied.problems.all())
+                    self.assertEqual(
+                        ProblemStatement.objects.filter(problem=problem_en).count(), 1
+                    )
+                    self.assertEqual(
+                        ProblemStatement.objects.filter(problem=problem_pl).count(), 2
+                    )
+                else:
+                    self.assertTrue(problem_pl in tag_copied.problems.all())
+                    self.assertEqual(
+                        ProblemStatement.objects.filter(problem=problem_en).count(), 2
+                    )
+                    self.assertEqual(
+                        ProblemStatement.objects.filter(problem=problem_pl).count(), 1
+                    )
 
 
 class TestAlgorithmTags(TestCase):
