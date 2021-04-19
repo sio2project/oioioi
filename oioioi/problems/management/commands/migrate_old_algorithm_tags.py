@@ -40,11 +40,11 @@ class Command(BaseCommand):
                     )
                     AlgorithmTagLocalization.objects.get_or_create(
                         algorithm_tag=new_tag,
-                        language='EN',
+                        language='en',
                         full_name=row['full_name_EN'],
                     )
                     AlgorithmTagLocalization.objects.get_or_create(
                         algorithm_tag=new_tag,
-                        language='PL',
+                        language='pl',
                         full_name=row['full_name_PL'],
                     )
