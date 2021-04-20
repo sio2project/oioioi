@@ -5,7 +5,6 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
-
 from oioioi.contests.models import Submission
 from oioioi.problems.models import Problem, ProblemStatistics, UserStatistics
 

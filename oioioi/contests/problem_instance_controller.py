@@ -33,7 +33,6 @@ class ProblemInstanceController(object):
     def __getattr__(self, name):
         problem = self.problem_instance.problem
         contest = self.problem_instance.contest
-
         if contest is not None:
             assert hasattr(contest.controller, name) or not hasattr(
                 problem.controller, name

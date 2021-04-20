@@ -27,15 +27,15 @@ contest_re = re.compile(r'^(?:/api)?/c/(?P<c_name>[a-z0-9_-]+)/')
 def reverse(target, *args, **kwargs):
     """A modified URL reverser that takes into account the current contest
     and generates URLs that are appropriately prefixed. With it we
-    substitute the original ``urlresolvers.reverse`` function.
+    substitute the original ``urls.reverse`` function.
 
     The choice of prefixing the URL with a particular contest ID
     (or not prefixing at all) by the function is made as follows:
 
      * If a ``contest_id`` kwarg is given which is not None then the URL,
-       if succesfully reversed, is prefixed with it.
+       if successfully reversed, is prefixed with it.
      * If a ``contest_id`` kwarg equal to None is given then the URL,
-       if succesfully reversed, will not be prefixed.
+       if successfully reversed, will not be prefixed.
      * If the kwarg isn't given but a contest is active when calling
        the function then that contest is used for the generated URL.
      * If the above fails or there is no active contest then no contest
@@ -113,9 +113,16 @@ def patch():
     from django import urls
 
     if urls.reverse is not reverse:
+        # this urlresolvers import can only be removed after migration to django 2
+        # as some dependencies still use urlresolvers instead of urls.
+        from django.core import urlresolvers as urls_old
+
         django_reverse = urls.reverse
         urls.reverse = reverse
         urls.reverse_lazy = lazy(reverse, str)
+
+        urls_old.reverse = reverse
+        urls_old.reverse_lazy = urls.reverse_lazy
 
 
 patch()

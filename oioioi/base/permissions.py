@@ -1,7 +1,7 @@
 # coding: utf-8
 import functools
 
-from django.contrib.auth.views import logout, redirect_to_login
+from django.contrib.auth.views import LogoutView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
 
@@ -166,7 +166,7 @@ def not_anonymous(request):
         if request.user.is_active:
             return True
         else:
-            logout(request)
+            LogoutView.as_view()(request)
             return False
     else:
         return False

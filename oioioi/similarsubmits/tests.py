@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase, check_not_accessible
 from oioioi.similarsubmits.forms import BulkAddSubmissionsSimilarityForm

@@ -2,7 +2,8 @@
 
 cd "`dirname "$0"`"
 
-pytest --ignore=oioioi_selenium "$@"
+python2 $(which pytest) --ignore=oioioi_selenium "$@"
+
 # This holds the exit status of the last executed command
 # Be careful when inserting new commands in between
 # (you might want to && them together with the rest)

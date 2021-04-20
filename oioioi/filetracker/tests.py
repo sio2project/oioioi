@@ -7,8 +7,9 @@ import tempfile
 from django import VERSION as DJANGO_VERSION
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
 from django.db.models.fields.files import FieldFile, FileField
+from django.urls import reverse
+from django.utils import timezone
 from filetracker.client import Client as FiletrackerClient
 from filetracker.client.dummy import DummyClient
 
@@ -100,12 +101,12 @@ class TestFileStorage(TestCase):
             storage.save('/absolute/path', ContentFile(data))
 
         storage.save(path, ContentFile(data))
-        t = datetime.datetime.now()
+        t = timezone.now()
         self.assertTrue(storage.exists(path))
         self.assertEqual(storage.open(path, 'rb').read(), data)
         self.assertEqual(storage.size(path), len(data))
 
-        ctime = storage.created_time(path)
+        ctime = storage.get_created_time(path)
         self.assertLessEqual(ctime, t)
         self.assertGreater(ctime, t - datetime.timedelta(seconds=30))
 

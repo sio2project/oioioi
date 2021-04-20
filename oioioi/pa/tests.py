@@ -7,9 +7,9 @@ from django import VERSION as DJANGO_VERSION
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.timezone import utc
 from six.moves import map, range, zip
 

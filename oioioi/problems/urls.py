@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.conf.urls import include, url
-
 from oioioi.problems import api, views
 
 app_name = 'problems'

@@ -2,11 +2,10 @@ from collections import OrderedDict
 
 from django import forms
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.contests.models import ProblemStatementConfig, RankingVisibilityConfig
@@ -37,7 +36,7 @@ class ProblemUploadForm(forms.Form):
             if len(choices) >= 2:
                 fields = list(self.fields.items())
                 fields[0:0] = [
-                    ('round_id', forms.ChoiceField(choices, label=_("Round")))
+                    ('round_id', forms.ChoiceField(choices=choices, label=_("Round")))
                 ]
                 self.fields = OrderedDict(fields)
             elif len(choices) == 1:
@@ -67,7 +66,7 @@ class ProblemUploadForm(forms.Form):
                 self.fields.update(
                     {
                         'visibility': forms.ChoiceField(
-                            choices,
+                            choices=choices,
                             label=_("Visibility"),
                             required=True,
                             initial=default_visibility,
@@ -118,11 +117,29 @@ class ProblemsetSourceForm(forms.Form):
             self.initial = {'url_key': url_key}
 
 
+class ProblemStatementReplaceForm(forms.Form):
+    file_name = forms.ChoiceField(label=_("Statement filename"))
+    file_replacement = forms.FileField(label=_("Replacement file"), required=True)
+
+    def __init__(self, file_names, *args, **kwargs):
+        super(ProblemStatementReplaceForm, self).__init__(*args, **kwargs)
+        upload_file_field = self.fields['file_replacement']
+        file_name_field = self.fields['file_name']
+        file_name_field.choices = [('', '')] + [(name, name) for name in file_names]
+        self._set_field_show_always('file_name')
+        narrow_input_field(file_name_field)
+        narrow_input_field(upload_file_field)
+        self.initial.update({'file_name': ''})
+
+    def _set_field_show_always(self, field_name):
+        self.fields[field_name].widget.attrs['data-submit'] = 'always'
+
+
 class PackageFileReuploadForm(forms.Form):
     file_name = forms.ChoiceField(label=_("File name"))
     file_replacement = forms.FileField(label=_("Replacement file"), required=False)
 
-    def __init__(self, file_names, contest, *args, **kwargs):
+    def __init__(self, file_names, *args, **kwargs):
         super(PackageFileReuploadForm, self).__init__(*args, **kwargs)
         upload_file_field = self.fields['file_replacement']
         file_name_field = self.fields['file_name']

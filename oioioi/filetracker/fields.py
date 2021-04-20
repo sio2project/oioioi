@@ -80,7 +80,9 @@ class FileField(files.FileField):
         return super(FileField, self).get_prep_value(value)
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
+        value = self.value_from_object(obj)
         if not value:
             return 'none'
-        return 'data:' + value.name + ':' + base64.b64encode(value.read())
+        return (
+            'data:' + value.name + ':' + six.ensure_text(base64.b64encode(value.read()))
+        )

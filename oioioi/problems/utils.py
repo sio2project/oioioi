@@ -8,7 +8,6 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.http import Http404, HttpResponse
 from django.utils import translation
-
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.contests.processors import recent_contests
@@ -360,7 +359,7 @@ def show_proposal_form(problem, user):
     ) or DifficultyProposal.objects.all().filter(problem=problem, user=user):
         return False
 
-    ps = ProblemStatistics.objects.all().filter(problem=problem)
+    ps = ProblemStatistics.objects.all().filter(problem=problem).first()
     us = UserStatistics.objects.all().filter(problem_statistics=ps, user=user).first()
     if not us or not us.has_solved:
         return False

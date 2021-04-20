@@ -19,7 +19,6 @@ from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import SimpleUploadedFile, TemporaryUploadedFile
 from django.core.handlers.wsgi import WSGIRequest
-from django.core.urlresolvers import reverse
 from django.forms import ValidationError
 from django.forms.fields import CharField, IntegerField
 from django.http import HttpResponse, HttpResponseRedirect
@@ -27,6 +26,7 @@ from django.template import Context, Template
 from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+from django.urls import reverse
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 from six.moves import reload_module, zip

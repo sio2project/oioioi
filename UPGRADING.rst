@@ -12,6 +12,45 @@ Then run::
 
 and restart the judging machines.
 
+Upgrading to python 3
+-------------------------
+In your development setup, make sure to rebuild the docker image.
+
+To run oioioi on python 2 use::
+
+    docker-compose -f docker-compose-dev.yml exec web python manage.py runserver
+
+To run oioioi on python 3 use::
+
+    docker-compose -f docker-compose-dev.yml exec web python3 manage.py runserver
+
+To run tests on python 2 use::
+
+    docker-compose -f docker-compose-dev.yml exec web ../oioioi/test.sh
+
+To run tests on python 3 use::
+
+    docker-compose -f docker-compose-dev.yml exec web ../oioioi/test3.sh
+
+In the production environment create a new virtual environment (with python 3.7.x) and install the requirements with::
+
+    pip install -r requirements_py3.txt
+
+The same commands used on python 2 for managing and running oioioi should work on python 3.
+
+Upgrading should work without issues.
+
+However, when you downgrade back to python 2, you may find that cache and session registry have been populated
+with objects encoded in a newer, incompatible format. To clear the caches run::
+
+  ./manage.py shell
+
+  from django.core.cache import cache
+  cache.clear()
+  from django.contrib.sessions.models import Session
+  Session.objects.all().delete()
+
+
 Upgrading from django 1.8
 -------------------------
 Please make sure to reinstall all packages to avoid compatibility issues::
@@ -94,7 +133,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
        DATABASES = {
         'default': {
-         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+         'ENGINE': 'django.db.backends.', # Add 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
          'NAME': '',                      # Or path to database file if using sqlite3.
          'USER': '',                      # Not used with sqlite3.
          'PASSWORD': '',                  # Not used with sqlite3.

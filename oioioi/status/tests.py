@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest

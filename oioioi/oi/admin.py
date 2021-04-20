@@ -1,7 +1,7 @@
 import six
 import six.moves.urllib.parse
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin

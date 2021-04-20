@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from oioioi.base.tests import TestCase
 from oioioi.notifications.processors import get_notifications_session

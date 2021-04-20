@@ -3,9 +3,9 @@ from datetime import datetime  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.http import QueryDict
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.timezone import utc
 from six.moves import range, zip
 

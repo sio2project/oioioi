@@ -2,7 +2,6 @@ import logging
 
 from celery.task import task
 from django.utils.module_loading import import_string
-
 from oioioi.problems.models import Problem, ProblemPackage
 
 logger = logging.getLogger(__name__)

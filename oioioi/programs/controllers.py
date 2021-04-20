@@ -7,8 +7,8 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -34,6 +34,7 @@ from oioioi.programs.models import (
     GroupReport,
     ModelProgramSubmission,
     OutputChecker,
+    ProblemAllowedLanguage,
     ProblemCompiler,
     ProgramSubmission,
     Submission,
@@ -197,9 +198,7 @@ class ProgrammingProblemController(ProblemController):
         environ['untrusted_checker'] = not settings.USE_UNSAFE_CHECKER
 
     def generate_recipe(self, kinds):
-        recipe_body = [
-            ('collect_tests', 'oioioi.programs.handlers.collect_tests'),
-        ]
+        recipe_body = [('collect_tests', 'oioioi.programs.handlers.collect_tests')]
 
         if 'INITIAL' in kinds:
             recipe_body.extend(
@@ -531,7 +530,7 @@ class ProgrammingProblemController(ProblemController):
         controller = problem_instance.controller
 
         choices = [('', '')]
-        for lang in controller.get_allowed_languages():
+        for lang in get_allowed_languages_dict(problem_instance).keys():
             compiler_name = None
             compiler = controller.get_compiler_for_language(problem_instance, lang)
             if compiler is not None:
@@ -635,11 +634,7 @@ class ProgrammingProblemController(ProblemController):
                         problem_instance, ext
                     )
 
-        form.media.add_js(
-            [
-                'common/submit_view.js',
-            ]
-        )
+        form.media.add_js(['common/submit_view.js'])
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
@@ -834,6 +829,17 @@ class ProgrammingProblemController(ProblemController):
                 'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 15),
             },
         )
+
+    def get_allowed_languages_for_problem(self, problem):
+        allowed_langs = list(
+            ProblemAllowedLanguage.objects.filter(problem=problem).values_list(
+                'language', flat=True
+            )
+        )
+        # If the whitelist is empty, allow every language
+        if not allowed_langs:
+            return problem.controller.get_allowed_languages()
+        return allowed_langs
 
 
 class ProgrammingContestController(ContestController):

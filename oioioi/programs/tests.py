@@ -9,9 +9,9 @@ from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
@@ -37,12 +37,14 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.handlers import make_report
 from oioioi.programs.models import (
     ModelSolution,
+    ProblemAllowedLanguage,
     ProgramSubmission,
     ReportActionsConfig,
     Test,
     TestReport,
     check_compilers_config,
 )
+from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
 from oioioi.programs.utils import form_field_id_for_langs
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
@@ -73,18 +75,10 @@ class SubmitFileMixin(SubmitMixin):
         url = reverse('submit', kwargs={'contest_id': contest.id})
 
         file = ContentFile(b'a' * file_size, name=file_name)
-        post_data = {
-            'problem_instance_id': problem_instance.id,
-            'file': file,
-        }
+        post_data = {'problem_instance_id': problem_instance.id, 'file': file}
 
         if user:
-            post_data.update(
-                {
-                    'kind': kind,
-                    'user': user,
-                }
-            )
+            post_data.update({'kind': kind, 'user': user})
         return self.client.post(url, post_data)
 
     def submit_code(
@@ -113,12 +107,7 @@ class SubmitFileMixin(SubmitMixin):
             langs_field_name: prog_lang,
         }
         if user:
-            post_data.update(
-                {
-                    'kind': kind,
-                    'user': user,
-                }
-            )
+            post_data.update({'kind': kind, 'user': user})
         return self.client.post(url, post_data)
 
 
@@ -1839,3 +1828,50 @@ class TestReportDisplayTypes(TestCase):
         self.assertNotContains(response, 'submission--OK50')
         self.assertContains(response, 'submission--OK25', count=1)
         self.assertNotContains(response, 'submission--OK0')
+
+
+class TestAllowedLanguages(TestCase, SubmitFileMixin):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_permissions',
+        'test_compilers',
+    ]
+
+    @override_settings(
+        SUBMITTABLE_LANGUAGES={
+            'C': {'display_name': 'C'},
+            'C++': {'display name': 'C++'},
+            'Python': {'display_name': 'Python'},
+        }
+    )
+    def setUp(self):
+        self.problem = Problem.objects.get()
+        self.problem_instance = ProblemInstance.objects.get()
+        self.assertTrue(self.client.login(username='test_user'))
+
+    def test_empty_whitelist(self):
+        allowed_languages = get_allowed_languages_dict(self.problem_instance)
+        self.assertIn('Python', allowed_languages)
+        self.assertIn('C', allowed_languages)
+        self.assertIn('C++', allowed_languages)
+
+    def test_allowed_languages_dict(self):
+        ProblemAllowedLanguage.objects.create(problem=self.problem, language='C')
+        ProblemAllowedLanguage.objects.create(problem=self.problem, language='C++')
+        allowed_languages = get_allowed_languages_dict(self.problem_instance)
+        self.assertNotIn('Python', allowed_languages)
+        self.assertIn('C', allowed_languages)
+        self.assertIn('C++', allowed_languages)
+
+    def test_disallowed_language_submit_attempt(self):
+        ProblemAllowedLanguage.objects.create(problem=self.problem, language='C')
+        contest = Contest.objects.get()
+        response = self.submit_code(contest, self.problem_instance, prog_lang='Python')
+        self.assertContains(response, 'Select a valid choice. Python is not one')
+        response = self.submit_code(
+            contest, self.problem_instance, 'some code', prog_lang='C'
+        )
+        self._assertSubmitted(contest, response)

@@ -3,6 +3,7 @@ import logging
 import pprint
 
 import six
+
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -13,7 +14,6 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.models import (
     FailureReport,
@@ -171,7 +171,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                     (
                         'update_problem_statistics',
                         'oioioi.contests.handlers.update_problem_statistics',
-                    ),
+                    )
                 ]
                 if settings.PROBLEM_STATISTICS_AVAILABLE
                 else []

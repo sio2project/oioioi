@@ -11,7 +11,6 @@ import sys
 from django.conf import settings
 from django.core.files import File
 from django.utils.module_loading import import_string
-
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.problems.models import Problem, ProblemPackage
 

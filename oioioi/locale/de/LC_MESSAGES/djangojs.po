@@ -4,14 +4,15 @@
 # 
 # Translators:
 # Translators:
+# Alicja Kluczek <alicja2602@gmail.com>, 2021
 # Michal Boron <beredentod@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-27 20:51+0000\n"
-"PO-Revision-Date: 2020-01-28 12:22+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2021-03-30 14:00+0000\n"
+"PO-Revision-Date: 2021-02-19 00:22+0000\n"
+"Last-Translator: Alicja Kluczek <alicja2602@gmail.com>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -273,7 +274,7 @@ msgstr[1] "Sie haben noch %(sub_num)s Probeläufe übrig. "
 msgid ""
 "Time limit: <b>%(timeLimit)s</b> s<br>Memory limit: <b>%(memoryLimit)s</b> "
 "MB"
-msgstr ""
+msgstr "Zeitlimit: <b>%(timeLimit)s</b>S <br>Speicherlimit: <b>%(memoryLimit)s</b> MB"
 
 #: timeline/static/timeline/timeline.js:37
 #| msgid ""

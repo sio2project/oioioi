@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AnonymousUser
-from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from six.moves import range
 
@@ -520,6 +520,47 @@ class TestMarkdown(TestCase):
             register_widget(Widget('youtube'))
         with self.assertRaises(ValueError):
             register_widget(Widget('problem_table'))
+
+    def test_block_spoiler(self):
+        rendered_markdown = render_panel(
+            self.request, '>![spoiler text]\n>!spoiler body\n'
+        )
+
+        self.assertIn("<details>", rendered_markdown)
+        self.assertIn("<summary>spoiler text</summary>", rendered_markdown)
+        self.assertIn("<p>spoiler body</p>", rendered_markdown)
+        self.assertIn("</details>", rendered_markdown)
+
+    def test_block_spoiler_complex_body(self):
+        rendered_markdown = render_panel(
+            self.request,
+            '>![spoiler text]\n>!# header\n>!**bold**\n',
+        )
+
+        self.assertIn("<h1>header</h1>", rendered_markdown)
+        self.assertIn("<strong>bold</strong>", rendered_markdown)
+
+    def test_block_spoiler_nested(self):
+        rendered_markdown = render_panel(
+            self.request, '>![first]\n>!>![nested]\n>!>!nested text\n>!first text\n'
+        )
+        self.assertIn("<summary>first</summary>", rendered_markdown)
+        self.assertIn("<summary>nested</summary>", rendered_markdown)
+
+    def test_block_spoiler_in_sequence(self):
+        rendered_markdown = render_panel(
+            self.request, '>![first]\n>!first text\n\n>![second]\n>!second text\n'
+        )
+        self.assertIn("<summary>first</summary>", rendered_markdown)
+        self.assertIn("<summary>second</summary>", rendered_markdown)
+
+    def test_table_element(self):
+        rendered_markdown = render_panel(self.request, '|a|b|\n|-|-|\n|1|2|\n')
+        self.assertIn("<table", rendered_markdown)
+        self.assertIn("<thead>", rendered_markdown)
+        self.assertIn("<tbody>", rendered_markdown)
+        self.assertIn("<th>a</th>", rendered_markdown)
+        self.assertIn("<td>1</td>", rendered_markdown)
 
 
 class TestMainPageAndPublicPortals(TestCase):

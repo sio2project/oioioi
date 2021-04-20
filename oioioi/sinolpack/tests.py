@@ -9,9 +9,9 @@ from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.core.urlresolvers import reverse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.module_loading import import_string
 from six import BytesIO
 
@@ -325,14 +325,14 @@ class TestSinolPackage(TestCase):
             if settings.USE_SINOLPACK_MAKEFILES:
                 statements = ProblemStatement.objects.filter(problem=problem)
                 self.assertEqual(statements.count(), 1)
-                self.assertTrue(statements.get().content.read().startswith('%PDF'))
+                self.assertTrue(statements.get().content.read().startswith(b'%PDF'))
         else:
             self.assertEqual(problem.name, u'sum')
 
         tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
         t0 = tests.get(name='0')
-        self.assertEqual(t0.input_file.read(), '1 2\n')
-        self.assertEqual(t0.output_file.read(), '3\n')
+        self.assertEqual(t0.input_file.read(), b'1 2\n')
+        self.assertEqual(t0.output_file.read(), b'3\n')
         self.assertEqual(t0.kind, 'EXAMPLE')
         self.assertEqual(t0.group, '0')
         self.assertEqual(t0.max_score, 0)
@@ -409,8 +409,8 @@ class TestSinolPackage(TestCase):
         tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
         t0 = tests.get(name='0')
-        self.assertEqual(t0.input_file.read(), '3\n12\n5\n8\n3\n15\n8\n0\n')
-        self.assertEqual(t0.output_file.read(), '12\n15\n8\n')
+        self.assertEqual(t0.input_file.read(), b'3\n12\n5\n8\n3\n15\n8\n0\n')
+        self.assertEqual(t0.output_file.read(), b'12\n15\n8\n')
         self.assertEqual(t0.kind, 'EXAMPLE')
         self.assertEqual(t0.group, '0')
         self.assertEqual(t0.max_score, 0)
@@ -418,11 +418,11 @@ class TestSinolPackage(TestCase):
         self.assertEqual(t0.memory_limit, 66000)
         t1a = tests.get(name='1a')
         self.assertEqual(
-            t1a.input_file.read(), '0\n-435634223 1 30 23 130 0 -324556462\n'
+            t1a.input_file.read(), b'0\n-435634223 1 30 23 130 0 -324556462\n'
         )
         self.assertEqual(
             t1a.output_file.read(),
-            """126\n126\n82\n85\n80\n64\n84\n5\n128\n66\n4\n79\n64\n96
+            b"""126\n126\n82\n85\n80\n64\n84\n5\n128\n66\n4\n79\n64\n96
 22\n107\n84\n112\n92\n63\n125\n82\n1\n""",
         )
         self.assertEqual(t1a.kind, 'NORMAL')
@@ -430,7 +430,7 @@ class TestSinolPackage(TestCase):
         self.assertEqual(t1a.max_score, 50)
         t2a = tests.get(name='2a')
         self.assertEqual(
-            t2a.input_file.read(), '0\n-435634223 1 14045 547 60000 0 -324556462\n'
+            t2a.input_file.read(), b'0\n-435634223 1 14045 547 60000 0 -324556462\n'
         )
         self.assertEqual(t2a.kind, 'NORMAL')
         self.assertEqual(t2a.group, '2')

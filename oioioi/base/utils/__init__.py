@@ -599,7 +599,7 @@ def allow_cross_origin(arg='*'):
 def generate_key():
     """Generate an random key, encoded in url-safe way."""
     # 18 bytes = 144 bits of entropy, 24 bytes in base64.
-    return base64.urlsafe_b64encode(os.urandom(18))
+    return six.ensure_text(base64.urlsafe_b64encode(os.urandom(18)))
 
 
 # User-related

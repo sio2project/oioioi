@@ -5,7 +5,7 @@ from oioioi.publicsolutions.utils import problem_instances_with_any_public_solut
 
 
 class FilterPublicSolutionsForm(forms.Form):
-    category = forms.ChoiceField([], label=_("Problem"), required=False)
+    category = forms.ChoiceField(choices=[], label=_("Problem"), required=False)
 
     def __init__(self, request, *args, **kwargs):
         super(FilterPublicSolutionsForm, self).__init__(*args, **kwargs)

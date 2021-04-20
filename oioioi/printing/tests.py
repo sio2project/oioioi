@@ -1,7 +1,7 @@
-import six
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
+from six import BytesIO
 
 from oioioi.base.tests import TestCase
 from oioioi.base.utils.pdf import extract_text_from_pdf
@@ -32,7 +32,7 @@ class PrintingTestContestController(ContestController):
 
 class TestPDFGenerator(TestCase):
     def test_pdf_generation(self):
-        pdf = six.BytesIO(generator(source=SAMPLE_TEXT, header='header'))
+        pdf = BytesIO(generator(source=SAMPLE_TEXT, header='header'))
         text = extract_text_from_pdf(pdf)
         self.assertEqual(9, len(text))
         self.assertIn(b'Lorem ipsum dolor', text[0])

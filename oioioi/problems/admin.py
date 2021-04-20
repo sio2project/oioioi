@@ -1,18 +1,18 @@
 import logging
 
 import six.moves.urllib.parse
+
 from django.conf.urls import url
 from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
 from django.contrib.admin.utils import unquote
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, system_admin_menu_registry
 from oioioi.base.permissions import is_superuser, make_request_condition
@@ -455,9 +455,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if not (request.user.is_superuser or is_contest_admin(request)):
-            return [
-                'visibility',
-            ] + self.readonly_fields
+            return ['visibility'] + self.readonly_fields
         return self.readonly_fields
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -467,10 +465,7 @@ class ProblemAdmin(admin.ModelAdmin):
         )
         extra_context['no_category'] = NO_CATEGORY
         return super(ProblemAdmin, self).change_view(
-            request,
-            object_id,
-            form_url,
-            extra_context=extra_context,
+            request, object_id, form_url, extra_context=extra_context
         )
 
 
@@ -618,19 +613,14 @@ class ProblemPackageAdmin(admin.ModelAdmin):
             self.actions_field(request.contest)
         ]
         if not is_contest_admin(request):
-            disallowed_items = [
-                'created_by',
-                'actions_field',
-            ]
+            disallowed_items = ['created_by', 'actions_field']
             items = [item for item in items if item not in disallowed_items]
         return items
 
     def get_list_filter(self, request):
         items = super(ProblemPackageAdmin, self).get_list_filter(request)
         if not is_contest_admin(request):
-            disallowed_items = [
-                'created_by',
-            ]
+            disallowed_items = ['created_by']
             items = [item for item in items if item not in disallowed_items]
         return items
 

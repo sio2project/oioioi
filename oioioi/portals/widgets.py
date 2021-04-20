@@ -2,9 +2,9 @@ import re
 
 import six.moves.urllib.parse
 from django.conf import settings
-from django.core.urlresolvers import resolve, reverse
 from django.http import Http404
 from django.template.loader import render_to_string
+from django.urls import resolve, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
@@ -14,6 +14,7 @@ from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
 
 REGISTERED_WIDGETS = []
+_block_spoiler_leading_pattern = re.compile(r'^ *>! ?', flags=re.M)
 
 
 class PortalInlineGrammar(InlineGrammar):
@@ -24,6 +25,23 @@ class PortalRenderer(Renderer):
     def block_center(self, text):
         return render_to_string(
             'portals/widgets/block-center.html', {'content': mark_safe(text)}
+        )
+
+    def block_spoiler(self, summary, body):
+        return render_to_string(
+            'portals/widgets/block-spoiler.html',
+            {'summary': summary, 'body': mark_safe(body)},
+        )
+
+    def table(self, header, body):
+        """Rendering table element. Wrap header and body in it.
+
+        :param header: header part of the table.
+        :param body: body part of the table.
+        """
+        return render_to_string(
+            'portals/widgets/table.html',
+            {'header': mark_safe(header), 'body': mark_safe(body)},
         )
 
 
@@ -42,12 +60,20 @@ class PortalBlockLexer(BlockLexer):
 
     def __init__(self, *args, **kwargs):
         super(PortalBlockLexer, self).__init__(*args, **kwargs)
+        self._blockspoiler_depth = 0
+
+        self.rules.block_spoiler = re.compile(
+            r'^ *>!\[([^\n]*)\] *((?:\n *>![^\n]*)+)',
+            flags=re.DOTALL | re.M,
+        )
         self.rules.block_center = re.compile(r'^ *->(.*?)<-', re.DOTALL)
         # Insert before 'block_code'
         if 'block_center' not in self.default_rules:
             self.default_rules.insert(
                 self.default_rules.index('block_code'), 'block_center'
             )
+        if 'block_spoiler' not in self.default_rules:
+            self.default_rules.insert(0, 'block_spoiler')
 
     def parse_block_center(self, m):
         self.tokens.append(
@@ -56,6 +82,20 @@ class PortalBlockLexer(BlockLexer):
                 'text': m.group(1),
             }
         )
+
+    def parse_block_spoiler(self, m):
+        self._blockspoiler_depth += 1
+
+        if self._blockspoiler_depth > self._max_recursive_depth:
+            self.parse_text(m)
+        else:
+            self.tokens.append({'type': 'block_spoiler', 'summary': m.group(1)})
+            # Clean leading >!
+            content = _block_spoiler_leading_pattern.sub("", m.group(2))
+            self.parse(content)
+            self.tokens.append({'type': 'block_spoiler_end'})
+
+        self._blockspoiler_depth -= 1
 
 
 class PortalMarkdown(Markdown):
@@ -69,6 +109,13 @@ class PortalMarkdown(Markdown):
 
     def output_block_center(self):
         return self.renderer.block_center(self.inline(self.token['text']))
+
+    def output_block_spoiler(self):
+        spoiler_summary = self.token['summary']
+        body = self.renderer.placeholder()
+        while self.pop()['type'] != 'block_spoiler_end':
+            body += self.tok()
+        return self.renderer.block_spoiler(spoiler_summary, body)
 
 
 def render_panel(request, panel):

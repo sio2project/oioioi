@@ -6,9 +6,9 @@ from smtplib import SMTPException
 import six
 from django.conf import settings
 from django.core.mail import mail_admins
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.forms.models import model_to_dict
+from django.urls import reverse
 from django.utils.module_loading import import_string
 
 from oioioi.base.utils import naturalsort_key

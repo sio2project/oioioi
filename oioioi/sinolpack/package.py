@@ -66,7 +66,7 @@ def _determine_encoding(title, file):
     r = re.search(br'\\documentclass\[(.+)\]{sinol}', file)
     encoding = 'latin2'
 
-    if r is not None and 'utf8' in r.group(1):
+    if r is not None and b'utf8' in r.group(1):
         encoding = 'utf8'
     else:
         result = chardet.detect(title)

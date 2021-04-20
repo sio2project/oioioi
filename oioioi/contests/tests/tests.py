@@ -13,11 +13,11 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import NoReverseMatch, reverse
 from django.http import HttpResponse
 from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.urls import NoReverseMatch, reverse
 from django.utils.timezone import utc
 from rest_framework.test import APITestCase
 from six.moves import zip
@@ -1794,7 +1794,8 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertIn("Suspend all tests", html[pos:pos2])
         self.assertIn("Suspend final tests", html[pos:pos2])
         self.assertIn("Edit package", html[pos:pos2])
-        self.assertEqual(html[pos:pos2].count('|'), 8)
+        self.assertIn("Replace statement", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count('|'), 9)
 
     def test_problem_admin(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -2119,7 +2120,8 @@ class TestProblemsMenuWithQuizzes(TestCase):
         self.assertIn("Suspend all tests", html[pos:pos2])
         self.assertIn("Suspend final tests", html[pos:pos2])
         self.assertIn("Edit package", html[pos:pos2])
-        self.assertEqual(html[pos:pos2].count('|'), 6)
+        self.assertIn("Replace statement", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count('|'), 7)
 
 
 class TestSubmissionChangeKind(TestCase):

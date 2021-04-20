@@ -1,8 +1,8 @@
 import os
 
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import request_cached

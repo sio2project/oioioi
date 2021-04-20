@@ -92,7 +92,7 @@ class PAScore(ScoreValue):
         return "PAScore(%r, %r)" % (self.points, self.distribution)
 
     def __str__(self):
-        return six.text_type(self.points)
+        return str(self.points)
 
     @classmethod
     def _from_repr(cls, value):

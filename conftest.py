@@ -2,6 +2,9 @@ from __future__ import print_function
 
 import pytest
 
+from oioioi.base.tests import pytest_plugin as base_plugin
+from oioioi.contests.tests import pytest_plugin as contests_plugin
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -11,9 +14,6 @@ def pytest_addoption(parser):
 
 # called for running each test
 def pytest_runtest_setup(item):
-    from oioioi.base.tests import pytest_plugin as base_plugin
-    from oioioi.contests.tests import pytest_plugin as contests_plugin
-
     contests_plugin.pytest_runtest_setup(item)
     base_plugin.pytest_runtest_setup(item)
 

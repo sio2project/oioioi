@@ -6,10 +6,10 @@ from operator import itemgetter  # pylint: disable=E0611
 import unicodecsv
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.template.loader import render_to_string
 from django.test import RequestFactory
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe

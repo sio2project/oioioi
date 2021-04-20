@@ -1,10 +1,10 @@
 from datetime import datetime  # pylint: disable=E0611
 
-import six
 from django import VERSION as DJANGO_VERSION
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
+from six import BytesIO
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.base.utils.pdf import extract_text_from_pdf
@@ -54,7 +54,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
 
-            pages = extract_text_from_pdf(six.BytesIO(self.streamingContent(response)))
+            pages = extract_text_from_pdf(BytesIO(self.streamingContent(response)))
             self.assertIn(b"test_user", pages[0])
             self.assertIn(b"Wynik:34", pages[0].replace(b' ', b''))
             self.assertIn(b"ZAD1", pages[0])

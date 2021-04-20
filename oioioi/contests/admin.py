@@ -1,5 +1,4 @@
 import threading
-import urllib
 from functools import partial
 
 import six.moves.urllib.parse
@@ -7,20 +6,22 @@ from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
-from django.core.urlresolvers import reverse
 from django.db.models import Q, Value
 from django.db.models.functions import Coalesce
+from django.forms import ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.encoding import force_text
-from django.utils.html import conditional_escape, format_html
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
 from oioioi.base.utils import make_html_link, make_html_links
+from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.current_contest import set_cc_id
 from oioioi.contests.forms import (
     ProblemInstanceForm,
@@ -397,6 +398,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             )
         )
 
+    def _replace_statement_href(self, instance):
+        return (
+            reverse('problem_site', args=(instance.problem.problemsite.url_key,))
+            + '?'
+            + six.moves.urllib.parse.urlencode({'key': 'replace_problem_statement'})
+        )
+
     def _package_manage_href(self, instance):
         return (
             reverse('problem_site', args=(instance.problem.problemsite.url_key,))
@@ -455,10 +463,12 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             result.append((rejudge_not_needed_href, _("Rejudge not needed")))
 
         problem_change_href = self._problem_change_href(instance)
+        replace_statement_href = self._replace_statement_href(instance)
         package_manage_href = self._package_manage_href(instance)
         request = self._request_local.request
         if can_admin_problem(request, instance.problem):
             result.append((problem_change_href, _("Advanced settings")))
+            result.append((replace_statement_href, _("Replace statement")))
             result.append((package_manage_href, _("Edit package")))
         return result
 
@@ -990,10 +1000,19 @@ contest_admin_menu_registry.register(
 )
 
 
+class ContestPermissionAdminForm(ModelForm):
+    user = UserSelectionField(label=_("Username"))
+
+    class Meta(object):
+        model = ContestPermission
+        fields = ('user', 'contest', 'permission')
+
+
 class ContestPermissionAdmin(admin.ModelAdmin):
     list_display = ['permission', 'user', 'user_full_name']
     list_display_links = ['user']
     ordering = ['permission', 'user']
+    form = ContestPermissionAdminForm
 
     def user_full_name(self, instance):
         if not instance.user:

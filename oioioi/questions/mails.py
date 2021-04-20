@@ -1,7 +1,7 @@
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse
 from django.dispatch import Signal, receiver
 from django.template.loader import render_to_string
+from django.urls import reverse
 
 from oioioi.questions.models import MessageNotifierConfig
 

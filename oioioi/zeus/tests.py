@@ -1,7 +1,8 @@
 import json
 
+import pytest
 import six.moves.urllib.parse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase, TestsUtilsMixin
 from oioioi.contests.models import Contest, ProblemInstance
@@ -113,6 +114,36 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
             'memory_limit_byte': 2 ** 24,
         }
 
+    def _assert_dict_contains_subset(self, subset, dictionary):
+        """Replacement for deprecated assertDictContainsSubset"""
+        self.assertEqual(dict(dictionary, **subset), dictionary)
+
+    def test_assert_dict_contains_subset(self):
+        self._assert_dict_contains_subset({"a": "a"}, {"a": "a", "b": "b"})
+        self._assert_dict_contains_subset({}, {"a": "a", "b": "b"})
+        self._assert_dict_contains_subset(
+            {"a": {"a": "a"}}, {"a": {"a": "a"}, "b": "b"}
+        )
+        self._assert_dict_contains_subset({"a": "a", "b": "b"}, {"a": "a", "b": "b"})
+
+    @pytest.mark.xfail
+    def test_assert_dict_contains_subset_fail_no_overlap(self):
+        self._assert_dict_contains_subset({"c": "a"}, {"a": "a", "b": "b"})
+
+    @pytest.mark.xfail
+    def test_assert_dict_contains_subset_fail_wrong_value(self):
+        self._assert_dict_contains_subset({"a": "b"}, {"a": "a", "b": "b"})
+
+    @pytest.mark.xfail
+    def test_assert_dict_contains_subset_fail_not_full_overlap(self):
+        self._assert_dict_contains_subset(
+            {"a": "a", "b": "b", "c": "a"}, {"a": "a", "b": "b"}
+        )
+
+    @pytest.mark.xfail
+    def test_assert_dict_contains_subset_fail_empty_dict(self):
+        self._assert_dict_contains_subset({"c": "a"}, {})
+
     def test_compilation_failure(self):
         test_info = self._get_base_test_info()
 
@@ -144,7 +175,7 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
         self.assertEqual(len(test_results), 3)
         self.assertAllIn(['1a', '1b', '2'], tests)
 
-        self.assertDictContainsSubset(
+        self._assert_dict_contains_subset(
             {
                 'name': '1a',
                 'kind': 'NORMAL',
@@ -156,7 +187,7 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
             },
             tests['1a'],
         )
-        self.assertDictContainsSubset(
+        self._assert_dict_contains_subset(
             {'result_code': 'WA', 'result_string': '', 'time_used': 100},
             test_results['1b'],
         )
@@ -166,7 +197,7 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
         env = handlers.import_results(env)
         self.assertEqual(len(tests), 4)
         self.assertEqual(len(test_results), 4)
-        self.assertDictContainsSubset(
+        self._assert_dict_contains_subset(
             {'name': '0', 'kind': 'EXAMPLE'}, env['tests']['0']
         )
 

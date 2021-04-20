@@ -1,5 +1,5 @@
-from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.maintenancemode.models import get_maintenance_mode, set_maintenance_mode

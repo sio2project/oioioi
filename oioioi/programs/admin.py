@@ -2,10 +2,10 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.forms.models import BaseInlineFormSet
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.translation import ugettext_lazy as _
@@ -15,12 +15,17 @@ from oioioi.contests.admin import ContestAdmin, ProblemInstanceAdmin, Submission
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
-from oioioi.programs.forms import CompilerInlineForm, ProblemCompilerInlineForm
+from oioioi.programs.forms import (
+    CompilerInlineForm,
+    ProblemAllowedLanguageInlineForm,
+    ProblemCompilerInlineForm,
+)
 from oioioi.programs.models import (
     ContestCompiler,
     LibraryProblemData,
     ModelSolution,
     OutputChecker,
+    ProblemAllowedLanguage,
     ProblemCompiler,
     ProgramsConfig,
     ReportActionsConfig,
@@ -210,6 +215,13 @@ class ProblemCompilerInline(admin.StackedInline):
     category = _("Advanced")
 
 
+class ProblemAllowedLanguageInline(admin.StackedInline):
+    model = ProblemAllowedLanguage
+    extra = 0
+    form = ProblemAllowedLanguageInlineForm
+    category = _("Advanced")
+
+
 class ContestCompilerInline(admin.StackedInline):
     model = ContestCompiler
     extra = 0
@@ -258,6 +270,7 @@ class ProgrammingProblemAdminMixin(object):
     """Adds :class:`~oioioi.programs.models.ReportActionsConfig`,
     :class:`~oioioi.programs.models.OutputChecker`,
     :class:`~oioioi.programs.models.LibraryProblemData` and
+    :class:`~oioioi.programs.models.ProblemAllowedLanguage` and
     :class:`~oioioi.programs.models.ProblemCompiler` to an admin panel.
     """
 
@@ -268,6 +281,7 @@ class ProgrammingProblemAdminMixin(object):
             OutputCheckerInline,
             LibraryProblemDataInline,
             ProblemCompilerInline,
+            ProblemAllowedLanguageInline,
         ]
 
 

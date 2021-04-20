@@ -8,16 +8,15 @@ from operator import itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
 from django.core.files import File
-from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils import six
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base.menu import OrderedRegistry
 from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.archive import Archive
@@ -26,7 +25,7 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.contests.utils import administered_contests
-from oioioi.problems.forms import PackageFileReuploadForm
+from oioioi.problems.forms import PackageFileReuploadForm, ProblemStatementReplaceForm
 from oioioi.problems.models import (
     AlgorithmTagProposal,
     Problem,
@@ -279,6 +278,41 @@ def problem_site_add_to_contest(request, problem):
     )
 
 
+@problem_site_tab(
+    _('Replace problem statement'),
+    key='replace_problem_statement',
+    order=800,
+    condition=can_admin_problem,
+)
+def problem_site_replace_statement(request, problem):
+    statements = ProblemStatement.objects.filter(problem=problem)
+    filenames = [statement.filename for statement in statements]
+
+    if request.method == 'POST':
+        form = PackageFileReuploadForm(filenames, request.POST, request.FILES)
+        if form.is_valid():
+            statement_filename = form.cleaned_data['file_name']
+            statements = [s for s in statements if s.filename == statement_filename]
+            if statements:
+                statement = statements[0]
+                new_statement_file = form.cleaned_data['file_replacement']
+                statement.content = new_statement_file
+                statement.save()
+                url = reverse(
+                    'problem_site', kwargs={'site_key': problem.problemsite.url_key}
+                )
+                return redirect(url + '?key=replace_problem_statement')
+            else:
+                form.add_error(None, _('Picked statement file does not exist.'))
+    else:
+        form = ProblemStatementReplaceForm(filenames)
+    return TemplateResponse(
+        request,
+        'problems/replace-problem-statement.html',
+        {'form': form, 'problem': problem},
+    )
+
+
 def _prepare_changed_package(request, form, archive, package_name):
     file_path = request.POST.get("file_name", None)
     if len(request.FILES) != 1:
@@ -314,7 +348,7 @@ def _problem_can_be_reuploaded(request, problem):
 @problem_site_tab(
     _('Manage package files'),
     key='manage_files_problem_package',
-    order=800,
+    order=900,
     condition=can_admin_problem,
 )
 def problem_site_package_download_file(request, problem):
@@ -330,7 +364,7 @@ def problem_site_package_download_file(request, problem):
     archive = Archive(package.package_file)
     file_names = archive.filenames()
     if request.method == 'POST':
-        form = PackageFileReuploadForm(file_names, contest, request.POST)
+        form = PackageFileReuploadForm(file_names, request.POST)
         if form.is_valid():
             if 'upload_button' in request.POST:
                 package_name = file_names[0].split(os.path.sep, 1)[0]
@@ -375,7 +409,7 @@ def problem_site_package_download_file(request, problem):
                         file_name=file_name,
                     )
     else:
-        form = PackageFileReuploadForm(file_names, contest)
+        form = PackageFileReuploadForm(file_names)
     return TemplateResponse(
         request,
         'problems/manage-problem-package-files.html',

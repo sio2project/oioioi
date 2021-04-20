@@ -64,7 +64,7 @@ class ExtendRoundForm(forms.Form):
     def __init__(self, request_contest, *args, **kwargs):
         super(ExtendRoundForm, self).__init__(*args, **kwargs)
         self.fields['round'] = forms.ModelChoiceField(
-            Round.objects.filter(contest=request_contest)
+            queryset=Round.objects.filter(contest=request_contest)
         )
 
 

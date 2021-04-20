@@ -4,8 +4,8 @@ from collections import defaultdict
 
 import six
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
@@ -594,11 +594,11 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
         try:
             testreport = test_reports.get(test_name=test_name)
         except (TestReport.DoesNotExist, TestReport.MultipleObjectsReturned):
-            logger.warn('Test report for test: %s can not be determined', test_name)
+            logger.warning('Test report for test: %s can not be determined', test_name)
             continue
 
         if testreport.output_file:
-            logger.warn(
+            logger.warning(
                 'Output for test report %s exists. Deleting old one.', testreport.id
             )
             get_client().delete_file(testreport.output_file)

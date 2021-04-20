@@ -13,6 +13,11 @@ RUN dpkg --add-architecture i386 && \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
+        texlive-lang-german \
+        texlive-lang-european \
+        texlive-lang-czechslovak \
+        texlive-pstricks \
+        ghostscript \
         texlive-fonts-recommended \
         gcc-multilib \
         sudo \
@@ -48,11 +53,13 @@ USER oioioi
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
 RUN pip install --user psycopg2-binary twisted uwsgi
+RUN pip3 install --user psycopg2-binary twisted uwsgi
 
 WORKDIR /sio2/oioioi
 
-COPY --chown=oioioi:oioioi setup.py requirements.txt ./
+COPY --chown=oioioi:oioioi setup.py requirements.txt requirements_py3.txt ./
 RUN pip install -r requirements.txt --user
+RUN pip3 install -r requirements_py3.txt --user
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip install -r requirements_static.txt --user
 COPY --chown=oioioi:oioioi requirements_static_py3.txt ./
@@ -67,7 +74,7 @@ WORKDIR /sio2/deployment
 RUN sed -i -e \
        "s/SERVER = 'django'/SERVER = 'uwsgi-http'/g;\
         s/DEBUG = True/DEBUG = False/g;\
-        s/django.db.backends./django.db.backends.postgresql_psycopg2/g;\
+        s/django.db.backends./django.db.backends.postgresql/g;\
         s/'NAME': ''/'NAME': 'oioioi'/g;\
         s/'USER': ''/'USER': 'oioioi'/g;\
         s/'HOST': '',/'HOST': 'db',/g;\
