@@ -74,12 +74,25 @@ class Command(BaseCommand):
                                         + 'single statement for this problem'
                                     )
                                 else:
-                                    # Only if all three conditions were satisfied
+                                    # Only if all three conditions were not satisfied
                                     # it is possible to copy the problem statement
                                     # without any ambiguity.
+                                    problem_with_origin_statement = (
+                                        problem_with_origin_statements.get()
+                                    )
+
                                     problem_statement_copy = problem_statements.get()
                                     problem_statement_copy.problem = problem_with_origin
                                     problem_statement_copy.pk = None
+
+                                    if no_origin_version == 'en':
+                                        problem_with_origin_statement.language = 'pl'
+                                        problem_statement_copy.language = 'en'
+                                    else:
+                                        problem_with_origin_statement.language = 'en'
+                                        problem_statement_copy.language = 'pl'
+
+                                    problem_with_origin_statement.save()
                                     problem_statement_copy.save()
 
                                     # Add a special tag to mark problems with problem

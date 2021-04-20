@@ -3,6 +3,7 @@
 import csv
 import io
 import os.path
+import random
 from datetime import datetime  # pylint: disable=E0611
 from functools import cmp_to_key
 
@@ -1605,6 +1606,7 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
     }
 
     def setUp(self):
+        random.seed(42)
         tag_eng = Tag.objects.create(name='eng')
 
         for tag_name in self.description:
@@ -1622,16 +1624,26 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
                 visibility='PU',
             )
 
-            ProblemStatement.objects.create(
-                problem=problem_en,
-                language='en',
-                content='data:problems/1/en.txt:raw:en-txt',
-            )
-            ProblemStatement.objects.create(
-                problem=problem_pl,
-                language='pl',
-                content='data:problems/1/pl.txt:raw:pl-txt',
-            )
+            if random.choice([True, False]):
+                ProblemStatement.objects.create(
+                    problem=problem_en,
+                    content='data:problems/1/en.txt:raw:en-txt',
+                )
+                ProblemStatement.objects.create(
+                    problem=problem_pl,
+                    content='data:problems/1/pl.txt:raw:pl-txt',
+                )
+            else:
+                ProblemStatement.objects.create(
+                    problem=problem_en,
+                    language='en',
+                    content='data:problems/1/en.txt:raw:en-txt',
+                )
+                ProblemStatement.objects.create(
+                    problem=problem_pl,
+                    language='pl',
+                    content='data:problems/1/pl.txt:raw:pl-txt',
+                )
 
             TagThrough.objects.create(problem=problem_en, tag=tag_eng)
             TagThrough.objects.create(problem=problem_en, tag=tag)
@@ -1670,20 +1682,38 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
 
                 if row['language_version_with_no_origin'] == 'en':
                     self.assertTrue(problem_en in tag_copied.problems.all())
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_en).count(), 1
+
+                    problem_en_statement = ProblemStatement.objects.filter(
+                        problem=problem_en
+                    ).get()
+                    problem_pl_copied_statement = ProblemStatement.objects.filter(
+                        problem=problem_pl, content=problem_en_statement.content
+                    ).get()
+                    problem_pl_original_statement = (
+                        ProblemStatement.objects.filter(problem=problem_pl)
+                        .exclude(content=problem_pl_copied_statement.content)
+                        .get()
                     )
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_pl).count(), 2
-                    )
+
+                    self.assertEqual(problem_pl_copied_statement.language, 'en')
+                    self.assertEqual(problem_pl_original_statement.language, 'pl')
                 else:
                     self.assertTrue(problem_pl in tag_copied.problems.all())
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_en).count(), 2
+
+                    problem_pl_statement = ProblemStatement.objects.filter(
+                        problem=problem_pl
+                    ).get()
+                    problem_en_copied_statement = ProblemStatement.objects.filter(
+                        problem=problem_en, content=problem_pl_statement.content
+                    ).get()
+                    problem_en_original_statement = (
+                        ProblemStatement.objects.filter(problem=problem_en)
+                        .exclude(content=problem_en_copied_statement.content)
+                        .get()
                     )
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_pl).count(), 1
-                    )
+
+                    self.assertEqual(problem_en_copied_statement.language, 'pl')
+                    self.assertEqual(problem_en_original_statement.language, 'en')
 
 
 class TestAlgorithmTags(TestCase):
