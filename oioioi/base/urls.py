@@ -15,7 +15,7 @@ if DJANGO_VERSION < (1, 11):
     assert type(tf_urls) != tuple
 
 urlpatterns = [
-    url(r'', include((tf_urls, 'two_factor'))),
+    url(r'', include(tf_urls)),
     url(r'^force_error/$', views.force_error_view, name='force_error'),
     url(
         r'^force_permission_denied/$',

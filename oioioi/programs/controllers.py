@@ -108,7 +108,7 @@ class ProgrammingProblemController(ProblemController):
         if compiler is not None:
             return compiler
         else:
-            logger.warning("No default compiler for language %s", language)
+            logging.warning("No default compiler for language %s", language)
             return 'default-' + extension
 
     def get_compiler_for_language(self, problem_instance, language):
@@ -634,7 +634,19 @@ class ProgrammingProblemController(ProblemController):
                         problem_instance, ext
                     )
 
-        form.media.add_js(['common/submit_view.js'])
+        # FIXME
+        # form.media.add_js(['common/submit_view.js'])
+
+        # Possible workaround for lacking add_js method.
+        self.add_js(form.media, ['common/submit_view.js'])
+
+    # copy pasted code of add_js from django 1.11
+    @staticmethod
+    def add_js(media, data):
+        if data:
+            for path in data:
+                if path not in media._js:
+                    media._js.append(path)
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance

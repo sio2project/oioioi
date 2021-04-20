@@ -8,11 +8,10 @@ if sys.version_info < (2, 6):
 import os
 import tempfile
 
-import oioioi
-
 from django.contrib.messages import constants as messages
-
 from django.utils.translation import ugettext_lazy as _
+
+import oioioi
 
 INSTALLATION_CONFIG_VERSION = 46
 
@@ -217,14 +216,12 @@ INSTALLED_APPS = (
     'oioioi.workers',
     'oioioi.quizzes',
 
-    'kombu.transport.django',
     'djsupervisor',
     'registration',
     'django_extensions',
     'compressor',
     'dj_pagination',
     'mptt',
-    'overextends',
     'raven.contrib.django.raven_compat',
 
     'django.contrib.admin',
@@ -443,6 +440,7 @@ DEFAULT_CONTEST = None
 ONLY_DEFAULT_CONTEST = False
 
 from oioioi.contests.current_contest import ContestMode
+
 CONTEST_MODE = ContestMode.contest_if_possible
 
 # A sample logging configuration. The only tangible logging
