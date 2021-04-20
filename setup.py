@@ -81,7 +81,7 @@ python23_universal_requirements = [
     # Used in quizzes module for adding new quizzes.
     "django-nested-admin<3.4",
     # SIO2 dependencies:
-    "filetracker>=2.1,<3.0",
+    "filetracker>=2.1.5,<3.0",
     # Python 2 has class AppConf(metaclass=AppConfMetaClass):
     # SyntaxError: invalid syntax
     # when using newer version
