@@ -14,7 +14,7 @@ from django.contrib.messages import constants as messages
 
 from django.utils.translation import ugettext_lazy as _
 
-INSTALLATION_CONFIG_VERSION = 46
+INSTALLATION_CONFIG_VERSION = 47
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)

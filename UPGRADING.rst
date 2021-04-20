@@ -986,3 +986,27 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# and is in PATH variable, then corresponding settings will be set automatically.
         +# CAPTCHA_FLITE_PATH = ''
         +# CAPTCHA_SOX_PATH = ''
+
+#. * Removed avatar module. Gravatar processors is now in the base module: ::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -308,7 +308,6 @@ MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
+
+        INSTALLED_APPS = (
+            'oioioi.contestlogo',
+        -    'oioioi.avatar',
+        #    'oioioi.teachers',
+        #    'oioioi.simpleui',
+        #    'oioioi.ipdnsauth',
+        @@ -364,9 +363,9 @@ PROBLEMSET_LINK_VISIBLE = True
+        EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
+
+        TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        +   'oioioi.base.processors.gravatar',
+            'oioioi.contestlogo.processors.logo_processor',
+            'oioioi.contestlogo.processors.icon_processor',
+        -   'oioioi.avatar.processors.gravatar',
+        #    'oioioi.notifications.processors.notification_processor',
+            'oioioi.globalmessage.processors.global_message_processor',
+        #    'oioioi.portals.processors.portal_processor',
