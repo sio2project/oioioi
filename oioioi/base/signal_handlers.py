@@ -9,12 +9,11 @@ def set_first_view_after_logging_flag(sender, user, request, **kwargs):
     request.session['first_view_after_logging'] = True
 
 
-# Workaround for https://code.djangoproject.com/ticket/29182
-# TODO: delete after upgrade to Django 2.1+
-assert django.VERSION < (2, 1, 5)
-
-
 @receiver(connection_created)
 def db_connection_callback(sender, connection, **kwargs):
     if connection.vendor == 'sqlite':
         connection.cursor().execute('PRAGMA legacy_alter_table = ON')
+
+        """https://code.djangoproject.com/ticket/30023"""
+        """Globally disabling foreign key constraint checking."""
+        connection.cursor().execute('PRAGMA foreign_keys = OFF')

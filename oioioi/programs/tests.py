@@ -59,7 +59,7 @@ def extract_code(show_response):
     preStart = show_response.content.find(b'<pre>', preFirst) + len(b'<pre>')
     preEnd = show_response.content.find(b'</pre>', preFirst)
     # Get substring and strip tags.
-    show_response.content = strip_tags(show_response.content[preStart:preEnd])
+    show_response.content = strip_tags(six.ensure_text(show_response.content[preStart:preEnd], errors="replace"))
 
 
 class SubmitFileMixin(SubmitMixin):

@@ -11,7 +11,7 @@ def safe_redirect(request, url, fallback='index'):
         else:
             next_page = reverse(fallback)
     else:
-        if url and is_safe_url(url=url, host=request.get_host()):
+        if url and is_safe_url(url=url, allowed_hosts=request.get_host()):
             next_page = url
         else:
             next_page = reverse(fallback)
