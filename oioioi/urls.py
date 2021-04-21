@@ -14,9 +14,7 @@ handler403 = 'oioioi.base.views.handler403'
 handler404 = 'oioioi.base.views.handler404'
 handler500 = 'oioioi.base.views.handler500'
 
-js_info_dict = {
-    'packages': ('oioioi',),
-}
+js_info_dict = {'packages': 'oioioi'}
 
 urlpatterns = [
     url(
