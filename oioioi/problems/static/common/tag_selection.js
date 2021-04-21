@@ -92,6 +92,36 @@ function add_search_tag(parent_node, key, value, text) {
     return node;
 }
 
+function make_source_function(
+    result, typeahead, source_default, input, hintsUrl, category=''
+) {
+    return function(query, process) {
+        if (!query.startsWith(result)) {
+            typeahead.autoSelect = false;
+            typeahead.setSource(source_default);
+            typeahead.source(query, process);
+        } else {
+            $.getJSON(
+                input.data(hintsUrl),
+                {category: category, q: query},
+                process
+            );
+        }
+    };
+}
+
+function enable_autoselect_and_reload_menu(
+    typeahead, source_function, input, result
+) {
+    // Temporarily enable autoselect, since we will be reloading
+    // the menu and want it to stay selected.
+    typeahead.autoSelect = true;
+    // Reload menu immediately with source for this category.
+    typeahead.setSource(source_function);
+    input.val(result);
+    typeahead.lookup();
+}
+
 function init_search_selection(id) {
     $(function(){
         var input = $('#' + id);
@@ -130,33 +160,31 @@ function init_search_selection(id) {
                     // When the search only matches one origintag, the hints url
                     // will return its categories too. This trigger is to help a
                     // user choose to match a particular tag only. Reloading the
-                    // menu immediately will show the categories.
-                    input.val(result);
-                    typeahead.lookup();
-
+                    // menu immediately will show the categories
+                    const source_origintag = make_source_function(
+                        result,
+                        typeahead,
+                        source_default,
+                        input,
+                        "selectedOriginTagHintsUrl"
+                    );
+                    enable_autoselect_and_reload_menu(
+                        typeahead, source_origintag, input, result
+                    );
                 } else if (item.trigger == "category-menu") {
                     // This trigger is to change the hints source to a specific
                     // tag's specific category's values instead of everything.
-                    var source_origincategory = function(query, process) {
-                        if (!query.startsWith(result)) {
-                            // Reset source if prefix is removed
-                            typeahead.autoSelect = false;
-                            typeahead.setSource(source_default);
-                            typeahead.source(query, process);
-                        } else {
-                            $.getJSON(input.data("origininfocategoryHintsUrl"),
-                                      { category: item.value, q: query },
-                                      process);
-                        }
-                    };
-                    // Temporarily enable autoselect, since we will be reloading
-                    // the menu and want it to stay selected.
-                    typeahead.autoSelect = true;
-                    // Reload menu immediately with source for this category.
-                    typeahead.setSource(source_origincategory);
-                    input.val(result);
-                    typeahead.lookup();
-
+                    const source_origincategory = make_source_function(
+                        result,
+                        typeahead,
+                        source_default,
+                        input,
+                        "origininfocategoryHintsUrl",
+                        item.value
+                    );
+                    enable_autoselect_and_reload_menu(
+                        typeahead, source_origincategory, input, result
+                    );
                 } else if (item.trigger != 'problem') {
                     // At this point for anything other than a problem we
                     // want to create a search tag

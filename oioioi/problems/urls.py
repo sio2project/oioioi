@@ -111,6 +111,11 @@ urlpatterns = [
         name='get_search_hints',
     ),
     url(
+        r'^get_selected_origintag_hints/$',
+        views.get_selected_origintag_hints_view,
+        name='get_selected_origintag_hints',
+    ),
+    url(
         r'^get_origininfocategory_hints/$',
         views.get_origininfocategory_hints_view,
         name='get_origininfocategory_hints',

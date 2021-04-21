@@ -9,6 +9,8 @@ from functools import cmp_to_key
 
 import pytest
 import six.moves.urllib.parse
+from six.moves import range
+
 from django import forms
 from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -19,8 +21,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.timezone import utc
-from six.moves import range
-
 from oioioi.base.tests import TestCase, check_not_accessible, needs_linux
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.current_contest import ContestMode
@@ -39,15 +39,19 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.management.commands import (
     migrate_old_algorithm_tags,
-    recalculate_statistics,
-    migrate_old_origin_tags_create_new_tags,
     migrate_old_origin_tags_copy_problem_statements,
+    migrate_old_origin_tags_create_new_tags,
+    recalculate_statistics,
 )
 from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagLocalization,
     OriginInfoCategory,
+    OriginInfoCategoryLocalization,
     OriginInfoValue,
+    OriginInfoValueLocalization,
+    OriginTag,
+    OriginTagLocalization,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -55,13 +59,9 @@ from oioioi.problems.models import (
     ProblemStatement,
     ProblemStatistics,
     Tag,
+    TagThrough,
     UserStatistics,
     make_problem_filename,
-    OriginTag,
-    OriginTagLocalization,
-    OriginInfoCategoryLocalization,
-    OriginInfoValueLocalization,
-    TagThrough,
 )
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
@@ -2902,6 +2902,7 @@ class TestProblemSearchHintsTags(TestCase):
     fixtures = ['test_problem_search_hints_tags']
     url = reverse('get_search_hints', args=('public',))
     category_url = reverse('get_origininfocategory_hints')
+    selected_origintag_url = reverse('get_selected_origintag_hints')
     hints = [
         'tag_t1',
         'tag_t2',
@@ -2950,7 +2951,10 @@ class TestProblemSearchHintsTags(TestCase):
 
         response = self.client.get(self.url, {'q': 'raph'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['Graphs'])
+        # String 'Grafy' is present in the response because of
+        # the value field, which is the name field of
+        # AlgorithmTag object.
+        self.assert_contains_only(response, ['Graphs', 'Grafy'])
 
         response = self.client.get(self.url, {'q': 'Dijkstra'})
         self.assertEqual(response.status_code, 200)
@@ -2982,6 +2986,42 @@ class TestProblemSearchHintsTags(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['pa_r1', 'pa_r2'])
+
+    @override_settings(LANGUAGE_CODE="en")
+    def test_selected_origintag_hints_en(self):
+        self.client.get('/c/c/')
+        response = self.client.get(
+            self.selected_origintag_url, {'q': 'Potyczki Algorytmiczne'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'pa')
+        self.assertContains(response, 'Potyczki Algorytmiczne')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Year')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Round')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Rok')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Runda')
+        self.assertNotContains(response, 'pa_r1')
+        self.assertNotContains(response, 'pa_r2')
+        self.assertNotContains(response, 'pa_2011')
+        self.assertNotContains(response, 'pa_2012')
+
+    @override_settings(LANGUAGE_CODE="pl")
+    def test_selected_origintag_hints_pl(self):
+        self.client.get('/c/c/')
+        response = self.client.get(
+            self.selected_origintag_url, {'q': 'Potyczki Algorytmiczne'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'pa')
+        self.assertContains(response, 'Potyczki Algorytmiczne')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Rok')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Runda')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Year')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Round')
+        self.assertNotContains(response, 'pa_r1')
+        self.assertNotContains(response, 'pa_r2')
+        self.assertNotContains(response, 'pa_2011')
+        self.assertNotContains(response, 'pa_2012')
 
 
 @override_settings(LANGUAGE_CODE='pl')

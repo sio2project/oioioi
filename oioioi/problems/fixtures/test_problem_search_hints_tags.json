@@ -13,6 +13,7 @@
       "name": "tag_t2"
     }
   },
+
   {
     "pk": 1,
     "model": "problems.algorithmtag",
@@ -34,6 +35,7 @@
       "name": "Grafy"
     }
   },
+
   {
     "pk": 1,
     "model": "problems.algorithmtaglocalization",
@@ -61,6 +63,7 @@
       "language": "en"
     }
   },
+
   {
     "pk": 1,
     "model": "problems.difficultytag",
@@ -75,6 +78,7 @@
       "name": "tag_d2"
     }
   },
+
   {
     "pk": 1,
     "model": "problems.origintag",
@@ -89,6 +93,7 @@
       "name": "oi"
     }
   },
+
   {
     "pk": 1,
     "model": "problems.origintaglocalization",
@@ -98,6 +103,16 @@
       "full_name": "Potyczki Algorytmiczne"
     }
   },
+  {
+    "pk": 2,
+    "model": "problems.origintaglocalization",
+    "fields": {
+      "origin_tag": 1,
+      "language": "pl",
+      "full_name": "Potyczki Algorytmiczne"
+    }
+  },
+
   {
     "pk": 1,
     "model": "problems.origininfocategory",
@@ -128,6 +143,79 @@
     "fields": {
       "parent_tag": 2,
       "name": "round"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 1,
+      "language": "en",
+      "full_name": "Year"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 1,
+      "language": "pl",
+      "full_name": "Rok"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 2,
+      "language": "en",
+      "full_name": "Round"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 2,
+      "language": "pl",
+      "full_name": "Runda"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 3,
+      "language": "en",
+      "full_name": "Year"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 3,
+      "language": "pl",
+      "full_name": "Rok"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 4,
+      "language": "en",
+      "full_name": "Round"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 4,
+      "language": "pl",
+      "full_name": "Runda"
     }
   },
 

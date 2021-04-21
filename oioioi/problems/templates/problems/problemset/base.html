@@ -46,6 +46,7 @@
                 <input type="search" class="form-control search-query"
                        id="problemsite_search" name="q"
                        data-hints-url="{% url 'get_search_hints' view_type=view_type %}"
+                       data-selected-origin-tag-hints-url="{% url 'get_selected_origintag_hints' %}"
                        data-origininfocategory-hints-url="{% url 'get_origininfocategory_hints' %}"
                        autocomplete="off"
                        placeholder="{% trans 'Search by name or tag' %}"

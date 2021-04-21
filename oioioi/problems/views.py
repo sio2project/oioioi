@@ -1064,8 +1064,8 @@ def get_origininfovalue_hints(query):
     )
 
 
-def get_origintag_hints(query):
-    res = _uniquefy(
+def _get_origintag_hints(queryset):
+    result = _uniquefy(
         'name',
         [
             {
@@ -1075,16 +1075,39 @@ def get_origintag_hints(query):
                 'prefix': 'origin',
                 'value': otl.origin_tag.name,
             }
-            for otl in OriginTagLocalization.objects.filter(full_name__icontains=query)
+            for otl in queryset
         ],
     )
 
-    res = list(res)
-    if len(res) == 1:
-        res[0]['trigger'] = 'origintag'
-        res += get_origintag_category_hints(res[0]['value'])
+    result = list(result)
+    if len(result) == 1:
+        result[0]['trigger'] = 'origintag'
+        result += get_origintag_category_hints(result[0]['value'])
 
-    return res
+    return result
+
+
+def _convert_category_names(tags):
+    for tag in tags:
+        tag['category'] = six.text_type(tag['category'])
+
+
+@jsonify
+def get_selected_origintag_hints_view(request):
+    result = _get_origintag_hints(
+        OriginTagLocalization.objects.filter(full_name__iexact=request.GET.get('q'))
+    )
+    # Convert category names in results from lazy translation to strings,
+    # since jsonify throws error if given lazy translation objects.
+    _convert_category_names(result)
+
+    return result
+
+
+def get_nonselected_origintag_hints(query):
+    return _get_origintag_hints(
+        OriginTagLocalization.objects.filter(full_name__icontains=query)
+    )
 
 
 @uniquefy('name')
@@ -1105,16 +1128,19 @@ def get_tag_hints(query):
                     'name': tag.name,
                     'category': category,
                     'prefix': prefix,
+                    'value': tag.name,
                 }
                 for tag in model.objects.filter(name__icontains=query)
             ]
         )
+
     results.extend(
         [
             {
                 'name': tag.full_name,
                 'category': _("Algorithm Tags"),
                 'prefix': 'algorithm',
+                'value': tag.algorithm_tag.name,
             }
             for tag in AlgorithmTagLocalization.objects.filter(
                 full_name__icontains=query
@@ -1171,16 +1197,13 @@ def get_search_hints_view(request, view_type):
     result = []
     result.extend(list(get_problem_hints(query, view_type, request.user)))
     result.extend(get_tag_hints(query))
-    result.extend(get_origintag_hints(query))
+    result.extend(get_nonselected_origintag_hints(query))
     result.extend(get_origininfovalue_hints(query))
 
-    # Convert category names in results from lazy translation to strings
-    # Since jsonify throws error if given lazy translation objects
-    for tag in result:
-        if six.PY2:
-            tag['category'] = tag['category'].encode('utf-8')
-        else:
-            tag['category'] = str(tag['category'])
+    # Convert category names in results from lazy translation to strings,
+    # since jsonify throws error if given lazy translation objects.
+    _convert_category_names(result)
+
     return result
 
 
@@ -1226,7 +1249,7 @@ def get_tag_proposal_hints_view(request):
 def get_tag_label_view(request):
     name = request.GET.get('name', '')
     base_tags = AlgorithmTag.objects.filter(name=name)
-    localized_tags = AlgorithmTagLocalization.objects.filter(name=name)
+    localized_tags = AlgorithmTagLocalization.objects.filter(full_name=name)
     proposed = request.GET.get('proposed', -1)
 
     if proposed != '-1' or not (base_tags or localized_tags):
