@@ -14,13 +14,14 @@ handler403 = 'oioioi.base.views.handler403'
 handler404 = 'oioioi.base.views.handler404'
 handler500 = 'oioioi.base.views.handler500'
 
-js_info_dict = {'packages': 'oioioi'}
-
 urlpatterns = [
     url(
         r'^jsi18n/$',
-        i18n.JavaScriptCatalog.as_view(),
-        js_info_dict,
+        i18n.JavaScriptCatalog.as_view(
+            packages=[
+                'oioioi.locale',
+            ]
+        ),
         name='javascript_catalog',
     ),
     url(r'^nested_admin/', include('nested_admin.urls')),
