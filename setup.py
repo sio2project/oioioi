@@ -70,7 +70,7 @@ python23_universal_requirements = [
     "bleach>=3.1.0,<3.2",
     "chardet<4.1",
     "django-gravatar2<1.5",
-    "django-mptt>=0.8.7,<0.9.1",  # latest version for Dango 1.11, supports 2.0
+    "django-mptt>=0.8.7,<0.9.1",  # latest version for Django 1.11, supports 2.0
     "mistune<0.9",
     # Some of celery dependencies (kombu) require amqp to be <2.0.0
     "amqp<2.7,>=2.6.0",

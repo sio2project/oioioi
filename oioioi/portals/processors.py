@@ -1,5 +1,3 @@
-from django.conf import settings
-
 from oioioi.portals.actions import portal_admin_menu_registry
 
 

@@ -62,24 +62,6 @@ class TestPortalModels(TestCase):
             node.get_siblings(include_self=True), ['<Node: Child 1>', '<Node: Child 2>']
         )
 
-    def test_get_ancestors_including_self(self):
-        node = get_portal().root
-        self.assertQuerysetEqual(node.get_ancestors_including_self(), ['<Node: Root>'])
-
-        node = node.children.get(short_name='child1')
-        self.assertQuerysetEqual(
-            node.get_ancestors_including_self(), ['<Node: Root>', '<Node: Child 1>']
-        )
-
-    def test_get_siblings_including_self(self):
-        node = get_portal().root
-        self.assertQuerysetEqual(node.get_siblings_including_self(), ['<Node: Root>'])
-
-        node = node.children.get(short_name='child1')
-        self.assertQuerysetEqual(
-            node.get_siblings_including_self(), ['<Node: Child 1>', '<Node: Child 2>']
-        )
-
     def test_get_path(self):
         root = get_portal().root
         self.assertEqual(root.get_path(), '')
@@ -101,12 +83,15 @@ class TestPortalModels(TestCase):
         grandchild1.save()
         self.assertEqual(grandchild1.get_path(), 'child2/grandchild1')
 
+        child2.refresh_from_db()
         child2.short_name = 'child234'
         child2.save()
         self.assertEqual(grandchild1.get_path(), 'child234/grandchild1')
 
+        child1.refresh_from_db()
         child2.parent = child1
         child2.save()
+        grandchild1.refresh_from_db()
         self.assertEqual(grandchild1.get_path(), 'child123/child234/grandchild1')
 
 
