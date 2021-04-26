@@ -50,6 +50,8 @@ with objects encoded in a newer, incompatible format. To clear the caches run::
   from django.contrib.sessions.models import Session
   Session.objects.all().delete()
 
+ If `./manage.py` shell doesn't work you can try `./manage.py` shell_plus.
+
 
 Upgrading from django 1.8
 -------------------------
