@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             name='ProgramsConfig',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('execuction_mode', oioioi.base.fields.EnumField(default=b'AUTO', help_text='If set to Auto, the execution mode is determined according to the type of the contest.', max_length=64, verbose_name='execution mode')),
+                ('execuction_mode', oioioi.base.fields.EnumField(default='AUTO', help_text='If set to Auto, the execution mode is determined according to the type of the contest.', max_length=64, verbose_name='execution mode')),
                 ('contest', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='programs_config', to='contests.Contest')),
             ],
             options={

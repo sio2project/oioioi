@@ -1081,9 +1081,9 @@ class ProgrammingContestController(ContestController):
         """
         if (
             hasattr(self.contest, 'programs_config')
-            and self.contest.programs_config.execuction_mode != 'AUTO'
+            and self.contest.programs_config.execution_mode != 'AUTO'
         ):
-            return self.contest.programs_config.execuction_mode
+            return self.contest.programs_config.execution_mode
         else:
             return self.get_default_safe_exec_mode()
 

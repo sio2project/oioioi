@@ -24,18 +24,18 @@ from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.problem_instance_utils import get_language_by_extension
 
-execuction_mode_options = EnumRegistry()
-execuction_mode_options.register('AUTO', _("Auto"))
-execuction_mode_options.register('cpu', _("Real CPU"))
-execuction_mode_options.register('sio2jail', _("SIO2Jail"))
+execution_mode_options = EnumRegistry()
+execution_mode_options.register('AUTO', _("Auto"))
+execution_mode_options.register('cpu', _("Real CPU"))
+execution_mode_options.register('sio2jail', _("SIO2Jail"))
 
 
 class ProgramsConfig(models.Model):
     contest = models.OneToOneField(
         Contest, related_name='programs_config', on_delete=models.CASCADE
     )
-    execuction_mode = EnumField(
-        execuction_mode_options,
+    execution_mode = EnumField(
+        execution_mode_options,
         default='AUTO',
         verbose_name=_("execution mode"),
         help_text=_(
