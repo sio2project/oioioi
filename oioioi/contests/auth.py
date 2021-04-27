@@ -1,6 +1,10 @@
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.utils.query_helpers import (
+    Q_always_false,
+    Q_always_true,
+)
 from oioioi.contests.models import Contest, ContestPermission
 
 
@@ -17,15 +21,15 @@ class ContestPermissionsAuthBackend(object):
         `has_perm(user, perm, o)` is True.
         """
         if not user.is_authenticated or not user.is_active:
-            return Q(pk__isnull=True)  # (False)
+            return Q_always_false()
         if obj_class is Contest:
             if user.is_superuser:
-                return Q(pk__isnull=False)  # (True)
+                return Q_always_true()
             query = Q(contestpermission__permission=perm, contestpermission__user=user)
             if perm == 'contests.contest_basicadmin':
                 query |= self.filter_for_perm(obj_class, 'contests.contest_admin', user)
             return query
-        return Q(pk__isnull=True)  # (False)
+        return Q_always_false()
 
     def has_perm(self, user_obj, perm, obj=None):
         if not user_obj.is_authenticated or not user_obj.is_active:

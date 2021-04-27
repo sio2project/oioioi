@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import get_user_display_name, request_cached
+from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import ContestController, RegistrationController
 from oioioi.contests.utils import can_see_personal_data, is_contest_admin
@@ -213,7 +214,7 @@ class OpenParticipantsController(ParticipantsController):
         return True
 
     def visible_contests_query(self, request):
-        return Q(pk__isnull=False)  # (True)
+        return Q_always_true()
 
     def can_register(self, request):
         return True

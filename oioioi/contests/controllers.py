@@ -18,6 +18,7 @@ from oioioi.base.utils import (
     RegisteredSubclassesBase,
     get_user_display_name,
 )
+from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.contests.models import (
     Contest,
     ProblemStatementConfig,
@@ -287,10 +288,10 @@ class PublicContestRegistrationController(RegistrationController):
         return True
 
     def visible_contests_query(self, request):
-        return Q(pk__isnull=False)  # (True)
+        return Q_always_true()
 
     def user_contests_query(self, request):
-        return Q(pk__isnull=False)  # (True)
+        return Q_always_true()
 
     def filter_participants(self, queryset):
         return queryset

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import Contest
 from oioioi.usercontests.models import UserContest
 
@@ -19,7 +20,7 @@ class UserContestAuthBackend(object):
         `has_perm(user, perm, o)` is True.
         """
         if not user.is_authenticated or not user.is_active:
-            return Q(pk__isnull=True)  # (False)
+            return Q_always_false()
         if obj_class is Contest:
             if (
                 not settings.ARCHIVE_USERCONTESTS
@@ -28,7 +29,7 @@ class UserContestAuthBackend(object):
                 settings.ARCHIVE_USERCONTESTS and perm == 'contests.contest_observer'
             ):
                 return Q(usercontest__user=user)
-        return Q(pk__isnull=True)  # (False)
+        return Q_always_false()
 
     def has_perm(self, user_obj, perm, obj=None):
         if (

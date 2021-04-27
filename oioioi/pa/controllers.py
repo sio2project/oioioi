@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.acm.controllers import ACMContestController
+from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import (
     all_non_trial_public_results_visible,
@@ -53,7 +54,7 @@ class PARegistrationController(ParticipantsController):
         return True
 
     def visible_contests_query(self, request):
-        return Q(pk__isnull=False)  # (True)
+        return Q_always_true()
 
     def can_register(self, request):
         return True
