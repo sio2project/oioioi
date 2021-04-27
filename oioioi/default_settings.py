@@ -218,7 +218,6 @@ INSTALLED_APPS = (
     'oioioi.quizzes',
     'oioioi.locale',
 
-    'kombu.transport.django',
     'djsupervisor',
     'registration',
     'django_extensions',
