@@ -4,4 +4,8 @@
 http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
 http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
 http://github.com/sio2project/sioworkers/archive/refs/tags/v1.4.tar.gz
+
+# Dependency from sioworkers.
+https://github.com/mrd1no/poster-0.8.1-for-Python-3.4/zipball/master#egg=poster==0.8.1
+
 -e .
