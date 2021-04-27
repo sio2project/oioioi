@@ -7,15 +7,43 @@ from django.utils.translation import ugettext as _
 from oioioi.problems.models import Tag, TagThrough, ProblemStatement
 
 
+def _get_problem_statements(problem, multiple):
+    problem_statements_query = ProblemStatement.objects.filter(problem=problem)
+    problem_statements = problem_statements_query
+    if problem_statements.count() != 1 and multiple:
+        problem_statements = [
+            problem_statement
+            for problem_statement in problem_statements
+            if str(problem_statement.content).endswith('.html')
+            and not problem_statement.language
+        ]
+        excluded_with_language = any(
+            problem_statement
+            for problem_statement in problem_statements_query
+            if problem_statement.language
+            and not problem_statement in problem_statements
+        )
+        if excluded_with_language:
+            print(
+                '%s: has more than one problem statement ' % problem
+                + 'and at least one of them has added a language'
+            )
+            problem_statements = []
+
+    return [problem_statement for problem_statement in problem_statements]
+
+
 class Command(BaseCommand):
     help = _("Copies problem statements to problems with origin tags already added.")
 
     def add_arguments(self, parser):
         parser.add_argument('-f', '--file', type=str)
+        parser.add_argument('-m', '--multiple', action='store_true')
 
     @transaction.atomic
     def handle(self, *args, **options):
         filename = options.get('file', '')
+        multiple = options.get('multiple')
 
         if not filename:
             raise CommandError(_("Filename is obligatory."))
@@ -24,6 +52,7 @@ class Command(BaseCommand):
             raise CommandError(_("File not found: ") + filename)
 
         tag_eng = Tag.objects.get(name='eng')
+        tag_copied, _ = Tag.objects.get_or_create(name='copied')
 
         with open(filename, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
@@ -32,19 +61,21 @@ class Command(BaseCommand):
                 for problem in old_tag.problems.all():
                     has_tag_eng = problem in tag_eng.problems.all()
                     no_origin_version = row['language_version_with_no_origin']
+                    has_tag_copied = TagThrough.objects.filter(
+                        problem=problem, tag=tag_copied
+                    ).exists()
 
-                    if (has_tag_eng and no_origin_version == 'en') or (
-                        (not has_tag_eng) and no_origin_version == 'pl'
+                    if not has_tag_copied and (
+                        (has_tag_eng and no_origin_version == 'en')
+                        or ((not has_tag_eng) and no_origin_version == 'pl')
                     ):
                         # Firstly, make sure there is a single problem statement
                         # for the current problem.
-                        problem_statements = ProblemStatement.objects.filter(
-                            problem=problem
-                        )
-                        if problem_statements.count() != 1:
+                        problem_statements = _get_problem_statements(problem, multiple)
+                        if len(problem_statements) != 1:
                             print(
                                 '%s: there is no single statement ' % problem
-                                + 'for this problem'
+                                + 'for the current problem'
                             )
                         else:
                             # Secondly, make sure there is a single problem
@@ -57,31 +88,31 @@ class Command(BaseCommand):
                             if problems_with_origin.count() != 1:
                                 print(
                                     '%s: there is no single problem ' % problem
-                                    + 'with origin tag added for this problem'
+                                    + 'with origin tag added for the current problem'
                                 )
                             else:
                                 # Thirdly, make sure there is a single problem
                                 # statement for the problem with origin tag added.
                                 problem_with_origin = problems_with_origin.get()
                                 problem_with_origin_statements = (
-                                    ProblemStatement.objects.filter(
-                                        problem=problem_with_origin
+                                    _get_problem_statements(
+                                        problem_with_origin, multiple
                                     )
                                 )
-                                if problem_with_origin_statements.count() != 1:
+                                if len(problem_with_origin_statements) != 1:
                                     print(
                                         '%s: there is no ' % problem_with_origin
-                                        + 'single statement for this problem'
+                                        + 'single statement for that problem'
                                     )
                                 else:
                                     # Only if all three conditions were not satisfied
                                     # it is possible to copy the problem statement
                                     # without any ambiguity.
                                     problem_with_origin_statement = (
-                                        problem_with_origin_statements.get()
+                                        problem_with_origin_statements[0]
                                     )
 
-                                    problem_statement_copy = problem_statements.get()
+                                    problem_statement_copy = problem_statements[0]
                                     problem_statement_copy.problem = problem_with_origin
                                     problem_statement_copy.pk = None
 
@@ -97,9 +128,6 @@ class Command(BaseCommand):
 
                                     # Add a special tag to mark problems with problem
                                     # statements copied.
-                                    tag_copied, _ = Tag.objects.get_or_create(
-                                        name='copied'
-                                    )
                                     TagThrough.objects.get_or_create(
                                         problem=problem,
                                         tag=tag_copied,

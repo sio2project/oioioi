@@ -1627,22 +1627,26 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
             if random.choice([True, False]):
                 ProblemStatement.objects.create(
                     problem=problem_en,
-                    content='data:problems/1/en.txt:raw:en-txt',
+                    content='data:problems/1/en.pdf:raw:en-pdf',
+                )
+                ProblemStatement.objects.create(
+                    problem=problem_en,
+                    content='data:problems/1/en.html:raw:en-html',
                 )
                 ProblemStatement.objects.create(
                     problem=problem_pl,
-                    content='data:problems/1/pl.txt:raw:pl-txt',
+                    content='data:problems/1/pl.html:raw:pl-html',
                 )
             else:
                 ProblemStatement.objects.create(
                     problem=problem_en,
                     language='en',
-                    content='data:problems/1/en.txt:raw:en-txt',
+                    content='data:problems/1/en.html:raw:en-html',
                 )
                 ProblemStatement.objects.create(
                     problem=problem_pl,
                     language='pl',
-                    content='data:problems/1/pl.txt:raw:pl-txt',
+                    content='data:problems/1/pl.pdf:raw:pl-pdf',
                 )
 
             TagThrough.objects.create(problem=problem_en, tag=tag_eng)
@@ -1663,13 +1667,11 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
                 'migrate_old_origin_tags_copy_problem_statements',
                 '-f',
                 filename,
+                '-m',
             ]
         )
 
         self.assertEqual(Problem.objects.count(), problems_count_before)
-        self.assertEqual(
-            ProblemStatement.objects.count(), Problem.objects.count() * 3 // 2
-        )
 
         tag_copied = Tag.objects.get(name='copied')
 
@@ -1683,9 +1685,13 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
                 if row['language_version_with_no_origin'] == 'en':
                     self.assertTrue(problem_en in tag_copied.problems.all())
 
-                    problem_en_statement = ProblemStatement.objects.filter(
-                        problem=problem_en
-                    ).get()
+                    problem_en_statement = [
+                        problem
+                        for problem in ProblemStatement.objects.filter(
+                            problem=problem_en
+                        )
+                        if str(problem.content).endswith('.html')
+                    ][0]
                     problem_pl_copied_statement = ProblemStatement.objects.filter(
                         problem=problem_pl, content=problem_en_statement.content
                     ).get()
@@ -1706,11 +1712,14 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
                     problem_en_copied_statement = ProblemStatement.objects.filter(
                         problem=problem_en, content=problem_pl_statement.content
                     ).get()
-                    problem_en_original_statement = (
-                        ProblemStatement.objects.filter(problem=problem_en)
-                        .exclude(content=problem_en_copied_statement.content)
-                        .get()
-                    )
+                    problem_en_original_statements = ProblemStatement.objects.filter(
+                        problem=problem_en
+                    ).exclude(content=problem_en_copied_statement.content)
+                    problem_en_original_statement = [
+                        problem
+                        for problem in problem_en_original_statements
+                        if str(problem.content).endswith('.html')
+                    ][0]
 
                     self.assertEqual(problem_en_copied_statement.language, 'pl')
                     self.assertEqual(problem_en_original_statement.language, 'en')
