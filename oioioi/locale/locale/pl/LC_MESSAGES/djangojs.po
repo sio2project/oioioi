@@ -23,6 +23,7 @@
 # teqwve <mrtaddewicz@gmail.com>, 2017
 # Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
+# teqwve <mrtaddewicz@gmail.com>, 2017
 # Zuzanna Opała <opala.zuzanna@gmail.com>, 2018-2019
 msgid ""
 msgstr ""

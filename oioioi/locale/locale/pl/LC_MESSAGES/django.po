@@ -61,7 +61,7 @@ msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-22 22:36+0200\n"
-"PO-Revision-Date: 2021-04-27 14:46+0000\n"
+"PO-Revision-Date: 2021-04-27 15:30+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -1141,10 +1141,10 @@ msgid_plural ""
 "\n"
 "        You have %(counter)s backup tokens remaining.\n"
 "      "
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "\nZostał tylko jeden klucz zapasowy."
+msgstr[1] "\nZostały ci %(counter)s klucze zapasowe."
+msgstr[2] "\nZostało ci %(counter)s kluczy zapasowych."
+msgstr[3] "\nZostało ci %(counter)s kluczy zapasowych."
 
 #: base/templates/two_factor/profile/profile.html:56
 msgid "Show Codes"
@@ -2404,10 +2404,10 @@ msgstr "Zobacz informacje o użytkowniku"
 #, python-format
 msgid "%(count)d rejudge request received."
 msgid_plural "%(count)d rejudge requests reveived."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Zapisano %(count)dzlecenie ponownej oceny."
+msgstr[1] "Zapisano %(count)dzlecenia ponownej oceny."
+msgstr[2] "Zapisano %(count)dzleceń ponownej oceny."
+msgstr[3] "Zapisano %(count)d zleceń ponownej oceny."
 
 #: contests/views.py:419
 msgid "Tests limits resetted successfully"
@@ -3036,7 +3036,7 @@ msgstr ""
 
 #: forum/templates/forum/thread-element-footer.html:50
 msgid "This post was reported."
-msgstr ""
+msgstr "Wiadomość została zgłoszona do administracji"
 
 #: forum/templates/forum/thread-element-heading.html:5
 msgid "This post was hidden by the contest administrator"
@@ -5398,7 +5398,7 @@ msgstr "Zapisz jako szablon"
 
 #: questions/forms.py:113
 msgid "All messages"
-msgstr ""
+msgstr "Wszystkie wiadomości"
 
 #: questions/forms.py:114
 msgid "Public announcements"
@@ -5958,10 +5958,10 @@ msgid ""
 msgid_plural ""
 "You have already used <strong>%(scores_reveals)s</strong> out of %(counter)s"
 " reveals."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnienia.    "
+msgstr[1] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnień.    "
+msgstr[2] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnień.    "
+msgstr[3] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnień.    "
 
 #: scoresreveal/templates/scoresreveal/submission-footer.html:19
 #, python-format
@@ -6172,10 +6172,10 @@ msgstr "Zmień typ: %(description)s (i oznacz jako niewinne)"
 #, python-format
 msgid "Created one group"
 msgid_plural "Created %(groups_count)d groups"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Utworzono grupę"
+msgstr[1] "Utworzono %(groups_count)d grupy"
+msgstr[2] "Utworzono %(groups_count)d grup"
+msgstr[3] "Utworzono %(groups_count)d grup"
 
 #: similarsubmits/views.py:66
 msgid ""
