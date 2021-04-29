@@ -38,7 +38,7 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.management.commands import (
-    migrate_old_algorithm_tags,
+    create_new_algorithm_tags,
     migrate_old_origin_tags_copy_problem_statements,
     migrate_old_origin_tags_create_new_tags,
     recalculate_statistics,
@@ -1312,51 +1312,119 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertNotContains(response, 'REJUDGING')
 
 
-class TestMigrateOldAlgorithmTags(TestCase):
-    fixtures = ['test_old_algorithm_tags_migration']
+class TestCreateNewAlgorithmTags(TestCase):
+    basedir = os.path.dirname(__file__)
+    filename = os.path.join(basedir, 'test_files', 'new_algorithm_tags.csv')
 
-    def test_migrate_old_algorithm_tags_command(self):
-        tag_count_before = Tag.objects.count()
-        algorithm_tag_count_before = AlgorithmTag.objects.count()
+    def setUp(self):
+        AlgorithmTag.objects.create(name='unique_tag')
 
-        self.assertTrue(algorithm_tag_count_before < tag_count_before)
+    def tearDown(self):
+        AlgorithmTag.objects.all().delete()
 
-        basedir = os.path.dirname(__file__)
-        filename = os.path.join(basedir, 'test_files', 'old_algorithm_tags.csv')
-        manager = migrate_old_algorithm_tags.Command()
-        manager.run_from_argv(
-            [
-                'manage.py',
-                'migrate_old_algorithm_tags',
-                '-f',
-                filename,
-            ]
-        )
+    def _test_create_new_algorithm_tags_command(self, argv, filename, delete=False, dry_run=False):
+        algorithm_tags_count_before = AlgorithmTag.objects.count()
+        self.assertTrue(algorithm_tags_count_before, 1)
 
-        self.assertEqual(AlgorithmTag.objects.count(), tag_count_before)
+        manager = create_new_algorithm_tags.Command()
+        manager.run_from_argv(argv)
+
+        algorithm_tags_count_after = AlgorithmTag.objects.count()
 
         with open(filename, mode='r') as csv_file:
-            csv_reader = csv.DictReader(csv_file, delimiter=',')
-            for row in csv_reader:
-                old_tag = Tag.objects.get(name=row['old_name'])
-                old_tag_problems_set = set(old_tag.problems.all())
-                new_tag = AlgorithmTag.objects.get(name=row['new_name'])
-                new_tag_problems_set = set(new_tag.problems.all())
-                new_tag_localizations = AlgorithmTagLocalization.objects.filter(
-                    algorithm_tag=new_tag
-                )
+            created_algorithm_tags_expected_count = len(csv_file.readlines()) - 1
 
-                self.assertTrue(old_tag_problems_set == new_tag_problems_set)
-                self.assertTrue(
-                    len(old_tag_problems_set) == 1 and len(new_tag_problems_set) == 1
+        if delete:
+            if dry_run:
+                self.assertEqual(
+                    algorithm_tags_count_after, algorithm_tags_count_before
                 )
-                self.assertEqual(new_tag_localizations.count(), 2)
-                self.assertTrue(
-                    new_tag_localizations.filter(full_name=row['full_name_EN']).exists()
+                self.assertTrue(AlgorithmTag.objects.filter(name='unique_tag').exists())
+            else:
+                self.assertEqual(
+                    algorithm_tags_count_after, created_algorithm_tags_expected_count
                 )
-                self.assertTrue(
-                    new_tag_localizations.filter(full_name=row['full_name_PL']).exists()
+                self.assertFalse(AlgorithmTag.objects.filter(name='unique_tag').exists())
+        else:
+            if dry_run:
+                self.assertEqual(
+                    algorithm_tags_count_after, algorithm_tags_count_before
                 )
+            else:
+                self.assertEqual(
+                    algorithm_tags_count_after,
+                    algorithm_tags_count_before + created_algorithm_tags_expected_count,
+                )
+            self.assertTrue(AlgorithmTag.objects.filter(name='unique_tag').exists())
+
+        if not dry_run:
+            with open(filename, mode='r') as csv_file:
+                csv_reader = csv.DictReader(csv_file, delimiter=',')
+                for row in csv_reader:
+                    new_tag = AlgorithmTag.objects.get(name=row['name'])
+                    new_tag_localizations = AlgorithmTagLocalization.objects.filter(
+                        algorithm_tag=new_tag
+                    )
+
+                    self.assertEqual(new_tag_localizations.count(), 2)
+                    self.assertTrue(
+                        new_tag_localizations.filter(full_name=row['full_name_pl']).exists()
+                    )
+                    self.assertTrue(
+                        new_tag_localizations.filter(full_name=row['full_name_en']).exists()
+                    )
+
+    def test_create_new_algorithm_tags_command_with_delete_no_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '--file',
+                self.filename,
+                '-d',
+            ],
+            self.filename,
+            delete=True,
+        )
+
+    def test_create_new_algorithm_tags_command_no_delete_no_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '-f',
+                self.filename,
+            ],
+            self.filename,
+        )
+
+    def test_create_new_algorithm_tags_command_no_delete_with_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '-f',
+                self.filename,
+                '--dry_run',
+            ],
+            self.filename,
+            dry_run=True,
+        )
+
+    def test_create_new_algorithm_tags_command_with_delete_with_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '-f',
+                self.filename,
+                '--delete',
+                '-dr',
+            ],
+            self.filename,
+            delete=True,
+            dry_run=True,
+        )
 
 
 class TestMigrateOldOriginTagsCreateNewTags(TestCase):
