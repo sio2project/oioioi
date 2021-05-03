@@ -32,6 +32,7 @@ INSTALLED_APPS = (
     'oioioi.contestexcl',
     'oioioi.forum',
     'oioioi.exportszu',
+    'oioioi.plagiarism',
     'oioioi.similarsubmits',
     'oioioi.disqualification',
     'oioioi.confirmations',

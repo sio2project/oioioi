@@ -41,5 +41,5 @@ def export_submissions_view(request):
     else:
         form = ExportSubmissionsForm(request)
     return TemplateResponse(
-        request, 'similarsubmits/export_submissions.html', {'form': form}
+        request, 'exportszu/export_submissions.html', {'form': form}
     )

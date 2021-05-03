@@ -22,13 +22,6 @@ class Command(BaseCommand):
             help="Export only from this round",
         )
         parser.add_argument(
-            '-f',
-            '--finished-rounds',
-            action='store_true',
-            dest='finished',
-            help="Export only from finished rounds",
-        )
-        parser.add_argument(
             '-a',
             '--all',
             action='store_true',

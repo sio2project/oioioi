@@ -4,6 +4,7 @@ import shutil
 import tarfile
 import tempfile
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.encoding import force_text
@@ -40,9 +41,21 @@ class SubmissionsWithUserDataCollector(object):
     the collector to provide access to fully prepared data.
     """
 
-    def __init__(self, contest, round=None, only_final=True):
+    def __init__(
+        self, contest, round=None, problem_instance=None, language=None, only_final=True
+    ):
         self.contest = contest
         self.round = round
+        self.problem_instance = problem_instance
+
+        if language:
+            exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            if language not in exts:
+                raise InvalidValue("Invalid programming language")
+            self.lang_exts = exts[language]
+        else:
+            self.lang_exts = None
+
         self.only_final = only_final
         self.filetracker = get_client()
 
@@ -54,14 +67,21 @@ class SubmissionsWithUserDataCollector(object):
         q_expressions = Q(user__isnull=False)
 
         if self.round:
-            q_expressions = q_expressions & Q(problem_instance__round=self.round)
+            q_expressions &= Q(problem_instance__round=self.round)
         else:
-            q_expressions = q_expressions & Q(problem_instance__contest=self.contest)
+            q_expressions &= Q(problem_instance__contest=self.contest)
+
+        if self.problem_instance:
+            q_expressions &= Q(problem_instance=self.problem_instance)
+
+        if self.lang_exts:
+            q_expr_langs = Q()
+            for ext in self.lang_exts:
+                q_expr_langs |= Q(source_file__contains='.%s@' % ext)
+            q_expressions &= q_expr_langs
 
         if self.only_final:
-            q_expressions = q_expressions & Q(
-                submissionreport__userresultforproblem__isnull=False
-            )
+            q_expressions &= Q(submissionreport__userresultforproblem__isnull=False)
 
         submissions_list = []
         psubmissions = ProgramSubmission.objects.filter(q_expressions).select_related()
