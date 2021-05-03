@@ -27,7 +27,13 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemPackage, ProblemStatement
 from oioioi.problems.package import NoBackend, backend_for_package
-from oioioi.programs.models import ModelSolution, OutputChecker, Test, TestReport
+from oioioi.programs.models import (
+    ModelSolution,
+    OutputChecker,
+    Test,
+    TestReport,
+    LanguageOverrideForTest,
+)
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from oioioi.sinolpack.package import (
     DEFAULT_MEMORY_LIMIT,
@@ -512,6 +518,25 @@ class TestSinolPackage(TestCase):
             self._add_problem_with_author(filename, 'test_user')
 
         self.assertEqual(Problem.objects.count(), 3)
+
+    @pytest.mark.slow
+    @both_configurations
+    def test_overriden_limits(self):
+        filename = get_test_filename('test_limits_overriden_for_cpp.tgz')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self._check_full_package(problem)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
+        overriden_tests = LanguageOverrideForTest.objects.filter(test__in=tests)
+        self.assertTrue(len(overriden_tests) > 0)
+        self.assertTrue(all([t.language == 'cpp' for t in overriden_tests]))
+        # New global time limit
+        self.assertTrue(all([t.time_limit == 1000 for t in overriden_tests]))
+
+        overriden_memory_group = overriden_tests.filter(test__group=1)
+        self.assertTrue(all([t.memory_limit == 6000 for t in overriden_memory_group]))
+        overriden_memory_group2 = overriden_tests.filter(test__group=3)
+        self.assertTrue(all([t.memory_limit == 2000 for t in overriden_memory_group2]))
 
 
 @enable_both_unpack_configurations

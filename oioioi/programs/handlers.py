@@ -26,6 +26,7 @@ from oioioi.programs.models import (
     Test,
     TestReport,
     UserOutGenStatus,
+    LanguageOverrideForTest,
 )
 
 logger = logging.getLogger(__name__)
@@ -117,6 +118,33 @@ def compile_end(env, **kwargs):
     return env
 
 
+def _override_tests_limits(language, tests):
+    """ Given language and list of Test objects, returns
+    the dictionary of memory and time limits.
+    The key is test's pk.
+    In case language overriding is defined in the database,
+    the value of key is specified by overriding. Otherwise,
+    the limits are the same as initial.
+    """
+
+    overriding_tests = LanguageOverrideForTest.objects.filter(
+        test__in=tests, language=language
+    )
+    new_limits = {}
+
+    for test in tests:
+        new_limits[test.pk] = {
+            'memory_limit': test.memory_limit,
+            'time_limit': test.time_limit,
+        }
+
+    for new_rule in overriding_tests:
+        new_limits[new_rule.test.pk]['memory_limit'] = new_rule.memory_limit
+        new_limits[new_rule.test.pk]['time_limit'] = new_rule.time_limit
+
+    return new_limits
+
+
 @_skip_on_compilation_error
 @transaction.atomic
 def collect_tests(env, **kwargs):
@@ -125,11 +153,13 @@ def collect_tests(env, **kwargs):
 
     Used ``environ`` keys:
       * ``problem_instance_id``
+      * ``language``
+      * ``extra_args``
+      * ``is_rejudge``
 
     Produced ``environ`` keys:
        * ``tests``: a dictionary mapping test names to test envs
     """
-
     env.setdefault('tests', {})
 
     if 'tests_subset' in env['extra_args']:
@@ -166,6 +196,11 @@ def collect_tests(env, **kwargs):
     else:
         tests_to_judge = [t.name for t in tests]
 
+    # Some of the tests may be overriden, e.g. adding additional
+    # overhead in time limits for Python submissions.
+    language = env['language']
+    new_limits = _override_tests_limits(language, tests)
+
     for test in tests:
         test_env = {}
         test_env['id'] = test.id
@@ -177,9 +212,9 @@ def collect_tests(env, **kwargs):
         test_env['max_score'] = test.max_score
         test_env['order'] = test.order
         if test.time_limit:
-            test_env['exec_time_limit'] = test.time_limit
+            test_env['exec_time_limit'] = new_limits[test.pk]['time_limit']
         if test.memory_limit:
-            test_env['exec_mem_limit'] = test.memory_limit
+            test_env['exec_mem_limit'] = new_limits[test.pk]['memory_limit']
         test_env['to_judge'] = False
         env['tests'][test.name] = test_env
 
@@ -506,6 +541,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
     if env['compilation_result'] != 'OK':
         return env
     tests = env['tests']
+
     test_results = env.get('test_results', {})
     for test_name, result in six.iteritems(test_results):
         test = tests[test_name]
@@ -515,7 +551,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         test_report.test_id = test.get('id')
         test_report.test_name = test_name
         test_report.test_group = test['group']
-        test_report.test_time_limit = test.get('exec_time_limit')
+        test_report.test_time_limit = result['exec_time_limit']
         test_report.max_score = result['max_score']
         test_report.score = result['score'] if save_scores else None
         test_report.status = result['status']

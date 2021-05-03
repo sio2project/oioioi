@@ -44,6 +44,7 @@ from oioioi.programs.models import (
     ModelSolution,
     OutputChecker,
     Test,
+    LanguageOverrideForTest,
 )
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.sinolpack.utils import add_extra_files
@@ -659,14 +660,18 @@ class SinolPackage(object):
         self.statement_memory_limit = self._detect_statement_memory_limit()
 
         created_tests, outs_to_make, scored_groups = self._create_instances_for_tests()
+        sum_of_time_limits = 0
+        for test in created_tests:
+            sum_of_time_limits += test.time_limit
+        self._verify_time_limits(sum_of_time_limits)
 
-        self._verify_time_limits(created_tests)
         self._verify_inputs(created_tests)
         self._generate_test_outputs(created_tests, outs_to_make)
         self._validate_tests(created_tests)
         self._delete_non_existing_tests(created_tests)
 
         self._assign_scores(scored_groups, total_score_if_auto)
+        self._process_language_override()
 
     def _detect_statement_memory_limit(self):
         """Returns the memory limit in the problem statement, converted to
@@ -728,7 +733,7 @@ class SinolPackage(object):
         return created_tests, outs_to_make, scored_groups
 
     @_describe_processing_error
-    def _verify_time_limits(self, tests):
+    def _verify_time_limits(self, time_limit_sum):
         """Checks whether the sum of test time limits does not exceed
         the allowed maximum.
 
@@ -736,9 +741,6 @@ class SinolPackage(object):
         if sum of tests time limits exceeds the maximum defined in the
         `settings.py` file.
         """
-        time_limit_sum = 0
-        for test in tests:
-            time_limit_sum += test.time_limit
         if time_limit_sum > settings.MAX_TEST_TIME_LIMIT_PER_PROBLEM:
             time_limit_sum_rounded = (time_limit_sum + 999) / 1000.0
             limit_seconds = settings.MAX_TEST_TIME_LIMIT_PER_PROBLEM / 1000.0
@@ -1070,6 +1072,74 @@ class SinolPackage(object):
             ).update(max_score=score)
 
     @_describe_processing_error
+    def _process_language_override(self):
+        """ Checks if there's a `override_limits` entry in config
+            and for existing tests, add additional limits overrides.
+            Time limits are validated the same way it's validated
+            in default package.
+        """
+        if 'override_limits' in self.config and self.config['override_limits']:
+            overrides = self.config['override_limits']
+            for lang in overrides:
+                self._prepare_overrides(lang)
+                new_rules = overrides[lang]
+                self._set_memory_limit_overrides(lang, new_rules)
+                self._set_time_limit_overrides(lang, new_rules)
+
+    @_describe_processing_error
+    def _prepare_overrides(self, lang):
+        """Prepares overrides for specified language, initially setting
+        to default limits.
+        """
+        tests = Test.objects.filter(problem_instance=self.main_problem_instance)
+        for test in tests:
+            LanguageOverrideForTest.objects.create(
+                time_limit=test.time_limit,
+                memory_limit=test.memory_limit,
+                test=test,
+                language=lang,
+            )
+
+    @_describe_processing_error
+    def _set_memory_limit_overrides(self, lang, rules):
+        """Sets memory limits overrides for specific language."""
+
+        if 'memory_limit' in rules:
+            tests = Test.objects.filter(problem_instance=self.main_problem_instance)
+            for test in tests:
+                LanguageOverrideForTest.objects.filter(test=test, language=lang).update(
+                    memory_limit=rules['memory_limit']
+                )
+        elif 'memory_limits' in rules:
+            for group, limit in rules['memory_limits'].items():
+                tests = Test.objects.filter(
+                    problem_instance=self.main_problem_instance, group=group
+                )
+                for test in tests:
+                    LanguageOverrideForTest.objects.filter(
+                        test=test, language=lang
+                    ).update(memory_limit=limit)
+
+    @_describe_processing_error
+    def _set_time_limit_overrides(self, lang, rules):
+        """Sets time limits overrides for specific language."""
+        if 'time_limit' in rules:
+            tests = Test.objects.filter(problem_instance=self.main_problem_instance)
+            for test in tests:
+                LanguageOverrideForTest.objects.filter(test=test, language=lang).update(
+                    time_limit=rules['time_limit']
+                )
+        elif 'time_limits' in rules:
+            for group, limit in rules['time_limits'].items():
+                tests = Test.objects.filter(
+                    problem_instance=self.main_problem_instance, group=group
+                )
+                for test in tests:
+                    LanguageOverrideForTest.objects.filter(
+                        test=test, language=lang
+                    ).update(time_limit=limit)
+
+    @_describe_processing_error
     def _process_checkers(self):
         """Compiles an output checker and saves its binary."""
         checker_name = '%schk.e' % (self.short_name)
@@ -1090,10 +1160,7 @@ class SinolPackage(object):
 
     def _find_checker_exec(self):
         checker_prefix = os.path.join(self.rootdir, 'prog', self.short_name + 'chk')
-        exe_candidates = [
-            checker_prefix + '.e',
-            checker_prefix + '.sh',
-        ]
+        exe_candidates = [checker_prefix + '.e', checker_prefix + '.sh']
         for exe in exe_candidates:
             if os.path.isfile(exe):
                 return File(open(exe, 'rb'))
@@ -1107,11 +1174,7 @@ class SinolPackage(object):
         progs = self._get_model_solutions_sources()
 
         # Dictionary -- kind_shortcut -> (order, full_kind_name)
-        kinds = {
-            '': (0, 'NORMAL'),
-            's': (1, 'SLOW'),
-            'b': (2, 'INCORRECT'),
-        }
+        kinds = {'': (0, 'NORMAL'), 's': (1, 'SLOW'), 'b': (2, 'INCORRECT')}
 
         def modelsolutionssort_key(key):
             short_kind, name, _path = key

@@ -24,7 +24,12 @@ from oioioi.problems.models import (
     ProblemStatistics,
     UserStatistics,
 )
-from oioioi.programs.models import GroupReport, ModelProgramSubmission, TestReport
+from oioioi.programs.models import (
+    GroupReport,
+    ModelProgramSubmission,
+    TestReport,
+    LanguageOverrideForTest,
+)
 
 
 @request_cached
@@ -169,10 +174,19 @@ def update_tests_from_main_pi(problem_instance, source_instance=None):
     for test in problem_instance.test_set.all():
         test.delete()
     for test in source_instance.test_set.all():
+        test_pk = test.pk
         test.id = None
         test.pk = None
         test.problem_instance = problem_instance
         test.save()
+        assiociated_overrides = LanguageOverrideForTest.objects.filter(test=test_pk)
+        for override in assiociated_overrides:
+            LanguageOverrideForTest.objects.create(
+                test=test,
+                time_limit=override.time_limit,
+                memory_limit=override.memory_limit,
+                language=override.language,
+            )
 
 
 def get_new_problem_instance(problem, contest=None):

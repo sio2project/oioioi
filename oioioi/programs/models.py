@@ -117,6 +117,29 @@ class Test(models.Model):
         unique_together = ('problem_instance', 'name')
 
 
+class LanguageOverrideForTest(models.Model):
+    test = models.ForeignKey(Test, on_delete=models.CASCADE)
+    time_limit = models.IntegerField(
+        verbose_name=_("time limit (ms)"),
+        null=True,
+        blank=False,
+        validators=[validate_time_limit],
+    )
+    memory_limit = models.IntegerField(
+        verbose_name=_("memory limit (KiB)"),
+        null=True,
+        blank=True,
+        validators=[validate_memory_limit],
+    )
+    language = models.CharField(max_length=30, verbose_name=_("language"))
+
+    class Meta(object):
+        ordering = ['test__order']
+        verbose_name = _("test limit override")
+        verbose_name_plural = _("tests limit overrides")
+        unique_together = ('test', 'language')
+
+
 class OutputChecker(models.Model):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     exe_file = FileField(

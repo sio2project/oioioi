@@ -35,13 +35,14 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import make_report
+from oioioi.programs.handlers import make_report, collect_tests
 from oioioi.programs.models import (
     ModelSolution,
     ProblemAllowedLanguage,
     ProgramSubmission,
     ReportActionsConfig,
     Test,
+    LanguageOverrideForTest,
     TestReport,
     check_compilers_config,
 )
@@ -1880,3 +1881,34 @@ class TestAllowedLanguages(TestCase, SubmitFileMixin):
             contest, self.problem_instance, 'some code', prog_lang='C'
         )
         self._assertSubmitted(contest, response)
+
+
+class TestLanguageOverrideForTest(TestCase):
+    fixtures = ['test_contest', 'test_full_package', 'test_problem_instance']
+
+    def setUp(self):
+        self.problem_instance = ProblemInstance.objects.get()
+
+    def test_proper_env_override(self):
+        initial_env = {
+            'problem_instance_id': self.problem_instance.id,
+            'language': 'cpp',
+            'extra_args': {},
+            'is_rejudge': False,
+        }
+        tests = list(Test.objects.filter(problem_instance=self.problem_instance))
+        # Add override to one test.
+        LanguageOverrideForTest.objects.create(
+            test=tests[0], time_limit=1, memory_limit=2, language='cpp'
+        )
+        env_with_tests = collect_tests(initial_env)
+        # Check overriden one.
+        self.assertEqual(env_with_tests['tests']['0']['exec_time_limit'], 1)
+        self.assertEqual(env_with_tests['tests']['0']['exec_mem_limit'], 2)
+        # Check not overriden one.
+        self.assertEqual(
+            env_with_tests['tests']['1a']['exec_time_limit'], tests[1].time_limit
+        )
+        self.assertEqual(
+            env_with_tests['tests']['1a']['exec_mem_limit'], tests[1].memory_limit
+        )
