@@ -198,7 +198,7 @@ def tag_inline(
     verbose_name_plural,
     extra=0,
     category=_("Tags"),
-    has_permission_func=lambda self, request, obj=None: can_admin_problem(request, obj),
+    has_permission_func=lambda self, request, obj=None: True,
 ):
     def decorator(cls):
         cls.model = model

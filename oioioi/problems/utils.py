@@ -43,17 +43,25 @@ def can_upload_problems(request):
 
 
 def can_admin_problem(request, problem):
-    if request.user.is_superuser:
-        return True
+    """Checks if the user can admin the given problem.
+
+    The user can admin the given problem if at least one of the following is true:
+    - the user can administer the problems database;
+    - the user can administer the problem;
+    - the user is the author of the problem;
+    - the user can administer the contest where the problem was initially added.
+
+    The caller should guarantee that any of the given arguments is not None.
+    """
     if request.user.has_perm('problems.problems_db_admin'):
         return True
-    if problem and request.user.has_perm('problems.problem_admin', problem):
+    if request.user.has_perm('problems.problem_admin', problem):
         return True
-    if problem and request.user == problem.author:
+    if request.user == problem.author:
         return True
-    # If a user is administrating a contest where the task was initially added,
+    # If a user is administering a contest where the task was initially added,
     # he is considered to be a co-author of the task, giving him rights to admin it.
-    if problem and problem.contest:
+    if problem.contest:
         return can_admin_contest(request.user, problem.contest)
     return False
 
