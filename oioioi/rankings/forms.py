@@ -13,4 +13,4 @@ class FilterUsersInRankingForm(forms.Form):
         self.fields['user'].hints_url = reverse(
             'get_users_in_ranking', kwargs={'contest_id': request.contest.id}
         )
-        self.fields['user'].widget.attrs['placeholder'] = _('Search for user...')
+        self.fields['user'].widget.attrs['placeholder'] = _("Search for user...")

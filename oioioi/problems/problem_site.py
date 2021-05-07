@@ -284,7 +284,7 @@ def problem_site_add_to_contest(request, problem):
 
 
 @problem_site_tab(
-    _('Replace problem statement'),
+    _("Replace problem statement"),
     key='replace_problem_statement',
     order=800,
     condition=can_admin_problem,
@@ -308,7 +308,7 @@ def problem_site_replace_statement(request, problem):
                 )
                 return redirect(url + '?key=replace_problem_statement')
             else:
-                form.add_error(None, _('Picked statement file does not exist.'))
+                form.add_error(None, _("Picked statement file does not exist."))
     else:
         form = ProblemStatementReplaceForm(filenames)
     return TemplateResponse(
@@ -321,12 +321,12 @@ def problem_site_replace_statement(request, problem):
 def _prepare_changed_package(request, form, archive, package_name):
     file_path = request.POST.get("file_name", None)
     if len(request.FILES) != 1:
-        form.add_error('file_replacement', _('File replacement not provided'))
+        form.add_error('file_replacement', _("File replacement not provided"))
         return None, None
     uploaded_file = six.next(six.itervalues(request.FILES))
     if uploaded_file.name != os.path.basename(file_path):
         form.add_error(
-            None, _('Original and replacement files must have the ' 'same name')
+            None, _("Original and replacement files must have the same name")
         )
         return None, None
 
@@ -351,7 +351,7 @@ def _problem_can_be_reuploaded(request, problem):
 
 
 @problem_site_tab(
-    _('Manage package files'),
+    _("Manage package files"),
     key='manage_files_problem_package',
     order=900,
     condition=can_admin_problem,
@@ -406,7 +406,7 @@ def problem_site_package_download_file(request, problem):
             elif 'download_button' in request.POST:
                 file_name = request.POST.get('file_name', None)
                 if file_name is None:
-                    form.add_error('file_name', _('No file selected'))
+                    form.add_error('file_name', _("No file selected"))
                 else:
                     return redirect(
                         'download_package_file',

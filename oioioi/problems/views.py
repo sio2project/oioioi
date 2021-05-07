@@ -85,21 +85,21 @@ from unidecode import unidecode
 if settings.CONTEST_MODE == ContestMode.neutral:
     navbar_links_registry.register(
         name='contests_list',
-        text=_('Contests'),
+        text=_("Contests"),
         url_generator=lambda request: reverse('select_contest'),
         order=100,
     )
 
 navbar_links_registry.register(
     name='problemset',
-    text=_('Problemset'),
+    text=_("Problemset"),
     url_generator=lambda request: reverse('problemset_main'),
     order=200,
 )
 
 navbar_links_registry.register(
     name='task_archive',
-    text=_('Task archive'),
+    text=_("Task archive"),
     url_generator=lambda request: reverse('task_archive'),
     order=300,
 )
@@ -267,30 +267,30 @@ def search_problems_in_problemset(datadict):
 
 
 def generate_problemset_tabs(request):
-    tabs = [{'name': _('Public problems'), 'url': reverse('problemset_main')}]
+    tabs = [{'name': _("Public problems"), 'url': reverse('problemset_main')}]
 
     if request.user.is_authenticated:
         tabs.append(
-            {'name': _('My problems'), 'url': reverse('problemset_my_problems')}
+            {'name': _("My problems"), 'url': reverse('problemset_my_problems')}
         )
 
         if 'oioioi.problemsharing' in settings.INSTALLED_APPS:
             if request.user.has_perm('teachers.teacher'):
                 tabs.append(
                     {
-                        'name': _('Shared with me'),
+                        'name': _("Shared with me"),
                         'url': reverse('problemset_shared_with_me'),
                     }
                 )
 
         if request.user.is_superuser:
             tabs.append(
-                {'name': _('All problems'), 'url': reverse('problemset_all_problems')}
+                {'name': _("All problems"), 'url': reverse('problemset_all_problems')}
             )
         if can_add_to_problemset(request):
             tabs.append(
                 {
-                    'name': _('Add problem'),
+                    'name': _("Add problem"),
                     'url': reverse('problemset_add_or_update'),
                     'color': "-green",
                 }
@@ -604,7 +604,7 @@ def problemset_add_to_contest_view(request, site_key):
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append(
         {
-            'name': _('Add to contest'),
+            'name': _("Add to contest"),
             'url': reverse('problemset_add_to_contest', kwargs={'site_key': site_key}),
         }
     )

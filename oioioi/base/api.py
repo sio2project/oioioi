@@ -46,5 +46,5 @@ def api_token_url(request):
 
 if settings.USE_API:
     account_menu_registry.register(
-        'api_token', _('Your API token'), api_token_url, order=160
+        'api_token', _("Your API token"), api_token_url, order=160
     )

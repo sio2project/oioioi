@@ -29,7 +29,7 @@ validate_db_string_id = RegexValidator(
 @deconstructible
 class UnicodeValidator(object):
     unicode_categories = []
-    message = _('Enter a valid value.')
+    message = _("Enter a valid value.")
     code = 'invalid'
     allow_spaces = False
 

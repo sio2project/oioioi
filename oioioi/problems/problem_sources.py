@@ -313,7 +313,7 @@ class UploadedPackageSource(PackageSource):
 
 class ProblemsetSource(ProblemSource):
     key = 'problemset_source'
-    short_description = _('Add from Problemset')
+    short_description = _("Add from Problemset")
 
     def view(self, request, contest, existing_problem=None):
         if not contest:
@@ -338,7 +338,7 @@ class ProblemsetSource(ProblemSource):
 
         if request.POST:
             if not Problem.objects.filter(problemsite__url_key=url_key).exists():
-                messages.warning(request, _('Given url key is invalid'))
+                messages.warning(request, _("Given url key is invalid"))
                 return TemplateResponse(
                     request, "problems/problemset-source.html", post_data
                 )

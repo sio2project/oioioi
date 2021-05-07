@@ -50,7 +50,7 @@ class ContestIcon(models.Model):
     contest = models.ForeignKey(
         Contest, verbose_name=_("contest"), on_delete=models.CASCADE
     )
-    image = FileField(upload_to=make_icon_filename, verbose_name=_('icon image'))
+    image = FileField(upload_to=make_icon_filename, verbose_name=_("icon image"))
     updated_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):

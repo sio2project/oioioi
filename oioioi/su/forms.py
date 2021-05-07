@@ -19,7 +19,7 @@ def authentication_backends():
 def no_superuser_validator(user):
     if user.is_superuser:
         raise ValidationError(
-            _("Switching to a superuser is not allowed for " "security reasons.")
+            _("Switching to a superuser is not allowed for security reasons.")
         )
 
 

@@ -27,17 +27,17 @@
                                 {% if test.test %}
                                     <small>
                                         {% if is_admin %}
-                                            <a title="{% trans 'Download output for this test' %}"
+                                            <a title='{% trans "Download output for this test" %}'
                                                href="{% url 'download_output_file' test_id=test.test.id %}">
                                                 out
                                             </a>
-                                            <a title="{% trans 'Download input for this test' %}"
+                                            <a title='{% trans "Download input for this test" %}'
                                                href="{% url 'download_input_file' test_id=test.test.id %}">
                                                 in
                                             </a>
                                         {% endif %}
                                         {% if allow_download_out and test.generate_status == 'OK' %}
-                                            <a title="{% trans 'Download user output for this test' %}"
+                                            <a title='{% trans "Download user output for this test" %}'
                                                href="{% url 'download_user_output' testreport_id=test.id %}">
                                                 usr-out
                                             </a>

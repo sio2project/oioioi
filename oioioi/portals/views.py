@@ -358,11 +358,11 @@ def render_markdown_view(request):
 
 def portals_main_page_view(request, view_type='public'):
     if request.user.is_superuser:
-        page_title = _('Portals main page')
+        page_title = _("Portals main page")
         views = [
-            ('public', _('Public portals')),
-            ('all', _('All portals')),
-            ('global', _('Global portals')),
+            ('public', _("Public portals")),
+            ('all', _("All portals")),
+            ('global', _("Global portals")),
         ]
 
         if request.method == 'GET':
@@ -388,7 +388,7 @@ def portals_main_page_view(request, view_type='public'):
             portals_to_display = Portal.objects.filter(is_public=True)
 
     else:
-        page_title = _('Public portals')
+        page_title = _("Public portals")
         portals_to_display = Portal.objects.filter(is_public=True)
         form = None
         views = None

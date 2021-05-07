@@ -10,7 +10,7 @@ from oioioi.globalmessage.models import GlobalMessage
 class GlobalMessageAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['enabled', 'message']}),
-        (_('Auto show and hide'), {'fields': ['start', 'end']}),
+        (_("Auto show and hide"), {'fields': ['start', 'end']}),
     ]
 
     def has_add_permission(self, request):

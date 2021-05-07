@@ -73,7 +73,7 @@ class PortalsSearchForm(Form):
         label=None,
         widget=TextInput(
             attrs={
-                'placeholder': _('Search by URL or name'),
+                'placeholder': _("Search by URL or name"),
                 'class': "form-control search-query",
             }
         ),

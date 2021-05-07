@@ -144,7 +144,7 @@ class TestPortalViews(TestCase):
             create_url, data={'confirmation': '', 'link_name': 'default'}
         )
         self.assertContains(
-            response, _('Portal with this Link ' 'name already exists.')
+            response, _("Portal with this Link name already exists.")
         )
 
         response = self.client.post(
@@ -153,9 +153,9 @@ class TestPortalViews(TestCase):
         self.assertContains(
             response,
             _(
-                'Enter a valid &#39;slug&#39; '
-                'consisting of lowercase letters, '
-                'numbers, underscores or hyphens.'
+                "Enter a valid &#39;slug&#39; "
+                "consisting of lowercase letters, "
+                "numbers, underscores or hyphens."
             ),
         )
 
