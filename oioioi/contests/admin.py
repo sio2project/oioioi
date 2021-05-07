@@ -111,7 +111,7 @@ class RoundInline(admin.StackedInline):
     inline_classes = ('collapse open',)
     category = NO_CATEGORY
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -153,7 +153,7 @@ class AttachmentInline(admin.StackedInline):
     readonly_fields = ['content_link']
     category = NO_CATEGORY
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -238,6 +238,9 @@ class ContestAdmin(admin.ModelAdmin):
         return self.prepopulated_fields
 
     def get_form(self, request, obj=None, **kwargs):
+        if not self.has_change_permission(request, obj):
+            return super().get_form(request, obj, **kwargs)
+
         if obj and not request.GET.get('simple', False):
             return super(ContestAdmin, self).get_form(request, obj, **kwargs)
         return modelform_factory(

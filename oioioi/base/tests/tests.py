@@ -830,7 +830,7 @@ class TestAdmin(TestCase):
         manager.run_from_argv(['manage.py', 'import_users', filename])
 
         self.assertEqual(User.objects.count(), user_count_before + 2)
-        user4 = authenticate(username='test_user4', password='spam')
+        user4 = authenticate(None, username='test_user4', password='spam')
         self.assertEqual(user4.first_name, "Test")
         self.assertEqual(user4.last_name, "User 4")
         self.assertEqual(user4.email, "test_user4@example.com")

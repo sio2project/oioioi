@@ -3,7 +3,6 @@ from django.apps import apps
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 
-
 class TestCaseMigrations(test.TestCase):
     """TestCase for Django Migrations
 
@@ -31,6 +30,19 @@ class TestCaseMigrations(test.TestCase):
         )
         self.migrate_from = [(self.app, self.migrate_from)]
         self.migrate_to = [(self.app, self.migrate_to)]
+
+        # https://code.djangoproject.com/ticket/30023
+        # We have to disable foreign key constraint checking in sqlite because
+        # MigrationExecutor uses with transaction.atomic() under the hood.
+        if connection.vendor == 'sqlite':
+            connection.cursor().execute('PRAGMA foreign_keys = OFF')
+
+            org_disable_constraint_checking = connection.disable_constraint_checking
+            org_enable_constraint_checking = connection.enable_constraint_checking
+
+            connection.disable_constraint_checking = lambda: True
+            connection.enable_constraint_checking = lambda: True
+
         executor = MigrationExecutor(connection)
         # Detect disabled migrations tests by checking if there are any
         # migration nodes loaded
@@ -49,6 +61,13 @@ class TestCaseMigrations(test.TestCase):
         executor.migrate(self.migrate_to)
 
         self.apps = executor.loader.project_state(self.migrate_to).apps
+
+        # Reenable foreign key constraints checking.
+        if connection.vendor == 'sqlite':
+            connection.cursor().execute('PRAGMA foreign_keys = ON')
+
+            connection.disable_constraint_checking = org_disable_constraint_checking
+            connection.enable_constraint_checking = org_enable_constraint_checking
 
     def setUpBeforeMigration(self, apps):
         pass

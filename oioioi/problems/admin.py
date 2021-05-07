@@ -66,7 +66,7 @@ class StatementConfigInline(admin.TabularInline):
     form = ProblemStatementConfigForm
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -95,7 +95,7 @@ class RankingVisibilityConfigInline(admin.TabularInline):
     form = RankingVisibilityConfigForm
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -125,7 +125,7 @@ class StatementInline(admin.TabularInline):
     fields = readonly_fields
     category = NO_CATEGORY
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -167,7 +167,7 @@ class ProblemInstanceInline(admin.StackedInline):
     inline_classes = ('collapse open',)
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -176,13 +176,16 @@ class ProblemInstanceInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_view_permission(self, request, obj=None):
+        return False
+
 
 class ProblemSiteInline(admin.StackedInline):
     model = ProblemSite
     form = ProblemSiteForm
     category = NO_CATEGORY
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -296,7 +299,7 @@ class DifficultyTagInline(admin.StackedInline):
     verbose_name_plural = _("Difficulty Tags")
     category = _("Tags")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):
@@ -314,7 +317,7 @@ class AlgorithmTagInline(admin.StackedInline):
     verbose_name_plural = _("Algorithm Tags")
     category = _("Tags")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):
@@ -354,7 +357,7 @@ class TagInline(admin.StackedInline):
     verbose_name_plural = _("Tags (deprecated)")
     category = _("Tags")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):
@@ -536,6 +539,9 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         if obj:
             return False
         return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
         if not request.user.is_superuser:

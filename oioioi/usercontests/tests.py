@@ -117,7 +117,7 @@ class TestUserContestCreationForm(TestCase):
             'name': 'test usercontest',
             'id': 'test-usercontest',
             'default_submissions_limit': 0,
-            'start_date_0': '2077-04-19',
+            'start_date_0': '2037-04-19',
             'start_date_1': '00:00:00',
             "round_set-TOTAL_FORMS": 0,
             "round_set-INITIAL_FORMS": 0,

@@ -38,7 +38,7 @@ class ProgramsConfigInline(admin.TabularInline):
     can_delete = False
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -113,7 +113,7 @@ class TestInline(admin.TabularInline):
     ordering = ('kind', 'order', 'name')
     formset = ValidationFormset
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -149,7 +149,7 @@ class ReportActionsConfigInline(admin.StackedInline):
     fields = ['can_user_generate_outs']
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -167,7 +167,7 @@ class OutputCheckerInline(admin.TabularInline):
     can_delete = False
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -198,7 +198,7 @@ class LibraryProblemDataInline(admin.TabularInline):
     can_delete = False
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -232,7 +232,7 @@ class ContestCompilerInline(admin.StackedInline):
         super(ContestCompilerInline, self).__init__(*args, **kwargs)
         self.verbose_name_plural = _("Compiler overrides")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):

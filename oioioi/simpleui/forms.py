@@ -53,7 +53,7 @@ class TagForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TagForm, self).__init__(*args, **kwargs)
         try:
-            self.instance = kwargs['instance']
+            self.instance = kwargs['instance'] or self.instance
             self.fields['name'].value = self.instance.name
             self.fields['name'].exists = True
         except KeyError:

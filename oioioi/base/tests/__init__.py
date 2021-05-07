@@ -75,7 +75,7 @@ class IgnorePasswordAuthBackend(object):
     supports_authentication = True
     description = _("Testing backend")
 
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         if not username:
             return None
         if password:

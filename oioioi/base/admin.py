@@ -30,7 +30,7 @@ NO_CATEGORY = '__no_category__'
 class TabularInline(admin.TabularInline):
     # by default we assume that if item is added to specific
     # admin menu mixin it should be visible and editable
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -43,7 +43,7 @@ class TabularInline(admin.TabularInline):
 class StackedInline(admin.StackedInline):
     # by default we assume that if item is added to specific
     # admin menu mixin it should be visible and editable
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -431,7 +431,7 @@ class ConsentsInline(StackedInline):
     model = Consents
     extra = 0
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):

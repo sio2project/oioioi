@@ -16,7 +16,7 @@ class ZeusProblemDataInline(admin.StackedInline):
     inline_classes = ('collapse',)
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):

@@ -34,7 +34,7 @@ class QuizAnswerFormset(nested_admin.formsets.NestedInlineFormSet):
 class QuizPictureInline(nested_admin.NestedStackedInline):
     extra = 0
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -59,7 +59,7 @@ class QuizAnswerInline(nested_admin.NestedTabularInline):
     extra = 0
     inlines = [QuizAnswerPictureInline]
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -75,7 +75,7 @@ class QuizQuestionInline(nested_admin.NestedStackedInline):
     extra = 0
     inlines = [QuizAnswerInline, QuizQuestionPictureInline]
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return True
 
     def has_change_permission(self, request, obj=None):

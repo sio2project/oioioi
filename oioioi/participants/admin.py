@@ -100,6 +100,9 @@ class ParticipantAdmin(admin.ModelAdmin):
         obj.save()
 
     def get_form(self, request, obj=None, **kwargs):
+        if not self.has_change_permission(request, obj):
+            return super().get_form(request, obj, **kwargs)
+
         Form = super(ParticipantAdmin, self).get_form(request, obj, **kwargs)
 
         def form_wrapper(*args, **kwargs):
@@ -205,6 +208,9 @@ class NoParticipantAdmin(ParticipantAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_view_permission(self, request, obj=None):
+        return False
+
 
 class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
     default_participant_admin = NoParticipantAdmin
@@ -240,7 +246,7 @@ class ParticipantInline(admin.TabularInline):
     extra = 0
     readonly_fields = ('contest', 'status')
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -275,6 +281,9 @@ class RegionAdmin(admin.ModelAdmin):
         obj.save()
 
     def get_form(self, request, obj=None, **kwargs):
+        if not self.has_change_permission(request, obj):
+            return super().get_form(request, obj, **kwargs)
+
         Form = super(RegionAdmin, self).get_form(request, obj, **kwargs)
 
         def form_wrapper(*args, **kwargs):
@@ -300,7 +309,7 @@ class OnsiteRegistrationInline(admin.TabularInline):
     fk_name = 'participant'
     can_delete = False
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -436,7 +445,7 @@ class TermsAcceptedPhraseInline(admin.StackedInline):
     max_num = 0
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):

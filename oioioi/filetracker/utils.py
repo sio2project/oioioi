@@ -7,6 +7,7 @@ import six.moves.urllib.parse
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.http import StreamingHttpResponse
+from django.utils.functional import cached_property
 
 from oioioi.filetracker.filename import FiletrackerFilename
 
@@ -26,12 +27,9 @@ class FileInFiletracker(File):
         self.storage = storage
         self._size = None
 
-    def _get_size(self):
-        if self._size is None:
-            self._size = self.storage.size(self.name)
-        return self._size
-
-    size = property(_get_size, File._set_size)
+    @cached_property
+    def size(self):
+        return self.storage.size(self.name)
 
     def close(self):
         pass

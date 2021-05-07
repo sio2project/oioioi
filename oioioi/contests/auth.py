@@ -8,7 +8,7 @@ class ContestPermissionsAuthBackend(object):
     description = _("Contests permissions")
     supports_authentication = False
 
-    def authenticate(self, **kwargs):
+    def authenticate(self, request, **kwargs):
         return None
 
     def filter_for_perm(self, obj_class, perm, user):

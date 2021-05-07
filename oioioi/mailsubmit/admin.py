@@ -18,7 +18,7 @@ class MailSubmissionConfigInline(admin.TabularInline):
     # to edit printout_text. One can execute arbitrary shell command from
     # there.
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):

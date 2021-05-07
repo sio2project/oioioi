@@ -92,15 +92,13 @@ python2_specific_requirements = [
 ]
 
 python3_specific_requirements = [
-    "Django==2.0",  # when upgrading, upgrade also django-two-factor-auth!
+    "Django>=2.1.1,<2.2",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b,<=2021.1",
     "sqlalchemy<1.5",
-    # latest version of django-otp for Django 1.10 and 2.0
-    "django-otp==0.6.0",
     "beautifulsoup4<4.10",
     "PyYAML<5.5",
     "python-dateutil<2.9",
-    "django-two-factor-auth==1.8",  # Django 2.0 support
+    "django-two-factor-auth==1.11",  # Django 2.0 support
     "django-formtools==2.2",  # Django 2.2 support
     # django-two-factor-auth 1.6.*; can be
     # removed after migration to Django 1.11
@@ -112,7 +110,7 @@ python3_specific_requirements = [
     "pygments<2.6",
     "django-libsass>=0.7,<=0.8",
     "django-debug-toolbar==2.1",  # latest version for Django 2.0
-    "django-extensions==2.2.4",  # latest version for Django 2.0
+    "django-extensions>2.2.4,<=2.3",  # latest version for Django 2.0
     "djangorestframework==3.11",  # latest version for Django 2.0
     "werkzeug<1.1",
     'pytest==4.6.11',
@@ -142,7 +140,7 @@ python3_specific_requirements = [
     # Used in quizzes module for adding new quizzes.
     "django-nested-admin<3.4",
     # SIO2 dependencies:
-    "filetracker>=2.1,<3.0",
+    "filetracker>=2.1.5,<3.0",
     # Python 2 has class AppConf(metaclass=AppConfMetaClass):
     # SyntaxError: invalid syntax
     # when using newer version
