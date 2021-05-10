@@ -3,6 +3,7 @@ from math import ceil
 from operator import itemgetter  # pylint: disable=E0611
 
 import six
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -206,3 +207,10 @@ def get_problem_link_or_name(request, submission):
 
 def get_extension(file_name):
     return os.path.splitext(file_name)[1][1:]
+
+
+def get_submittable_languages():
+    submittable_languages = getattr(settings, "SUBMITTABLE_LANGUAGES")
+    for _, lang_config in submittable_languages.items():
+        lang_config.setdefault('type', 'main')
+    return submittable_languages

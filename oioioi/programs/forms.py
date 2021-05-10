@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext
 
 from oioioi.programs.models import ContestCompiler
+from oioioi.programs.utils import get_submittable_languages
 
 
 class CompilerInlineForm(forms.ModelForm):
@@ -12,7 +13,7 @@ class CompilerInlineForm(forms.ModelForm):
         self.language_choices = [('', 'Choose language')]
         default_compilers = getattr(settings, 'DEFAULT_COMPILERS')
         model = self._meta.model
-        submittable_languages = getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items()
+        submittable_languages = get_submittable_languages().items()
         if model == ContestCompiler:
             self.language_choices = [
                 (
@@ -64,7 +65,7 @@ class ProblemCompilerInlineForm(CompilerInlineForm):
 class ProblemAllowedLanguageInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProblemAllowedLanguageInlineForm, self).__init__(*args, **kwargs)
-        submittable_languages = getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items()
+        submittable_languages = get_submittable_languages().items()
         self.language_choices = [
             (lang, lang_info['display_name'])
             for lang, lang_info in submittable_languages

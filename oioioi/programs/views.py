@@ -50,6 +50,7 @@ from oioioi.programs.utils import (
     decode_str,
     get_extension,
     get_submission_source_file_or_error,
+    get_submittable_languages,
 )
 
 fnmatch._MAXCACHE = sys.maxsize
@@ -438,7 +439,7 @@ def get_language_hints_view(request):
             if pi.problem.problemsite.url_key == problemsite_key
         }
 
-    langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
+    langs = get_submittable_languages()
     lang_display_dict = {
         pi.id: langs.get(lang, {'display_name': ''})['display_name']
         for (pi, lang) in lang_dict.items()

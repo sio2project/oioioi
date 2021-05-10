@@ -14,6 +14,7 @@ from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ContestAdmin, ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_admin
+from oioioi.programs.utils import get_submittable_languages
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
 from oioioi.programs.forms import (
     CompilerInlineForm,
@@ -416,7 +417,7 @@ class LanguageListFilter(SimpleListFilter):
     parameter_name = 'lang'
 
     def lookups(self, request, model_admin):
-        langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
+        langs = get_submittable_languages()
         return [(lang, lang_info['display_name']) for lang, lang_info in langs.items()]
 
     def queryset(self, request, queryset):

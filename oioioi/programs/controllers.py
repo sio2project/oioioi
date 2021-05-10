@@ -53,6 +53,7 @@ from oioioi.programs.utils import (
     get_problem_link_or_name,
     has_report_actions_config,
     is_model_submission,
+    get_submittable_languages,
 )
 from oioioi.programs.widgets import CancellableFileInput
 
@@ -165,7 +166,7 @@ class ProgrammingProblemController(ProblemController):
         )
         environ['contest_weight'] += settings.OIOIOI_INSTANCE_WEIGHT_BONUS
 
-        environ.setdefault('report_kinds', ['INITIAL', 'NORMAL'])
+        environ.setdefault('report_kinds', ['INITIAL', 'NORMAL']),
         if 'hidden_judge' in environ['extra_args']:
             environ['report_kinds'] = ['HIDDEN']
 
@@ -540,7 +541,7 @@ class ProgrammingProblemController(ProblemController):
                     compiler_info = compilers_for_language.get(compiler)
                     if compiler_info is not None:
                         compiler_name = compiler_info.get('display_name')
-            langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
+            langs = get_submittable_languages()
             lang_display = langs[lang]['display_name']
             if compiler_name is not None:
                 choices.append((lang, "%s (%s)" % (lang_display, compiler_name)))
@@ -788,7 +789,11 @@ class ProgrammingProblemController(ProblemController):
 
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions."""
-        return getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).keys()
+        all_languages = get_submittable_languages()
+        main_languages_only = [
+            lang for lang, meta in all_languages.items() if meta['type'] == 'main'
+        ]
+        return main_languages_only
 
     def render_submission_footer(self, request, submission):
         super_footer = super(
@@ -836,7 +841,6 @@ class ProgrammingProblemController(ProblemController):
                 'language', flat=True
             )
         )
-        # If the whitelist is empty, allow every language
         if not allowed_langs:
             return problem.controller.get_allowed_languages()
         return allowed_langs
@@ -1092,4 +1096,4 @@ class ProgrammingContestController(ContestController):
 
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions."""
-        return getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).keys()
+        return get_submittable_languages().keys()

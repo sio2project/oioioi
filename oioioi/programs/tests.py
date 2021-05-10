@@ -1524,8 +1524,8 @@ class TestCompiler(TestCase):
 
     @override_settings(
         SUBMITTABLE_LANGUAGES={
-            'C': {'display_name': 'C'},
-            'C++': {'display_name': 'C++'},
+            'C': {'display_name': 'C', 'type': 'main'},
+            'C++': {'display_name': 'C++', 'type': 'main'},
         }
     )
     @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'C++': ['cpp', 'cc']})
@@ -1651,8 +1651,8 @@ class TestCompiler(TestCase):
 
     @override_settings(
         SUBMITTABLE_LANGUAGES={
-            'C': {'display_name': 'C'},
-            'Python': {'display_name': 'Python'},
+            'C': {'display_name': 'C', 'type': 'main'},
+            'Python': {'display_name': 'Python', 'type': 'extra'},
         }
     )
     @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c'], 'Python': ['py']})
@@ -1859,14 +1859,17 @@ class TestAllowedLanguages(TestCase, SubmitFileMixin):
         self.assertIn('Python', allowed_languages)
         self.assertIn('C', allowed_languages)
         self.assertIn('C++', allowed_languages)
+        self.assertNotIn('Output-only', allowed_languages)
 
     def test_allowed_languages_dict(self):
         ProblemAllowedLanguage.objects.create(problem=self.problem, language='C')
         ProblemAllowedLanguage.objects.create(problem=self.problem, language='C++')
+        ProblemAllowedLanguage.objects.create(problem=self.problem, language='Output-only')
         allowed_languages = get_allowed_languages_dict(self.problem_instance)
         self.assertNotIn('Python', allowed_languages)
         self.assertIn('C', allowed_languages)
         self.assertIn('C++', allowed_languages)
+        self.assertIn('Output-only', allowed_languages)
 
     def test_disallowed_language_submit_attempt(self):
         ProblemAllowedLanguage.objects.create(problem=self.problem, language='C')

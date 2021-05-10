@@ -421,6 +421,8 @@ def check_compilers_config():
     for language, language_info in SUBMITTABLE_LANGUAGES.items():
         if not language_info.get('display_name'):
             raise ImproperlyConfigured
+        if language_info.get('type', 'main') not in ['main', 'extra']:
+            raise ImproperlyConfigured
         if not SUBMITTABLE_EXTENSIONS.get(language):
             raise ImproperlyConfigured
         compilers_for_lang = AVAILABLE_COMPILERS.get(language)
