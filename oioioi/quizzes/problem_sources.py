@@ -3,21 +3,20 @@ from django.db import transaction
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base.utils import generate_key
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import ProblemInstance
+from oioioi.default_settings import LANGUAGES
 from oioioi.problems.models import (
-    ProblemSite,
     AlgorithmTag,
-    AlgorithmTagThrough,
     AlgorithmTagLocalization,
+    AlgorithmTagThrough,
+    ProblemSite,
 )
 from oioioi.problems.problem_sources import ProblemSource
 from oioioi.problems.utils import get_new_problem_instance
 from oioioi.quizzes.forms import EmptyQuizSourceForm
 from oioioi.quizzes.models import Quiz
-from oioioi.default_settings import LANGUAGES
 
 
 class EmptyQuizSource(ProblemSource):
@@ -41,7 +40,7 @@ class EmptyQuizSource(ProblemSource):
             with transaction.atomic():
                 controller = self.problem_controller_class
                 quiz = Quiz.objects.create(
-                    name=form.cleaned_data['name'],
+                    legacy_name=form.cleaned_data['name'],
                     short_name=form.cleaned_data['short_name'],
                     controller_name=controller,
                     author=request.user,

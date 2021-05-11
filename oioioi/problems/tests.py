@@ -221,7 +221,7 @@ class DummyPackageBackend(ProblemPackageBackend):
     def unpack(self, env):
         pp = ProblemPackage.objects.get(id=env['package_id'])
         p = Problem.create(
-            name='foo',
+            legacy_name='foo',
             short_name='bar',
             controller_name='oioioi.problems.controllers.ProblemController',
         )
@@ -948,13 +948,14 @@ class TestProblemsharing(TestCase):
         Problem(
             author=author_user,
             visibility=Problem.VISIBILITY_FRIENDS,
-            name='problem1',
+            legacy_name='problem1',
             short_name='prob1',
             controller_name='oioioi.problems.tests.TestProblemController',
         ).save()
         self.assertEqual(Problem.objects.all().count(), 1)
         ProblemSite(
-            problem=Problem.objects.get(name='problem1'), url_key='przykladowyurl'
+            problem=Problem.objects.get(legacy_name='problem1'),
+            url_key='przykladowyurl',
         ).save()
         self.assertEqual(ProblemSite.objects.all().count(), 1)
         Friendship(
@@ -1431,7 +1432,7 @@ class TestMigrateOldOriginTagsCreateNewTags(TestCase):
     def setUp(self):
         for name in self.problems_names:
             Problem.objects.create(
-                name=name,
+                legacy_name=name,
                 short_name=name.lower()[:3],
                 visibility='PU',
             )
@@ -1442,7 +1443,7 @@ class TestMigrateOldOriginTagsCreateNewTags(TestCase):
 
         for i, name in enumerate(self.problems_names):
             tag = Tag.objects.get(name=self.tags_names[i % len(self.tags_names)])
-            problem = Problem.objects.get(name=name)
+            problem = Problem.objects.get(legacy_name=name)
             TagThrough.objects.create(problem=problem, tag=tag)
 
     def test_migrate_old_origin_tags_create_new_tags_command(self):
@@ -1597,12 +1598,12 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
             problems = self.description[tag_name]
 
             problem_en = Problem.objects.create(
-                name=problems['name_en'],
+                legacy_name=problems['name_en'],
                 short_name=problems['name_en'].lower()[:3],
                 visibility='PU',
             )
             problem_pl = Problem.objects.create(
-                name=problems['name_pl'],
+                legacy_name=problems['name_pl'],
                 short_name=problems['name_pl'].lower()[:3],
                 visibility='PU',
             )
@@ -1662,8 +1663,8 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
                 problems = self.description[row['Tag_name']]
-                problem_en = Problem.objects.get(name=problems['name_en'])
-                problem_pl = Problem.objects.get(name=problems['name_pl'])
+                problem_en = Problem.objects.get(legacy_name=problems['name_en'])
+                problem_pl = Problem.objects.get(legacy_name=problems['name_pl'])
 
                 if row['language_version_with_no_origin'] == 'en':
                     self.assertTrue(problem_en in tag_copied.problems.all())
@@ -2757,6 +2758,10 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         'Znacznik',
         'Algorytm',
         'Trudność',
+        'Bajtocja',
+        'Byteland',
+        'Drzewo',
+        'Tree',
     ]
 
     def test_search_name(self):
@@ -2799,7 +2804,28 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': 'a'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko', 'Znacznik', 'Algorytm'))
+        self.assert_contains_only(
+            response, ('Zadanko', 'Znacznik', 'Algorytm', 'Byteland')
+        )
+
+    def _test_search_name_localized(self, queries, exp_names):
+        self.client.get('/c/c/')
+        for query, exp_name in zip(queries, exp_names):
+            response = self.client.get(self.url, {'q': query})
+            self.assertEqual(response.status_code, 200)
+            self.assert_contains_only(response, (exp_name,))
+
+    @override_settings(LANGUAGE_CODE="en")
+    def test_search_name_localized_en(self):
+        queries = 'Byte', 'land', 'bajtocj', 'TrEE', 'RzEw'
+        exp_names = 'Byteland', 'Byteland', 'Byteland', 'Tree', 'Tree'
+        self._test_search_name_localized(queries, exp_names)
+
+    @override_settings(LANGUAGE_CODE="pl")
+    def test_search_name_localized_pl(self):
+        queries = 'Bajto', 'baJtOcJ', 'byteland', 'Drzewo', 'tree'
+        exp_names = 'Bajtocja', 'Bajtocja', 'Bajtocja', 'Drzewo', 'Drzewo'
+        self._test_search_name_localized(queries, exp_names)
 
     def test_search_short_name(self):
         self.client.get('/c/c/')
@@ -3315,6 +3341,7 @@ class TestProblemChangeForm(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Advanced </button>')
         self.assertNotContains(response, 'Tags </button>')
+        self.assertNotContains(response, "Problem names")
         self.assertNotContains(response, "Score reveal configs")
         self.assertNotContains(response, "Problem Compilers")
 
@@ -3323,6 +3350,7 @@ class TestProblemChangeForm(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Advanced </button>')
         self.assertContains(response, 'Tags </button>')
+        self.assertContains(response, "Problem names")
         self.assertNotContains(response, "Score reveal configs")
         self.assertContains(response, "Problem compilers")
         self.assertNotContains(response, 'None </button>')
@@ -3333,6 +3361,7 @@ class TestProblemChangeForm(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Advanced </button>')
         self.assertNotContains(response, 'Tags </button>')
+        self.assertNotContains(response, "Problem names")
         self.assertNotContains(response, "Quizzes")
 
         self.assertTrue(self.client.login(username='test_admin'))
@@ -3340,5 +3369,6 @@ class TestProblemChangeForm(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Advanced </button>')
         self.assertContains(response, 'Tags </button>')
+        self.assertContains(response, "Problem names")
         self.assertContains(response, "Quizzes")
         self.assertNotContains(response, 'None </button>')

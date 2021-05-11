@@ -4,7 +4,7 @@ import os.path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.translation import ugettext as _
-from oioioi.problems.models import Tag, TagThrough, ProblemStatement
+from oioioi.problems.models import ProblemStatement, Tag, TagThrough
 
 
 def _get_problem_statements(problem, multiple):
@@ -83,7 +83,7 @@ class Command(BaseCommand):
                             problems_with_origin = (
                                 old_tag.problems.all()
                                 .filter(short_name=problem.short_name)
-                                .exclude(name=problem.name)
+                                .exclude(legacy_name=problem.legacy_name)
                             )
                             if problems_with_origin.count() != 1:
                                 print(

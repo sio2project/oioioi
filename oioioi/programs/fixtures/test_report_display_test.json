@@ -290,7 +290,7 @@
          "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
          "contest" : null,
          "controller_name" : "oioioi.sinolpack.controllers.SinolProblemController",
-         "name" : "hel"
+         "legacy_name" : "hel"
       },
       "model" : "problems.problem"
    },

@@ -14,7 +14,17 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.files.base import File
 from django.db import transaction
-from django.db.models import Case, CharField, F, OuterRef, Q, Subquery, Value, When
+from django.db.models import (
+    Case,
+    CharField,
+    F,
+    OuterRef,
+    Prefetch,
+    Q,
+    Subquery,
+    Value,
+    When,
+)
 from django.db.models.functions import Coalesce
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
@@ -54,6 +64,7 @@ from oioioi.problems.models import (
     OriginTagLocalization,
     Problem,
     ProblemAttachment,
+    ProblemName,
     ProblemPackage,
     ProblemStatement,
     UserStatistics,
@@ -121,7 +132,6 @@ def show_problem_attachment_view(request, attachment_id):
 
 def _get_package(request, package_id, contest_perm=None):
     package = get_object_or_404(ProblemPackage, id=package_id)
-    has_perm = False
     if package.contest:
         has_perm = request.user.has_perm(contest_perm, package.contest) or (
             contest_perm == 'contests.contest_basicadmin'
@@ -244,8 +254,23 @@ def filter_problems_by_origin(problems, origin_tags):
     return problems
 
 
+def _get_problems_by_query(query):
+    prefetch = Prefetch(
+        'names', queryset=ProblemName.objects.filter(language=get_language())
+    )
+    filtered_problems = Problem.objects.prefetch_related(prefetch).filter(
+        Q(names__name__icontains=query)
+        | Q(legacy_name__icontains=query)
+        | Q(ascii_name__icontains=unidecode(six.text_type(query)))
+        | Q(short_name__icontains=query),
+        problemsite__isnull=False,
+    )
+
+    return filtered_problems.distinct()
+
+
 def search_problems_in_problemset(datadict):
-    query = unidecode(six.text_type(datadict.get('q', '')))
+    query = datadict.get('q', '')
     algorithm_tags = datadict.getlist('algorithm')
     difficulty_tags = datadict.getlist('difficulty')
     origin_tags = datadict.getlist('origin')
@@ -253,9 +278,7 @@ def search_problems_in_problemset(datadict):
     problems = Problem.objects.all()
 
     if query:
-        problems = problems.filter(
-            Q(ascii_name__icontains=query) | Q(short_name__icontains=query)
-        )
+        problems = _get_problems_by_query(query)
     if algorithm_tags:
         problems = problems.filter(algorithmtag__name__in=algorithm_tags)
     if difficulty_tags:
@@ -389,6 +412,16 @@ def problemset_get_problems(request):
             lookup = F('user_statistics_' + field)
         else:
             raise Http404
+
+        if field == 'name':
+            problems = problems.annotate(
+                localized_name=Subquery(
+                    ProblemName.objects.filter(
+                        problem=OuterRef('pk'), language=get_language()
+                    ).values('name')
+                )
+            )
+            lookup = F('localized_name')
 
         if 'desc' in request.GET:
             problems = problems.order_by(lookup.desc(nulls_last=True))
@@ -1101,10 +1134,7 @@ def get_algorithm_and_difficulty_tag_hints(query):
 
 @uniquefy('name')
 def get_problem_hints(query, view_type, user):
-    problems = Problem.objects.filter(
-        Q(ascii_name__icontains=query) | Q(short_name__icontains=query),
-        problemsite__isnull=False,
-    )
+    problems = _get_problems_by_query(query)
     if view_type == 'public':
         problems = problems.filter(visibility=Problem.VISIBILITY_PUBLIC)
     elif view_type == 'my':

@@ -2,19 +2,21 @@ import datetime
 import functools
 
 import six
+
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Q
+from django.db.models import F, OuterRef, Q, Subquery
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import dateformat
 from django.utils.timezone import utc
-
+from django.utils.translation import get_language
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import allow_cross_origin, jsonify
 from oioioi.contests.models import SubmissionReport
 from oioioi.contests.utils import contest_exists, is_contest_admin, is_contest_observer
 from oioioi.livedata.utils import can_see_livedata, get_display_name
+from oioioi.problems.models import ProblemName
 
 RESULT_FOR_FROZEN_SUBMISSION = 'FROZEN'
 
@@ -71,11 +73,22 @@ def livedata_teams_view(request, round_id):
 @jsonify
 def livedata_tasks_view(request, round_id):
     round = get_object_or_404(request.contest.round_set.all(), pk=round_id)
-    pis = round.probleminstance_set.all()
+    pis = (
+        round.probleminstance_set.all()
+        .prefetch_related('problem__names')
+        .annotate(
+            problem_localized_name=Subquery(
+                ProblemName.objects.filter(
+                    problem=OuterRef('problem__pk'), language=get_language()
+                ).values('name')
+            )
+        )
+    )
+    problem_localized_name = F('problem_localized_name')
 
     return [
         {'id': pi.id, 'shortName': pi.short_name, 'name': pi.problem.name}
-        for pi in pis.order_by('problem__name')
+        for pi in pis.order_by(problem_localized_name.asc(nulls_first=True))
     ]
 
 

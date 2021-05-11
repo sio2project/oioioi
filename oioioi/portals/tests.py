@@ -1,9 +1,9 @@
+from six.moves import range
+
 from django.contrib.auth.models import AnonymousUser
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from six.moves import range
-
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.actions import portal_url
@@ -143,9 +143,7 @@ class TestPortalViews(TestCase):
         response = self.client.post(
             create_url, data={'confirmation': '', 'link_name': 'default'}
         )
-        self.assertContains(
-            response, _("Portal with this Link name already exists.")
-        )
+        self.assertContains(response, _("Portal with this Link name already exists."))
 
         response = self.client.post(
             create_url, data={'confirmation': '', 'link_name': 'with space'}
@@ -452,7 +450,7 @@ class TestMarkdown(TestCase):
             name = 'problem_%s_name' % i
             url_key = 'problem_%s_key' % i
             problem = Problem(
-                name=name, short_name=name, visibility=Problem.VISIBILITY_PUBLIC
+                legacy_name=name, short_name=name, visibility=Problem.VISIBILITY_PUBLIC
             )
             problem.save()
             site = ProblemSite(problem=problem, url_key=url_key)

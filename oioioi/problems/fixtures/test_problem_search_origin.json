@@ -3,7 +3,7 @@
     "pk": 0,
     "model": "problems.problem",
     "fields": {
-      "name": "0_private",
+      "legacy_name": "0_private",
       "visibility": "PR"
     }
   },
@@ -11,7 +11,7 @@
     "pk": 1,
     "model": "problems.problem",
     "fields": {
-      "name": "0_public",
+      "legacy_name": "0_public",
       "visibility": "PU"
     }
   },
@@ -19,7 +19,7 @@
     "pk": 2,
     "model": "problems.problem",
     "fields": {
-      "name": "1_pa",
+      "legacy_name": "1_pa",
       "visibility": "PU"
     }
   },
@@ -27,7 +27,7 @@
     "pk": 3,
     "model": "problems.problem",
     "fields": {
-      "name": "2_pa_2011",
+      "legacy_name": "2_pa_2011",
       "visibility": "PU"
     }
   },
@@ -35,7 +35,7 @@
     "pk": 4,
     "model": "problems.problem",
     "fields": {
-      "name": "3_pa_2011_r1",
+      "legacy_name": "3_pa_2011_r1",
       "visibility": "PU"
     }
   },
@@ -43,7 +43,7 @@
     "pk": 5,
     "model": "problems.problem",
     "fields": {
-      "name": "3_pa_2011_r2",
+      "legacy_name": "3_pa_2011_r2",
       "visibility": "PU"
     }
   },
@@ -51,7 +51,7 @@
     "pk": 6,
     "model": "problems.problem",
     "fields": {
-      "name": "2_pa_2012",
+      "legacy_name": "2_pa_2012",
       "visibility": "PU"
     }
   },
@@ -59,7 +59,7 @@
     "pk": 7,
     "model": "problems.problem",
     "fields": {
-      "name": "3_pa_2012_r1",
+      "legacy_name": "3_pa_2012_r1",
       "visibility": "PU"
     }
   },

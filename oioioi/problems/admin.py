@@ -32,6 +32,7 @@ from oioioi.problems.forms import (
     OriginInfoValueForm,
     OriginInfoValueThroughForm,
     OriginTagThroughForm,
+    ProblemNameInlineFormSet,
     ProblemSiteForm,
     ProblemStatementConfigForm,
     RankingVisibilityConfigForm,
@@ -50,6 +51,7 @@ from oioioi.problems.models import (
     OriginTagLocalization,
     Problem,
     ProblemAttachment,
+    ProblemName,
     ProblemPackage,
     ProblemSite,
     ProblemStatement,
@@ -115,6 +117,23 @@ class RankingVisibilityConfigAdminMixin(object):
 
 
 ContestAdmin.mix_in(RankingVisibilityConfigAdminMixin)
+
+
+class NameInline(admin.StackedInline):
+    model = ProblemName
+    can_delete = False
+    formset = ProblemNameInlineFormSet
+    fields = ['name', 'language']
+    category = NO_CATEGORY
+
+    def has_add_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
 
 
 class StatementInline(admin.TabularInline):
@@ -359,6 +378,7 @@ class ProblemAdmin(admin.ModelAdmin):
         AlgorithmTagInline,
         OriginTagInline,
         OriginInfoValueInline,
+        NameInline,
         StatementInline,
         AttachmentInline,
         ProblemInstanceInline,
@@ -366,7 +386,7 @@ class ProblemAdmin(admin.ModelAdmin):
     ]
     readonly_fields = [
         'author',
-        'name',
+        'legacy_name',
         'short_name',
         'controller_name',
         'package_backend_name',

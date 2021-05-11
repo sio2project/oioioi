@@ -21,7 +21,7 @@
     "model": "problems.problem",
     "fields": {
       "main_problem_instance": 1,
-      "name": "Sum\u017cyce",
+      "legacy_name": "Sum\u017cyce",
       "short_name": "sum",
       "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
       "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend"

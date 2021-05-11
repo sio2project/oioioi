@@ -634,7 +634,7 @@
     "main_problem_instance": 1,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend",
     "contest": "acm",
-    "name": "test",
+    "legacy_name": "test",
     "short_name": "test",
     "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
   }
@@ -646,7 +646,7 @@
     "main_problem_instance": 2,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend",
     "contest": "acm",
-    "name": "Sum\u017cyce",
+    "legacy_name": "Sum\u017cyce",
     "short_name": "sum",
     "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
   }
@@ -658,7 +658,7 @@
     "main_problem_instance": 3,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend",
     "contest": "acm",
-    "name": "Apples",
+    "legacy_name": "Apples",
     "short_name": "A",
     "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
   }
@@ -670,7 +670,7 @@
     "main_problem_instance": 4,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend",
     "contest": "acm",
-    "name": "test",
+    "legacy_name": "test",
     "short_name": "test",
     "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
   }

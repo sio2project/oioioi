@@ -15,6 +15,7 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator, get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
@@ -59,7 +60,7 @@ class Problem(models.Model):
     3) It is a base to create another instances.
     """
 
-    name = models.CharField(max_length=255, verbose_name=_("full name"))
+    legacy_name = models.CharField(max_length=255, verbose_name=_("legacy name"))
     short_name = models.CharField(
         max_length=30, validators=[validate_slug], verbose_name=_("short name")
     )
@@ -77,7 +78,7 @@ class Problem(models.Model):
         User, null=True, blank=True, verbose_name=_("author"), on_delete=models.SET_NULL
     )
     # visibility defines read access to all of problem data (this includes
-    # the package, all tests and attackments)
+    # the package, all tests and attachments)
     VISIBILITY_PUBLIC = 'PU'
     VISIBILITY_FRIENDS = 'FR'
     VISIBILITY_PRIVATE = 'PR'
@@ -116,6 +117,13 @@ class Problem(models.Model):
         related_name='main_problem_instance',
         on_delete=models.CASCADE,
     )
+
+    @cached_property
+    def name(self):
+        problem_name = ProblemName.objects.filter(
+            problem=self, language=get_language()
+        ).first()
+        return problem_name.name if problem_name else self.legacy_name
 
     @property
     def controller(self):
@@ -179,6 +187,32 @@ def _check_problem_instance_integrity(sender, instance, **kwargs):
         raise RuntimeError(
             "Multiple main_problem_instance objects for a single problem."
         )
+
+
+@python_2_unicode_compatible
+class ProblemName(models.Model):
+    """Represents a problem's name translation in a given language.
+
+    Problem should have its name translated to all available languages.
+    """
+
+    problem = models.ForeignKey(Problem, related_name='names', on_delete=models.CASCADE)
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_("name translation"),
+        help_text=_("Human-readable name."),
+    )
+    language = models.CharField(
+        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language code")
+    )
+
+    class Meta(object):
+        unique_together = ('problem', 'language')
+        verbose_name = _("problem name")
+        verbose_name_plural = _("problem names")
+
+    def __str__(self):
+        return six.text_type("{} - {}".format(self.problem, self.language))
 
 
 @python_2_unicode_compatible

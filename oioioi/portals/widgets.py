@@ -212,8 +212,10 @@ class ProblemTableWidget(object):
             if self.site_key_from_link(link) is not None
         ]
 
-        problems = Problem.objects.filter(problemsite__url_key__in=keys).select_related(
-            'problemsite'
+        problems = (
+            Problem.objects.filter(problemsite__url_key__in=keys)
+            .select_related('problemsite')
+            .prefetch_related('names')
         )
 
         problem_map = {pr.problemsite.url_key: pr for pr in problems}
@@ -223,12 +225,12 @@ class ProblemTableWidget(object):
         rows = []
 
         for problem in problems:
-            row = {}
-
-            row['url'] = reverse(
-                'problem_site', kwargs={'site_key': problem.problemsite.url_key}
-            )
-            row['name'] = problem.name
+            row = {
+                'url': reverse(
+                    'problem_site', kwargs={'site_key': problem.problemsite.url_key}
+                ),
+                'name': problem.name,
+            }
 
             def fill_row_with_score(row_, problem_):
                 if not request.user.is_authenticated:

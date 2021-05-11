@@ -3,7 +3,7 @@
     "pk": 1,
     "model": "problems.problem",
     "fields": {
-      "name": "Test quiz with pictures",
+      "legacy_name": "Test quiz with pictures",
       "contest": "c",
       "author": 1001,
       "short_name": "qui",

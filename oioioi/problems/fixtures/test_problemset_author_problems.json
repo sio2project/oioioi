@@ -3,7 +3,7 @@
     "pk": 1,
     "model": "problems.problem",
     "fields": {
-      "name": "Public with author",
+      "legacy_name": "Public with author",
       "contest": null,
       "author": 1001,
       "short_name": "pba",
@@ -15,7 +15,7 @@
     "pk": 2,
     "model": "problems.problem",
     "fields": {
-      "name": "Private with author",
+      "legacy_name": "Private with author",
       "contest": null,
       "author":1001,
       "short_name": "pra",
@@ -26,7 +26,7 @@
     "pk": 3,
     "model": "problems.problem",
     "fields": {
-      "name": "Public alone",
+      "legacy_name": "Public alone",
       "contest": null,
       "short_name": "pub",
       "author":1002,
@@ -38,7 +38,7 @@
     "pk": 4,
     "model": "problems.problem",
     "fields": {
-      "name": "Private alone",
+      "legacy_name": "Private alone",
       "contest": null,
       "author":1002,
       "short_name": "priv",

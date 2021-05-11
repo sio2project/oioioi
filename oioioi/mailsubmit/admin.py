@@ -1,9 +1,12 @@
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import ContestAdmin, ProblemNameListFilter, contest_site
+from oioioi.contests.admin import (
+    ContestAdmin,
+    ContestsProblemNameListFilter,
+    contest_site,
+)
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
 from oioioi.mailsubmit.models import MailSubmission, MailSubmissionConfig
@@ -52,7 +55,7 @@ class MailSubmissionAdmin(admin.ModelAdmin):
         'accepted_by',
     ]
     list_display_links = None
-    list_filter = [ProblemNameListFilter]
+    list_filter = [ContestsProblemNameListFilter]
     date_hierarchy = 'date'
     actions = ['accept_action']
     search_fields = ['user__username', 'user__last_name']

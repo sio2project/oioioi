@@ -7,6 +7,8 @@ from functools import partial
 
 import pytz
 import six
+from six.moves import zip
+
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import AnonymousUser, User
@@ -19,9 +21,6 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
 from django.utils.timezone import utc
-from rest_framework.test import APITestCase
-from six.moves import zip
-
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
@@ -69,6 +68,7 @@ from oioioi.simpleui.views import (
 from oioioi.teachers.views import (
     contest_dashboard_redirect as teachers_contest_dashboard,
 )
+from rest_framework.test import APITestCase
 
 
 class TestModels(TestCase):
@@ -1816,7 +1816,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertNotContains(response, 'id_visibility')
         self.assertIn('field-visibility', html[pos:pos2])
         self.assertIn('field-author', html[pos:pos2])
-        self.assertIn('field-name', html[pos:pos2])
+        self.assertIn('field-legacy_name', html[pos:pos2])
         self.assertIn('field-short_name', html[pos:pos2])
         self.assertIn('field-controller_name', html[pos:pos2])
         self.assertIn('field-package_backend_name', html[pos:pos2])
@@ -1829,7 +1829,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, 'problemsite-group')
         self.assertNotContains(response, 'test_run_config-group')
         self.assertContains(response, 'libraryproblemdata-group')
-        self.assertContains(response, 'inline-group', 6)
+        self.assertContains(response, 'inline-group', 7)
 
     def test_probleminstance_admin(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))

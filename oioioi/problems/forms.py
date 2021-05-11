@@ -141,20 +141,34 @@ class PackageFileReuploadForm(forms.Form):
         self.fields[field_name].widget.attrs['data-submit'] = 'always'
 
 
+def _localized_formset_get_initial(localized_objects):
+    return [
+        {'language': lang[0]}
+        for lang in settings.LANGUAGES
+        if not localized_objects.filter(language=lang[0]).exists()
+    ]
+
+
+def _localized_formset_make_all_languages_obligatory(self):
+    self.min_num = self.max_num = len(settings.LANGUAGES)
+    for form in self.forms:
+        form.empty_permitted = False
+
+
+class ProblemNameInlineFormSet(forms.models.BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        kwargs['initial'] = _localized_formset_get_initial(kwargs['instance'].names)
+        super(ProblemNameInlineFormSet, self).__init__(*args, **kwargs)
+        _localized_formset_make_all_languages_obligatory(self)
+
+
 class LocalizationFormset(forms.models.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
-        kwargs['initial'] = [
-            {'language': lang[0]}
-            for lang in settings.LANGUAGES
-            if not kwargs['instance'].localizations.filter(language=lang[0]).exists()
-        ]
+        kwargs['initial'] = _localized_formset_get_initial(
+            kwargs['instance'].localizations
+        )
         super(LocalizationFormset, self).__init__(*args, **kwargs)
-
-        self.min_num = len(settings.LANGUAGES)
-        self.max_num = len(settings.LANGUAGES)
-
-        for form in self.forms:
-            form.empty_permitted = False
+        _localized_formset_make_all_languages_obligatory(self)
 
 
 class OriginInfoValueForm(forms.ModelForm):

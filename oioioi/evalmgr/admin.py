@@ -2,13 +2,14 @@ import functools
 
 from django.contrib.admin import SimpleListFilter
 from django.db import transaction
+from django.db.models import F, OuterRef
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base import admin
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.utils import make_html_link
+from oioioi.base.utils.filters import ProblemNameListFilter
 from oioioi.contests.admin import contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
@@ -43,28 +44,12 @@ class UserListFilter(SimpleListFilter):
             return queryset
 
 
-class ProblemNameListFilter(SimpleListFilter):
-    title = _("problem")
-    parameter_name = 'pi'
-
-    def lookups(self, request, model_admin):
-        # Unique problem names
-        p_names = list(
-            set(
-                QueuedJob.objects.filter(
-                    submission__problem_instance__contest=request.contest
-                ).values_list('submission__problem_instance__problem__name', flat=True)
-            )
-        )
-        return [(x, x) for x in p_names]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(
-                submission__problem_instance__problem__name=self.value()
-            )
-        else:
-            return queryset
+class EvalMgrProblemNameListFilter(ProblemNameListFilter):
+    initial_query_manager = QueuedJob.objects
+    contest_field = F('submission__problem_instance__contest')
+    related_names = 'submission__problem_instance__problem__names'
+    legacy_name_field = F('submission__problem_instance__problem__legacy_name')
+    outer_ref = OuterRef('submission__problem_instance__problem__pk')
 
 
 def _require_submission(function):
@@ -107,7 +92,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         'creation_date',
         'celery_task_id',
     ]
-    list_filter = ['state', ProblemNameListFilter]
+    list_filter = ['state', EvalMgrProblemNameListFilter]
     actions = ['remove_from_queue', 'delete_selected']
 
     def __init__(self, *args, **kwargs):

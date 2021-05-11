@@ -2,11 +2,12 @@ import threading
 from functools import partial
 
 import six.moves.urllib.parse
+
 from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
-from django.db.models import Q, Value
+from django.db.models import F, OuterRef, Q, Value
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
 from django.forms.models import modelform_factory
@@ -17,10 +18,10 @@ from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
-
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
 from oioioi.base.utils import make_html_link, make_html_links
+from oioioi.base.utils.filters import ProblemNameListFilter
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.current_contest import set_cc_id
 from oioioi.contests.forms import (
@@ -545,29 +546,12 @@ class ProblemFilter(AllValuesFieldListFilter):
     title = _("problem")
 
 
-class ProblemNameListFilter(SimpleListFilter):
-    title = _("problem")
-    parameter_name = 'pi'
-
-    def lookups(self, request, model_admin):
-        p_names = []
-        # Unique problem names
-        if request.contest:
-            p_names = list(
-                set(
-                    ProblemInstance.objects.filter(contest=request.contest).values_list(
-                        'problem__name', flat=True
-                    )
-                )
-            )
-
-        return sorted([(x, x) for x in p_names], key=lambda s: s[0].lower())
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(problem_instance__problem__name=self.value())
-        else:
-            return queryset
+class ContestsProblemNameListFilter(ProblemNameListFilter):
+    initial_query_manager = Submission.objects
+    contest_field = F('problem_instance__contest')
+    related_names = 'problem_instance__problem__names'
+    legacy_name_field = F('problem_instance__problem__legacy_name')
+    outer_ref = OuterRef('problem_instance__problem__pk')
 
 
 class SubmissionKindListFilter(SimpleListFilter):
@@ -674,7 +658,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def get_list_filter(self, request):
         list_filter = [
-            ProblemNameListFilter,
+            ContestsProblemNameListFilter,
             ContestListFilter,
             SubmissionKindListFilter,
             'status',

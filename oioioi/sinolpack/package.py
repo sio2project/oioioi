@@ -10,14 +10,14 @@ import zipfile
 
 import chardet
 import six
+from six.moves import filter, map
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
-from six.moves import filter, map
-
 from oioioi.base.utils import generate_key, naturalsort_key
 from oioioi.base.utils.archive import Archive
 from oioioi.base.utils.execute import ExecuteError, execute
@@ -339,7 +339,7 @@ class SinolPackage(object):
             author = None
 
         return Problem.create(
-            name=self.short_name,
+            legacy_name=self.short_name,
             short_name=self.short_name,
             controller_name=self.controller_name,
             contest=self.package.contest,
@@ -430,7 +430,7 @@ class SinolPackage(object):
         \title{A problem}
         """
         if 'title' in self.config:
-            self.problem.name = self.config['title']
+            self.problem.legacy_name = self.config['title']
             self.problem.save()
             return
 
@@ -439,7 +439,7 @@ class SinolPackage(object):
             text = open(source, 'rb').read()
             r = re.search(br'^[^%]*\\title{(.+)}', text, re.MULTILINE)
             if r is not None:
-                self.problem.name = _decode(r.group(1), text)
+                self.problem.legacy_name = _decode(r.group(1), text)
                 self.problem.save()
 
     @_describe_processing_error

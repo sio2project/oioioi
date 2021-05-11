@@ -309,7 +309,7 @@
          "author" : 1,
          "main_problem_instance" : 1,
          "ascii_name" : "hel",
-         "name" : "hel",
+         "legacy_name" : "hel",
          "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
          "visibility" : "PU"
       }
@@ -320,7 +320,7 @@
          "author" : 1,
          "main_problem_instance" : 3,
          "ascii_name" : "sum",
-         "name" : "sum",
+         "legacy_name" : "sum",
          "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
          "visibility" : "PU",
          "short_name" : "sum",
@@ -336,7 +336,7 @@
          "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
          "visibility" : "PU",
          "ascii_name" : "sim",
-         "name" : "sim",
+         "legacy_name" : "sim",
          "short_name" : "sim",
          "controller_name" : "oioioi.sinolpack.controllers.SinolProblemController",
          "contest" : null

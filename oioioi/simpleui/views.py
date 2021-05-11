@@ -174,6 +174,7 @@ def contest_dashboard_view(request, round_pk=None):
             'problem_instance__round',
             'problem_instance__problem',
         )
+        .prefetch_related('problem_instance__problem__names')
     )
 
     ss = [
