@@ -154,8 +154,9 @@ class Command(BaseCommand):
                         )
                     except NameError:
                         pass
-                # This will import .pythonrc.py as a side-effect
-                import user  # NOQA
+                if six.PY2:
+                    # This will import .pythonrc.py as a side-effect
+                    import user  # NOQA
             code.interact(local=imported_objects)
 
         def run_bpython():
