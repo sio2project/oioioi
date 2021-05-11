@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 
 from oioioi.participants.models import Participant
-from oioioi.usergroups.models import UserGroup
+from oioioi.usergroups.models import UserGroup, UserGroupRanking
 
 
 # If the requested usergroup does not exist then we return false.
@@ -50,3 +50,13 @@ def move_members_to_usergroup(contest, usergroup):
     users = User.objects.filter(participant__contest__id=contest.id)
     usergroup.members.add(*list(users))
     Participant.objects.filter(contest=contest, user__in=users).delete()
+
+
+def remove_usergroup_ranking(contest, usergroup):
+    try:
+        instance = UserGroupRanking.objects.get(
+            contest_id=contest.id, user_group_id=usergroup.id
+        )
+        instance.delete()
+    except UserGroupRanking.DoesNotExist:
+        pass

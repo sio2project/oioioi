@@ -21,6 +21,7 @@ from oioioi.usergroups.utils import (
     is_usergroup_attached,
     is_usergroup_owner,
     move_members_to_usergroup,
+    remove_usergroup_ranking,
 )
 
 
@@ -378,6 +379,7 @@ def detach_from_contest_view(request, usergroup_id):
         if convert_to_members:
             add_usergroup_to_members(request.contest, usergroup)
         usergroup.contests.remove(request.contest)
+        remove_usergroup_ranking(request.contest, usergroup)
 
         messages.info(
             request, _("The group was successfully detached from the contest!")

@@ -171,6 +171,7 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
         formsets = (
             ('round_set', 1, 1, 0, 1000),
             ('c_attachments', 0, 0, 0, 1000),
+            ('usergroupranking_set', 0, 0, 0, 1000),
             ('contestlink_set', 0, 0, 0, 1000),
             ('messagenotifierconfig_set', 0, 0, 0, 1000),
             ('mail_submission_config', 0, 0, 0, 1),

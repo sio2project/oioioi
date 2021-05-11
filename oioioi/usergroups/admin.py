@@ -8,7 +8,8 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.menu import personal_menu_registry
 from oioioi.base.permissions import is_superuser
-from oioioi.usergroups.models import UserGroup
+from oioioi.usergroups.models import UserGroup, UserGroupRanking
+from oioioi.contests.admin import ContestAdmin, NO_CATEGORY
 
 
 def get_user_name_and_login_bounded(self, user):
@@ -55,3 +56,27 @@ personal_menu_registry.register(
     lambda request: request.user.has_perm('teachers.teacher'),
     order=20,
 )
+
+
+class UserGroupRankingInline(admin.StackedInline):
+    model = UserGroupRanking
+    extra = 0
+    category = NO_CATEGORY
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'user_group':
+            kwargs['queryset'] = UserGroup.objects.filter(
+                contests=request.contest
+            )
+        return super(UserGroupRankingInline, self).formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
+
+
+class UserGroupRankingsContestAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(UserGroupRankingsContestAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [UserGroupRankingInline]
+
+
+ContestAdmin.mix_in(UserGroupRankingsContestAdminMixin)

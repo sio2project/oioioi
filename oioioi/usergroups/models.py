@@ -17,7 +17,7 @@ check_django_app_dependencies(__name__, ['oioioi.teachers'])
 
 @python_2_unicode_compatible
 class UserGroup(models.Model):
-    """ Group of user which can be moved around contests by teachers """
+    """Group of user which can be moved around contests by teachers"""
 
     name = models.CharField(max_length=255, verbose_name=_("name"))
     owners = models.ManyToManyField(User, related_name='owned_usergroups')
@@ -75,3 +75,14 @@ def delete_isolated_configs(instance, **kwargs):
 
 
 post_delete.connect(receiver=delete_isolated_configs, sender=UserGroup)
+
+
+class UserGroupRanking(models.Model):
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    user_group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
+
+    class Meta(object):
+        unique_together = ('contest', 'user_group')
+
+    def __str__(self):
+        return six.text_type(self.user_group.name)

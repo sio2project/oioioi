@@ -2,6 +2,9 @@ from django.contrib.auth.models import User
 from django.test import RequestFactory
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.test.utils import override_settings
+from django.core.management import call_command
+
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
@@ -10,6 +13,7 @@ from oioioi.participants.models import Participant
 from oioioi.teachers.tests import change_contest_type
 from oioioi.usergroups import utils
 from oioioi.usergroups.models import ActionConfig, UserGroup
+from oioioi.rankings.models import Ranking
 
 
 class TestAdmin(TestCase):
@@ -558,3 +562,84 @@ class TestContestRegistrationWithUsergroups(TestCase):
         response = self.client.get(url)
 
         self.assertNotContains(response, "Create new group from members below")
+
+
+class TestUserGroupRankings(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_rounds',
+        'test_ranking_data',
+        'test_permissions',
+        'test_usergroups_rankings',
+    ]
+
+    def test_ranking_view(self):
+        contest = Contest.objects.get(id='c')
+
+        # There are two users in the contest.
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+
+        response = self.client.get(url)
+        self.assertContains(response, 'Test User')
+        self.assertContains(response, 'Test User 2')
+
+        # User group ranking. There are two users in the contest, but only one in this group.
+        url = reverse('ranking', kwargs={'contest_id': contest.id, 'key': 'g2001'})
+
+        # Log in as user in the user group.
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url)
+        self.assertContains(response, 'Test User')
+        self.assertNotContains(response, 'Test User 2')
+        for problem_name in ['zad1', 'zad2', 'zad3', 'zad4']:
+            self.assertContains(response, problem_name)
+
+        # Admin can see everything.
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(url)
+        self.assertContains(response, 'Test User')
+        self.assertNotContains(response, 'Test User 2')
+
+        # Log in as user not in the user group.
+        self.assertTrue(self.client.login(username='test_user2'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class RemoveUserGroupRankingsTest(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_rounds',
+        'test_ranking_data',
+        'test_permissions',
+        'test_usergroups_rankings',
+    ]
+
+    @override_settings(MOCK_RANKINGSD=False)
+    def test_command(self):
+        contest = Contest.objects.get(id='c')
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        url1 = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        url2 = reverse('ranking', kwargs={'contest_id': contest.id, 'key': 'g2001'})
+
+        # Create rankings, one normal and one user group.
+        self.client.get(url1)
+        self.client.get(url2)
+
+        rankings = Ranking.objects.all()
+        self.assertEqual(len(rankings), 2)
+
+        call_command('remove_user_group_rankings')
+
+        rankings = Ranking.objects.all()
+        self.assertEqual(len(rankings), 1)
