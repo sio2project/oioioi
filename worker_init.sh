@@ -13,6 +13,7 @@ echo "LOG: Launching worker at `hostname`"
 export FILETRACKER_URL="http://web:9999"
 exec python2 $(which twistd) --nodaemon --pidfile=/home/oioioi/worker.pid \
         -l /sio2/deployment/logs/worker`hostname`.log worker \
+        --can-run-cpu-exec \
         -n worker`hostname` -c 2 web \
         > /sio2/deployment/logs/twistd_worker.out \
         2> /sio2/deployment/logs/twistd_worker.err
