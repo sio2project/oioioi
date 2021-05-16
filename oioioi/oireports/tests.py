@@ -1,11 +1,10 @@
 from datetime import datetime  # pylint: disable=E0611
 
-from django import VERSION as DJANGO_VERSION
+from six import BytesIO
+
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.timezone import utc
-from six import BytesIO
-
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.models import Contest
@@ -117,7 +116,4 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2016, 11, 6, tzinfo=utc)):
             response = self.client.get(url)
-            if DJANGO_VERSION < (1, 11):
-                self.assertContains(response, 'selected="selected">Past round')
-            else:
-                self.assertContains(response, 'selected>Past round')
+            self.assertContains(response, 'selected>Past round')

@@ -3,7 +3,6 @@ from django.conf import settings
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
@@ -55,15 +54,6 @@ def main_page_view(request):
     show_scores = False
     if request.user.is_authenticated:
         queryset = Submission.objects.filter(user=request.user).order_by('-date')
-
-        # current_contest = request.contest
-        #
-        # for s in queryset:
-        #     request.contest = "lakdnasdn"#s.problem_instance.contest
-        #     submissions.append(submission_template_context(request, s))
-        #
-        # request.contest = current_contest
-
         to_show = getattr(settings, 'NUM_PANEL_SUBMISSIONS', 7)
 
         # limit queryset size, because filtering all submissions is slow
@@ -77,17 +67,12 @@ def main_page_view(request):
             'problem_instance__problem',
         )
 
-        submissions_list = filter_my_all_visible_submissions(request, queryset)
-
-        if django.VERSION >= (1, 11):
-            submissions_list = submissions_list.order_by('-date')
-        else:
-            submissions_list.sort(reverse=True, key=lambda s: s.date)
-
+        submissions_list = filter_my_all_visible_submissions(
+            request, queryset
+        ).order_by('-date')
         submissions = [
             submission_template_context(request, s) for s in submissions_list
         ]
-
         show_scores = any(s['can_see_score'] for s in submissions)
 
     context = {

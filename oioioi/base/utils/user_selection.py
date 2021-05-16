@@ -1,5 +1,6 @@
-import django
 import six
+
+import django
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -8,7 +9,6 @@ from django.db.models import Q
 from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-
 from oioioi.base.utils import jsonify
 
 INVALID_USER_SELECTION = '__invalid_user_selection__'
@@ -125,12 +125,7 @@ class UserSelectionWidget(forms.TextInput):
         super(UserSelectionWidget, self).__init__(attrs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        # in Django <1.11 there is no attribute 'renderer'
-        if django.VERSION < (1, 11):
-            html = super(UserSelectionWidget, self).render(name, value, attrs)
-        else:
-            html = super(UserSelectionWidget, self).render(name, value, attrs, renderer)
-
+        html = super(UserSelectionWidget, self).render(name, value, attrs, renderer)
         html += mark_safe(
             self.html_template
             % {

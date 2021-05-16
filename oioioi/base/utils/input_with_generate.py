@@ -25,13 +25,7 @@ class TextInputWithGenerate(forms.TextInput):
             id = 'id'
         id += '_input-with-generate'
 
-        # in Django <1.11 there is no attribute 'renderer'
-        if django.VERSION < (1, 11):
-            html = super(TextInputWithGenerate, self).render(name, value, attrs)
-        else:
-            html = super(TextInputWithGenerate, self).render(
-                name, value, attrs, renderer
-            )
+        html = super(TextInputWithGenerate, self).render(name, value, attrs, renderer)
 
         html = mark_safe(self.html_template.format(id=id, input_html=html))
         return html

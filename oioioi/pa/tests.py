@@ -3,7 +3,8 @@ from datetime import datetime  # pylint: disable=E0611
 
 import six
 import six.moves.urllib.parse
-from django import VERSION as DJANGO_VERSION
+from six.moves import map, range, zip
+
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
@@ -11,8 +12,6 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import utc
-from six.moves import map, range, zip
-
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import (
     Contest,
@@ -378,11 +377,7 @@ class TestPADivisions(TestCase):
 
         response = self.client.get(url)
         # "NONE" is the default division
-        if DJANGO_VERSION < (1, 11):
-            # 1.11
-            self.assertContains(response, '<option value="NONE" selected="selected">')
-        else:
-            self.assertContains(response, '<option value="NONE" selected>None</option>')
+        self.assertContains(response, '<option value="NONE" selected>None</option>')
 
         data = {
             'package_file': ContentFile('eloziom', name='foo'),
@@ -402,11 +397,7 @@ class TestPADivisions(TestCase):
             + six.moves.urllib.parse.urlencode({'problem': problem.id, 'key': 'upload'})
         )
         response = self.client.get(url)
-        if DJANGO_VERSION < (1, 11):
-            # 1.11
-            self.assertContains(response, '<option value="A" selected="selected">')
-        else:
-            self.assertContains(response, '<option value="A" selected>A</option>')
+        self.assertContains(response, '<option value="A" selected>A</option>')
 
 
 class TestPAContestInfo(TestCase):

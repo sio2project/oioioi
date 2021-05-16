@@ -4,7 +4,6 @@ import datetime
 import shutil
 import tempfile
 
-from django import VERSION as DJANGO_VERSION
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db.models.fields.files import FieldFile, FileField
@@ -12,7 +11,6 @@ from django.urls import reverse
 from django.utils import timezone
 from filetracker.client import Client as FiletrackerClient
 from filetracker.client.dummy import DummyClient
-
 from oioioi.base.tests import TestCase
 from oioioi.filetracker.models import FileTestModel
 from oioioi.filetracker.storage import FiletrackerStorage
@@ -51,14 +49,6 @@ class TestFileField(TestCase):
             self.assertEqual(storage.save(path, ContentFile(data)), path)
 
             model = FileTestModel()
-            if DJANGO_VERSION < (1, 11):
-                # File field is ignoring preferred name, as we can't copy file
-                # in filetracker to another location
-                with self.assertRaises(NotImplementedError):
-                    model.file_field.save(
-                        'xx', filetracker_to_django_file(abspath, storage)
-                    )
-
             model.file_field = filetracker_to_django_file(abspath, storage)
             model.save()
             self.assertEqual(model.file_field.name, path)

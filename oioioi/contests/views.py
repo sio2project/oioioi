@@ -14,7 +14,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 from django.views.decorators.http import require_POST
-
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
@@ -309,13 +308,9 @@ def all_submissions_view(request):
             'problem_instance__problem',
         )
 
-        submissions_list = filter_my_all_visible_submissions(request, queryset)
-
-        if django.VERSION >= (1, 11):
-            submissions_list = submissions_list.order_by('-date')
-        else:
-            submissions_list.sort(reverse=True, key=lambda s: s.date)
-
+        submissions_list = filter_my_all_visible_submissions(
+            request, queryset
+        ).order_by('-date')
         for s in submissions_list:
             request.contest = s.problem_instance.contest
             submissions.append(submission_template_context(request, s))

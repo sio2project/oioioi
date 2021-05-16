@@ -5,13 +5,12 @@ import tempfile
 import warnings
 
 import six
-from django import VERSION as DJANGO_VERSION
+
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files import File
 from django.core.files.storage import Storage
 from django.urls import reverse
 from django.utils import timezone
-
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.filename import FiletrackerFilename
 from oioioi.filetracker.utils import FileInFiletracker
@@ -64,20 +63,10 @@ class FiletrackerStorage(Storage):
             and os.path.isfile(content.file.name)
         ):
             filename = content.file.name
-        elif DJANGO_VERSION < (1, 11) and isinstance(
-            getattr(content, 'file', None), FileInFiletracker
-        ):
-            # This happens when used with field assignment
-            # We are ignoring suggested name, as copying files in filetracker
-            # isn't implemented
-            return content.file.name
         elif isinstance(content, FileInFiletracker):
             # This happens when file_field.save(path, file) is called
             # explicitly
-            if DJANGO_VERSION < (1, 11):
-                raise NotImplementedError("Filename cannot be changed")
-            else:
-                return content.name
+            return content.name
         else:
             f = tempfile.NamedTemporaryFile()
             for chunk in content.chunks():

@@ -21,12 +21,7 @@ class ColorWidget(forms.TextInput):
         js = ('js/jquery.colorPicker.js',)
 
     def render(self, name, value, attrs=None, renderer=None):
-        # in Django <1.11 there is no attribute 'renderer'
-        if django.VERSION < (1, 11):
-            html = super(ColorWidget, self).render(name, value, attrs)
-        else:
-            html = super(ColorWidget, self).render(name, value, attrs, renderer)
-
+        html = super(ColorWidget, self).render(name, value, attrs, renderer)
         return html + mark_safe(
             u'''<script type="text/javascript">
             $('#id_%s').colorPicker();

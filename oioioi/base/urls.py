@@ -1,18 +1,11 @@
-from django import VERSION as DJANGO_VERSION
 from django.conf import settings
 from django.conf.urls import include, url
+from oioioi.base import admin, api, views
+from oioioi.base.main_page import main_page_view
 from rest_framework.documentation import include_docs_urls
 from two_factor.urls import urlpatterns as tf_urls
 
-from oioioi.base import admin, api, views
-from oioioi.base.main_page import main_page_view
-
 app_name = 'base'
-
-if DJANGO_VERSION < (1, 11):
-    # in django_two_factor_auth 1.7 urlpatterns become a tuple
-    # and presumably break things
-    assert type(tf_urls) != tuple
 
 urlpatterns = [
     url(r'', include((tf_urls, 'two_factor'))),
