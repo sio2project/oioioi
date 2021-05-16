@@ -2636,6 +2636,7 @@ class TestProblemsetFilters(TestCase):
                     self.assertNotContains(response, problem)
 
 
+@pytest.mark.skip(reason="Migrations have already been applied at the production")
 class TestVisibilityMigration(TestCaseMigrations):
     migrate_from = '0013_newtags'
     migrate_to = '0016_visibility_part3'
@@ -2656,6 +2657,7 @@ class TestVisibilityMigration(TestCaseMigrations):
         )
 
 
+@pytest.mark.skip(reason="Migrations have already been applied at the production")
 class TestVisibilityMigrationReverse(TestCaseMigrations):
     migrate_from = '0016_visibility_part3'
     migrate_to = '0013_newtags'

@@ -3,7 +3,11 @@ import re
 from collections import defaultdict
 from datetime import datetime  # pylint: disable=E0611
 
+import pytest
 import six
+from six import unichr
+from six.moves import map, range, urllib, zip
+
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
@@ -15,9 +19,6 @@ from django.urls import reverse
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
-from six import unichr
-from six.moves import map, range, urllib, zip
-
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import (
     TestCase,
@@ -1701,6 +1702,7 @@ class TestCompiler(TestCase):
             check_compilers_config()
 
 
+@pytest.mark.skip(reason="Migrations have already been applied at the production")
 class TestMaxScoreMigration(TestCaseMigrations):
     migrate_from = '0012_testreport_max_score'
     migrate_to = '0014_remove_testreport_test_max_score'
