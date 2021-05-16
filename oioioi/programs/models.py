@@ -330,7 +330,7 @@ class ReportActionsConfig(models.Model):
     can_user_generate_outs = models.BooleanField(
         default=False,
         verbose_name=_(
-            "Allow users to generate their outs on tests " "from visible reports."
+            "Allow users to generate their outs on tests from visible reports."
         ),
     )
 

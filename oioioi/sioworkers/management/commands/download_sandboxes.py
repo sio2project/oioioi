@@ -28,7 +28,7 @@ class Command(BaseCommand):
             metavar='URL',
             dest='manifest_url',
             default=DEFAULT_SANDBOXES_MANIFEST,
-            help="Specifies URL with the Manifest file listing available " "sandboxes",
+            help="Specifies URL with the Manifest file listing available sandboxes",
         )
         parser.add_argument(
             '-c',
@@ -44,7 +44,7 @@ class Command(BaseCommand):
             metavar='DIR',
             dest='download_dir',
             default="sandboxes-download",
-            help="Temporary directory where the downloaded files will be " "stored",
+            help="Temporary directory where the downloaded files will be stored",
         )
         parser.add_argument(
             '--wget',
@@ -80,7 +80,7 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def display_license(self, license):
-        print("\nThe sandboxes are accompanied with a " "license:\n", file=self.stdout)
+        print("\nThe sandboxes are accompanied with a license:\n", file=self.stdout)
         self.stdout.write(license)
         msg = "\nDo you accept the license? (yes/no):"
         confirm = input(msg)
@@ -131,7 +131,7 @@ class Command(BaseCommand):
                     continue
             if arg not in manifest:
                 raise CommandError(
-                    "Sandbox '%s' not available (not in " "Manifest)" % (arg,)
+                    "Sandbox '%s' not available (not in Manifest)" % (arg,)
                 )
             urls.append(six.moves.urllib.parse.urljoin(manifest_url, basename))
 
@@ -176,7 +176,7 @@ class Command(BaseCommand):
             os.rmdir(download_dir)
         except OSError:
             print(
-                "--- Done, but couldn't remove the " "downloads directory.",
+                "--- Done, but couldn't remove the downloads directory.",
                 file=self.stdout,
             )
         else:

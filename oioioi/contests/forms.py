@@ -192,7 +192,7 @@ class SubmissionForm(forms.Form):
                     return user
                 except User.DoesNotExist:
                     raise forms.ValidationError(
-                        _("User does not exist or " "you do not have enough privileges")
+                        _("User does not exist or you do not have enough privileges")
                     )
 
             self.clean_user = clean_user
@@ -287,7 +287,7 @@ class SubmissionForm(forms.Form):
             self.request, pi, kind
         ):
             raise ValidationError(
-                _("Submission limit for the problem '%s' " "exceeded.")
+                _("Submission limit for the problem '%s' exceeded.")
                 % pi.problem.name
             )
 
@@ -333,7 +333,7 @@ class TestsSelectionForm(forms.Form):
         self.fields['rejudge_type'] = forms.ChoiceField(widget=widget)
         if uses_is_active:
             self.fields['rejudge_type'].choices = [
-                ('FULL', _("Rejudge submissions on all current active " "tests")),
+                ('FULL', _("Rejudge submissions on all current active tests")),
                 (
                     'NEW',
                     _(

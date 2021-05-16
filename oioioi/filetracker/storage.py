@@ -168,7 +168,7 @@ class FiletrackerStorage(Storage):
 
     def path(self, name):
         raise NotImplementedError(
-            "File is in Filetracker, cannot get its" " local path"
+            "File is in Filetracker, cannot get its local path"
         )
 
     def listdir(self, path):

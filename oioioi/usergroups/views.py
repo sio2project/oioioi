@@ -324,7 +324,7 @@ def delete_owners_view(request, usergroup_id):
     if selected_owners.filter(id=request.user.id).exists():
         messages.error(
             request,
-            _("You cannot renounce ownership. " "Consider deleting group instead."),
+            _("You cannot renounce ownership. Consider deleting group instead."),
         )
     else:
         group.owners.remove(*list(selected_owners))

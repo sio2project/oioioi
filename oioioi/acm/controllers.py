@@ -371,7 +371,7 @@ class NotificationsMixinForACMContestController(object):
             )
         else:
             return ugettext_noop(
-                "Your submission for task %(short_name)s" " is not accepted."
+                "Your submission for task %(short_name)s is not accepted."
             )
 
 

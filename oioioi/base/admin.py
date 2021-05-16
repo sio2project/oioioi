@@ -111,7 +111,7 @@ class ModelAdmin(
 
         if obj is None:
             raise Http404(
-                _("%(name)s object with primary key %(key)r does " "not exist.")
+                _("%(name)s object with primary key %(key)r does not exist.")
                 % {'name': force_text(opts.verbose_name), 'key': escape(object_id)}
             )
 
@@ -121,7 +121,7 @@ class ModelAdmin(
             self.delete_model(request, obj)
             self.message_user(
                 request,
-                _("The %(name)s \"%(obj)s\" was " "deleted successfully.")
+                _("The %(name)s \"%(obj)s\" was deleted successfully.")
                 % {
                     'name': force_text(opts.verbose_name),
                     'obj': force_text(obj_display),

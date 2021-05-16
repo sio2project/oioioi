@@ -30,7 +30,7 @@ class AddTeacherForm(forms.ModelForm):
     message = forms.CharField(
         label=_("Message"),
         help_text=_(
-            "Optional. If provided, this message will be sent " "to the managers."
+            "Optional. If provided, this message will be sent to the managers."
         ),
         required=False,
         widget=forms.Textarea(attrs={'rows': 10}),

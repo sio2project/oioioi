@@ -14,7 +14,7 @@ check_django_app_dependencies(__name__, ['oioioi.participants'])
 
 if 'oioioi.teachers.auth.TeacherAuthBackend' not in settings.AUTHENTICATION_BACKENDS:
     raise ImproperlyConfigured(
-        "When using teacher module " "you have to activate TeacherAuthBackend"
+        "When using teacher module you have to activate TeacherAuthBackend"
     )
 
 

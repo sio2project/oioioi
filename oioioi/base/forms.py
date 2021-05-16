@@ -188,7 +188,7 @@ class OioioiUserChangeForm(UserChangeForm):
 class OioioiPasswordResetForm(PasswordResetForm):
     error_messages = {
         'unknown': _(
-            "That email address doesn't have an associated local " "user account."
+            "That email address doesn't have an associated local user account."
         ),
     }
 

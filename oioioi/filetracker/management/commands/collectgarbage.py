@@ -36,7 +36,7 @@ class Command(BaseCommand):
             dest='pretend',
             default=False,
             help=_(
-                "If set, the orphaned files will only be " "displayed, not deleted."
+                "If set, the orphaned files will only be displayed, not deleted."
             ),
         )
 
@@ -84,8 +84,8 @@ class Command(BaseCommand):
             if int(options['verbosity']) > 1:
                 print(
                     ungettext(
-                        "The following %d file is scheduled for " "deletion:",
-                        "The following %d files are scheduled for " "deletion:",
+                        "The following %d file is scheduled for deletion:",
+                        "The following %d files are scheduled for deletion:",
                         files_count,
                     )
                     % files_count

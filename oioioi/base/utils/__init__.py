@@ -299,7 +299,7 @@ class ObjectWithMixins(ClassInitBase):
         assert cls.__unmixed_class__ is cls
         assert (
             cls.allow_too_late_mixins or '_has_instances' not in cls.__dict__
-        ), "Adding mixin %r to %r too late. The latter already has " "instances." % (
+        ), "Adding mixin %r to %r too late. The latter already has instances." % (
             mixin,
             cls,
         )

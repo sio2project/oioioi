@@ -27,7 +27,7 @@ class RemoteProblemForm(ProblemUploadForm):
                 break
         else:
             raise forms.ValidationError(
-                _("Only sites from the list below are " "acceptable")
+                _("Only sites from the list below are acceptable")
             )
 
         try:
@@ -42,7 +42,7 @@ class RemoteProblemForm(ProblemUploadForm):
                 raise forms.ValidationError(_("Not a task URL"))
             else:
                 raise forms.ValidationError(
-                    _("Cannot connect to external " "site: %s") % (e,)
+                    _("Cannot connect to external site: %s") % (e,)
                 )
         except Exception as e:
             raise forms.ValidationError(_("Invalid server response: %s") % (e,))

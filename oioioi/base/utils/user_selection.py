@@ -113,7 +113,7 @@ def _parse_user_hint(value, queryset=None, user_field_name=None):
 
 class UserSelectionWidget(forms.TextInput):
     html_template = (
-        "<script>" "init_user_selection('%(id)s', %(num_hints)s)" "</script>"
+        "<script>init_user_selection('%(id)s', %(num_hints)s)</script>"
     )
 
     def __init__(self, attrs=None):

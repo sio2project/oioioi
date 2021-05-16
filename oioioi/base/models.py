@@ -54,7 +54,7 @@ class Consents(models.Model):
 @receiver(post_save, sender=Consents)
 def _log_consent_change(sender, instance, created, raw, **kwargs):
     auditLogger.info(
-        "User %d (%s) consents changed: " "terms: %s marketing: %s partner: %s",
+        "User %d (%s) consents changed: terms: %s marketing: %s partner: %s",
         instance.user.id,
         instance.user.username,
         instance.terms_accepted,

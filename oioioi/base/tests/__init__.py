@@ -110,7 +110,7 @@ class FakeTimeMiddleware(object):
     def _process_request(self, request):
         if not hasattr(request, 'timestamp'):
             raise ImproperlyConfigured(
-                "FakeTimeMiddleware must go after " "TimestampingMiddleware"
+                "FakeTimeMiddleware must go after TimestampingMiddleware"
             )
         fake_timestamp = getattr(self._fake_timestamp, 'value', None)
         if fake_timestamp:

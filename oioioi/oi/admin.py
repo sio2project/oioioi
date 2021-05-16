@@ -118,7 +118,7 @@ class SchoolAdmin(admin.ModelAdmin):
             s.delete()
 
     merge_action.short_description = _(
-        "Merge all selected, unapproved" " schools into the approved one"
+        "Merge all selected, unapproved schools into the approved one"
     )
 
 

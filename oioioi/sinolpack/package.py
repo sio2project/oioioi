@@ -777,7 +777,7 @@ class SinolPackage(object):
             for test_name, job in six.iteritems(jobs):
                 if job['result_code'] != 'OK':
                     raise ProblemPackageError(
-                        _("Inwer failed on test " "%(test)s. Inwer output %(output)s")
+                        _("Inwer failed on test %(test)s. Inwer output %(output)s")
                         % {'test': test_name, 'output': '\n'.join(job['stdout'])}
                     )
 

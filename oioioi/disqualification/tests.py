@@ -16,7 +16,7 @@ def _disqualify_contestwide():
         user=User.objects.get(username="test_user"),
         contest=Contest.objects.get(),
         title="I cannot tell!",
-        content="Suffice to say, is one of the words " "the Knights of Ni cannot hear!",
+        content="Suffice to say, is one of the words the Knights of Ni cannot hear!",
     )
     disqualification.save()
 

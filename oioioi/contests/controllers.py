@@ -1056,7 +1056,7 @@ class NotificationsMixinForContestController(object):
         """
         if submission.problem_instance.contest:
             message = ugettext_noop(
-                "%(contest_name)s, %(task_name)s: " "Your submission was judged.\n"
+                "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
             )
         else:
             message = ugettext_noop("%(task_name)s: Your submission was judged.\n")

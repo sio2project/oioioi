@@ -431,7 +431,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                 queryset = queryset.filter(kind__in=kind)
             else:
                 raise TypeError(
-                    "invalid type parameter kind in " "_activate_newest_report: %r",
+                    "invalid type parameter kind in _activate_newest_report: %r",
                     type(kind),
                 )
             latest = (

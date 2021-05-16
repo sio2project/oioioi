@@ -147,7 +147,7 @@ class OIOIOISeleniumTestCase(OIOIOISeleniumTestCaseBase):
                Tr[] count starts from 1, not 0!
         """
         return self.driver.find_element_by_xpath(
-            "//*[{}]/tbody/tr[{}]" "{}".format(table, n, search)
+            "//*[{}]/tbody/tr[{}]{}".format(table, n, search)
         )
 
     def get_from_result_table(self, search, n=1):
@@ -161,7 +161,7 @@ class OIOIOISeleniumTestCase(OIOIOISeleniumTestCaseBase):
             item = self.driver
         # pylint: disable=maybe-no-member
         return item.find_element_by_xpath(
-            "//button[@class='btn btn-primary' " "and text()='{}']".format(text)
+            "//button[@class='btn btn-primary' and text()='{}']".format(text)
         )
 
     @staticmethod

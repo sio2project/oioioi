@@ -87,7 +87,7 @@ def min_group_scorer(test_results):
     max_score = min(max_scores)
     if max_score != max(max_scores):
         raise UnequalMaxScores(
-            "Tests in one group cannot " "have different max scores."
+            "Tests in one group cannot have different max scores."
         )
 
     sorted_results = sorted(list(test_results.values()), key=itemgetter('order'))

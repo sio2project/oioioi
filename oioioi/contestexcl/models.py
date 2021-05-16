@@ -12,7 +12,7 @@ from oioioi.contests.models import Contest
 if settings.ONLY_DEFAULT_CONTEST:
     if settings.DEFAULT_CONTEST is None:
         raise ImproperlyConfigured(
-            "ONLY_DEFAULT_CONTEST is set, while no " "DEFAULT_CONTEST is set"
+            "ONLY_DEFAULT_CONTEST is set, while no DEFAULT_CONTEST is set"
         )
 
     # Models are imported on initialization and it is not possible
@@ -77,4 +77,4 @@ class ExclusivenessConfig(models.Model):
 
     def clean(self):
         if self.end_date is not None and self.start_date > self.end_date:
-            raise ValidationError(_("The start date should" " precede the end date"))
+            raise ValidationError(_("The start date should precede the end date"))

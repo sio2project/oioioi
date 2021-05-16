@@ -272,7 +272,7 @@ class Round(models.Model):
                 )
             if self.results_date > self.public_results_date:
                 raise ValidationError(
-                    _("Results cannot appear later than " "public results.")
+                    _("Results cannot appear later than public results.")
                 )
 
 

@@ -101,7 +101,7 @@ error_code_map = {
     'AUTHORIZATION_FAILED': "Token invalid or authorization failure",
     'NO_SUCH_PROBLEM': "File name does not match any of available problems.\n"
     "Available problems: %(data)s",
-    "INVALID_SUBMISSION": "Submission was not valid. " "Errors: %(data)s",
+    "INVALID_SUBMISSION": "Submission was not valid. Errors: %(data)s",
     "UNKNOWN_ERROR": "Unknown server error",
 }
 
@@ -114,7 +114,7 @@ def main():
         '-c',
         '--configure',
         action='store_true',
-        help="start interactive " "configuration",
+        help="start interactive configuration",
     )
     save_config_and_configure_group.add_argument(
         '-s',

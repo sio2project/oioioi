@@ -22,7 +22,7 @@ class Command(migrate.Command):
                 " to provide the absolute database file path\n"
             )
             self.stderr.write(
-                "To be honest - we recommend not to use SQLite3 " "in production\n"
+                "To be honest - we recommend not to use SQLite3 in production\n"
             )
             return
 

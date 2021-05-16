@@ -46,7 +46,7 @@ class Command(BaseCommand):
         fields = reader.fieldnames
         if fields != COLUMNS:
             raise CommandError(
-                _("Missing header or invalid columns: %(h)s." " Expected: %(col)s")
+                _("Missing header or invalid columns: %(h)s. Expected: %(col)s")
                 % {'h': ', '.join(fields), 'col': ', '.join(COLUMNS)}
             )
 
@@ -103,7 +103,7 @@ class Command(BaseCommand):
                                 )
                             else:
                                 self.stdout.write(
-                                    _("Line %(lineNum)s," " field %(field)s: %(msg)s\n")
+                                    _("Line %(lineNum)s, field %(field)s: %(msg)s\n")
                                     % {
                                         'lineNum': reader.line_num,
                                         'field': k,
@@ -119,5 +119,5 @@ class Command(BaseCommand):
                 )
             else:
                 raise CommandError(
-                    _("There were some errors." " Database not changed\n")
+                    _("There were some errors. Database not changed\n")
                 )

@@ -125,7 +125,7 @@ def accept_teacher_view(request, user_id):
             teacher.save()
             send_acceptance_email(request, teacher)
             messages.success(
-                request, _("Successfully accepted and emailed the" " new teacher.")
+                request, _("Successfully accepted and emailed the new teacher.")
             )
     return redirect('oioioiadmin:teachers_teacher_changelist')
 

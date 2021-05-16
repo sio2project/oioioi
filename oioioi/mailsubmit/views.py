@@ -74,7 +74,7 @@ def accept_mailsubmission_view(request, mailsubmission_id='', mailsubmission_has
         if form.is_valid():
             mailsubmission = form.cleaned_data['mailsubmission']
             if mailsubmission.submission is not None:
-                messages.info(request, _("Postal submission was already " "accepted"))
+                messages.info(request, _("Postal submission was already accepted"))
             else:
                 accept_mail_submission(request, mailsubmission)
                 messages.success(request, _("Postal submission accepted"))

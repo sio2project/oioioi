@@ -42,7 +42,7 @@ class AcceptMailSubmissionForm(forms.Form):
         min_length=MAILSUBMIT_CONFIRMATION_HASH_LENGTH,
         max_length=MAILSUBMIT_CONFIRMATION_HASH_LENGTH,
         error_messages={
-            'invalid': _("Value must consist of numbers or " "letters from A to F")
+            'invalid': _("Value must consist of numbers or letters from A to F")
         },
     )
 
@@ -65,13 +65,13 @@ class AcceptMailSubmissionForm(forms.Form):
             mailsubmission = MailSubmission.objects.get(id=mailsubmission_id)
         except MailSubmission.DoesNotExist:
             raise ValidationError(
-                _("Postal submission number %s does not " "exist")
+                _("Postal submission number %s does not exist")
                 % (mailsubmission_id,)
             )
 
         if mailsubmission.problem_instance.contest != self.request.contest:
             raise ValidationError(
-                _("Postal submission number %s is for a " "different contest")
+                _("Postal submission number %s is for a different contest")
                 % (mailsubmission_id,)
             )
 

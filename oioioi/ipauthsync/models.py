@@ -61,7 +61,7 @@ class IpAuthSyncConfig(models.Model):
 
     def clean(self):
         if self.start_date > self.end_date:
-            raise ValidationError(_("The start date should" " precede the end date"))
+            raise ValidationError(_("The start date should precede the end date"))
 
 
 class IpAuthSyncedUser(models.Model):

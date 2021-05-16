@@ -434,7 +434,7 @@ class ProgrammingProblemController(ProblemController):
         if (not is_file_chosen and not is_code_pasted) or (
             is_file_chosen and is_code_pasted
         ):
-            raise ValidationError(_("You have to either choose file or paste " "code."))
+            raise ValidationError(_("You have to either choose file or paste code."))
 
         langs_field_name = form_field_id_for_langs(problem_instance)
         if langs_field_name not in cleaned_data:
@@ -455,7 +455,7 @@ class ProgrammingProblemController(ProblemController):
         langs = get_allowed_languages_dict(problem_instance)
         if cleaned_data[langs_field_name] not in langs.keys():
             raise ValidationError(
-                _("This language is not allowed for selected" " problem.")
+                _("This language is not allowed for selected problem.")
             )
 
         if is_file_chosen:

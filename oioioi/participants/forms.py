@@ -24,7 +24,7 @@ class ParticipantForm(forms.ModelForm):
             self.instance is None or self.instance.user != self.cleaned_data['user']
         ):
             raise ValidationError(
-                _("%s is already a participant" " of this contest.")
+                _("%s is already a participant of this contest.")
                 % self.cleaned_data['user'].username
             )
         return self.cleaned_data['user']

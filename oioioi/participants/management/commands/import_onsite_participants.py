@@ -99,7 +99,7 @@ class Command(BaseCommand):
                     reg.save()
                 except User.DoesNotExist:
                     self.stdout.write(
-                        _("Error for user=%(user)s: user does" " not exist\n")
+                        _("Error for user=%(user)s: user does not exist\n")
                         % {'user': row[1]}
                     )
                     ok = False
@@ -144,5 +144,5 @@ class Command(BaseCommand):
                 self.stdout.write(_("Processed %d entries") % (all_count))
             else:
                 raise CommandError(
-                    _("There were some errors. Database not " "changed.\n")
+                    _("There were some errors. Database not changed.\n")
                 )

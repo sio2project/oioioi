@@ -73,7 +73,7 @@ def try_sending(msg, user, mail):
         # visible for a user. We omit this, but make sure to
         # mark this in the logs.
         logmsg = (
-            "Omitting message {} to {}, since" "they are not allowed to see it"
+            "Omitting message {} to {}, since they are not allowed to see it"
         ).format(msg, user)
         logger.info(logmsg)
 

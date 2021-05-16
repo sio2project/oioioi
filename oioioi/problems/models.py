@@ -177,7 +177,7 @@ def _check_problem_instance_integrity(sender, instance, **kwargs):
     pis = ProblemInstance.objects.filter(problem=instance, contest__isnull=True)
     if pis.count() > 1:
         raise RuntimeError(
-            "Multiple main_problem_instance objects for " "a single problem."
+            "Multiple main_problem_instance objects for a single problem."
         )
 
 

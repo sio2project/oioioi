@@ -138,7 +138,7 @@ class TestRunContestControllerMixin(object):
                     raise ValidationError(_("Archive should have only 1 file inside."))
                 if archive.extracted_size() > self.get_testrun_unzipped_input_limit():
                     raise ValidationError(
-                        _("Uncompressed archive is too big to be" " considered safe.")
+                        _("Uncompressed archive is too big to be considered safe.")
                     )
                 # Extraction is safe, see:
                 # https://docs.python.org/2/library/zipfile.html#zipfile.ZipFile.extract
@@ -355,7 +355,7 @@ class TestRunContestControllerMixin(object):
 
         if submission.problem_instance.contest:
             message = ugettext_noop(
-                "%(contest_name)s, %(task_name)s: " "Your submission was judged.\n"
+                "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
             )
         else:
             message = ugettext_noop("%(task_name)s: Your submission was judged.\n")

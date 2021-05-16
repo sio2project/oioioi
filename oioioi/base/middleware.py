@@ -143,7 +143,7 @@ class CheckLoginMiddleware(object):
         ) % {'login': request.user.username}
 
         check_name_message = _(
-            "Your name - %(name)s %(surname)s - " "contains forbidden characters. "
+            "Your name - %(name)s %(surname)s - contains forbidden characters. "
         ) % {'name': request.user.first_name, 'surname': request.user.last_name}
 
         message_appendix = _(

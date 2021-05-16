@@ -112,7 +112,7 @@ def admin_time(request, next_page=None):
                 )
             else:
                 messages.error(
-                    request, _("Date has to be after 1900." " Admin-time was not set.")
+                    request, _("Date has to be after 1900. Admin-time was not set.")
                 )
             return safe_redirect(request, next_page)
     raise Http404

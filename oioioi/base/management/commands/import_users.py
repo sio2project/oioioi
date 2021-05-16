@@ -102,5 +102,5 @@ class Command(BaseCommand):
                 self.stdout.write(_("Processed %d entries") % (all_count))
             else:
                 raise CommandError(
-                    _("There were some errors. Database not " "changed.\n")
+                    _("There were some errors. Database not changed.\n")
                 )

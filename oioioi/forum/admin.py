@@ -312,7 +312,7 @@ class PostAdmin(admin.ModelAdmin):
             request,
             ungettext_lazy(
                 "\"Reported\" status removed from one post.",
-                "\"Reported\" status removed from %(counter)d " "posts.",
+                "\"Reported\" status removed from %(counter)d posts.",
                 counter,
             )
             % {'counter': counter},
@@ -342,7 +342,7 @@ class PostAdmin(admin.ModelAdmin):
             request,
             ungettext_lazy(
                 "\"Approved\" status removed from one post.",
-                "\"Approved\" status removed from %(counter)d " "posts.",
+                "\"Approved\" status removed from %(counter)d posts.",
                 counter,
             )
             % {'counter': counter},

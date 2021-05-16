@@ -63,7 +63,7 @@ class BulkAddSubmissionsSimilarityForm(forms.Form):
                     submission = submissions_qs.get(id=match['submission_id'])
                 except Submission.DoesNotExist:
                     raise ValidationError(
-                        _("Submission %(id)s does not exists in line: " "%(line)s")
+                        _("Submission %(id)s does not exists in line: %(line)s")
                         % dict(id=match['submission_id'], line=line)
                     )
 

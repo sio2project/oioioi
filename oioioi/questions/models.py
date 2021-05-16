@@ -185,7 +185,7 @@ def send_notification(sender, instance, created, **kwargs):
             )
         else:
             logger.info(
-                "Public message \"%(topic)s\"" " was created",
+                "Public message \"%(topic)s\" was created",
                 {'topic': instance.topic},
                 extra={
                     'notification': 'new_public_message',

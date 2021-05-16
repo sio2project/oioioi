@@ -50,6 +50,6 @@ def unpackmgr_job(env):
 
     except ProblemPackage.DoesNotExist:
         logger.warning(
-            "Problem package %s got deleted before it was " "processed.",
+            "Problem package %s got deleted before it was processed.",
             env['package_id'],
         )

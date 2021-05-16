@@ -419,7 +419,7 @@ class ProblemAdmin(admin.ModelAdmin):
             return problem.package_backend.pack(problem)
         except NotImplementedError:
             self.message_user(
-                request, _("Package not available for problem " "%s.") % (problem,)
+                request, _("Package not available for problem %s.") % (problem,)
             )
             return self.redirect_to_list(request, problem)
 

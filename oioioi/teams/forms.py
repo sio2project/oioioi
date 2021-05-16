@@ -13,7 +13,7 @@ class TeamForm(forms.ModelForm):
 
 
 class CreateTeamForm(forms.Form):
-    name = forms.CharField(max_length=50, help_text=_("The public name of " "the team"))
+    name = forms.CharField(max_length=50, help_text=_("The public name of the team"))
     login = forms.CharField(
         max_length=50,
         help_text=_(
@@ -30,11 +30,11 @@ class CreateTeamForm(forms.Form):
     def clean_name(self):
         name = self.cleaned_data['name']
         if Team.objects.filter(contest=self.request.contest, name=name).exists():
-            raise ValidationError(_("There already exists " "a team with that name"))
+            raise ValidationError(_("There already exists a team with that name"))
         return name
 
     def clean_login(self):
         login = self.cleaned_data.get('login')
         if User.objects.filter(username=login).exists():
-            raise ValidationError(_("There already exists " "a team with that login"))
+            raise ValidationError(_("There already exists a team with that login"))
         return login

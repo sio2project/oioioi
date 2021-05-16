@@ -107,7 +107,7 @@ class DottedNameField(models.CharField):
 
         if getattr(obj, 'abstract', False):
             raise ValidationError(
-                _("%s is an abstract class and cannot be " "used") % (value,)
+                _("%s is an abstract class and cannot be used") % (value,)
             )
 
         # Code below copied from Field and replaced self.choices with
