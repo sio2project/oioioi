@@ -39,6 +39,7 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.management.commands import (
     create_new_algorithm_tags,
+    create_problem_names,
     migrate_old_origin_tags_copy_problem_statements,
     migrate_old_origin_tags_create_new_tags,
     recalculate_statistics,
@@ -59,6 +60,7 @@ from oioioi.problems.models import (
     OriginTagLocalization,
     Problem,
     ProblemAttachment,
+    ProblemName,
     ProblemPackage,
     ProblemSite,
     ProblemStatement,
@@ -1278,6 +1280,78 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
 
         # and nothing needs rejudging
         self.assertNotContains(response, 'REJUDGING')
+
+
+class TestCreateProblemNames(TestCase):
+    basedir = os.path.dirname(__file__)
+    filename = os.path.join(basedir, 'test_files', 'legacy_origin_tags.txt')
+    names_translations = {}
+
+    def setUp(self):
+        random.seed(42)
+
+        with open(self.filename, mode='r') as tags_file:
+            self.legacy_origin_tags = set(tags_file.read().split(','))
+
+        tag_eng = Tag.objects.create(name='eng')
+
+        for tag_name in self.legacy_origin_tags:
+            legacy_origin_tag = Tag.objects.create(name=tag_name)
+            for i in range(random.randrange(10)):
+                short_name = 'zad%d' % i
+                legacy_name_en = tag_name + ' problem %d' % i
+                legacy_name_pl = tag_name + ' zadanie %d' % i
+
+                self.names_translations[legacy_name_en] = legacy_name_pl
+                self.names_translations[legacy_name_pl] = legacy_name_en
+
+                problem_en = Problem.objects.create(
+                    legacy_name=legacy_name_en, short_name=short_name
+                )
+                problem_pl = Problem.objects.create(
+                    legacy_name=legacy_name_pl, short_name=short_name
+                )
+
+                TagThrough.objects.create(problem=problem_en, tag=tag_eng)
+                TagThrough.objects.create(problem=problem_en, tag=legacy_origin_tag)
+                TagThrough.objects.create(problem=problem_pl, tag=legacy_origin_tag)
+
+    def test_create_problem_names_command(self):
+        problems_count = Problem.objects.all().count()
+
+        self.assertTrue(problems_count > 1)
+        self.assertEqual(Tag.objects.all().count(), len(self.legacy_origin_tags) + 1)
+
+        manager = create_problem_names.Command()
+        manager.run_from_argv(
+            [
+                'manage.py',
+                'create_problem_names',
+                '-f',
+                self.filename,
+            ]
+        )
+
+        self.assertEqual(ProblemName.objects.all().count(), 2 * problems_count)
+
+        tag_eng = Tag.objects.get(name='eng')
+        for problem in Problem.objects.all():
+            problem_names = problem.names.all()
+            self.assertEqual(problem_names.count(), 2)
+
+            if problem in tag_eng.problems.all():
+                legacy_name_en = problem.legacy_name
+                legacy_name_pl = self.names_translations[legacy_name_en]
+            else:
+                legacy_name_pl = problem.legacy_name
+                legacy_name_en = self.names_translations[legacy_name_pl]
+
+            self.assertTrue(
+                problem_names.filter(name=legacy_name_en, language='en').exists()
+            )
+            self.assertTrue(
+                problem_names.filter(name=legacy_name_pl, language='pl').exists()
+            )
 
 
 class TestCreateNewAlgorithmTags(TestCase):
