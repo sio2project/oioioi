@@ -5,6 +5,7 @@
 # Translators:
 # Translators:
 # Accounts-Payable - Alkemics, 2015
+# Alicja Kluczek <alicja2602@gmail.com>, 2021
 # Artur Puzio <cytadela8@op.pl>, 2019
 # Chen-Do LU <clu@alkemics.com>, 2015
 # François Breysse <fb@alkemics.com>, 2015
@@ -30,8 +31,8 @@ msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-06-20 23:26+0200\n"
-"PO-Revision-Date: 2021-04-27 14:46+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"PO-Revision-Date: 2021-05-10 22:10+0000\n"
+"Last-Translator: Alicja Kluczek <alicja2602@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -74,10 +75,10 @@ msgstr "Uszkodzone dane"
 #: clock/static/common/clocks.js:44
 msgid "end of the %(round_name)s"
 msgid_plural "end of the %(round_name)s"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "do końca %(round_name)s"
+msgstr[1] "do końca %(round_name)s"
+msgstr[2] "do końca %(round_name)s"
+msgstr[3] "do końca %(round_name)s"
 
 #: clock/static/common/clocks.js:47
 msgid "to the end"
@@ -86,10 +87,10 @@ msgstr "do końca"
 #: clock/static/common/clocks.js:50
 msgid "start of the %(round_name)s"
 msgid_plural "start of the %(round_name)s"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "rozpoczęcia rundy %(round_name)s"
+msgstr[1] "rozpoczęcia rundy %(round_name)s"
+msgstr[2] "rozpoczęcia rundy %(round_name)s"
+msgstr[3] "rozpoczęcia rundy %(round_name)s"
 
 #: clock/static/common/clocks.js:53
 msgid "to the start"
@@ -154,26 +155,26 @@ msgstr[3] "Pozostało %(countdown_days)s do %(countdown_destination)s."
 #: clock/static/common/clocks.js:100
 msgid "%(countdown_hours)sleft to the "
 msgid_plural "%(countdown_hours)sleft to the "
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%(countdown_hours)s do końca"
+msgstr[1] "%(countdown_hours)s do końca"
+msgstr[2] "%(countdown_hours)s do końca"
+msgstr[3] "%(countdown_hours)sdo końca"
 
 #: clock/static/common/clocks.js:111
 msgid "%(countdown_minutes)sleft to the "
 msgid_plural "%(countdown_minutes)sleft to the "
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%(countdown_minutes)sdo końca"
+msgstr[1] "%(countdown_minutes)sdo końca"
+msgstr[2] "%(countdown_minutes)sdo końca"
+msgstr[3] "%(countdown_minutes)sdo końca"
 
 #: clock/static/common/clocks.js:121
 msgid "%(countdown_seconds)sleft to the "
 msgid_plural "%(countdown_seconds)sleft to the "
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "została %(countdown_seconds)s sekunda do"
+msgstr[1] "zostało %(countdown_seconds)s sekund do"
+msgstr[2] "zostało %(countdown_seconds)s sekund do"
+msgstr[3] "zostało %(countdown_seconds)s sekund do"
 
 #: clock/static/common/clocks.js:129
 msgid "The round is over!"
@@ -185,7 +186,7 @@ msgstr "Runda rozpoczęta!"
 
 #: clock/static/common/clocks.js:251
 msgid "Reason: Admin-time status has changed."
-msgstr ""
+msgstr "Powód: Czas-administratorski zmienił się."
 
 #: problems/static/common/tag_selection.js:49
 msgid "Try: "
@@ -193,7 +194,7 @@ msgstr "Spróbuj: "
 
 #: problems/static/common/tag_selection.js:56
 msgid "Tag '%(query)s' doesn't exist."
-msgstr ""
+msgstr "Tag '%(query)s' doesn't exist."
 
 #: problems/static/common/tag_selection.js:60
 msgid "Tag exists."
@@ -225,28 +226,28 @@ msgstr "To nie jest plik tekstowy."
 
 #: questions/static/common/messages.js:132
 msgid "Expand all messages"
-msgstr ""
+msgstr "Rozwiń wszystkie pytania i ogłoszenia"
 
 #: questions/static/common/messages.js:133
 msgid "Collapse all messages"
-msgstr ""
+msgstr "Zwiń pytania i ogłoszenia"
 
 #: questions/static/common/messages.js:134
 msgid "Expand message"
-msgstr ""
+msgstr "Rozwiń"
 
 #: questions/static/common/messages.js:135
 msgid "Collapse message"
-msgstr ""
+msgstr "Zwiń pytania i ogłoszenia"
 
 #: simpleui/static/simpleui/main_dashboard.js:59
 msgid "Result"
-msgstr ""
+msgstr "Wynik"
 
 #: simpleui/static/simpleui/main_dashboard.js:67
 #: simpleui/static/simpleui/main_dashboard.js:74
 msgid "Users"
-msgstr ""
+msgstr "Użytkownicy"
 
 #: simpleui/static/simpleui/contest/problem.js:40
 msgid "Score"
@@ -259,10 +260,10 @@ msgstr "Uczestnicy"
 #: simpleui/static/simpleui/contest/problem.js:66
 msgid "<strong>%(low)s - %(high)s points</strong><br>"
 msgid_plural "<strong>%(low)s - %(high)s points</strong><br>"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "<strong>%(low)s - %(high)s punktów</strong><br>"
+msgstr[1] "<strong>%(low)s - %(high)s punktów</strong><br>"
+msgstr[2] "<strong>%(low)s - %(high)s punktów</strong><br>"
+msgstr[3] "<strong>%(low)s - %(high)s punktów</strong><br>"
 
 #: simpleui/static/simpleui/problem_settings/attachments.js:16
 #: simpleui/static/simpleui/problem_settings/tags.js:13
@@ -283,7 +284,7 @@ msgid ""
 "clicking the vertical bar representing a round. <hr> If you want to split a "
 "date group, click the corresponding <span class=\"icon-resize-"
 "vertical\"></span> button."
-msgstr ""
+msgstr "Możesz zmieniać daty naciskając <span class=\"icon-calendar\"></span>. Dostępne są również skróty klawiaturowe: <br> <ul>     <li><strong>TAB</strong> – przejdź do następnego pola</li>     <li><strong>ENTER</strong> – potwierdź datę</li>     <li><strong>ESC, CTRL+Z</strong> – przywróć datę</li> </ul> <hr> Aby wyświetlić jedynie wydarzenia z konkretnej rundy, naciśnij pionowy pasek ją reprezentujący. <hr> Przycisk <span class=\"icon-resize-vertical\"></span> rozdziela grupę wydarzeń odbywających się w tym samym czasie."
 
 #: timeline/static/timeline/timeline.js:53
 msgid "now"
@@ -303,4 +304,4 @@ msgstr "Pojemność"
 
 #: workers/static/common/load_chart.js:63
 msgid "Busy workers"
-msgstr ""
+msgstr "Zajęte sprawdzaczki"
