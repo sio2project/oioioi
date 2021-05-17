@@ -224,7 +224,6 @@ INSTALLED_APPS = (
     'compressor',
     'dj_pagination',
     'mptt',
-    'overextends',
     'raven.contrib.django.raven_compat',
 
     'django.contrib.admin',
