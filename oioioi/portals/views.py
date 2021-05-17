@@ -1,5 +1,4 @@
 import json
-from collections import OrderedDict
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -56,7 +55,7 @@ def main_page_view(request):
 def redirect_old_global_portal(request, portal_path):
     """View created for historical reasons - there used to be
     only one global portal allowed, with 'portal' as its path prefix
-    hardcoded in url. Since it is possible to created more than one
+    hardcoded in url. Since it is possible to create more than one
     global portal, old unique global portal shall be changed to global
     portal with link_name='default' (see migrations). To keep old,
     saved users links viable they must be redirected to new address
@@ -68,24 +67,27 @@ def redirect_old_global_portal(request, portal_path):
     )
 
 
+def create_root_node(lang):
+    """Creates a root node with the given language.
+    The new node contains default title and body.
+    """
+    name = render_to_string('portals/portal-initial-main-page-name.txt')
+    body = render_to_string('portals/portal-initial-main-page-body.txt')
+    root = Node.objects.create(short_name='', parent=None)
+    NodeLanguageVersion.objects.create(
+        language=lang, full_name=name, panel_code=body, node=root
+    )
+    return root
+
+
 @enforce_condition(is_superuser, login_redirect=False)
 def create_global_portal_view(request):
-
     if request.method == 'POST':
         form = LinkNameForm(request.POST)
         if 'confirmation' in request.POST:
             if form.is_valid():
-                name = render_to_string(
-                    'portals/global-portal-initial-main-page-name.txt'
-                )
-                body = render_to_string(
-                    'portals/global-portal-initial-main-page-body.txt'
-                )
-                root = Node.objects.create(short_name='', parent=None)
                 lang = get_language_from_request(request)
-                NodeLanguageVersion.objects.create(
-                    language=lang, full_name=name, panel_code=body, node=root
-                )
+                root = create_root_node(lang)
                 portal = Portal(owner=None, root=root)
                 form = LinkNameForm(request.POST, instance=portal)
                 form.save()
@@ -109,13 +111,8 @@ def create_user_portal_view(request):
         return render(request, 'portals/create-user-portal.html')
     else:
         if 'confirmation' in request.POST:
-            name = render_to_string('portals/user-portal-initial-main-page-name.txt')
-            body = render_to_string('portals/user-portal-initial-main-page-body.txt')
             lang = get_language_from_request(request)
-            root = Node.objects.create(short_name='', parent=None)
-            NodeLanguageVersion.objects.create(
-                language=lang, full_name=name, panel_code=body, node=root
-            )
+            root = create_root_node(lang)
             portal = Portal.objects.create(owner=request.user, root=root)
             return redirect(portal_url(portal=portal))
         else:
@@ -337,7 +334,6 @@ def delete_portal_view(request):
     else:
         if 'confirmation' in request.POST:
             request.portal.root.delete()
-            request.portal.delete()
             return redirect(reverse('portals_main_page'))
         else:
             return redirect(portal_url(portal=request.portal, action='manage_portal'))
@@ -361,55 +357,38 @@ def render_markdown_view(request):
 
 
 def portals_main_page_view(request, view_type='public'):
-
     if request.user.is_superuser:
-        page_title = _('Portals main page')
-        views = OrderedDict(
-            [
-                ('public', _('Public portals')),
-                ('all', _('All portals')),
-                ('global', _('Global portals')),
-            ]
-        )
+        page_title = _("Portals main page")
+        views = [
+            ('public', _("Public portals")),
+            ('all', _("All portals")),
+            ('global', _("Global portals")),
+        ]
 
         if request.method == 'GET':
             query = request.GET.get('q', '')
             form = PortalsSearchForm(query=query)
+
+            portal_search_q_expr = (
+                Q(owner__username__icontains=query)
+                | Q(root__language_versions__full_name__icontains=query)
+                | Q(link_name__icontains=query)
+            )
             if view_type == 'public':
-                # search query in public portals
-                portals_to_display = Portal.objects.filter(
-                    Q(is_public=True)
-                    & (
-                        Q(owner__username__icontains=query)
-                        | Q(root__language_versions__full_name__icontains=query)
-                        | Q(link_name__icontains=query)
-                    )
-                ).distinct()
+                portal_search_q_expr &= Q(is_public=True)
             elif view_type == 'all':
-                # search query in all portals
-                portals_to_display = Portal.objects.filter(
-                    Q(owner__username__icontains=query)
-                    | Q(root__language_versions__full_name__icontains=query)
-                    | Q(link_name__icontains=query)
-                ).distinct()
+                pass
             elif view_type == 'global':
-                # search query in global portals
-                portals_to_display = Portal.objects.filter(
-                    Q(owner=None)
-                    & (
-                        Q(root__language_versions__full_name__icontains=query)
-                        | Q(link_name__icontains=query)
-                    )
-                ).distinct()
+                portal_search_q_expr &= Q(owner=None)
             else:
                 raise Http404
-
+            portals_to_display = Portal.objects.filter(portal_search_q_expr).distinct()
         else:
             form = PortalsSearchForm()
             portals_to_display = Portal.objects.filter(is_public=True)
 
     else:
-        page_title = _('Public portals')
+        page_title = _("Public portals")
         portals_to_display = Portal.objects.filter(is_public=True)
         form = None
         views = None

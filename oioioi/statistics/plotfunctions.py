@@ -234,7 +234,7 @@ def test_scores(request, problem):
     data = [[d[(st, test)] for test, _x, _x in tests] for st in statuses]
 
     return {
-        'plot_name': _('Test scores'),
+        'plot_name': _("Test scores"),
         'data': data,
         'keys': [test_name for _x, test_name, _x in tests],
         'series': statuses,

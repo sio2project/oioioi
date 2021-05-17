@@ -3,9 +3,6 @@
 
 <div class="settings-item">
     <h4 class="text-center item-title">{% trans "Current tags" %}</h4>
-    {% for tag in problem.tag_set.all %}
-        {% tag_label tag %}
-    {% endfor %}
     {% for tag in problem.origintag_set.all %}
         {% tag_label tag %}
     {% endfor %}
@@ -18,16 +15,23 @@
 
     {% if algorithm_tag_proposals %}
         <hr class="separator">
-
-        <h4 class="text-center item-title">{% trans "User proposals" %}</h4>
+        <h4 class="text-center item-title">{% trans "Users algorithms proposals" %}</h4>
         {% for proposal in algorithm_tag_proposals %}
             {% tag_label proposal.tag %}
         {% endfor %}
     {% endif %}
 
+    {% if difficulty_tag_proposals %}
+        <hr class="separator">
+        <h4 class="text-center item-title">{% trans "Users difficulty proposals" %}</h4>
+        {% for proposal in difficulty_tag_proposals %}
+            {% tag_label proposal.tag %}
+        {% endfor %}
+    {% endif %}
+
     <p class="text-center item-footer">
-        <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">
-            {% trans 'edit tags' %}
+        <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}#difficultytagthrough-group">
+            {% trans "Edit tags" %}
         </a>
     </p>
 </div>

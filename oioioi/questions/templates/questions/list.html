@@ -13,8 +13,8 @@
         // before submitting your changes to github
         // and translate strings in oioioi-js in Transifex
         // before deploying
-        const sub_text = "{% trans 'Subscribe' %}";
-        const unsub_text = "{% trans 'Unsubscribe' %}";
+        const sub_text = '{% trans "Subscribe" %}';
+        const unsub_text = '{% trans "Unsubscribe" %}';
         const sub_url = 'subscription/';
         const token = $.cookie('csrftoken');
 
@@ -46,15 +46,15 @@
 
         function show_fail_banner() {
             // this is translated inside show_banner
-            const caption = "{% trans 'Inconsistent request!' %}";
-            const text = "{% trans 'There was an error processing your request. Please reload the page and try again.' %}";
+            const caption = '{% trans "Inconsistent request!" %}';
+            const text = '{% trans "There was an error processing your request. Please reload the page and try again." %}';
             show_banner(false, caption, text);
         }
         function show_success_banner() {
             // this is translated inside show_banner
-            const sub_text = "{% trans 'You successfully subscribed' %}";
-            const unsub_text = "{% trans 'You successfully unsubscribed' %}";
-            const caption = "{% trans 'Success!' %}";
+            const sub_text = '{% trans "You successfully subscribed" %}';
+            const unsub_text = '{% trans "You successfully unsubscribed" %}';
+            const caption = '{% trans "Success!" %}';
             show_banner(true, caption, subscribed ? sub_text : unsub_text);
         }
 

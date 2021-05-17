@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from six.moves import range
 
+from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import (
     PastRoundsHiddenContestControllerMixin,
@@ -54,7 +55,7 @@ class OIRegistrationController(ParticipantsController):
         return True
 
     def visible_contests_query(self, request):
-        return Q(pk__isnull=False)  # (True)
+        return Q_always_true()
 
     def can_register(self, request):
         return True

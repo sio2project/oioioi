@@ -61,7 +61,7 @@ class ProblemSource(object):
         :class:`~django.template.response.TemplateResponse` is fine, too.
 
         If the request method is ``POST``, it should start the
-        unpacking proccess. If no errors occur, it should return
+        unpacking process. If no errors occur, it should return
         :class:`~django.http.HttpResponseRedirect`
         (e.g. to a view with problem packages queued for processing).
 
@@ -313,7 +313,7 @@ class UploadedPackageSource(PackageSource):
 
 class ProblemsetSource(ProblemSource):
     key = 'problemset_source'
-    short_description = _('Add from Problemset')
+    short_description = _("Add from Problemset")
 
     def view(self, request, contest, existing_problem=None):
         if not contest:
@@ -338,7 +338,7 @@ class ProblemsetSource(ProblemSource):
 
         if request.POST:
             if not Problem.objects.filter(problemsite__url_key=url_key).exists():
-                messages.warning(request, _('Given url key is invalid'))
+                messages.warning(request, _("Given url key is invalid"))
                 return TemplateResponse(
                     request, "problems/problemset-source.html", post_data
                 )

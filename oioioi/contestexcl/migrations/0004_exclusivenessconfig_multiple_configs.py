@@ -8,7 +8,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    replaces = [(b'contestexcl', '0004_auto_20190129_1904'), (b'contestexcl', '0005_auto_20190129_2230')]
+    replaces = [('contestexcl', '0004_auto_20190129_1904'), ('contestexcl', '0005_auto_20190129_2230')]
 
     dependencies = [
         ('contestexcl', '0003_exclusivenessconfig_enable_helptext'),

@@ -624,7 +624,7 @@ class SystemErrorListFilter(SimpleListFilter):
     parameter_name = 'has_active_system_error'
 
     def lookups(self, request, model_admin):
-        return [('no', _('No')), ('yes', _('Yes'))]
+        return [('no', _("No")), ('yes', _("Yes"))]
 
     def queryset(self, request, queryset):
         q = Q(

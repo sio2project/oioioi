@@ -3,11 +3,14 @@
 import csv
 import io
 import os.path
+import random
 from datetime import datetime  # pylint: disable=E0611
 from functools import cmp_to_key
 
 import pytest
 import six.moves.urllib.parse
+from six.moves import range
+
 from django import forms
 from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -18,8 +21,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import strip_tags
 from django.utils.timezone import utc
-from six.moves import range
-
 from oioioi.base.tests import TestCase, check_not_accessible, needs_linux
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.current_contest import ContestMode
@@ -37,16 +38,25 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.management.commands import (
-    migrate_old_algorithm_tags,
-    recalculate_statistics,
-    migrate_old_origin_tags_create_new_tags,
+    create_new_algorithm_tags,
     migrate_old_origin_tags_copy_problem_statements,
+    migrate_old_origin_tags_create_new_tags,
+    recalculate_statistics,
 )
 from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagLocalization,
+    AlgorithmTagProposal,
+    AlgorithmTagThrough,
+    DifficultyTag,
+    DifficultyTagProposal,
+    DifficultyTagThrough,
     OriginInfoCategory,
+    OriginInfoCategoryLocalization,
     OriginInfoValue,
+    OriginInfoValueLocalization,
+    OriginTag,
+    OriginTagLocalization,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -54,13 +64,9 @@ from oioioi.problems.models import (
     ProblemStatement,
     ProblemStatistics,
     Tag,
+    TagThrough,
     UserStatistics,
     make_problem_filename,
-    OriginTag,
-    OriginTagLocalization,
-    OriginInfoCategoryLocalization,
-    OriginInfoValueLocalization,
-    TagThrough,
 )
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
@@ -366,7 +372,6 @@ class TestAPIProblemUpload(TransactionTestCase):
     def test_failed_upload_no_round_name(self):
         ProblemInstance.objects.all().delete()
         contest = Contest.objects.get()
-        round = contest.round_set.all().first()
         self.assertTrue(self.client.login(username='test_admin'))
         data = {
             'package_file': ContentFile('eloziom', name='foo'),
@@ -378,8 +383,6 @@ class TestAPIProblemUpload(TransactionTestCase):
 
     def test_failed_reupload_no_file(self):
         ProblemInstance.objects.all().delete()
-        contest = Contest.objects.get()
-        round = contest.round_set.all().first()
         self.assertTrue(self.client.login(username='test_admin'))
         data = {'problem_id': 1}
         url = reverse('api_package_reupload')
@@ -388,8 +391,6 @@ class TestAPIProblemUpload(TransactionTestCase):
 
     def test_failed_reupload_no_problem_id(self):
         ProblemInstance.objects.all().delete()
-        contest = Contest.objects.get()
-        round = contest.round_set.all().first()
         self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo')}
         url = reverse('api_package_reupload')
@@ -461,6 +462,13 @@ class TestAPIProblemUploadQuery(TransactionTestCase):
         self.assertEqual(response.status_code, 403)
 
 
+def make_add_update_problem_url(contest, args):
+    return '{}?{}'.format(
+        reverse('add_or_update_problem', kwargs={'contest_id': contest.id}),
+        six.moves.urllib.parse.urlencode(args),
+    )
+
+
 @override_settings(
     PROBLEM_PACKAGE_BACKENDS=('oioioi.problems.tests.DummyPackageBackend',)
 )
@@ -475,11 +483,7 @@ class TestProblemUpload(TransactionTestCase):
             'package_file': ContentFile('eloziom', name='foo'),
             'visibility': Problem.VISIBILITY_FRIENDS,
         }
-        url = (
-            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-            + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'upload'})
-        )
+        url = make_add_update_problem_url(contest, {'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertContains(response, 'Package information')
         self.assertContains(response, 'Edit problem')
@@ -502,11 +506,7 @@ class TestProblemUpload(TransactionTestCase):
             'package_file': ContentFile('eloziom', name='FAIL'),
             'visibility': Problem.VISIBILITY_FRIENDS,
         }
-        url = (
-            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-            + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'upload'})
-        )
+        url = make_add_update_problem_url(contest, {'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertContains(response, 'DUMMY_FAILURE')
         self.assertContains(response, 'Error details')
@@ -528,11 +528,7 @@ class TestProblemUpload(TransactionTestCase):
             'package_file': ContentFile('eloziom', name='foo'),
             'visibility': Problem.VISIBILITY_FRIENDS,
         }
-        url = (
-            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-            + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'upload'})
-        )
+        url = make_add_update_problem_url(contest, {'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertContains(response, 'Package information')
         package = ProblemPackage.objects.get()
@@ -550,11 +546,7 @@ class TestProblemUpload(TransactionTestCase):
             'visibility': Problem.VISIBILITY_FRIENDS,
             'cc_rulez': True,
         }
-        url = (
-            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-            + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'upload'})
-        )
+        url = make_add_update_problem_url(contest, {'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertContains(response, 'Package information')
         package = ProblemPackage.objects.get()
@@ -583,11 +575,7 @@ class TestProblemUpload(TransactionTestCase):
         contest.default_submissions_limit += 100
         contest.save()
 
-        url = (
-            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-            + '?'
-            + six.moves.urllib.parse.urlencode({'problem': problem.id})
-        )
+        url = make_add_update_problem_url(contest, {'problem': problem.id})
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
@@ -704,21 +692,18 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         package.save()
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse(
+        download_package_traceback_url = reverse(
             'download_package_traceback', kwargs={'package_id': str(package.id)}
         )
 
-        response = self.client.get(url)
+        response = self.client.get(download_package_traceback_url)
         content = self.streamingContent(response)
         self.assertEqual(content, b'eloziom')
 
         package.traceback = None
         package.save()
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse(
-            'download_package_traceback', kwargs={'package_id': str(package.id)}
-        )
-        response = self.client.get(url)
+        response = self.client.get(download_package_traceback_url)
         self.assertEqual(response.status_code, 404)
 
     def test_package_permissions(self):
@@ -738,9 +723,25 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         'test_problem_instance',
         'test_submission',
         'test_problem_site',
-        'test_algorithmtags',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
         'test_proposals',
     ]
+
+    def setUp(self):
+        problem = Problem.objects.get(id=1)
+        AlgorithmTagThrough.objects.create(
+            problem=problem,
+            tag=AlgorithmTag.objects.get(name='dp'),
+        )
+        AlgorithmTagThrough.objects.create(
+            problem=problem,
+            tag=AlgorithmTag.objects.get(name='lcis'),
+        )
+        DifficultyTagThrough.objects.create(
+            problem=problem,
+            tag=DifficultyTag.objects.get(name='hard'),
+        )
 
     def _get_site_urls(self):
         url = reverse('problem_site', kwargs={'site_key': '123'})
@@ -788,6 +789,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         self.assertContains(response, '<tr', count=3)
 
+    @override_settings(LANGUAGE_CODE='en')
     def test_settings_tab(self):
         problemsite_url = self._get_site_urls()['statement']
         url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=settings'
@@ -805,7 +807,9 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Edit tests')
         self.assertContains(response, 'Reupload problem')
         self.assertContains(response, 'Model solutions')
-        self.assertContains(response, 'mrowkowiec')
+        self.assertContains(response, 'dp')
+        self.assertContains(response, 'lcis')
+        self.assertContains(response, 'Medium')
 
     def test_statement_replacement(self):
         url = (
@@ -1042,6 +1046,16 @@ def get_test_filename(name):
 class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest']
 
+    def post_package_file(self, url, filename, visibility=Problem.VISIBILITY_PRIVATE):
+        return self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': visibility,
+            },
+            follow=True,
+        )
+
     def check_models_for_simple_package(self, problem_instance):
         url = reverse('model_solutions', args=[problem_instance.id])
         response = self.client.post(url, follow=True)
@@ -1072,14 +1086,8 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
             'problems/problemset/add-or-update.html',
             [getattr(t, 'name', None) for t in response.templates],
         )
-        response = self.client.post(
-            url,
-            {
-                'package_file': open(filename, 'rb'),
-                'visibility': Problem.VISIBILITY_PRIVATE,
-            },
-            follow=True,
-        )
+
+        response = self.post_package_file(url, filename)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 1)
@@ -1099,9 +1107,8 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertContains(response, "<td>tst</td>")
         # and we are problem's author and problem_site exists
         problem = Problem.objects.get()
-        url = (
+        url = '{}?key=settings'.format(
             reverse('problem_site', args=[problem.problemsite.url_key])
-            + '?key=settings'
         )
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -1135,14 +1142,8 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(
-            url,
-            {
-                'package_file': open(filename, 'rb'),
-                'visibility': Problem.VISIBILITY_PRIVATE,
-            },
-            follow=True,
-        )
+
+        response = self.post_package_file(url, filename)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 1)
@@ -1151,11 +1152,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         url_key = problem.problemsite.url_key
 
         # now, add problem to the contest
-        url = (
-            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-            + '?'
-            + six.moves.urllib.parse.urlencode({'key': "problemset_source"})
-        )
+        url = make_add_update_problem_url(contest, {'key': "problemset_source"})
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Add from Problemset')
@@ -1165,11 +1162,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
 
         pi_number = 3
         for i in range(pi_number):
-            url = (
-                reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-                + '?'
-                + six.moves.urllib.parse.urlencode({'key': "problemset_source"})
-            )
+            url = make_add_update_problem_url(contest, {'key': "problemset_source"})
             response = self.client.get(url, {'url_key': url_key}, follow=True)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, str(url_key))
@@ -1209,16 +1202,13 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
                 self.check_models_for_simple_package(pi2)
 
         # reupload one ProblemInstance from problemset
-        url = (
-            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
-            + '?'
-            + six.moves.urllib.parse.urlencode(
-                {
-                    'key': "problemset_source",
-                    'problem': problem.id,
-                    'instance_id': pi.id,
-                }
-            )
+        url = make_add_update_problem_url(
+            contest,
+            {
+                'key': "problemset_source",
+                'problem': problem.id,
+                'instance_id': pi.id,
+            },
         )
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -1236,22 +1226,14 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         )
 
         # reupload problem in problemset
-        url = (
-            reverse('problemset_add_or_update')
-            + '?'
-            + six.moves.urllib.parse.urlencode({'problem': problem.id})
+        url = '{}?{}'.format(
+            reverse('problemset_add_or_update'),
+            six.moves.urllib.parse.urlencode({'problem': problem.id}),
         )
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(
-            url,
-            {
-                'package_file': open(filename, 'rb'),
-                'visibility': Problem.VISIBILITY_PRIVATE,
-            },
-            follow=True,
-        )
+        response = self.post_package_file(url, filename)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(ProblemInstance.objects.count(), pi_number + 1)
         self.assertContains(response, "3 PROBLEMS NEED REJUDGING")
@@ -1282,27 +1264,13 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
             'problems/add-or-update.html',
             [getattr(t, 'name', None) for t in response.templates],
         )
-        response = self.client.post(
-            url,
-            {
-                'package_file': open(filename, 'rb'),
-                'visibility': Problem.VISIBILITY_PRIVATE,
-            },
-            follow=True,
-        )
+        response = self.post_package_file(url, filename)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 2)
 
         # many times
-        response = self.client.post(
-            url,
-            {
-                'package_file': open(filename, 'rb'),
-                'visibility': Problem.VISIBILITY_PRIVATE,
-            },
-            follow=True,
-        )
+        response = self.post_package_file(url, filename)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 2)
         self.assertEqual(ProblemInstance.objects.count(), 4)
@@ -1311,87 +1279,123 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertNotContains(response, 'REJUDGING')
 
 
-class TestTags(TestCase):
-    fixtures = [
-        'test_users',
-        'test_contest',
-        'test_problem_packages',
-        'test_problem_site',
-        'test_tags',
-    ]
+class TestCreateNewAlgorithmTags(TestCase):
+    basedir = os.path.dirname(__file__)
+    filename = os.path.join(basedir, 'test_files', 'new_algorithm_tags.csv')
 
-    def test_tag_hints_view(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
+    def setUp(self):
+        AlgorithmTag.objects.create(name='unique_tag')
 
-        def get_query_url(query):
-            url = reverse('get_tag_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode({'substr': query})
+    def tearDown(self):
+        AlgorithmTag.objects.all().delete()
 
-        response = self.client.get(get_query_url('rowk'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
+    def _test_create_new_algorithm_tags_command(
+        self, argv, filename, delete=False, dry_run=False
+    ):
+        algorithm_tags_count_before = AlgorithmTag.objects.count()
+        self.assertTrue(algorithm_tags_count_before, 1)
 
-        response = self.client.get(get_query_url('rowka'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
+        manager = create_new_algorithm_tags.Command()
+        manager.run_from_argv(argv)
 
-        response = self.client.get(get_query_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertNotContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-
-class TestMigrateOldAlgorithmTags(TestCase):
-    fixtures = ['test_old_algorithm_tags_migration']
-
-    def test_migrate_old_algorithm_tags_command(self):
-        tag_count_before = Tag.objects.count()
-        algorithm_tag_count_before = AlgorithmTag.objects.count()
-
-        self.assertTrue(algorithm_tag_count_before < tag_count_before)
-
-        basedir = os.path.dirname(__file__)
-        filename = os.path.join(basedir, 'test_files', 'old_algorithm_tags.csv')
-        manager = migrate_old_algorithm_tags.Command()
-        manager.run_from_argv(
-            [
-                'manage.py',
-                'migrate_old_algorithm_tags',
-                '-f',
-                filename,
-            ]
-        )
-
-        self.assertEqual(AlgorithmTag.objects.count(), tag_count_before)
+        algorithm_tags_count_after = AlgorithmTag.objects.count()
 
         with open(filename, mode='r') as csv_file:
-            csv_reader = csv.DictReader(csv_file, delimiter=',')
-            for row in csv_reader:
-                old_tag = Tag.objects.get(name=row['old_name'])
-                old_tag_problems_set = set(old_tag.problems.all())
-                new_tag = AlgorithmTag.objects.get(name=row['new_name'])
-                new_tag_problems_set = set(new_tag.problems.all())
-                new_tag_localizations = AlgorithmTagLocalization.objects.filter(
-                    algorithm_tag=new_tag
-                )
+            created_algorithm_tags_expected_count = len(csv_file.readlines()) - 1
 
-                self.assertTrue(old_tag_problems_set == new_tag_problems_set)
-                self.assertTrue(
-                    len(old_tag_problems_set) == 1 and len(new_tag_problems_set) == 1
+        if delete:
+            if dry_run:
+                self.assertEqual(
+                    algorithm_tags_count_after, algorithm_tags_count_before
                 )
-                self.assertEqual(new_tag_localizations.count(), 2)
-                self.assertTrue(
-                    new_tag_localizations.filter(full_name=row['full_name_EN']).exists()
+                self.assertTrue(AlgorithmTag.objects.filter(name='unique_tag').exists())
+            else:
+                self.assertEqual(
+                    algorithm_tags_count_after, created_algorithm_tags_expected_count
                 )
-                self.assertTrue(
-                    new_tag_localizations.filter(full_name=row['full_name_PL']).exists()
+                self.assertFalse(
+                    AlgorithmTag.objects.filter(name='unique_tag').exists()
                 )
+        else:
+            if dry_run:
+                self.assertEqual(
+                    algorithm_tags_count_after, algorithm_tags_count_before
+                )
+            else:
+                self.assertEqual(
+                    algorithm_tags_count_after,
+                    algorithm_tags_count_before + created_algorithm_tags_expected_count,
+                )
+            self.assertTrue(AlgorithmTag.objects.filter(name='unique_tag').exists())
+
+        if not dry_run:
+            with open(filename, mode='r') as csv_file:
+                csv_reader = csv.DictReader(csv_file, delimiter=',')
+                for row in csv_reader:
+                    new_tag = AlgorithmTag.objects.get(name=row['name'])
+                    new_tag_localizations = AlgorithmTagLocalization.objects.filter(
+                        algorithm_tag=new_tag
+                    )
+
+                    self.assertEqual(new_tag_localizations.count(), 2)
+                    for tag_name in ['full_name_pl', 'full_name_en']:
+                        self.assertTrue(
+                            new_tag_localizations.filter(
+                                full_name=row[tag_name]
+                            ).exists()
+                        )
+
+    def test_create_new_algorithm_tags_command_with_delete_no_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '--file',
+                self.filename,
+                '-d',
+            ],
+            self.filename,
+            delete=True,
+        )
+
+    def test_create_new_algorithm_tags_command_no_delete_no_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '-f',
+                self.filename,
+            ],
+            self.filename,
+        )
+
+    def test_create_new_algorithm_tags_command_no_delete_with_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '-f',
+                self.filename,
+                '--dry_run',
+            ],
+            self.filename,
+            dry_run=True,
+        )
+
+    def test_create_new_algorithm_tags_command_with_delete_with_dry_run(self):
+        self._test_create_new_algorithm_tags_command(
+            [
+                'manage.py',
+                'create_new_algorithm_tags',
+                '-f',
+                self.filename,
+                '--delete',
+                '-dr',
+            ],
+            self.filename,
+            delete=True,
+            dry_run=True,
+        )
 
 
 class TestMigrateOldOriginTagsCreateNewTags(TestCase):
@@ -1498,54 +1502,34 @@ class TestMigrateOldOriginTagsCreateNewTags(TestCase):
                 )
 
                 self.assertTrue(old_tags_problems_set == origin_tag_problems_set)
-                self.assertTrue(
-                    (
-                        len(old_tags_problems_set) == 4
-                        and len(origin_tag_problems_set) == 4
-                    )
-                    or (
-                        len(old_tags_problems_set) == 2
-                        and len(origin_tag_problems_set) == 2
-                    )
-                )
+                self.assertTrue(len(old_tags_problems_set) in (2, 4))
                 self.assertEqual(origin_tag_localizations.count(), 2)
-                self.assertTrue(
-                    origin_tag_localizations.filter(
-                        full_name=row['OriginTagLocalization_full_name_EN']
-                    ).exists()
-                )
-                self.assertTrue(
-                    origin_tag_localizations.filter(
-                        full_name=row['OriginTagLocalization_full_name_PL']
-                    ).exists()
-                )
+                for tag_name in ['full_name_EN', 'full_name_PL']:
+                    colname = 'OriginTagLocalization_' + tag_name
+                    self.assertTrue(
+                        origin_tag_localizations.filter(full_name=row[colname]).exists()
+                    )
 
                 self.assertEqual(origin_info_category.name, 'year')
                 self.assertEqual(origin_info_category.order, 1)
                 self.assertEqual(origin_info_category_localizations.count(), 2)
-                self.assertTrue(
-                    origin_info_category_localizations.filter(
-                        full_name=row['OriginInfoCategoryLocalization_full_name_EN']
-                    ).exists()
-                )
-                self.assertTrue(
-                    origin_info_category_localizations.filter(
-                        full_name=row['OriginInfoCategoryLocalization_full_name_PL']
-                    ).exists()
-                )
+                for tag_name in ['full_name_EN', 'full_name_PL']:
+                    colname = 'OriginInfoCategoryLocalization_' + tag_name
+                    self.assertTrue(
+                        origin_info_category_localizations.filter(
+                            full_name=row[colname]
+                        ).exists()
+                    )
 
                 self.assertEqual(int(origin_info_value.value), -origin_info_value.order)
                 self.assertEqual(origin_info_value_localizations.count(), 2)
-                self.assertTrue(
-                    origin_info_value_localizations.filter(
-                        full_value=row['OriginInfoValueLocalization_full_value_EN']
-                    ).exists()
-                )
-                self.assertTrue(
-                    origin_info_value_localizations.filter(
-                        full_value=row['OriginInfoValueLocalization_full_value_PL']
-                    ).exists()
-                )
+                for tag_name in ['full_value_EN', 'full_value_PL']:
+                    colname = 'OriginInfoValueLocalization_' + tag_name
+                    self.assertTrue(
+                        origin_info_value_localizations.filter(
+                            full_value=row[colname]
+                        ).exists()
+                    )
 
 
 class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
@@ -1605,6 +1589,7 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
     }
 
     def setUp(self):
+        random.seed(42)
         tag_eng = Tag.objects.create(name='eng')
 
         for tag_name in self.description:
@@ -1622,16 +1607,30 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
                 visibility='PU',
             )
 
-            ProblemStatement.objects.create(
-                problem=problem_en,
-                language='en',
-                content='data:problems/1/en.txt:raw:en-txt',
-            )
-            ProblemStatement.objects.create(
-                problem=problem_pl,
-                language='pl',
-                content='data:problems/1/pl.txt:raw:pl-txt',
-            )
+            if random.choice([True, False]):
+                ProblemStatement.objects.create(
+                    problem=problem_en,
+                    content='data:problems/1/en.pdf:raw:en-pdf',
+                )
+                ProblemStatement.objects.create(
+                    problem=problem_en,
+                    content='data:problems/1/en.html:raw:en-html',
+                )
+                ProblemStatement.objects.create(
+                    problem=problem_pl,
+                    content='data:problems/1/pl.html:raw:pl-html',
+                )
+            else:
+                ProblemStatement.objects.create(
+                    problem=problem_en,
+                    language='en',
+                    content='data:problems/1/en.html:raw:en-html',
+                )
+                ProblemStatement.objects.create(
+                    problem=problem_pl,
+                    language='pl',
+                    content='data:problems/1/pl.pdf:raw:pl-pdf',
+                )
 
             TagThrough.objects.create(problem=problem_en, tag=tag_eng)
             TagThrough.objects.create(problem=problem_en, tag=tag)
@@ -1651,13 +1650,11 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
                 'migrate_old_origin_tags_copy_problem_statements',
                 '-f',
                 filename,
+                '-m',
             ]
         )
 
         self.assertEqual(Problem.objects.count(), problems_count_before)
-        self.assertEqual(
-            ProblemStatement.objects.count(), Problem.objects.count() * 3 // 2
-        )
 
         tag_copied = Tag.objects.get(name='copied')
 
@@ -1670,168 +1667,278 @@ class TestMigrateOldOriginTagsCopyProblemStatements(TestCase):
 
                 if row['language_version_with_no_origin'] == 'en':
                     self.assertTrue(problem_en in tag_copied.problems.all())
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_en).count(), 1
+
+                    problem_en_statement = [
+                        problem
+                        for problem in ProblemStatement.objects.filter(
+                            problem=problem_en
+                        )
+                        if str(problem.content).endswith('.html')
+                    ][0]
+                    problem_pl_copied_statement = ProblemStatement.objects.filter(
+                        problem=problem_pl, content=problem_en_statement.content
+                    ).get()
+                    problem_pl_original_statement = (
+                        ProblemStatement.objects.filter(problem=problem_pl)
+                        .exclude(content=problem_pl_copied_statement.content)
+                        .get()
                     )
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_pl).count(), 2
-                    )
+
+                    self.assertEqual(problem_pl_copied_statement.language, 'en')
+                    self.assertEqual(problem_pl_original_statement.language, 'pl')
                 else:
                     self.assertTrue(problem_pl in tag_copied.problems.all())
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_en).count(), 2
-                    )
-                    self.assertEqual(
-                        ProblemStatement.objects.filter(problem=problem_pl).count(), 1
-                    )
+
+                    problem_pl_statement = ProblemStatement.objects.filter(
+                        problem=problem_pl
+                    ).get()
+                    problem_en_copied_statement = ProblemStatement.objects.filter(
+                        problem=problem_en, content=problem_pl_statement.content
+                    ).get()
+                    problem_en_original_statements = ProblemStatement.objects.filter(
+                        problem=problem_en
+                    ).exclude(content=problem_en_copied_statement.content)
+                    problem_en_original_statement = [
+                        problem
+                        for problem in problem_en_original_statements
+                        if str(problem.content).endswith('.html')
+                    ][0]
+
+                    self.assertEqual(problem_en_copied_statement.language, 'pl')
+                    self.assertEqual(problem_en_original_statement.language, 'en')
 
 
-class TestAlgorithmTags(TestCase):
+class TestAlgorithmTagsProposalHintsBase(TestCase):
+    """Abstract base class with getting url utility for algorithm tags proposal tests."""
+
     fixtures = [
         'test_users',
         'test_contest',
         'test_problem_packages',
         'test_problem_site',
-        'test_algorithmtags',
+        'test_algorithm_tags',
     ]
+    view_name = 'get_algorithm_tag_proposal_hints'
 
-    @staticmethod
-    def get_query_url(url_to_reverse, parameters):
-        url = reverse(url_to_reverse)
-        return url + '?' + six.moves.urllib.parse.urlencode(parameters)
-
-    def test_tag_hints_view(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'rowk'}
-            )
+    def get_query_url(self, parameters):
+        return '{}?{}'.format(
+            reverse(self.view_name), six.moves.urllib.parse.urlencode(parameters)
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
 
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'rowka'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
 
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'bad_tag'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertNotContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'namic'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'DynamicProgramming')
-        self.assertContains(response, 'ProgramowanieDynamiczne')
-        self.assertNotContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'Greedy')
-        self.assertNotContains(response, 'mrowkowiec')
-        self.assertNotContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'Zach'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'Greedy')
-        self.assertNotContains(response, 'DynamicProgramming')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_algorithmtag_hints', {'substr': 'Greedy'}
-            )
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Greedy')
-        self.assertNotContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'DynamicProgramming')
-        self.assertNotContains(response, 'XYZ')
-
+@override_settings(LANGUAGE_CODE='en')
+class TestAlgorithmTagsProposalHintsEnglish(TestAlgorithmTagsProposalHintsBase):
     def test_tag_proposal_hints_view(self):
         self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_tag_proposal_hints', {'query': 'mrowk'}
-            )
-        )
+        response = self.client.get(self.get_query_url({'query': 'pLeCaK'}))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'mrowkowiec')
-        self.assertContains(response, 'mrowka')
-        self.assertNotContains(response, 'XYZ')
+        self.assertContains(response, 'Knapsack problem')
+        self.assertNotContains(response, 'Problem plecakowy')
+        self.assertNotContains(response, 'pLeCaK')
+        self.assertNotContains(response, 'plecak')
+        self.assertNotContains(response, 'Longest common increasing subsequence')
 
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url(
-                'get_tag_proposal_hints', {'query': 'Dynamic'}
-            )
-        )
+        response = self.client.get(self.get_query_url({'query': 'PROBLEM'}))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'DynamicProgramming')
-        self.assertNotContains(response, 'ProgramowanieDynamiczne')
+        self.assertContains(response, 'Knapsack problem')
+        self.assertNotContains(response, 'Problem plecakowy')
+        self.assertNotContains(response, 'Longest common increasing subsequence')
 
-        response = self.client.get(
-            TestAlgorithmTags.get_query_url('get_tag_proposal_hints', {'query': 'gre'})
-        )
+        response = self.client.get(self.get_query_url({'query': 'dynam'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Dynamic programming')
+        self.assertNotContains(response, 'dp')
+        self.assertNotContains(response, 'Programowanie dynamiczne')
+
+        response = self.client.get(self.get_query_url({'query': 'greedy'}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Greedy')
-        self.assertNotContains(response, 'Zachlanne')
-        self.assertNotContains(response, 'DynamicProgramming')
+        self.assertNotContains(response, 'Dynamic programming')
         self.assertNotContains(response, 'XYZ')
 
+        # Use a byte string in the query to ensure a proper url encoding.
+        response = self.client.get(self.get_query_url({'query': 'najdłuższy'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'lcis')
 
-class TestDifficultyTags(TestCase):
-    fixtures = [
-        'test_users',
-        'test_contest',
-        'test_problem_packages',
-        'test_problem_site',
-        'test_tags',
-        'test_difficultytags',
-    ]
+        response = self.client.get(self.get_query_url({'query': 'l'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'lcis')
+        self.assertNotContains(response, 'Problem plecakowy')
 
-    def test_tag_hints_view(self):
+
+@override_settings(LANGUAGE_CODE='pl')
+class TestAlgorithmTagsProposalHintsPolish(TestAlgorithmTagsProposalHintsBase):
+    def test_tag_proposal_hints_view(self):
         self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        def get_query_url(query):
-            url = reverse('get_difficultytag_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode({'substr': query})
-
-        response = self.client.get(get_query_url('rud'))
+        response = self.client.get(self.get_query_url({'query': 'plecak'}))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'trudne')
-        self.assertNotContains(response, 'latwe')
-        self.assertNotContains(response, 'XYZ')
+        self.assertContains(response, 'Problem plecakowy')
+        self.assertNotContains(response, 'Knapsack problem')
+        self.assertNotContains(response, 'Longest common increasing subsequence')
 
-        response = self.client.get(get_query_url('bad_tag'))
+        response = self.client.get(self.get_query_url({'query': 'dynam'}))
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'trudne')
-        self.assertNotContains(response, 'latwe')
-        self.assertNotContains(response, 'XYZ')
+        self.assertContains(response, 'Programowanie dynamiczne')
+        self.assertNotContains(response, 'dp')
+        self.assertNotContains(response, 'Dynamic programming')
+
+        response = self.client.get(self.get_query_url({'query': 'greedy'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, b'Zach\u0142anny')
+        self.assertNotContains(response, 'Greedy')
+
+        # Use a byte string in the query to ensure a proper url encoding.
+        response = self.client.get(self.get_query_url({'query': 'ZAchłan'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, b'Zach\u0142anny')
+        self.assertNotContains(response, 'Greedy')
+
+        response = self.client.get(self.get_query_url({'query': 'longest'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(response, 'lcis')
+
+        response = self.client.get(self.get_query_url({'query': 'lcis'}))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+        self.assertNotContains(response, 'Longest common increasing subsequence')
+        self.assertNotContains(response, 'lcis')
+
+
+class TestAlgorithmTagLabel(TestCase):
+    fixtures = ['test_algorithm_tags']
+    view_name = 'get_algorithm_tag_label'
+
+    def get_tag_labels(self, parameters):
+        url = '{}?{}'.format(
+            reverse(self.view_name), six.moves.urllib.parse.urlencode(parameters)
+        )
+        return self.client.get(url)
+
+    def test_algorithm_tag_label_view(self):
+        response = self.get_tag_labels(
+            {'name': 'Najdłuższy wspólny podciąg rosnący', 'proposed': '-1'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response, b'Najd\u0142u\u017cszy wsp\u00f3lny podci\u0105g rosn\u0105cy'
+        )
+
+        response = self.get_tag_labels(
+            {'name': 'Programowanie dynamiczne', 'proposed': '-1'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Programowanie dynamiczne')
+
+        response = self.get_tag_labels({'name': 'Knapsack problem', 'proposed': '-1'})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Knapsack problem')
+
+        invalid_query_data = [
+            {'name': 'Programowanie dynamiczne', 'proposed': '0'},
+            {'name': '', 'proposed': '-1'},
+            {'name': 'XYZ', 'proposed': '-1'},
+        ]
+        for query_data in invalid_query_data:
+            response = self.get_tag_labels(query_data)
+            self.assertEqual(response.status_code, 404)
+
+
+class TestSaveProposals(TestCase):
+    fixtures = [
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+        'test_users',
+        'test_problem_search',
+    ]
+    view_name = 'save_proposals'
+
+    def get_query_url(self, parameters):
+        url = reverse(self.view_name)
+        return url + '?' + six.moves.urllib.parse.urlencode(parameters)
+
+    def save_proposals_view(self):
+        problem = Problem.objects.get(pk=0)
+        user = User.objects.get(username='test_admin')
+
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 0)
+
+        response = self.client.get(
+            self.get_query_url(
+                {
+                    'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                    'difficulty': 'Easy',
+                    'username': 'test_admin',
+                    'problem': '0',
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 2)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 1)
+        self.assertTrue(
+            AlgorithmTagProposal.objects.filter(
+                problem=problem, tag=AlgorithmTag.objects.get(name='dp'), user=user
+            ).exists()
+        )
+        self.assertTrue(
+            AlgorithmTagProposal.objects.filter(
+                problem=problem,
+                tag=AlgorithmTag.objects.get(name='knapsack'),
+                user=user,
+            ).exists()
+        )
+        self.assertTrue(
+            DifficultyTagProposal.objects.filter(
+                problem=problem, tag=DifficultyTag.objects.get(name='easy'), user=user
+            ).exists()
+        )
+
+        invalid_query_data = [
+            {
+                'difficulty': 'Easy',
+                'username': 'test_admin',
+                'problem': '0',
+            },
+            {
+                'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                'username': 'test_admin',
+                'problem': '0',
+            },
+            {
+                'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                'difficulty': 'Easy',
+                'problem': '0',
+            },
+            {
+                'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                'difficulty': 'Easy',
+                'username': 'test_admin',
+            },
+        ]
+
+        for q_data in invalid_query_data:
+            response = self.client.get(self.get_query_url(q_data))
+            self.assertEqual(response.status_code, 400)
 
 
 class TestNavigationBarItems(TestCase):
@@ -1869,28 +1976,26 @@ class TestNavigationBarItems(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
 
-        response = self.client.get(url_main, follow=True)
-        self.assertContains(response, 'Problemset')
-        self.assertContains(response, 'Task archive')
-
-        response = self.client.get(url_my, follow=True)
-        self.assertContains(response, 'Problemset')
-        self.assertContains(response, 'Task archive')
-
-        response = self.client.get(url_all, follow=True)
-        self.assertContains(response, 'Problemset')
-        self.assertContains(response, 'Task archive')
-
-        response = self.client.get(url_add, follow=True)
-        self.assertContains(response, 'Problemset')
-        self.assertContains(response, 'Task archive')
+        for url in [url_main, url_my, url_all, url_add]:
+            response = self.client.get(url, follow=True)
+            self.assertContains(response, 'Problemset')
+            self.assertContains(response, 'Task archive')
 
 
 class TestAddToProblemsetPermissions(TestCase):
     fixtures = ['test_users']
 
-    @override_settings(EVERYBODY_CAN_ADD_TO_PROBLEMSET=False)
-    def test_default_permissions(self):
+    def _assert_can_see_and_add(self):
+        url_main = reverse('problemset_main')
+        url_add = reverse('problemset_add_or_update')
+
+        response = self.client.get(url_main)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Add problem')
+        response = self.client.get(url_add, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+    def _assert_can_see_but_cannot_add(self):
         url_main = reverse('problemset_main')
         url_add = reverse('problemset_add_or_update')
 
@@ -1900,48 +2005,21 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
 
+    @override_settings(EVERYBODY_CAN_ADD_TO_PROBLEMSET=False)
+    def test_default_permissions(self):
+        self._assert_can_see_but_cannot_add()
         self.assertTrue(self.client.login(username='test_admin'))
-        response = self.client.get(url_main)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Add problem')
-        response = self.client.get(url_add, follow=True)
-        self.assertEqual(response.status_code, 200)
-
+        self._assert_can_see_and_add()
         self.assertTrue(self.client.login(username='test_user'))
-        response = self.client.get(url_main)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Add problem')
-        url_add = reverse('problemset_add_or_update')
-        response = self.client.get(url_add, follow=True)
-        self.assertEqual(response.status_code, 403)
+        self._assert_can_see_but_cannot_add()
 
     @override_settings(EVERYBODY_CAN_ADD_TO_PROBLEMSET=True)
     def test_everyone_allowed_permissions(self):
-        url_main = reverse('problemset_main')
-        url_add = reverse('problemset_add_or_update')
-
-        response = self.client.get(url_main, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Add problem')
-        response = self.client.get(url_add, follow=True)
-        self.assertEqual(response.status_code, 403)
-
+        self._assert_can_see_but_cannot_add()
         self.assertTrue(self.client.login(username='test_admin'))
-        url_main = reverse('problemset_main')
-        response = self.client.get(url_main)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Add problem')
-        url_add = reverse('problemset_add_or_update')
-        response = self.client.get(url_add, follow=True)
-        self.assertEqual(response.status_code, 200)
-
+        self._assert_can_see_and_add()
         self.assertTrue(self.client.login(username='test_user'))
-        response = self.client.get(url_main)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Add problem')
-        url_add = reverse('problemset_add_or_update')
-        response = self.client.get(url_add, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self._assert_can_see_and_add()
 
 
 class TestAddToContestFromProblemset(TestCase):
@@ -2422,9 +2500,8 @@ class TestProblemStatisticsDisplay(TestCase):
         self.assertEqual(rows, self.problem_data)
 
         # There are exactly four problems, one for each score class.
-        self.assertContains(response, 'result--OK', count=1)
-        self.assertContains(response, 'result--TRIED', count=1)
-        self.assertContains(response, 'result--FAILED', count=1)
+        for result in ['result--OK', 'result--TRIED', 'result--FAILED']:
+            self.assertContains(response, result, count=1)
 
     def test_statistics_sorting(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -2600,23 +2677,25 @@ class TestVisibilityMigrationReverse(TestCaseMigrations):
         )
 
 
-class TestProblemSearchPermissions(TestCase):
+class AssertContainsOnlyMixin:
+    def assert_contains_only(self, response, allowed_values):
+        for task in self.all_values:
+            if task in allowed_values:
+                self.assertContains(response, task)
+            else:
+                self.assertNotContains(response, task)
+
+
+class TestProblemSearchPermissions(TestCase, AssertContainsOnlyMixin):
     fixtures = ['test_users', 'test_problem_search_permissions']
     url = reverse('problemset_main')
 
-    task_names = [
+    task_names = all_values = [
         'Task Public',
         'Task User1Public',
         'Task User1Private',
         'Task Private',
     ]
-
-    def assert_contains_only(self, response, task_names):
-        for task in self.task_names:
-            if task in task_names:
-                self.assertContains(response, task)
-            else:
-                self.assertNotContains(response, task)
 
     def test_search_permissions_public(self):
         self.client.get('/c/c/')
@@ -2670,11 +2749,10 @@ class TestProblemSearchPermissions(TestCase):
         self.assert_contains_only(response, self.task_names)
 
 
-class TestProblemSearch(TestCase):
+class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
     fixtures = ['test_problem_search']
     url = reverse('problemset_main')
-    hints_url = reverse('get_search_hints', args=('public',))
-    task_names = [
+    task_names = all_values = [
         'Prywatne',
         'Zadanko',
         'Żółć',
@@ -2683,48 +2761,41 @@ class TestProblemSearch(TestCase):
         'Trudność',
     ]
 
-    def assert_contains_only(self, response, task_names):
-        for task in self.task_names:
-            if task in task_names:
-                self.assertContains(response, task)
-            else:
-                self.assertNotContains(response, task)
-
     def test_search_name(self):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': 'Zadanko'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko'))
+        self.assert_contains_only(response, ('Zadanko',))
 
         response = self.client.get(self.url, {'q': 'zADaNkO'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko'))
+        self.assert_contains_only(response, ('Zadanko',))
 
         response = self.client.get(self.url, {'q': 'zadan'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko'))
+        self.assert_contains_only(response, ('Zadanko',))
 
     def test_search_name_unicode(self):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': 'Żółć'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Żółć'))
+        self.assert_contains_only(response, ('Żółć',))
 
         response = self.client.get(self.url, {'q': 'żółć'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Żółć'))
+        self.assert_contains_only(response, ('Żółć',))
 
         response = self.client.get(self.url, {'q': 'Zolc'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Żółć'))
+        self.assert_contains_only(response, ('Żółć',))
 
         response = self.client.get(self.url, {'q': 'żoŁc'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Żółć'))
+        self.assert_contains_only(response, ('Żółć',))
 
         response = self.client.get(self.url, {'q': 'olc'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Żółć'))
+        self.assert_contains_only(response, ('Żółć',))
 
     def test_search_name_multiple(self):
         self.client.get('/c/c/')
@@ -2736,11 +2807,11 @@ class TestProblemSearch(TestCase):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': 'zad'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko'))
+        self.assert_contains_only(response, ('Zadanko',))
 
         response = self.client.get(self.url, {'q': 'zol'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Żółć'))
+        self.assert_contains_only(response, ('Żółć',))
 
     def test_search_short_name_multiple(self):
         self.client.get('/c/c/')
@@ -2750,9 +2821,6 @@ class TestProblemSearch(TestCase):
 
     def test_search_tags_basic(self):
         self.client.get('/c/c/')
-        response = self.client.get(self.url, {'tag': 'tag_t'})
-        self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Znacznik', 'Potagowany'))
 
         response = self.client.get(self.url, {'algorithm': 'tag_a'})
         self.assertEqual(response.status_code, 200)
@@ -2765,19 +2833,17 @@ class TestProblemSearch(TestCase):
         response = self.client.get(
             self.url,
             {
-                'tag': 'tag_t',
                 'algorithm': 'tag_a',
                 'difficulty': 'tag_d',
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Potagowany'))
+        self.assert_contains_only(response, ('Potagowany',))
 
         response = self.client.get(
             self.url,
             {
                 'q': 'nic',
-                'tag': 'tag_t',
                 'algorithm': 'tag_a',
                 'difficulty': 'tag_d',
             },
@@ -2786,11 +2852,10 @@ class TestProblemSearch(TestCase):
         self.assert_contains_only(response, ())
 
 
-class TestProblemSearchOrigin(TestCase):
+class TestProblemSearchOrigin(TestCase, AssertContainsOnlyMixin):
     fixtures = ['test_problem_search_origin']
     url = reverse('problemset_main')
-
-    task_names = [
+    task_names = all_values = [
         '0_private',
         '0_public',
         '1_pa',
@@ -2800,13 +2865,6 @@ class TestProblemSearchOrigin(TestCase):
         '2_pa_2012',
         '3_pa_2012_r1',
     ]
-
-    def assert_contains_only(self, response, task_names):
-        for task in self.task_names:
-            if task in task_names:
-                self.assertContains(response, task)
-            else:
-                self.assertNotContains(response, task)
 
     def test_search_origintag(self):
         self.client.get('/c/c/')
@@ -2868,17 +2926,23 @@ class TestProblemSearchOrigin(TestCase):
         self.assert_contains_only(response, [])
 
 
-class TestProblemSearchHintsTags(TestCase):
-    fixtures = ['test_problem_search_hints_tags']
+class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
+    fixtures = [
+        'test_origin_tags',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+    ]
     url = reverse('get_search_hints', args=('public',))
     category_url = reverse('get_origininfocategory_hints')
-    hints = [
-        'tag_t1',
-        'tag_t2',
-        'tag_d1',
-        'tag_d2',
-        'tag_a1',
-        'tag_a2',
+    selected_origintag_url = reverse('get_selected_origintag_hints')
+    hints = all_values = [
+        'very-easy',
+        'easy',
+        'medium',
+        'hard',
+        'very-hard',
+        'dp',
+        'lcis',
         'pa_2011',
         'pa_2012',
         'pa_r1',
@@ -2889,42 +2953,42 @@ class TestProblemSearchHintsTags(TestCase):
         'origintag',
         'round',
         'year',
-        'Grafy',
-        'Graphs',
     ]
 
-    def assert_contains_only(self, response, hints):
-        for hint in self.hints:
-            if hint in hints:
-                self.assertContains(response, hint)
-            else:
-                self.assertNotContains(response, hint)
+    def get_query_url(self, parameters):
+        return self.url + '?' + six.moves.urllib.parse.urlencode(parameters)
 
+    @override_settings(LANGUAGE_CODE="en")
     def test_search_hints_tags_basic(self):
         self.client.get('/c/c/')
-        response = self.client.get(self.url, {'q': 'tag_t'})
-        self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['tag_t1', 'tag_t2'])
 
-        response = self.client.get(self.url, {'q': 'tag_d'})
+        response = self.client.get(self.get_query_url({'q': 'najdłuższy'}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['tag_d1', 'tag_d2'])
+        self.assert_contains_only(response, ['lcis'])
 
-        response = self.client.get(self.url, {'q': 'tag_a'})
+        response = self.client.get(self.get_query_url({'q': 'easy'}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['tag_a1', 'tag_a2'])
+        self.assert_contains_only(response, ['very-easy', 'easy'])
 
-        response = self.client.get(self.url, {'q': 'Gra'})
+        response = self.client.get(self.get_query_url({'q': 'Mediu'}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['Grafy', 'Graphs'])
+        self.assert_contains_only(response, ['medium'])
 
-        response = self.client.get(self.url, {'q': 'raph'})
+        response = self.client.get(self.get_query_url({'q': 'PROGRA'}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ['Graphs'])
+        self.assert_contains_only(response, ['dp'])
 
-        response = self.client.get(self.url, {'q': 'Dijkstra'})
+        response = self.client.get(self.get_query_url({'q': 'dYNAM'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['dp'])
+
+        response = self.client.get(self.get_query_url({'q': 'dp'}))
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'increasing'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['lcis'])
 
     def test_search_hints_origininfo(self):
         self.client.get('/c/c/')
@@ -2952,6 +3016,42 @@ class TestProblemSearchHintsTags(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['pa_r1', 'pa_r2'])
+
+    @override_settings(LANGUAGE_CODE="en")
+    def test_selected_origintag_hints_en(self):
+        self.client.get('/c/c/')
+        response = self.client.get(
+            self.selected_origintag_url, {'q': 'Potyczki Algorytmiczne'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'pa')
+        self.assertContains(response, 'Potyczki Algorytmiczne')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Year')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Round')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Rok')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Runda')
+        self.assertNotContains(response, 'pa_r1')
+        self.assertNotContains(response, 'pa_r2')
+        self.assertNotContains(response, 'pa_2011')
+        self.assertNotContains(response, 'pa_2012')
+
+    @override_settings(LANGUAGE_CODE="pl")
+    def test_selected_origintag_hints_pl(self):
+        self.client.get('/c/c/')
+        response = self.client.get(
+            self.selected_origintag_url, {'q': 'Potyczki Algorytmiczne'}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'pa')
+        self.assertContains(response, 'Potyczki Algorytmiczne')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Rok')
+        self.assertContains(response, 'Potyczki Algorytmiczne - Runda')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Year')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne - Round')
+        self.assertNotContains(response, 'pa_r1')
+        self.assertNotContains(response, 'pa_r2')
+        self.assertNotContains(response, 'pa_2011')
+        self.assertNotContains(response, 'pa_2012')
 
 
 @override_settings(LANGUAGE_CODE='pl')

@@ -47,7 +47,7 @@
 
 
         <ul class="nav nav-pills nav-justified nav-margin">
-            {% for view_type, view_name in views.items %}
+            {% for view_type, view_name in views %}
             <li role="presentation" {% if view_type == curr_view_type %} class="active" {% endif %}>
                 <a href="{% url 'portals_main_page_type' view_type=view_type %}">
                     {{ view_name }}
@@ -77,14 +77,14 @@
                     {% if portal.owner %}
                         {% url 'user_portal' username=portal.owner portal_path=portal.root.get_path as portal_url %}
                     {% else %}
-                        {% url 'global_portal' link_name=portal.link_name portal_path=portal.root.get_path as portal_url%}
+                        {% url 'global_portal' link_name=portal.link_name portal_path=portal.root.get_path as portal_url %}
                     {% endif %}
                     <tr>
                         <td>{{ portal.root|full_name:request }}</td>
                         <td>
-                            <a href="{{ portal_url }}"> {{ portal_url  | slice:"1:-1" }}</a>
+                            <a href="{{ portal_url }}"> {{ portal_url | slice:"1:-1" }}</a>
                         </td>
-                        <td>{{portal.short_description}}</td>
+                        <td>{{ portal.short_description }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -93,7 +93,7 @@
         {% paginate %}
     {% else %}
         <div class="alert alert-info">
-            <p>{% trans 'There are no portals here :(' %}</p>
+            <p>{% trans "There are no portals here :(" %}</p>
         </div>
     {% endif %}
 

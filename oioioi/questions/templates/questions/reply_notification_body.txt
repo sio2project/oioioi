@@ -9,7 +9,7 @@
 ================
 
 {% if show_original %}
-{% trans 'The original question was:' %}
+{% trans "The original question was:" %}
 
 ================
 
@@ -18,7 +18,7 @@
 ================
 {% endif %}
 
-{% trans 'The message is available at' %} {{ root }}{% url 'message' contest_id=msg.contest.id message_id=link_m_id %}
+{% trans "The message is available at" %} {{ root }}{% url 'message' contest_id=msg.contest.id message_id=link_m_id %}
 
 {% trans "You're receiving this e-mail because you subscribed for notifications for contest" %} {{ msg.contest.name }}.
-{% trans 'You can visit' %} {{ root }}{% url 'contest_messages' contest_id=msg.contest.id %} {% trans 'to unsubscribe' %}{% endautoescape %}
+{% trans "You can visit" %} {{ root }}{% url 'contest_messages' contest_id=msg.contest.id %} {% trans "to unsubscribe" %}{% endautoescape %}

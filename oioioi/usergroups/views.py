@@ -71,10 +71,10 @@ class GroupsAddView(FormView):
             group.contests.add(self.request.contest)
             messages.success(
                 self.request,
-                _('New user group from contest members created successfully!'),
+                _("New user group from contest members created successfully!"),
             )
         else:
-            messages.success(self.request, _('New user group created successfully!'))
+            messages.success(self.request, _("New user group created successfully!"))
 
         return super(GroupsAddView, self).form_valid(form)
 
@@ -138,7 +138,7 @@ class GroupsDeleteView(DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super(GroupsDeleteView, self).get_context_data(**kwargs)
-        context['object_name'] = _('User group')
+        context['object_name'] = _("User group")
 
         return context
 
@@ -199,7 +199,7 @@ def join_usergroup_view(request, key):
     except MultipleObjectsReturned:
         messages.error(
             request,
-            _('Provided key is not unique!' ' Ask your teacher to regenerate it.'),
+            _("Provided key is not unique! Ask your teacher to regenerate it."),
         )
         return redirect('index')
 
@@ -208,7 +208,7 @@ def join_usergroup_view(request, key):
         .filter(members__in=[request.user])
         .exists()
     ):
-        messages.info(request, _('You are already member of this group.'))
+        messages.info(request, _("You are already member of this group."))
     else:
         if group.addition_config.enabled:
             confirmation = confirmation_view(
@@ -222,12 +222,12 @@ def join_usergroup_view(request, key):
                 group.members.add(request.user)
                 messages.success(
                     request,
-                    _('You have been successfully' ' added to group %s!') % group.name,
+                    _("You have been successfully added to group %s!") % group.name,
                 )
         else:
             messages.error(
                 request,
-                _('You cannot join this group.' ' This option is currently disabled.'),
+                _("You cannot join this group. This option is currently disabled."),
             )
 
     return redirect('index')
@@ -258,22 +258,22 @@ def become_owner_view(request, key):
     except MultipleObjectsReturned:
         messages.error(
             request,
-            _('Provided key is not unique!' ' Ask group\'s owner to regenerate it.'),
+            _("Provided key is not unique! Ask group's owner to regenerate it."),
         )
         return redirect('teacher_usergroups_list')
 
     if UserGroup.objects.filter(id=group.id).filter(owners__in=[request.user]).exists():
-        messages.info(request, _('You are already owner of this group.'))
+        messages.info(request, _("You are already owner of this group."))
     else:
         if group.sharing_config.enabled:
             group.owners.add(request.user)
-            messages.success(request, _('You became owner of group %s.') % group.name)
+            messages.success(request, _("You became owner of group %s.") % group.name)
         else:
             messages.error(
                 request,
                 _(
-                    'You cannot become owner of this group.'
-                    ' This option is currently disabled.'
+                    "You cannot become owner of this group. "
+                    "This option is currently disabled."
                 ),
             )
 

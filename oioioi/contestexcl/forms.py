@@ -8,7 +8,7 @@ from oioioi.contestexcl.models import ExclusivenessConfig
 
 class ExclusivenessConfigForm(AlwaysChangedModelForm):
     disable = forms.BooleanField(
-        label=_('disable?'),
+        label=_("disable?"),
         help_text=_(
             "Caution! If you disable exclusiveness, "
             "it can only be re-enabled by a superadmin!"

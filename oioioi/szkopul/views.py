@@ -14,21 +14,21 @@ from oioioi.szkopul.menu import navbar_links_registry
 
 navbar_links_registry.register(
     name='contests_list',
-    text=_('Contests'),
+    text=_("Contests"),
     url_generator=lambda request: reverse('select_contest'),
     order=100,
 )
 
 navbar_links_registry.register(
     name='problemset',
-    text=_('Problemset'),
+    text=_("Problemset"),
     url_generator=lambda request: reverse('problemset_main'),
     order=200,
 )
 
 navbar_links_registry.register(
     name='task_archive',
-    text=_('Task archive'),
+    text=_("Task archive"),
     url_generator=lambda request: reverse('task_archive'),
     order=300,
 )
@@ -36,7 +36,7 @@ navbar_links_registry.register(
 # TODO Add Portals main page to the menu:
 # navbar_links_registry.register(
 #     name='portals',
-#     text=_('Portals'),
+#     text=_("Portals"),
 #     ...
 # )
 

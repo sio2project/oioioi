@@ -12,6 +12,7 @@ from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
+from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
     Contest,
     ProblemInstance,
@@ -277,7 +278,7 @@ def visible_contests(request):
             )
             visible_query = visible_query.union(subquery, all=False)
         return set(visible_query)
-    visible_query = Q(pk__isnull=True)  # (False)
+    visible_query = Q_always_false()
     for controller_name in used_controllers():
         controller_class = import_string(controller_name)
         # HACK: we pass None contest just to call visible_contests_query.

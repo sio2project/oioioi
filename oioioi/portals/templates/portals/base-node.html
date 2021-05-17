@@ -1,5 +1,5 @@
 {% extends "base-with-menu.html" %}
-{% load i18n mptt_tags portal_url menu %}
+{% load i18n mptt_tags menu breadcrumbs %}
 
 {% block title %}{{ current_lang_version.full_name }}{% endblock %}
 
@@ -14,7 +14,7 @@
 {% block main-content %}
     <div class="hidden-sm hidden-xs">
         {% block portal_breadcrumbs %}
-            {% include "portals/breadcrumbs.html" %}
+            {% breadcrumbs %}
         {% endblock %}
     </div>
     {% generate_menu portal_admin_menu %}

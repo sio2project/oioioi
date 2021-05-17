@@ -8,7 +8,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h3 class="modal-title text-center" id="modalLabel">{%  trans 'Help us improve the problemset!' %}</h3>
+                <h3 class="modal-title text-center" id="modalLabel">{%  trans "Help us improve the problemset!" %}</h3>
             </div>
             <form autocomplete="off" id="tag-form" method="post">
                 {% csrf_token %}
@@ -19,7 +19,7 @@
                             <h5>Congratulations, you solved it!</h5>
                             <p>
                                 The problemset isn't perfect, but we always aim to make it better. To do that we
-                                need your help. Please, fill this form and leave your proposals for alogorithm
+                                need your help. Please, fill this form and leave your proposals for algorithm
                                 and difficulty tags for this problem. Thank you!
                             </p>
                         {% endblocktrans %}
@@ -38,19 +38,26 @@
                         <h4 class="text-center">
                             <b data-toggle="tooltip" title="{% blocktrans %} Think of algorithms used to solve this
                             problem as well as areas of algorithmics it falls into, such as Graphs or NumberTheory
-                            {% endblocktrans %}">{% trans 'Algorithms' %}</b>
+                            {% endblocktrans %}">{% trans "Algorithms" %}</b>
                         </h4>
                         <div class="content-row tag-input">
                             <div id="autocomplete">
                                 <input id="algorithm-tags" class="form-control" type="text" name="tags"
-                                       data-hints-url="{% url 'get_tag_proposal_hints' %}"
-                                       data-taglabel-url="{% url 'get_tag_label' %}"
-                                       placeholder="{% trans 'e.g. dijkstra' %}"
+                                       data-hints-url="{% url 'get_algorithm_tag_proposal_hints' %}"
+                                       data-taglabel-url="{% url 'get_algorithm_tag_label' %}"
+                                       placeholder='{% trans "e.g. Dijkstra" %}'
                                        maxlength="20">
+                            </div>
+                            <div class="modal-footer content-row">
+                                <button id="add-algorithm" type="button" class="btn btn-primary"
+                                            data-taglabel-url="{% url 'get_algorithm_tag_label' %}" disabled>
+                                    {% trans "Add" %}
+                                </button>
                             </div>
                         </div>
                         <div id="tags-container" class="hidden"></div>
                     </section>
+
 
                     <hr class="separator">
                     <section class="form-group">
@@ -58,18 +65,16 @@
                             <b data-toggle="tooltip" title="{% blocktrans %} Most problems fall into the 'normal' category,
                             which is the default for the problemset. However, there are problems that are meant
                             for learning basics of programming (these are 'easy') and those that are exceptionally 'hard'
-                            {% endblocktrans %}">{% trans 'Difficulty' %}</b>
+                            {% endblocktrans %}">{% trans "Difficulty" %}</b>
                         </h4>
                         <div class="content-row btn-row">
-                            <div class="md-col-4 sm-col-2">
-                                <button type="button" class="btn btn-lg btn-option btn-block" data-state="">Easy</button>
-                            </div>
-                            <div class="md-col-4 sm-col-2">
-                                <button type="button" class="btn btn-lg btn-option btn-block" data-state="">Normal</button>
-                            </div>
-                            <div class="md-col-4 sm-col-2">
-                                <button type="button" class="btn btn-lg btn-option btn-block" data-state="">Hard</button>
-                            </div>
+                            {% for difficulty in difficulty_options %}
+                                <div class="md-col-4 sm-col-2">
+                                    <button type="button" class="btn btn-lg btn-option btn-block" data-state="">
+                                        {{ difficulty }}
+                                    </button>
+                                </div>
+                            {% endfor %}
                         </div>
                     </section>
                 </div>
@@ -77,14 +82,14 @@
                     <button id="submit" type="button" class="btn btn-primary"
                             data-submit-url="{% url 'save_proposals' %}" data-problem="{{ problem.pk }}"
                             data-user="{{ user.username }}">
-                        {% trans 'Submit' %}
+                        {% trans "Submit" %}
                     </button>
                 </div>
                 <p id="server-error" class="hidden text-danger error-message">
                     {% trans "There's been a server error during submitting" %}
                 </p>
                 <p id="invalid-form" class="hidden text-danger error-message">
-                    {% trans "You have to specify at least one tag!" %}
+                    {% trans "You have to specify at least one algorithm tag and exactly one difficulty tag!" %}
                 </p>
             </form>
         </div>

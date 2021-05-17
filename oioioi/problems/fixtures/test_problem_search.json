@@ -129,38 +129,6 @@
 
   {
     "pk": 1,
-    "model": "problems.tag",
-    "fields": {
-      "name": "tag_t"
-    }
-  },
-  {
-    "pk": 1,
-    "model": "problems.tagthrough",
-    "fields": {
-      "tag": 1,
-      "problem": 3
-    }
-  },
-  {
-    "pk": 2,
-    "model": "problems.tagthrough",
-    "fields": {
-      "tag": 1,
-      "problem": 6
-    }
-  },
-  {
-    "pk": 3,
-    "model": "problems.tagthrough",
-    "fields": {
-      "tag": 1,
-      "problem": 0
-    }
-  },
-
-  {
-    "pk": 1,
     "model": "problems.algorithmtag",
     "fields": {
       "name": "tag_a"

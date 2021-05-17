@@ -87,9 +87,6 @@
 
                     {% if show_tags %}
                         <td>
-                            {% for tag in problem.tag_set.all %}
-                                {% tag_label tag %}
-                            {% endfor %}
                             {% for tag in problem.algorithmtag_set.all %}
                                 {% tag_label tag %}
                             {% endfor %}
@@ -179,7 +176,7 @@
 {% else %}
 
 <div class="alert alert-info">
-    <p>{% trans 'There are no problems here :(' %}</p>
+    <p>{% trans "There are no problems here :(" %}</p>
 </div>
 {% endif %}
 

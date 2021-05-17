@@ -1,10 +1,11 @@
 import re
 
+from six.moves import range
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
-from six.moves import range
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import (
@@ -15,7 +16,6 @@ from oioioi.contests.models import (
     Submission,
 )
 from oioioi.contests.tests.utils import make_user_contest_admin
-from oioioi.problems.models import Tag, TagThrough
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
 
@@ -232,7 +232,32 @@ class TestUserDashboard(TestCase):
         self.assertContains(response, 'Show all contests')
 
 
-class TestProblemInstanceSettings(TestCase):
+class TestProblemInstance(TestCase):
+    """Abstract base class with login utility for problem instance tests classes."""
+
+    def login(self, get_problems):
+        c = Contest.objects.get(id='c')
+        c.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
+        c.save()
+
+        user = User.objects.get(username='test_user')
+        ContestPermission.objects.get_or_create(
+            user=user, permission='contests.contest_admin', contest=c
+        )
+
+        self.assertTrue(self.client.login(username='test_user'))
+        self.client.get('/c/c/')
+
+        if get_problems:
+            pi = ProblemInstance.objects.filter(contest=c)[0]
+            p = pi.problem
+
+            return pi, p
+
+        return c
+
+
+class TestProblemInstanceSettings(TestProblemInstance):
     fixtures = [
         'test_users',
         'teachers',
@@ -242,7 +267,6 @@ class TestProblemInstanceSettings(TestCase):
         'test_messages',
         'test_templates',
         'test_submission',
-        'test_tags',
     ]
 
     form_data = {
@@ -299,41 +323,10 @@ class TestProblemInstanceSettings(TestCase):
         'form-5-kind': 'NORMAL',
         'form-5-is_active': 'on',
         'form-5-id': '6',
-        'attachment-TOTAL_FORMS': '0',
-        'attachment-INITIAL_FORMS': '0',
-        'attachment-MIN_NUM_FORMS': '0',
-        'attachment-MAX_NUM_FORMS': '1000',
-        'tag-TOTAL_FORMS': '1',
-        'tag-INITIAL_FORMS': '1',
-        'tag-MIN_NUM_FORMS': '0',
-        'tag-MAX_NUM_FORMS': '1000',
-        'tag-0-id': '1',
-        'tag-0-name': 'mrowkowiec',
     }
 
-    def login(self, get_problems):
-        c = Contest.objects.get(id='c')
-        c.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
-        c.save()
-
-        user = User.objects.get(username='test_user')
-        cp = ContestPermission()
-        cp.user = user
-        cp.permission = 'contests.contest_admin'
-        cp.contest = c
-        cp.save()
-
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')
-
-        if get_problems:
-            pi = ProblemInstance.objects.filter(contest=c)[0]
-            p = pi.problem
-            return (pi, p)
-        return c
-
     def test_test_settings_ok(self):
-        c = self.login(False)
+        c = self.login(get_problems=False)
         pi = ProblemInstance.objects.filter(contest=c)[0]
 
         form_data = self.form_data.copy()
@@ -355,7 +348,7 @@ class TestProblemInstanceSettings(TestCase):
 
     @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=6000)
     def test_time_limit(self):
-        c = self.login(False)
+        c = self.login(get_problems=False)
         pi = ProblemInstance.objects.filter(contest=c)[0]
 
         response = self.client.post(
@@ -373,7 +366,7 @@ class TestProblemInstanceSettings(TestCase):
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=100)
     def test_memory_limit(self):
-        c = self.login(False)
+        c = self.login(get_problems=False)
         pi = ProblemInstance.objects.filter(contest=c)[0]
 
         response = self.client.post(
@@ -389,76 +382,8 @@ class TestProblemInstanceSettings(TestCase):
             % settings.MAX_MEMORY_LIMIT_FOR_TEST,
         )
 
-    def test_tag_delete(self):
-        (pi, p) = self.login(True)
 
-        form_data = self.form_data.copy()
-        form_data['tag-0-DELETE'] = 'on'
-
-        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
-
-        response = self.client.post(
-            reverse(
-                'simpleui_problem_settings', kwargs={'problem_instance_id': str(pi.id)}
-            ),
-            form_data,
-            follow=True,
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(Tag.objects.filter(name="mrowkowiec").exists())
-        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 0)
-
-    def test_tag_create(self):
-        (pi, p) = self.login(True)
-
-        form_data = self.form_data.copy()
-        form_data['tag-TOTAL_FORMS'] = '2'
-        form_data['tag-1-name'] = 'foobar'
-
-        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
-        self.assertFalse(Tag.objects.filter(name="foobar").exists())
-
-        response = self.client.post(
-            reverse(
-                'simpleui_problem_settings', kwargs={'problem_instance_id': str(pi.id)}
-            ),
-            form_data,
-            follow=True,
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(Tag.objects.filter(name="mrowkowiec").exists())
-        self.assertTrue(Tag.objects.filter(name="foobar").exists())
-        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 2)
-
-    def test_tag_create_invalid(self):
-        (pi, p) = self.login(True)
-
-        form_data = self.form_data.copy()
-        form_data['tag-TOTAL_FORMS'] = '3'
-        form_data['tag-1-name'] = 'foobar'
-        form_data['tag-2-name'] = 'invalid!'
-
-        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
-        self.assertFalse(Tag.objects.filter(name="foobar").exists())
-
-        response = self.client.post(
-            reverse(
-                'simpleui_problem_settings', kwargs={'problem_instance_id': str(pi.id)}
-            ),
-            form_data,
-            follow=True,
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(Tag.objects.filter(name="mrowkowiec").exists())
-        self.assertFalse(Tag.objects.filter(name="foobar").exists())
-        self.assertFalse(Tag.objects.filter(name="invalid!").exists())
-        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
-
-
-class TestProblemInstanceValidation(TestCase):
+class TestProblemInstanceValidation(TestProblemInstance):
     fixtures = [
         'test_users',
         'teachers',
@@ -521,41 +446,10 @@ class TestProblemInstanceValidation(TestCase):
         'form-5-kind': 'NORMAL',
         'form-5-is_active': 'on',
         'form-5-id': '6',
-        'attachment-TOTAL_FORMS': '0',
-        'attachment-INITIAL_FORMS': '0',
-        'attachment-MIN_NUM_FORMS': '0',
-        'attachment-MAX_NUM_FORMS': '1000',
-        'tag-TOTAL_FORMS': '1',
-        'tag-INITIAL_FORMS': '1',
-        'tag-MIN_NUM_FORMS': '0',
-        'tag-MAX_NUM_FORMS': '1000',
-        'tag-0-id': '1',
-        'tag-0-name': 'mrowkowiec',
     }
 
-    def login(self, get_problems):
-        c = Contest.objects.get(id='c')
-        c.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
-        c.save()
-
-        user = User.objects.get(username='test_user')
-        cp = ContestPermission()
-        cp.user = user
-        cp.permission = 'contests.contest_admin'
-        cp.contest = c
-        cp.save()
-
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')
-
-        if get_problems:
-            pi = ProblemInstance.objects.filter(contest=c)[0]
-            p = pi.problem
-            return (pi, p)
-        return c
-
     def test_max_scores(self):
-        c = self.login(False)
+        c = self.login(get_problems=False)
         pi = ProblemInstance.objects.filter(contest=c)[0]
         response = self.client.post(
             reverse(

@@ -92,7 +92,6 @@ class Problem(models.Model):
         choices=VISIBILITY_LEVELS_CHOICES,
         default=VISIBILITY_FRIENDS,
     )
-
     package_backend_name = DottedNameField(
         'oioioi.problems.package.ProblemPackageBackend',
         null=True,
@@ -482,7 +481,7 @@ def _localized(*localized_fields):
     Also see: LocalizationForm
     """
 
-    def decorated(cls):
+    def decorator(cls):
         def localize(self, key):
             language = get_language()
             # In case prefetch_related('localizations') was done don't want to
@@ -506,7 +505,7 @@ def _localized(*localized_fields):
         cls.__getattr__ = __getattr__
         return cls
 
-    return decorated
+    return decorator
 
 
 @_localized('short_name', 'full_name', 'description')
@@ -526,17 +525,19 @@ class OriginTag(models.Model):
     name = models.CharField(
         max_length=20,
         validators=(validate_origintag,),
-        verbose_name=_('name'),
+        verbose_name=_("name"),
         help_text=_(
-            "Short, searchable name consisting only of lowercase letters, numbers, and hyphens.<br>"
-            "This should refer to general origin, i.e. a particular contest, competition, programming camp, etc.<br>"
+            "Short, searchable name consisting only of lowercase letters, numbers, "
+            "and hyphens.<br>"
+            "This should refer to general origin, i.e. a particular contest, "
+            "competition, programming camp, etc.<br>"
             "This will be displayed verbatim in the Problemset."
         ),
     )
     problems = models.ManyToManyField(
         Problem,
         blank=True,
-        verbose_name=_('problems'),
+        verbose_name=_("problems"),
         help_text=_("Selected problems will be tagged with this tag.<br>"),
     )
 
@@ -556,12 +557,12 @@ class OriginTagLocalization(models.Model):
     language = models.CharField(
         max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
     )
-
     full_name = models.CharField(
         max_length=255,
         verbose_name=_("full name"),
         help_text=_(
-            "Full, official name of the contest, competition, programming camp, etc. which this tag represents."
+            "Full, official name of the contest, competition, programming camp, etc. "
+            "which this tag represents."
         ),
     )
     short_name = models.CharField(
@@ -574,7 +575,8 @@ class OriginTagLocalization(models.Model):
         blank=True,
         verbose_name=_("description"),
         help_text=_(
-            "(optional) Longer description which Will be displayed in the Task Archive next to the name."
+            "(optional) Longer description which Will be displayed in the "
+            "Task Archive next to the name."
         ),
     )
 
@@ -603,7 +605,8 @@ class OriginInfoCategory(models.Model):
         on_delete=models.CASCADE,
         verbose_name=_("parent tag"),
         help_text=_(
-            "This category will be a possible category of information for problems tagged with the selected tag."
+            "This category will be a possible category of information for problems "
+            "tagged with the selected tag."
         ),
     )
     name = models.CharField(
@@ -650,7 +653,6 @@ class OriginInfoCategoryLocalization(models.Model):
     language = models.CharField(
         max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
     )
-
     full_name = models.CharField(
         max_length=32,
         verbose_name=_("name translation"),
@@ -685,12 +687,14 @@ class OriginInfoValue(models.Model):
         help_text=_(
             "If an OriginTag T is a parent of OriginInfoValue V, the presence of V "
             "on a Problem implies the presence of T.<br>"
-            "OriginInfoValues with the same values are also treated as distinct if they have different parents.<br>"
-            "You can think of this distinction as prepending an OriginTag.name prefix to an OriginInfoValue.value<br>"
-            "e.g. for OriginTag 'pa' and OriginInfoValue '2011', this unique OriginInfoValue.name would be 'pa_2011'"
+            "OriginInfoValues with the same values are also treated as distinct if "
+            "they have different parents.<br>"
+            "You can think of this distinction as prepending an OriginTag.name prefix "
+            "to an OriginInfoValue.value<br>"
+            "e.g. for OriginTag 'pa' and OriginInfoValue '2011', this unique "
+            "OriginInfoValue.name would be 'pa_2011'"
         ),
     )
-
     category = models.ForeignKey(
         OriginInfoCategory,
         related_name='values',
@@ -700,18 +704,19 @@ class OriginInfoValue(models.Model):
             "This information should be categorized under the selected category."
         ),
     )
-
     value = models.CharField(
         max_length=32,
         validators=(validate_origintag,),
         verbose_name=_("value"),
         help_text=_(
-            "Short, searchable value consisting of only lowercase letters and numbers.<br>"
-            "This will be displayed verbatim in the Problemset - it must be unique within its parent tag.<br>"
-            "Examples: for year: '2011', but for round: 'r1' (just '1' for round would be ambiguous)."
+            "Short, searchable value consisting of only lowercase letters and "
+            "numbers.<br>"
+            "This will be displayed verbatim in the Problemset - it must be unique "
+            "within its parent tag.<br>"
+            "Examples: for year: '2011', but for round: 'r1' (just '1' for round "
+            "would be ambiguous)."
         ),
     )
-
     order = models.IntegerField(
         default=0,
         verbose_name=_("display order"),
@@ -722,7 +727,8 @@ class OriginInfoValue(models.Model):
         blank=True,
         verbose_name=_("problems"),
         help_text=_(
-            "Select problems described by this value. They will also be tagged with the parent tag.<br>"
+            "Select problems described by this value. They will also be tagged with "
+            "the parent tag.<br>"
         ),
     )
 
@@ -754,7 +760,6 @@ class OriginInfoValueLocalization(models.Model):
     language = models.CharField(
         max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
     )
-
     full_value = models.CharField(
         max_length=64,
         verbose_name=_("translated value"),
@@ -770,6 +775,7 @@ class OriginInfoValueLocalization(models.Model):
         return six.text_type("{} - {}".format(self.origin_info_value, self.language))
 
 
+@_localized('full_name')
 @python_2_unicode_compatible
 class DifficultyTag(models.Model):
     name = models.CharField(
@@ -799,11 +805,49 @@ class DifficultyTagThrough(models.Model):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE)
 
-    # This string will be visible in admin form
+    # This string will be visible in an admin form.
     def __str__(self):
         return six.text_type(self.tag.name)
 
 
+@python_2_unicode_compatible
+class DifficultyTagLocalization(models.Model):
+    difficulty_tag = models.ForeignKey(
+        DifficultyTag, related_name='localizations', on_delete=models.CASCADE
+    )
+    language = models.CharField(
+        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
+    )
+    full_name = models.CharField(
+        max_length=32,
+        verbose_name=_("name translation"),
+        help_text=_("Human-readable name."),
+    )
+
+    class Meta(object):
+        unique_together = ('difficulty_tag', 'language')
+        verbose_name = _("difficulty tag localization")
+        verbose_name_plural = _("difficulty tag localizations")
+
+    def __str__(self):
+        return six.text_type("{} - {}".format(self.difficulty_tag, self.language))
+
+
+@python_2_unicode_compatible
+class DifficultyTagProposal(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
+
+    class Meta(object):
+        verbose_name = _("difficulty proposal")
+        verbose_name_plural = _("difficulty proposals")
+
+
+@_localized('full_name')
 @python_2_unicode_compatible
 class AlgorithmTag(models.Model):
     name = models.CharField(
@@ -865,6 +909,20 @@ class AlgorithmTagLocalization(models.Model):
 
 
 @python_2_unicode_compatible
+class AlgorithmTagProposal(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
+
+    class Meta(object):
+        verbose_name = _("algorithm tag proposal")
+        verbose_name_plural = _("algorithm tag proposals")
+
+
+@python_2_unicode_compatible
 class Tag(models.Model):
     """Class used for old tags - deprecated."""
 
@@ -901,33 +959,3 @@ class TagThrough(models.Model):
 
     class Meta(object):
         unique_together = ('problem', 'tag')
-
-
-@python_2_unicode_compatible
-class AlgorithmTagProposal(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
-
-    class Meta(object):
-        verbose_name = _('algorithm tag proposal')
-        verbose_name_plural = _('algorithm tag proposals')
-
-
-@python_2_unicode_compatible
-class DifficultyProposal(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    difficulty = models.CharField(max_length=10)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
-    def __str__(self):
-        return (
-            six.text_type(self.problem.name) + u' -- ' + six.text_type(self.difficulty)
-        )
-
-    class Meta(object):
-        verbose_name = _('difficulty proposal')
-        verbose_name_plural = _('difficulty proposals')

@@ -19,7 +19,7 @@ check_django_app_dependencies(__name__, ['oioioi.teachers'])
 class UserGroup(models.Model):
     """ Group of user which can be moved around contests by teachers """
 
-    name = models.CharField(max_length=255, verbose_name=_('name'))
+    name = models.CharField(max_length=255, verbose_name=_("name"))
     owners = models.ManyToManyField(User, related_name='owned_usergroups')
     members = models.ManyToManyField(User, blank=True, related_name='usergroups')
     contests = models.ManyToManyField(Contest, blank=True, related_name='usergroups')

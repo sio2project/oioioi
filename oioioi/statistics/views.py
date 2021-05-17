@@ -72,18 +72,18 @@ def statistics_view(
         object = ProblemInstance.objects.get(
             short_name=object_name, contest=request.contest
         )
-        title = _('Statistics for %s') % object.problem.name
+        title = _("Statistics for %s") % object.problem.name
     elif category == 'CONTEST':
         object = request.contest
         object_name = request.contest.id
-        title = _('Contest statistics')
+        title = _("Contest statistics")
     else:
         raise Http404
 
     if not (category, object_name) in set(
         (c, o) for (c, o, d) in controller.statistics_available_plot_groups(request)
     ):
-        raise PermissionDenied(_('You have no access to those charts'))
+        raise PermissionDenied(_("You have no access to those charts"))
 
     plots = controller.statistics_available_plots(request, category, object)
     data_list = [

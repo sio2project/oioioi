@@ -28,6 +28,7 @@ from oioioi.contests.utils import administered_contests
 from oioioi.problems.forms import PackageFileReuploadForm, ProblemStatementReplaceForm
 from oioioi.problems.models import (
     AlgorithmTagProposal,
+    DifficultyTagProposal,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -36,7 +37,6 @@ from oioioi.problems.models import (
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (
     can_admin_problem,
-    can_admin_problem_instance,
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
     query_statement,
@@ -243,6 +243,10 @@ def problem_site_settings(request, problem):
     algorithm_tag_proposals = (
         AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
     )
+    difficulty_tag_proposals = (
+        DifficultyTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+    )
+
     return TemplateResponse(
         request,
         'problems/settings.html',
@@ -253,6 +257,7 @@ def problem_site_settings(request, problem):
             'package': package if package and package.package_file else None,
             'model_solutions': model_solutions,
             'algorithm_tag_proposals': algorithm_tag_proposals,
+            'difficulty_tag_proposals': difficulty_tag_proposals,
             'can_admin_problem': can_admin_problem(request, problem),
             'extra_actions': extra_actions,
         },
@@ -279,7 +284,7 @@ def problem_site_add_to_contest(request, problem):
 
 
 @problem_site_tab(
-    _('Replace problem statement'),
+    _("Replace problem statement"),
     key='replace_problem_statement',
     order=800,
     condition=can_admin_problem,
@@ -303,7 +308,7 @@ def problem_site_replace_statement(request, problem):
                 )
                 return redirect(url + '?key=replace_problem_statement')
             else:
-                form.add_error(None, _('Picked statement file does not exist.'))
+                form.add_error(None, _("Picked statement file does not exist."))
     else:
         form = ProblemStatementReplaceForm(filenames)
     return TemplateResponse(
@@ -316,12 +321,12 @@ def problem_site_replace_statement(request, problem):
 def _prepare_changed_package(request, form, archive, package_name):
     file_path = request.POST.get("file_name", None)
     if len(request.FILES) != 1:
-        form.add_error('file_replacement', _('File replacement not provided'))
+        form.add_error('file_replacement', _("File replacement not provided"))
         return None, None
     uploaded_file = six.next(six.itervalues(request.FILES))
     if uploaded_file.name != os.path.basename(file_path):
         form.add_error(
-            None, _('Original and replacement files must have the ' 'same name')
+            None, _("Original and replacement files must have the same name")
         )
         return None, None
 
@@ -346,7 +351,7 @@ def _problem_can_be_reuploaded(request, problem):
 
 
 @problem_site_tab(
-    _('Manage package files'),
+    _("Manage package files"),
     key='manage_files_problem_package',
     order=900,
     condition=can_admin_problem,
@@ -401,7 +406,7 @@ def problem_site_package_download_file(request, problem):
             elif 'download_button' in request.POST:
                 file_name = request.POST.get('file_name', None)
                 if file_name is None:
-                    form.add_error('file_name', _('No file selected'))
+                    form.add_error('file_name', _("No file selected"))
                 else:
                     return redirect(
                         'download_package_file',

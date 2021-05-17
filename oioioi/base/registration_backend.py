@@ -81,8 +81,8 @@ urlpatterns += [
         r'^password/reset/$',
         PasswordResetView.as_view(),
         {
-            'password_reset_form': OioioiPasswordResetForm,
-            'post_reset_redirect': reverse_lazy('auth_password_reset_done'),
+            'form_class': OioioiPasswordResetForm,
+            'success_url': reverse_lazy('auth_password_reset_done'),
         },
         name="auth_password_reset",
     )

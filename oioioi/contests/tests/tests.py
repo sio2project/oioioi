@@ -1829,7 +1829,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, 'problemsite-group')
         self.assertNotContains(response, 'test_run_config-group')
         self.assertContains(response, 'libraryproblemdata-group')
-        self.assertContains(response, 'inline-group', 4)
+        self.assertContains(response, 'inline-group', 6)
 
     def test_probleminstance_admin(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))

@@ -111,30 +111,28 @@ urlpatterns = [
         name='get_search_hints',
     ),
     url(
+        r'^get_selected_origintag_hints/$',
+        views.get_selected_origintag_hints_view,
+        name='get_selected_origintag_hints',
+    ),
+    url(
         r'^get_origininfocategory_hints/$',
         views.get_origininfocategory_hints_view,
         name='get_origininfocategory_hints',
     ),
     url(
-        r'^get_difficultytag_hints/$',
-        views.get_difficultytag_hints_view,
-        name='get_difficultytag_hints',
-    ),
-    url(
-        r'^get_algorithmtag_hints/$',
-        views.get_algorithmtag_hints_view,
-        name='get_algorithmtag_hints',
-    ),
-    url(r'^get_tag_hints/$', views.get_tag_hints_view, name='get_tag_hints'),
-    url(
         r'^latest_submissions/$', views.get_last_submissions, name='latest_submissions'
     ),
     url(
-        r'^get_tag_proposal_hints/$',
-        views.get_tag_proposal_hints_view,
-        name='get_tag_proposal_hints',
+        r'^get_algorithm_tag_proposal_hints/$',
+        views.get_algorithm_tag_proposal_hints_view,
+        name='get_algorithm_tag_proposal_hints',
     ),
-    url(r'^get_tag_label/$', views.get_tag_label_view, name='get_tag_label'),
+    url(
+        r'^get_algorithm_tag_label/$',
+        views.get_algorithm_tag_label_view,
+        name='get_algorithm_tag_label',
+    ),
     url(r'^save_proposals/', views.save_proposals_view, name='save_proposals'),
 ]
 

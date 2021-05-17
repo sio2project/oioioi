@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import oioioi
 
-INSTALLATION_CONFIG_VERSION = 46
+INSTALLATION_CONFIG_VERSION = 47
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -68,8 +68,8 @@ LANGUAGE_COOKIE_NAME = 'lang'
 # to load the internationalization machinery.
 USE_I18N = True
 LOCALE_PATHS = [
-    os.path.join(os.path.dirname(oioioi.__file__), 'locale'),
-    os.path.join(os.path.dirname(oioioi.__file__), 'locale-overrides'),
+    os.path.join(os.path.dirname(oioioi.__file__), 'locale/locale'),
+    os.path.join(os.path.dirname(oioioi.__file__), 'locale/locale-overrides'),
 ]
 
 # If you set this to False, Django will not format dates, numbers and
@@ -215,6 +215,7 @@ INSTALLED_APPS = (
     'oioioi.evalmgr',
     'oioioi.workers',
     'oioioi.quizzes',
+    'oioioi.locale',
 
     'djsupervisor',
     'registration',

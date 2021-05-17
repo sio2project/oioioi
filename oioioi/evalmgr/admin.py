@@ -118,13 +118,13 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         url = reverse(app, args=args, kwargs=kwargs)
         return make_html_link(url, caption)
 
+    @_require_contest
     def _get_contest_id(self, instance):
         return instance.submission.problem_instance.contest.id
 
     def has_add_permission(self, request):
         return False
 
-    @_require_contest
     def submit_id(self, instance):
         res = instance.submission.id
         return self._get_link(

@@ -24,18 +24,18 @@ from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.problem_instance_utils import get_language_by_extension
 
-execuction_mode_options = EnumRegistry()
-execuction_mode_options.register('AUTO', _("Auto"))
-execuction_mode_options.register('cpu', _("Real CPU"))
-execuction_mode_options.register('sio2jail', _("SIO2Jail"))
+execution_mode_options = EnumRegistry()
+execution_mode_options.register('AUTO', _("Auto"))
+execution_mode_options.register('cpu', _("Real CPU"))
+execution_mode_options.register('sio2jail', _("SIO2Jail"))
 
 
 class ProgramsConfig(models.Model):
     contest = models.OneToOneField(
         Contest, related_name='programs_config', on_delete=models.CASCADE
     )
-    execuction_mode = EnumField(
-        execuction_mode_options,
+    execution_mode = EnumField(
+        execution_mode_options,
         default='AUTO',
         verbose_name=_("execution mode"),
         help_text=_(
@@ -351,15 +351,15 @@ class ProblemCompiler(models.Model):
     This can be altered by contest specific compilers."""
 
     problem = models.ForeignKey(
-        Problem, verbose_name=_('problem'), on_delete=models.CASCADE
+        Problem, verbose_name=_("problem"), on_delete=models.CASCADE
     )
-    language = models.CharField(max_length=20, verbose_name=_('language'))
-    compiler = models.CharField(max_length=50, verbose_name=_('compiler'))
+    language = models.CharField(max_length=20, verbose_name=_("language"))
+    compiler = models.CharField(max_length=50, verbose_name=_("compiler"))
     auto_created = models.BooleanField(default=False, editable=False)
 
     class Meta(object):
-        verbose_name = _('problem compiler')
-        verbose_name_plural = _('problem compilers')
+        verbose_name = _("problem compiler")
+        verbose_name_plural = _("problem compilers")
         ordering = ('problem',)
         unique_together = ('problem', 'language')
 
@@ -388,12 +388,12 @@ class ContestCompiler(models.Model):
     contest = models.ForeignKey(
         Contest, verbose_name=_("contest"), on_delete=models.CASCADE
     )
-    language = models.CharField(max_length=20, verbose_name=_('language'))
-    compiler = models.CharField(max_length=50, verbose_name=_('compiler'))
+    language = models.CharField(max_length=20, verbose_name=_("language"))
+    compiler = models.CharField(max_length=50, verbose_name=_("compiler"))
 
     class Meta(object):
-        verbose_name = _('contest compiler')
-        verbose_name_plural = _('contest compilers')
+        verbose_name = _("contest compiler")
+        verbose_name_plural = _("contest compilers")
         ordering = ('contest',)
         unique_together = ('contest', 'language')
 
@@ -402,13 +402,13 @@ class ProblemAllowedLanguage(models.Model):
     """Represents allowed language for specific problem."""
 
     problem = models.ForeignKey(
-        Problem, verbose_name=_('problem'), on_delete=models.CASCADE
+        Problem, verbose_name=_("problem"), on_delete=models.CASCADE
     )
-    language = models.CharField(max_length=20, verbose_name=_('language'))
+    language = models.CharField(max_length=20, verbose_name=_("language"))
 
     class Meta(object):
-        verbose_name = _('problem allowed language')
-        verbose_name_plural = _('problem allowed languages')
+        verbose_name = _("problem allowed language")
+        verbose_name_plural = _("problem allowed languages")
         ordering = ('problem',)
         unique_together = ('problem', 'language')
 

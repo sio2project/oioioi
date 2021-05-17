@@ -90,7 +90,7 @@ def main():
         'programs_config-MAX_NUM_FORMS': '1',
         'programs_config-0-id': '',
         'programs_config-0-contest': '',
-        'programs_config-0-execuction_mode': 'AUTO',
+        'programs_config-0-execution_mode': 'AUTO',
         'problemstatementconfig-TOTAL_FORMS': '1',
         'problemstatementconfig-INITIAL_FORMS': '0',
         'problemstatementconfig-MIN_NUM_FORMS': '0',

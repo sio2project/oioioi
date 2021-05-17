@@ -35,7 +35,7 @@ python2_specific_requirements = [
     # django-two-factor-auth 1.6.*; can be
     # removed after migration to Django 1.11
     "django-registration-redux>=1.6,<2.0",  # latest for Django 1.10
-    "Celery>=3.1.15,<4.0.0",
+    "Celery==4.4.7",
     "coreapi>=2.3.0,<2.4",
     "dj-pagination>=2.3.3.final.0",
     "django-compressor==2.2",  # latest version
@@ -62,10 +62,10 @@ python2_specific_requirements = [
     "bleach>=3.1.0,<3.2",
     "chardet<4.1",
     "django-gravatar2<1.5",
-    "django-mptt>=0.8.7,<0.9.1",  # latest version for Dango 1.11, supports 2.0
+    "django-mptt>=0.8.7,<0.9.1",  # latest version for Django 1.11, supports 2.0
     "mistune<0.9",
     # Some of celery dependencies (kombu) require amqp to be <2.0.0
-    "amqp<2.0.0",
+    "amqp<2.7,>=2.6.0",
     "pika<1.3",
     "raven<6.11",
     "unidecode<1.3",
@@ -73,7 +73,7 @@ python2_specific_requirements = [
     # Used in quizzes module for adding new quizzes.
     "django-nested-admin<3.4",
     # SIO2 dependencies:
-    "filetracker>=2.1,<3.0",
+    "filetracker>=2.1.5,<3.0",
     # Python 2 has class AppConf(metaclass=AppConfMetaClass):
     # SyntaxError: invalid syntax
     # when using newer version

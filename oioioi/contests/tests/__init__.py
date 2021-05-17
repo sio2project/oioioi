@@ -2,6 +2,7 @@ from django.core.files.base import ContentFile
 from django.db.models import Q
 from django.urls import reverse
 
+from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.controllers import (
     ContestController,
     PastRoundsHiddenContestControllerMixin,
@@ -15,7 +16,7 @@ class PrivateRegistrationController(RegistrationController):
         return False
 
     def user_contests_query(self, request):
-        return Q(pk__isnull=True)  # (False)
+        return Q_always_false()
 
     def filter_participants(self, queryset):
         return queryset.none()
