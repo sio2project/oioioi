@@ -35,7 +35,7 @@ python2_specific_requirements = [
     # django-two-factor-auth 1.6.*; can be
     # removed after migration to Django 1.11
     "django-registration-redux>=1.6,<2.0",  # latest for Django 1.10
-    "Celery==4.4.7",
+    "Celery>=3.1.15,<4.0.0",
     "coreapi>=2.3.0,<2.4",
     "dj-pagination>=2.3.3.final.0",
     "django-compressor==2.2",  # latest version
@@ -62,10 +62,10 @@ python2_specific_requirements = [
     "bleach>=3.1.0,<3.2",
     "chardet<4.1",
     "django-gravatar2<1.5",
-    "django-mptt>=0.8.7,<0.9.1",  # latest version for Django 1.11, supports 2.0
+    "django-mptt>=0.8.7,<0.9.1",  # latest version for Dango 1.11, supports 2.0
     "mistune<0.9",
     # Some of celery dependencies (kombu) require amqp to be <2.0.0
-    "amqp<2.7,>=2.6.0",
+    "amqp<2.0.0",
     "pika<1.3",
     "raven<6.11",
     "unidecode<1.3",
@@ -73,7 +73,7 @@ python2_specific_requirements = [
     # Used in quizzes module for adding new quizzes.
     "django-nested-admin<3.4",
     # SIO2 dependencies:
-    "filetracker>=2.1.5,<3.0",
+    "filetracker>=2.1,<3.0",
     # Python 2 has class AppConf(metaclass=AppConfMetaClass):
     # SyntaxError: invalid syntax
     # when using newer version
@@ -92,26 +92,24 @@ python2_specific_requirements = [
 ]
 
 python3_specific_requirements = [
-    "Django>=2.1.1,<2.2",  # when upgrading, upgrade also django-two-factor-auth!
+    "Django>=2.2,<2.2.21",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b,<=2021.1",
     "sqlalchemy<1.5",
     "beautifulsoup4<4.10",
     "PyYAML<5.5",
     "python-dateutil<2.9",
-    "django-two-factor-auth==1.11",  # Django 2.0 support
-    "django-formtools==2.2",  # Django 2.2 support
-    # django-two-factor-auth 1.6.*; can be
-    # removed after migration to Django 1.11
-    "django-registration-redux==2.9",  # latest with support for django 2.0
+    "django-two-factor-auth>=1.10,<1.14",
+    "django-formtools>=2.2,<=2.3",
+    "django-registration-redux>=2.6,<=2.9",
     "Celery==4.4.7",
     "coreapi>=2.3.0,<2.4",
     "dj-pagination==2.5",
-    "django-compressor==2.4",  # latest version
+    "django-compressor==2.4.1",  # latest version
     "pygments<2.6",
     "django-libsass>=0.7,<=0.8",
-    "django-debug-toolbar==2.1",  # latest version for Django 2.0
-    "django-extensions>2.2.4,<=2.3",  # latest version for Django 2.0
-    "djangorestframework==3.11",  # latest version for Django 2.0
+    "django-debug-toolbar>=3.0,<=3.3",
+    "django-extensions>=3.0,<=3.2",  # Django 2.2
+    "djangorestframework>=3.10,<=3.12",
     "werkzeug<1.1",
     'pytest==4.6.11',
     'pytest-django==3.10.0',
@@ -129,10 +127,8 @@ python3_specific_requirements = [
     "bleach>=3.1.0,<3.2",
     "chardet<4.1",
     "django-gravatar2<1.5",
-    "django-mptt==0.11",  # latest version for Django 1.11, supports 2.0
+    "django-mptt>=0.10,<=0.12",
     "mistune<0.9",
-    # Some of celery dependencies (kombu) require amqp to be <2.0.0
-    "amqp<2.7,>=2.6.0",
     "pika<1.3",
     "raven<6.11",
     "unidecode<1.3",
@@ -141,13 +137,8 @@ python3_specific_requirements = [
     "django-nested-admin<3.4",
     # SIO2 dependencies:
     "filetracker>=2.1.5,<3.0",
-    # Python 2 has class AppConf(metaclass=AppConfMetaClass):
-    # SyntaxError: invalid syntax
-    # when using newer version
-    "django-appconf<1.0.4",
-    # Dependencies from external sources live in requirements.txt
-    # 0.5.13 suddenly requires django 2.2
-    "django-simple-captcha==0.5.12",
+    "django-appconf==1.0.4",
+    "django-simple-captcha>=0.5.13,<=0.5.14",
     # HOTFIX
     "phonenumbers<8.13",
     # this is the last pdfminer.six version to support python2

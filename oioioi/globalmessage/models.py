@@ -1,10 +1,10 @@
 import six
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 
-@python_2_unicode_compatible
+
 class GlobalMessage(models.Model):
     message = models.TextField(verbose_name=_("message"))
     enabled = models.BooleanField(default=False, verbose_name=_("enabled"))

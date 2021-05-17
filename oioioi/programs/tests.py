@@ -92,7 +92,7 @@ class SubmitFileMixin(SubmitMixin):
         user=None,
     ):
         url = reverse('submit', kwargs={'contest_id': contest.id})
-        file = None
+        file = ''
         if send_file:
             file = ContentFile('a' * 1024, name='a.c')
         langs_field_name = form_field_id_for_langs(problem_instance)
@@ -1706,6 +1706,9 @@ class TestMaxScoreMigration(TestCaseMigrations):
     migrate_to = '0014_remove_testreport_test_max_score'
 
     def make_report(self, problem_id, contest, apps, max_score):
+        if not Problem.objects.filter(id=problem_id).exists():
+            Problem(id=problem_id).save()
+
         problem_instance_model = apps.get_model('contests', 'ProblemInstance')
         submission_model = apps.get_model('contests', 'Submission')
         submission_report_model = apps.get_model('contests', 'SubmissionReport')

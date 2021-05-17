@@ -11,7 +11,7 @@ from django.db.models import Max
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
 from django.utils.translation import ugettext_lazy as _
@@ -40,7 +40,7 @@ def make_contest_filename(instance, filename):
     )
 
 
-@python_2_unicode_compatible
+
 class Contest(models.Model):
     id = models.CharField(
         max_length=32,
@@ -138,7 +138,7 @@ def _call_controller_adjust_contest(sender, instance, raw, **kwargs):
         instance.controller.adjust_contest()
 
 
-@python_2_unicode_compatible
+
 class ContestAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
     the contest or to the round.
@@ -223,7 +223,7 @@ def _round_end_date_name_generator(obj):
     round_chooser=(lambda obj: obj),
     order=31,
 )
-@python_2_unicode_compatible
+
 class Round(models.Model):
     contest = models.ForeignKey(
         Contest, verbose_name=_("contest"), on_delete=models.CASCADE
@@ -336,7 +336,7 @@ class RankingVisibilityConfig(models.Model):
         verbose_name_plural = _("ranking visibility configs")
 
 
-@python_2_unicode_compatible
+
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(
         Contest,
@@ -425,7 +425,7 @@ submission_statuses.register('OK', _("OK"))
 submission_statuses.register('ERR', _("Error"))
 
 
-@python_2_unicode_compatible
+
 class Submission(models.Model):
     problem_instance = models.ForeignKey(
         ProblemInstance, verbose_name=_("problem"), on_delete=models.CASCADE
@@ -577,7 +577,7 @@ class UserResultForContest(models.Model):
         unique_together = ('user', 'contest')
 
 
-@python_2_unicode_compatible
+
 class RoundTimeExtension(models.Model):
     """Represents the time the round has been extended by for a certain user.
 
@@ -604,7 +604,7 @@ contest_permissions.register('contests.contest_observer', _("Observer"))
 contest_permissions.register('contests.personal_data', _("Personal Data"))
 
 
-@python_2_unicode_compatible
+
 class ContestPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
@@ -623,7 +623,7 @@ class ContestPermission(models.Model):
         return u'%s/%s: %s' % (self.contest, self.permission, self.user)
 
 
-@python_2_unicode_compatible
+
 class ContestView(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)

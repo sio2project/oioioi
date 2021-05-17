@@ -2514,7 +2514,7 @@ class TestProblemStatisticsDisplay(TestCase):
             rows = self._get_table_contents(response.content.decode('utf-8'))
             self._assert_rows_sorted(rows, order_by=i)
 
-            response = self.client.get(url_main, {'order_by': column, 'desc': None})
+            response = self.client.get(url_main, {'order_by': column, 'desc': ''})
             self.assertEqual(response.status_code, 200)
 
             rows = self._get_table_contents(response.content.decode('utf-8'))
@@ -2543,7 +2543,7 @@ class TestProblemStatisticsDisplay(TestCase):
             rows = self._get_table_contents(response.content.decode('utf-8'))
             self.assertEqual(rows[0], [u'ccc', u'Cccc', '0', None, None, None])
 
-            response = self.client.get(url_main, {'order_by': column, 'desc': None})
+            response = self.client.get(url_main, {'order_by': column, 'desc': ''})
             self.assertEqual(response.status_code, 200)
 
             rows = self._get_table_contents(response.content.decode('utf-8'))
@@ -2562,7 +2562,7 @@ class TestProblemStatisticsDisplay(TestCase):
             rows = self._get_table_contents(response.content.decode('utf-8'))
             self._assert_rows_sorted(rows, order_by=i)
 
-            response = self.client.get(url_main, {'order_by': column, 'desc': None})
+            response = self.client.get(url_main, {'order_by': column, 'desc': ''})
             self.assertEqual(response.status_code, 200)
 
             rows = self._get_table_contents(response.content.decode('utf-8'))
@@ -2578,7 +2578,7 @@ class TestProblemStatisticsDisplay(TestCase):
         url_main = reverse('problemset_main')
 
         response = self.client.get(
-            url_main, {'q': q, 'foo': 'bar', 'order_by': order, 'desc': None}
+            url_main, {'q': q, 'foo': 'bar', 'order_by': order, 'desc': ''}
         )
         self.assertEqual(response.status_code, 200)
 

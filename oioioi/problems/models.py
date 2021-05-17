@@ -14,7 +14,7 @@ from django.db import models, transaction
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator, get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
@@ -44,7 +44,7 @@ def make_problem_filename(instance, filename):
     )
 
 
-@python_2_unicode_compatible
+
 class Problem(models.Model):
     """Represents a problem in the problems database.
 
@@ -181,7 +181,7 @@ def _check_problem_instance_integrity(sender, instance, **kwargs):
         )
 
 
-@python_2_unicode_compatible
+
 class ProblemStatement(models.Model):
     """Represents a file containing problem statement.
 
@@ -218,7 +218,7 @@ class ProblemStatement(models.Model):
         return u'%s / %s' % (self.problem.name, self.filename)
 
 
-@python_2_unicode_compatible
+
 class ProblemAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
     a problem.
@@ -415,7 +415,7 @@ class ProblemPackage(models.Model):
         return manager()
 
 
-@python_2_unicode_compatible
+
 class ProblemSite(models.Model):
     """Represents a global problem site.
 
@@ -509,7 +509,7 @@ def _localized(*localized_fields):
 
 
 @_localized('short_name', 'full_name', 'description')
-@python_2_unicode_compatible
+
 class OriginTag(models.Model):
     """OriginTags are used along with OriginInfoCategories and OriginInfoValue
     to give information about the problem's origin. OriginTags themselves
@@ -549,7 +549,7 @@ class OriginTag(models.Model):
         return six.text_type(self.name)
 
 
-@python_2_unicode_compatible
+
 class OriginTagLocalization(models.Model):
     origin_tag = models.ForeignKey(
         OriginTag, related_name='localizations', on_delete=models.CASCADE
@@ -590,7 +590,7 @@ class OriginTagLocalization(models.Model):
 
 
 @_localized('full_name')
-@python_2_unicode_compatible
+
 class OriginInfoCategory(models.Model):
     """This class represents a category of information, which further specifies
     what its parent_tag is already telling about the origin. It doesn't do
@@ -645,7 +645,7 @@ class OriginInfoCategory(models.Model):
         return six.text_type("{}_{}".format(self.parent_tag, self.name))
 
 
-@python_2_unicode_compatible
+
 class OriginInfoCategoryLocalization(models.Model):
     origin_info_category = models.ForeignKey(
         OriginInfoCategory, related_name='localizations', on_delete=models.CASCADE
@@ -669,7 +669,7 @@ class OriginInfoCategoryLocalization(models.Model):
 
 
 @_localized('full_value')
-@python_2_unicode_compatible
+
 class OriginInfoValue(models.Model):
     """This class represents additional information, further specifying
     what its parent_tag is already telling about the origin. Each
@@ -752,7 +752,7 @@ class OriginInfoValue(models.Model):
         return six.text_type(self.name)
 
 
-@python_2_unicode_compatible
+
 class OriginInfoValueLocalization(models.Model):
     origin_info_value = models.ForeignKey(
         OriginInfoValue, related_name='localizations', on_delete=models.CASCADE
@@ -776,7 +776,7 @@ class OriginInfoValueLocalization(models.Model):
 
 
 @_localized('full_name')
-@python_2_unicode_compatible
+
 class DifficultyTag(models.Model):
     name = models.CharField(
         max_length=20,
@@ -800,7 +800,7 @@ class DifficultyTag(models.Model):
         return six.text_type(self.name)
 
 
-@python_2_unicode_compatible
+
 class DifficultyTagThrough(models.Model):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE)
@@ -810,7 +810,7 @@ class DifficultyTagThrough(models.Model):
         return six.text_type(self.tag.name)
 
 
-@python_2_unicode_compatible
+
 class DifficultyTagLocalization(models.Model):
     difficulty_tag = models.ForeignKey(
         DifficultyTag, related_name='localizations', on_delete=models.CASCADE
@@ -833,7 +833,7 @@ class DifficultyTagLocalization(models.Model):
         return six.text_type("{} - {}".format(self.difficulty_tag, self.language))
 
 
-@python_2_unicode_compatible
+
 class DifficultyTagProposal(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE, null=True)
@@ -848,7 +848,7 @@ class DifficultyTagProposal(models.Model):
 
 
 @_localized('full_name')
-@python_2_unicode_compatible
+
 class AlgorithmTag(models.Model):
     name = models.CharField(
         max_length=20,
@@ -872,7 +872,7 @@ class AlgorithmTag(models.Model):
         return six.text_type(self.name)
 
 
-@python_2_unicode_compatible
+
 class AlgorithmTagThrough(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
@@ -885,7 +885,7 @@ class AlgorithmTagThrough(models.Model):
         unique_together = ('problem', 'tag')
 
 
-@python_2_unicode_compatible
+
 class AlgorithmTagLocalization(models.Model):
     algorithm_tag = models.ForeignKey(
         AlgorithmTag, related_name='localizations', on_delete=models.CASCADE
@@ -908,7 +908,7 @@ class AlgorithmTagLocalization(models.Model):
         return six.text_type("{} - {}".format(self.algorithm_tag, self.language))
 
 
-@python_2_unicode_compatible
+
 class AlgorithmTagProposal(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
@@ -922,7 +922,7 @@ class AlgorithmTagProposal(models.Model):
         verbose_name_plural = _("algorithm tag proposals")
 
 
-@python_2_unicode_compatible
+
 class Tag(models.Model):
     """Class used for old tags - deprecated."""
 
@@ -948,7 +948,7 @@ class Tag(models.Model):
         return six.text_type(self.name)
 
 
-@python_2_unicode_compatible
+
 class TagThrough(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)

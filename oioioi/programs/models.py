@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models, transaction
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -71,7 +71,7 @@ def validate_memory_limit(value):
         )
 
 
-@python_2_unicode_compatible
+
 class Test(models.Model):
     __test__ = False
     problem_instance = models.ForeignKey(ProblemInstance, on_delete=models.CASCADE)

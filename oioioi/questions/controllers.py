@@ -27,7 +27,7 @@ class QuestionsContestControllerMixin(object):
                             'records': messages,
                             'user': request.user,
                         },
-                        request
+                        request,
                     ),
                 )
             )

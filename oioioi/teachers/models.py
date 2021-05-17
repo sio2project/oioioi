@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import generate_key
@@ -18,7 +18,7 @@ if 'oioioi.teachers.auth.TeacherAuthBackend' not in settings.AUTHENTICATION_BACK
     )
 
 
-@python_2_unicode_compatible
+
 class Teacher(models.Model):
     user = models.OneToOneField(
         User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE
@@ -33,7 +33,7 @@ class Teacher(models.Model):
         return six.text_type(self.user)
 
 
-@python_2_unicode_compatible
+
 class ContestTeacher(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)

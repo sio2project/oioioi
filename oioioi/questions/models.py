@@ -9,7 +9,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
 
@@ -30,7 +30,7 @@ message_kind_labels.register('PUBLIC', _("PUBLIC"))
 logger = logging.getLogger('oioioi')
 
 
-@python_2_unicode_compatible
+
 class Message(models.Model):
     contest = models.ForeignKey(
         Contest, null=True, blank=True, on_delete=models.CASCADE
@@ -121,7 +121,7 @@ class Message(models.Model):
         return message_kind_labels[self.kind]
 
 
-@python_2_unicode_compatible
+
 class ReplyTemplate(models.Model):
     contest = models.ForeignKey(
         Contest, null=True, blank=True, on_delete=models.CASCADE

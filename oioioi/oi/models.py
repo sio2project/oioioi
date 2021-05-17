@@ -6,7 +6,7 @@ import six.moves.urllib.parse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
@@ -61,7 +61,7 @@ CLASS_TYPES = [
 ]
 
 
-@python_2_unicode_compatible
+
 class School(models.Model):
     name = models.CharField(
         max_length=255, validators=[validate_whitespaces], verbose_name=_("name")
@@ -113,7 +113,7 @@ class School(models.Model):
         return ratio > 0.75
 
 
-@python_2_unicode_compatible
+
 class OIRegistration(RegistrationModel):
     address = models.CharField(max_length=255, verbose_name=_("address"))
     postal_code = models.CharField(

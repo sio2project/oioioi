@@ -7,7 +7,7 @@ from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -19,7 +19,7 @@ from oioioi.contests.models import Contest
 @date_registry.register(
     'unlock_date', name_generator=(lambda obj: _("Unlock the forum"))
 )
-@python_2_unicode_compatible
+
 class Forum(models.Model):
     """Forum is connected with contest"""
 
@@ -58,7 +58,7 @@ class Forum(models.Model):
         return bool(self.is_autolocked(now) and not self.is_autounlocked(now))
 
 
-@python_2_unicode_compatible
+
 class Category(models.Model):
     """Category model """
 
@@ -115,7 +115,7 @@ class Category(models.Model):
         super(Category, self).save(**kwargs)
 
 
-@python_2_unicode_compatible
+
 class Thread(models.Model):
     """Thread model - topic in a category"""
 
@@ -158,7 +158,7 @@ class Thread(models.Model):
         return reverse('oioioiadmin:forum_thread_change', args=(self.id,))
 
 
-@python_2_unicode_compatible
+
 class Post(models.Model):
     """Post - the basic part of the forum """
 
@@ -275,7 +275,7 @@ class PostReaction(models.Model):
     type_of_reaction = EnumField(post_reaction_types)
 
 
-@python_2_unicode_compatible
+
 class Ban(models.Model):
     """Ban model - represents a ban on a forum. Banned person should not be
     allowed any 'write' interaction with forum. This includes reporting
