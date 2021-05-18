@@ -7,6 +7,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.core.files.base import ContentFile
+from django.forms.widgets import Media
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -634,19 +635,16 @@ class ProgrammingProblemController(ProblemController):
                         problem_instance, ext
                     )
 
-        # FIXME
-        # form.media.add_js(['common/submit_view.js'])
+        self._add_js(form, ('common/submit_view.js',))
 
-        # Possible workaround for lacking add_js method.
-        self.add_js(form.media, ['common/submit_view.js'])
 
-    # copy pasted code of add_js from django 1.11
     @staticmethod
-    def add_js(media, data):
-        if data:
-            for path in data:
-                if path not in media._js:
-                    media._js.append(path)
+    def _add_js(form, js):
+        try:
+            form._js.extend(js)
+        except AttributeError:
+            raise TypeError("Expected SubmissionForm")
+
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
