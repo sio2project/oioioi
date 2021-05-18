@@ -1241,7 +1241,7 @@ def save_proposals_view(request):
             algorithm_tag_proposal.save()
 
         difficulty_tag = (
-            DifficultyTagLocalization.objects.get(
+            DifficultyTagLocalization.objects.filter(
                 full_name=difficulty, language=get_language()
             )
             .first()

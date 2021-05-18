@@ -128,7 +128,7 @@
   },
 
   {
-    "pk": 1,
+    "pk": 0,
     "model": "problems.algorithmtag",
     "fields": {
       "name": "tag_a"
@@ -138,7 +138,7 @@
     "pk": 1,
     "model": "problems.algorithmtagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 4
     }
   },
@@ -146,7 +146,7 @@
     "pk": 2,
     "model": "problems.algorithmtagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 6
     }
   },
@@ -154,13 +154,13 @@
     "pk": 3,
     "model": "problems.algorithmtagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 0
     }
   },
 
   {
-    "pk": 1,
+    "pk": 0,
     "model": "problems.difficultytag",
     "fields": {
       "name": "tag_d"
@@ -170,7 +170,7 @@
     "pk": 1,
     "model": "problems.difficultytagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 5
     }
   },
@@ -178,7 +178,7 @@
     "pk": 2,
     "model": "problems.difficultytagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 6
     }
   },
@@ -186,7 +186,7 @@
     "pk": 3,
     "model": "problems.difficultytagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 0
     }
   }

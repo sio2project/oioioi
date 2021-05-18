@@ -1864,33 +1864,28 @@ class TestAlgorithmTagLabel(TestCase):
 
 class TestSaveProposals(TestCase):
     fixtures = [
-        'test_algorithm_tags',
-        'test_difficulty_tags',
         'test_users',
         'test_problem_search',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
     ]
-    view_name = 'save_proposals'
+    url = reverse('save_proposals')
 
-    def get_query_url(self, parameters):
-        url = reverse(self.view_name)
-        return url + '?' + six.moves.urllib.parse.urlencode(parameters)
-
-    def save_proposals_view(self):
+    def test_save_proposals_view(self):
         problem = Problem.objects.get(pk=0)
         user = User.objects.get(username='test_admin')
 
         self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
         self.assertEqual(DifficultyTagProposal.objects.count(), 0)
 
-        response = self.client.get(
-            self.get_query_url(
-                {
-                    'tags[]': '["Dynamic programming", "Knapsack problem"]',
-                    'difficulty': 'Easy',
-                    'username': 'test_admin',
-                    'problem': '0',
-                },
-            )
+        response = self.client.post(
+            self.url,
+            {
+                'tags[]': ["Dynamic programming", "Knapsack problem"],
+                'difficulty': 'Easy',
+                'user': 'test_admin',
+                'problem': '0',
+            },
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AlgorithmTagProposal.objects.count(), 2)
@@ -1920,24 +1915,24 @@ class TestSaveProposals(TestCase):
                 'problem': '0',
             },
             {
-                'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                'tags[]': ["Dynamic programming", "Knapsack problem"],
                 'username': 'test_admin',
                 'problem': '0',
             },
             {
-                'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                'tags[]': ["Dynamic programming", "Knapsack problem"],
                 'difficulty': 'Easy',
                 'problem': '0',
             },
             {
-                'tags[]': '["Dynamic programming", "Knapsack problem"]',
+                'tags[]': ["Dynamic programming", "Knapsack problem"],
                 'difficulty': 'Easy',
                 'username': 'test_admin',
             },
         ]
 
         for q_data in invalid_query_data:
-            response = self.client.get(self.get_query_url(q_data))
+            response = self.client.post(self.url, q_data)
             self.assertEqual(response.status_code, 400)
 
 
