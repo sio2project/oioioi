@@ -39,6 +39,9 @@ class TabularInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return True
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
 
 class StackedInline(admin.StackedInline):
     # by default we assume that if item is added to specific
@@ -51,6 +54,9 @@ class StackedInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
@@ -166,6 +172,9 @@ class ModelAdmin(
             return qs.select_related(*list_select_related)
         else:
             return qs
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 def delete_selected(modeladmin, request, queryset, **kwargs):
@@ -407,6 +416,9 @@ class InstanceDependentAdmin(admin.ModelAdmin):
     def history_view(self, request, object_id, extra_context=None):
         model_admin = self._find_model_admin(request, object_id)
         return model_admin.history_view(request, object_id, extra_context)
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class MixinsAdmin(InstanceDependentAdmin):

@@ -172,7 +172,7 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
-            return super().get_form(request, obj, **kwargs)
+            return super(ReplyTemplateAdmin, self).get_form(request, obj, **kwargs)
 
         form = super(ReplyTemplateAdmin, self).get_form(request, obj, **kwargs)
         if 'contest' in form.base_fields:

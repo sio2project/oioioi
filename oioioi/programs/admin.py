@@ -47,6 +47,9 @@ class ProgramsConfigInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
 
 class ValidationFormset(BaseInlineFormSet):
     def get_time_limit_sum(self):
@@ -125,6 +128,9 @@ class TestInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
     def input_file_link(self, instance):
         if instance.id is not None:
             href = reverse('download_input_file', kwargs={'test_id': str(instance.id)})
@@ -158,6 +164,9 @@ class ReportActionsConfigInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
 
 class OutputCheckerInline(admin.TabularInline):
     model = OutputChecker
@@ -175,6 +184,9 @@ class OutputCheckerInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def checker_link(self, instance):
         if not instance.exe_file:
@@ -206,6 +218,9 @@ class LibraryProblemDataInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class ProblemCompilerInline(admin.StackedInline):
@@ -239,6 +254,9 @@ class ContestCompilerInline(admin.StackedInline):
         return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
 

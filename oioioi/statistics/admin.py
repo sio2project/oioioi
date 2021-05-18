@@ -19,6 +19,9 @@ class StatisticsConfigInline(admin.TabularInline):
     def has_delete_permission(self, request, obj=None):
         return is_contest_admin(request)
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
 
 class StatisticsAdminMixin(object):
     """Adds :class:`~oioioi.statistics.models.StatisticsConfig` to an admin

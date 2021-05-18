@@ -175,9 +175,6 @@ class ProblemInstanceInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def has_view_permission(self, request, obj=None):
-        return False
-
 
 class ProblemSiteInline(admin.StackedInline):
     model = ProblemSite
@@ -213,6 +210,7 @@ def tag_inline(
         cls.has_add_permission = has_permission_func
         cls.has_change_permission = has_permission_func
         cls.has_delete_permission = has_permission_func
+        cls.has_view_permission = has_permission_func
 
         return cls
 

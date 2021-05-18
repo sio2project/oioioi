@@ -101,7 +101,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
-            return super().get_form(request, obj, **kwargs)
+            return super(ParticipantAdmin, self).get_form(request, obj, **kwargs)
 
         Form = super(ParticipantAdmin, self).get_form(request, obj, **kwargs)
 
@@ -208,9 +208,6 @@ class NoParticipantAdmin(ParticipantAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def has_view_permission(self, request, obj=None):
-        return False
-
 
 class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
     default_participant_admin = NoParticipantAdmin
@@ -282,7 +279,7 @@ class RegionAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
-            return super().get_form(request, obj, **kwargs)
+            return super(RegionAdmin, self).get_form(request, obj, **kwargs)
 
         Form = super(RegionAdmin, self).get_form(request, obj, **kwargs)
 
