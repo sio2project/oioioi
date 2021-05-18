@@ -25,7 +25,12 @@ from oioioi.contests.models import (
 )
 from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
-from oioioi.problems.models import Problem, ProblemPackage, ProblemStatement
+from oioioi.problems.models import (
+    Problem,
+    ProblemName,
+    ProblemPackage,
+    ProblemStatement,
+)
 from oioioi.problems.package import NoBackend, backend_for_package
 from oioioi.programs.models import (
     LanguageOverrideForTest,
@@ -100,6 +105,23 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
+
+    def test_title_translations_in_config_yml(self):
+        filename = get_test_filename('test_simple_package_translations.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        problem_names = ProblemName.objects.filter(problem=problem)
+        self.assertEqual(problem_names.count(), 2)
+        self.assertTrue(
+            problem_names.filter(
+                name='Problem with translations', language='en'
+            ).exists()
+        )
+        self.assertTrue(
+            problem_names.filter(
+                name=u'Zadanie z tłumaczeniami', language='pl'
+            ).exists()
+        )
 
     def test_title_from_doc(self):
         filename = get_test_filename('test_simple_package_no_config.zip')

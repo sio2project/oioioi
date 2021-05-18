@@ -31,6 +31,7 @@ from oioioi.filetracker.utils import (
 from oioioi.problems.models import (
     Problem,
     ProblemAttachment,
+    ProblemName,
     ProblemPackage,
     ProblemSite,
     ProblemStatement,
@@ -393,6 +394,7 @@ class SinolPackage(object):
     def _process_package(self):
         self._process_config_yml()
         self._detect_full_name()
+        self._detect_full_name_translations()
         self._detect_library()
         self._process_extra_files()
         if self.use_make:
@@ -426,7 +428,7 @@ class SinolPackage(object):
     def _detect_full_name(self):
         """Sets the problem's full name from the ``config.yml`` (key ``title``)
         or from the ``title`` tag in the LaTeX source file.
-        The LaTeX source takes precedence over ``config.yml``.
+        The ``config.yml`` file takes precedence over the LaTeX source.
 
         Example of how the ``title`` tag may look like:
         \title{A problem}
@@ -443,6 +445,19 @@ class SinolPackage(object):
             if r is not None:
                 self.problem.legacy_name = _decode(r.group(1), text)
                 self.problem.save()
+
+    @_describe_processing_error
+    def _detect_full_name_translations(self):
+        """Creates problem's full name translations from the ``config.yml``
+        (keys matching the pattern ``title_[a-z]{2}``, where ``[a-z]{2}`` represents
+        two-letter language code defined in ``settings.py``), if any such key is given.
+        """
+        for lang_code, lang in settings.LANGUAGES:
+            key = 'title_%s' % lang_code
+            if key in self.config:
+                ProblemName.objects.get_or_create(
+                    problem=self.problem, name=self.config[key], language=lang_code
+                )
 
     @_describe_processing_error
     def _detect_library(self):
