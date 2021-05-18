@@ -510,7 +510,7 @@ class TestMarkdown(TestCase):
         )
 
         self.assertIn("<details>", rendered_markdown)
-        self.assertIn("<summary>spoiler text</summary>", rendered_markdown)
+        self.assertIn('<summary class="btn btn-link">spoiler text</summary>', rendered_markdown)
         self.assertIn("<p>spoiler body</p>", rendered_markdown)
         self.assertIn("</details>", rendered_markdown)
 
@@ -527,15 +527,15 @@ class TestMarkdown(TestCase):
         rendered_markdown = render_panel(
             self.request, '>![first]\n>!>![nested]\n>!>!nested text\n>!first text\n'
         )
-        self.assertIn("<summary>first</summary>", rendered_markdown)
-        self.assertIn("<summary>nested</summary>", rendered_markdown)
+        self.assertIn('<summary class="btn btn-link">first</summary>', rendered_markdown)
+        self.assertIn('<summary class="btn btn-link">nested</summary>', rendered_markdown)
 
     def test_block_spoiler_in_sequence(self):
         rendered_markdown = render_panel(
             self.request, '>![first]\n>!first text\n\n>![second]\n>!second text\n'
         )
-        self.assertIn("<summary>first</summary>", rendered_markdown)
-        self.assertIn("<summary>second</summary>", rendered_markdown)
+        self.assertIn('<summary class="btn btn-link">first</summary>', rendered_markdown)
+        self.assertIn('<summary class="btn btn-link">second</summary>', rendered_markdown)
 
     def test_table_element(self):
         rendered_markdown = render_panel(self.request, '|a|b|\n|-|-|\n|1|2|\n')
