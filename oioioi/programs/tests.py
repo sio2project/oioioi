@@ -52,16 +52,20 @@ from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
 
 
-# Don't Repeat Yourself.
-# Serves for both TestProgramsViews and TestProgramsXssViews
 def extract_code(show_response):
-    # Current version of pygments generates two <pre> tags,
-    # first for line numeration, second for code.
-    preFirst = show_response.content.find(b'</pre>') + len(b'</pre>')
-    preStart = show_response.content.find(b'<pre>', preFirst) + len(b'<pre>')
-    preEnd = show_response.content.find(b'</pre>', preFirst)
+    open_pre_start = show_response.content.find(b'<pre') + len(b'<pre')
+    open_pre_end = show_response.content.find(b'>', open_pre_start) + 1
+    close_pre_start = show_response.content.find(b'</pre>', open_pre_end)
     # Get substring and strip tags.
-    show_response.content = strip_tags(show_response.content[preStart:preEnd])
+    show_response.content = strip_tags(show_response.content[open_pre_end:close_pre_start])
+
+
+def extract_code_from_diff(show_response):
+    pre_first = show_response.content.find(b'</pre>') + len(b'</pre>')
+    pre_start = show_response.content.find(b'<pre>', pre_first) + len(b'<pre>')
+    pre_end = show_response.content.find(b'</pre>', pre_first)
+    # Get substring and strip tags.
+    show_response.content = strip_tags(show_response.content[pre_start:pre_end])
 
 
 class SubmitFileMixin(SubmitMixin):
@@ -360,7 +364,7 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
         self.assertEqual(diff_response.status_code, 200)
         # Extract code from <pre>'s
         extract_code(show_response)
-        extract_code(diff_response)
+        extract_code_from_diff(diff_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
         download_response_content = escape(
             self.streamingContent(download_response).decode('utf-8')

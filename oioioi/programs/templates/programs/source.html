@@ -1,5 +1,5 @@
 {% extends "base-with-menu.html" %}
-{% load i18n %}
+{% load i18n static%}
 
 {% block styles %}
 {{ block.super }}
@@ -16,9 +16,14 @@
     {% if decode_error %}
         {% include "programs/file_decoding_error.html" %}
     {% endif %}
+    <button class="btn btn-default" id="cpy_btn" style="margin-bottom: 3px" onclick="copyCodeToClipboard()">
+        {% trans "Copy to clipboard" %}
+    </button>
     {% if is_source_safe %}
+        <pre hidden id="raw_source">{{ raw_source }}</pre>
         <div class="h-scrollable">{{ source|safe }}</div>
     {% else %}
-        <pre>{{ source }}</pre>
+        <pre id="raw_source">{{ raw_source }}</pre>
     {% endif %}
+    <script type="application/javascript" src="{% static 'common/clipboard.js' %}"></script>
 {% endblock %}

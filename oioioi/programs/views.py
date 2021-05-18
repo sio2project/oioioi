@@ -82,6 +82,7 @@ def show_submission_source_view(request, submission_id):
         request,
         'programs/source.html',
         {
+            'raw_source': raw_source,
             'source': formatted_source,
             'css': formatted_source_css,
             'is_source_safe': is_source_safe,
