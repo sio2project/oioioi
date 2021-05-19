@@ -1,5 +1,7 @@
 from operator import itemgetter  # pylint: disable=E0611
 
+import six
+
 import django
 from django.conf import settings
 from django.contrib import messages
@@ -205,7 +207,7 @@ def problem_statement_zip_index_view(request, problem_instance, statement_id):
         request,
         'contests/html_statement.html',
         {
-            'content': mark_safe(response.content),
+            'content': mark_safe(six.ensure_str(response.content)),
             'problem_name': problem_statement.problem.name,
         },
     )
