@@ -1882,7 +1882,7 @@ class TestSaveProposals(TestCase):
             self.url,
             {
                 'tags[]': ["Dynamic programming", "Knapsack problem"],
-                'difficulty': 'Easy',
+                'difficulty': '  \r    \t\n        Easy   \n     \t  ',
                 'user': 'test_admin',
                 'problem': '0',
             },
@@ -1909,25 +1909,26 @@ class TestSaveProposals(TestCase):
         )
 
         invalid_query_data = [
+            {},
             {
                 'difficulty': 'Easy',
-                'username': 'test_admin',
+                'user': 'test_admin',
                 'problem': '0',
             },
             {
                 'tags[]': ["Dynamic programming", "Knapsack problem"],
-                'username': 'test_admin',
-                'problem': '0',
-            },
-            {
-                'tags[]': ["Dynamic programming", "Knapsack problem"],
-                'difficulty': 'Easy',
+                'user': 'test_admin',
                 'problem': '0',
             },
             {
                 'tags[]': ["Dynamic programming", "Knapsack problem"],
                 'difficulty': 'Easy',
-                'username': 'test_admin',
+                'problem': '0',
+            },
+            {
+                'tags[]': ["Dynamic programming", "Knapsack problem"],
+                'difficulty': 'Easy',
+                'user': 'test_admin',
             },
         ]
 

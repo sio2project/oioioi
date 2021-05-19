@@ -209,7 +209,7 @@ $(document).ready(function () {
         let difficulty = '';
         const $selected = $('button[data-state="selected"]');
         if ($selected.length) {
-            difficulty = $.trim($selected.toArray()[0].textContent);
+            difficulty = $selected.toArray()[0].textContent.trim();
         }
 
         $serverError.addClass('hidden');

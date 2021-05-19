@@ -1217,6 +1217,10 @@ def save_proposals_view(request):
     if request.method == 'POST':
         tags = request.POST.getlist('tags[]', None)
         difficulty = request.POST.get('difficulty', None)
+        if difficulty:
+            # Trimming should have been done by JavaScript code by now,
+            # but some users may have tag-form.js file cached.
+            difficulty = difficulty.strip()
         user = (
             User.objects.all().filter(username=request.POST.get('user', None)).first()
         )
@@ -1240,13 +1244,20 @@ def save_proposals_view(request):
             )
             algorithm_tag_proposal.save()
 
-        difficulty_tag = (
-            DifficultyTagLocalization.objects.filter(
-                full_name=difficulty, language=get_language()
-            )
-            .first()
-            .difficulty_tag
-        )
+        difficulty_tag_localization = DifficultyTagLocalization.objects.filter(
+            full_name=difficulty, language=get_language()
+        ).first()
+
+        if not difficulty_tag_localization:
+            # Difficulty parameter in the HTTP request should be the name
+            # of an existing DifficultyTagLocalization object, so
+            # difficulty_tag_localization should not be None. However, some users
+            # may have tag-form.js file cached and therefore may be able to pick
+            # the 'Normal' difficulty, whereas there is no DifficultyTagLocalization
+            # object with this name in the database.
+            return HttpResponseBadRequest()
+
+        difficulty_tag = difficulty_tag_localization.difficulty_tag
         difficulty_tag_proposal = DifficultyTagProposal(
             problem=problem, tag=difficulty_tag, user=user
         )
