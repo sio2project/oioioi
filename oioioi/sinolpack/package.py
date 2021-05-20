@@ -1,5 +1,6 @@
 import functools
 import glob
+import io
 import logging
 import os
 import re
@@ -40,11 +41,11 @@ from oioioi.problems.package import (
     ProblemPackageError,
 )
 from oioioi.programs.models import (
+    LanguageOverrideForTest,
     LibraryProblemData,
     ModelSolution,
     OutputChecker,
     Test,
-    LanguageOverrideForTest,
 )
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.sinolpack.utils import add_extra_files
@@ -414,7 +415,8 @@ class SinolPackage(object):
         config_file = os.path.join(self.rootdir, 'config.yml')
         instance, created = ExtraConfig.objects.get_or_create(problem=self.problem)
         if os.path.isfile(config_file):
-            instance.config = open(config_file, 'r').read()
+            # In Python 3, io.open is an alias for the builtin open() function.
+            instance.config = io.open(config_file, 'r', encoding='utf-8').read()
         else:
             instance.config = ''
         instance.save()
@@ -1073,10 +1075,10 @@ class SinolPackage(object):
 
     @_describe_processing_error
     def _process_language_override(self):
-        """ Checks if there's a `override_limits` entry in config
-            and for existing tests, add additional limits overrides.
-            Time limits are validated the same way it's validated
-            in default package.
+        """Checks if there's a `override_limits` entry in config
+        and for existing tests, add additional limits overrides.
+        Time limits are validated the same way it's validated
+        in default package.
         """
         if 'override_limits' in self.config and self.config['override_limits']:
             overrides = self.config['override_limits']

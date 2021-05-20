@@ -5,6 +5,8 @@ import zipfile
 
 import pytest
 import six.moves.urllib.parse
+from six import BytesIO
+
 from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
@@ -13,8 +15,6 @@ from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.module_loading import import_string
-from six import BytesIO
-
 from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (
@@ -28,11 +28,11 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemPackage, ProblemStatement
 from oioioi.problems.package import NoBackend, backend_for_package
 from oioioi.programs.models import (
+    LanguageOverrideForTest,
     ModelSolution,
     OutputChecker,
     Test,
     TestReport,
-    LanguageOverrideForTest,
 )
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from oioioi.sinolpack.package import (
@@ -108,17 +108,23 @@ class TestSinolPackage(TestCase):
         self.assertNotEqual(problem.name, 'Not this one')
         self.assertEqual(problem.name, 'Testowe')
 
-    def test_latin2_title(self):
-        filename = get_test_filename('test_simple_package_latin2.zip')
+    def test_latin2_title_from_doc(self):
+        filename = get_test_filename('test_simple_package_latin2_title_from_doc.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, u'Łąka')
 
-    def test_utf8_title(self):
-        filename = get_test_filename('test_simple_package_utf8.zip')
+    def test_utf8_title_from_doc(self):
+        filename = get_test_filename('test_simple_package_utf8_title_from_doc.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, u'Łąka')
+
+    def test_utf8_title_from_config(self):
+        filename = get_test_filename('test_simple_package_utf8_title_from_config.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.name, u'ĄąĆćĘęŁłÓóŚśŻżŹź')
 
     def test_memory_limit_from_doc(self):
         filename = get_test_filename('test_simple_package_no_config.zip')
