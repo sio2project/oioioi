@@ -7,7 +7,7 @@ from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
-from django.db.models import F, OuterRef, Q, Value
+from django.db.models import Case, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
 from django.forms.models import modelform_factory
@@ -16,6 +16,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.html import format_html
+from django.utils.translation import get_language
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 from oioioi.base import admin
@@ -51,7 +52,7 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
 )
-from oioioi.problems.models import ProblemPackage, ProblemSite
+from oioioi.problems.models import ProblemName, ProblemPackage, ProblemSite
 from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.models import Test, TestReport
 
@@ -483,7 +484,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return make_html_link(href, instance.problem.name)
 
     name_link.short_description = _("Problem")
-    name_link.admin_order_field = 'problem__name'
+    name_link.admin_order_field = 'ordering_name'
 
     def short_name_link(self, instance):
         href = self._problem_site_href(instance)
@@ -527,7 +528,26 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super(ProblemInstanceAdmin, self).get_queryset(request)
-        qs = qs.filter(contest=request.contest)
+        qs = (
+            qs.filter(contest=request.contest)
+            .annotate(
+                localized_name=Subquery(
+                    ProblemName.objects.filter(
+                        problem=OuterRef('problem__pk'), language=get_language()
+                    ).values('name')
+                )
+            )
+            .annotate(
+                ordering_name=Case(
+                    When(
+                        localized_name__isnull=True,
+                        then=F('problem__legacy_name'),
+                    ),
+                    default=F('localized_name'),
+                )
+            )
+        )
+
         return qs
 
 
@@ -628,7 +648,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     search_fields = [
         'user__username',
         'user__last_name',
-        'problem_instance__problem__name',
+        'problem_instance__problem__legacy_name',
         'problem_instance__short_name',
     ]
 
@@ -676,6 +696,22 @@ class SubmissionAdmin(admin.ModelAdmin):
             url(r'^rejudge/$', self.rejudge_view),
         ]
         return urls + super(SubmissionAdmin, self).get_urls()
+
+    def get_search_results(self, request, queryset, search_term):
+        matched_problems = set(
+            problem_name.problem.pk
+            for problem_name in ProblemName.objects.filter(name__icontains=search_term)
+        )
+        queryset, _ = super(SubmissionAdmin, self).get_search_results(
+            request,
+            queryset,
+            search_term,
+        )
+        queryset |= self.model.objects.filter(
+            problem_instance__problem__in=matched_problems
+        )
+
+        return queryset, True
 
     def rejudge_view(self, request):
         tests = request.POST.getlist('tests', [])
