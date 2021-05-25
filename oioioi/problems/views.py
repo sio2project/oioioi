@@ -187,6 +187,9 @@ def add_or_update_problem(request, contest, template):
         'navbar_links': navbar_links,
         'problemset_tabs': problemset_tabs,
     }
+    if existing_problem is not None:
+        context['problem_name'] = existing_problem.name
+
     tab_kwargs = {'contest': contest, 'existing_problem': existing_problem}
 
     tab_link_params = request.GET.dict()

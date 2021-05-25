@@ -12,6 +12,10 @@
             {{ content }}
         </div>
     {% else %}
+
+    {% if problem_name %}
+    <p>{% trans "Selected problem" %}: {{ problem_name }}</p>
+    {% endif %}
         {{ content }}
     {% endif %}
 </div>
