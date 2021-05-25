@@ -1095,3 +1095,51 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
         USE_UNSAFE_EXEC = False
         DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
+
+#. * Sentry client update from raven to sentry-sdk:
+    * Apply change in wsgi.py: ::
+
+        --- a/oioioi/deployment/wsgi.py.template
+        +++ b/oioioi/deployment/wsgi.py.template     @@ -27,9 +27,8 @@ init_env('__DIR__')
+        # This application object is used by any WSGI server configured to use this
+        # file. This includes Django's development server, if the WSGI_APPLICATION
+        # setting points here.
+        -from raven.contrib.django.raven_compat.middleware.wsgi import Sentry
+        from django.core.wsgi import get_wsgi_application
+        -application = Sentry(get_wsgi_application())
+        +application = get_wsgi_application()
+
+    * Apply change in settings.py: ::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -454,16 +454,23 @@ ZEUS_INSTANCES = {
+         #IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'
+
+         # Error reporting
+        -# import raven
+        +# import sentry_sdk
+        +# from sentry_sdk.integrations.django import DjangoIntegration
+         #
+        -# RAVEN_CONFIG = {
+        +# def filter_sentry(event, hint):
+        +#     extra = event.get('extra', {})
+        +#     if extra.get('omit_sentry', False):
+        +#         return None
+        +#     return event
+        +#
+        +#
+        +# sentry_sdk.init(
+         #     # Won't do anything with no dsn
+         #     # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
+        -#     'dsn': '',
+        -#     # This should be a path to git repo
+        -#     'release': raven.fetch_git_sha(
+        -#         os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
+        -# }
+        +#     dsn='',
+        +#     integrations=[DjangoIntegration()],
+        +#     before_send=filter_sentry,
+        +# )
+
+     * Remove all sentry and raven reminiscent from settings.py in LOGGING SECTION.

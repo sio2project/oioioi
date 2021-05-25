@@ -14,7 +14,7 @@ from django.contrib.messages import constants as messages
 
 from django.utils.translation import ugettext_lazy as _
 
-INSTALLATION_CONFIG_VERSION = 48
+INSTALLATION_CONFIG_VERSION = 49
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -224,7 +224,6 @@ INSTALLED_APPS = (
     'compressor',
     'dj_pagination',
     'mptt',
-    'raven.contrib.django.raven_compat',
 
     'django.contrib.admin',
     'django.contrib.admindocs',

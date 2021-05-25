@@ -454,16 +454,23 @@ ZEUS_INSTANCES = {
 #IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'
 
 # Error reporting
-# import raven
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
 #
-# RAVEN_CONFIG = {
+# def filter_sentry(event, hint):
+#     extra = event.get('extra', {})
+#     if extra.get('omit_sentry', False):
+#         return None
+#     return event
+#
+#
+# sentry_sdk.init(
 #     # Won't do anything with no dsn
 #     # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
-#     'dsn': '',
-#     # This should be a path to git repo
-#     'release': raven.fetch_git_sha(
-#         os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
-# }
+#     dsn='',
+#     integrations=[DjangoIntegration()],
+#     before_send=filter_sentry,
+# )
 
 # Bonus to judging priority ang judging weight for each contest on this
 # OIOIOI instance.
