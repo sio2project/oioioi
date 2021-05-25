@@ -19,7 +19,7 @@ urlpatterns = [
         r'^jsi18n/$',
         i18n.JavaScriptCatalog.as_view(
             packages=[
-                'oioioi.locale',
+                'oioioi._locale',
             ]
         ),
         name='javascript_catalog',
