@@ -149,17 +149,11 @@ def _localized_formset_get_initial(localized_objects):
     ]
 
 
-def _localized_formset_make_all_languages_obligatory(self):
-    self.min_num = self.max_num = len(settings.LANGUAGES)
-    for form in self.forms:
-        form.empty_permitted = False
-
-
 class ProblemNameInlineFormSet(forms.models.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         kwargs['initial'] = _localized_formset_get_initial(kwargs['instance'].names)
         super(ProblemNameInlineFormSet, self).__init__(*args, **kwargs)
-        _localized_formset_make_all_languages_obligatory(self)
+        self.max_num = len(settings.LANGUAGES)
 
 
 class LocalizationFormset(forms.models.BaseInlineFormSet):
@@ -168,7 +162,9 @@ class LocalizationFormset(forms.models.BaseInlineFormSet):
             kwargs['instance'].localizations
         )
         super(LocalizationFormset, self).__init__(*args, **kwargs)
-        _localized_formset_make_all_languages_obligatory(self)
+        self.min_num = self.max_num = len(settings.LANGUAGES)
+        for form in self.forms:
+            form.empty_permitted = False
 
 
 class OriginInfoValueForm(forms.ModelForm):
