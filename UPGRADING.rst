@@ -1012,3 +1012,86 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         #    'oioioi.notifications.processors.notification_processor',
             'oioioi.globalmessage.processors.global_message_processor',
         #    'oioioi.portals.processors.portal_processor',
+
+#. * Added type key for languages and added "Output-only" language.: ::
+
+        --- a/oioioi/default_settings.py
+        +++ b/oioioi/default_settings.py
+        @@ -14,7 +14,7 @@ from django.contrib.messages import constants as messages
+
+        from django.utils.translation import ugettext_lazy as _
+
+        -INSTALLATION_CONFIG_VERSION = 47
+        +INSTALLATION_CONFIG_VERSION = 48
+
+        DEBUG = False
+        INTERNAL_IPS = ('127.0.0.1',)
+        @@ -318,9 +318,12 @@ SIOWORKERS_LISTEN_URL = None
+        RUN_LOCAL_WORKERS = False
+
+        # This setting specifies which languages are available on the platform.
+        -# Each language must contain a diplay_name entry. Such an entry may be useful
+        +# Each language must contain type and display_name entry. Such an entry may be useful
+        # if it is to contain characters, that probably shouldn't be allowed in the
+        -# language identifier, such as '#'.
+        +# language identifier, such as '#'. Languages of type 'main'
+        +# ('main' is default type, it doesn't need to be set)
+        +# are enabled on every problem by default, languages of type 'extra'
+        +# can only be enabled on a problem by adding them to the problems white list.
+        SUBMITTABLE_LANGUAGES = {
+            'C': {
+                'display_name': 'C'
+        @@ -336,6 +339,10 @@ SUBMITTABLE_LANGUAGES = {
+            },
+            'Python': {
+                'display_name': 'Python'
+        +    },
+        +    'Output-only': {
+        +        'type': 'extra',
+        +        'display_name': 'Output-only',
+            }
+        }
+
+        @@ -343,7 +350,7 @@ SUBMITTABLE_LANGUAGES = {
+        # There should be an entry for every language supported with key being the same
+        # as in SUBMITTABLE_LANGUAGES.
+        SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
+        -                          'Java': ['java'], 'Python': ['py']}
+        +                          'Java': ['java'], 'Python': ['py'], 'Output-only': ['txt', 'out']}
+
+        # This setting specifies which compilers are available in sioworkers.
+        # By default that means ones defined here:
+        @@ -366,6 +373,9 @@ AVAILABLE_COMPILERS = {
+            },
+            'Python': {
+                'python': {'display_name': 'python'}
+        +    },
+        +    'Output-only': {
+        +        'output-only': {'display_name': 'output-only'}
+            }
+        }
+
+        @@ -384,6 +394,9 @@ SYSTEM_COMPILERS = {
+            },
+            'Python': {
+                'system-python': {'display_name': 'system python'}
+        +    },
+        +    'Output-only': {
+        +        'output-only': {'display_name': 'output-only'}
+            }
+        }
+
+        @@ -392,11 +405,11 @@ SYSTEM_COMPILERS = {
+        # as in SUBMITTABLE_LANGUAGES and value contained in AVAILABLE_COMPILERS.
+        DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
+                            'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
+        -                     'Python': 'python'}
+        +                     'Python': 'python', 'Output-only': 'output-only'}
+
+        SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
+                            'Pascal': 'system-fpc', 'Java': 'system-java',
+        -                     'Python': 'system-python'}
+        +                     'Python': 'system-python', 'Output-only': 'output-only'}
+
+        USE_UNSAFE_EXEC = False
+        DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
