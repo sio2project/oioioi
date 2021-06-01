@@ -166,13 +166,14 @@ class PackageSource(ProblemSource):
         else:
             package.problem_name = backend.get_short_name(path, original_filename)
         package.save()
-        env = {}
-        env['post_upload_handlers'] = [
-            'oioioi.problems.handlers.update_problem_instance'
-        ]
-        env['backend_name'] = backend_name
-        env['package_id'] = package.id
-        env['round_id'] = round_id
+        env = {
+            'post_upload_handlers': [
+                'oioioi.problems.handlers.update_problem_instance'
+            ],
+            'backend_name': backend_name,
+            'package_id': package.id,
+            'round_id': round_id,
+        }
         if contest:
             env['contest_id'] = contest.id
         env['author'] = user.username

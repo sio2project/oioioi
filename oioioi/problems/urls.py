@@ -142,14 +142,14 @@ noncontest_patterns = []
 if settings.USE_API:
     noncontest_patterns += [
         url(
-            r'^api/problems/package_upload_query/$',
-            api.PackageUploadQueryView.as_view(),
-            name='api_package_upload_query',
-        ),
-        url(
             r'^api/problems/package_upload/$',
             api.PackageUploadView.as_view(),
             name='api_package_upload',
+        ),
+        url(
+            r'^api/problems/package_upload/(?P<package_id>\d+)/$',
+            api.PackageUploadQueryView.as_view(),
+            name='api_package_upload_query',
         ),
         url(
             r'^api/problems/package_reupload/$',

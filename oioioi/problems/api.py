@@ -1,6 +1,8 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext as _
+from oioioi.base.utils.api import make_path_coreapi_schema
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import can_admin_contest
 from oioioi.problems.forms import PackageUploadForm
@@ -8,7 +10,6 @@ from oioioi.problems.models import Problem, ProblemPackage
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.serializers import (
     PackageReuploadSerializer,
-    PackageUploadQuerySerializer,
     PackageUploadSerializer,
 )
 from oioioi.problems.utils import can_admin_problem
@@ -16,52 +17,63 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.schemas import AutoSchema
 from rest_framework.views import APIView
+
+
+def _check_permissions(request, contest=None, existing_problem=None):
+    if not request.user.has_perm('problems.problems_db_admin'):
+        if contest and (not can_admin_contest(request.user, contest)):
+            return False
+    if existing_problem:
+        if not can_admin_problem(request, existing_problem):
+            return False
+    return True
 
 
 class PackageUploadQueryView(APIView):
     """Endpoint that given package_id returns package_status.
-    Possible values for package_status are:
-    "OK" if package was succesfully uploaded (if so, the problem_id is returned if one is available),
-    "ERR" if package upload failed (if so, info describing error is returned if one is available),
-    "?" if package upload is pending."""
+    Possible values for the package_status are:
+    - "OK": if the package was successfully uploaded (if so, the problem_id is returned,
+    if one is available),
+    - "ERR": if the package upload failed (if so, info describing an error is returned,
+    if one is available),
+    - "?": if the package upload is pending.
+    """
 
-    parser_class = (MultiPartParser,)
     permission_classes = (IsAuthenticated,)
-    serializer_class = PackageUploadQuerySerializer
-
-    def get_serializer(self):
-        return self.serializer_class(None)
+    schema = AutoSchema(
+        [
+            make_path_coreapi_schema(
+                name='package_id',
+                title="Package id",
+                description="Id of the package whose status you can get.",
+            ),
+        ]
+    )
 
     @staticmethod
-    def check_permissions(request):
-        return request.user.has_perm('problems.problems_db_admin')
+    def check_permissions(request, contest=None, existing_problem=None):
+        return _check_permissions(
+            request, contest=contest, existing_problem=existing_problem
+        )
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            data = serializer.validated_data
-            package_id = data['package_id']
+    def get(self, request, package_id):
+        package = get_object_or_404(ProblemPackage, id=package_id)
+        if not self.check_permissions(request, package.contest, package.problem):
+            return Response(
+                {'message': _("Permission denied.")}, status=status.HTTP_403_FORBIDDEN
+            )
 
-            if not self.check_permissions(request):
-                return Response(
-                    {'message': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN
-                )
+        response = {'package_status': package.status}
+        if response['package_status'] == 'OK':
+            if package.problem is not None:
+                response['problem_id'] = package.problem.id
+        elif response['package_status'] == 'ERR':
+            if package.info is not None:
+                response['info'] = package.info
 
-            package = get_object_or_404(ProblemPackage, id=package_id)
-            answer = {'package_status': package.status}
-
-            if answer['package_status'] == 'OK':
-                if package.problem is not None:
-                    answer['problem_id'] = package.problem.id
-
-            if answer['package_status'] == 'ERR':
-                if package.info is not None:
-                    answer['info'] = package.info
-
-            return Response(answer, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(response, status=status.HTTP_200_OK)
 
 
 @method_decorator(transaction.non_atomic_requests, name='dispatch')
@@ -71,18 +83,11 @@ class BasePackageUploadView(APIView):
     serializer_class = None
     form_class = PackageUploadForm
 
-    def get_serializer(self):
-        return self.serializer_class(None)
-
     @staticmethod
     def check_permissions(request, contest=None, existing_problem=None):
-        if not request.user.has_perm('problems.problems_db_admin'):
-            if contest and (not can_admin_contest(request.user, contest)):
-                return False
-        if existing_problem:
-            if not can_admin_problem(request, existing_problem):
-                return False
-        return True
+        return _check_permissions(
+            request, contest=contest, existing_problem=existing_problem
+        )
 
     @staticmethod
     def prepare_data(dictionary):
@@ -95,7 +100,6 @@ class BasePackageUploadView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-
             data = self.prepare_data(serializer.validated_data)
 
             contest = data.get('contest')
@@ -104,7 +108,8 @@ class BasePackageUploadView(APIView):
 
             if not self.check_permissions(request, contest, existing_problem):
                 return Response(
-                    {'message': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN
+                    {'message': _("Permission denied.")},
+                    status=status.HTTP_403_FORBIDDEN,
                 )
 
             form = self.form_class(contest, existing_problem, form_data, request.FILES)
@@ -125,7 +130,8 @@ class BasePackageUploadView(APIView):
 
 class PackageUploadView(BasePackageUploadView):
     """Endpoint allowing for uploading problem packages.
-    Each uploaded problem has to be bound to some round and contest."""
+    Each uploaded problem has to be bound to some round and contest.
+    """
 
     serializer_class = PackageUploadSerializer
 
@@ -153,7 +159,8 @@ class PackageUploadView(BasePackageUploadView):
 
 class PackageReuploadView(BasePackageUploadView):
     """Endpoint allowing for reuploading problem packages.
-    Substitutes package file corresponding to specified problem with uploaded package."""
+    Substitutes package file corresponding to specified problem with uploaded package.
+    """
 
     serializer_class = PackageReuploadSerializer
 

@@ -225,6 +225,7 @@ class DummyPackageBackend(ProblemPackageBackend):
         p = Problem.create(
             legacy_name='foo',
             short_name='bar',
+            contest=pp.contest,
             controller_name='oioioi.problems.controllers.ProblemController',
         )
         env['problem_id'] = p.id
@@ -404,63 +405,47 @@ class TestAPIProblemUpload(TransactionTestCase):
     PROBLEM_PACKAGE_BACKENDS=('oioioi.problems.tests.DummyPackageBackend',)
 )
 class TestAPIProblemUploadQuery(TransactionTestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_users', 'test_contest', 'test_permissions']
 
-    def test_successful_query(self):
+    def setUp(self):
         ProblemInstance.objects.all().delete()
-        contest = Contest.objects.get()
-        round = contest.round_set.all().first()
-        self.assertTrue(self.client.login(username='test_admin'))
-        data = {
+        self.contest = Contest.objects.get()
+        self.round = self.contest.round_set.all().first()
+        self.data = {
             'package_file': ContentFile('eloziom', name='foo'),
-            'contest_id': contest.id,
-            'round_name': round.name,
+            'contest_id': self.contest.id,
+            'round_name': self.round.name,
         }
+
+    def _test_successful_query(self, username):
+        self.assertTrue(self.client.login(username=username))
         url = reverse('api_package_upload')
-        response = self.client.post(url, data, follow=True)
+        response = self.client.post(url, self.data, follow=True)
         self.assertEqual(response.status_code, 201)
-        url = reverse('api_package_upload_query')
         data = response.json()
         self.assertTrue('package_id' in data)
-        response = self.client.post(url, data, follow=True)
+        package_id = data.get('package_id')
+        url = reverse('api_package_upload_query', args=(package_id,))
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue('package_status' in data)
 
-    def test_failed_query_no_package_id(self):
-        ProblemInstance.objects.all().delete()
-        contest = Contest.objects.get()
-        round = contest.round_set.all().first()
-        self.assertTrue(self.client.login(username='test_admin'))
-        data = {
-            'package_file': ContentFile('eloziom', name='foo'),
-            'contest_id': contest.id,
-            'round_name': round.name,
-        }
-        url = reverse('api_package_upload')
-        response = self.client.post(url, data, follow=True)
-        self.assertEqual(response.status_code, 201)
-        url = reverse('api_package_upload_query')
-        response = self.client.post(url, {}, follow=True)
-        self.assertEqual(response.status_code, 400)
+    def test_successful_query_as_admin(self):
+        self._test_successful_query('test_admin')
+
+    def test_successful_query_as_contest_admin(self):
+        self._test_successful_query('test_contest_admin')
 
     def test_failed_query_no_perm(self):
-        ProblemInstance.objects.all().delete()
-        contest = Contest.objects.get()
-        round = contest.round_set.all().first()
         self.assertTrue(self.client.login(username='test_admin'))
-        data = {
-            'package_file': ContentFile('eloziom', name='foo'),
-            'contest_id': contest.id,
-            'round_name': round.name,
-        }
         url = reverse('api_package_upload')
-        response = self.client.post(url, data, follow=True)
+        response = self.client.post(url, self.data, follow=True)
         self.assertEqual(response.status_code, 201)
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('api_package_upload_query')
-        data = response.json()
-        response = self.client.post(url, data, follow=True)
+        package_id = response.json().get('package_id')
+        url = reverse('api_package_upload_query', args=(package_id,))
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)
 
 
