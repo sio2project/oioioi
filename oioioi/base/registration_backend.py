@@ -5,7 +5,7 @@ import registration.views
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib.auth.models import User
-from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
 from django.contrib.sites.requests import RequestSite
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
@@ -85,7 +85,12 @@ urlpatterns += [
             'success_url': reverse_lazy('auth_password_reset_done'),
         },
         name="auth_password_reset",
-    )
+    ),
+    url(
+        r'^password/reset/done/$',
+        PasswordResetDoneView.as_view(),
+        name='auth_password_reset_done',
+    ),
 ]
 
 urlpatterns += registration.backends.default.urls.urlpatterns

@@ -8,6 +8,7 @@ from operator import attrgetter
 
 import six.moves.urllib.parse
 
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -527,6 +528,7 @@ def problemset_main_view(request):
     return problemset_generate_view(request, page_title, problems, "public")
 
 
+@login_required
 def problemset_my_problems_view(request):
     page_title = _("My problems")
     problems_pool = problemset_get_problems(request)
@@ -534,6 +536,7 @@ def problemset_my_problems_view(request):
     return problemset_generate_view(request, page_title, problems, "my")
 
 
+@login_required
 def problemset_shared_with_me_view(request):
     from oioioi.problemsharing.models import Friendship
 

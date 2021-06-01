@@ -17,7 +17,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
-from django.utils.text import Truncator, get_valid_filename
+from django.utils.text import get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
@@ -302,6 +302,11 @@ package_statuses.register('ERR', _("Error"))
 TRACEBACK_STACK_LIMIT = 100
 
 
+def truncate_unicode(string, length, encoding='utf-8'):
+    """ Truncates string to be `length` bytes long. """
+    encoded = string.encode(encoding)[:length]
+    return encoded.decode(encoding, 'ignore')
+
 class ProblemPackage(models.Model):
     """Represents a file with data necessary for creating a
     :class:`~oioioi.problems.models.Problem` instance.
@@ -402,7 +407,7 @@ class ProblemPackage(models.Model):
                 # Truncate error so it doesn't take up whole page in list
                 # view (or much space in the database).
                 # Full info is available in package.traceback anyway.
-                package.info = Truncator(info).chars(400)
+                package.info = truncate_unicode(info, ProblemPackage._meta.get_field('info').max_length)
 
                 package.traceback = ContentFile(
                     info
