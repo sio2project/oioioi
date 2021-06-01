@@ -14,7 +14,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from mock import patch
+from unittest.mock import patch
 
 
 # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L30

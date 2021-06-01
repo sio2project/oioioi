@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import datetime  # pylint: disable=E0611
 
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import RequestFactory

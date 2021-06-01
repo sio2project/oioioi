@@ -92,7 +92,8 @@ python2_specific_requirements = [
 ]
 
 python3_specific_requirements = [
-    "Django>=2.2,<2.2.21",  # when upgrading, upgrade also django-two-factor-auth!
+    # 2.2.23 as it solves regression that was introduced in 2.2.21
+    "Django>=2.2.23,<3.0",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b,<=2021.1",
     "sqlalchemy<1.5",
     "beautifulsoup4<4.10",
@@ -117,9 +118,6 @@ python3_specific_requirements = [
     'pytest-xdist==1.34.0',
     'pytest-cov>=2.11,<2.12',
     'requests<3',
-    # http://stackoverflow.com/questions/31417964/importerror-cannot-import-name-wraps
-    # ¯\_(ツ)_/¯
-    "mock==1.0.1",
     "fpdf<1.8",
     "unicodecsv<0.15",
     "shortuuid<1",
