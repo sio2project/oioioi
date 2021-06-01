@@ -176,12 +176,17 @@ if settings.USE_API:
         # the contest information is managed manually and added after api prefix
         url(
             r'^api/c/(?P<contest_name>[a-z0-9_-]+)/submit/(?P<problem_short_name>[a-z0-9_-]+)$',
-            api.SubmitContestSolution.as_view(),
+            api.SubmitContestSolutionView.as_view(),
             name='api_contest_submit',
         ),
         url(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)$',
+            api.GetProblemIdView.as_view(),
+            name='api_contest_get_problem_id',
+        ),
+        url(
             r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',
-            api.SubmitProblemsetSolution.as_view(),
+            api.SubmitProblemsetSolutionView.as_view(),
             name='api_problemset_submit',
         ),
     ]

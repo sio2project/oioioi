@@ -2965,6 +2965,42 @@ class TestNoSubmissionsLimitOnListView(TestCase):
             )
 
 
+class TestAPIGetProblemId(APITestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
+    view_name = 'api_contest_get_problem_id'
+
+    def setUp(self):
+        self.client.force_authenticate(user=User.objects.get(username='test_user'))
+        self.contest = Contest.objects.get()
+        self.problem_instance = ProblemInstance.objects.get(pk=1)
+        self.problem = self.problem_instance.problem
+
+    def test_successful_query(self):
+        url = reverse(self.view_name, args=(self.contest.id, self.problem.short_name))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(self.problem.id == data.get('problem_id'))
+        self.assertTrue(self.problem_instance.id == data.get('problem_instance_id'))
+
+    def test_invalid_contest_id(self):
+        url = reverse(
+            self.view_name, args=('invalid-contest-id', self.problem.short_name)
+        )
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 404)
+
+    def test_invalid_problem_short_name(self):
+        url = reverse(self.view_name, args=(self.contest.id, 'invalid-short-name'))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 404)
+
+
 class TestAPISubmitBase(APITestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package', 'test_submission']
     extra_fixtures = []
