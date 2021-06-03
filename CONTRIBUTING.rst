@@ -204,7 +204,9 @@ Working with Transifex and SIO2 guide (for developers translating)
     Correcting original English strings
         Unfortunately, Transifex does not allow for editing English strings in its editor.
         They need to be changed in the source files, preferably along with msgid.
-        The files you need are in *oioioi/locale/en/LC_MESSAGES/*.
+        The files you need are in *oioioi/_locale/locale/<lang>/LC_MESSAGES/*,
+        where <lang> is the short version (pl, en, de) of one of the currently supported
+        languages defined in the **settings.py** file.
         You can edit only the *.po* files, however if you change msgid (preferable)
         you have to also change it in all the other languages and all the source files the id occurs in.
         The source files are all listed above the strings in the *.po* files.
