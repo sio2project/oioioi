@@ -57,6 +57,8 @@ from oioioi.programs.utils import (
 )
 from oioioi.programs.widgets import CancellableFileInput
 
+logger = logging.getLogger(__name__)
+
 
 def get_report_display_type(request, test_report):
     if test_report.status == 'INI_OK' or test_report.status == 'OK':
