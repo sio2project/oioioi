@@ -425,9 +425,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def get_list_display(self, request):
         items = super(ProblemInstanceAdmin, self).get_list_display(request)
         if not is_contest_admin(request):
-            disallowed_items = [
-                'package',
-            ]
+            disallowed_items = ['package']
             items = [item for item in items if item not in disallowed_items]
         return items
 
@@ -539,10 +537,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             )
             .annotate(
                 ordering_name=Case(
-                    When(
-                        localized_name__isnull=True,
-                        then=F('problem__legacy_name'),
-                    ),
+                    When(localized_name__isnull=True, then=F('problem__legacy_name')),
                     default=F('localized_name'),
                 )
             )
@@ -692,9 +687,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_urls(self):
-        urls = [
-            url(r'^rejudge/$', self.rejudge_view),
-        ]
+        urls = [url(r'^rejudge/$', self.rejudge_view)]
         return urls + super(SubmissionAdmin, self).get_urls()
 
     def get_search_results(self, request, queryset, search_term):
@@ -703,13 +696,14 @@ class SubmissionAdmin(admin.ModelAdmin):
             for problem_name in ProblemName.objects.filter(name__icontains=search_term)
         )
         queryset, _ = super(SubmissionAdmin, self).get_search_results(
-            request,
-            queryset,
-            search_term,
+            request, queryset, search_term
         )
-        queryset |= self.model.objects.filter(
+        contest_filtered = self.get_queryset(request)
+        queryset |= contest_filtered.filter(
             problem_instance__problem__in=matched_problems
         )
+
+        queryset = queryset.order_by('-id')
 
         return queryset, True
 
