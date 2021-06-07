@@ -96,10 +96,8 @@ class Ranking(models.Model):
         """Serialized data of this ranking"""
         if not self.serialized_data:
             return None
-        # We need to decode unicode characters saved on python2 on python3.
-        if six.PY2:
-            return pickle.loads(self.serialized_data)
-        return pickle.loads(self.serialized_data, encoding='utf-8')
+
+        return pickle.loads(self.serialized_data)
 
     def controller(self):
         """RankingController of the contest"""
@@ -180,8 +178,8 @@ def save_recalc_results(recalc, date_before, date_after, serialized, pages_list)
     except Ranking.DoesNotExist:
         return
     r.serialized_data = pickle.dumps(
-        serialized, 2
-    )  # Version 2 of protocol as it's latest python2 and python3 compatible.
+        serialized
+    )
     save_pages(r, pages_list)
     r.last_recalculation_date = date_before
     r.last_recalculation_duration = date_after - date_before

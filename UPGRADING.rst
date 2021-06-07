@@ -38,7 +38,11 @@ In the production environment create a new virtual environment (with python 3.7.
 
 The same commands used on python 2 for managing and running oioioi should work on python 3.
 
-Upgrading should work without issues.
+When switching versions of python rankings need to be recalculated. To do this run::
+
+    ./manage.py mark_all_rankings_to_recalculate
+
+Other than that, upgrading should work without issues.
 
 However, when you downgrade back to python 2, you may find that cache and session registry have been populated
 with objects encoded in a newer, incompatible format. To clear the caches run::
