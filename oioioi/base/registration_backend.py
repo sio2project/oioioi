@@ -79,17 +79,11 @@ if not settings.SEND_USER_ACTIVATION_EMAIL:
 urlpatterns += [
     url(
         r'^password/reset/$',
-        PasswordResetView.as_view(),
-        {
-            'form_class': OioioiPasswordResetForm,
-            'success_url': reverse_lazy('auth_password_reset_done'),
-        },
+        PasswordResetView.as_view(
+            form_class=OioioiPasswordResetForm,
+            success_url=reverse_lazy('auth_password_reset_done'),
+        ),
         name="auth_password_reset",
-    ),
-    url(
-        r'^password/reset/done/$',
-        PasswordResetDoneView.as_view(),
-        name='auth_password_reset_done',
     ),
 ]
 

@@ -1438,3 +1438,21 @@ class TestPingEndpointsAndAuthentication(APITestCase):
             self.client.get('/api/auth_ping').content.decode('utf-8'),
             '"pong test_user"',
         )
+
+
+class TestPasswordReset(TestCase):
+    fixtures = ['test_users']
+
+    def setUp(self):
+        self.user = User.objects.create_user('test_email_user', 'test@test.com', 'test1234')
+
+    def test_reset_password_email_send_existing(self):
+        response = self.client.post(reverse('auth_password_reset'), data={'email': self.user.email})
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertRedirects(
+            response,
+            reverse('auth_password_reset_done')
+        )
+
+
+
