@@ -18,16 +18,15 @@ def parse_node_for_problems(node):
     ids = []
     for widget in widgets_with_links:
         regex = widget.compiled_tag_regex
-        for node_version in node.language_versions:
+        for node_version in node.language_versions.all():
             for m in regex.finditer(node_version.panel_code):
                 ids += widget.get_problem_ids(m)
 
     return Problem.objects.filter(id__in=ids).distinct()
 
 
-@receiver(post_save, sender=Node)
-def update_task_information_cache(sender, instance, **kwargs):
-    instance.problems_in_content.set(parse_node_for_problems(instance))
+def update_task_information_cache(node):
+    node.problems_in_content.set(parse_node_for_problems(node))
 
 
 @receiver(post_migrate)

@@ -187,7 +187,8 @@ class ProblemTableWidget(object):
         r'\]\](?!\])'  # ]]
     )
 
-    def site_key_from_link(self, link):
+    @staticmethod
+    def site_key_from_link(link):
         if '//' in link:
             link = link.split('//')[1]
         if '/' not in link:
@@ -201,26 +202,31 @@ class ProblemTableWidget(object):
             return None
         return resolved.kwargs['site_key']
 
-    def render(self, request, m):
-        if not m.group(2).strip(' ;'):
-            return ''
+    @staticmethod
+    def parse_problems(m):
         links = [link.strip() for link in m.group(2).split(';') if link.strip()]
-
         keys = [
-            self.site_key_from_link(link)
+            ProblemTableWidget.site_key_from_link(link)
             for link in links
-            if self.site_key_from_link(link) is not None
+            if ProblemTableWidget.site_key_from_link(link) is not None
         ]
-
         problems = (
             Problem.objects.filter(problemsite__url_key__in=keys)
             .select_related('problemsite')
             .prefetch_related('names')
         )
-
         problem_map = {pr.problemsite.url_key: pr for pr in problems}
-
         problems = [problem_map[key] for key in keys if key in problem_map]
+        return problems
+
+    def get_problem_ids(self, m):
+        return [problem.id for problem in self.parse_problems(m)]
+
+    def render(self, request, m):
+        if not m.group(2).strip(' ;'):
+            return ''
+
+        problems = self.parse_problems(m)
 
         rows = []
 

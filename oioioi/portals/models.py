@@ -39,7 +39,9 @@ class Node(MPTTModel):
         on_delete=models.CASCADE,
     )
 
-    problems_in_content = models.ManyToManyField('problems.problem', blank=True)
+    problems_in_content = models.ManyToManyField(
+        'problems.problem', related_name='portal_pages', blank=True
+    )
 
     class Meta(object):
         unique_together = ('parent', 'short_name')

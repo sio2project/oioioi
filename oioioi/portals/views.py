@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language_from_request
@@ -43,6 +44,9 @@ from oioioi.portals.forms import (
 from oioioi.portals.models import Node, NodeLanguageVersion, Portal
 from oioioi.portals.utils import resolve_path
 from oioioi.portals.widgets import render_panel
+from oioioi.portals.handlers import update_task_information_cache
+
+from oioioi.problems.problem_site import problem_site_tab
 
 
 @register_main_page_view(order=500, condition=main_page_from_default_global_portal)
@@ -191,6 +195,7 @@ def edit_node_view(request):
             if formset.is_valid():
                 node.save()
                 formset.save()
+                update_task_information_cache(node)
                 return redirect(portal_url(node=node))
 
     return render(
@@ -229,6 +234,7 @@ def add_node_view(request):
             if formset.is_valid():
                 node.save()
                 formset.save()
+                update_task_information_cache(node)
                 return redirect(portal_url(node=node))
 
     return render(
@@ -402,6 +408,25 @@ def portals_main_page_view(request, view_type='public'):
             'views': views,
             'curr_view_type': view_type,
         },
+    )
+
+
+@problem_site_tab(
+    _("Related portal pages"),
+    key='related_portal_pages',
+    order=1000,
+)
+def problem_site_related_portal_pages(request, problem):
+    pages = problem.portal_pages.all()
+    pages = [
+        (page.get_lang_version(request), page.get_root().portal)
+        for page in pages
+        if page.get_root().portal.is_public
+    ]
+    return TemplateResponse(
+        request,
+        'problems/related-portal-pages.html',
+        {'pages': pages},
     )
 
 

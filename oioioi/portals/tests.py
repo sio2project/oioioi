@@ -97,7 +97,14 @@ class TestPortalModels(TestCase):
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestPortalViews(TestCase):
-    fixtures = ['test_users', 'test_portals']
+    fixtures = [
+        'test_users',
+        'test_portals',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_problem_site',
+    ]
 
     def test_create_user_portal_view(self):
         create_url = reverse('create_user_portal')
@@ -435,6 +442,62 @@ class TestPortalViews(TestCase):
     def test_old_global_portal_view(self):
         response = self.client.get('/portal/')
         self.assertRedirects(response, '/p/default/')
+
+    def test_problem_table_parsing(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        problem_site_tab_url = (
+            reverse('problem_site', kwargs={'site_key': '123'})
+            + "?key=related_portal_pages"
+        )
+        response = self.client.get(problem_site_tab_url)
+        self.assertContains(response, 'No related portal pages')
+
+        root = get_portal().root
+        response = self.client.post(
+            portal_url(node=root, action='add_node'),
+            data={
+                'short_name': 'new_child',
+                'language_versions-0-id': '',
+                'language_versions-0-full_name': 'TESTNAME',
+                'language_versions-0-panel_code': '[[ProblemTable|{}]]'.format(
+                    problem_site_tab_url
+                ),
+                'language_versions-0-language': 'en',
+                'language_versions-MAX_NUM_FORMS': 1,
+                'language_versions-TOTAL_FORMS': 1,
+                'language_versions-MIN_NUM_FORMS': 1,
+                'language_versions-INITIAL_FORMS': 0,
+            },
+        )
+        self.assertRedirects(
+            response, portal_url(portal=get_portal(), path='new_child')
+        )
+
+        self.assertTrue(root.portal.is_public)
+        response = self.client.get(problem_site_tab_url)
+        self.assertNotContains(response, 'No related portal pages')
+        self.assertContains(response, 'TESTNAME')
+        self.assertContains(response, portal_url(portal=get_portal(), path='new_child'))
+        self.assertContains(response, 'test_user')
+
+        node = root.children.get(short_name='new_child')
+        nlv = node.language_versions.get(language='en')
+        response = self.client.post(
+            portal_url(node=node, action='edit_node'),
+            data={
+                'short_name': 'new_child',
+                'language_versions-0-id': str(nlv.id),
+                'language_versions-0-full_name': 'TESTNAME',
+                'language_versions-0-panel_code': 'abcd',
+                'language_versions-0-language': 'en',
+                'language_versions-MAX_NUM_FORMS': 1,
+                'language_versions-TOTAL_FORMS': 1,
+                'language_versions-MIN_NUM_FORMS': 1,
+                'language_versions-INITIAL_FORMS': 1,
+            },
+        )
+        response = self.client.get(problem_site_tab_url)
+        self.assertNotContains(response, 'TESTNAME')
 
 
 class TestMarkdown(TestCase):

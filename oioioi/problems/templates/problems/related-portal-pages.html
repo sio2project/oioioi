@@ -1,0 +1,36 @@
+{% load i18n portal_url simple_filters pagination_tags %}
+
+<br>
+{% if pages %}
+{% autopaginate pages 20 %}
+{% paginate %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>{% trans "Page name" %}</th>
+            <th>{% trans "Owner" %}</th>
+            <th>{% trans "Portal description" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for page, portal in pages %}
+            <tr>
+                <td><a href="{% portal_url node=page.node %}">{{ page.full_name }}</a></td>
+                <td>
+                {% if portal.owner %}
+                    {{ portal.owner.username }}
+                {% endif %}
+                </td>
+                <td>{{ portal.short_description }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <p>{% trans "No related portal pages." %}</p>
+</div>
+{% endif %}
+{% paginate %}
