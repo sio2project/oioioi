@@ -307,6 +307,7 @@ def truncate_unicode(string, length, encoding='utf-8'):
     encoded = string.encode(encoding)[:length]
     return encoded.decode(encoding, 'ignore')
 
+
 class ProblemPackage(models.Model):
     """Represents a file with data necessary for creating a
     :class:`~oioioi.problems.models.Problem` instance.
@@ -407,7 +408,9 @@ class ProblemPackage(models.Model):
                 # Truncate error so it doesn't take up whole page in list
                 # view (or much space in the database).
                 # Full info is available in package.traceback anyway.
-                package.info = truncate_unicode(info, ProblemPackage._meta.get_field('info').max_length)
+                package.info = truncate_unicode(
+                    info, ProblemPackage._meta.get_field('info').max_length
+                )
 
                 package.traceback = ContentFile(
                     info
@@ -959,42 +962,3 @@ class AlgorithmTagProposal(models.Model):
     class Meta(object):
         verbose_name = _("algorithm tag proposal")
         verbose_name_plural = _("algorithm tag proposals")
-
-
-@python_2_unicode_compatible
-class Tag(models.Model):
-    """Class used for old tags - deprecated."""
-
-    name = models.CharField(
-        max_length=20,
-        unique=True,
-        verbose_name=_("name"),
-        null=False,
-        blank=False,
-        validators=[
-            validators.MinLengthValidator(3),
-            validators.MaxLengthValidator(20),
-            validators.validate_slug,
-        ],
-    )
-    problems = models.ManyToManyField(Problem, through='TagThrough')
-
-    class Meta(object):
-        verbose_name = _("tag")
-        verbose_name_plural = _("tags")
-
-    def __str__(self):
-        return six.text_type(self.name)
-
-
-@python_2_unicode_compatible
-class TagThrough(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
-
-    # This string will be visible in admin form
-    def __str__(self):
-        return six.text_type(self.tag.name)
-
-    class Meta(object):
-        unique_together = ('problem', 'tag')
