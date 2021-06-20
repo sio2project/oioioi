@@ -67,7 +67,7 @@ class StatementConfigInline(admin.TabularInline):
     form = ProblemStatementConfigForm
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -96,7 +96,7 @@ class RankingVisibilityConfigInline(admin.TabularInline):
     form = RankingVisibilityConfigForm
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -143,7 +143,7 @@ class StatementInline(admin.TabularInline):
     fields = readonly_fields
     category = NO_CATEGORY
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -185,7 +185,7 @@ class ProblemInstanceInline(admin.StackedInline):
     inline_classes = ('collapse open',)
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -200,7 +200,7 @@ class ProblemSiteInline(admin.StackedInline):
     form = ProblemSiteForm
     category = NO_CATEGORY
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -229,6 +229,7 @@ def tag_inline(
         cls.has_add_permission = has_permission_func
         cls.has_change_permission = has_permission_func
         cls.has_delete_permission = has_permission_func
+        cls.has_view_permission = has_permission_func
 
         return cls
 
@@ -547,6 +548,9 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         if obj:
             return False
         return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def has_delete_permission(self, request, obj=None):
         if not request.user.is_superuser:

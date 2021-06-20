@@ -1,7 +1,10 @@
 import six
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from mock import Mock, patch
+try:
+    from mock import Mock, patch
+except ImportError:
+    from unittest.mock import Mock, patch
 
 from oioioi.base.tests import TestCase
 from oioioi.plagiarism.utils import MossClient, MossException

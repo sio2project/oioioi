@@ -89,7 +89,7 @@ class TestRankingViews(TestCase):
         def get_url_for_user(username):
             get = QueryDict('', mutable=True)
             get['user'] = username
-            get['page'] = 1
+            get['page'] = '1'
             return url + '?' + get.urlencode()
 
         def get_url_found_user(user, page):
@@ -117,7 +117,7 @@ class TestRankingViews(TestCase):
             user = users[i]
             response = self.client.get(get_url_for_user(user.username))
             # On which page should the user be?
-            page = ((number_of_users - 1 - i) // per_page) + 1
+            page = str(((number_of_users - 1 - i) // per_page) + 1)
             self.assertRedirects(response, get_url_found_user(user, page))
 
         # Login as someone who is in the ranking
@@ -132,7 +132,7 @@ class TestRankingViews(TestCase):
 
         # Test if users[0] can find himself
         response = self.client.get(get_url_for_user(users[user_num].username))
-        page = ((number_of_users - user_num) // per_page) + 1
+        page = str(((number_of_users - user_num) // per_page) + 1)
         self.assertRedirects(response, get_url_found_user(users[user_num], page))
 
         for i in range(number_of_users):

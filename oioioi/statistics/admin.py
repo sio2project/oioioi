@@ -10,7 +10,7 @@ class StatisticsConfigInline(admin.TabularInline):
     model = StatisticsConfig
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -18,6 +18,9 @@ class StatisticsConfigInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return is_contest_admin(request)
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class StatisticsAdminMixin(object):

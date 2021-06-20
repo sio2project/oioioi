@@ -1,7 +1,7 @@
 import six
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
@@ -9,7 +9,7 @@ from oioioi.base.utils.deps import check_django_app_dependencies
 check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
 
 
-@python_2_unicode_compatible
+
 class IpToUser(models.Model):
     """Represents mapping for automatic authorization based on IP address."""
 
@@ -26,7 +26,7 @@ class IpToUser(models.Model):
         return six.text_type(self.ip_addr)
 
 
-@python_2_unicode_compatible
+
 class DnsToUser(models.Model):
     """Represents mapping for automatic authorization based on DNS hostname."""
 

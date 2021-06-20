@@ -39,7 +39,7 @@ class ProgramsConfigInline(admin.TabularInline):
     can_delete = False
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -47,6 +47,9 @@ class ProgramsConfigInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class ValidationFormset(BaseInlineFormSet):
@@ -114,7 +117,7 @@ class TestInline(admin.TabularInline):
     ordering = ('kind', 'order', 'name')
     formset = ValidationFormset
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -125,6 +128,9 @@ class TestInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def input_file_link(self, instance):
         if instance.id is not None:
@@ -150,7 +156,7 @@ class ReportActionsConfigInline(admin.StackedInline):
     fields = ['can_user_generate_outs']
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -158,6 +164,9 @@ class ReportActionsConfigInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class OutputCheckerInline(admin.TabularInline):
@@ -168,7 +177,7 @@ class OutputCheckerInline(admin.TabularInline):
     can_delete = False
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -176,6 +185,9 @@ class OutputCheckerInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def checker_link(self, instance):
         if not instance.exe_file:
@@ -199,7 +211,7 @@ class LibraryProblemDataInline(admin.TabularInline):
     can_delete = False
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -207,6 +219,9 @@ class LibraryProblemDataInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class ProblemCompilerInline(admin.StackedInline):
@@ -233,13 +248,16 @@ class ContestCompilerInline(admin.StackedInline):
         super(ContestCompilerInline, self).__init__(*args, **kwargs)
         self.verbose_name_plural = _("Compiler overrides")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
 

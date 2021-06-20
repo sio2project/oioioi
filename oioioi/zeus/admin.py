@@ -16,7 +16,7 @@ class ZeusProblemDataInline(admin.StackedInline):
     inline_classes = ('collapse',)
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -24,6 +24,9 @@ class ZeusProblemDataInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def zeus_instance(self, instance):
         zeus_id = instance.zeus_id

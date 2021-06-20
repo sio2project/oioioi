@@ -8,7 +8,7 @@ from two_factor.urls import urlpatterns as tf_urls
 app_name = 'base'
 
 urlpatterns = [
-    url(r'', include((tf_urls, 'two_factor'))),
+    url(r'', include(tf_urls)),
     url(r'^force_error/$', views.force_error_view, name='force_error'),
     url(
         r'^force_permission_denied/$',

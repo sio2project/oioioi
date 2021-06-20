@@ -2,7 +2,7 @@ import six
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -20,7 +20,7 @@ participant_statuses.register('BANNED', _("Banned"))
 participant_statuses.register('DELETED', _("Account deleted"))
 
 
-@python_2_unicode_compatible
+
 class Participant(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -63,7 +63,7 @@ class Participant(models.Model):
         self.save()
 
 
-@python_2_unicode_compatible
+
 class Region(models.Model):
     short_name = models.CharField(max_length=10, validators=[validate_db_string_id])
     name = models.CharField(max_length=255)
@@ -113,7 +113,7 @@ class OpenRegistration(RegistrationModel):
         self.save()
 
 
-@python_2_unicode_compatible
+
 class OnsiteRegistration(RegistrationModel):
     number = models.IntegerField(verbose_name=_("number"))
     region = models.ForeignKey(
@@ -144,7 +144,7 @@ class TestRegistration(RegistrationModel):
     name = models.CharField(max_length=255)
 
 
-@python_2_unicode_compatible
+
 class TermsAcceptedPhrase(models.Model):
     """This model stores text asking user to accept contest's terms.
 

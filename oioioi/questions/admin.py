@@ -105,7 +105,7 @@ class MessageNotifierConfigInline(admin.TabularInline):
     extra = 0
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_basicadmin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -171,6 +171,9 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
         return fields
 
     def get_form(self, request, obj=None, **kwargs):
+        if not self.has_change_permission(request, obj):
+            return super(ReplyTemplateAdmin, self).get_form(request, obj, **kwargs)
+
         form = super(ReplyTemplateAdmin, self).get_form(request, obj, **kwargs)
         if 'contest' in form.base_fields:
             if not is_superuser(request):

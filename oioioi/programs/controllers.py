@@ -7,6 +7,7 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.core.files.base import ContentFile
+from django.forms.widgets import Media
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -637,7 +638,16 @@ class ProgrammingProblemController(ProblemController):
                         problem_instance, ext
                     )
 
-        form.media.add_js(['common/submit_view.js'])
+        self._add_js(form, ('common/submit_view.js',))
+
+
+    @staticmethod
+    def _add_js(form, js):
+        try:
+            form._js.extend(js)
+        except AttributeError:
+            raise TypeError("Expected SubmissionForm")
+
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance

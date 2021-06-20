@@ -57,7 +57,11 @@ def extract_code(show_response):
     open_pre_end = show_response.content.find(b'>', open_pre_start) + 1
     close_pre_start = show_response.content.find(b'</pre>', open_pre_end)
     # Get substring and strip tags.
-    show_response.content = strip_tags(show_response.content[open_pre_end:close_pre_start])
+    show_response.content = strip_tags(
+        six.ensure_text(
+            show_response.content[open_pre_end:close_pre_start], errors="replace"
+        )
+    )
 
 
 def extract_code_from_diff(show_response):
@@ -65,7 +69,9 @@ def extract_code_from_diff(show_response):
     pre_start = show_response.content.find(b'<pre>', pre_first) + len(b'<pre>')
     pre_end = show_response.content.find(b'</pre>', pre_first)
     # Get substring and strip tags.
-    show_response.content = strip_tags(show_response.content[pre_start:pre_end])
+    show_response.content = strip_tags(
+        six.ensure_text(show_response.content[pre_start:pre_end], errors="replace")
+    )
 
 
 class SubmitFileMixin(SubmitMixin):
@@ -98,7 +104,7 @@ class SubmitFileMixin(SubmitMixin):
         user=None,
     ):
         url = reverse('submit', kwargs={'contest_id': contest.id})
-        file = None
+        file = ''
         if send_file:
             file = ContentFile('a' * 1024, name='a.c')
         langs_field_name = form_field_id_for_langs(problem_instance)
@@ -1713,6 +1719,9 @@ class TestMaxScoreMigration(TestCaseMigrations):
     migrate_to = '0014_remove_testreport_test_max_score'
 
     def make_report(self, problem_id, contest, apps, max_score):
+        if not Problem.objects.filter(id=problem_id).exists():
+            Problem(id=problem_id).save()
+
         problem_instance_model = apps.get_model('contests', 'ProblemInstance')
         submission_model = apps.get_model('contests', 'Submission')
         submission_report_model = apps.get_model('contests', 'SubmissionReport')
@@ -1869,7 +1878,9 @@ class TestAllowedLanguages(TestCase, SubmitFileMixin):
     def test_allowed_languages_dict(self):
         ProblemAllowedLanguage.objects.create(problem=self.problem, language='C')
         ProblemAllowedLanguage.objects.create(problem=self.problem, language='C++')
-        ProblemAllowedLanguage.objects.create(problem=self.problem, language='Output-only')
+        ProblemAllowedLanguage.objects.create(
+            problem=self.problem, language='Output-only'
+        )
         allowed_languages = get_allowed_languages_dict(self.problem_instance)
         self.assertNotIn('Python', allowed_languages)
         self.assertIn('C', allowed_languages)

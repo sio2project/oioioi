@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.dispatch import Signal
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import get_language, get_language_from_request
 from django.utils.translation import ugettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
@@ -22,7 +22,7 @@ if (
     )
 
 
-@python_2_unicode_compatible
+
 class Node(MPTTModel):
     short_name = models.CharField(
         max_length=32,

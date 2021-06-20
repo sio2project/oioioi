@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
 from django.forms import ValidationError
+from django.forms.widgets import Media as FormMedia
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -117,9 +118,12 @@ class SubmissionForm(forms.Form):
 
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
-    class Media(object):
-        css = {'all': ('common/submit.css',)}
-        js = ('common/submit.js',)
+    _css = {'all': ('common/submit.css',)}
+    _js = ['common/submit.js',]
+
+    @property
+    def media(self):
+        return FormMedia(self._js, self._css)
 
     def __init__(self, request, *args, **kwargs):
         add_kind_and_user_fields = kwargs.pop('add_kind_and_user_fields', True)

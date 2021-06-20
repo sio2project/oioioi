@@ -8,11 +8,10 @@ if sys.version_info < (2, 6):
 import os
 import tempfile
 
-import oioioi
-
 from django.contrib.messages import constants as messages
-
 from django.utils.translation import ugettext_lazy as _
+
+import oioioi
 
 INSTALLATION_CONFIG_VERSION = 49
 
@@ -454,6 +453,7 @@ DEFAULT_CONTEST = None
 ONLY_DEFAULT_CONTEST = False
 
 from oioioi.contests.current_contest import ContestMode
+
 CONTEST_MODE = ContestMode.contest_if_possible
 
 # A sample logging configuration. The only tangible logging
@@ -676,3 +676,6 @@ REST_FRAMEWORK = {
 ARCHIVE_USERCONTESTS = False
 
 FORUM_PAGE_SIZE = 15
+
+# Check seems to be broken. https://stackoverflow.com/a/65578574
+SILENCED_SYSTEM_CHECKS = ['admin.E130']

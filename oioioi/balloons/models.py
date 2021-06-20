@@ -1,7 +1,7 @@
 import six
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import generate_key
@@ -12,7 +12,7 @@ from oioioi.contests.models import Contest, ProblemInstance
 check_django_app_dependencies(__name__, ['oioioi.participants', 'oioioi.acm'])
 
 
-@python_2_unicode_compatible
+
 class ProblemBalloonsConfig(models.Model):
     problem_instance = models.OneToOneField(
         ProblemInstance,
@@ -36,7 +36,7 @@ class ProblemBalloonsConfig(models.Model):
         )
 
 
-@python_2_unicode_compatible
+
 class BalloonsDisplay(models.Model):
     """Represents mapping for balloons display."""
 
@@ -56,7 +56,7 @@ class BalloonsDisplay(models.Model):
         return six.text_type(self.ip_addr)
 
 
-@python_2_unicode_compatible
+
 class BalloonDelivery(models.Model):
     user = models.ForeignKey(User, verbose_name=_("user"), on_delete=models.CASCADE)
     problem_instance = models.ForeignKey(

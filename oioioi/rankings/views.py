@@ -73,7 +73,7 @@ def ranking_view(request, key=None):
                     found_page = ((found_pos - 1) // users_per_page) + 1
                     get_dict = request.GET.copy()
                     get_dict.pop('user')
-                    get_dict['page'] = found_page
+                    get_dict['page'] = str(found_page)
                     return redirect(
                         request.path + '?' + get_dict.urlencode() + '#' + str(user.id)
                     )

@@ -30,7 +30,7 @@ NO_CATEGORY = '__no_category__'
 class TabularInline(admin.TabularInline):
     # by default we assume that if item is added to specific
     # admin menu mixin it should be visible and editable
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -38,12 +38,15 @@ class TabularInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class StackedInline(admin.StackedInline):
     # by default we assume that if item is added to specific
     # admin menu mixin it should be visible and editable
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -51,6 +54,9 @@ class StackedInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
@@ -166,6 +172,9 @@ class ModelAdmin(
             return qs.select_related(*list_select_related)
         else:
             return qs
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 def delete_selected(modeladmin, request, queryset, **kwargs):
@@ -408,6 +417,9 @@ class InstanceDependentAdmin(admin.ModelAdmin):
         model_admin = self._find_model_admin(request, object_id)
         return model_admin.history_view(request, object_id, extra_context)
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
 
 class MixinsAdmin(InstanceDependentAdmin):
     def __init__(self, *args, **kwargs):
@@ -431,7 +443,7 @@ class ConsentsInline(StackedInline):
     model = Consents
     extra = 0
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):

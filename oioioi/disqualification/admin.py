@@ -118,7 +118,7 @@ class DisqualificationsConfigInline(admin.TabularInline):
         models.TextField: {'widget': Textarea(attrs={'rows': 2})},
     }
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):

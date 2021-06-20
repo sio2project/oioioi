@@ -14,6 +14,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
 try:
     from mock import patch
 except ImportError:
@@ -78,7 +79,7 @@ class IgnorePasswordAuthBackend(object):
     supports_authentication = True
     description = _("Testing backend")
 
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         if not username:
             return None
         if password:

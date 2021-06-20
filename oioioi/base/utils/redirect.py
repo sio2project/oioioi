@@ -8,5 +8,4 @@ def safe_redirect(request, url, fallback='index'):
         next_page = url
     else:
         next_page = reverse(fallback)
-
     return redirect(next_page)

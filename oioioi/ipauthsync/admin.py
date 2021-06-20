@@ -8,7 +8,7 @@ class IpAuthSyncConfigInline(admin.TabularInline):
     extra = 0
     form = AlwaysChangedModelForm
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):

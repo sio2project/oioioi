@@ -2,7 +2,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import string_concat
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 
@@ -12,6 +12,9 @@ from oioioi.contests.admin import contest_site
 from oioioi.contests.utils import is_contest_admin
 from oioioi.forum.models import Ban, Category, Forum, Post, Thread
 
+def string_concat(*strings):
+    """https://docs.djangoproject.com/en/3.2/releases/1.11/#deprecated-features-1-11"""
+    return format_lazy('{}' * len(strings), *strings)
 
 def make_list_elem(elem, text=None):
     if not text:

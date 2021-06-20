@@ -17,7 +17,7 @@ class SinolpackConfigInline(admin.StackedInline):
     inline_classes = ('collapse',)
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -25,6 +25,9 @@ class SinolpackConfigInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class SinolpackExtraFilesInline(admin.StackedInline):
@@ -36,7 +39,7 @@ class SinolpackExtraFilesInline(admin.StackedInline):
     inline_classes = ('collapse',)
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -44,6 +47,9 @@ class SinolpackExtraFilesInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def file_link(self, instance):
         if instance.id is not None:

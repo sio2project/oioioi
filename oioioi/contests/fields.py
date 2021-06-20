@@ -29,8 +29,7 @@ class ScoreField(models.CharField):
         else:
             raise ValidationError('Invalid score value object type')
 
-    # Context parameter is removed in django 2.0.
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection, context=None):
         if value is None or value == '':
             return None
 

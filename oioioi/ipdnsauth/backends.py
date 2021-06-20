@@ -20,7 +20,7 @@ class IpDnsBackend(ModelBackend):
     description = _("IP/DNS based authentication")
     supports_authentication = True
 
-    def authenticate(self, dns_name=None, ip_addr=None):
+    def authenticate(self, request, dns_name=None, ip_addr=None, **kwargs):
         if ip_addr:
             try:
                 return User.objects.get(iptouser__ip_addr=ip_addr)

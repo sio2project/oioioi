@@ -26,7 +26,7 @@ class TestsPackageInline(admin.TabularInline):
     }
     category = NO_CATEGORY
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):

@@ -10,7 +10,7 @@ class ComplaintsConfigInline(admin.TabularInline):
     model = ComplaintsConfig
     category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
