@@ -81,7 +81,7 @@ Prepare the image with::
 Then you can start oioioi with::
 
     OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml up -d
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web python manage.py runserver 0.0.0.0:8000
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web python3 manage.py runserver 0.0.0.0:8000
 
 to start the infrastructure in the development mode. Current dirrectory with the source code will be bound to /sio2/oioioi/ inside the running container.
 
