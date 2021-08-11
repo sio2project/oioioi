@@ -25,14 +25,15 @@
 # Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
 # teqwve <mrtaddewicz@gmail.com>, 2017
+# Wojciech Dubiel <wd371280@students.mimuw.edu.pl>, 2021
 # Zuzanna Opała <opala.zuzanna@gmail.com>, 2018-2019
 msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 16:23+0200\n"
-"PO-Revision-Date: 2021-06-01 12:20+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2021-06-24 21:19+0200\n"
+"PO-Revision-Date: 2021-06-08 16:09+0000\n"
+"Last-Translator: Wojciech Dubiel <wd371280@students.mimuw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -74,11 +75,11 @@ msgstr "Uszkodzone dane"
 
 #: base/static/common/clipboard-setup.js:3
 msgid "copied!"
-msgstr ""
+msgstr "skopiowane!"
 
 #: base/static/common/clipboard-setup.js:5
 msgid "Press Ctrl+C to copy"
-msgstr ""
+msgstr "Naciśnij Ctrl+C żeby skopiować"
 
 #: clock/static/common/clocks.js:264
 #| msgid "end of the %(round_name)s"
@@ -294,7 +295,7 @@ msgstr[3] ""
 msgid ""
 "Time limit: <b>%(timeLimit)s</b> s<br>Memory limit: <b>%(memoryLimit)s</b> "
 "MB"
-msgstr ""
+msgstr "Limit czasu: <b>%(timeLimit)s</b>s<br>Limit pamięci: <b>%(memoryLimit)s</b>MB"
 
 #: timeline/static/timeline/timeline.js:37
 #| msgid ""
@@ -334,4 +335,4 @@ msgstr "Pojemność"
 
 #: workers/static/common/load_chart.js:63
 msgid "Task load"
-msgstr ""
+msgstr "Obciążenie zadaniami"
