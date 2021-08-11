@@ -60,7 +60,6 @@ python2_specific_requirements = [
     "mistune<0.9",
     "amqp<2.7,>=2.6.0",
     "pika<1.3",
-    "sentry-sdk",
     "unidecode<1.3",
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.
@@ -130,7 +129,7 @@ python3_specific_requirements = [
 ]
 
 python23_universal_requirements = [
-
+    "sentry-sdk",
 ]
 
 if PYTHON_VERSION == 2:
