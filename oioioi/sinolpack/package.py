@@ -1139,9 +1139,11 @@ class SinolPackage(object):
         """
         tests = Test.objects.filter(problem_instance=self.main_problem_instance)
         for test in tests:
-            LanguageOverrideForTest.objects.create(
-                time_limit=test.time_limit,
-                memory_limit=test.memory_limit,
+            LanguageOverrideForTest.objects.update_or_create(
+                defaults={
+                    'time_limit': test.time_limit,
+                    'memory_limit': test.memory_limit,
+                },
                 test=test,
                 language=lang,
             )
