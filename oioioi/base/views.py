@@ -158,16 +158,25 @@ def delete_account_view(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden()
 
+    failed_password = False
     if request.POST:
-        for participant in request.user.participant_set.all():
-            participant.erase_data()
-        request.user.is_active = False
-        request.user.save()
-        return AuthLogoutView.as_view()(
-            request, template_name='registration/delete_account_done.html'
-        )
+        auth_password = request.POST['auth-password']
+        if request.user.check_password(auth_password):
+            for participant in request.user.participant_set.all():
+                participant.erase_data()
+            request.user.is_active = False
+            request.user.save()
+            return AuthLogoutView.as_view()(
+                request, template_name='registration/delete_account_done.html'
+            )
+        else:
+            failed_password = True
 
-    return TemplateResponse(request, 'registration/delete_account_confirmation.html')
+    return TemplateResponse(
+        request,
+        'registration/delete_account_confirmation.html',
+        context={'failed': failed_password},
+    )
 
 
 def generate_key_view(request):

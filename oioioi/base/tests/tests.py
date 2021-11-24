@@ -1455,4 +1455,32 @@ class TestPasswordReset(TestCase):
         )
 
 
+class TestAccountDeletion(TestCase):
+    fixtures = ['test_users']
 
+    def setUp(self):
+        self.email = 'test@test.com'
+        self.password = 'test123'
+        self.user = User.objects.create_user(
+            'test_email_user', self.email, self.password
+        )
+        self.client.login(username=self.user.username)
+
+    def test_account_deletion_correct_password(self):
+        self.client.post(
+            reverse('delete_account'), data={'auth-password': self.password}
+        )
+        user = User.objects.get(username=self.user.username)
+        self.assertFalse(user.is_active)
+
+    def test_account_deletion_incorrect_password(self):
+        self.client.post(
+            reverse('delete_account'), data={'auth-password': "now-the-password"}
+        )
+        user = User.objects.get(username=self.user.username)
+        self.assertTrue(user.is_active)
+
+    def test_account_deletion_no_password(self):
+        self.client.post(reverse('delete_account'))
+        user = User.objects.get(username=self.user.username)
+        self.assertTrue(user.is_active)
