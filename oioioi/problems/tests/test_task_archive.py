@@ -195,7 +195,7 @@ class TestTaskArchive(TestCase):
 
         self.assertNotContains(response, "alert-warning")
         self.assertContains(response, "[16.7%]")
-        self.assertContains(response, "%", count=1)
+        self.assertContains(response, "%", count=2)
 
         html = response.content.decode('utf-8')
 
@@ -213,7 +213,7 @@ class TestTaskArchive(TestCase):
         self.assertNotContains(response, "alert-warning")
         self.assertContains(response, "[0.0%]")
         self.assertContains(response, "[12.5%]")
-        self.assertContains(response, "%", count=2)
+        self.assertContains(response, "%", count=3)
 
         html = response.content.decode('utf-8')
 
@@ -261,3 +261,4 @@ class TestTaskArchive(TestCase):
         test_can_access_with_result(IntegerScore(50), IntegerScore(100))
         test_can_access_with_result(None, IntegerScore(100))
         test_can_access_with_result(IntegerScore(50), None)
+
