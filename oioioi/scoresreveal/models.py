@@ -24,7 +24,12 @@ class ScoreRevealConfig(models.Model):
         related_name='scores_reveal_config',
         on_delete=models.CASCADE,
     )
-    reveal_limit = models.IntegerField(verbose_name=_("reveal limit"))
+    reveal_limit = models.IntegerField(
+        verbose_name=_("reveal limit"),
+        help_text=_("If empty, all submissions are revealed automatically."),
+        blank=True,
+        null=True,
+    )
     disable_time = models.IntegerField(
         blank=True, null=True, verbose_name=_("disable for last minutes of the round")
     )

@@ -2,15 +2,29 @@
 
 <div>
     <h4>{% trans "Score revealing" %}</h4>
-    <p>
-        {% blocktrans count counter=scores_reveals_limit trimmed %}
-            You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveal.
-        {% plural %}
-            You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveals.
-        {% endblocktrans %}
-    </p>
+    {% if scores_reveals_limit %}
+        <p>
+            {% blocktrans count counter=scores_reveals_limit trimmed %}
+                You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveal.
+            {% plural %}
+                You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveals.
+            {% endblocktrans %}
+        </p>
+    {% elif score_visible %}
+        <p>
+            {% if scores_reveals_disable_time %}
+                {% blocktrans count counter=scores_reveals_disable_time %}
+                    In this task, you can see the score of every submission, unless it is submitted during the last <strong>minute</strong> of the round.
+                {% plural %}
+                    In this task, you can see the score of every submission, unless it is submitted during the last <strong>{{ counter }}</strong> minutes of the round.
+                {% endblocktrans %}
+            {% else %}
+                In this task, you can see the score of every submission.
+            {% endif %}
+        </p>
+    {% endif %}
 
-    {% if submission.submission.revealed %}
+    {% if score_visible %}
         <p><strong>{% trans "Score" %}:</strong> {{ submission.submission.get_score_display }}</p>
     {% else %}
         {% if can_reveal %}
