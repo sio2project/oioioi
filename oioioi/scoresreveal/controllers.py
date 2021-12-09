@@ -171,7 +171,7 @@ class ScoresRevealContestControllerMixin(object):
                 request=request,
                 context={
                     'submission': submission_template_context(
-                        request, submission.programsubmission
+                        request, submission
                     ),
                     'scores_reveals': scores_reveals,
                     'scores_reveals_limit': scores_reveals_limit,
