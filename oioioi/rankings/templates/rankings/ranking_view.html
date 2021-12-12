@@ -59,6 +59,11 @@
             }, 500, function() {
                 row.addClass('highlighted');
             });
+        } else {
+            {% if user.is_authenticated %}
+                row = $('#ranking_row_' + {{ request.user.id }});
+                row.addClass('highlighted');
+            {% endif %}
         }
     });
     </script>
