@@ -97,13 +97,20 @@ def problem_site_statement(request, problem):
     statement = query_statement(problem.id)
     if not statement:
         statement_html = render_to_string(
-            'problems/no-problem-statement.html', {'problem': problem}
+            'problems/no-problem-statement.html',
+            {'problem': problem,
+            'can_admin_problem': can_admin_problem(request, problem)}
         )
     elif statement.extension == '.zip':
         response = problem_site_statement_zip_view(
             request, problem.problemsite.url_key, 'index.html'
         )
-        statement_html = mark_safe(response.content)
+        statement_html = render_to_string(
+            'problems/from-zip-statement.html',
+            {'problem': problem,
+            'statement': mark_safe(response.content),
+            'can_admin_problem': can_admin_problem(request, problem)}
+        )
     else:
         statement_url = reverse(
             'problem_site_external_statement',
@@ -111,7 +118,9 @@ def problem_site_statement(request, problem):
         )
         statement_html = render_to_string(
             'problems/external-statement.html',
-            {'problem': problem, 'statement_url': statement_url},
+            {'problem': problem,
+            'statement_url': statement_url,
+            'can_admin_problem': can_admin_problem(request, problem)},
         )
 
     return statement_html

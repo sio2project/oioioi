@@ -1,9 +1,6 @@
 {% load i18n %}
-
-<div class="alert alert-info">
-    {% blocktrans %}<p>Oops, problem statement is not available online.
-    <p>Please ask the organizers to provide it in some other way.
-    {% endblocktrans %}
+<div width="100%" height="800px">
+    {{ statement }}
 </div>
 
 {% if can_admin_problem %}
