@@ -100,9 +100,7 @@ class DisqualificationContestControllerMixin(object):
             'disqualification/reason.html',
             request=request,
             context={
-                'submission': submission_template_context(
-                    request, submission.programsubmission
-                ),
+                'submission': submission_template_context(request, submission),
                 'reasons': reasons,
             },
         )
@@ -125,9 +123,7 @@ class DisqualificationContestControllerMixin(object):
             template,
             request=request,
             context={
-                'submission': submission_template_context(
-                    request, submission.programsubmission
-                ),
+                'submission': submission_template_context(request, submission),
                 'reason': reason,
                 'contest_disq_info': self._get_contest_disq_info(),
             },
