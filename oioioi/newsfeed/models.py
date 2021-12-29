@@ -39,12 +39,10 @@ class NewsLanguageVersion(models.Model):
     def rendered_content(self):
         return mark_safe(Markdown(escape=True).render(self.content))
 
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
+    def save(self, *args, **kwargs):
         try:
             existing_language_version = self.news.versions.get(language=self.language)
-            if self is not existing_language_version:
+            if self != existing_language_version:
                 raise ValueError(
                     'Creating NewsLanguageVersion for News object'
                     ' that already has a NewsLanguageVersion with'
@@ -53,9 +51,4 @@ class NewsLanguageVersion(models.Model):
         except NewsLanguageVersion.DoesNotExist:
             pass
 
-        return super(NewsLanguageVersion, self).save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
+        return super(NewsLanguageVersion, self).save(*args, **kwargs)
