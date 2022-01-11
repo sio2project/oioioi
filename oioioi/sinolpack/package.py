@@ -252,6 +252,8 @@ class SinolPackage(object):
         else:
             prefix = 'system'
         compilation_job['compiler'] = prefix + '-' + lang
+        if compilation_job['compiler'] == 'default-cpp':
+            compilation_job['compiler'] = settings.DEFAULT_COMPILERS['C++']
         if not self.use_make and self.prog_archive:
             compilation_job['additional_archive'] = self.prog_archive
         add_extra_files(
