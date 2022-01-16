@@ -2973,6 +2973,46 @@ class TestSubmissionsLimitOnListView(TestCase):
         )
 
 
+def see_link_for_submission_on_problem_list(self, username, should_see):
+    if username is None:
+        self.client.logout()
+    else:
+        self.assertTrue(self.client.login(username=username))
+
+    contest = Contest.objects.get(pk='c')
+    problems_url = reverse('problems_list', kwargs={'contest_id': contest.id})
+    submission_url = reverse(
+        'submission', kwargs={'contest_id': contest.id, 'submission_id': 1}
+    )
+    expected_hyperlink = '<a href="%s">' % submission_url
+
+    response = self.client.get(problems_url, follow=True)
+
+    if should_see:
+        self.assertContains(response, expected_hyperlink)
+    else:
+        self.assertNotContains(response, expected_hyperlink)
+
+
+class TestSubmissionsLinksOnListView(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
+
+    def test_link_to_submission_no_user(self):
+        see_link_for_submission_on_problem_list(self, None, False)
+
+    def test_link_to_submission_user(self):
+        see_link_for_submission_on_problem_list(self, "test_user", True)
+
+    def test_link_to_submission_admin(self):
+        see_link_for_submission_on_problem_list(self, "test_admin", False)
+
+
 class TestNoSubmissionsLimitOnListView(TestCase):
     fixtures = [
         'test_users',
