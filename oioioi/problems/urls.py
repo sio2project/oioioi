@@ -64,7 +64,6 @@ urlpatterns = [
         views.rejudge_model_solutions_view,
         name='model_solutions_rejudge',
     ),
-    url(r'^problemset/$', views.problemset_main_view, name='problemset_main'),
     url(
         r'^problemset/myproblems/$',
         views.problemset_my_problems_view,
@@ -136,8 +135,9 @@ urlpatterns = [
     url(r'^save_proposals/', views.save_proposals_view, name='save_proposals'),
 ]
 
-
-noncontest_patterns = []
+noncontest_patterns = [
+    url(r'^problemset/$', views.problemset_main_view, name='problemset_main')
+]
 
 if settings.USE_API:
     noncontest_patterns += [
