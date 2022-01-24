@@ -40,7 +40,6 @@ def make_contest_filename(instance, filename):
     )
 
 
-
 class Contest(models.Model):
     id = models.CharField(
         max_length=32,
@@ -138,7 +137,6 @@ def _call_controller_adjust_contest(sender, instance, raw, **kwargs):
         instance.controller.adjust_contest()
 
 
-
 class ContestAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
     the contest or to the round.
@@ -223,7 +221,6 @@ def _round_end_date_name_generator(obj):
     round_chooser=(lambda obj: obj),
     order=31,
 )
-
 class Round(models.Model):
     contest = models.ForeignKey(
         Contest, verbose_name=_("contest"), on_delete=models.CASCADE
@@ -336,7 +333,6 @@ class RankingVisibilityConfig(models.Model):
         verbose_name_plural = _("ranking visibility configs")
 
 
-
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(
         Contest,
@@ -423,7 +419,6 @@ submission_statuses = EnumRegistry()
 submission_statuses.register('?', _("Pending"))
 submission_statuses.register('OK', _("OK"))
 submission_statuses.register('ERR', _("Error"))
-
 
 
 class Submission(models.Model):
@@ -577,7 +572,6 @@ class UserResultForContest(models.Model):
         unique_together = ('user', 'contest')
 
 
-
 class RoundTimeExtension(models.Model):
     """Represents the time the round has been extended by for a certain user.
 
@@ -604,7 +598,6 @@ contest_permissions.register('contests.contest_observer', _("Observer"))
 contest_permissions.register('contests.personal_data', _("Personal Data"))
 
 
-
 class ContestPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
@@ -621,7 +614,6 @@ class ContestPermission(models.Model):
 
     def __str__(self):
         return u'%s/%s: %s' % (self.contest, self.permission, self.user)
-
 
 
 class ContestView(models.Model):

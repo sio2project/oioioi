@@ -9,7 +9,7 @@ from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import (
     Contest,
     ProblemInstance,
-    Submission,
+    ScoreReport,
     SubmissionReport,
 )
 from oioioi.contests.tests import SubmitMixin
@@ -48,7 +48,9 @@ class SubmitQuizMixin(SubmitMixin):
                 {'quiz_' + str(problem_instance.id) + '_q_' + str(qid): answers[qid]}
             )
 
-        return self.client.post(url, post_data)
+        response = self.client.post(url, post_data)
+
+        return response
 
 
 class TestTextInput(TestCase, SubmitQuizMixin):
@@ -84,6 +86,12 @@ class TestTextInput(TestCase, SubmitQuizMixin):
             submission=submission, status="ACTIVE"
         )
         self.assertEqual(submission_report.score_report.score, 50)
+        report = SubmissionReport.objects.filter(
+            submission=submission, status='ACTIVE', kind='NORMAL'
+        ).get()
+        score_report = ScoreReport.objects.get(submission_report=report)
+        submission.status = score_report.status
+        submission.score = score_report.score
 
     def test_second_possible_answer(self):
         contest = Contest.objects.get()
@@ -314,7 +322,7 @@ class TestSubmissionView(TestCase):
         self.assertContains(response, '0 / 27', count=1)
 
     def test_submission_score_visible(self):
-        submission = Submission.objects.get(pk=1)
+        submission = QuizSubmission.objects.get(pk=1)
         kwargs = {
             'contest_id': submission.problem_instance.contest.id,
             'submission_id': submission.id,
@@ -324,7 +332,7 @@ class TestSubmissionView(TestCase):
         self.assertContains(response, '<td>{}</td>'.format(expected_score), html=True)
 
     def test_diff_submission_unavailable(self):
-        submission = Submission.objects.get(pk=1)
+        submission = QuizSubmission.objects.get(pk=1)
         kwargs = {
             'contest_id': submission.problem_instance.contest.id,
             'submission_id': submission.id,

@@ -14,6 +14,7 @@ from oioioi.contests.models import (
     Submission,
 )
 from oioioi.scoresreveal.models import ScoreRevealConfig
+from oioioi.quizzes.models import QuizSubmission
 
 
 class TestScoresManualReveal(TestCase):
@@ -233,3 +234,53 @@ class TestScoresAutoReveal(TestCase):
                 r'\s*', '', response.content.decode('utf-8')
             )
             self.assertIn('<td>100</td>', no_whitespaces_response)
+
+
+class TestRevealQuiz(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_quiz_problem',
+        'test_problem_instance',
+        'test_quiz_submission',
+    ]
+
+    def check_reports(self, kwargs):
+        submission_url = reverse('submission', kwargs=kwargs)
+        response = self.client.get(submission_url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '27 / 27', count=1)
+        self.assertContains(response, '0 / 27', count=1)
+        expected_score = 50
+        self.assertContains(response, '<td>{}</td>'.format(expected_score), html=True)
+
+        url = reverse('submission_score_reveal', kwargs=kwargs)
+        response = self.client.post(url, follow=True)
+        self.assertRedirects(response, submission_url)
+
+        self.assertEqual(response.status_code, 200)
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        problem_instance = ProblemInstance.objects.get()
+        config = ScoreRevealConfig()
+        config.problem_instance = problem_instance
+        config.reveal_limit = None
+        config.disable_time = 60
+        config.save()
+
+    def test_first_submission(self):
+        contest = Contest.objects.get()
+        submission = QuizSubmission.objects.get(pk=1)
+        kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
+        self.check_reports(kwargs)
+
+    def test_second_submisson(self):
+        submission = QuizSubmission.objects.get(pk=2)
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
+        self.check_reports(kwargs)
