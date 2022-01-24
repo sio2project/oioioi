@@ -27,7 +27,7 @@
                         {% endfor %}
                     </div>
                 {% endif %}
-                <tr {% if forloop.last %}class="hidden"{% endif %}>
+                <tr>
                     {% for fieldset in inline_admin_form %}
                         {% for line in fieldset %}
                             {% for field in line %}
