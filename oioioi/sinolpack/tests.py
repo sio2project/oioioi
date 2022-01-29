@@ -550,7 +550,7 @@ class TestSinolPackage(TestCase):
     @pytest.mark.slow
     @both_configurations
     def test_overriden_limits(self):
-        filename = get_test_filename('test_limits_overriden_for_cpp.tgz')
+        filename = get_test_filename('test_limits_overriden_for_cpp.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self._check_full_package(problem)

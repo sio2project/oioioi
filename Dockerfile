@@ -52,8 +52,8 @@ USER oioioi
 
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
-RUN pip install --user psycopg2-binary twisted uwsgi
-RUN pip3 install --user psycopg2-binary twisted uwsgi
+RUN pip install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
 
 WORKDIR /sio2/oioioi
 
@@ -89,9 +89,9 @@ RUN sed -i -e \
         s/RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
         s/AVAILABLE_COMPILERS = SYSTEM_COMPILERS/#AVAILABLE_COMPILERS = SYSTEM_COMPILERS/g;\
         s/DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/#DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/g;\
-        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
-        s/#DEFAULT_SAFE_EXECUTION_MODE/DEFAULT_SAFE_EXECUTION_MODE/g;\
-        s/#USE_UNSAFE_CHECKER = True/USE_UNSAFE_CHECKER = False/g;\
+        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = True/g;\
+        s/#DEFAULT_SAFE_EXECUTION_MODE/#DEFAULT_SAFE_EXECUTION_MODE/g;\
+        s/#USE_UNSAFE_CHECKER = True/#USE_UNSAFE_CHECKER = False/g;\
         \$afrom basic_settings import *\nALLOWED_HOSTS = ALLOWED_HOSTS + \\['oioioi', '127.0.0.1', 'localhost', 'web'\\]" \
         settings.py && \
     cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \

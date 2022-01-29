@@ -154,7 +154,7 @@ class Command(BaseCommand):
 
             quiet_flag = ['-nv'] if options['quiet'] else []
             execute(
-                [options['wget'], '-N', '-i', '-'] + quiet_flag,
+                [options['wget'], '-N', '--no-check-certificate', '-i', '-'] + quiet_flag,
                 stdin='\n'.join(urls).encode('utf-8'),
                 capture_output=False,
                 cwd=download_dir,
