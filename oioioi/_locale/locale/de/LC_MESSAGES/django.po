@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-11 22:35+0200\n"
-"PO-Revision-Date: 2021-06-12 13:14+0000\n"
+"POT-Creation-Date: 2022-01-31 19:55+0100\n"
+"PO-Revision-Date: 2022-01-31 18:55+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -24,19 +24,19 @@ msgstr ""
 msgid "ACM style contest"
 msgstr "ACM Style Contest"
 
-#: acm/controllers.py:186
+#: acm/controllers.py:194
 msgid "ACM style contest (open)"
 msgstr "ACM Style Contest (offen)"
 
-#: acm/controllers.py:221
+#: acm/controllers.py:229
 msgid "ACM style ranking"
 msgstr "ACM Style Ranking"
 
-#: acm/controllers.py:242
+#: acm/controllers.py:250
 msgid "#"
 msgstr "#"
 
-#: acm/controllers.py:242 contests/admin.py:1018 contests/forms.py:321
+#: acm/controllers.py:250 contests/admin.py:1018 contests/forms.py:321
 #: contests/templates/contests/basic_user_info.html:20
 #: contests/templates/contests/navbar-user-info-form.html:18
 #: oireports/forms.py:91 rankings/forms.py:9 su/forms.py:33
@@ -44,29 +44,29 @@ msgstr "#"
 msgid "Username"
 msgstr "Benutzername"
 
-#: acm/controllers.py:242 base/forms.py:130 rankings/controllers.py:267
+#: acm/controllers.py:250 base/forms.py:130 rankings/controllers.py:267
 msgid "First name"
 msgstr "Vorname"
 
-#: acm/controllers.py:242 base/forms.py:131 rankings/controllers.py:267
+#: acm/controllers.py:250 base/forms.py:131 rankings/controllers.py:267
 msgid "Last name"
 msgstr "Nachname"
 
-#: acm/controllers.py:242 problems/templates/problems/problemset/base.html:28
+#: acm/controllers.py:250 problems/templates/problems/problemset/base.html:28
 msgid "Solved"
 msgstr "Gelöst"
 
-#: acm/controllers.py:245 rankings/controllers.py:270
+#: acm/controllers.py:253 rankings/controllers.py:270
 #: rankings/templates/rankings/default_ranking.html:22
 msgid "Sum"
 msgstr "Summe"
 
-#: acm/controllers.py:369
+#: acm/controllers.py:377
 #, python-format
 msgid "Your submission for task %(short_name)s is accepted. Congratulations!"
 msgstr "Ihre Vorlage für die Aufgabe%(short_name)s wurde akzeptiert. Glückwunsch!"
 
-#: acm/controllers.py:374
+#: acm/controllers.py:382
 #, python-format
 msgid "Your submission for task %(short_name)s is not accepted."
 msgstr "Ihre Vorlage für die Aufgabe %(short_name)s wurde nicht akzeptiert."
@@ -105,7 +105,7 @@ msgstr "Benutzer"
 #: programs/templates/programs/report-body.html:14
 #: publicsolutions/templates/publicsolutions/solutions-table.html:9
 #: quizzes/models.py:142 quizzes/templates/quizzes/report-body.html:12
-#: scoresreveal/templates/scoresreveal/submission-footer.html:14
+#: scoresreveal/templates/scoresreveal/submission-footer.html:28
 #: simpleui/templates/simpleui/contest/ingredients/submissions.html:11
 #: zeus/templates/zeus/program-report.html:18
 msgid "Score"
@@ -615,13 +615,13 @@ msgid "Are you sure that you want to delete the following object?"
 msgstr "Sind Sie sicher, dass Sie dieses Objekt löschen wollen?"
 
 #: base/templates/admin/delete_confirmation.html:18
-#: base/templates/registration/delete_account_confirmation.html:16
+#: base/templates/registration/delete_account_confirmation.html:25
 #: participants/templates/participants/unregister.html:15
 msgid "Yes, I'm sure"
 msgstr "Ja, ich bin sicher."
 
 #: base/templates/admin/delete_confirmation.html:19
-#: base/templates/registration/delete_account_confirmation.html:19
+#: base/templates/registration/delete_account_confirmation.html:28
 #: contests/templates/contests/base_confirmation_screen.html:26
 #: contests/templates/contests/reattach_problem_confirm.html:31
 #: oi/templates/forms/add_school_form.html:59
@@ -755,6 +755,7 @@ msgid "Login"
 msgstr ""
 
 #: base/templates/ingredients/navbar-user.html:33
+#: base/templates/registration/delete_account_confirmation.html:15
 msgid "Password"
 msgstr ""
 
@@ -828,6 +829,11 @@ msgstr ""
 
 #: base/templates/registration/delete_account_confirmation.html:9
 msgid "You are going to delete your account. It cannot be undone."
+msgstr ""
+
+#: base/templates/registration/delete_account_confirmation.html:20
+#| msgid "Forgot password?"
+msgid "Incorrect password"
 msgstr ""
 
 #: base/templates/registration/delete_account_done.html:4
@@ -971,7 +977,7 @@ msgstr ""
 #: base/templates/registration/registration_form.html:32
 #: base/templates/simple-centered-form.html:12
 #: contests/templates/contests/my_submissions.html:14
-#: contests/templates/contests/problems_list.html:86
+#: contests/templates/contests/problems_list.html:93
 #: contests/templates/contests/submit.html:14 contests/views.py:235
 #: dashboard/views.py:39 forum/templates/forum/edit_post.html:29
 #: forum/templates/forum/thread.html:39
@@ -981,7 +987,7 @@ msgstr ""
 #: newsfeed/templates/newsfeed/news-form.html:8
 #: participants/templates/participants/registration.html:30
 #: plagiarism/templates/plagiarism/moss_submit.html:41
-#: problems/problem_site.py:197
+#: problems/problem_site.py:206
 #: problems/templates/admin/problems/problem-add.html:13
 #: problems/templates/admin/problems/problem-reupload.html:33
 #: problems/templates/problems/ingredients/tag-form.html:85
@@ -1395,7 +1401,7 @@ msgstr ""
 #: complaints/templates/complaints/jury-email.txt:8 contests/admin.py:910
 #: contests/admin.py:917
 #: dashboard/templates/dashboard/dashboard-submissions.html:3
-#: problems/problem_site.py:164
+#: problems/problem_site.py:173
 #: simpleui/templates/simpleui/contest/contest.html:57
 msgid "Submissions"
 msgstr "Vorlagen"
@@ -1625,7 +1631,7 @@ msgstr ""
 msgid "Content file"
 msgstr ""
 
-#: contests/admin.py:338 problems/problem_site.py:234
+#: contests/admin.py:338 problems/problem_site.py:243
 #: simpleui/templates/simpleui/contest/contest.html:36
 #: simpleui/templates/simpleui/contest/ingredients/round.html:20
 #: simpleui/templates/simpleui/main_dashboard/contest.html:7
@@ -1737,18 +1743,18 @@ msgid "has active system error"
 msgstr ""
 
 #: contests/admin.py:623 disqualification/admin.py:83
-#: disqualification/controllers.py:302
+#: disqualification/controllers.py:298
 #: oisubmit/templates/oisubmit/submission-footer.html:20
 #: oisubmit/templates/received-suspected.html:9 scoresreveal/admin.py:18
-#: scoresreveal/templates/scoresreveal/submission-footer.html:45
+#: scoresreveal/templates/scoresreveal/submission-footer.html:59
 msgid "No"
 msgstr ""
 
 #: contests/admin.py:623 disqualification/admin.py:83
-#: disqualification/controllers.py:302
+#: disqualification/controllers.py:298
 #: oisubmit/templates/oisubmit/submission-footer.html:18
 #: oisubmit/templates/received-suspected.html:6 scoresreveal/admin.py:18
-#: scoresreveal/templates/scoresreveal/submission-footer.html:46
+#: scoresreveal/templates/scoresreveal/submission-footer.html:60
 msgid "Yes"
 msgstr ""
 
@@ -2401,7 +2407,7 @@ msgstr ""
 
 #: contests/templates/contests/files.html:6
 #: contests/templates/contests/files.html:20 contests/views.py:425
-#: problems/problem_site.py:127
+#: problems/problem_site.py:136
 #| msgid "Download"
 msgid "Downloads"
 msgstr ""
@@ -2517,7 +2523,7 @@ msgstr ""
 msgid "of"
 msgstr ""
 
-#: contests/templates/contests/problems_list.html:99
+#: contests/templates/contests/problems_list.html:106
 msgid "No problems are active at the moment."
 msgstr ""
 
@@ -2785,7 +2791,7 @@ msgstr ""
 msgid "Custom disqualification"
 msgstr ""
 
-#: disqualification/controllers.py:294
+#: disqualification/controllers.py:290
 msgid "Disqualified"
 msgstr ""
 
@@ -3912,6 +3918,7 @@ msgid "Terms not accepted"
 msgstr ""
 
 #: oi/management/commands/export_schools.py:12
+#: oi/management/commands/export_schools_id.py:14
 msgid "Exports schools list to a CSV file"
 msgstr ""
 
@@ -3947,10 +3954,12 @@ msgstr ""
 msgid "There were some errors. Database not changed\n"
 msgstr ""
 
+#: oi/management/commands/oi_export_emails.py:13
 #: oi/management/commands/oi_export_personal_data.py:43
 msgid "Export personal data."
 msgstr ""
 
+#: oi/management/commands/oi_export_emails.py:57
 #: oi/management/commands/oi_export_personal_data.py:91
 #: oi/management/commands/oi_timepres_data.py:51
 #, python-format
@@ -4295,36 +4304,60 @@ msgstr ""
 msgid "Algorithmic Engagements"
 msgstr ""
 
-#: pa/controllers.py:177 pa/models.py:74 pa/models.py:77
-msgid "Division"
-msgstr ""
-
-#: pa/controllers.py:179
+#: pa/controllers.py:163 pa/controllers.py:327
 msgid "A"
 msgstr ""
 
-#: pa/controllers.py:179
+#: pa/controllers.py:163 pa/controllers.py:327
 msgid "B"
 msgstr ""
 
-#: pa/controllers.py:179 pa/models.py:67
+#: pa/controllers.py:163 pa/controllers.py:327 pa/models.py:68
 msgid "None"
 msgstr ""
 
-#: pa/controllers.py:221
+#: pa/controllers.py:180 pa/models.py:75 pa/models.py:78
+msgid "Division"
+msgstr ""
+
+#: pa/controllers.py:224
 msgid "PA style ranking"
 msgstr ""
 
-#: pa/controllers.py:242
+#: pa/controllers.py:245
 msgid "Division A + B"
 msgstr ""
 
-#: pa/controllers.py:243 pa/models.py:66
+#: pa/controllers.py:246 pa/models.py:66
 msgid "Division B"
 msgstr ""
 
-#: pa/controllers.py:263
+#: pa/controllers.py:266
+#| msgid "PA style ranking"
+msgid "PA style ranking (with division C)"
+msgstr ""
+
+#: pa/controllers.py:269
+#| msgid "Division A + B"
+msgid "Division A + B + C"
+msgstr ""
+
+#: pa/controllers.py:270
+#| msgid "Division A + B"
+msgid "Division B + C"
+msgstr ""
+
+#: pa/controllers.py:287
 msgid "Algorithmic Engagements finals"
+msgstr ""
+
+#: pa/controllers.py:321
+#| msgid "Algorithmic Engagements finals"
+msgid "Algorithmic Engagements with Division C"
+msgstr ""
+
+#: pa/controllers.py:327
+msgid "C"
 msgstr ""
 
 #: pa/forms.py:17 participants/models.py:104
@@ -4354,7 +4387,12 @@ msgstr ""
 msgid "Division A"
 msgstr ""
 
-#: pa/models.py:78
+#: pa/models.py:67
+#| msgid "Division B"
+msgid "Division C"
+msgstr ""
+
+#: pa/models.py:79
 msgid "Divisions"
 msgstr ""
 
@@ -5515,11 +5553,11 @@ msgstr ""
 msgid "algorithm tag proposals"
 msgstr ""
 
-#: problems/problem_site.py:223 problems/templates/problems/secret-key.html:12
+#: problems/problem_site.py:232 problems/templates/problems/secret-key.html:12
 msgid "Secret key"
 msgstr ""
 
-#: problems/problem_site.py:267
+#: problems/problem_site.py:276
 #: problems/templates/problems/ingredients/add-to-contest-panel.html:5
 #: problems/templates/problems/problemset/problem-list.html:148
 #: problems/templates/problems/problemset/problem-list.html:164
@@ -5527,31 +5565,31 @@ msgstr ""
 msgid "Add to contest"
 msgstr ""
 
-#: problems/problem_site.py:287
+#: problems/problem_site.py:296
 #| msgid "problem statement"
 msgid "Replace problem statement"
 msgstr ""
 
-#: problems/problem_site.py:311
+#: problems/problem_site.py:320
 #| msgid "Team does not exist"
 msgid "Picked statement file does not exist."
 msgstr ""
 
-#: problems/problem_site.py:324
+#: problems/problem_site.py:333
 msgid "File replacement not provided"
 msgstr ""
 
-#: problems/problem_site.py:329
+#: problems/problem_site.py:338
 msgid "Original and replacement files must have the same name"
 msgstr ""
 
-#: problems/problem_site.py:354
+#: problems/problem_site.py:363
 #: problems/templates/problems/replace-problem-statement.html:10
 #| msgid "Package file"
 msgid "Manage package files"
 msgstr ""
 
-#: problems/problem_site.py:409
+#: problems/problem_site.py:418
 #| msgid "No files to delete."
 msgid "No file selected"
 msgstr ""
@@ -5636,7 +5674,7 @@ msgstr ""
 msgid "Beware, this problem has its tests published."
 msgstr ""
 
-#: problems/templates/problems/external-statement.html:8
+#: problems/templates/problems/external-statement.html:7
 #, python-format
 #| msgid ""
 #| "n open the problem's statement by clicking <a "
@@ -5644,6 +5682,12 @@ msgstr ""
 msgid ""
 "You can also open the problem's statement by clicking <a "
 "href=\"%(statement_url)s\"><b>here</b></a>."
+msgstr ""
+
+#: problems/templates/problems/external-statement.html:12
+#: problems/templates/problems/from-zip-statement.html:8
+#: problems/templates/problems/no-problem-statement.html:11
+msgid "<p>Problem's author: </p>"
 msgstr ""
 
 #: problems/templates/problems/files.html:15
@@ -7181,19 +7225,7 @@ msgstr "enthüllt"
 msgid "Revealed"
 msgstr "Enthüllt"
 
-#: scoresreveal/controllers.py:54
-msgid "The round is not active."
-msgstr ""
-
-#: scoresreveal/controllers.py:56
-msgid "Only author can reveal the submission score."
-msgstr "Nur ein Autor hat die Recht zur Einreichung Punkten offenbaren."
-
-#: scoresreveal/controllers.py:58
-msgid "You have already reached the reveals limit."
-msgstr "Sie haben bereits das Maximum von Enthüllungen erreicht."
-
-#: scoresreveal/controllers.py:66
+#: scoresreveal/controllers.py:70
 #, python-format
 msgid ""
 "Scores revealing is disabled during the last <strong>minute</strong> of the "
@@ -7204,23 +7236,35 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: scoresreveal/controllers.py:77
+#: scoresreveal/controllers.py:81
 msgid ""
 "You cannot reveal the score of the submission with status \"Compilation "
 "Error\"."
 msgstr "Sie können enthüllen die Punkten von Einreichung mit \"Compilation Error\" status nicht."
 
-#: scoresreveal/controllers.py:81
-msgid "The submission author is not set."
-msgstr ""
-
-#: scoresreveal/controllers.py:84
+#: scoresreveal/controllers.py:86
 msgid ""
 "Unfortunately, this submission has not been scored yet, so you can't see "
 "your score. Please come back later."
 msgstr ""
 
-#: scoresreveal/controllers.py:91
+#: scoresreveal/controllers.py:108
+msgid "The round is not active."
+msgstr ""
+
+#: scoresreveal/controllers.py:110
+msgid "Only author can reveal the submission score."
+msgstr "Nur ein Autor hat die Recht zur Einreichung Punkten offenbaren."
+
+#: scoresreveal/controllers.py:112
+msgid "You have already reached the reveals limit."
+msgstr "Sie haben bereits das Maximum von Enthüllungen erreicht."
+
+#: scoresreveal/controllers.py:114
+msgid "The submission author is not set."
+msgstr ""
+
+#: scoresreveal/controllers.py:116
 msgid "You already have access to the submission score."
 msgstr ""
 
@@ -7232,19 +7276,23 @@ msgstr "Punkten enthüllen"
 msgid "score reveals"
 msgstr "Punkten Enthüllungen"
 
-#: scoresreveal/models.py:27
+#: scoresreveal/models.py:28
 msgid "reveal limit"
 msgstr "Limit enthüllen"
 
 #: scoresreveal/models.py:29
+msgid "If empty, all submissions are revealed automatically."
+msgstr ""
+
+#: scoresreveal/models.py:34
 msgid "disable for last minutes of the round"
 msgstr ""
 
-#: scoresreveal/models.py:33
+#: scoresreveal/models.py:38
 msgid "score reveal config"
 msgstr "Punkten Enthüllung Konfiguration"
 
-#: scoresreveal/models.py:34
+#: scoresreveal/models.py:39
 msgid "score reveal configs"
 msgstr "Punkten Enthüllung Konfigurationen"
 
@@ -7252,7 +7300,7 @@ msgstr "Punkten Enthüllung Konfigurationen"
 msgid "Score revealing"
 msgstr "Punkten enthüllen"
 
-#: scoresreveal/templates/scoresreveal/submission-footer.html:6
+#: scoresreveal/templates/scoresreveal/submission-footer.html:7
 #, python-format
 msgid ""
 "You have already used <strong>%(scores_reveals)s</strong> out of %(counter)s"
@@ -7263,7 +7311,30 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: scoresreveal/templates/scoresreveal/submission-footer.html:19
+#: scoresreveal/templates/scoresreveal/submission-footer.html:16
+#, python-format
+#| msgid ""
+#| "                  Scores reveal will be disabled during the last rong>minute</strong> of the round.\n"
+#| "              "
+#| msgid_plural ""
+#| "                  Scores reveal will be disabled during the last rong>%(counter)s</strong> minutes of the round.\n"
+#| "              "
+msgid ""
+"\n"
+"                    In this task, you can see the score of every submission, unless it is submitted during the last <strong>minute</strong> of the round.\n"
+"                "
+msgid_plural ""
+"\n"
+"                    In this task, you can see the score of every submission, unless it is submitted during the last <strong>%(counter)s</strong> minutes of the round.\n"
+"                "
+msgstr[0] ""
+msgstr[1] ""
+
+#: scoresreveal/templates/scoresreveal/submission-footer.html:22
+msgid "In this task, you can see the score of every submission."
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission-footer.html:33
 #, python-format
 msgid ""
 "\n"
@@ -7276,12 +7347,12 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: scoresreveal/templates/scoresreveal/submission-footer.html:29
-#: scoresreveal/templates/scoresreveal/submission-footer.html:37
+#: scoresreveal/templates/scoresreveal/submission-footer.html:43
+#: scoresreveal/templates/scoresreveal/submission-footer.html:51
 msgid "Reveal score"
 msgstr "Punkten enthüll"
 
-#: scoresreveal/templates/scoresreveal/submission-footer.html:40
+#: scoresreveal/templates/scoresreveal/submission-footer.html:54
 msgid "You are going to reveal your score. <br>Would you like to proceed?"
 msgstr ""
 
