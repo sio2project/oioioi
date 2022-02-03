@@ -27,7 +27,7 @@ jobs:
 
     - name: Install apt dependencies
       run: |
-        sudo apt-get update && sudo apt-get install -y curl
+        sudo apt-get update && sudo apt-get install -y curl libpq-dev libdb-dev
 
     - name: Cache restore pip
       id: cache-pip
