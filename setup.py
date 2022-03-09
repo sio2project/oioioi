@@ -79,7 +79,7 @@ python2_specific_requirements = [
 
 python3_specific_requirements = [
     # 2.2.23 as it solves regression that was introduced in 2.2.21
-    "Django>=2.2.23,<2.2.26",  # when upgrading, upgrade also django-two-factor-auth!
+    "Django>=2.2.26,<3.0",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b,<=2021.1",
     "sqlalchemy<1.5",
     "beautifulsoup4<4.10",

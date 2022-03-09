@@ -731,7 +731,7 @@ def _recursive_group_problems(problems, result_info, categories, div_id):
 
         return {
             'div_id': 'problems-' + div_id,
-            'subnodes': {},
+            'subnodes': [],
             'problem_info': zip(problems, results),
             'progress_percentage': total_percent_solved,
             'progress_percentage_rounded': round(total_percent_solved, 1),
@@ -740,7 +740,7 @@ def _recursive_group_problems(problems, result_info, categories, div_id):
 
     node = {
         'div_id': div_id,
-        'subnodes': {},
+        'subnodes': [],
         'problem_info': [],
         'progress_percentage': 0.0,
         'progress_percentage_rounded': 0.0,
@@ -760,7 +760,7 @@ def _recursive_group_problems(problems, result_info, categories, div_id):
         child = _recursive_group_problems(
             child_problems, result_info, categories[1:], child_id
         )
-        node['subnodes'][value] = child
+        node['subnodes'].append({"value": value, "child": child})
         if child['attempted']:
             node['attempted'] = True
         total_percentage += child['progress_percentage'] * len(child_problems)

@@ -22,14 +22,16 @@
 {% endif %}
 
 {% if problems.subnodes %}
-    {% for value, subdict in problems.subnodes.items|dictsort:"0.order" %}
-        {% if value.value is None %}
-            {% include "problems/task-archive-problemgroup.html" with problems=subdict value=None %}
-        {% elif id == "problemgroups" %}
-            {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=True parent_id=id value=value %}
-        {% else %}
-            {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=False parent_id=id value=value %}
-        {% endif %}
+    {% for subnode in problems.subnodes|dictsort:"value.order" %}
+        {% with value=subnode.value subdict=subnode.child %}
+            {% if value.value is None %}
+                {% include "problems/task-archive-problemgroup.html" with problems=subdict value=None %}
+            {% elif id == "problemgroups" %}
+                {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=True parent_id=id value=value %}
+            {% else %}
+                {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=False parent_id=id value=value %}
+            {% endif %}
+        {% endwith %}
     {% endfor %}
 {% else %}
     <table class="table table-condensed table--auto-width table--borderless">
