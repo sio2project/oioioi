@@ -107,7 +107,7 @@ def problem_site_statement(request, problem):
         statement_html = render_to_string(
             'problems/from-zip-statement.html',
             {'problem': problem,
-            'statement': mark_safe(response.content),
+            'statement': mark_safe(response.content.decode(errors="replace")),
             'can_admin_problem': can_admin_problem(request, problem)}
         )
     else:
