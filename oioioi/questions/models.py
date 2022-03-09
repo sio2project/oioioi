@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from django.utils.text import Truncator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.base.utils.validators import validate_whitespaces

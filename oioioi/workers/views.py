@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six.moves import map
 
 from oioioi.base.admin import system_admin_menu_registry

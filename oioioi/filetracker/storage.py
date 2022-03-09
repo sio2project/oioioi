@@ -94,7 +94,7 @@ class FiletrackerStorage(Storage):
     # a name exceeding max_length, but we might fail to generate short name even if it's possible.
     def save(self, name, content, max_length=None):
         # Well, the default Django implementation of save coerces the returned
-        # value to unicode using force_text. This is not what we want, as we
+        # value to unicode using force_str. This is not what we want, as we
         # have to preserve FiletrackerFilename.
         if name is None:
             name = content.name

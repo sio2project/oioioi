@@ -5,7 +5,7 @@ import socket
 import tempfile
 
 import six
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 OIOIOI_LANGUAGE_TO_MOSS = {
     "C++": "cc",

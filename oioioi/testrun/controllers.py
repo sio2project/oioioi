@@ -8,9 +8,10 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 
+from oioioi.base.utils import is_ajax
 from oioioi.base.utils.archive import Archive
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import ScoreReport, Submission, SubmissionReport
@@ -288,7 +289,7 @@ class TestRunContestControllerMixin(object):
         score_report = ScoreReport.objects.get(submission_report=report)
         compilation_report = CompilationReport.objects.get(submission_report=report)
         output_container_id_prefix = (
-            'hidden_output_data_' if request.is_ajax() else 'output_data_'
+            'hidden_output_data_' if is_ajax(request) else 'output_data_'
         )
 
         input_is_zip = False
@@ -354,16 +355,16 @@ class TestRunContestControllerMixin(object):
             ).get_notification_message_submission_judged(submission)
 
         if submission.problem_instance.contest:
-            message = ugettext_noop(
+            message = gettext_noop(
                 "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
             )
         else:
-            message = ugettext_noop("%(task_name)s: Your submission was judged.\n")
+            message = gettext_noop("%(task_name)s: Your submission was judged.\n")
 
         if submission.status == 'TESTRUN_OK':
-            message += ugettext_noop("The test run was successful.")
+            message += gettext_noop("The test run was successful.")
         else:
-            message += ugettext_noop("The test run has failed.")
+            message += gettext_noop("The test run has failed.")
 
         return message
 

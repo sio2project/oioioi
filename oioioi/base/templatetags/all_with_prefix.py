@@ -1,7 +1,7 @@
 import six
 from django import template
 from django.template import Node, TemplateSyntaxError
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from six.moves import map
 
 register = template.Library()
@@ -20,7 +20,7 @@ class AllWithPrefixNode(Node):
             for key, value in six.iteritems(flattened_context)
             if key.startswith(self.prefix)
         ]
-        return ''.join(map(force_text, to_render))
+        return ''.join(map(force_str, to_render))
 
 
 @register.tag

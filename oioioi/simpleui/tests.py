@@ -360,8 +360,9 @@ class TestProblemInstanceSettings(TestProblemInstance):
         )
         self.assertContains(
             response,
-            "Sum of time limits for all tests is too big. It&#39;s "
-            "51s, but it shouldn&#39;t exceed 6s.",
+            "Sum of time limits for all tests is too big. It's "
+            "51s, but it shouldn't exceed 6s.",
+            html=True,
         )
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=100)
@@ -378,8 +379,9 @@ class TestProblemInstanceSettings(TestProblemInstance):
         )
         self.assertContains(
             response,
-            "Memory limit mustn&#39;t be greater than %dKiB."
+            "Memory limit mustn't be greater than %dKiB."
             % settings.MAX_MEMORY_LIMIT_FOR_TEST,
+            html=True,
         )
 
 

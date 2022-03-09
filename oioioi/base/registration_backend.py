@@ -3,11 +3,10 @@ import logging
 import registration.backends.default.urls
 import registration.views
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
 from django.contrib.sites.requests import RequestSite
-from django.urls import reverse_lazy
+from django.urls import re_path, reverse_lazy
 from django.views.generic import TemplateView
 from registration import signals
 from registration.backends.default.views import (
@@ -61,12 +60,12 @@ class RegistrationView(DefaultRegistrationView):
 
 
 urlpatterns = [
-    url(r'^register/$', RegistrationView.as_view(), name='registration_register'),
+    re_path(r'^register/$', RegistrationView.as_view(), name='registration_register'),
 ]
 
 if not settings.SEND_USER_ACTIVATION_EMAIL:
     urlpatterns += [
-        url(
+        re_path(
             r'^register/complete/$',
             TemplateView.as_view(
                 template_name='registration/'
@@ -77,7 +76,7 @@ if not settings.SEND_USER_ACTIVATION_EMAIL:
     ]
 
 urlpatterns += [
-    url(
+    re_path(
         r'^password/reset/$',
         PasswordResetView.as_view(
             form_class=OioioiPasswordResetForm,

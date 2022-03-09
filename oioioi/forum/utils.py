@@ -2,7 +2,7 @@ from django.db import models, transaction
 from django.db.models import Max, Min
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached

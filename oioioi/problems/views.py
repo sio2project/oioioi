@@ -31,10 +31,10 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.archive import Archive
@@ -678,7 +678,7 @@ def get_report_HTML_view(request, submission_id):
 
     if not reports:
         reports = _(u"Reports are not available now (ಥ ﹏ ಥ)")
-        reports = mark_safe(u'<center>' + force_text(reports) + u'</center>')
+        reports = mark_safe(u'<center>' + force_str(reports) + u'</center>')
     return HttpResponse(reports)
 
 

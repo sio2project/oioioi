@@ -18,10 +18,10 @@ from django.shortcuts import render
 from django.template import Template
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # Metaclasses
 
@@ -377,7 +377,7 @@ def make_html_link(href, name, method='GET', extra_attrs=None):
         extra_attrs = {}
     attrs.update(extra_attrs)
     return mark_safe(
-        u'<a %s>%s</a>' % (flatatt(attrs), conditional_escape(force_text(name)))
+        u'<a %s>%s</a>' % (flatatt(attrs), conditional_escape(force_str(name)))
     )
 
 
@@ -463,7 +463,7 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
         {
             'current_tab': current_tab,
             'tabs': tabs_context,
-            'content': mark_safe(force_text(content)),
+            'content': mark_safe(force_str(content)),
         }
     )
     return TemplateResponse(request, template, context)
@@ -594,6 +594,11 @@ def allow_cross_origin(arg='*'):
     if callable(arg):
         return allow_cross_origin()(arg)
     return add_header('Access-Control-Allow-Origin', arg)
+
+
+def is_ajax(request):
+    """Check if 'request' is an jQuery AJAX call."""
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 
 def generate_key():

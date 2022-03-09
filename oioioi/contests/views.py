@@ -13,8 +13,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 from django.views.decorators.http import require_POST
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import menu_registry
@@ -598,7 +598,7 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
             )
         messages.info(
             request,
-            ungettext_lazy(
+            ngettext_lazy(
                 "%(count)d rejudge request received.",
                 "%(count)d rejudge requests received.",
                 count,

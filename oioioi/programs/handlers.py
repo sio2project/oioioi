@@ -8,7 +8,7 @@ from django.db import transaction
 from django.urls import reverse
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import make_html_link
 from oioioi.contests.handlers import _get_submission_or_skip

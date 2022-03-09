@@ -12,7 +12,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language_from_request
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mptt.exceptions import InvalidMove
 
 # pylint: disable=W0611

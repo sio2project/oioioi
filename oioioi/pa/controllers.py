@@ -5,7 +5,7 @@ from django import forms
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.acm.controllers import ACMContestController
 from oioioi.base.utils.query_helpers import Q_always_true

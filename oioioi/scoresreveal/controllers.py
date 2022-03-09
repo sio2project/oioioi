@@ -2,8 +2,8 @@ from datetime import timedelta  # pylint: disable=E0611
 
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
@@ -66,7 +66,7 @@ class ScoresRevealContestControllerMixin(object):
                 submission.problem_instance
             )
             return False, mark_safe(
-                ungettext_lazy(
+                ngettext_lazy(
                     "Scores revealing is disabled during the last "
                     "<strong>minute</strong> of the round.",
                     "Scores revealing is disabled during the last "

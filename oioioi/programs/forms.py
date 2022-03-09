@@ -1,7 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.urls import reverse
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 
 from oioioi.programs.models import ContestCompiler
 from oioioi.programs.utils import get_submittable_languages
@@ -19,7 +19,7 @@ class CompilerInlineForm(forms.ModelForm):
                 (
                     lang,
                     lang_info['display_name']
-                    + ugettext(" (default compiler: ")
+                    + gettext(" (default compiler: ")
                     + default_compilers.get(lang)
                     + ")",
                 )

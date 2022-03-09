@@ -5,7 +5,7 @@ from django import forms
 from django.core.validators import URLValidator
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.problems.forms import ProblemUploadForm
 

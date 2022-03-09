@@ -1,5 +1,5 @@
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.query_helpers import (
     Q_always_false,

@@ -6,7 +6,7 @@ import pytz
 from django.contrib import messages
 from django.http import Http404
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six.moves import map
 
 from oioioi.base.utils.redirect import safe_redirect

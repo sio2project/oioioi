@@ -3,7 +3,7 @@ import csv
 import six
 import sys
 from django.core.management.base import BaseCommand
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.oi.management.commands.import_schools import COLUMNS
 from oioioi.oi.models import School

@@ -8,7 +8,7 @@ from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.date_registration import date_registry

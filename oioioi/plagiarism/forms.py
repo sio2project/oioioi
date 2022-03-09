@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.plagiarism.utils import MOSS_SUPPORTED_LANGUAGES
 from oioioi.programs.utils import get_submittable_languages

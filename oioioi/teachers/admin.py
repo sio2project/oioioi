@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.forms.models import modelform_factory
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.menu import personal_menu_registry

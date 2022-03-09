@@ -1,7 +1,7 @@
 from importlib import import_module
 
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, re_path
 
 from oioioi.contests import admin, api, views
 
@@ -69,101 +69,101 @@ def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
     )
 
     return [
-        url(r'^c/[a-z0-9_-]+/', include((contests, 'contest'))),
-        url(r'', include((noncontests, 'noncontest'))),
+        re_path(r'^c/[a-z0-9_-]+/', include((contests, 'contest'))),
+        re_path(r'', include((noncontests, 'noncontest'))),
     ] + globs
 
 
 c_patterns = [
-    url(r'^$', views.default_contest_view, name='default_contest_view'),
-    url(r'^p/$', views.problems_list_view, name='problems_list'),
-    url(
+    re_path(r'^$', views.default_contest_view, name='default_contest_view'),
+    re_path(r'^p/$', views.problems_list_view, name='problems_list'),
+    re_path(
         r'^p/(?P<problem_instance>[a-z0-9_-]+)/$',
         views.problem_statement_view,
         name='problem_statement',
     ),
-    url(
+    re_path(
         r'^p/(?P<problem_instance>[a-z0-9_-]+)/(?P<statement_id>\d+)/$',
         views.problem_statement_zip_index_view,
         name='problem_statement_zip_index',
     ),
-    url(
+    re_path(
         r'^p/(?P<problem_instance>[a-z0-9_-]+)/(?P<statement_id>\d+)/' '(?P<path>.+)$',
         views.problem_statement_zip_view,
         name='problem_statement_zip',
     ),
-    url(
+    re_path(
         r'p/(?P<problem_instance_id>[a-z0-9_-]+)/rejudge_all',
         views.rejudge_all_submissions_for_problem_view,
         name='rejudge_all_submissions_for_problem',
     ),
-    url(
+    re_path(
         r'p/(?P<problem_instance_id>[a-z0-9_-]+)/rejudge_not_needed',
         views.rejudge_not_needed_view,
         name='rejudge_not_needed',
     ),
-    url(
+    re_path(
         r'p/(?P<problem_instance_id>[a-z0-9_-]+)/reset_limits',
         views.reset_tests_limits_for_probleminstance_view,
         name='reset_tests_limits_for_probleminstance',
     ),
-    url(r'^submit/$', views.submit_view, name='submit'),
-    url(
+    re_path(r'^submit/$', views.submit_view, name='submit'),
+    re_path(
         r'^submit/(?P<problem_instance_id>[a-z0-9_-]+)/$',
         views.submit_view,
         name='submit',
     ),
-    url(r'^submissions/$', views.my_submissions_view, name='my_submissions'),
-    url(r'^files/$', views.contest_files_view, name='contest_files'),
-    url(
+    re_path(r'^submissions/$', views.my_submissions_view, name='my_submissions'),
+    re_path(r'^files/$', views.contest_files_view, name='contest_files'),
+    re_path(
         r'^ca/(?P<attachment_id>\d+)/$',
         views.contest_attachment_view,
         name='contest_attachment',
     ),
-    url(
+    re_path(
         r'^pa/(?P<attachment_id>\d+)/$',
         views.problem_attachment_view,
         name='problem_attachment',
     ),
-    url(r'^user_hints/$', views.contest_user_hints_view, name='contest_user_hints'),
-    url(r'^u/(?P<user_id>\d+)$', views.user_info_view, name='user_info'),
-    url(
+    re_path(r'^user_hints/$', views.contest_user_hints_view, name='contest_user_hints'),
+    re_path(r'^u/(?P<user_id>\d+)$', views.user_info_view, name='user_info'),
+    re_path(
         r'^user_info_redirect/$',
         views.user_info_redirect_view,
         name='user_info_redirect',
     ),
-    url(r'^admin/', admin.contest_site.urls),
+    re_path(r'^admin/', admin.contest_site.urls),
 ]
 
 nonc_patterns = [
-    url(r'^submissions/$', views.all_submissions_view, name='all_submissions'),
+    re_path(r'^submissions/$', views.all_submissions_view, name='all_submissions'),
 ]
 
 neutral_patterns = [
-    url(r'^contest/$', views.select_contest_view, name='select_contest'),
-    url(r'^s/(?P<submission_id>\d+)/$', views.submission_view, name='submission'),
-    url(
+    re_path(r'^contest/$', views.select_contest_view, name='select_contest'),
+    re_path(r'^s/(?P<submission_id>\d+)/$', views.submission_view, name='submission'),
+    re_path(
         r'^s/(?P<submission_id>\d+)/rejudge/$',
         views.rejudge_submission_view,
         name='rejudge_submission',
     ),
-    url(
+    re_path(
         r'^s/(?P<submission_id>\d+)/change_kind/(?P<kind>\w+)/$',
         views.change_submission_kind_view,
         name='change_submission_kind',
     ),
-    url(
+    re_path(
         r'^s/(?P<submission_id>\d+)/report/(?P<report_id>\d+)/$',
         views.report_view,
         name='report',
     ),
-    url(
+    re_path(
         r'^reattach/(?P<problem_instance_id>\d+)/contest_list/'
         '((?P<full_list>full))?',
         views.reattach_problem_contest_list_view,
         name='reattach_problem_contest_list',
     ),
-    url(
+    re_path(
         r'^reattach/(?P<problem_instance_id>\d+)/'
         '(?P<contest_id>[a-z0-9_-]+)/confirm',
         views.reattach_problem_confirm_view,
@@ -174,17 +174,17 @@ neutral_patterns = [
 if settings.USE_API:
     nonc_patterns += [
         # the contest information is managed manually and added after api prefix
-        url(
+        re_path(
             r'^api/c/(?P<contest_name>[a-z0-9_-]+)/submit/(?P<problem_short_name>[a-z0-9_-]+)$',
             api.SubmitContestSolutionView.as_view(),
             name='api_contest_submit',
         ),
-        url(
+        re_path(
             r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)$',
             api.GetProblemIdView.as_view(),
             name='api_contest_get_problem_id',
         ),
-        url(
+        re_path(
             r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',
             api.SubmitProblemsetSolutionView.as_view(),
             name='api_problemset_submit',

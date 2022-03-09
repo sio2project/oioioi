@@ -150,7 +150,7 @@ class TestTeamSubmit(TestCase, SubmitFileMixin):
 
         response = self.submit_file(contest, problem_instance, user=user)
         self.assertContains(
-            response, 'You can&#39;t submit a solution for another team!'
+            response, "You can't submit a solution for another team!", html=True
         )
 
         response = self.submit_file(contest, problem_instance, user=team.user)

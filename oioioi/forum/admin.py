@@ -3,8 +3,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
@@ -297,7 +297,7 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy(
+            ngettext_lazy(
                 "One post has been hidden.",
                 "%(counter)d posts have been hidden.",
                 counter,
@@ -313,7 +313,7 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy(
+            ngettext_lazy(
                 "\"Reported\" status removed from one post.",
                 "\"Reported\" status removed from %(counter)d posts.",
                 counter,
@@ -329,7 +329,7 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy(
+            ngettext_lazy(
                 "One post was approved.", "%(counter)d posts were approved.", counter
             )
             % {'counter': counter},
@@ -343,7 +343,7 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy(
+            ngettext_lazy(
                 "\"Approved\" status removed from one post.",
                 "\"Approved\" status removed from %(counter)d posts.",
                 counter,

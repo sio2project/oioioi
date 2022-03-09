@@ -266,9 +266,13 @@ class TestMenu(TestCase):
             lambda request: '/test_link',
             attrs={'name<>\'"&': 'value<>\'"&'},
         )
-        response = self._render_menu()
+        menu_html = self._render_menu()
+
+        # assertInHTML cannot be used, as we are checking whether special characters
+        # are correctly escaped.
         self.assertIn(
-            'name&lt;&gt;&#39;&quot;&amp;=' '"value&lt;&gt;&#39;&quot;&amp;"', response
+            'name&lt;&gt;&#x27;&quot;&amp;=' '"value&lt;&gt;&#x27;&quot;&amp;"',
+            menu_html,
         )
 
     def test_side_menus_registry(self):

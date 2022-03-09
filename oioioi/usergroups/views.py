@@ -4,7 +4,7 @@ from django.core.exceptions import MultipleObjectsReturned, PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
 

@@ -4,7 +4,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 
 from oioioi.base.menu import account_menu_registry

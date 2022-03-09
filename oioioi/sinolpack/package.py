@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.validators import slug_re
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from oioioi.base.utils import generate_key, naturalsort_key
 from oioioi.base.utils.archive import Archive
 from oioioi.base.utils.execute import ExecuteError, execute

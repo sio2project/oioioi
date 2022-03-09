@@ -1,7 +1,7 @@
 import six
 from django.urls import reverse
 from django.utils.functional import lazy
-from django.utils.translation import ungettext
+from django.utils.translation import ngettext
 
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.utils import can_enter_contest, is_contest_basicadmin
@@ -42,7 +42,7 @@ def navbar_messages_generator(request):
         messages = new_messages(request, vis_messages)
     count = messages.count()
     if count:
-        text = ungettext('%(count)d NEW MESSAGE', '%(count)d NEW MESSAGES', count) % {
+        text = ngettext('%(count)d NEW MESSAGE', '%(count)d NEW MESSAGES', count) % {
             'count': count
         }
 

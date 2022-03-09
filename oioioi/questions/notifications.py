@@ -1,4 +1,4 @@
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_noop
 
 from oioioi.base.notification import NotificationHandler
 
@@ -19,7 +19,7 @@ def notification_function_answer(arguments):
     message_details = (
         arguments.question_instance.topic + ': ' + arguments.question_instance.content
     )
-    message = ugettext_noop("Your question was answered.")
+    message = gettext_noop("Your question was answered.")
     message_arguments = {
         'address': arguments.question_instance.get_absolute_url(),
         'details': message_details[:MAX_DETAILS_LENGTH],
@@ -43,7 +43,7 @@ def notification_function_public(arguments):
     message_details = (
         arguments.message_instance.topic + ': ' + arguments.message_instance.content
     )
-    message = ugettext_noop("New public message.")
+    message = gettext_noop("New public message.")
     message_arguments = {
         'address': arguments.message_instance.get_absolute_url(),
         'details': message_details[:MAX_DETAILS_LENGTH],

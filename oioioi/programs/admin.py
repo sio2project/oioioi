@@ -6,9 +6,9 @@ from django.db.models import Q
 from django.forms.models import BaseInlineFormSet
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ContestAdmin, ProblemInstanceAdmin, SubmissionAdmin
@@ -365,7 +365,7 @@ class ModelSubmissionAdminMixin(object):
                 instance = instance.modelprogramsubmission
                 if instance:
                     return '(%s)' % (
-                        conditional_escape(force_text(instance.model_solution.name)),
+                        conditional_escape(force_str(instance.model_solution.name)),
                     )
         return super(ModelSubmissionAdminMixin, self).user_full_name(instance)
 

@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DatabaseError, transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.contests.models import Contest
 from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin

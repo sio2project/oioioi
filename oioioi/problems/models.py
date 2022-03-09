@@ -18,7 +18,7 @@ from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.utils import split_extension, strip_num_or_hash
 from oioioi.contests.models import ProblemInstance

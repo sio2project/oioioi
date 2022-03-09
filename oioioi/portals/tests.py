@@ -3,7 +3,6 @@ from six.moves import range
 from django.contrib.auth.models import AnonymousUser
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.actions import portal_url
@@ -131,7 +130,7 @@ class TestPortalViews(TestCase):
 
         response = self.client.get('/~test_user/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, _("Main page"))
+        self.assertContains(response, "Main page")
 
     def test_create_global_portal_view(self):
         create_url = reverse('create_global_portal')
@@ -150,18 +149,17 @@ class TestPortalViews(TestCase):
         response = self.client.post(
             create_url, data={'confirmation': '', 'link_name': 'default'}
         )
-        self.assertContains(response, _("Portal with this Link name already exists."))
+        self.assertContains(response, "Portal with this Link name already exists.")
 
         response = self.client.post(
             create_url, data={'confirmation': '', 'link_name': 'with space'}
         )
         self.assertContains(
             response,
-            _(
-                "Enter a valid &#39;slug&#39; "
-                "consisting of lowercase letters, "
-                "numbers, underscores or hyphens."
-            ),
+            "Enter a valid 'slug' "
+            "consisting of lowercase letters, "
+            "numbers, underscores or hyphens.",
+            html=True,
         )
 
         response = self.client.post(
@@ -171,14 +169,14 @@ class TestPortalViews(TestCase):
 
         response = self.client.get('/p/glob1/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, _("Main page"))
+        self.assertContains(response, "Main page")
 
     def test_admin_buttons(self):
-        show = _("View page")
-        edit = _("Edit page")
-        add = _("Add a subpage")
-        delete = _("Delete page")
-        manage = _("Manage portal")
+        show = "View page"
+        edit = "Edit page"
+        add = "Add a subpage"
+        delete = "Delete page"
+        manage = "Manage portal"
         all = {show, edit, add, delete, manage}
         root = {show, edit, add, manage}
 

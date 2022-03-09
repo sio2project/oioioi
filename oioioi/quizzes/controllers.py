@@ -6,7 +6,7 @@ from django.db import transaction
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import ScoreReport, Submission, SubmissionReport

@@ -12,10 +12,10 @@ from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.html import escape
 from django.utils.text import capfirst
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.forms import OioioiUserChangeForm, OioioiUserCreationForm
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
@@ -118,24 +118,24 @@ class ModelAdmin(
         if obj is None:
             raise Http404(
                 _("%(name)s object with primary key %(key)r does not exist.")
-                % {'name': force_text(opts.verbose_name), 'key': escape(object_id)}
+                % {'name': force_str(opts.verbose_name), 'key': escape(object_id)}
             )
 
         if request.POST:  # The user has already confirmed the deletion.
-            obj_display = force_text(obj)
+            obj_display = force_str(obj)
             self.log_deletion(request, obj, obj_display)
             self.delete_model(request, obj)
             self.message_user(
                 request,
                 _("The %(name)s \"%(obj)s\" was deleted successfully.")
                 % {
-                    'name': force_text(opts.verbose_name),
-                    'obj': force_text(obj_display),
+                    'name': force_str(opts.verbose_name),
+                    'obj': force_str(obj_display),
                 },
             )
             return self.response_delete(request)
 
-        object_name = force_text(opts.verbose_name)
+        object_name = force_str(opts.verbose_name)
         context = {
             "object_name": object_name,
             "object": obj,
@@ -213,7 +213,7 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
         n = queryset.count()
         if n:
             for obj in queryset:
-                obj_display = force_text(obj)
+                obj_display = force_str(obj)
                 modeladmin.log_deletion(request, obj, obj_display)
             queryset.delete()
             message_text = _("Successfully deleted %(count)d %(items)s.") % {
@@ -228,9 +228,9 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
             return redirect(kwargs['specific_redirect'])
 
     if len(queryset) == 1:
-        objects_name = force_text(opts.verbose_name)
+        objects_name = force_str(opts.verbose_name)
     else:
-        objects_name = force_text(opts.verbose_name_plural)
+        objects_name = force_str(opts.verbose_name_plural)
 
     if perms_needed or protected:
         title = _("Cannot delete %(name)s") % {"name": objects_name}
@@ -300,7 +300,7 @@ def collect_deleted_objects(modeladmin, request, queryset):
             ):
                 perms_needed.add(opts.verbose_name)
 
-        return '%s: %s' % (capfirst(force_text(opts.verbose_name)), force_text(obj))
+        return '%s: %s' % (capfirst(force_str(opts.verbose_name)), force_str(obj))
 
     # Get a nested list of dependent objects
     to_delete = collector.nested(format_callback)

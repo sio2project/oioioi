@@ -1,7 +1,7 @@
 import six
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.contests.models import ProblemInstance
 from oioioi.exportszu.utils import SubmissionsWithUserDataCollector

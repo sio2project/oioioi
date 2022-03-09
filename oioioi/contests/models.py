@@ -14,8 +14,8 @@ from django.utils import timezone
 
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.menu import MenuItem, menu_registry
@@ -186,7 +186,7 @@ def _round_end_date_name_generator(obj):
         Max('extra_time')
     )['extra_time__max']
     if max_round_extension is not None:
-        text = ungettext(
+        text = ngettext(
             "End of %(name)s (+ %(ext)d min)",
             "End of %(name)s (+ %(ext)d mins)",
             max_round_extension,

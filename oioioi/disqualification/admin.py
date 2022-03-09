@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.forms import Textarea
 from django.urls import reverse
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
@@ -67,7 +67,7 @@ class DisqualificationAdmin(admin.ModelAdmin):
             '%d (%s)'
             % (
                 instance.submission_id,
-                force_text(instance.submission.problem_instance),
+                force_str(instance.submission.problem_instance),
             ),
         )
 

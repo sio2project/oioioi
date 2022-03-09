@@ -2,7 +2,7 @@ import logging
 import os
 
 from django.core.validators import slug_re
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from six.moves import filter, map
 
 from oioioi.sinolpack.package import (

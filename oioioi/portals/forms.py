@@ -9,7 +9,7 @@ from django.forms import (
     ValidationError,
     inlineformset_factory,
 )
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.portals.models import Node, NodeLanguageVersion, Portal
 

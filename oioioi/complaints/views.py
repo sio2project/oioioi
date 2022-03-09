@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, make_request_condition

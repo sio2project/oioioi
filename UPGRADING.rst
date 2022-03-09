@@ -1023,7 +1023,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +++ b/oioioi/default_settings.py
         @@ -14,7 +14,7 @@ from django.contrib.messages import constants as messages
 
-        from django.utils.translation import ugettext_lazy as _
+        from django.utils.translation import gettext_lazy as _
 
         -INSTALLATION_CONFIG_VERSION = 47
         +INSTALLATION_CONFIG_VERSION = 48

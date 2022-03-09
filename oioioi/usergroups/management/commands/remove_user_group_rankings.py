@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.usergroups.models import UserGroupRanking
 from oioioi.rankings.models import Ranking

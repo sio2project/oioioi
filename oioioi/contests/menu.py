@@ -1,4 +1,4 @@
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
 from oioioi.contests.utils import (

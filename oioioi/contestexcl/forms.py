@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import BooleanField, ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.forms import AlwaysChangedModelForm
 from oioioi.contestexcl.models import ExclusivenessConfig

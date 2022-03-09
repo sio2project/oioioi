@@ -1,8 +1,7 @@
-from django.conf.urls import url
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from oioioi.base.permissions import enforce_condition
@@ -125,22 +124,22 @@ class SuspendJudgeProblemInstanceAdminMixin(object):
     def get_urls(self):
         urls = super(SuspendJudgeProblemInstanceAdminMixin, self).get_urls()
         extra_urls = [
-            url(
+            re_path(
                 r'(?P<problem_instance_id>\d+)/resume_and_rejudge/$',
                 self.resume_and_rejudge_view,
                 name='suspendjudge_resume_and_rejudge',
             ),
-            url(
+            re_path(
                 r'(?P<problem_instance_id>\d+)/resume_and_clear/$',
                 self.resume_and_clear_view,
                 name='suspendjudge_resume_and_clear',
             ),
-            url(
+            re_path(
                 r'(?P<problem_instance_id>\d+)/suspend_all/$',
                 self.suspend_all_view,
                 name='suspendjudge_suspend_all',
             ),
-            url(
+            re_path(
                 r'(?P<problem_instance_id>\d+)/suspend_all_but_init/$',
                 self.suspend_all_but_init_view,
                 name='suspendjudge_suspend_all_but_init',

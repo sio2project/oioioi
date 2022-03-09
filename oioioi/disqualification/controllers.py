@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import Submission

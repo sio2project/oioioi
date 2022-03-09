@@ -12,7 +12,7 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from registration.forms import RegistrationForm
 
 from oioioi.base.models import Consents, PreferencesSaved

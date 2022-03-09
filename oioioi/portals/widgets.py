@@ -6,7 +6,7 @@ from django.http import Http404
 from django.template.loader import render_to_string
 from django.urls import resolve, reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
 
 from oioioi.contests.models import UserResultForProblem

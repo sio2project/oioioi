@@ -8,7 +8,7 @@ import unicodecsv
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.oi.models import School
 

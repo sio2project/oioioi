@@ -1,6 +1,6 @@
 import yaml
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, ProblemPackage, make_problem_filename

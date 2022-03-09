@@ -2,7 +2,7 @@ import django
 from django.conf import settings
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission

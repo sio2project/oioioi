@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.http import Http404
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from oioioi.base.utils import jsonify
 
 INVALID_USER_SELECTION = '__invalid_user_selection__'

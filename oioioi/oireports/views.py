@@ -8,7 +8,7 @@ from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils.pdf import generate_pdf

@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+import six
 import sys
 import tempfile
 from collections import namedtuple
@@ -13,10 +14,9 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils import six
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from oioioi.base.menu import OrderedRegistry
 from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.archive import Archive

@@ -1,7 +1,7 @@
 from django import forms
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.utils.user_selection import UserSelectionField

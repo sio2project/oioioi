@@ -5,8 +5,8 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.text import capfirst
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
@@ -162,7 +162,7 @@ class ParticipantAdmin(admin.ModelAdmin):
                         name = RoundTimeExtension._meta.verbose_name
                     self.message_user(
                         request,
-                        ungettext_lazy(
+                        ngettext_lazy(
                             "Updated one %(name)s.",
                             "%(name)s updated: %(existing_count)d.",
                             existing_count,
@@ -176,7 +176,7 @@ class ParticipantAdmin(admin.ModelAdmin):
                         name = RoundTimeExtension._meta.verbose_name
                     self.message_user(
                         request,
-                        ungettext_lazy(
+                        ngettext_lazy(
                             "Created one %(name)s.",
                             "%(name)s created: %(new_count)d.",
                             len(new_extensions),

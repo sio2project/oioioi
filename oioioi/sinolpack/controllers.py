@@ -1,4 +1,4 @@
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.programs.controllers import ProgrammingProblemController
 from oioioi.sinolpack.admin import SinolpackProblemAdminMixin

@@ -1,5 +1,5 @@
 from django.contrib.admin import SimpleListFilter
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY

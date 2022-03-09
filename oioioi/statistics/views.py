@@ -2,7 +2,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six.moves import zip
 
 from oioioi.base.menu import menu_registry

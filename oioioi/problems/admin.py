@@ -2,7 +2,6 @@ import logging
 
 import six.moves.urllib.parse
 
-from django.conf.urls import url
 from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
 from django.contrib.admin.utils import unquote
@@ -10,9 +9,9 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.html import escape, format_html, mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, system_admin_menu_registry
 from oioioi.base.permissions import is_superuser, make_request_condition
@@ -499,7 +498,7 @@ class BaseProblemAdmin(admin.MixinsAdmin):
     def get_urls(self):
         urls = super(BaseProblemAdmin, self).get_urls()
         extra_urls = [
-            url(
+            re_path(
                 r'^(\d+)/download/$',
                 self.download_view,
                 name='problems_problem_download',

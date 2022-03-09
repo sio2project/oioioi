@@ -5,8 +5,8 @@ import itertools
 
 from django.core.management.base import BaseCommand
 from django.db.models.loading import cache
-from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from filetracker.utils import split_name
 
 from oioioi.filetracker.client import get_client
@@ -83,7 +83,7 @@ class Command(BaseCommand):
         elif options['pretend']:
             if int(options['verbosity']) > 1:
                 print(
-                    ungettext(
+                    ngettext(
                         "The following %d file is scheduled for deletion:",
                         "The following %d files are scheduled for deletion:",
                         files_count,
@@ -94,7 +94,7 @@ class Command(BaseCommand):
                     print(" ", file)
             elif int(options['verbosity']) == 1:
                 print(
-                    ungettext(
+                    ngettext(
                         "%d file scheduled for deletion.",
                         "%d files scheduled for deletion.",
                         files_count,
@@ -104,7 +104,7 @@ class Command(BaseCommand):
         else:
             if int(options['verbosity']) > 1:
                 print(
-                    ungettext(
+                    ngettext(
                         "Deleting the following %d file:",
                         "Deleting the following %d files:",
                         files_count,
@@ -113,7 +113,7 @@ class Command(BaseCommand):
                 )
             if int(options['verbosity']) == 1:
                 print(
-                    ungettext("Deleting %d file", "Deleting %d files", files_count)
+                    ngettext("Deleting %d file", "Deleting %d files", files_count)
                     % files_count
                 )
             for file in to_delete:

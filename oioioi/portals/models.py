@@ -6,7 +6,7 @@ from django.db import models
 from django.dispatch import Signal
 
 from django.utils.translation import get_language, get_language_from_request
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces

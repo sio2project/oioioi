@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
@@ -95,8 +95,8 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
     def submission_problem_instance(self, instance):
         if instance.submission.kind != 'NORMAL':
             return '%s (%s)' % (
-                force_text(instance.submission.problem_instance),
-                force_text(instance.submission.get_kind_display()),
+                force_str(instance.submission.problem_instance),
+                force_str(instance.submission.get_kind_display()),
             )
         else:
             return instance.submission.problem_instance

@@ -1,8 +1,8 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 from django.views.decorators.http import require_POST
 
 from oioioi.base.permissions import enforce_condition
@@ -47,7 +47,7 @@ def bulk_add_similarities_view(request):
 
             messages.success(
                 request,
-                ungettext_lazy(
+                ngettext_lazy(
                     "Created one group", "Created %(groups_count)d groups", len(groups)
                 )
                 % {'groups_count': len(groups)},

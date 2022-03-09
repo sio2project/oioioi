@@ -8,7 +8,7 @@ from django.forms import ValidationError
 from django.forms.widgets import Media as FormMedia
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
 from oioioi.base.utils.user_selection import UserSelectionField

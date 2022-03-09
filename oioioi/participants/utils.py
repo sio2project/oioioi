@@ -1,7 +1,7 @@
 import unicodecsv
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from six.moves import map
 
 from oioioi.base.permissions import make_request_condition
@@ -179,7 +179,7 @@ def render_participants_data_csv(request, participants, name):
     )
     if 'no_participants' not in data:
         writer = unicodecsv.writer(response)
-        writer.writerow(list(map(force_text, data['keys'])))
+        writer.writerow(list(map(force_str, data['keys'])))
         for row in data['data']:
-            writer.writerow(list(map(force_text, row)))
+            writer.writerow(list(map(force_str, row)))
     return response

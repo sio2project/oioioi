@@ -7,7 +7,7 @@ import tempfile
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import django_to_filetracker_path
@@ -171,7 +171,7 @@ def build_submissions_archive(out_file, submission_collector):
                     if obj is None:
                         return 'NULL'
                     else:
-                        return force_text(obj)
+                        return force_str(obj)
 
                 index_csv.writerow([encode(col) for col in index_entry])
 

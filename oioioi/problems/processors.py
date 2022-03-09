@@ -3,7 +3,7 @@ import six
 from django.conf import settings
 from django.urls import reverse
 from django.utils.functional import lazy
-from django.utils.translation import ungettext
+from django.utils.translation import ngettext
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_basicadmin
@@ -34,7 +34,7 @@ def dangling_problems_processor(request):
                 return ''
         else:
             link = reverse('oioioiadmin:contests_probleminstance_changelist')
-        text = ungettext(
+        text = ngettext(
             '%(count)d PROBLEM WITHOUT ROUND',
             '%(count)d PROBLEMS WITHOUT ROUNDS',
             count,
@@ -64,7 +64,7 @@ def problems_need_rejudge_processor(request):
             return ''
         else:
             link = reverse('oioioiadmin:contests_probleminstance_changelist')
-        text = ungettext(
+        text = ngettext(
             "%(count)d PROBLEM NEEDS REJUDGING",
             "%(count)d PROBLEMS NEED REJUDGING",
             count,

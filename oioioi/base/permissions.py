@@ -5,6 +5,8 @@ from django.contrib.auth.views import LogoutView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
 
+from oioioi.base.utils import is_ajax
+
 
 class AccessDenied(object):
     """A ``False``-like class with additional response to use as the access
@@ -134,7 +136,7 @@ def enforce_condition(condition, template=None, login_redirect=True):
                 return TemplateResponse(request, template)
             elif (
                 not request.user.is_authenticated
-                and not request.is_ajax()
+                and not is_ajax(request)
                 and login_redirect
             ):
                 return redirect_to_login(request.path)

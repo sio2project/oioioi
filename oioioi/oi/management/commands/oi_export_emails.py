@@ -2,7 +2,7 @@ import sys
 
 import unicodecsv
 from django.core.management.base import BaseCommand
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.participants.models import Participant
 

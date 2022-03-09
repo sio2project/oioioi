@@ -3,7 +3,6 @@ from functools import partial
 
 import six.moves.urllib.parse
 
-from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
@@ -13,12 +12,12 @@ from django.forms import ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.urls import reverse
-from django.utils.encoding import force_text
+from django.urls import re_path, reverse
+from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.translation import get_language
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext_lazy
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext_lazy
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
 from oioioi.base.utils import make_html_link, make_html_links
@@ -687,7 +686,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_urls(self):
-        urls = [url(r'^rejudge/$', self.rejudge_view)]
+        urls = [re_path(r'^rejudge/$', self.rejudge_view)]
         return urls + super(SubmissionAdmin, self).get_urls()
 
     def get_search_results(self, request, queryset, search_term):
@@ -731,7 +730,7 @@ class SubmissionAdmin(admin.ModelAdmin):
             counter = len(submissions)
             self.message_user(
                 request,
-                ungettext_lazy(
+                ngettext_lazy(
                     "Queued one submission for rejudge.",
                     "Queued %(counter)d submissions for rejudge.",
                     counter,
@@ -794,8 +793,8 @@ class SubmissionAdmin(admin.ModelAdmin):
     def problem_instance_display(self, instance):
         if instance.kind != 'NORMAL':
             return '%s (%s)' % (
-                force_text(instance.problem_instance),
-                force_text(instance.get_kind_display()),
+                force_str(instance.problem_instance),
+                force_str(instance.get_kind_display()),
             )
         else:
             return instance.problem_instance

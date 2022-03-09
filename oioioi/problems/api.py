@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from oioioi.base.utils.api import make_path_coreapi_schema
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import can_admin_contest

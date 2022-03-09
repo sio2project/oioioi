@@ -3,8 +3,8 @@ from __future__ import print_function
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
-from django.utils.translation import ugettext as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from oioioi.contests.models import Submission
 from oioioi.problems.models import Problem, ProblemStatistics, UserStatistics
 
@@ -18,7 +18,7 @@ def recalculate_statistics_for_problem(problem):
     problem_submissions = Submission.objects.filter(problem_instance__problem=problem)
 
     print(
-        ungettext(
+        ngettext(
             "\t%(count)d submission",
             "\t%(count)d submissions",
             len(problem_submissions),
@@ -35,7 +35,7 @@ def recalculate_statistics_for_problem(problem):
             user_submissions[submission.user].append(submission)
 
     print(
-        ungettext(
+        ngettext(
             "\tfrom %(count)d user", "\tfrom %(count)d users", len(user_submissions)
         )
         % {'count': len(user_submissions)}
@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
         problems = Problem.objects.all()
         print(
-            ungettext(
+            ngettext(
                 "Recalculating statistics for %(count)d problem",
                 "Recalculating statistics for %(count)d problems",
                 len(problems),

@@ -10,8 +10,8 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 
 from oioioi.base.utils import (
     ObjectWithMixins,
@@ -1055,14 +1055,14 @@ class NotificationsMixinForContestController(object):
         been judged. It doesn't validate any permissions.
         """
         if submission.problem_instance.contest:
-            message = ugettext_noop(
+            message = gettext_noop(
                 "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
             )
         else:
-            message = ugettext_noop("%(task_name)s: Your submission was judged.\n")
+            message = gettext_noop("%(task_name)s: Your submission was judged.\n")
 
         if submission.score is not None:
-            message += ugettext_noop("The score is %(score)s.")
+            message += gettext_noop("The score is %(score)s.")
 
         return message
 

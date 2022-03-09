@@ -1,7 +1,7 @@
 from functools import total_ordering
 
 import six
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.contests.scores import ScoreValue
 

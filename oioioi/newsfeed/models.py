@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, get_language_from_request
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from mistune import Markdown
 
 from oioioi.base.utils.deps import check_django_app_dependencies

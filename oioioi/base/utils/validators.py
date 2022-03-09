@@ -4,8 +4,8 @@ from unicodedata import category as u_cat
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.deconstruct import deconstructible
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 
 
 def validate_whitespaces(value):
@@ -51,7 +51,7 @@ class UnicodeValidator(object):
         unicode_categories. Additionally, if allow_spaces is True,
         then allows spaces, but not at the beginning/end.
         """
-        value = force_text(value)
+        value = force_str(value)
         n = len(value)
         for i, letter in enumerate(value):
             c = u_cat(letter)

@@ -5,7 +5,7 @@ from django.forms import ValidationError
 from django.forms.widgets import SelectDateWidget
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six.moves import range, zip
 
 from oioioi.oi.models import PROVINCES, OIRegistration, School

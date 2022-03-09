@@ -3,7 +3,7 @@ from datetime import datetime  # pylint: disable=E0611
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.timezone import utc
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_noop
 
 from oioioi.base.notification import NotificationHandler
 
@@ -36,7 +36,7 @@ def notification_function_initial_results(arguments):
     else:
         url = ''
 
-    message = ugettext_noop("Initial result for task %(short_name)s is ready")
+    message = gettext_noop("Initial result for task %(short_name)s is ready")
     message_arguments = {'short_name': pi.short_name, 'address': url}
 
     NotificationHandler.send_notification(

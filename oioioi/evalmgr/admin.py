@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import F, OuterRef
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.utils import make_html_link

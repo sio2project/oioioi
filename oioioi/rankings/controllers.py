@@ -11,9 +11,9 @@ from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from six.moves import map, range
 
 from oioioi.base.models import PreferencesSaved
@@ -291,9 +291,9 @@ class DefaultRankingController(RankingController):
         )
         writer = unicodecsv.writer(response)
 
-        writer.writerow(list(map(force_text, self._get_csv_header(key, data))))
+        writer.writerow(list(map(force_str, self._get_csv_header(key, data))))
         for row in data['rows']:
-            writer.writerow(list(map(force_text, self._get_csv_row(key, row))))
+            writer.writerow(list(map(force_str, self._get_csv_row(key, row))))
 
         return response
 

@@ -8,8 +8,8 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 from six.moves import zip
 
 from oioioi.acm.score import ACMScore, BinaryScore, format_time
@@ -373,12 +373,12 @@ class NotificationsMixinForACMContestController(object):
 
     def get_notification_message_submission_judged(self, submission):
         if submission.score is not None and submission.score.accepted:
-            return ugettext_noop(
+            return gettext_noop(
                 "Your submission for task %(short_name)s"
                 " is accepted. Congratulations!"
             )
         else:
-            return ugettext_noop(
+            return gettext_noop(
                 "Your submission for task %(short_name)s is not accepted."
             )
 

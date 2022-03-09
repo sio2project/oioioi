@@ -6,9 +6,9 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-from oioioi.base.utils import ObjectWithMixins
+from oioioi.base.utils import ObjectWithMixins, is_ajax
 from oioioi.base.utils.loaders import load_modules
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.middleware import activate_contest
@@ -80,7 +80,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
         elif len(qs) == 1:
             contest = qs[0]
             if request.contest != contest:
-                if request.is_ajax():
+                if is_ajax(request):
                     raise PermissionDenied
                 else:
                     messages.info(

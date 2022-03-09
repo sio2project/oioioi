@@ -8,8 +8,8 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_cookie, vary_on_headers
@@ -20,7 +20,7 @@ from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.preferences import PreferencesFactory
 from oioioi.base.processors import site_name
-from oioioi.base.utils import generate_key, jsonify
+from oioioi.base.utils import generate_key, is_ajax, jsonify
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user import has_valid_username
 
@@ -65,7 +65,7 @@ def handler500(request):
     plain_resp = HttpResponse(message, status=500, content_type='text/plain')
 
     try:
-        if request.is_ajax():
+        if is_ajax(request):
             return plain_resp
         return render(request, '500.html', {'traceback': tb}, status=500)
     except Exception:
@@ -73,7 +73,7 @@ def handler500(request):
 
 
 def handler404(request, exception):
-    if request.is_ajax():
+    if is_ajax(request):
         return HttpResponse('404 Not Found', status=404, content_type='text/plain')
     # DO NOT USE django.views.defaults.page_not_found here
     # It has a known vulnaribility before 1.11.18
@@ -87,7 +87,7 @@ def handler404(request, exception):
 
 
 def handler403(request, exception):
-    if request.is_ajax():
+    if is_ajax(request):
         return HttpResponse('403 Forbidden', status=403, content_type='text/plain')
     message = render_to_string('403.html', request=request)
     return HttpResponseForbidden(message)
@@ -149,7 +149,7 @@ def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
 @jsonify
 def translate_view(request):
     if 'query' in request.GET:
-        return {'answer': ugettext(request.GET['query'])}
+        return {'answer': gettext(request.GET['query'])}
     else:
         raise SuspiciousOperation
 
