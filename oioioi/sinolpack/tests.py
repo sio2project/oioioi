@@ -6,7 +6,6 @@ import zipfile
 import pytest
 import six.moves.urllib.parse
 from six import BytesIO
-
 from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
@@ -14,6 +13,7 @@ from django.core.management.base import CommandError
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.module_loading import import_string
 from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.current_contest import ContestMode
@@ -802,8 +802,10 @@ class TestLimits(TestCase):
         response = self.upload_package()
         self.assertContains(
             response,
-            "Sum of time limits for all tests is too big. It&#x27;s "
-            "50s, but it shouldn&#x27;t exceed 2s.",
+            escape(
+                "Sum of time limits for all tests is too big. It's "
+                "50s, but it shouldn't exceed 2s."
+            ),
         )
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=10)
@@ -811,6 +813,8 @@ class TestLimits(TestCase):
         response = self.upload_package()
         self.assertContains(
             response,
-            "Memory limit mustn&#x27;t be greater than %dKiB"
-            % settings.MAX_MEMORY_LIMIT_FOR_TEST,
+            escape(
+                "Memory limit mustn't be greater than %dKiB"
+                % settings.MAX_MEMORY_LIMIT_FOR_TEST
+            ),
         )
