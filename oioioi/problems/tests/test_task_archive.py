@@ -13,8 +13,8 @@ from oioioi.contests.models import (
     UserResultForProblem,
 )
 from oioioi.contests.scores import IntegerScore
-from oioioi.problems.models import OriginInfoCategory, OriginInfoValue
-
+from oioioi.problems.models import OriginInfoCategory, OriginInfoValue, Problem
+from oioioi.problems.utils import get_prefetched_value
 
 @override_settings(LANGUAGE_CODE='pl')
 class TestTaskArchive(TestCase):
@@ -36,6 +36,12 @@ class TestTaskArchive(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Olimpiada Informatyczna')
         self.assertContains(response, 'Potyczki Algorytmiczne')
+
+    def test_fake_origin_eq(self):
+        not_fake = OriginInfoValue.objects.get(pk=4)
+        problem = Problem.objects.get(pk=1)
+        fake = get_prefetched_value(problem, None)
+        self.assertTrue((fake == not_fake) is False)
 
     def test_task_archive_tag(self):
         url = reverse('task_archive_tag', args=('oi',))

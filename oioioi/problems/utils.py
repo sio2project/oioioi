@@ -366,7 +366,9 @@ def get_prefetched_value(problem, category):
         cat = category
 
         def __eq__(self, other):
-            return self.cat == other.cat
+            if type(other) is FakeOriginInfoValue:
+                return self.cat == other.cat
+            return False
 
         def __hash__(self):
             return hash(self.cat)

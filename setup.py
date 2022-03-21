@@ -78,7 +78,7 @@ python2_specific_requirements = [
 ]
 
 python3_specific_requirements = [
-    "Django>=3.0,<3.1",  # when upgrading, upgrade also django-two-factor-auth!
+    "Django>=3.1,<3.2",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b,<=2021.1",
     "sqlalchemy<1.5",
     "beautifulsoup4<4.10",
