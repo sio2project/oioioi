@@ -14,6 +14,7 @@ from django.db import models, transaction
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
@@ -387,7 +388,7 @@ class ProblemPackage(models.Model):
                     info = _(
                         u"Failed operation: %(name)s\n"
                         u"Operation description: %(desc)s\n \n"
-                        u"Error description: %(error)s\n \n"
+                        u"Error description: %(error)r\n \n"
                         % dict(
                             name=value.raiser,
                             desc=value.raiser_desc,
@@ -410,7 +411,7 @@ class ProblemPackage(models.Model):
                 )
 
                 package.traceback = ContentFile(
-                    info
+                    force_str(info)
                     + ''.join(
                         format_exception(type, value, traceback, TRACEBACK_STACK_LIMIT)
                     ),

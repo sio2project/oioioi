@@ -53,7 +53,7 @@ def show_info_about_workers(request):
         info = d['info']
         result = {
             'name': d['name'],
-            'ram': info.get('ram', '<unknown>'),
+            'ram': info.get('available_ram_mb', '<unknown>'),
             'concurrency': info['concurrency'],
             'can_run_cpu_exec': info['can_run_cpu_exec'],
             'select': select,
