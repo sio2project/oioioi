@@ -23,7 +23,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         filename = options['source_file']
         if not os.path.exists(filename):
-            raise CommandError(_("File not found: ") + filename)
+            raise CommandError(_("File not found: %s") % filename)
         source = open(filename, 'r').read()
 
         match = re.search(

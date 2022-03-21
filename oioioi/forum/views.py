@@ -510,7 +510,7 @@ def ban_user_view(request, user_id):
             instance.forum = request.contest.forum
             instance.admin = request.user
             instance.save()
-            messages.success(request, _("Banned user: ") + str(user))
+            messages.success(request, _("Banned user: %s") % str(user))
 
             if form.cleaned_data['delete_reports']:
                 removed_reports_count = Post.objects.filter(

@@ -20,7 +20,7 @@ class Command(BaseCommand):
         problem_id = options['problem_id']
         filename = options['filename']
         if not os.path.exists(filename):
-            raise CommandError(_("File not found: ") + filename)
+            raise CommandError(_("File not found: %s") % filename)
 
         try:
             problem = Problem.objects.get(id=problem_id)

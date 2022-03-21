@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
         filename = options['filename']
         if not os.path.exists(filename):
-            raise CommandError(_("File not found: ") + filename)
+            raise CommandError(_("File not found: %s") % filename)
         try:
             backend = import_string(backend_for_package(filename))()
         except NoBackend:

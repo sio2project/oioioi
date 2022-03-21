@@ -37,7 +37,7 @@ class Command(BaseCommand):
             stream = six.moves.urllib.request.urlopen(arg)
         else:
             if not os.path.exists(arg):
-                raise CommandError(_("File not found: ") + arg)
+                raise CommandError(_("File not found: %s") % arg)
             stream = open(arg, 'r')
 
         reader = csv.reader(stream)

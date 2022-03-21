@@ -7,7 +7,7 @@
 
 {% block main-content %}
 <h1>
-    {% trans "Group " %}{{ usergroup.name }}
+    {% blocktrans with group_name=usergroup.name %}Group {{ group_name }}{% endblocktrans %}
 </h1>
 
 {% if usergroup.addition_config.enabled %}

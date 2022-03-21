@@ -298,7 +298,7 @@ def message_view(request, message_id):
             form = AddReplyForm(
                 request,
                 initial={
-                    'topic': _("Re: ") + message.topic,
+                    'topic': _("Re: %s") % message.topic,
                 },
             )
     else:
