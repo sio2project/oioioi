@@ -45,6 +45,7 @@ python2_specific_requirements = [
     "django-extensions>=2.2.9,<3.0",  # latest version for Django 1.11
     "djangorestframework==3.8.2",  # latest version for Django 1.10
     'pytest==4.6.11',
+    'pytest-metadata==1.11.0',
     'pytest-django==3.10.0',
     'pytest-html==1.22.1',
     'pytest-xdist==1.34.0',
@@ -98,6 +99,7 @@ python3_specific_requirements = [
     "djangorestframework>=3.10,<=3.12",
     "werkzeug<1.1",
     'pytest==4.6.11',
+    'pytest-metadata==1.11.0',
     'pytest-django==3.10.0',
     'pytest-html==1.22.1',
     'pytest-xdist==1.34.0',
