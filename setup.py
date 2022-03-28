@@ -96,7 +96,7 @@ python3_specific_requirements = [
     "django-libsass>=0.7,<=0.8",
     "django-debug-toolbar>=3.0,<=3.3",
     "django-extensions>=3.0,<=3.2",  # Django 2.2
-    "djangorestframework>=3.10,<=3.12",
+    "djangorestframework>=3.10,<3.13",
     "werkzeug<1.1",
     'pytest==4.6.11',
     'pytest-metadata==1.11.0',
@@ -122,7 +122,7 @@ python3_specific_requirements = [
     "django-nested-admin<3.4",
     # SIO2 dependencies:
     "filetracker>=2.1.5,<3.0",
-    "django-simple-captcha>=0.5.13,<=0.5.14",
+    "django-simple-captcha>=0.5.16,<=0.5.18",
     # HOTFIX
     "phonenumbers<8.13",
     # this is the last pdfminer.six version to support python2
