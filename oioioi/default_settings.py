@@ -173,6 +173,7 @@ MIDDLEWARE = (
     'oioioi.contests.middleware.CurrentContestMiddleware',
     'oioioi.base.middleware.HttpResponseNotAllowedMiddleware',
     'oioioi.base.middleware.CheckLoginMiddleware',
+    'oioioi.base.middleware.UserPreferencesMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'oioioi.maintenancemode.middleware.MaintenanceModeMiddleware',

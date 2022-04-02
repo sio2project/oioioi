@@ -1,5 +1,5 @@
 from collections import OrderedDict
-
+from oioioi.base.models import UserPreferences
 
 # Huge thanks to: http://jacobian.org/writing/dynamic-form-generation/
 class PreferencesFactory(object):
@@ -86,3 +86,8 @@ class PreferencesFactory(object):
         return form_class(
             *args, extra=extra_fields, instance=user, initial=initial, **kwargs
         )
+
+
+def ensure_preferences_exist_for_user(request):
+    if not hasattr(request.user, "userpreferences"):
+        UserPreferences.objects.get_or_create(user=request.user)

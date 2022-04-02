@@ -8,7 +8,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+from django.utils import translation
 
+from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.utils.middleware import was_response_generated_by_exception
 from oioioi.base.utils.user import has_valid_name, has_valid_username
 from oioioi.su.utils import is_under_su
@@ -165,3 +168,45 @@ class CheckLoginMiddleware(object):
         if final_message in all_messages:
             return
         messages.add_message(request, messages.INFO, mark_safe(final_message))
+
+
+class UserPreferencesMiddleware(object):
+    def __init__(self, get_response):
+        self.get_response = get_response
+        self.lang = settings.LANGUAGE_CODE
+
+    def __call__(self, request):
+        if not request.user.is_authenticated:
+            return self.get_response(request)
+
+        self._process_request(request)
+        response = self.get_response(request)
+        return self._process_response(request, response)
+
+    def _process_request(self, request):
+        # checking data set by set_first_view_after_logging_flag signal handler:
+        just_logged_in = ('first_view_after_logging' in request.session) and \
+                            request.session['first_view_after_logging'] is True
+
+        ensure_preferences_exist_for_user(request)
+
+        self.lang = settings.LANGUAGE_CODE
+        pref_lang = request.user.userpreferences.language
+
+        if just_logged_in and pref_lang != "":
+            self.lang = pref_lang
+
+        if ((not just_logged_in) or pref_lang == "") and \
+           settings.LANGUAGE_COOKIE_NAME in request.COOKIES.keys():
+            self.lang = request.COOKIES[settings.LANGUAGE_COOKIE_NAME]
+
+        translation.activate(self.lang)
+        request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = self.lang
+
+    def _process_response(self, request, response):
+        if settings.LANGUAGE_COOKIE_NAME in request.COOKIES:
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME,
+                                request.COOKIES[settings.LANGUAGE_COOKIE_NAME])
+        else:
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, self.lang)
+        return response

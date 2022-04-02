@@ -137,7 +137,7 @@ class TestIndex(TestCase):
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(83):
+        with self.assertNumQueriesLessThan(85):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
@@ -1293,6 +1293,32 @@ class TestLoginChange(TestCase):
                 url_edit_profile, {'username': l, 'terms_accepted': True}, follow=True
             )
             self.assertEqual(self.user.username, self.invalid_logins[0])
+
+
+class TestPreferences(TestCase):
+    fixtures = ['test_users']
+
+    def test_language_preferences(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('edit_profile')
+        response = self.client.get(url)
+        data = {
+            'username': 'test_user',
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': 'foo@bar.com',
+            'terms_accepted': True,
+            'preferred_language': 'pl',
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
+
+        self.client.logout()
+        self.assertTrue(self.client.login(username='test_user'))
+
+        response = self.client.get('/')
+        self.assertContains(response, 'Edycja profilu')
 
 
 @override_settings(LANGUAGE_CODE='pl')

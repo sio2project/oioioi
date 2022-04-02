@@ -51,6 +51,18 @@ class Consents(models.Model):
     )
 
 
+class UserPreferences(models.Model):
+    user = models.OneToOneField(
+        User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE
+    )
+
+    language = models.CharField(
+        max_length=2,
+        choices=list(settings.LANGUAGES) + [("", _("None"))],
+        default=""
+    )
+
+
 @receiver(post_save, sender=Consents)
 def _log_consent_change(sender, instance, created, raw, **kwargs):
     auditLogger.info(
