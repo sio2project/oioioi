@@ -1,6 +1,21 @@
-<div class="message-filter questions_filter">
-    <form enctype="multipart/form-data" class="form-inline">
+{% load i18n %}
+
+{% for error in all_errors %}
+    <div class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+        <span class="sr-only">{% trans "Error" %}:</span>
+        {{ error | escape }}
+    </div>
+{% endfor %}
+<div class="message-filter questions-filter">
+    <form enctype="multipart/form-data" class="navbar-form form-wide">
         {% include "ingredients/form.html" with focus=False inline=True %}
+        <div class="btn-group">
+            <button type="button" class="btn btn-default" onclick="location.href = location.origin + location.pathname"
+                    {% if are_all_values_default %} disabled {% endif %}>
+                {% trans "Clear filters" %}
+            </button>
+        </div>
     </form>
     <script>
         $(function() {

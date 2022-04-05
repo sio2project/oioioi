@@ -45,8 +45,7 @@ def visible_messages(request, author=None, category=None, kind=None):
     if author:
         q_expression = q_expression & Q(author=author)
     if category:
-        # pylint: disable=unpacking-non-sequence
-        category_type, category_id = category
+        category_type, _, category_id = category.partition('_')
         if category_type == 'p':
             q_expression = q_expression & Q(problem_instance__id=category_id)
         elif category_type == 'r':
@@ -120,30 +119,48 @@ def messages_template_context(request, messages):
 
 
 def process_filter_form(request):
-    if is_contest_basicadmin(request):
-        form = FilterMessageAdminForm(request, request.GET)
-    else:
-        form = FilterMessageForm(request, request.GET)
+    def create_form(*args, **kwargs):
+        if is_contest_basicadmin(request):
+            return FilterMessageAdminForm(request, *args, **kwargs)
+        else:
+            return FilterMessageForm(request, *args, **kwargs)
 
-    if form.is_valid():
-        category = form.cleaned_data['category']
-        author = form.cleaned_data.get('author')
-        message_type = form.cleaned_data.get(
-            'message_type', FilterMessageForm.TYPE_ALL_MESSAGES
-        )
-        message_kind = (
-            'PUBLIC'
-            if message_type == FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS
-            else None
-        )
-    else:
-        category = author = message_kind = None
+    form = create_form(request.GET)
+    form.is_valid()
+
+    category = form.cleaned_data.get('category')
+    author = form.cleaned_data.get('author')
+    message_type = form.cleaned_data.get(
+        'message_type', FilterMessageForm.TYPE_ALL_MESSAGES
+    )
+    message_kind = (
+        'PUBLIC'
+        if message_type == FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS
+        else None
+    )
+
+    all_errors = [
+        '%s: %s' % (form.fields[field].label, ','.join(errors))
+        for field, errors in form.errors.items()
+    ]
+    are_all_values_default = (
+        (not category or category == FilterMessageForm.TYPE_ALL_CATEGORIES)
+        and (not message_type or message_type == FilterMessageForm.TYPE_ALL_MESSAGES)
+        and not author
+    )
+    form = create_form(initial=form.cleaned_data)
+
     return (
-        form,
         {
             'author': author,
             'category': category,
             'kind': message_kind,
+        },
+        {
+            'form': form,
+            'display_labels': False,
+            'all_errors': all_errors,
+            'are_all_values_default': are_all_values_default,
         },
     )
 
@@ -157,7 +174,7 @@ def process_filter_form(request):
 )
 @enforce_condition(contest_exists & can_enter_contest)
 def messages_view(request):
-    form, vmsg_kwargs = process_filter_form(request)
+    vmsg_kwargs, template_kwargs = process_filter_form(request)
     messages = messages_template_context(
         request, visible_messages(request, **vmsg_kwargs)
     )
@@ -177,12 +194,12 @@ def messages_view(request):
         'questions/list.html',
         {
             'records': messages,
-            'form': form,
             'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
             'categories': get_categories(request),
             'already_subscribed': already_subscribed,
             'no_email': no_email,
             'onsite': request.contest.controller.is_onsite(),
+            **template_kwargs,
         },
     )
 
@@ -199,7 +216,7 @@ def all_messages_view(request):
             'needs_reply': m in unanswered,
         }
 
-    form, vmsg_kwargs = process_filter_form(request)
+    vmsg_kwargs, template_kwargs = process_filter_form(request)
     vmessages = visible_messages(request, **vmsg_kwargs)
     new_msgs = frozenset(new_messages(request, vmessages))
     unanswered = unanswered_questions(vmessages)
@@ -235,7 +252,7 @@ def all_messages_view(request):
         'questions/tree.html',
         {
             'tree_list': tree_list,
-            'form': form,
+            **template_kwargs,
         },
     )
 

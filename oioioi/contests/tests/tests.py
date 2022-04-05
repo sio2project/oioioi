@@ -2063,8 +2063,8 @@ class TestPermissionsBasicAdmin(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Message type')
-        self.assertContains(response, 'Category')
+        self.assertContains(response, 'All message types')
+        self.assertContains(response, 'All categories')
         self.assertContains(response, 'Author username')
 
         self.assertContains(response, 'Subscribe')

@@ -109,10 +109,11 @@ class ChangeContestMessageForm(AddContestMessageForm):
 class FilterMessageForm(forms.Form):
     TYPE_ALL_MESSAGES = 'all'
     TYPE_PUBLIC_ANNOUNCEMENTS = 'public'
+    TYPE_ALL_CATEGORIES = 'all'
 
     message_type = forms.ChoiceField(
         choices=[
-            (TYPE_ALL_MESSAGES, _("All messages")),
+            (TYPE_ALL_MESSAGES, _("All message types")),
             (TYPE_PUBLIC_ANNOUNCEMENTS, _("Public announcements")),
         ],
         label=_("Message type"),
@@ -123,13 +124,8 @@ class FilterMessageForm(forms.Form):
     def __init__(self, request, *args, **kwargs):
         super(FilterMessageForm, self).__init__(*args, **kwargs)
         choices = get_categories(request)
-        choices.insert(0, ('all', _("All")))
+        choices.insert(0, (self.TYPE_ALL_CATEGORIES, _("All categories")))
         self.fields['category'].choices = choices
-
-    def clean_category(self):
-        category = self.cleaned_data['category']
-        type, _, id = category.partition('_')
-        return type, id
 
 
 class FilterMessageAdminForm(FilterMessageForm):
@@ -140,3 +136,4 @@ class FilterMessageAdminForm(FilterMessageForm):
         self.fields['author'].hints_url = reverse(
             'get_messages_authors', kwargs={'contest_id': request.contest.id}
         )
+        self.fields['author'].widget.attrs['placeholder'] = _("Author username")
