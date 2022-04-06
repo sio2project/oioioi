@@ -1,35 +1,29 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: Python package
+name: Unit tests
 
 on:
   push:
-    branches: [ tw-workflows ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.7]
-
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.7
 
     - name: Install apt dependencies
-      run: |
-        sudo apt-get update && sudo apt-get install -y curl libpq-dev libdb-dev
-        sudo apt-get install -y fp-compiler fp-units-base fp-units-math
-        sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-pstricks texlive-luatex
+      run: sudo apt-get update
+      run: sudo apt-get install -y curl libpq-dev libdb-dev
+      run: sudo apt-get install -y fp-compiler fp-units-base fp-units-math
+      run: sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-pstricks texlive-luatex
 
     - name: Cache restore pip
       id: cache-pip
@@ -43,7 +37,7 @@ jobs:
     - name: Install pip dependencies
       run: |
         python -m pip install --upgrade pip wheel setuptools
-        pip install -U "setuptools<58.0.0"
+        pip install -U "setuptools<58.0.0"  # downgrade setuptools due to incompatible django-supervisor
         python setup.py install_egg_info
         pip install --upgrade -r requirements_py3.txt
 
