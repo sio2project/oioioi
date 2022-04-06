@@ -65,9 +65,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-29 17:07+0200\n"
+"POT-Creation-Date: 2022-04-06 15:42+0200\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
-"Last-Translator: Tomasz Waleń, 2022\n"
+"Last-Translator: Mieszko Grodzicki, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -747,6 +747,7 @@ msgstr "Działa na bazie <a href=\"https://www.github.com/sio2project/oioioi\">O
 #: plagiarism/templates/plagiarism/moss_submit.html:18 problems/models.py:298
 #: problems/templates/problems/manage-problem-package-files.html:10
 #: problems/templates/problems/replace-problem-statement.html:22
+#: questions/templates/questions/filter_form.html:6
 msgid "Error"
 msgstr "Błąd"
 
@@ -2825,7 +2826,7 @@ msgstr "Strona główna konkursu"
 #: questions/templates/questions/list.html:4
 #: questions/templates/questions/list.html:122
 #: questions/templates/questions/message.html:4
-#: questions/templates/questions/tree.html:4 questions/views.py:152
+#: questions/templates/questions/tree.html:4 questions/views.py:169
 #: simpleui/templates/simpleui/contest/contest.html:67
 msgid "Questions and news"
 msgstr "Pytania i ogłoszenia"
@@ -3352,7 +3353,7 @@ msgstr "\nZbanowany użytkownik ma zablokowane wszystkie interakcje z forum m.in
 #: forum/templates/forum/category.html:19 forum/templates/forum/forum.html:38
 #: forum/templates/forum/thread_add.html:5
 #: problems/templates/problems/files.html:12 questions/forms.py:21
-#: questions/forms.py:121 questions/templates/questions/list_table.html:31
+#: questions/forms.py:122 questions/templates/questions/list_table.html:31
 #: simpleui/templates/simpleui/contest/ingredients/questions.html:11
 msgid "Category"
 msgstr "Kategoria"
@@ -3858,7 +3859,7 @@ msgstr "kod języka"
 #: newsfeed/templates/newsfeed/news-add.html:4
 #: newsfeed/templates/newsfeed/news-add.html:7
 #: newsfeed/templates/newsfeed/newsfeed.html:4
-#: questions/templates/questions/list.html:101 questions/views.py:351
+#: questions/templates/questions/list.html:101 questions/views.py:368
 msgid "Add news"
 msgstr "Dodaj wiadomość"
 
@@ -4250,7 +4251,7 @@ msgstr "Jest zatwierdzony"
 
 #: oireports/forms.py:21 oireports/forms.py:45
 #: problems/templates/problems/problemset/base.html:23
-#: publicsolutions/forms.py:17 questions/forms.py:126
+#: publicsolutions/forms.py:17
 msgid "All"
 msgstr "Wszystkie"
 
@@ -6747,19 +6748,25 @@ msgstr "Nieznana kategoria."
 msgid "Save as template"
 msgstr "Zapisz jako szablon"
 
-#: questions/forms.py:115
-msgid "All messages"
-msgstr "Wszystkie wiadomości"
-
 #: questions/forms.py:116
+#| msgid "All messages"
+msgid "All message types"
+msgstr "Wszystkie rodzaje wiadomości"
+
+#: questions/forms.py:117
 msgid "Public announcements"
 msgstr "Publiczne ogłoszenia"
 
-#: questions/forms.py:118
+#: questions/forms.py:119
 msgid "Message type"
 msgstr "Typ wiadomości"
 
-#: questions/forms.py:136
+#: questions/forms.py:127
+#| msgid "categories"
+msgid "All categories"
+msgstr "Wszystkie kategorie"
+
+#: questions/forms.py:132 questions/forms.py:139
 msgid "Author username"
 msgstr "Login autora"
 
@@ -6870,6 +6877,10 @@ msgstr "Dodaj treść pytania"
 #: questions/templates/admin/questions/change_message.html:49
 msgid "History"
 msgstr "Historia"
+
+#: questions/templates/questions/filter_form.html:16
+msgid "Clear filters"
+msgstr "Wyczyść filtry"
 
 #: questions/templates/questions/list.html:16
 msgid "Subscribe"
@@ -7030,13 +7041,13 @@ msgstr "Zadanie %s"
 msgid "General, %s"
 msgstr "Ogólne, %s"
 
-#: questions/views.py:301
+#: questions/views.py:318
 #, python-format
 #| msgid "Re: "
 msgid "Re: %s"
 msgstr "Odp: %s"
 
-#: questions/views.py:353
+#: questions/views.py:370
 msgid "Ask question"
 msgstr "Zadaj pytanie"
 

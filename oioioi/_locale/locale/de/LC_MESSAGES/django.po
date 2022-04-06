@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-29 17:07+0200\n"
+"POT-Creation-Date: 2022-04-06 15:42+0200\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
 "Last-Translator: Michal Boron <beredentod@gmail.com>, 2019\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -692,6 +692,7 @@ msgstr "Von <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a> ang
 #: plagiarism/templates/plagiarism/moss_submit.html:18 problems/models.py:298
 #: problems/templates/problems/manage-problem-package-files.html:10
 #: problems/templates/problems/replace-problem-statement.html:22
+#: questions/templates/questions/filter_form.html:6
 msgid "Error"
 msgstr "Fehler"
 
@@ -2760,7 +2761,7 @@ msgstr ""
 #: questions/templates/questions/list.html:4
 #: questions/templates/questions/list.html:122
 #: questions/templates/questions/message.html:4
-#: questions/templates/questions/tree.html:4 questions/views.py:152
+#: questions/templates/questions/tree.html:4 questions/views.py:169
 #: simpleui/templates/simpleui/contest/contest.html:67
 msgid "Questions and news"
 msgstr ""
@@ -3271,7 +3272,7 @@ msgstr ""
 #: forum/templates/forum/category.html:19 forum/templates/forum/forum.html:38
 #: forum/templates/forum/thread_add.html:5
 #: problems/templates/problems/files.html:12 questions/forms.py:21
-#: questions/forms.py:121 questions/templates/questions/list_table.html:31
+#: questions/forms.py:122 questions/templates/questions/list_table.html:31
 #: simpleui/templates/simpleui/contest/ingredients/questions.html:11
 msgid "Category"
 msgstr ""
@@ -3777,7 +3778,7 @@ msgstr ""
 #: newsfeed/templates/newsfeed/news-add.html:4
 #: newsfeed/templates/newsfeed/news-add.html:7
 #: newsfeed/templates/newsfeed/newsfeed.html:4
-#: questions/templates/questions/list.html:101 questions/views.py:351
+#: questions/templates/questions/list.html:101 questions/views.py:368
 msgid "Add news"
 msgstr ""
 
@@ -4169,7 +4170,7 @@ msgstr ""
 
 #: oireports/forms.py:21 oireports/forms.py:45
 #: problems/templates/problems/problemset/base.html:23
-#: publicsolutions/forms.py:17 questions/forms.py:126
+#: publicsolutions/forms.py:17
 msgid "All"
 msgstr ""
 
@@ -6652,19 +6653,25 @@ msgstr ""
 msgid "Save as template"
 msgstr ""
 
-#: questions/forms.py:115
-msgid "All messages"
+#: questions/forms.py:116
+#| msgid "All messages"
+msgid "All message types"
 msgstr ""
 
-#: questions/forms.py:116
+#: questions/forms.py:117
 msgid "Public announcements"
 msgstr ""
 
-#: questions/forms.py:118
+#: questions/forms.py:119
 msgid "Message type"
 msgstr ""
 
-#: questions/forms.py:136
+#: questions/forms.py:127
+#| msgid "categories"
+msgid "All categories"
+msgstr ""
+
+#: questions/forms.py:132 questions/forms.py:139
 msgid "Author username"
 msgstr ""
 
@@ -6772,6 +6779,10 @@ msgstr ""
 
 #: questions/templates/admin/questions/change_message.html:49
 msgid "History"
+msgstr ""
+
+#: questions/templates/questions/filter_form.html:16
+msgid "Clear filters"
 msgstr ""
 
 #: questions/templates/questions/list.html:16
@@ -6933,13 +6944,13 @@ msgstr ""
 msgid "General, %s"
 msgstr ""
 
-#: questions/views.py:301
+#: questions/views.py:318
 #, python-format
 #| msgid "Re: "
 msgid "Re: %s"
 msgstr ""
 
-#: questions/views.py:353
+#: questions/views.py:370
 msgid "Ask question"
 msgstr ""
 
