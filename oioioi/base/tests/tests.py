@@ -1407,6 +1407,13 @@ class TestObtainingAPIToken(TestCase):
         self.assertNotContains(response, str(old_token))
 
 
+class TestDocsEndpoints(APITestCase):
+
+    def test_docs(self):
+        response = self.client.get('/api/docs', follow=True)
+        self.assertContains(response, "OIOIOI API")
+
+
 class TestPingEndpointsAndAuthentication(APITestCase):
     fixtures = ['test_users']
 
