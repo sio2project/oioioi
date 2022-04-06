@@ -20,10 +20,11 @@ jobs:
         python-version: 3.7
 
     - name: Install apt dependencies
-      run: sudo apt-get update
-      run: sudo apt-get install -y curl libpq-dev libdb-dev
-      run: sudo apt-get install -y fp-compiler fp-units-base fp-units-math
-      run: sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-pstricks texlive-luatex
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl libpq-dev libdb-dev
+        sudo apt-get install -y fp-compiler fp-units-base fp-units-math
+        sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-pstricks texlive-luatex
 
     - name: Cache restore pip
       id: cache-pip
