@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import six
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import ProtectedError
@@ -32,7 +31,7 @@ class UserGroup(models.Model):
     )
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
 
 class ActionConfig(models.Model):
@@ -85,4 +84,4 @@ class UserGroupRanking(models.Model):
         unique_together = ('contest', 'user_group')
 
     def __str__(self):
-        return six.text_type(self.user_group.name)
+        return str(self.user_group.name)

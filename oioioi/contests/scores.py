@@ -19,7 +19,6 @@
 """
 from functools import total_ordering
 
-import six
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -149,7 +148,7 @@ class IntegerScore(ScoreValue):
     symbol = 'int'
 
     def __init__(self, value=0):
-        assert isinstance(value, six.integer_types)
+        assert isinstance(value, int)
         self.value = value
 
     def __add__(self, other):
@@ -169,7 +168,7 @@ class IntegerScore(ScoreValue):
         return str(self.value)
 
     def __unicode__(self):
-        return six.text_type(self.value)
+        return str(self.value)
 
     def __repr__(self):
         return "IntegerScore(%s)" % (self.value,)

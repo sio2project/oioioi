@@ -1,4 +1,3 @@
-import six
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -44,7 +43,7 @@ class Participant(models.Model):
         unique_together = ('contest', 'user')
 
     def __str__(self):
-        return six.text_type(self.user)
+        return str(self.user)
 
     def erase_data(self):
         """Replaces (and saves) values of every field to values suggesting

@@ -9,7 +9,6 @@ from smtplib import SMTPException
 
 from django.core.mail import mail_admins
 from django.db import transaction
-from six.moves import range
 
 from oioioi.base.utils.db import require_transaction
 from oioioi.contests.models import (

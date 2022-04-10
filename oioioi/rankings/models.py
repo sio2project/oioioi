@@ -1,7 +1,6 @@
 import pickle
 from datetime import timedelta  # pylint: disable=E0611
 
-import six
 from django.conf import settings
 from django.db import models, transaction
 from django.utils import timezone

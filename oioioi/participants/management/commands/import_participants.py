@@ -1,6 +1,6 @@
 import os
 
-import six.moves.urllib.request
+import urllib.request
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DatabaseError, transaction
@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))
-            stream = six.moves.urllib.request.urlopen(arg)
+            stream = urllib.request.urlopen(arg)
         else:
             if not os.path.exists(arg):
                 raise CommandError(_("File not found: %s") % arg)
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 if line.startswith('#'):
                     continue
                 login = line
-                if not isinstance(login, six.text_type):
+                if not isinstance(login, str):
                     login = login.decode('utf8')
                 all_count += 1
 

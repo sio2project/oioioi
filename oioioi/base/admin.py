@@ -1,5 +1,4 @@
-import six
-import six.moves.urllib.parse
+import urllib.parse
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
@@ -64,7 +63,7 @@ class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
 
 
 class ModelAdmin(
-    six.with_metaclass(ModelAdminMeta, admin.ModelAdmin, ObjectWithMixins)
+    admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta
 ):
 
     # This is handled by AdminSite._reinit_model_admins
@@ -88,7 +87,7 @@ class ModelAdmin(
             request, object_id, form_url, extra_context
         )
         if isinstance(response, TemplateResponse) and 'came_from' in request.GET:
-            response.context_data['form_url'] += '?' + six.moves.urllib.parse.urlencode(
+            response.context_data['form_url'] += '?' + urllib.parse.urlencode(
                 {'came_from': request.GET.get('came_from')}
             )
         return response
@@ -334,7 +333,7 @@ class AdminSite(DjangoAdminSite):
     def login(self, request, extra_context=None):
         next_url = request.GET.get('next', None)
         suffix = (
-            '?' + six.moves.urllib.parse.urlencode({'next': next_url})
+            '?' + urllib.parse.urlencode({'next': next_url})
             if next_url
             else ''
         )
@@ -347,7 +346,7 @@ system_admin_menu_registry = MenuRegistry(_("System Administration"), is_superus
 side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
 
-class OioioiUserAdmin(six.with_metaclass(ModelAdminMeta, UserAdmin, ObjectWithMixins)):
+class OioioiUserAdmin(UserAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
     form = OioioiUserChangeForm
     add_form = OioioiUserCreationForm
 

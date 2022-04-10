@@ -1,4 +1,3 @@
-import six
 from django.conf import settings
 from django.urls import get_script_prefix
 from django.utils.functional import lazy
@@ -17,7 +16,7 @@ def side_menus(request):
     nonempty_menus = []
 
     for menu in menus:
-        if isinstance(menu, six.string_types):
+        if isinstance(menu, str):
             menu = import_string(menu)
 
         if menu.is_anything_accessible(request):
@@ -38,8 +37,8 @@ def gravatar(request):
     if request.user.is_authenticated:
 
         def generator():
-            return six.text_type(get_gravatar_url(request.user.email, size=25)) or ''
+            return str(get_gravatar_url(request.user.email, size=25)) or ''
 
-        return {'avatar': lazy(generator, six.text_type)()}
+        return {'avatar': lazy(generator, str)()}
     else:
         return {}

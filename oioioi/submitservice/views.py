@@ -8,7 +8,6 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from six.moves import range
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify

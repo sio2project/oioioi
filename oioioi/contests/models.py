@@ -1,7 +1,6 @@
 import itertools
 import os.path
 
-import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -115,7 +114,7 @@ class Contest(models.Model):
         )
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
 
 @receiver(pre_save, sender=Contest)
@@ -174,7 +173,7 @@ class ContestAttachment(models.Model):
         return strip_num_or_hash(self.filename)
 
     def __str__(self):
-        return six.text_type(self.filename)
+        return str(self.filename)
 
     class Meta(object):
         verbose_name = _("attachment")
@@ -254,7 +253,7 @@ class Round(models.Model):
         ordering = ('contest', 'start_date')
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
     def clean(self):
         if self.start_date and self.end_date and self.start_date > self.end_date:
@@ -509,7 +508,7 @@ class ScoreReport(models.Model):
     def get_score_display(self):
         if self.score is None:
             return ''
-        return six.text_type(self.score)
+        return str(self.score)
 
 
 class FailureReport(models.Model):
@@ -588,7 +587,7 @@ class RoundTimeExtension(models.Model):
         verbose_name_plural = _("round time extensions")
 
     def __str__(self):
-        return six.text_type(self.round) + u': ' + six.text_type(self.user)
+        return str(self.round) + u': ' + str(self.user)
 
 
 contest_permissions = EnumRegistry()

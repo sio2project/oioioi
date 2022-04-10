@@ -1,4 +1,3 @@
-import six
 from django import template
 from django.template import Node, TemplateSyntaxError
 from django.utils.module_loading import import_string
@@ -17,7 +16,7 @@ class GenerateMenuNode(Node):
         registry = self.registry.resolve(context)
         if not registry:
             registry = menu_registry
-        if isinstance(registry, six.string_types):
+        if isinstance(registry, str):
             registry = import_string(registry)
         if not isinstance(registry, MenuRegistry):
             raise TemplateSyntaxError(

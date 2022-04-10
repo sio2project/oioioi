@@ -1,5 +1,3 @@
-import six
-
 from django.conf import settings
 from django.urls import reverse
 from django.utils.functional import lazy
@@ -42,7 +40,7 @@ def dangling_problems_processor(request):
         text = text % {'count': count}
         return make_navbar_badge(link, text)
 
-    return {'extra_navbar_right_dangling_problems': lazy(generator, six.text_type)()}
+    return {'extra_navbar_right_dangling_problems': lazy(generator, str)()}
 
 
 def problemset_link_visible_processor(request):
@@ -73,7 +71,7 @@ def problems_need_rejudge_processor(request):
         return make_navbar_badge(link, text)
 
     return {
-        'extra_navbar_right_not_rejudged_problems': lazy(generator, six.text_type)()
+        'extra_navbar_right_not_rejudged_problems': lazy(generator, str)()
     }
 
 

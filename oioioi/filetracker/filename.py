@@ -1,8 +1,7 @@
-import six
 from filetracker.utils import split_name
 
 
-class FiletrackerFilename(six.text_type):
+class FiletrackerFilename(str):
     """A class inheriting from ``unicode`` used for versioned paths
     in Filetracker.
 
@@ -18,8 +17,8 @@ class FiletrackerFilename(six.text_type):
         # http://stackoverflow.com/questions/14783698/how-to-or-why-not-call-unicode-init-from-subclass
         if isinstance(versioned_name, FiletrackerFilename):
             versioned_name = versioned_name.versioned_name
-        versioned_name = six.text_type(versioned_name)
+        versioned_name = str(versioned_name)
         name, _version = split_name(versioned_name)
-        self = six.text_type.__new__(cls, name)
+        self = str.__new__(cls, name)
         self.versioned_name = versioned_name
         return self

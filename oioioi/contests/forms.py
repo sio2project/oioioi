@@ -1,6 +1,5 @@
 import json
 
-import six
 from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
@@ -157,7 +156,7 @@ class SubmissionForm(forms.Form):
         pis = self.get_problem_instances()
         if problem_filter:
             pis = problem_filter(pis)
-        pi_choices = [(pi.id, six.text_type(pi)) for pi in pis]
+        pi_choices = [(pi.id, str(pi)) for pi in pis]
 
         # init form with previously sent data
         super(SubmissionForm, self).__init__(*args, **kwargs)

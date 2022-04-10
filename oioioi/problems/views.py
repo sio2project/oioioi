@@ -6,7 +6,7 @@ from functools import wraps
 from itertools import groupby
 from operator import attrgetter
 
-import six.moves.urllib.parse
+import urllib.parse
 
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
@@ -197,7 +197,7 @@ def add_or_update_problem(request, contest, template):
 
     def build_link(tab):
         tab_link_params['key'] = tab.key
-        return request.path + '?' + six.moves.urllib.parse.urlencode(tab_link_params)
+        return request.path + '?' + urllib.parse.urlencode(tab_link_params)
 
     return tabbed_view(
         request,
@@ -265,7 +265,7 @@ def _get_problems_by_query(query):
     filtered_problems = Problem.objects.prefetch_related(prefetch).filter(
         Q(names__name__icontains=query)
         | Q(legacy_name__icontains=query)
-        | Q(ascii_name__icontains=unidecode(six.text_type(query)))
+        | Q(ascii_name__icontains=unidecode(str(query)))
         | Q(short_name__icontains=query),
         problemsite__isnull=False,
     )
@@ -603,7 +603,7 @@ def problem_site_view(request, site_key):
 
     def build_link(tab):
         tab_link_params['key'] = tab.key
-        return request.path + '?' + six.moves.urllib.parse.urlencode(tab_link_params)
+        return request.path + '?' + urllib.parse.urlencode(tab_link_params)
 
     return tabbed_view(
         request,
@@ -689,7 +689,7 @@ def problemset_add_or_update_problem_view(request):
             url = (
                 reverse('add_or_update_problem')
                 + '?'
-                + six.moves.urllib.parse.urlencode(request.GET.dict())
+                + urllib.parse.urlencode(request.GET.dict())
             )
             return safe_redirect(request, url)
         raise PermissionDenied
@@ -1083,7 +1083,7 @@ def _get_origintag_hints(queryset):
 
 def _convert_category_names(tags):
     for tag in tags:
-        tag['category'] = six.text_type(tag['category'])
+        tag['category'] = str(tag['category'])
 
 
 @jsonify

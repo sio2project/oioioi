@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import six
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 
@@ -17,14 +16,14 @@ class Command(BaseCommand):
         group.add_argument(
             '-c',
             '--contest',
-            type=six.text_type,
+            type=str,
             action='store',
             help="notifies all participants of a contest",
         )
         group.add_argument(
             '-u',
             '--user',
-            type=six.text_type,
+            type=str,
             action='store',
             help="notifies particular user",
         )
@@ -36,12 +35,12 @@ class Command(BaseCommand):
             help="make the notification pop-up automatically",
         )
         parser.add_argument(
-            '-a', '--address', type=six.text_type, action='store', help="adds a link"
+            '-a', '--address', type=str, action='store', help="adds a link"
         )
         parser.add_argument(
             '-d',
             '--details',
-            type=six.text_type,
+            type=str,
             action='store',
             help="adds message details",
         )

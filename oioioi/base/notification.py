@@ -4,7 +4,7 @@ import threading
 import time
 import uuid
 
-import six.moves.urllib.parse
+import urllib.parse
 from django.conf import settings
 from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 from pika.exceptions import AMQPChannelError, AMQPConnectionError
@@ -43,7 +43,7 @@ class NotificationHandler(logging.StreamHandler):
             < time.time() - NotificationHandler.conn_try_interval
         ):
             try:
-                o = six.moves.urllib.parse.urlparse(settings.NOTIFICATIONS_RABBITMQ_URL)
+                o = urllib.parse.urlparse(settings.NOTIFICATIONS_RABBITMQ_URL)
                 kwargs = {}
                 if o.hostname:
                     kwargs['host'] = o.hostname

@@ -1,6 +1,5 @@
 from django.db.models.signals import post_migrate, post_save
 from django.dispatch import receiver
-from six.moves import filter
 
 from oioioi.portals.models import Node
 from oioioi.portals.widgets import REGISTERED_WIDGETS

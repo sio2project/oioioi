@@ -1,9 +1,7 @@
 import re
 from datetime import datetime  # pylint: disable=E0611
 
-import six
-import six.moves.urllib.parse
-from six.moves import map, range, zip
+import urllib.parse
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
@@ -372,7 +370,7 @@ class TestPADivisions(TestCase):
         url = (
             reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
             + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'upload'})
+            + urllib.parse.urlencode({'key': 'upload'})
         )
 
         response = self.client.get(url)
@@ -394,7 +392,7 @@ class TestPADivisions(TestCase):
         url = (
             reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
             + '?'
-            + six.moves.urllib.parse.urlencode({'problem': problem.id, 'key': 'upload'})
+            + urllib.parse.urlencode({'problem': problem.id, 'key': 'upload'})
         )
         response = self.client.get(url)
         self.assertContains(response, '<option value="A" selected>A</option>')

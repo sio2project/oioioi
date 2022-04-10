@@ -9,7 +9,6 @@ from django.db.models.functions import Concat, Length, Substr
 import oioioi.contests.fields
 from oioioi.contests.scores import IntegerScore
 
-import six
 def smart_score_copier(apps, schema_editor):
     Contest = apps.get_model('contests', 'Contest')
     ProblemInstance = apps.get_model('contests', 'ProblemInstance')

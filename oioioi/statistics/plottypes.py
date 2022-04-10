@@ -1,6 +1,4 @@
-import six
 from django.template.loader import render_to_string
-from six.moves import zip
 
 
 class PlotType(object):
@@ -90,7 +88,7 @@ class StaticHighchartsPlot(PlotType):
                     options['%sAxis' % a][b] = data[key]
         # Setting axes titles
         if 'titles' in data:
-            for (key, title) in six.iteritems(data['titles']):
+            for (key, title) in data['titles'].items():
                 options.setdefault(key, {}).update({'title': {'text': title}})
         return options
 

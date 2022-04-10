@@ -4,8 +4,6 @@ import os.path
 import tempfile
 import warnings
 
-import six
-
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files import File
 from django.core.files.storage import Storage
@@ -70,7 +68,7 @@ class FiletrackerStorage(Storage):
         else:
             f = tempfile.NamedTemporaryFile()
             for chunk in content.chunks():
-                if six.PY3 and isinstance(chunk, str):
+                if isinstance(chunk, str):
                     chunk = chunk.encode('utf-8')
                 f.write(chunk)
             f.flush()

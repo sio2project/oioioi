@@ -28,9 +28,9 @@ class _FileDescriptor(files.FileDescriptor):
                 % (self.field.name, owner.__name__)
             )
         file = instance.__dict__[self.field.name]
-        if isinstance(file, six.string_types) and file == 'none':
+        if isinstance(file, str) and file == 'none':
             instance.__dict__[self.field.name] = None
-        elif isinstance(file, six.string_types) and file.startswith('data:'):
+        elif isinstance(file, str) and file.startswith('data:'):
             name, content = file.split(':', 2)[1:]
             if content.startswith('raw:'):
                 content = str(content[4:]).encode('ascii')

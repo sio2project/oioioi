@@ -2,7 +2,6 @@ import functools
 import logging
 from collections import defaultdict
 
-import six
 from django.conf import settings
 from django.db import transaction
 from django.urls import reverse
@@ -271,7 +270,7 @@ def run_tests(env, kind=None, **kwargs):
     """
     jobs = dict()
     not_to_judge = []
-    for test_name, test_env in six.iteritems(env['tests']):
+    for test_name, test_env in env['tests'].items():
         if kind and test_env['kind'] != kind:
             continue
         if not test_env['to_judge']:
@@ -312,7 +311,7 @@ def run_tests_end(env, **kwargs):
     del env['workers_jobs.not_to_judge']
     jobs = env['workers_jobs.results']
     env.setdefault('test_results', {})
-    for test_name, result in six.iteritems(jobs):
+    for test_name, result in jobs.items():
         env['test_results'].setdefault(test_name, {}).update(result)
     for test_name in not_to_judge:
         env['test_results'].setdefault(test_name, {}).update(env['tests'][test_name])
@@ -341,7 +340,7 @@ def grade_tests(env, **kwargs):
 
     fun = import_string(env.get('test_scorer') or settings.DEFAULT_TEST_SCORER)
     tests = env['tests']
-    for test_name, test_result in six.iteritems(env['test_results']):
+    for test_name, test_result in env['test_results'].items():
         if tests[test_name]['to_judge']:
             score, max_score, status = fun(tests[test_name], test_result)
             assert isinstance(score, (type(None), ScoreValue))
@@ -386,12 +385,12 @@ def grade_groups(env, **kwargs):
     """
 
     test_results = defaultdict(dict)
-    for test_name, test in six.iteritems(env['test_results']):
+    for test_name, test in env['test_results'].items():
         group_name = env['tests'][test_name]['group']
         test_results[group_name][test_name] = test
 
     env.setdefault('group_results', {})
-    for group_name, results in six.iteritems(test_results):
+    for group_name, results in test_results.items():
         if group_name in env['group_results']:
             continue
         fun = import_string(env.get('group_scorer', settings.DEFAULT_GROUP_SCORER))
@@ -410,10 +409,10 @@ def grade_groups(env, **kwargs):
         group_result['score'] = score and score.serialize()
         group_result['max_score'] = max_score and max_score.serialize()
         group_result['status'] = status
-        one_of_tests = env['tests'][next(six.iterkeys(results))]
+        one_of_tests = env['tests'][next(iter(results.keys()))]
         if not all(
             env['tests'][key]['kind'] == one_of_tests['kind']
-            for key in six.iterkeys(results)
+            for key in results.keys()
         ):
             raise ValueError(
                 "Tests in group '%s' have different kinds. "
@@ -461,7 +460,7 @@ def grade_submission(env, kind='NORMAL', **kwargs):
     else:
         group_results = dict(
             (name, res)
-            for (name, res) in six.iteritems(env['group_results'])
+            for (name, res) in env['group_results'].items()
             if res['kind'] == kind
         )
 
@@ -510,7 +509,7 @@ def _make_base_report(env, submission, kind):
     compilation_report.status = env['compilation_result']
     compilation_message = env['compilation_message']
 
-    if not isinstance(compilation_message, six.text_type):
+    if not isinstance(compilation_message, str):
         compilation_message = compilation_message.decode('utf8')
     compilation_report.compiler_output = compilation_message
     compilation_report.save()
@@ -543,7 +542,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
     tests = env['tests']
 
     test_results = env.get('test_results', {})
-    for test_name, result in six.iteritems(test_results):
+    for test_name, result in test_results.items():
         test = tests[test_name]
         if 'report_id' in result:
             continue
@@ -569,7 +568,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         result['report_id'] = test_report.id
 
     group_results = env.get('group_results', {})
-    for group_name, group_result in six.iteritems(group_results):
+    for group_name, group_result in group_results.items():
         if 'report_id' in group_result:
             continue
         group_report = GroupReport(submission_report=submission_report)
@@ -626,7 +625,7 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
     test_reports = TestReport.objects.filter(submission_report=submission_report)
     test_results = env.get('test_results', {})
 
-    for test_name, result in six.iteritems(test_results):
+    for test_name, result in test_results.items():
         try:
             testreport = test_reports.get(test_name=test_name)
         except (TestReport.DoesNotExist, TestReport.MultipleObjectsReturned):

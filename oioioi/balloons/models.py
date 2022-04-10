@@ -1,4 +1,3 @@
-import six
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -29,9 +28,9 @@ class ProblemBalloonsConfig(models.Model):
 
     def __str__(self):
         return (
-            six.text_type(self.problem_instance)
+            str(self.problem_instance)
             + u' ('
-            + six.text_type(self.color)
+            + str(self.color)
             + u')'
         )
 
@@ -53,7 +52,7 @@ class BalloonsDisplay(models.Model):
         verbose_name_plural = _("balloons displays")
 
     def __str__(self):
-        return six.text_type(self.ip_addr)
+        return str(self.ip_addr)
 
 
 

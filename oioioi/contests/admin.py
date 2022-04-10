@@ -1,7 +1,7 @@
 import threading
 from functools import partial
 
-import six.moves.urllib.parse
+import urllib.parse
 
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
@@ -366,7 +366,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def _problem_change_href(self, instance):
         came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
-        came_from_arg = six.moves.urllib.parse.urlencode({'came_from': came_from})
+        came_from_arg = urllib.parse.urlencode({'came_from': came_from})
         problem_change_base_href = reverse(
             'oioioiadmin:problems_problem_change', args=(instance.problem_id,)
         )
@@ -394,7 +394,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return (
             reverse('problemset_add_or_update')
             + '?'
-            + six.moves.urllib.parse.urlencode(
+            + urllib.parse.urlencode(
                 {'problem': instance.problem_id, 'key': 'upload'}
             )
         )
@@ -403,14 +403,14 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return (
             reverse('problem_site', args=(instance.problem.problemsite.url_key,))
             + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'replace_problem_statement'})
+            + urllib.parse.urlencode({'key': 'replace_problem_statement'})
         )
 
     def _package_manage_href(self, instance):
         return (
             reverse('problem_site', args=(instance.problem.problemsite.url_key,))
             + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'manage_files_problem_package'})
+            + urllib.parse.urlencode({'key': 'manage_files_problem_package'})
         )
 
     def _edit_quiz_href(self, instance):

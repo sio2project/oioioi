@@ -1,7 +1,7 @@
 import json
 
 import pytest
-import six.moves.urllib.parse
+import urllib.parse
 from django.urls import reverse
 
 from oioioi.base.tests import TestCase, TestsUtilsMixin
@@ -249,7 +249,7 @@ class TestZeusProblemUpload(TestCase):
         url = (
             reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
             + '?'
-            + six.moves.urllib.parse.urlencode({'key': 'zeus'})
+            + urllib.parse.urlencode({'key': 'zeus'})
         )
         data = {
             'package_file': open(filename, 'rb'),

@@ -2,12 +2,10 @@ import json
 import types
 from copy import copy
 
-import six
 from django import template
 from django.forms import CheckboxInput, CheckboxSelectMultiple, RadioSelect
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
-from six.moves import range, zip
 
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
@@ -217,7 +215,7 @@ def latex_escape(x):
     whether \write18 is disabled!
     http://www.texdev.net/2009/10/06/what-does-write18-mean/
     """
-    res = six.text_type(x)
+    res = str(x)
     # Braces + backslashes
     res = res.replace('\\', '\\textbackslash\\q{}')
     res = res.replace('{', '\\{')

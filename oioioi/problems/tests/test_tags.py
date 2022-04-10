@@ -1,6 +1,6 @@
 # coding: utf-8
 
-import six.moves.urllib.parse
+import urllib.parse
 
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
@@ -30,7 +30,7 @@ class TestAlgorithmTagsProposalHintsBase(TestCase):
 
     def get_query_url(self, parameters):
         return '{}?{}'.format(
-            reverse(self.view_name), six.moves.urllib.parse.urlencode(parameters)
+            reverse(self.view_name), urllib.parse.urlencode(parameters)
         )
 
 
@@ -137,7 +137,7 @@ class TestAlgorithmTagLabel(TestCase):
 
     def get_tag_labels(self, parameters):
         url = '{}?{}'.format(
-            reverse(self.view_name), six.moves.urllib.parse.urlencode(parameters)
+            reverse(self.view_name), urllib.parse.urlencode(parameters)
         )
         return self.client.get(url)
 
@@ -349,7 +349,7 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
     ]
 
     def get_query_url(self, parameters):
-        return self.url + '?' + six.moves.urllib.parse.urlencode(parameters)
+        return self.url + '?' + urllib.parse.urlencode(parameters)
 
     @override_settings(LANGUAGE_CODE="en")
     def test_search_hints_tags_basic(self):

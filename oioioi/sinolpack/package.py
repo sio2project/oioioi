@@ -11,7 +11,6 @@ import zipfile
 
 import chardet
 import six
-from six.moves import filter, map
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -62,7 +61,7 @@ PAS_EXTRA_ARGS = ['-Ci', '-Cr', '-Co', '-gl']
 
 
 def _stringify_keys(dictionary):
-    return dict((str(k), v) for k, v in six.iteritems(dictionary))
+    return dict((str(k), v) for k, v in dictionary.items())
 
 
 def _determine_encoding(title, file):
@@ -797,7 +796,7 @@ class SinolPackage(object):
             jobs = run_sioworkers_jobs(jobs)
             get_client().delete_file(env['compiled_file'])
 
-            for test_name, job in six.iteritems(jobs):
+            for test_name, job in jobs.items():
                 if job['result_code'] != 'OK':
                     raise ProblemPackageError(
                         _("Inwer failed on test %(test)s. Inwer output %(output)s")
@@ -1087,7 +1086,7 @@ class SinolPackage(object):
             max_score=0
         )
 
-        for group, score in six.iteritems(scores):
+        for group, score in scores.items():
             Test.objects.filter(
                 problem_instance=self.main_problem_instance, group=group
             ).update(max_score=score)
