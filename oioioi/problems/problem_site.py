@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-import six
 import sys
 import tempfile
 from collections import namedtuple
@@ -332,7 +331,7 @@ def _prepare_changed_package(request, form, archive, package_name):
     if len(request.FILES) != 1:
         form.add_error('file_replacement', _("File replacement not provided"))
         return None, None
-    uploaded_file = six.next(six.itervalues(request.FILES))
+    uploaded_file = next(request.FILES.values())
     if uploaded_file.name != os.path.basename(file_path):
         form.add_error(
             None, _("Original and replacement files must have the same name")

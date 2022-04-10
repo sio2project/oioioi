@@ -1,4 +1,3 @@
-import six
 from django.template import loader
 from django.urls import reverse
 from django.utils.functional import lazy
@@ -36,7 +35,7 @@ def logo_processor(request):
         template = loader.get_template('contestlogo/logo.html')
         return template.render(context)
 
-    return {'extra_menu_top_contestlogo': lazy(generator, six.text_type)()}
+    return {'extra_menu_top_contestlogo': lazy(generator, str)()}
 
 
 def icon_processor(request):

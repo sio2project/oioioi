@@ -2,14 +2,10 @@ import os
 import subprocess
 import warnings
 
-import six
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-if six.PY2:
-    FNULL = open(os.devnull, 'r+b')
-elif six.PY3:
-    FNULL = subprocess.DEVNULL
+FNULL = subprocess.DEVNULL
 
 
 class CaptchaAudioWarning(Warning):

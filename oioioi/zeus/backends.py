@@ -6,14 +6,12 @@ import logging
 import pprint
 import time
 
-import six
-import six.moves.http_client
-import six.moves.urllib.error
-import six.moves.urllib.parse
-import six.moves.urllib.request
+import http.client
+import urllib.error
+import urllib.parse
+import urllib.request
 from django.conf import settings
 from django.utils.module_loading import import_string
-from six.moves import range
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +49,7 @@ class Base64String(object):
         return str(self.string)
 
     def __unicode__(self):
-        return six.text_type(self.string)
+        return str(self.string)
 
     def __repr__(self):
         return 'Base64String(%s)' % self.string
@@ -77,9 +75,9 @@ def _json_base64_decode(o, wrap=False):
                 if wrap
                 else base64.b64decode(v)
             )
-            if isinstance(v, six.string_types)
+            if isinstance(v, str)
             else v
-            for (k, v) in six.iteritems(d)
+            for (k, v) in d.items()
         }
 
     return json.loads(o, object_hook=_dict_b64_decode)
@@ -91,14 +89,14 @@ def _get_key(dictionary, key):
     return dictionary[key]
 
 
-class EagerHTTPBasicAuthHandler(six.moves.urllib.request.BaseHandler):
+class EagerHTTPBasicAuthHandler(urllib.request.BaseHandler):
     def __init__(self, user, passwd):
         cred = '%s:%s' % (user, passwd)
         self.auth_string = 'Basic %s' % base64.b64encode(cred)
 
     def http_open(self, req):
         assert isinstance(
-            req, six.moves.urllib.request.Request
+            req, urllib.request.Request
         ), "Incorrect request type: %s" % type(req)
         if 'Authorization' not in req.headers:
             req.add_header('Authorization', self.auth_string)
@@ -111,8 +109,8 @@ class ZeusServer(object):
     def __init__(self, zeus_id, server_info):
         self.url, user, passwd = server_info
         auth_handler = EagerHTTPBasicAuthHandler(user, passwd)
-        self.opener = six.moves.urllib.request.build_opener(
-            auth_handler, six.moves.urllib.request.HTTPSHandler()
+        self.opener = urllib.request.build_opener(
+            auth_handler, urllib.request.HTTPSHandler()
         )
 
     def _send(self, url, data=None, retries=None, **kwargs):
@@ -123,13 +121,13 @@ class ZeusServer(object):
 
         assert retries > 0
 
-        req = six.moves.urllib.request.Request(url=url, data=data)  # POST
+        req = urllib.request.Request(url=url, data=data)  # POST
 
         for i in range(retries):
             try:
                 f = self.opener.open(req, timeout=timeout)
                 return f.getcode(), f.read()
-            except six.moves.urllib.error.HTTPError as e:
+            except urllib.error.HTTPError as e:
                 # Custom format for HTTPError,
                 # as default does not say anything.
                 fmt, args = "HTTPError(%s): %s", (str(e.code), str(e.reason))
@@ -137,8 +135,8 @@ class ZeusServer(object):
                 if i == retries - 1:
                     raise ZeusError(type(e), fmt % args)
             except (
-                six.moves.urllib.error.URLError,
-                six.moves.http_client.HTTPException,
+                urllib.error.URLError,
+                http.client.HTTPException,
             ) as e:
                 logger.error(
                     "%s exception while querying %s", url, type(e), exc_info=True
@@ -167,7 +165,7 @@ class ZeusServer(object):
     ):
         assert kind in ('INITIAL', 'NORMAL'), "Invalid kind: %s" % kind
         assert language in zeus_language_map, "Invalid language: %s" % language
-        url = six.moves.urllib.parse.urljoin(
+        url = urllib.parse.urljoin(
             self.url, 'dcj_problem/%d/submissions' % (zeus_problem_id,)
         )
         data = {

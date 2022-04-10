@@ -1,6 +1,5 @@
 import os.path
 
-import six
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models, transaction
@@ -108,7 +107,7 @@ class Test(models.Model):
         return self.problem_instance.problem
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
     class Meta(object):
         ordering = ['order']

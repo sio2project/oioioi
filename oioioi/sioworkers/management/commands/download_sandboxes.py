@@ -3,12 +3,11 @@ from __future__ import print_function
 import os
 import os.path
 
-import six.moves.urllib.error
-import six.moves.urllib.parse
-import six.moves.urllib.request
+import urllib.error
+import urllib.parse
+import urllib.request
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from six.moves import input
 
 from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.filetracker.client import get_client
@@ -97,7 +96,7 @@ class Command(BaseCommand):
         try:
             manifest_url = options['manifest_url']
             manifest = (
-                six.moves.urllib.request.urlopen(manifest_url).read().decode('utf-8')
+                urllib.request.urlopen(manifest_url).read().decode('utf-8')
             )
             manifest = manifest.strip().splitlines()
         except Exception as e:
@@ -105,13 +104,13 @@ class Command(BaseCommand):
 
         print("--- Looking for license ...", file=self.stdout)
         try:
-            license_url = six.moves.urllib.parse.urljoin(manifest_url, 'LICENSE')
+            license_url = urllib.parse.urljoin(manifest_url, 'LICENSE')
             license = (
-                six.moves.urllib.request.urlopen(license_url).read().decode('utf-8')
+                urllib.request.urlopen(license_url).read().decode('utf-8')
             )
             if not options['license_agreement']:
                 self.display_license(license)
-        except six.moves.urllib.error.HTTPError as e:
+        except urllib.error.HTTPError as e:
             if e.code != 404:
                 raise
 
@@ -133,7 +132,7 @@ class Command(BaseCommand):
                 raise CommandError(
                     "Sandbox '%s' not available (not in Manifest)" % (arg,)
                 )
-            urls.append(six.moves.urllib.parse.urljoin(manifest_url, basename))
+            urls.append(urllib.parse.urljoin(manifest_url, basename))
 
         filetracker = get_client()
 

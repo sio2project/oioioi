@@ -8,7 +8,6 @@ from __future__ import print_function
 import os
 import time
 
-import six
 from django.core.management.base import BaseCommand
 from django_extensions.management.shells import import_objects
 
@@ -147,16 +146,13 @@ class Command(BaseCommand):
                 pythonrc = os.environ.get("PYTHONSTARTUP")
                 if pythonrc and os.path.isfile(pythonrc):
                     try:
-                        six.exec_(
+                        exec(
                             compile(open(pythonrc).read(), pythonrc, 'exec'),
                             globals(),
                             locals(),
                         )
                     except NameError:
                         pass
-                if six.PY2:
-                    # This will import .pythonrc.py as a side-effect
-                    import user  # NOQA
             code.interact(local=imported_objects)
 
         def run_bpython():

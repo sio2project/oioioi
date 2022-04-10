@@ -1,6 +1,6 @@
 import logging
 
-import six.moves.urllib.parse
+import urllib.parse
 
 from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
@@ -604,7 +604,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
                 problem_view = (
                     reverse('oioioiadmin:problems_problem_change', args=(problem.id,))
                     + '?'
-                    + six.moves.urllib.parse.urlencode({'came_from': self.came_from()})
+                    + urllib.parse.urlencode({'came_from': self.came_from()})
                 )
                 actions.append((problem_view, _("Edit problem")))
         if instance.status == 'ERR' and instance.traceback:

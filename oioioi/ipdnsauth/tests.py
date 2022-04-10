@@ -2,7 +2,6 @@ import os
 import socket
 from datetime import datetime  # pylint: disable=E0611
 
-import six
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.utils.timezone import utc
@@ -43,7 +42,7 @@ class TestAutoAuthorization(TestCase):
         with fake_time(datetime(2012, 1, 1, 11, tzinfo=utc)):
             self.client.get('/c/c1/id')
             session = self.client.session
-            self.assertEqual(session['_auth_user_id'], six.text_type(user.id))
+            self.assertEqual(session['_auth_user_id'], str(user.id))
             self.assertEqual(
                 session['_auth_user_backend'], 'oioioi.ipdnsauth.backends.IpDnsBackend'
             )
@@ -87,7 +86,7 @@ class TestIpDnsManagement(TestCase):
             ('test_user', '127.0.0.3'),
             ('test_user2', 'fe80::762f:68ff:fedd:9bd8'),
         )
-        six.assertCountEqual(self, expected, loaded)
+        self.assertCountEqual(expected, loaded)
 
         manager.clear('ip', IpToUser.objects)
         loaded = manager.export_data('ip', IpToUser.objects)
@@ -108,7 +107,7 @@ class TestIpDnsManagement(TestCase):
             ('test_user', 'localhost'),
             ('test_user2', 'some.dotted.domain'),
         )
-        six.assertCountEqual(self, expected, loaded)
+        self.assertCountEqual(expected, loaded)
 
         manager.run_from_argv(['manage.py', 'ipdnsauth', 'dns', '--unload', filename])
         loaded = manager.export_data('dns', DnsToUser.objects)

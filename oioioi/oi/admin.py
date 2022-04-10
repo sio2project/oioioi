@@ -1,5 +1,4 @@
-import six
-import six.moves.urllib.parse
+import urllib.parse
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -48,7 +47,7 @@ class SchoolAdmin(admin.ModelAdmin):
         url = (
             reverse('oioioiadmin:oi_school_changelist')
             + '?'
-            + six.moves.urllib.parse.urlencode({'q': instance.postal_code})
+            + urllib.parse.urlencode({'q': instance.postal_code})
         )
         return make_html_link(url, instance.postal_code)
 
@@ -110,7 +109,7 @@ class SchoolAdmin(admin.ModelAdmin):
             valnames.setdefault(r.related_model, []).append(r.field.name)
 
         for s in toMerge:
-            for model, field_names in six.iteritems(valnames):
+            for model, field_names in valnames.items():
                 for field_name in field_names:
                     model.objects.filter(**{field_name: s}).update(
                         **{field_name: approved}

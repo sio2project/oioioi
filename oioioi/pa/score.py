@@ -1,8 +1,5 @@
 from functools import total_ordering
 
-import six
-from six.moves import range, zip
-
 from oioioi.contests.scores import IntegerScore, ScoreValue
 
 
@@ -86,7 +83,7 @@ class PAScore(ScoreValue):
         return (self.points, self.distribution) < (other.points, other.distribution)
 
     def __unicode__(self):
-        return six.text_type(self.points)
+        return str(self.points)
 
     def __repr__(self):
         return "PAScore(%r, %r)" % (self.points, self.distribution)

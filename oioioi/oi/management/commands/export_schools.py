@@ -1,6 +1,5 @@
 import csv
 
-import six
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 
@@ -18,7 +17,7 @@ class Command(BaseCommand):
         writer.writerow(COLUMNS)
         for school in School.objects.order_by('postal_code'):
             row = [
-                six.text_type(getattr(school, column)).encode('utf-8')
+                str(getattr(school, column)).encode('utf-8')
                 for column in COLUMNS
             ]
             writer.writerow(row)

@@ -1,5 +1,3 @@
-import six
-
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Case, F, Subquery, When
 from django.utils.translation import get_language
@@ -48,9 +46,7 @@ class ProblemNameListFilter(SimpleListFilter):
         return sorted(
             [
                 (legacy_name, display_name)
-                for legacy_name, display_name in six.iteritems(
-                    matched_problem_names_unique
-                )
+                for legacy_name, display_name in matched_problem_names_unique.items()
             ],
             key=lambda matched_names: matched_names[1].lower(),
         )

@@ -5,7 +5,6 @@ import uuid
 from django.db import transaction
 from django.test.utils import override_settings
 from django.urls import reverse
-from six.moves import range
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, Submission

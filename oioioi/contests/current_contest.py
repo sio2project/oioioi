@@ -3,7 +3,6 @@ import re
 import threading
 from enum import Enum
 
-import six
 from django.urls import NoReverseMatch
 from django.utils.functional import lazy
 
@@ -67,7 +66,7 @@ def reverse(target, *args, **kwargs):
     preprocessed. For that we created the
     :func:`~oioioi.contests.urls.make_patterns` function.
     """
-    if not isinstance(target, six.string_types):
+    if not isinstance(target, str):
         if callable(target):
             # It's not possible to reverse with callable view object
             # in namespace. As we use namespaces heavily and reversing with

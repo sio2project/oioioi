@@ -2,8 +2,7 @@ import mimetypes
 import urllib
 from wsgiref.util import FileWrapper
 
-import six
-import six.moves.urllib.parse
+import urllib.parse
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.http import StreamingHttpResponse
@@ -91,7 +90,7 @@ def make_content_disposition_header(disposition, filename):
     utf8_name = filename.encode('utf-8', 'ignore').strip()
     if utf8_name != ascii_name:
         # https://tools.ietf.org/html/rfc5987#section-3.2
-        utf8_quoted_name = six.moves.urllib.parse.quote(utf8_name, '')
+        utf8_quoted_name = urllib.parse.quote(utf8_name, '')
         header += b'; filename*=utf-8\'\'' + utf8_quoted_name.encode('utf-8')
 
     return header
@@ -109,7 +108,7 @@ def stream_file(django_file, name=None, showable=None):
     directions.
     """
     if name is None:
-        name = six.text_type(django_file.name.rsplit('/', 1)[-1])
+        name = str(django_file.name.rsplit('/', 1)[-1])
     content_type = mimetypes.guess_type(name)[0] or 'application/octet-stream'
     response = StreamingHttpResponse(
         FileWrapper(django_file), content_type=content_type

@@ -6,7 +6,6 @@ from operator import itemgetter  # pylint: disable=E0611
 from django.db.models import Count
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from six.moves import zip
 
 from oioioi.contests.models import (
     ScoreReport,

@@ -1,4 +1,3 @@
-import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured, ValidationError
@@ -47,7 +46,7 @@ class Node(MPTTModel):
         unique_together = ('parent', 'short_name')
 
     def __str__(self):
-        return six.text_type(self.get_lang_version().full_name)
+        return str(self.get_lang_version().full_name)
 
     def get_lang_version(self, request=None):
         """Tries to get a default language version for a current context (from

@@ -3,8 +3,6 @@ import types
 from collections import defaultdict
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
-import six
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.forms import modelformset_factory
@@ -124,7 +122,7 @@ def get_round_context(request, round_pk):
     for _, pi in problem_instances.items():
         scores = []
 
-        for score, users_with_score in six.iteritems(pi['users_with_score']):
+        for score, users_with_score in pi['users_with_score'].items():
             scores.append([score, users_with_score])
 
         if pi['tried_solving_count'] == 0:

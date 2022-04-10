@@ -1,8 +1,7 @@
 import csv
 import os
 
-import six
-import six.moves.urllib.request
+import urllib.request
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
@@ -34,7 +33,7 @@ class Command(BaseCommand):
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))
-            stream = six.moves.urllib.request.urlopen(arg)
+            stream = urllib.request.urlopen(arg)
         else:
             if not os.path.exists(arg):
                 raise CommandError(_("File not found: %s") % arg)
@@ -60,7 +59,7 @@ class Command(BaseCommand):
                 kwargs = {}
                 for i, column in enumerate(self.COLUMNS):
                     value = row[i]
-                    if not isinstance(value, six.text_type):
+                    if not isinstance(value, str):
                         value = value.decode('utf8')
                     if not value:
                         continue
@@ -81,7 +80,7 @@ class Command(BaseCommand):
                     )
                     ok = False
                 except ValidationError as e:
-                    for k, v in six.iteritems(e.message_dict):
+                    for k, v in e.message_dict.items():
                         for message in v:
                             if k == '__all__':
                                 self.stdout.write(

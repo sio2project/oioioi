@@ -1,5 +1,3 @@
-import six
-
 import django
 from django import forms
 from django.conf import settings
@@ -55,7 +53,7 @@ def _get_user_q_expression(substr, user_field_name=None):
 def _get_user_hints(substr, queryset, user_field_name=None):
     if substr is None:
         return None
-    substr = six.text_type(substr)
+    substr = str(substr)
     if len(substr) < 2:
         return None
     q_expression = _get_user_q_expression(substr, user_field_name)

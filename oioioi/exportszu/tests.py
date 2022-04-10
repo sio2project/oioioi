@@ -4,7 +4,7 @@ import tarfile
 import tempfile
 
 from django.core.management import call_command
-from six import BytesIO
+from io import BytesIO
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, Round

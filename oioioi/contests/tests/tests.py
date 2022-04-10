@@ -7,8 +7,6 @@ from functools import partial
 
 import pytest
 import pytz
-import six
-from six.moves import zip
 
 from django.conf import settings
 from django.contrib.admin.utils import quote
@@ -109,7 +107,7 @@ class TestScores(TestCase):
         self.assertGreater(s2, s1)
         self.assertEqual(s1, IntegerScore(1))
         self.assertEqual((s1 + s2).value, 3)
-        self.assertEqual(six.text_type(s1), '1')
+        self.assertEqual(str(s1), '1')
         self.assertEqual(IntegerScore._from_repr(s1._to_repr()), s1)
 
     def test_score_field(self):
@@ -3094,7 +3092,7 @@ class TestAPISubmitBase(APITestCase):
     def _assertSubmitted(self, response, i=None):
         self.assertEqual(response.status_code, 200)
         if i is not None:
-            self.assertEqual(six.text_type(i), response.content.decode('utf-8'))
+            self.assertEqual(str(i), response.content.decode('utf-8'))
         Submission.objects.get(id=response.content)
 
 

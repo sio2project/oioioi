@@ -1,4 +1,3 @@
-import six
 from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
@@ -186,7 +185,7 @@ class QuizProblemController(ProblemController):
             answers = {
                 a.id: a.id in selected_answers for a in question.quizanswer_set.all()
             }
-            for aid, selected in six.iteritems(answers):
+            for aid, selected in answers.items():
                 answer = QuizAnswer.objects.get(id=aid)
                 sub = QuizSubmissionAnswer.objects.create(
                     quiz_submission=submission, answer=answer, is_selected=selected

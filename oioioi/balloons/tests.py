@@ -4,7 +4,6 @@ from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.timezone import utc
-from six.moves import range
 
 from oioioi.balloons.models import BalloonDelivery, BalloonsDeliveryAccessData
 from oioioi.base.tests import TestCase, fake_time

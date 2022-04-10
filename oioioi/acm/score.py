@@ -1,6 +1,5 @@
 from functools import total_ordering
 
-import six
 from django.utils.translation import gettext as _
 
 from oioioi.contests.scores import ScoreValue
@@ -121,12 +120,12 @@ class ACMScore(ScoreValue):
             time_string = self.time_passed_repr()
             if penalty_string != '':
                 time_string += ' '
-        return six.text_type(time_string + penalty_string)
+        return str(time_string + penalty_string)
 
     def csv_repr(self):
         if self.problems_solved == 0:
             return ''
-        return six.text_type(self.penalties_count)
+        return str(self.penalties_count)
 
     def penalty_repr(self):
         if self.penalties_count <= 3:

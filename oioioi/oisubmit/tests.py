@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
-import six
 from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.utils.timezone import get_current_timezone, utc
@@ -82,7 +81,7 @@ class OISubmitFileMixin(object):
 
     def _assertFormError(self, response, submission_number, error):
         self._assertNotSubmitted(response, submission_number)
-        self.assertIn(six.text_type(error), response.json()['comment'])
+        self.assertIn(str(error), response.json()['comment'])
 
 
 class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
@@ -113,7 +112,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 response,
                 submission_number,
                 suspected_number,
-                six.text_type(SUSPICION_REASONS['BEFORE_START']),
+                str(SUSPICION_REASONS['BEFORE_START']),
             )
 
         dt = datetime(2012, 7, 31, tzinfo=utc)
@@ -146,7 +145,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 response,
                 submission_number,
                 suspected_number,
-                six.text_type(SUSPICION_REASONS['AFTER_END']),
+                str(SUSPICION_REASONS['AFTER_END']),
             )
 
         dt = datetime(2012, 8, 9, tzinfo=utc)
@@ -169,7 +168,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 response,
                 submission_number,
                 suspected_number,
-                six.text_type(SUSPICION_REASONS['TIMES_DIFFER']),
+                str(SUSPICION_REASONS['TIMES_DIFFER']),
             )
 
         dt = datetime(2012, 8, 9, tzinfo=utc)
@@ -183,7 +182,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 response,
                 submission_number,
                 suspected_number,
-                six.text_type(SUSPICION_REASONS['TIMES_DIFFER']),
+                str(SUSPICION_REASONS['TIMES_DIFFER']),
             )
 
     def test_huge_submission(self):
@@ -216,7 +215,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 response,
                 submission_number + 1,
                 suspected_number,
-                six.text_type(SUSPICION_REASONS['SLE']),
+                str(SUSPICION_REASONS['SLE']),
             )
 
     def _assertUnsupportedExtension(self, contest, pi, name, ext):

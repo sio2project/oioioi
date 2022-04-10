@@ -1,4 +1,3 @@
-import six
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
 
@@ -27,6 +26,6 @@ def status_processor(request):
     # unoptimized, grey database queries!
 
     return {
-        'extra_footer_outdated': lazy(outdated_generator, six.text_type)(),
-        'extra_footer_status': lazy(status_generator, six.text_type)(),
+        'extra_footer_outdated': lazy(outdated_generator, str)(),
+        'extra_footer_status': lazy(status_generator, str)(),
     }

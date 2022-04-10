@@ -3,7 +3,6 @@ import random
 import socket
 from smtplib import SMTPException
 
-import six
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.db import transaction
@@ -241,7 +240,7 @@ def update_problem_tests_set(env, kind, **kwargs):
 
     env_tests = {
         key: value
-        for key, value in six.iteritems(env['tests'])
+        for key, value in env['tests'].items()
         if value['kind'] == kind
     }
     test_names = list(env_tests.keys())

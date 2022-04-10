@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from importlib import import_module
 
 import six
-import six.moves.urllib.parse
+import urllib.parse
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -34,7 +34,7 @@ class ClassInitMeta(type):
         cls.__classinit__()
 
 
-class ClassInitBase(six.with_metaclass(ClassInitMeta, object)):
+class ClassInitBase(object, metaclass=ClassInitMeta):
     """Abstract base class injecting ClassInitMeta meta class."""
 
     @classmethod
@@ -132,7 +132,7 @@ class RegisteredSubclassesBase(ClassInitBase):
         from django.conf import settings
 
         modules_to_load = getattr(cls, 'modules_with_subclasses', [])
-        if isinstance(modules_to_load, six.string_types):
+        if isinstance(modules_to_load, str):
             modules_to_load = [modules_to_load]
         for app_module in list(settings.INSTALLED_APPS):
             for name in modules_to_load:
@@ -439,7 +439,7 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
         qs = request.GET.dict()
         qs['key'] = next(iter(tabs)).key
         return HttpResponseRedirect(
-            request.path + '?' + six.moves.urllib.parse.urlencode(qs)
+            request.path + '?' + urllib.parse.urlencode(qs)
         )
     key = request.GET['key']
     for tab in tabs:

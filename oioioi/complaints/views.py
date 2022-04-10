@@ -1,7 +1,7 @@
 import urllib
 from uuid import uuid4
 
-import six.moves.urllib.parse
+import urllib.parse
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.mail import EmailMessage
@@ -63,7 +63,7 @@ def email_template_context(request, message):
         'submissions_link': request.build_absolute_uri(
             reverse('oioioiadmin:contests_submission_changelist')
             + '?'
-            + six.moves.urllib.parse.urlencode(
+            + urllib.parse.urlencode(
                 {'user__username': request.user.username}
             )
         ),

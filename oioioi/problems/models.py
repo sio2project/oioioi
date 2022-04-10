@@ -3,8 +3,6 @@ import os.path
 from contextlib import contextmanager
 from traceback import format_exception
 
-import six
-
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import validators
@@ -168,7 +166,7 @@ class Problem(models.Model):
         }
 
     def save(self, *args, **kwargs):
-        self.ascii_name = unidecode(six.text_type(self.name))
+        self.ascii_name = unidecode(str(self.name))
         super(Problem, self).save(*args, **kwargs)
 
 
@@ -211,7 +209,7 @@ class ProblemName(models.Model):
         verbose_name_plural = _("problem names")
 
     def __str__(self):
-        return six.text_type("{} - {}".format(self.problem, self.language))
+        return str("{} - {}".format(self.problem, self.language))
 
 
 class ProblemStatement(models.Model):
@@ -467,7 +465,7 @@ class ProblemSite(models.Model):
     url_key = models.CharField(max_length=40, unique=True)
 
     def __str__(self):
-        return six.text_type(self.problem)
+        return str(self.problem)
 
     class Meta(object):
         verbose_name = _("problem site")
@@ -586,7 +584,7 @@ class OriginTag(models.Model):
         verbose_name_plural = _("origin tags")
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
 
 
@@ -626,7 +624,7 @@ class OriginTagLocalization(models.Model):
         verbose_name_plural = _("origin tag localizations")
 
     def __str__(self):
-        return six.text_type("{} - {}".format(self.origin_tag, self.language))
+        return str("{} - {}".format(self.origin_tag, self.language))
 
 
 @_localized('full_name')
@@ -682,7 +680,7 @@ class OriginInfoCategory(models.Model):
         unique_together = ('name', 'parent_tag')
 
     def __str__(self):
-        return six.text_type("{}_{}".format(self.parent_tag, self.name))
+        return str("{}_{}".format(self.parent_tag, self.name))
 
 
 
@@ -705,7 +703,7 @@ class OriginInfoCategoryLocalization(models.Model):
         verbose_name_plural = _("origin info category localizations")
 
     def __str__(self):
-        return six.text_type("{} - {}".format(self.origin_info_category, self.language))
+        return str("{} - {}".format(self.origin_info_category, self.language))
 
 
 @_localized('full_value')
@@ -775,11 +773,11 @@ class OriginInfoValue(models.Model):
     @property
     def name(self):
         # Should be unique due to unique constraints on value and parent_tag.name
-        return six.text_type('{}_{}'.format(self.parent_tag, self.value))
+        return str('{}_{}'.format(self.parent_tag, self.value))
 
     @property
     def full_name(self):
-        return six.text_type(
+        return str(
             u'{} {}'.format(self.parent_tag.full_name, self.full_value)
         )
 
@@ -789,7 +787,7 @@ class OriginInfoValue(models.Model):
         verbose_name_plural = _("origin tags - information values")
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
 
 
@@ -812,7 +810,7 @@ class OriginInfoValueLocalization(models.Model):
         verbose_name_plural = _("origin info value localizations")
 
     def __str__(self):
-        return six.text_type("{} - {}".format(self.origin_info_value, self.language))
+        return str("{} - {}".format(self.origin_info_value, self.language))
 
 
 @_localized('full_name')
@@ -837,7 +835,7 @@ class DifficultyTag(models.Model):
         verbose_name_plural = _("difficulty tags")
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
 
 
@@ -847,7 +845,7 @@ class DifficultyTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return six.text_type(self.tag.name)
+        return str(self.tag.name)
 
 
 
@@ -870,7 +868,7 @@ class DifficultyTagLocalization(models.Model):
         verbose_name_plural = _("difficulty tag localizations")
 
     def __str__(self):
-        return six.text_type("{} - {}".format(self.difficulty_tag, self.language))
+        return str("{} - {}".format(self.difficulty_tag, self.language))
 
 
 
@@ -880,7 +878,7 @@ class DifficultyTagProposal(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
+        return str(self.problem.name) + u' -- ' + str(self.tag.name)
 
     class Meta(object):
         verbose_name = _("difficulty proposal")
@@ -909,7 +907,7 @@ class AlgorithmTag(models.Model):
         verbose_name_plural = _("algorithm tags")
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
 
 
@@ -919,7 +917,7 @@ class AlgorithmTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return six.text_type(self.tag.name)
+        return str(self.tag.name)
 
     class Meta(object):
         unique_together = ('problem', 'tag')
@@ -945,7 +943,7 @@ class AlgorithmTagLocalization(models.Model):
         verbose_name_plural = _("algorithm tag localizations")
 
     def __str__(self):
-        return six.text_type("{} - {}".format(self.algorithm_tag, self.language))
+        return str("{} - {}".format(self.algorithm_tag, self.language))
 
 
 
@@ -955,7 +953,7 @@ class AlgorithmTagProposal(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
+        return str(self.problem.name) + u' -- ' + str(self.tag.name)
 
     class Meta(object):
         verbose_name = _("algorithm tag proposal")

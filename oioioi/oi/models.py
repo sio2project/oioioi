@@ -2,7 +2,7 @@
 import difflib
 import urllib
 
-import six.moves.urllib.parse
+import urllib.parse
 from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
@@ -104,7 +104,7 @@ class School(models.Model):
     def get_participants_url(self):
         url = reverse('oioioiadmin:participants_participant_changelist')
         query = (self.postal_code + ' ' + self.name).encode('utf8')
-        return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
+        return url + '?' + urllib.parse.urlencode({'q': query})
 
     def is_similar(self, instance):
         ratio = difflib.SequenceMatcher(

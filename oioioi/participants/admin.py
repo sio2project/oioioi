@@ -1,4 +1,3 @@
-import six
 from django.contrib.admin import RelatedFieldListFilter, SimpleListFilter
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
@@ -324,7 +323,7 @@ class RegionFilter(RelatedFieldListFilter):
     def __init__(self, field, request, *args, **kwargs):
         super(RegionFilter, self).__init__(field, request, *args, **kwargs)
         contest = request.contest
-        self.lookup_choices = [(r.id, six.text_type(r)) for r in contest.regions.all()]
+        self.lookup_choices = [(r.id, str(r)) for r in contest.regions.all()]
 
 
 class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):

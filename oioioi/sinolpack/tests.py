@@ -4,8 +4,8 @@ import os.path
 import zipfile
 
 import pytest
-import six.moves.urllib.parse
-from six import BytesIO
+import urllib.parse
+from io import BytesIO
 from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
@@ -285,7 +285,7 @@ class TestSinolPackage(TestCase):
         url = (
             reverse('add_or_update_problem')
             + '?'
-            + six.moves.urllib.parse.urlencode({'problem': problem.id})
+            + urllib.parse.urlencode({'problem': problem.id})
         )
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -628,7 +628,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         url = (
             reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
             + '?'
-            + six.moves.urllib.parse.urlencode({'problem': problem_instance.problem.id})
+            + urllib.parse.urlencode({'problem': problem_instance.problem.id})
         )
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
