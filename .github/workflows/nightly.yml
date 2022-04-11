@@ -33,4 +33,4 @@ jobs:
 
     - name: Run tests
       run: |
-        ./test3.sh --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v
+        ./test.sh --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v

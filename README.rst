@@ -98,11 +98,11 @@ Remember to also uncomment the appropriate volume binding in the web service des
 Running tests on Docker
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-For testing purposes we use test3.sh script located in oioioi directory. Note it's not the same directory
+For testing purposes we use test.sh script located in oioioi directory. Note it's not the same directory
 you are connected to after using docker exec -it “web” /bin/bash. The default container id that you should use for running tests is "web"::
 
-    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "web" ../oioioi/test3.sh
-    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "web" ../oioioi/test3.sh oioioi/{name_of_the_app}/
+    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "web" ../oioioi/test.sh
+    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
 
 Running static code analysis tools locally (requires Docker)
 ~~~~~~~~~~~~~~~~~~~~~~~

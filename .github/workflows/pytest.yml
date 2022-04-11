@@ -44,4 +44,4 @@ jobs:
 
     - name: Run tests
       run: |
-        ./test3.sh --migrations
+        ./test.sh --migrations
