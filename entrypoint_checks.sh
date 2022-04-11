@@ -21,7 +21,7 @@ case "$cmd" in
     pylint)
       echo "pylint"
       for f in $args; do
-        OUT=$(python2 -m pylint --rcfile=.pylintrc -r n -f text --msg-template='{line}:{msg_id} {msg}' $f 2>/dev/null)
+        OUT=$(python3 -m pylint --rcfile=.pylintrc -r n -f text --msg-template='{line}:{msg_id} {msg}' $f 2>/dev/null)
         OUT=$(echo -n "$OUT" | grep '^[0-9][0-9]*:')
         [ "$OUT" ] && printf "\n$f\n$OUT\n"
       done;
@@ -29,7 +29,7 @@ case "$cmd" in
     pep8)
     echo "pep8"
     for f in $args; do
-      OUT=$(python2 -m pep8 --config=.pep8rc $f)
+      OUT=$(python3 -m pep8 --config=.pep8rc $f)
       [ "$OUT" ] && printf "\n$f\n$OUT\n"
     done;
     ;;

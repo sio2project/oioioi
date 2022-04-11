@@ -11,7 +11,7 @@ mkdir -pv /sio2/deployment/logs/database
 
 echo "LOG: Launching worker at `hostname`"
 export FILETRACKER_URL="http://web:9999"
-exec python2 $(which twistd) --nodaemon --pidfile=/home/oioioi/worker.pid \
+exec python3 $(which twistd) --nodaemon --pidfile=/home/oioioi/worker.pid \
         -l /sio2/deployment/logs/worker`hostname`.log worker \
         --can-run-cpu-exec \
         -n worker`hostname` -c 2 web \
