@@ -486,7 +486,7 @@ class TestProblemChangeForm(TestCase):
         self.assertContains(response, 'Advanced </button>')
         self.assertContains(response, 'Tags </button>')
         self.assertContains(response, "Problem names")
-        self.assertContains(response, "Quizzes")
+        self.assertContains(response, "Quiz")
         self.assertNotContains(response, 'None </button>')
 
 

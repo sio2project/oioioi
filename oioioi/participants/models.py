@@ -144,7 +144,6 @@ class TestRegistration(RegistrationModel):
     name = models.CharField(max_length=255)
 
 
-
 class TermsAcceptedPhrase(models.Model):
     """This model stores text asking user to accept contest's terms.
 
@@ -161,7 +160,7 @@ class TermsAcceptedPhrase(models.Model):
     class Meta(object):
         # In StackedInline verbose_name_plural is used as a header of inline.
         verbose_name_plural = _("text asking participant to accept contest terms")
-        verbose_name = _("text")
+        verbose_name = _("text asking participant to accept contest terms")
 
     # This is used as a name of the given object displayed in TabularInline.
     # We are using it to display only one object of type TermsAcceptedPhrase so

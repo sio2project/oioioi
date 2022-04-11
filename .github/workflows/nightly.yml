@@ -22,7 +22,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y curl libpq-dev libdb-dev
         sudo apt-get install -y fp-compiler fp-units-base fp-units-math
-        sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-pstricks texlive-luatex
+        sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-lang-czechslovak texlive-latex-extra texlive-pstricks texlive-luatex
 
     - name: Install pip dependencies
       run: |
@@ -33,4 +33,5 @@ jobs:
 
     - name: Run tests
       run: |
-        ./test3.sh --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow
+
+        ./test3.sh --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v
