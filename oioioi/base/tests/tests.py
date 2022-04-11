@@ -1521,3 +1521,10 @@ class TestAccountDeletion(TestCase):
         self.client.post(reverse('delete_account'))
         user = User.objects.get(username=self.user.username)
         self.assertTrue(user.is_active)
+
+
+class TestJsCatalog(TestCase):
+
+    def test_javascript_catalog(self):
+        response = self.client.get(reverse('javascript_catalog'))
+        self.assertContains(response, 'jsi18n_initialized')
