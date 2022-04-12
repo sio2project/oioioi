@@ -389,7 +389,7 @@ class DefaultRankingController(RankingController):
             .select_related('problem')
             .prefetch_related('round')
         )
-        users = self.filter_users_for_ranking(key, User.objects.all())
+        users = self.filter_users_for_ranking(key, User.objects.all()).distinct()
         results = (
             UserResultForProblem.objects.filter(
                 problem_instance__in=pis, user__in=users
