@@ -53,7 +53,7 @@
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # Tomasz Waleń, 2022
-# Tudny, 2022
+# Aleksander Tudruj, 2022
 # Tymoteusz Wiśniewski <tymo@tymo.xyz>, 2020-2021
 # welter <macio92@gmail.com>, 2013
 # Wiktor Czyż <czyz.wiktor@gmail.com>, 2020
@@ -65,7 +65,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-06 15:42+0200\n"
+"POT-Creation-Date: 2022-04-11 17:33+0200\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
 "Last-Translator: Mieszko Grodzicki, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -335,9 +335,9 @@ msgid "IP address"
 msgstr "adres IP"
 
 #: balloons/models.py:46 balloons/models.py:61 base/models.py:43
-#: contests/models.py:429 disqualification/models.py:15 evalmgr/admin.py:20
-#: forum/models.py:284 mailsubmit/models.py:31 teachers/models.py:24
-#: teams/models.py:16
+#: base/models.py:56 contests/models.py:429 disqualification/models.py:15
+#: evalmgr/admin.py:20 forum/models.py:284 mailsubmit/models.py:31
+#: teachers/models.py:24 teams/models.py:16
 msgid "user"
 msgstr "użytkownik"
 
@@ -575,17 +575,17 @@ msgstr "Menu konta"
 msgid "Personal Menu"
 msgstr "Twoje menu"
 
-#: base/middleware.py:142
+#: base/middleware.py:145
 #, python-format
 msgid "Your login - %(login)s - contains forbidden characters. "
 msgstr "Twoja nazwa użytkownika - %(login)s - zawiera niedozwolone znaki."
 
-#: base/middleware.py:146
+#: base/middleware.py:149
 #, python-format
 msgid "Your name - %(name)s %(surname)s - contains forbidden characters. "
 msgstr "W Twoim imieniu i nazwisku - %(name)s %(surname)s - znajdują się niedozwolne znaki."
 
-#: base/middleware.py:150
+#: base/middleware.py:153
 #, python-format
 #| msgid ""
 #| "ogin - %(login)s - contains forbidden characters. Please click <a "
@@ -595,7 +595,7 @@ msgid ""
 "while."
 msgstr "Kliknij <a href='%(link)s'>tutaj</a> aby je zmienić. To zajmie tylko chwilę."
 
-#: base/models.py:45 default_settings.py:541 oi/forms.py:101 oi/models.py:149
+#: base/models.py:45 default_settings.py:542 oi/forms.py:101 oi/models.py:149
 #: pa/models.py:49 participants/models.py:102
 msgid "terms accepted"
 msgstr "Znam i akceptuję regulamin"
@@ -607,6 +607,11 @@ msgstr "zgoda na marketing własny"
 #: base/models.py:50
 msgid "third-party marketing consent"
 msgstr "zgoda na marketing stron trzecich"
+
+#: base/models.py:61 pa/controllers.py:163 pa/controllers.py:327
+#: pa/models.py:68
+msgid "None"
+msgstr "Brak"
 
 #: base/setup_check.py:18
 #, python-format
@@ -915,7 +920,7 @@ msgstr "Zmiana hasła"
 msgid "Password changed."
 msgstr "Hasło zostało zmienione."
 
-#: base/templates/registration/password_change_form.html:3 base/views.py:29
+#: base/templates/registration/password_change_form.html:3 base/views.py:31
 msgid "Change password"
 msgstr "Zmień hasło"
 
@@ -1330,15 +1335,15 @@ msgstr "Wpisz poprawny ciąg znaków składający się wyłącznie z małych lit
 msgid "Enter a valid value."
 msgstr "Wprowadź poprawną wartość."
 
-#: base/views.py:35
+#: base/views.py:37
 msgid "Two factor authentication"
 msgstr "Weryfikacja dwuetapowa"
 
-#: base/views.py:97
+#: base/views.py:128
 msgid "Edit profile"
 msgstr "Edycja profilu"
 
-#: base/views.py:123
+#: base/views.py:159
 msgid "Log out"
 msgstr "Wyloguj"
 
@@ -4395,10 +4400,6 @@ msgstr "A"
 msgid "B"
 msgstr "B"
 
-#: pa/controllers.py:163 pa/controllers.py:327 pa/models.py:68
-msgid "None"
-msgstr "Brak"
-
 #: pa/controllers.py:180 pa/models.py:75 pa/models.py:78
 msgid "Division"
 msgstr "Liga"
@@ -4594,11 +4595,11 @@ msgstr "numer lokalny"
 msgid "%(number)s/%(region)s/%(local_number)s"
 msgstr "%(number)s/%(region)s/%(local_number)s"
 
-#: participants/models.py:154 participants/models.py:164
+#: participants/models.py:153
 msgid "text"
 msgstr "tekst"
 
-#: participants/models.py:163
+#: participants/models.py:162 participants/models.py:163
 msgid "text asking participant to accept contest terms"
 msgstr "Tekst proszący uczestnika o zaakceptowanie regulaminu."
 
