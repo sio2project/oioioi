@@ -22,18 +22,6 @@
             <label class="control-label">
                 {{ field }} {{ field.label }}
             </label>
-    {% elif field|is_checkbox_select_multiple %}
-        <div class="checkbox {% if field.errors %}has-error{% endif %}">
-            <label for="{{ field.id_for_label }}" class="control-label">
-                {{ field.label }}
-            </label>
-            {{ field }}
-    {% elif field|is_radioselect %}
-        <div class="radio {% if field.errors %}has-error{% endif %}">
-            <label for="{{ field.id_for_label }}" class="control-label">
-                {{ field.label }}
-            </label>
-            {{ field }}
     {% else %}
         <div class="form-group {% if field.errors %}has-error{% endif %}">
             {% if display_labels != False %}
@@ -41,7 +29,19 @@
                     {{ field.label }}
                 </label>
             {% endif %}
-            {{ field | add_class:"form-control" }}
+
+            {% if field|is_checkbox_select_multiple or field|is_radioselect %}
+                {% for pk, choice in field.field.widget.choices %}
+                    <div class="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %} checkbox-radio-group-item">
+                        <label for="id_{{field.name}}_{{ forloop.counter0 }}">
+                        <input id="id_{{field.name}}_{{ forloop.counter0 }}" name="{{field.name}}" type="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %}" value="{{pk}}">
+                            {{ choice }}
+                        </label>
+                    </div>
+                {% endfor %}
+            {% else %}
+                {{ field | add_class:"form-control" }}
+            {% endif %}
     {% endif %}
             {% for error in field.errors %}
                 <div class="{% if inline %}help-inline{% else %}help-block{% endif %}">{{ error }}</div>
