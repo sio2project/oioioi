@@ -1,6 +1,5 @@
 import datetime
 
-import six
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_delete, post_save, pre_save
@@ -301,7 +300,7 @@ class Ban(models.Model):
         return Ban.objects.filter(forum=forum, user=user).exists()
 
     def __str__(self):
-        return six.text_type(self.user)
+        return str(self.user)
 
 
 @receiver(post_save, sender=Post)

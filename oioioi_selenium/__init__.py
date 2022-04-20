@@ -2,11 +2,9 @@ import time
 import unittest
 from functools import wraps
 
-import six
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.remote import webdriver
-from six.moves import range
 
 
 class WebDriver(webdriver.WebDriver):
@@ -62,7 +60,7 @@ class WebDriver(webdriver.WebDriver):
         """:param data: Dict, element name -> element value.
         :param submit: XPath to form submit button.
         """
-        for k, v in six.iteritems(data):
+        for k, v in data.items():
             elem = self.find_element_by_name(k)
             elem.clear()
             elem.click()
@@ -99,7 +97,7 @@ class WrapTestsWithScreenshots(type):
 
 
 class OIOIOISeleniumTestCaseBase(
-    six.with_metaclass(WrapTestsWithScreenshots, unittest.TestCase)
+    unittest.TestCase, metaclass=WrapTestsWithScreenshots
 ):
     def setUp(self):
         self.driver = WebDriver()

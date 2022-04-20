@@ -1,4 +1,3 @@
-import six
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
@@ -14,6 +13,6 @@ def szkopul_contact(request):
                 context={'support_email': settings.SZKOPUL_SUPPORT_EMAIL},
             )
 
-        return {'extra_body_szkopul_contact': lazy(generator, six.text_type)()}
+        return {'extra_body_szkopul_contact': lazy(generator, str)()}
     else:
         return {}

@@ -1,4 +1,3 @@
-import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
@@ -30,7 +29,7 @@ class Teacher(models.Model):
         permissions = (('teacher', _("Is a teacher")),)
 
     def __str__(self):
-        return six.text_type(self.user)
+        return str(self.user)
 
 
 

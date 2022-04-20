@@ -1,4 +1,3 @@
-import six
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -23,7 +22,7 @@ class IpToUser(models.Model):
         verbose_name_plural = _("IP autoauth mappings")
 
     def __str__(self):
-        return six.text_type(self.ip_addr)
+        return str(self.ip_addr)
 
 
 
@@ -40,4 +39,4 @@ class DnsToUser(models.Model):
         verbose_name_plural = _("DNS autoauth mappings")
 
     def __str__(self):
-        return six.text_type(self.dns_name)
+        return str(self.dns_name)

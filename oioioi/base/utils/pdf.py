@@ -5,12 +5,10 @@ import shutil
 import tempfile
 
 import pdfminer.layout
-import six
 from django.core.files.base import File
 from pdfminer.converter import TextConverter
 from pdfminer.pdfinterp import PDFPageInterpreter, PDFResourceManager
 from pdfminer.pdfpage import PDFPage
-from six.moves import range
 
 from oioioi.base.utils.execute import execute
 from oioioi.filetracker.utils import stream_file
@@ -54,7 +52,7 @@ def extract_text_from_pdf(pdf_file):
     laparams = pdfminer.layout.LAParams(char_margin=2000)
 
     pages = []
-    output_string = six.BytesIO()
+    output_string = io.BytesIO()
     rsrcmgr = PDFResourceManager()
     device = TextConverter(rsrcmgr, output_string, codec='latin-1', laparams=laparams)
     interpreter = PDFPageInterpreter(rsrcmgr, device)

@@ -7,7 +7,7 @@ import dateutil.parser
 from django.conf import settings
 from django.core import signing
 from django.template.loader import render_to_string
-from six.moves import zip_longest
+from itertools import zip_longest
 
 from oioioi.programs.models import ProgramSubmission
 

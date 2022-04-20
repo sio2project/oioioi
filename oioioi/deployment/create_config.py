@@ -8,8 +8,6 @@ import sys
 import uuid
 from argparse import ArgumentParser
 
-import six
-
 from oioioi.base.utils.execute import execute
 from oioioi.default_settings import INSTALLATION_CONFIG_VERSION
 
@@ -47,7 +45,7 @@ def get_timezone():
 def generate_from_template(dir, filename, context, mode=None):
     dest = os.path.join(dir, filename)
     template = open(os.path.join(basedir, filename + '.template')).read()
-    for key, value in six.iteritems(context):
+    for key, value in context.items():
         template = template.replace(key, value)
     open(dest, 'w').write(template)
     if mode is not None:
@@ -70,7 +68,7 @@ def generate_all(dir, verbose):
 
     settings = {}
     settings_py = os.path.join(dir, 'settings.py')
-    six.exec_(
+    exec(
         compile(open(settings_py).read(), settings_py, 'exec'), globals(), settings
     )
     media_root = settings['MEDIA_ROOT']

@@ -1,6 +1,6 @@
 import json
 
-import six.moves.urllib.error
+import urllib.error
 from django import forms
 from django.core.validators import URLValidator
 from django.template.loader import render_to_string
@@ -37,7 +37,7 @@ class RemoteProblemForm(ProblemUploadForm):
             self.cleaned_data['client'] = client
             self.cleaned_data['task_id'] = response['id']
             return url
-        except six.moves.urllib.error.HTTPError as e:
+        except urllib.error.HTTPError as e:
             if e.code == 404:
                 raise forms.ValidationError(_("Not a task URL"))
             else:

@@ -1,4 +1,3 @@
-import six
 from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import ngettext
@@ -21,7 +20,7 @@ def navbar_tip_processor(request):
     def generator():
         return make_navbar_badge(**navbar_messages_generator(request))
 
-    return {'extra_navbar_right_messages': lazy(generator, six.text_type)()}
+    return {'extra_navbar_right_messages': lazy(generator, str)()}
 
 
 @status_registry.register

@@ -1,6 +1,5 @@
 from datetime import timedelta  # pylint: disable=E0611
 
-import six
 from django.http import HttpResponseServerError
 from django.template.response import TemplateResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -83,20 +82,20 @@ def oisubmit_view(request):
 
             if errors:
                 msg = '\n'.join(
-                    six.text_type(SUSPICION_REASONS[err])
+                    str(SUSPICION_REASONS[err])
                     for err in errors
                     if err in SUSPICION_REASONS
                 )
                 return oisubmit_response(True, msg)
             else:
                 msg = submission_date.strftime("%Y-%m-%d %H:%M:%S")
-                return oisubmit_response(False, six.text_type(msg))
+                return oisubmit_response(False, str(msg))
         else:
             if list(form.errors.keys())[0] in INCORRECT_FORM_COMMENTS:
                 msg = INCORRECT_FORM_COMMENTS[list(form.errors.keys())[0]]
             else:
                 msg = list(form.errors.values())[0].as_text()
-            return oisubmit_response(True, six.text_type(msg))
+            return oisubmit_response(True, str(msg))
     else:
         form = OISubmitSubmissionForm(request)
     return TemplateResponse(request, 'contests/submit.html', {'form': form})

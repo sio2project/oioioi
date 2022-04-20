@@ -5,8 +5,7 @@ from datetime import datetime  # pylint: disable=E0611
 
 import pytest
 import six
-from six import unichr
-from six.moves import map, range, urllib, zip
+import urllib
 
 from django.conf import settings
 from django.contrib.admin.utils import quote
@@ -108,9 +107,6 @@ class SubmitFileMixin(SubmitMixin):
         if send_file:
             file = ContentFile('a' * 1024, name='a.c')
         langs_field_name = form_field_id_for_langs(problem_instance)
-
-        if six.PY2:
-            code = code.encode('utf-8')
 
         post_data = {
             'problem_instance_id': problem_instance.id,
@@ -681,7 +677,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_code(
-            contest, problem_instance, unichr(12345), user='test_user'
+            contest, problem_instance, chr(12345), user='test_user'
         )
         self._assertSubmitted(contest, response)
 

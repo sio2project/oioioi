@@ -7,7 +7,6 @@ from django.http import QueryDict
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import utc
-from six.moves import range, zip
 
 from oioioi.base.templatetags.simple_filters import result_color_class
 from oioioi.base.tests import (

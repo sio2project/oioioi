@@ -7,10 +7,9 @@ import json
 from threading import Lock
 
 import sio.workers.runner
-import six
 from django.conf import settings
 from django.db import transaction
-from six.moves.xmlrpc_client import Server
+from xmlrpc.client import Server
 
 from oioioi.evalmgr.tasks import delay_environ
 
@@ -30,7 +29,7 @@ class LocalBackend(object):
 
     def run_jobs(self, dict_of_jobs, **kwargs):
         results = {}
-        for key, value in six.iteritems(dict_of_jobs):
+        for key, value in dict_of_jobs.items():
             results[key] = self.run_job(value, **kwargs)
         return results
 

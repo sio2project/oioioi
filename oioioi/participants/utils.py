@@ -2,7 +2,6 @@ import unicodecsv
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils.encoding import force_str
-from six.moves import map
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached

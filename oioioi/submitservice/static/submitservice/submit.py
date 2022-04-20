@@ -15,9 +15,8 @@ import webbrowser
 from argparse import ArgumentParser
 from os.path import expanduser, splitext
 
-import six.moves.urllib.parse
-import six.moves.urllib.request
-from six.moves import input
+import urllib.parse
+import urllib.request
 
 
 class MultiPartForm(object):
@@ -205,15 +204,15 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
             form.add_field('task', task_name)
             form.add_file('file', solution_file.name, filehandle=solution_file)
             body = str(form)
-            request = six.moves.urllib.request.Request(
+            request = urllib.request.Request(
                 '%ssubmitservice/submit/' % contest_url
             )
             request.add_header('Content-Type', form.get_content_type())
             request.add_header('Content-Length', str(len(body)))
             request.add_data(body)
 
-            result = json.loads(six.moves.request.urlopen(request).read())
-        base_url = six.moves.urllib.parse.urlparse(contest_url)
+            result = json.loads(urllib.request.urlopen(request).read())
+        base_url = urllib.parse.urlparse(contest_url)
         if 'error_code' not in result:
             result_url = '%s://%s%s' % (
                 base_url.scheme,

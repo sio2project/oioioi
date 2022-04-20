@@ -1,4 +1,3 @@
-import six
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH, exceptions
@@ -6,7 +5,6 @@ from django.forms import ValidationError
 from django.utils.encoding import smart_text
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
-from six.moves import zip
 
 
 class DottedNameField(models.CharField):
@@ -141,7 +139,7 @@ class DottedNameField(models.CharField):
             raise exceptions.ValidationError(self.error_messages['blank'], code='blank')
 
     def _get_superclass(self):
-        if isinstance(self._superclass, six.string_types):
+        if isinstance(self._superclass, str):
             self._superclass = import_string(self._superclass)
         return self._superclass
 

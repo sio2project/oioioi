@@ -27,8 +27,6 @@ import tarfile
 import tempfile
 import zipfile
 
-import six
-
 from oioioi.filetracker.utils import stream_file
 
 
@@ -80,7 +78,7 @@ class Archive(object):
     @staticmethod
     def _resolve_streamed_files(file, ext):
         if (
-            isinstance(file, six.string_types)
+            isinstance(file, str)
             or hasattr(file, 'seek')
             or hasattr(file, 'tell')
         ):
@@ -99,7 +97,7 @@ class Archive(object):
         """
         cls = None
         filename = None
-        if isinstance(file, six.string_types):
+        if isinstance(file, str):
             filename = file
         else:
             try:
@@ -190,7 +188,7 @@ class BaseArchive(object):
 class TarArchive(BaseArchive):
     def __init__(self, file):
         # tarfile's open uses different parameters for file path vs. file obj.
-        if isinstance(file, six.string_types):
+        if isinstance(file, str):
             self._archive = tarfile.open(name=file)
         else:
             self._archive = tarfile.open(fileobj=file)
@@ -228,14 +226,11 @@ class ZipArchive(BaseArchive):
         return total
 
     def filenames(self):
-        if six.PY3:
-            return [
-                zipinfo.filename
-                for zipinfo in self._archive.infolist()
-                if not zipinfo.is_dir()
-            ]
-        elif six.PY2:
-            return [name for name in self._archive.namelist() if not name.endswith('/')]
+        return [
+            zipinfo.filename
+            for zipinfo in self._archive.infolist()
+            if not zipinfo.is_dir()
+        ]
 
 
 extension_map = {

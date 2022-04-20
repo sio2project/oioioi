@@ -3,7 +3,7 @@ import threading
 from contextlib import contextmanager
 
 import pytest
-import six.moves.urllib.parse
+import urllib.parse
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
@@ -57,16 +57,10 @@ class TestCase(DjangoTestCase):
             func(*args, **kwargs)
 
     def assertRegex(self, text, regex, msg=None):
-        if six.PY3:
-            super(DjangoTestCase, self).assertRegex(text, regex, msg)
-        else:
-            super(DjangoTestCase, self).assertRegexpMatches(text, regex, msg)
+        super(DjangoTestCase, self).assertRegex(text, regex, msg)
 
     def assertNotRegex(self, text, regex, msg=None):
-        if six.PY3:
-            super(DjangoTestCase, self).assertNotRegex(text, regex, msg)
-        else:
-            super(DjangoTestCase, self).assertNotRegexpMatches(text, regex, msg)
+        super(DjangoTestCase, self).assertNotRegex(text, regex, msg)
 
 
 class IgnorePasswordAuthBackend(object):
@@ -146,7 +140,7 @@ def get_url(url_or_viewname, qs, *args, **kwargs):
     else:
         url = reverse(url_or_viewname, *args, **kwargs)
     if qs:
-        url += '?' + six.moves.urllib.parse.urlencode(qs)
+        url += '?' + urllib.parse.urlencode(qs)
     return url
 
 

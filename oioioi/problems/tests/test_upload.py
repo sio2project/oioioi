@@ -1,11 +1,10 @@
 import pytest
-import six.moves.urllib.parse
+import urllib.parse
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from six.moves import range
 
 from oioioi.base.tests import needs_linux
 from oioioi.contests.models import Contest, ProblemInstance, Round
@@ -17,7 +16,7 @@ from oioioi.problems.tests.utilities import get_test_filename
 def make_add_update_problem_url(contest, args):
     return '{}?{}'.format(
         reverse('add_or_update_problem', kwargs={'contest_id': contest.id}),
-        six.moves.urllib.parse.urlencode(args),
+        urllib.parse.urlencode(args),
     )
 
 
@@ -517,7 +516,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         # reupload problem in problemset
         url = '{}?{}'.format(
             reverse('problemset_add_or_update'),
-            six.moves.urllib.parse.urlencode({'problem': problem.id}),
+            urllib.parse.urlencode({'problem': problem.id}),
         )
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]

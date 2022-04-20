@@ -1,7 +1,5 @@
 import sys
 
-import six
-
 from oioioi.base.menu import OrderedRegistry
 
 
@@ -60,9 +58,9 @@ class DateRegistry(object):
 
         if name_generator is None:
             name_generator = (
-                lambda obj: six.text_type(model._meta.verbose_name)
+                lambda obj: str(model._meta.verbose_name)
                 + " "
-                + six.text_type(model._meta.get_field(date_field).verbose_name)
+                + str(model._meta.get_field(date_field).verbose_name)
             )
 
         if round_chooser is None:

@@ -3,7 +3,6 @@ import bisect
 import sys
 from operator import attrgetter  # pylint: disable=E0611
 
-import six
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -88,7 +87,7 @@ class MenuRegistry(object):
 
     def _get_all_registered_items(self, request):
         items = []
-        for generator in six.itervalues(self._generators):
+        for generator in self._generators.values():
             items.extend(generator(request))
         items.extend(self._registry)
 

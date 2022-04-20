@@ -1,4 +1,3 @@
-import six
 from django.template.context_processors import csrf
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
@@ -45,4 +44,4 @@ def drag_and_drop_processor(request):
         c.update(csrf(request))
         return render_to_string('programs/drag_and_drop.html', c)
 
-    return {'extra_footer_drag_and_drop': lazy(ddzone_generator, six.text_type)()}
+    return {'extra_footer_drag_and_drop': lazy(ddzone_generator, str)()}

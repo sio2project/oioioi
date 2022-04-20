@@ -1,8 +1,6 @@
 import datetime
 import functools
 
-import six
-
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import F, OuterRef, Q, Subquery
@@ -38,7 +36,7 @@ def cache_unless_admin_or_observer(view):
             cache.set(
                 cache_key,
                 {
-                    'content': six.text_type(result.content),
+                    'content': str(result.content),
                     'content_type': result['Content-Type'],
                 },
                 settings.LIVEDATA_CACHE_TIMEOUT,

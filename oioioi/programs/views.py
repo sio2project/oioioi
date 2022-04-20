@@ -24,7 +24,6 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import guess_lexer_for_filename
 from pygments.util import ClassNotFound
-from six.moves import range
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import jsonify, strip_num_or_hash

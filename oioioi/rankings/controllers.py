@@ -14,7 +14,6 @@ from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from six.moves import map, range
 
 from oioioi.base.models import PreferencesSaved
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase

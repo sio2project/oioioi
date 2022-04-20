@@ -4,8 +4,8 @@ import tempfile
 import urllib
 from contextlib import contextmanager
 
-import six.moves.urllib.parse
-import six.moves.urllib.request
+import urllib.parse
+import urllib.request
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
@@ -29,9 +29,9 @@ class RemoteClient(object):
         if not extra_data:
             extra_data = {}
         post_data.update(extra_data)
-        return six.moves.urllib.request.urlopen(
+        return urllib.request.urlopen(
             url,
-            six.ensure_binary(six.moves.urllib.parse.urlencode(post_data)),
+            six.ensure_binary(urllib.parse.urlencode(post_data)),
             **kwargs
         )
 

@@ -116,9 +116,9 @@ def submit_and_get_url(client, submission_collector):
             display_name = (
                 (s.first_name[0] if s.first_name else '')
                 + (s.last_name[0] if s.last_name else '')
-                + six.text_type(s.user_id)
+                + str(s.user_id)
                 + '_'
-                + six.text_type(s.submission_id)
+                + str(s.submission_id)
             )
             dest = os.path.join(tmpdir, display_name)
             submission_collector.get_submission_source(dest, s.source_file)

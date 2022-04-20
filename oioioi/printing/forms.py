@@ -1,4 +1,3 @@
-import six
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -35,7 +34,7 @@ class PrintForm(forms.Form):
         try:
             cleaned_data['file'] = generator(
                 source=orig.expandtabs(4),
-                header=six.text_type(
+                header=str(
                     '%s (%s)' % (self.user.get_full_name(), self.user)
                 ),
             )

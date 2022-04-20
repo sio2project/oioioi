@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import strip_tags
-from six.moves import range
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.handlers import update_problem_statistics

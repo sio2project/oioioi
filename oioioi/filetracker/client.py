@@ -1,4 +1,3 @@
-import six
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.dispatch import receiver
@@ -21,7 +20,7 @@ def get_client():
     The constructed client is cached.
     """
     factory = settings.FILETRACKER_CLIENT_FACTORY
-    if isinstance(factory, six.string_types):
+    if isinstance(factory, str):
         factory = import_string(factory)
     if not callable(factory):
         raise ImproperlyConfigured(

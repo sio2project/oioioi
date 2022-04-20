@@ -8,7 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from importlib import import_module
+from importlib import import_module, reload
 
 import six
 from captcha.models import CaptchaStore
@@ -29,7 +29,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
-from six.moves import reload_module, zip
 
 from oioioi.base import utils
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
@@ -683,10 +682,10 @@ class TestMisc(TestCase):
     def test_reload_settings_for_coverage(self):
         import oioioi.test_settings
 
-        reload_module(oioioi.test_settings)
+        reload(oioioi.test_settings)
         import oioioi.default_settings
 
-        reload_module(oioioi.default_settings)
+        reload(oioioi.default_settings)
 
     def test_uploaded_file_name(self):
         tmp_file = TemporaryUploadedFile(
@@ -1368,7 +1367,7 @@ class TestFileUtils(TestCase):
             'a_1_2.pdf': 'a_1.pdf',
         }
 
-        for (before, after) in six.iteritems(cases):
+        for (before, after) in cases.items():
             self.assertEqual(strip_num_or_hash(before), after)
 
 

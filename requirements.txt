@@ -1,7 +1,8 @@
 # These dependencies need to be installed from external sources,
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
+http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
+http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
 http://github.com/sio2project/sioworkers/archive/refs/tags/v1.4.1.tar.gz
-# Django libsass ill-pinned dependency.
-django-appconf<1.0.4
+
 -e .

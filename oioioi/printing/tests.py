@@ -1,7 +1,7 @@
 from django.core.files.base import ContentFile
 from django.test.utils import override_settings
 from django.urls import reverse
-from six import BytesIO
+from io import BytesIO
 
 from oioioi.base.tests import TestCase
 from oioioi.base.utils.pdf import extract_text_from_pdf

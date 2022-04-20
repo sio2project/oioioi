@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from functools import partial
 
 from django.db import migrations, models
-from six.moves import map
 
 from oioioi.contests.scores import ScoreValue
 

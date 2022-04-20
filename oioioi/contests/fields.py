@@ -1,4 +1,3 @@
-import six
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -21,7 +20,7 @@ class ScoreField(models.CharField):
 
         # The field might have been filled in code with some strange data
         # we deserialize it to make sure it's in proper format
-        if isinstance(value, six.string_types):
+        if isinstance(value, str):
             value = ScoreValue.deserialize(value)
 
         if isinstance(value, ScoreValue):

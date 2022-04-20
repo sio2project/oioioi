@@ -2,7 +2,6 @@ import os.path
 from math import ceil
 from operator import itemgetter  # pylint: disable=E0611
 
-import six
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -26,11 +25,11 @@ def sum_score_aggregator(group_results):
 
     scores = [
         ScoreValue.deserialize(result['score'])
-        for result in six.itervalues(group_results)
+        for result in group_results.values()
     ]
     max_scores = [
         ScoreValue.deserialize(result['max_score'])
-        for result in six.itervalues(group_results)
+        for result in group_results.values()
     ]
 
     # the sum below needs a start value of an appropriate type,
@@ -38,7 +37,7 @@ def sum_score_aggregator(group_results):
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
     status = aggregate_statuses(
-        [result['status'] for result in six.itervalues(group_results)]
+        [result['status'] for result in group_results.values()]
     )
 
     return score, max_score, status
@@ -52,17 +51,17 @@ def sum_group_scorer(test_results):
 
     scores = [
         ScoreValue.deserialize(result['score'])
-        for result in six.itervalues(test_results)
+        for result in test_results.values()
     ]
     max_scores = [
         ScoreValue.deserialize(result['max_score'])
-        for result in six.itervalues(test_results)
+        for result in test_results.values()
     ]
 
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
     status = aggregate_statuses(
-        [result['status'] for result in six.itervalues(test_results)]
+        [result['status'] for result in test_results.values()]
     )
 
     return score, max_score, status
@@ -77,11 +76,11 @@ def min_group_scorer(test_results):
 
     scores = [
         ScoreValue.deserialize(result['score'])
-        for result in six.itervalues(test_results)
+        for result in test_results.values()
     ]
     max_scores = [
         ScoreValue.deserialize(result['max_score'])
-        for result in six.itervalues(test_results)
+        for result in test_results.values()
     ]
 
     score = min(scores)
@@ -166,7 +165,7 @@ def has_report_actions_config(problem):
 
 
 def is_problem_with_library(problem):
-    if isinstance(problem, (int, six.string_types)):
+    if isinstance(problem, (int, str)):
         return LibraryProblemData.objects.filter(problem_id=problem).exists()
 
     try:

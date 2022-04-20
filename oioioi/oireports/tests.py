@@ -1,6 +1,6 @@
 from datetime import datetime  # pylint: disable=E0611
 
-from six import BytesIO
+from io import BytesIO
 
 from django.contrib.auth.models import User
 from django.urls import reverse

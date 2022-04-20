@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
-import six
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpRequest
@@ -381,12 +380,12 @@ def last_break_between_rounds(request_or_context):
         rtimes = generic_rounds_times(None, request_or_context.contest)
     ends = [
         rt.get_end()
-        for rt in six.itervalues(rtimes)
+        for rt in rtimes.values()
         if rt.is_past(request_or_context.timestamp)
     ]
     starts = [
         rt.get_start()
-        for rt in six.itervalues(rtimes)
+        for rt in rtimes.values()
         if rt.is_future(request_or_context.timestamp)
     ]
 
@@ -410,7 +409,7 @@ def best_round_to_display(request, allow_past_rounds=False):
             for round in Round.objects.filter(contest=contest)
         )
         next_rtimes = [
-            (r, rt) for r, rt in six.iteritems(rtimes) if rt.is_future(timestamp)
+            (r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)
         ]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [
@@ -418,7 +417,7 @@ def best_round_to_display(request, allow_past_rounds=False):
         ]
         current_rtimes.sort(key=lambda r_rt1: r_rt1[1].get_end())
         past_rtimes = [
-            (r, rt) for r, rt in six.iteritems(rtimes) if rt.is_past(timestamp)
+            (r, rt) for r, rt in rtimes.items() if rt.is_past(timestamp)
         ]
         past_rtimes.sort(key=lambda r_rt2: r_rt2[1].get_end())
 

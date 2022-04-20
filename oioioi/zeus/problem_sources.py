@@ -1,4 +1,3 @@
-import six
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
@@ -16,9 +15,7 @@ class ZeusProblemSource(UploadedPackageSource):
         if zeus_instances is None:
             zeus_instances = [
                 (zeus_id, '%s: %s' % (zeus_id, url))
-                for zeus_id, (url, _login, _secret) in six.iteritems(
-                    settings.ZEUS_INSTANCES
-                )
+                for zeus_id, (url, _login, _secret) in settings.ZEUS_INSTANCES.items()
             ]
         self.zeus_instances = zeus_instances
 
