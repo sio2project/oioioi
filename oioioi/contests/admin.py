@@ -1,5 +1,6 @@
 import threading
 from functools import partial
+from django.conf import settings
 
 import urllib.parse
 
@@ -215,6 +216,9 @@ class ContestAdmin(admin.ModelAdmin):
             'default_submissions_limit',
             'contact_email',
         ]
+        if (settings.USE_ACE_EDITOR):
+            fields.append('enable_editor')
+
         if request.user.is_superuser:
             fields += ['judging_priority', 'judging_weight']
         return fields

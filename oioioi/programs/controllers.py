@@ -13,7 +13,9 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.utils.inputs import narrow_input_field
+from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.utils import (
@@ -58,8 +60,8 @@ from oioioi.programs.utils import (
 )
 from oioioi.programs.widgets import CancellableFileInput
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 def get_report_display_type(request, test_report):
     if test_report.status == 'INI_OK' or test_report.status == 'OK':
@@ -95,7 +97,6 @@ def get_report_display_type(request, test_report):
         display_type = test_report.status
 
     return display_type
-
 
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
@@ -610,11 +611,36 @@ class ProgrammingProblemController(ProblemController):
         form.fields['file'].widget.attrs.update(
             {'data-languagehintsurl': reverse('get_language_hints')}
         )
+
+        use_editor = False
+        if problem_instance.contest is not None:
+            use_editor = settings.USE_ACE_EDITOR and problem_instance.contest.enable_editor
+
+        code_widget = None
+        if use_editor:
+            ensure_preferences_exist_for_user(request)
+            default_state = request.user.userpreferences.enable_editor
+            reciept_types = ((False, "no editor"), (True, "editor"), )
+            form.fields["toggle_editor"] = forms.ChoiceField(
+                required=False,
+                choices=reciept_types,
+                widget=forms.CheckboxInput(),
+                initial=True if default_state else False,
+            )
+            code_widget = AceEditorWidget(
+                attrs={'rows': 10, 'class': 'monospace'},
+                default_state=default_state,
+            )
+        else:
+            code_widget = forms.widgets.Textarea(
+                attrs={'rows': 10, 'class': 'monospace'}
+            )
+
         form.fields['code'] = forms.CharField(
             required=False,
             label=_("Code"),
             validators=[validate_code_length],
-            widget=forms.widgets.Textarea(attrs={'rows': 10, 'class': 'monospace'}),
+            widget=code_widget
         )
 
         self._add_langs_to_form(request, form, problem_instance)
@@ -640,14 +666,12 @@ class ProgrammingProblemController(ProblemController):
 
         self._add_js(form, ('common/submit_view.js',))
 
-
     @staticmethod
     def _add_js(form, js):
         try:
             form._js.extend(js)
         except AttributeError:
             raise TypeError("Expected SubmissionForm")
-
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
