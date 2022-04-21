@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import LogoutView as AuthLogoutView
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.forms import ChoiceField
+from django.forms import BooleanField, ChoiceField
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
@@ -96,6 +96,7 @@ def handler403(request, exception):
 
 
 def adjust_preferences_factory_fields(request):
+    ensure_preferences_exist_for_user(request)
     choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
     choices = [(k, _(v)) for k, v in choices_not_translated]
 
@@ -103,24 +104,41 @@ def adjust_preferences_factory_fields(request):
         "preferred_language",
         ChoiceField,
         lambda name, user: user.userpreferences.language,
+        order=-1,
         choices=choices,
         required=False
     )
 
+    if (settings.USE_ACE_EDITOR):
+        PreferencesFactory.add_field(
+            "enable_editor",
+            BooleanField,
+            lambda name, user: user.userpreferences.enable_editor,
+            order=0,
+            required=False
+        )
+
 
 def handle_new_preference_fields(request):
+    changed = False
+    ensure_preferences_exist_for_user(request)
     if "preferred_language" in request.POST:
         pref_lang = request.POST["preferred_language"]
+        if pref_lang in ([k for k, _ in settings.LANGUAGES] + [""]):
 
-        if pref_lang not in ([k for k, _ in settings.LANGUAGES] + [""]):
-            # bad lang code passed in form
-            return
+            if pref_lang != "":
+                request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = pref_lang
+            request.user.userpreferences.language = pref_lang
+        changed = True
 
-        ensure_preferences_exist_for_user(request)
+    if settings.USE_ACE_EDITOR:
+        if "enable_editor" in request.POST:
+            request.user.userpreferences.enable_editor = True
+        else:
+            request.user.userpreferences.enable_editor = False
+        changed = True
 
-        if pref_lang != "":
-            request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = pref_lang
-        request.user.userpreferences.language = pref_lang
+    if changed:
         request.user.userpreferences.save()
 
 
@@ -129,6 +147,7 @@ def handle_new_preference_fields(request):
 )
 @enforce_condition(not_anonymous)
 def edit_profile_view(request):
+    ensure_preferences_exist_for_user(request)
     if request.method == 'POST':
         adjust_preferences_factory_fields(request)
         form = PreferencesFactory().create_form(
