@@ -1,7 +1,8 @@
 @import "utility";
+
 $oioioi-narrow-input-max-width: 300px !default;
 
-.nav-content {
+/*.nav-content {
   padding-top: $padding-large-vertical;
 }
 
@@ -16,7 +17,7 @@ $oioioi-narrow-input-max-width: 300px !default;
 
 .empty-space-filler-bottom {
   margin-bottom: $padding-large-vertical;
-}
+}*/
 
 .no-left-padding {
   padding-left: 0;
@@ -30,16 +31,11 @@ $oioioi-narrow-input-max-width: 300px !default;
   overflow-x: auto;
 }
 
-.help-inline {
-  @extend .help-block;
-  display: inline;
-}
-
 .oioioi-narrow-input {
   max-width: $oioioi-narrow-input-max-width;
 }
 
-@media (min-width: $screen-sm-min) {
+@include media-breakpoint-down(md) {
   .form-inline .form-group:not(:first-child) {
     margin-left: 2em;
   }

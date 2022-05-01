@@ -33,7 +33,7 @@
   }
 
   .menu-item-active {
-    @include gradient-vertical(#eeeeee, #ffffff);
+    @include gradient-y(#eeeeee, #ffffff);
   }
 }
 
@@ -49,7 +49,7 @@
   }
 
   .menu-item-active-green {
-    @include gradient-vertical(#80ff80, #c0ffc0);
+    @include gradient-y(#80ff80, #c0ffc0);
   }
 }
 
