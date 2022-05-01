@@ -7,9 +7,9 @@
             <img title="{{ LANGUAGE_CODE|language_name_local }}" src="{{ STATIC_URL }}images/flags/{{ LANGUAGE_CODE }}.png"/>
             <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu pull-right">
+        <ul class="dropdown-menu dropdown-menu-right">
             {% for lang_short, lang_name in LANGUAGES %}
-                <li>
+                <li class="dropdown-item">
                     <a href="#" class="lang-select" lang="{{ lang_short }}">
                         <img title="{{ lang_short|language_name_local }}" src="{{ STATIC_URL }}images/flags/{{ lang_short }}.png"/>
                         {{ lang_short|language_name_local }}

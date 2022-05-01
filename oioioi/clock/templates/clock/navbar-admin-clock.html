@@ -8,9 +8,8 @@
             <span class="label-full">{% trans "Admin time" %}</span>
         </span>
         <time id="clock">{{ current_time }}</time>
-        <span class="caret"></span>
     </a>
-    <ul class="dropdown-menu pull-right">
+    <ul class="dropdown-menu dropdown-menu-right">
         <li class="navbar-form">
             <form action="{% url 'admin_time' %}" method="post">
                 {% csrf_token %}

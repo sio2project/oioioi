@@ -11,11 +11,10 @@
                             aria-haspopup="true" aria-expanded="false">
                         <span class="glyphicon glyphicon-tags"></span>
                         {% trans "Change kind" %}
-                        <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
                         {% for value, description in submission.valid_kinds_for_submission %}
-                            <li>
+                            <li class="dropdown-item">
                                 <a href="#"
                                 data-post-url="{% url 'change_submission_kind' submission_id=submission.submission.id kind=value %}">
                                     <span class="glyphicon glyphicon-tag"></span>
@@ -32,10 +31,9 @@
                         aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon-repeat"></span>
                     {% trans "Rejudge" %}
-                    <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li>
+                    <li class="dropdown-item">
                         <a href="#"
                         data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}">
                             <span class="glyphicon glyphicon-eye-open"></span>
@@ -43,7 +41,7 @@
                         </a>
                     </li>
                     {% for link, name in supported_extra_args.items %}
-                        <li>
+                        <li class="dropdown-item">
                             <a href="#"
                             data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}?{{ link }}=true">
                                 <span class="glyphicon glyphicon-eye-close"></span>

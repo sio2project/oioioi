@@ -9,10 +9,10 @@ $oioioi-navbar-padding-base-vertical: $padding-base-vertical !default;
 $oioioi-navbar-default-brand-color: #cfcfcf !default;
 $oioioi-navbar-default-brand-hover-color: $navbar-dark-brand-hover-color !default;
 
-$oioioi-navbar-link-color: $link-color !default;
+$oioioi-navbar-link-color: #cfcfcf !default;
 
-$oioioi-navbar-link-hover-color: $link-hover-color !default;
-$oioioi-navbar-link-active-color: $link-hover-color !default;
+$oioioi-navbar-link-hover-color: #fff !default;
+$oioioi-navbar-link-active-color: $oioioi-navbar-link-hover-color !default;
 
 $oioioi-navbar-highlighted-color: #fff !default;
 $oioioi-navbar-avatar-size: 25px !default;

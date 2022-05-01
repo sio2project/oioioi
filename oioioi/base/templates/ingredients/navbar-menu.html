@@ -12,7 +12,7 @@
             {% generate_menu registry %}
             <li class="dropdown-header">{{ registry.text }}</li>
             {% for item in menu %}
-                <li class="{% active_url item.url %}">
+                <li class="dropdown-item {% active_url item.url %}">
                     <a href="{{ item.url }}" {{ item.attrs }}>
                         {% if item.has_icon and menu_icons %}
                             {{ menu_icons|cyclic_lookup:forloop.counter0 }}
@@ -25,7 +25,7 @@
     {% else %}
         {% generate_menu side_menus|first %}
         {% for item in menu %}
-            <li id="{{ item.name }}" class="{% active_url item.url %}">
+            <li id="{{ item.name }}" class="dropdown-item {% active_url item.url %}">
                 <a href="{{ item.url }}" {{ item.attrs }}>
                     {% if menu_icons %}
                         {{ menu_icons|cyclic_lookup:forloop.counter0 }}

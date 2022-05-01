@@ -4,11 +4,10 @@
     <div class="dropdown round__name">
         <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             {{ selected_round.round }}
-            <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
             {% for round, round_time in round_times %}
-                <li>
+                <li class="dropdown-item">
                     <a href="{% url contest_dashboard_url_name round.pk %}">{{ round }}</a>
                 </li>
             {% endfor %}

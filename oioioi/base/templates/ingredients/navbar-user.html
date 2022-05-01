@@ -19,9 +19,8 @@ function setFocusToLoginInput(){
            aria-expanded="false">
             <span class="glyphicon glyphicon-user"></span>
             <span class="username"> {% trans "Log in" %}</span>
-            <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu pull-right">
+        <ul class="dropdown-menu dropdown-menu-right">
             <li class="navbar-form">
                 <form id="navbar-login" class="navbar-login" action="{% url 'login' %}" method="post">
                     {% csrf_token %}
@@ -56,12 +55,11 @@ function setFocusToLoginInput(){
                 <span class="glyphicon glyphicon-user"></span>
             {% endif %}
             <strong class="username" id="username">{{ user.username }}</strong>
-            <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu pull-right">
+        <ul class="dropdown-menu dropdown-menu-right">
             {% generate_menu 'oioioi.base.menu.account_menu_registry' %}
             {% for item in menu %}
-                <li><a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a></li>
+                <li class="dropdown-item"><a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a></li>
             {% endfor %}
 
             {% su_dropdown_form %}
