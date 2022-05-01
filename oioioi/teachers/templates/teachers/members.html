@@ -225,11 +225,11 @@
                         <span class="dropdown">
                             <button type="button" class="btn btn-default btn-sm dropdown-toggle"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {% trans "Add from other contest" %} <span class="caret"></span>
+                                {% trans "Add from other contest" %}
                             </button>
                             <ul class="dropdown-menu">
                                 {% for c in other_contests %}
-                                    <li>
+                                    <li class="dropdown-item">
                                         <a data-post-url="{% url 'teachers_bulk_add_members' contest_id=contest.id other_contest_id=c.id %}">
                                             {{ c }}
                                         </a>

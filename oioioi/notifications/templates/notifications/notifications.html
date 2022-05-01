@@ -11,17 +11,17 @@
     <a href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="notifications_dropdown" class="dropdown-toggle" title="{% trans "Recent submissions" %}">
         <span id="notifications_icon" class="text-warning glyphicon glyphicon-tasks"></span>
     </a>
-    <ul class="dropdown-menu pull-right">
+    <ul class="dropdown-menu dropdown-menu-right">
         <li class="dropdown-header">
             {% trans "Recent submissions" %}
             <a href="#" id="notifications_refresh" class="pull-right" title="{% trans "Refresh" %}">
                 <span class="glyphicon glyphicon-refresh"></span>
             </a>
         </li>
-        <li id="notifications_table">
+        <li id="notifications_table" class="dropdown-item">
             {% trans "Your most recent submissions should appear here in a moment." %}
         </li>
-        <li id="notifications_error" style="display: none">
+        <li id="notifications_error" style="display: none" class="dropdown-item">
             {% trans "Connection to notifications server was lost. You may no longer receive notifications." %}
         </li>
     </ul>

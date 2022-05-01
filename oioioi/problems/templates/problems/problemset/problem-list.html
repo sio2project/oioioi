@@ -146,19 +146,19 @@
                                 {% if administered_recent_contests %}
                                     <li class="dropdown-header">{% trans "Add to contest" %}</li>
                                     {% for contest in administered_recent_contests %}
-                                        <li>
+                                        <li class="dropdown-item">
                                             <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
                                                data-urlkey="{{ problem.problemsite.url_key }}">{{ contest.name }}</a>
                                         </li>
                                     {% endfor %}
-                                    <li role="separator" class="divider"></li>
-                                    <li>
+                                    <li role="separator" class="dropdown-divider"></li>
+                                    <li class="dropdown-item">
                                         <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
                                             {% trans "More contests..." %}
                                         </a>
                                     </li>
                                 {% elif show_add_button %}
-                                    <li>
+                                    <li class="dropdown-item">
                                         <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
                                             {% trans "Add to contest" %}
                                         </a>

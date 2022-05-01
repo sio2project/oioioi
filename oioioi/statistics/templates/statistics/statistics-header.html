@@ -13,7 +13,7 @@
                 {% else %}
                     {% url 'statistics_view' contest_id=contest.id category=link.link object_name=link.object as address %}
                 {% endif %}
-                <li><a href="{{ address }}">{{ link.category_name }} {{ link.name }}</a></li>
+                <li class="dropdown-item"><a href="{{ address }}">{{ link.category_name }} {{ link.name }}</a></li>
             {% endfor %}
         </ul>
     </div>

@@ -66,10 +66,11 @@
                         <ul class="dropdown-menu checkbox-menu allow-focus collapse"
                             id="{{ category.name }}-filters" >
                             {% for value in category.values.all %}
-                                <li {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
-                                    class="active"
+                                <li class="dropdown-item
+                                    {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                                    active
                                     {% endif %}
-                                >
+                                ">
                                     <label unselectable>
                                         <input type="checkbox"
                                                name="{{ category.name }}"
