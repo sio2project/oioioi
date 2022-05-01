@@ -17,10 +17,10 @@
         <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'usergroups_disable_addition' usergroup_id=usergroup.id %}">
             {% trans "Disable link" %}
         </a>
-        <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'usergroups_regenerate_addition_key' usergroup_id=usergroup.id %}">
+        <a role="button" class="btn btn-outline-secondary btn-xs" data-post-url="{% url 'usergroups_regenerate_addition_key' usergroup_id=usergroup.id %}">
             {% trans "Regenerate key" %}
         </a>
-        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#addition_link">
+        <button class="btn btn-outline-secondary btn-copy btn-xs" data-clipboard-target="#addition_link">
             {% trans "Copy to clipboard" %}
         </button>
     </p>
@@ -41,10 +41,10 @@
         <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'usergroups_disable_sharing' usergroup_id=usergroup.id %}">
             {% trans "Disable link" %}
         </a>
-        <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'usergroups_regenerate_sharing_key' usergroup_id=usergroup.id %}">
+        <a role="button" class="btn btn-outline-secondary btn-xs" data-post-url="{% url 'usergroups_regenerate_sharing_key' usergroup_id=usergroup.id %}">
             {% trans "Regenerate key" %}
         </a>
-        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#sharing_link">
+        <button class="btn btn-outline-secondary btn-copy btn-xs" data-clipboard-target="#sharing_link">
             {% trans "Copy to clipboard" %}
         </button>
     </p>
@@ -81,11 +81,11 @@
     {% endif %}
 
     <div class="form-group">
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-members-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
             {% trans "Select all" %}
         </button>
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-members-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
             {% trans "Select none" %}
         </button>
@@ -112,11 +112,11 @@
         </div>
 
     <div class="form-group">
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-owners-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
             {% trans "Select all" %}
         </button>
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-owners-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
             {% trans "Select none" %}
         </button>

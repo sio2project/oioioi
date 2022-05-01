@@ -7,17 +7,17 @@
     <div class="clearfix">
         {% if is_admin %}
             <div class="pull-right">
-                <a role="button" class="btn btn-sm btn-default"
+                <a role="button" class="btn btn-sm btn-outline-secondary"
                     href="{% url 'oioioiadmin:forum_category_add' %}">
                     {% trans "Add new category" %}
                 </a>
                 {% if not is_locked %}
-                    <a role="button" class="btn btn-sm btn-default" href="#"
+                    <a role="button" class="btn btn-sm btn-outline-secondary" href="#"
                         data-post-url="{% url 'forum_lock' contest_id=contest.id %}">
                         {% trans "Lock forum now" %}
                     </a>
                 {% else %}
-                    <a role="button" class="btn btn-sm btn-default" href="#"
+                    <a role="button" class="btn btn-sm btn-outline-secondary" href="#"
                         data-post-url="{% url 'forum_unlock' contest_id=contest.id %}">
                         {% trans "Unlock forum now" %}
                     </a>

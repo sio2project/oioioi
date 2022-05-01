@@ -16,7 +16,7 @@
     {% if decode_error %}
         {% include "programs/file_decoding_error.html" %}
     {% endif %}
-    <button class="btn btn-default" id="cpy_btn" style="margin-bottom: 3px" onclick="copyCodeToClipboard()">
+    <button class="btn btn-outline-secondary" id="cpy_btn" style="margin-bottom: 3px" onclick="copyCodeToClipboard()">
         {% trans "Copy to clipboard" %}
     </button>
     {% if is_source_safe %}

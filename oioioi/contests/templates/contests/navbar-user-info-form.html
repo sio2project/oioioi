@@ -20,7 +20,7 @@
                        data-hints-url="{% url 'contest_user_hints' contest_id=ctx.contest.id %}"
                        autocomplete="off">
             </div>
-            <button type="submit" class="btn btn-block btn-default">{% trans "Show user info" %}</button>
+            <button type="submit" class="btn btn-block btn-outline-secondary">{% trans "Show user info" %}</button>
             <script>init_user_selection("user-info", {{ num_hints }})</script>
         </form>
     {% endif %}

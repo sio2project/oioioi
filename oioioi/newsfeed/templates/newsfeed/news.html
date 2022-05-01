@@ -14,8 +14,8 @@
     {% if request.user.is_superuser %}
         <footer>
             <div class="btn-group">
-                <a role="button" class="btn btn-default" href="{% url 'edit_news' news_version.news.id %}">{% trans "Edit" %}</a>
-                <a role="button" class="btn btn-default" href="{% url 'delete_news' news_version.news.id %}"
+                <a role="button" class="btn btn-outline-secondary" href="{% url 'edit_news' news_version.news.id %}">{% trans "Edit" %}</a>
+                <a role="button" class="btn btn-outline-secondary" href="{% url 'delete_news' news_version.news.id %}"
                 onclick="return confirm('{% blocktrans %}Are you sure you want to delete {{ news_version.title }}?{% endblocktrans %}')">
                 {% trans "Delete" %}
                </a>

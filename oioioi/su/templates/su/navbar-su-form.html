@@ -17,7 +17,7 @@
             {{ form.backend|add_class:"form-control" }}
         </div>
 
-        <button type="submit" class="btn btn-block btn-default">{% trans "Login as user" %}</button>
+        <button type="submit" class="btn btn-block btn-outline-secondary">{% trans "Login as user" %}</button>
         <script>init_user_selection("su-username", {{ num_hints }})</script>
     </form>
 {% elif is_under_su %}

@@ -85,7 +85,7 @@
         <div class="pull-right">
             {% if user.is_authenticated %}
                 {% if not onsite %}
-                    <button class="btn btn-sm btn-default" id="sub-btn"
+                    <button class="btn btn-sm btn-outline-secondary" id="sub-btn"
                             {% if no_email %} title="You need to add an e-mail address to your account" disabled {% endif %}
                     >
                         <span id="envelope-icon" class="glyphicon glyphicon-envelope"></span>
@@ -95,25 +95,25 @@
                 {% endif %}
                 {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
                 {% if is_admin %}
-                    <a role="button" class="btn btn-sm btn-default"
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'add_contest_message' contest_id=contest.id %}">
                         <span class="glyphicon glyphicon-comment"></span>
                         {% trans "Add news" %}
                     </a>
-                    <a role="button" class="btn btn-sm btn-default"
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
                         <span class="glyphicon glyphicon-pencil"></span>
                         {% trans "Edit reply templates" %}
                     </a>
                 {% elif categories %}
-                    <a role="button" class="btn btn-sm btn-default"
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'add_contest_message' contest_id=contest.id %}">
                         <span class="glyphicon glyphicon-question-sign"></span>
                         {% trans "Ask a question" %}
                     </a>
                 {% endif %}
             {% endif %}
-            <a role="button" class="btn btn-sm btn-default"
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                href="{% url 'contest_all_messages' contest_id=contest.id %}">
                 <span class="glyphicon glyphicon-list"></span>
                 {% trans "Show all messages" %}

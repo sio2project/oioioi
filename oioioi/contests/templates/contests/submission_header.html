@@ -6,7 +6,7 @@
             {% block controls_admin_buttons %}
             {% if submission.valid_kinds_for_submission %}
                 <div class="btn-group">
-                    <button class="btn btn-sm btn-default dropdown-toggle"
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
                             data-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <span class="glyphicon glyphicon-tags"></span>
@@ -26,7 +26,7 @@
                 </div>
             {% endif %}
             <div class="btn-group">
-                <button class="btn btn-sm btn-default dropdown-toggle"
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
                         data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon-repeat"></span>
@@ -56,7 +56,7 @@
         {% block controls_buttons %}
         {% if contest %}
             <a role="button"
-                class="btn btn-sm btn-default"
+                class="btn btn-sm btn-outline-secondary"
                 href= "{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
                 <span class="glyphicon glyphicon-upload"></span>
                 {% trans "Submit another" %}
@@ -64,7 +64,7 @@
         {% else %}
             {% if submission.submission.problem_instance.problem.problemsite %}
                 <a role="button"
-                    class="btn btn-sm btn-default"
+                    class="btn btn-sm btn-outline-secondary"
                     href= "{% url 'problem_site' site_key=submission.submission.problem_instance.problem.problemsite.url_key %}">
                     <span class="glyphicon glyphicon-upload"></span>
                     {% trans "Submit another" %}

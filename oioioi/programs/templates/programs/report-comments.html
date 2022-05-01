@@ -34,14 +34,14 @@
 </ul>
 {% if allow_download_out %}
     {% if all_outs_generated %}
-        <a role="button" class="btn btn-default btn-sm"
+        <a role="button" class="btn btn-outline-secondary btn-sm"
            title='{% trans "Download all user outputs for this test report" %}'
            href="{% url 'download_user_output' submission_report_id=report.id %}">
             <span class="glyphicon glyphicon-download"></span>
             <span>{% trans "Download all" %}</span>
         </a>
     {% else %}
-        <a role="button" class="btn btn-default btn-sm"
+        <a role="button" class="btn btn-outline-secondary btn-sm"
            title='{% trans "Generate all user outputs for this test report" %}'
            data-post-url="{% url 'generate_user_output' submission_report_id=report.id %}">
             <span class="glyphicon glyphicon-circle-arrow-down"></span>

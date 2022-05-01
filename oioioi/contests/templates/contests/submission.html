@@ -33,7 +33,7 @@
     </div>
     {% if can_admin %}
         <h4>
-            <button type="button" class="btn btn-default btn-sm"
+            <button type="button" class="btn btn-outline-secondary btn-sm"
                     data-toggle="collapse" data-target="#hidden-reports">
                 <span class="glyphicon glyphicon-chevron-down"></span>
             </button>
@@ -55,7 +55,7 @@
                     {% for report in all_reports %}
                         <tr>
                             <td>
-                                <button type="button" class="btn btn-default btn-sm"
+                                <button type="button" class="btn btn-outline-secondary btn-sm"
                                         data-async-toggle="collapse"
                                         data-target="#hidden-report-{{ report.id }}">
                                     <span class="glyphicon glyphicon-chevron-down"></span>

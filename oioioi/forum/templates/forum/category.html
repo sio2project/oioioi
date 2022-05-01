@@ -9,7 +9,7 @@
 <div class="clearfix">
     {% if user.is_authenticated and can_interact_with_users %}
         <div class="pull-right">
-            <a role="button" class="btn btn-sm btn-default"
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}">
                 <span class="glyphicon glyphicon-comment"></span>
                 {% trans "Add new thread" %}
