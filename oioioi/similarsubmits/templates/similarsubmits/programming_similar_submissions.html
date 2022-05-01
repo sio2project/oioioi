@@ -31,13 +31,13 @@
                             <td><a href="{{ source_link }}">{{ similar_to.get_date_display }}</a></td>
                             <td>{{ similar_to.user.get_full_name }}</td>
                             <td>
-                                <a role="button" href="{{ diff_link }}" class="btn btn-default btn-xs">
+                                <a role="button" href="{{ diff_link }}" class="btn btn-outline-secondary btn-xs">
                                     <span class="glyphicon glyphicon-resize-small"></span> {% trans "Show diff" %}
                                 </a>
-                                <a role="button" href="{{ source_link }}" class="btn btn-default btn-xs">
+                                <a role="button" href="{{ source_link }}" class="btn btn-outline-secondary btn-xs">
                                     <span class="glyphicon glyphicon-eye-open"></span> {% trans "Show code" %}
                                 </a>
-                                <a role="button" href="{{ download_link }}" class="btn btn-default btn-xs">
+                                <a role="button" href="{{ download_link }}" class="btn btn-outline-secondary btn-xs">
                                     <span class="glyphicon glyphicon-download-alt"></span> {% trans "Download" %}
                                 </a>
                             </td>

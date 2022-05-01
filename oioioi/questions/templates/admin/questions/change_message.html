@@ -35,7 +35,7 @@
         {% include "ingredients/form.html" with focus="#id_content" %}
         {% if message.top_reference %}
             <div class="form-group">
-                <button type="button" class="btn btn-default btn-sm" tabindex="-1" id="respond_inline" onclick="add_question_content();">
+                <button type="button" class="btn btn-outline-secondary btn-sm" tabindex="-1" id="respond_inline" onclick="add_question_content();">
                     <span class="glyphicon glyphicon-pencil"></span>
                     {% blocktrans %}Add question content{% endblocktrans %}
                 </button>

@@ -11,7 +11,7 @@
     <form enctype="multipart/form-data" class="navbar-form form-wide">
         {% include "ingredients/form.html" with focus=False inline=True %}
         <div class="btn-group">
-            <button type="button" class="btn btn-default" onclick="location.href = location.origin + location.pathname"
+            <button type="button" class="btn btn-outline-secondary" onclick="location.href = location.origin + location.pathname"
                     {% if are_all_values_default %} disabled {% endif %}>
                 {% trans "Clear filters" %}
             </button>

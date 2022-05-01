@@ -28,26 +28,26 @@
                 <td class="submission__margin submission--{{ testrun_report.status }}"></td>
                 <td>
                     {% if not input_is_zip %}
-                    <button type="button" class="btn btn-xs btn-default" data-async-toggle="collapse" data-target="#input_data">
+                    <button type="button" class="btn btn-xs btn-outline-secondary" data-async-toggle="collapse" data-target="#input_data">
                         <span class="glyphicon glyphicon-chevron-up"></span>
                     </button>
                     {% endif %}
-                    <a role="button" class="btn btn-xs btn-default" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+                    <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
                         <span class="glyphicon glyphicon-download-alt"></span>
                     </a>
                 </td>
                 <td class="submission__status submission--{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>
                 <td>{{ testrun_report.time_used|runtimeformat }}/{{ testrun_report.test_time_limit|runtimeformat }}</td>
                 <td>
-                    <button type="button" class="btn btn-xs btn-default" data-async-toggle="collapse" data-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}">
+                    <button type="button" class="btn btn-xs btn-outline-secondary" data-async-toggle="collapse" data-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}">
                         <span class="glyphicon glyphicon-chevron-down"></span>
                     </button>
                     {% if is_admin %}
-                        <a role="button" class="btn btn-xs btn-default" href="{% url 'download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}">
+                        <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}">
                             <span class="glyphicon glyphicon-download-alt"></span>
                         </a>
                     {% else %}
-                        <a role="button" class="btn btn-xs btn-default" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+                        <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
                             <span class="glyphicon glyphicon-download-alt"></span>
                         </a>
                     {% endif %}

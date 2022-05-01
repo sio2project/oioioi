@@ -7,7 +7,7 @@
     <div class="clearfix">
         {% if not request.user.is_anonymous and may_publish_any %}
             <div class="pull-right">
-                <a role="button" class="btn btn-default"
+                <a role="button" class="btn btn-outline-secondary"
                     href="{% url 'publish_solutions' contest_id=contest.id %}">
                     Publish your solutions
                 </a>

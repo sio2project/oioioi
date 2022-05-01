@@ -19,12 +19,12 @@
             </ul>
         {% endif %}
         {% if is_teacher %}
-            <a role="button" href="{% url 'oioioiadmin:contests_contest_add' %}" class="btn btn-default">
+            <a role="button" href="{% url 'oioioiadmin:contests_contest_add' %}" class="btn btn-outline-secondary">
                 {% trans "Create a new contest" %}
             </a>
         {% endif %}
         {% if more_contests %}
-            <a role="button" href="{% url 'select_contest' %}" class="btn btn-default">
+            <a role="button" href="{% url 'select_contest' %}" class="btn btn-outline-secondary">
                 {% trans "Show all contests" %}
             </a>
         {% endif %}

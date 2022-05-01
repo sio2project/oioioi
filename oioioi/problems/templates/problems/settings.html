@@ -79,7 +79,7 @@
             {% include 'problems/ingredients/model-solutions-embedded.html' %}
             {% if model_solutions.submissions %}
                 <div class="lower-button row">
-                    <a role="button" class="btn btn-sm btn-default"
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
                        href="{% url 'model_solutions_rejudge' model_solutions.problem_instance.id %}">
                         <span class="glyphicon glyphicon-repeat"></span>
                         {% trans "Rejudge" %}
