@@ -37,7 +37,7 @@ $oioioi-navbar-dropdown-header-margin-top: 12px !default;
 
 // Required for navbar-fixed-top
 body {
-  padding-top: $oioioi-navbar-height + $countdown-height/* + $padding-base-vertical * 2*/;
+  padding-top: $oioioi-navbar-height + $countdown-height + $padding-base-vertical * 2;
 }
 
 // Redefine navbar styles to make use of flexbox
