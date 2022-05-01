@@ -2,13 +2,13 @@
 {% all_with_prefix extra_menu_top_ %}
 
 
-<div class="panel-group" id="menu-accordion" role="tablist" aria-multiselectable="true">
+<div class="card-column" id="menu-accordion" role="tablist" aria-multiselectable="true">
     {% if side_menus|length > 1 %}
         {% for registry in side_menus %}
             {% generate_menu registry %}
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="menu-heading-{{ forloop.counter }}">
-                    <h4 class="panel-title">
+            <div class="card">
+                <div class="card-header" role="tab" id="menu-heading-{{ forloop.counter }}">
+                    <h4 class="card-title">
                         <a class="collapsed" role="button" data-toggle="collapse" data-parent="#menu-accordion"
                             href="#menu-{{ forloop.counter }}" aria-controls="menu-{{ forloop.counter }}"
                             aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
@@ -16,7 +16,7 @@
                         </a>
                     </h4>
                 </div>
-                <div id="menu-{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.last %}in{% endif %}"
+                <div id="menu-{{ forloop.counter }}" class="card-collapse collapse {% if forloop.last %}in{% endif %}"
                      role="tabpanel" aria-labelledby="menu-heading-{{ forloop.counter }}"
                      aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
                     <div class="list-group">
@@ -34,8 +34,8 @@
         {% endfor %}
     {% else %}
         {% generate_menu side_menus|first %}
-        <div class="panel panel-default">
-            <div class="panel-heading">{% trans "Menu" %}</div>
+        <div class="card">
+            <div class="card-header">{% trans "Menu" %}</div>
             <div class="list-group">
                 {% for item in menu %}
                     <a href="{{ item.url }}" id="{{ item.name }}" {{ item.attrs }} class="list-group-item {% active_url item.url %}">

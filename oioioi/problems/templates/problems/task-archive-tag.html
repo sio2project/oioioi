@@ -16,8 +16,8 @@
     </h3>
     <p>{{ origin_tag.description }} </p>
 
-    <div class="panel panel-default">
-        <div id="filters-panel" class="panel-heading">
+    <div class="card">
+        <div id="filters-panel" class="card-header">
             <div class="filters-heading">
                 <a class="collapse-toggle collapsed"
                     data-toggle="collapse"
@@ -106,7 +106,7 @@
                 </table>
             </div>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {% if not problems.subnodes and not problems.problem_info %}
                 <div class="alert alert-warning">
                     {% trans "Hmm... there doesn't seem to be anything here..." %}
