@@ -13,7 +13,7 @@ $result-margin-min-width: 20px !default;
   background: $color;
 
   &.result__margin {
-    @include gradient-horizontal-three-colors($color-gradient-to, $color, 50%, $color-gradient-to);
+    @include gradient-x-three-colors($color-gradient-to, $color, 50%, $color-gradient-to);
   }
 
   &.result__status {

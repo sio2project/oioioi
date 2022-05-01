@@ -1,6 +1,8 @@
 @import "utility";
 
-// Fix input file strange appearance on firefox
+// Are these still necessary?
+
+/*// Fix input file strange appearance on firefox
 @-moz-document url-prefix() {
   .form-group input[type="file"] {
     height: auto;
@@ -42,4 +44,4 @@
   padding: 10px 15px;
   text-align: left;
   width: 100%;
-}
+}*/

@@ -7,7 +7,7 @@ $timeline-border-width: $padding-small-horizontal !default;
 $timeline-left-offset: 30px !default;
 $timeline-full-left-offset: $timeline-left-offset + 2 * $timeline-border-width !default;
 
-$timeline-round-bar-color: $gray-lighter !default;
+$timeline-round-bar-color: $gray-200 !default;
 $timeline-round-bar-width: 28px !default;
 $timeline-round-bar-gutter: 2px !default;
 $timeline-round-bar-full-width: $timeline-round-bar-width + $timeline-round-bar-gutter !default;
@@ -17,8 +17,8 @@ $timeline-input-height: 34px !default;
 $timeline-input-left-margin: 8px !default;
 
 $timeline-now-line-color: #9ecfff !default;
-$timeline-connector-color: $gray-light !default;
-$timeline-connector-event-color: $brand-danger !default;
+$timeline-connector-color: $gray-400 !default;
+$timeline-connector-event-color: theme-color("danger") !default;
 $timeline-connector-width: 2px !default;
 
 $timeline-group-delete-btn-margin: 8px !default;
@@ -36,7 +36,7 @@ $timeline-group-delete-btn-margin: 8px !default;
   }
 
   &__separator {
-    border-bottom: 1px solid $gray-lighter;
+    border-bottom: 1px solid $gray-200;
     left: -$timeline-full-left-offset;
     position: absolute;
     width: 100%;
