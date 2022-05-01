@@ -4,8 +4,8 @@
     {% if tabs|length > 1 %}
         <ul class="nav nav-tabs">
             {% for tab in tabs %}
-                <li {% if tab.obj == current_tab %}class="active"{% endif %}><a
-                        href="{{ tab.link }}">{{ tab.obj.short_description }}</a></li>
+                <li class="nav-item">
+                    <a class="nav-link {% if tab.obj == current_tab %}active{% endif %}" href="{{ tab.link }}">{{ tab.obj.short_description }}</a></li>
             {% endfor %}
         </ul>
         <div class="nav-content">

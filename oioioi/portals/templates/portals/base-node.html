@@ -22,8 +22,8 @@
         <ul class="nav nav-tabs nav-margin">
             {% for item in menu %}
                 {{ item.name }}
-                <li{% if item.url == request.get_full_path %} class="active"{% endif %}>
-                    <a href="{{ item.url }}" {{ item.attrs }}>
+                <li class="nav-item">
+                    <a class="nav-link {% if item.url == request.get_full_path %}active{% endif %}" href="{{ item.url }}" {{ item.attrs }}>
                         {% if item.icon %}
                             <span class="glyphicon glyphicon-{{ item.icon }}"></span>
                         {% endif %}

@@ -21,12 +21,12 @@
     <ul class="nav nav-tabs">
         {% for tab in tabs %}
             {% if tab.obj.key != 'add_to_contest' %}
-                <li {% if tab.obj == current_tab %}class="active"{% endif %}>
-                    <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
+                <li class="nav-item">
+                    <a class="nav-link {% if tab.obj == current_tab %}active{% endif %}" href="{{ tab.link }}">{{ tab.obj.title }}</a>
                 </li>
             {% elif show_add_button and not can_admin_problem %}
-                <li {% if tab.obj == current_tab %}class="active"{% endif %}>
-                    <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
+                <li class="nav-item">
+                    <a class="nav-link {% if tab.obj == current_tab %}active{% endif %}" href="{{ tab.link }}">{{ tab.obj.title }}</a>
                 </li>
             {% endif %}
         {% endfor %}
