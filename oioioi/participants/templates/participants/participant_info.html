@@ -5,14 +5,14 @@
 
 <div class="clearfix">
     {% if is_admin %}
-        <div class="pull-right">
+        <div class="float-right">
             <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'oioioiadmin:participants_participant_change' participant.id %}">
                 {% trans "Edit Participant object" %}
             </a>
         </div>
     {% endif %}
-    <h2 class="pull-left">{% trans "Participant info" %}:</h2>
+    <h2 class="float-left">{% trans "Participant info" %}:</h2>
 </div>
 
 <p>{% trans "Anonymous" %}: {{ participant.anonymous }}</p>

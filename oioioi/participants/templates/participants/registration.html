@@ -30,7 +30,7 @@
             {% trans "Submit" %}
         </button>
         {% if can_unregister %}
-            <a role="button" class="btn btn-danger pull-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
+            <a role="button" class="btn btn-danger float-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
                 {% trans "Deregister" %}
             </a>
         {% endif %}

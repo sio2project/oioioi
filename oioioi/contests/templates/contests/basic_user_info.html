@@ -6,7 +6,7 @@
 
 <div class="clearfix">
     {% if is_admin %}
-        <div class="pull-right">
+        <div class="float-right">
             <a role="button"
                class="btn btn-sm btn-outline-secondary"
                href="{% url 'oioioiadmin:auth_user_change' target_user.id %}">
@@ -15,7 +15,7 @@
             </a>
         </div>
     {% endif %}
-    <h1 class="pull-left">{{ target_user_name }}</h1>
+    <h1 class="float-left">{{ target_user_name }}</h1>
 </div>
 <p>{% trans "Username" %}: <strong>{{ target_user.username }}</strong></p>
 <p>{% trans "User id" %}: <strong>{{ target_user.id }}</strong></p>

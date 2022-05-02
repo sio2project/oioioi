@@ -13,7 +13,7 @@
 
 <div class="clearfix">
     {% if is_admin %}
-        <div class="pull-right">
+        <div class="float-right">
             <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'user_info' message.author_id %}">
                 <span class="glyphicon glyphicon-user"></span>
                 {% trans "Display user" %}
@@ -26,7 +26,7 @@
             {% endif %}
         </div>
     {% endif %}
-    <h1 class="message_topic pull-left">
+    <h1 class="message_topic float-left">
         {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}:
         {{ message.topic }}
     </h1>
@@ -90,7 +90,7 @@
         <div class="form-group">
             <input type="hidden" id="just_reload" name="just_reload" value="no">
             <input type="submit" id="submitter" class="btn btn-primary" value="{% trans "Submit" %}">
-            <div class="pull-right checkbox">
+            <div class="float-right checkbox">
                 <label for="id_fake_save_template">
                     <input id="id_fake_save_template" name="fake_save_template" type="checkbox">
                     {% trans "Save as template" %}
