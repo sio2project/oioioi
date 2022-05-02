@@ -4,36 +4,32 @@
     <span class="sr-only">{% trans "Toggle navigation" %}</span>
     <span class="glyphicon glyphicon-menu-hamburger"></span>
 </a>
-<ul class="dropdown-menu">
+<div class="dropdown-menu">
     {% all_with_prefix extra_menu_top_ %}
 
     {% if side_menus|length > 1 %}
         {% for registry in side_menus %}
             {% generate_menu registry %}
-            <li class="dropdown-header">{{ registry.text }}</li>
+            <h5 class="dropdown-header">{{ registry.text }}</h5>
             {% for item in menu %}
-                <li class="dropdown-item {% active_url item.url %}">
-                    <a href="{{ item.url }}" {{ item.attrs }}>
-                        {% if item.has_icon and menu_icons %}
-                            {{ menu_icons|cyclic_lookup:forloop.counter0 }}
-                        {% endif %}
-                        {{ item.text }}
-                    </a>
-                </li>
+                <a class="dropdown-item {% active_url item.url %}" href="{{ item.url }}" {{ item.attrs }}>
+                    {% if item.has_icon and menu_icons %}
+                        {{ menu_icons|cyclic_lookup:forloop.counter0 }}
+                    {% endif %}
+                    {{ item.text }}
+                </a>
             {% endfor %}
         {% endfor %}
     {% else %}
         {% generate_menu side_menus|first %}
         {% for item in menu %}
-            <li id="{{ item.name }}" class="dropdown-item {% active_url item.url %}">
-                <a href="{{ item.url }}" {{ item.attrs }}>
-                    {% if menu_icons %}
-                        {{ menu_icons|cyclic_lookup:forloop.counter0 }}
-                    {% endif %}
-                    {{ item.text }}
-                </a>
-            </li>
+            <a id="{{ item.name }}" class="dropdown-item {% active_url item.url %}" href="{{ item.url }}" {{ item.attrs }}>
+                {% if menu_icons %}
+                    {{ menu_icons|cyclic_lookup:forloop.counter0 }}
+                {% endif %}
+                {{ item.text }}
+            </a>
         {% endfor %}
     {% endif %}
     {% all_with_prefix extra_menu_bottom_ %}
-</ul>
+</div>

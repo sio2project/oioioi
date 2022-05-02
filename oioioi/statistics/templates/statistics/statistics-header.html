@@ -6,16 +6,16 @@
             aria-haspopup="true" aria-expanded="true">
             Other <span class="caret"></span>
         </button>
-        <ul class="dropdown-menu dropdown-menu-right">
+        <div class="dropdown-menu dropdown-menu-right">
             {% for link in links %}
                 {% if link.object == "" %}
                     {% url 'statistics_view_without_object' contest_id=contest.id category=link.link as address %}
                 {% else %}
                     {% url 'statistics_view' contest_id=contest.id category=link.link object_name=link.object as address %}
                 {% endif %}
-                <li class="dropdown-item"><a href="{{ address }}">{{ link.category_name }} {{ link.name }}</a></li>
+                <a class="dropdown-item" href="{{ address }}">{{ link.category_name }} {{ link.name }}</a>
             {% endfor %}
-        </ul>
+        </div>
     </div>
 
     <h1 class="pull-left">

@@ -9,27 +9,25 @@
         </span>
         <time id="clock">{{ current_time }}</time>
     </a>
-    <ul class="dropdown-menu dropdown-menu-right">
-        <li class="navbar-form">
-            <form action="{% url 'admin_time' %}" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ path }}">
+    <div class="dropdown-menu dropdown-menu-right">
+        <form action="{% url 'admin_time' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ path }}">
 
-                <div class="form-group">
-                    <label for="admin-time">{% trans "Admin time:" %}</label>
-                    <input type="text" name="admin-time" id="admin-time" class="form-control"
-                        placeholder="{% trans "(yyyy-mm-dd hh:mm:ss)" %}"/>
-                </div>
+            <div class="form-group">
+                <label for="admin-time">{% trans "Admin time:" %}</label>
+                <input type="text" name="admin-time" id="admin-time" class="form-control"
+                    placeholder="{% trans "(yyyy-mm-dd hh:mm:ss)" %}"/>
+            </div>
 
-                <div class="btn-group btn-group-justified" role="group">
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-primary" type="submit" name="ok-button">{% trans "Ok" %}</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button class="btn btn-outline-secondary" type="submit" name="reset-button">{% trans "Reset" %}</button>
-                    </div>
+            <div class="btn-group btn-group-justified" role="group">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-primary" type="submit" name="ok-button">{% trans "Ok" %}</button>
                 </div>
-            </form>
-        </li>
-    </ul>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-secondary" type="submit" name="reset-button">{% trans "Reset" %}</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
