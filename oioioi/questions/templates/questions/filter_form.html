@@ -7,16 +7,18 @@
         {{ error | escape }}
     </div>
 {% endfor %}
-<div class="message-filter questions-filter">
-    <form enctype="multipart/form-data" class="navbar-form form-wide">
-        {% include "ingredients/form.html" with focus=False inline=True %}
-        <div class="btn-group">
-            <button type="button" class="btn btn-outline-secondary" onclick="location.href = location.origin + location.pathname"
-                    {% if are_all_values_default %} disabled {% endif %}>
-                {% trans "Clear filters" %}
-            </button>
-        </div>
-    </form>
+<div class="questions-filter card bg-light mb-3">
+    <div class="card-body p-2">
+        <form enctype="multipart/form-data" class="form-inline form-wide">
+            {% include "ingredients/form.html" with focus=False inline=True %}
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline-secondary" onclick="location.href = location.origin + location.pathname"
+                        {% if are_all_values_default %} disabled {% endif %}>
+                    {% trans "Clear filters" %}
+                </button>
+            </div>
+        </form>
+    </div>
     <script>
         $(function() {
             const submit = function() { this.form.submit(); };
