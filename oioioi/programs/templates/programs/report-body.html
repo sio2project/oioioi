@@ -21,9 +21,9 @@
                 {% with test=record.test %}
                     <tr class="test-row-{{ group.report.id }}">
                         <td class="submission__margin submission--{{ record.display_type }}"></td>
-                        <td class="test-actions-toggler {% if is_admin %}fix-pull-right{% endif %}">
+                        <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}">
                             {{ test.test_name }}
-                            <span class="test-actions pull-right">
+                            <span class="test-actions float-right">
                                 {% if test.test %}
                                     <small>
                                         {% if is_admin %}

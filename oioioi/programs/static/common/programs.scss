@@ -12,9 +12,9 @@
 
 .table-report {
   // In table-report with table-responsive firefox makes new line for
-  // test-actions used with pull-right on sm display.
+  // test-actions used with float-right on sm display.
   // This is a workaround for this.
-  .fix-pull-right {
+  .fix-float-right {
     white-space: normal !important;
   }
   .group-score {

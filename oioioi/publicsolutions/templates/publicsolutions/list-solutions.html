@@ -6,14 +6,14 @@
 {% block main-content %}
     <div class="clearfix">
         {% if not request.user.is_anonymous and may_publish_any %}
-            <div class="pull-right">
+            <div class="float-right">
                 <a role="button" class="btn btn-outline-secondary"
                     href="{% url 'publish_solutions' contest_id=contest.id %}">
                     Publish your solutions
                 </a>
             </div>
         {% endif %}
-        <h1 class="pull-left">{% trans "Solutions" %}</h1>
+        <h1 class="float-left">{% trans "Solutions" %}</h1>
     </div>
 
     <form>
