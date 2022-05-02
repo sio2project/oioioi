@@ -18,7 +18,7 @@ $list-subheader-bgcolor: #eee !default;
     columns: $list-grid-column-min-width $list-grid-column-count;
 }
 
-.table-sm .padded-collapsing-content {
+.table-condensed .padded-collapsing-content {
   > * {
     padding: 0;
   }
