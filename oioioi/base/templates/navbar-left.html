@@ -18,17 +18,13 @@
             <span class="sr-only">{% trans "Toggle navigation" %}</span>
             <span class="glyphicon glyphicon-menu-hamburger"></span>
         </a>
-        <ul class="dropdown-menu">
-            <li>
-                <a href="{% url 'index' contest_id=None %}">{% trans "Main page" %}</a>
-            </li>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'index' contest_id=None %}">{% trans "Main page" %}</a>
             {% for item in navbar_links %}
                 {% if item %}
-                    <li>
-                        <a href="{{ item.url }}">{{ item.text }}</a>
-                    </li>
+                    <a class="dropdown-item" href="{{ item.url }}">{{ item.text }}</a>
                 {% endif %}
             {% endfor %}
-        </ul>
+        </div>
     </div>
 {% endif %}

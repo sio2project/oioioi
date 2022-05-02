@@ -12,17 +12,15 @@
                         <span class="glyphicon glyphicon-tags"></span>
                         {% trans "Change kind" %}
                     </button>
-                    <ul class="dropdown-menu">
+                    <div class="dropdown-menu">
                         {% for value, description in submission.valid_kinds_for_submission %}
-                            <li class="dropdown-item">
-                                <a href="#"
-                                data-post-url="{% url 'change_submission_kind' submission_id=submission.submission.id kind=value %}">
-                                    <span class="glyphicon glyphicon-tag"></span>
-                                    {{ description }}
-                                </a>
-                            </li>
+                            <a class="dropdown-item" href="#"
+                            data-post-url="{% url 'change_submission_kind' submission_id=submission.submission.id kind=value %}">
+                                <span class="glyphicon glyphicon-tag"></span>
+                                {{ description }}
+                            </a>
                         {% endfor %}
-                    </ul>
+                    </div>
                 </div>
             {% endif %}
             <div class="btn-group">
@@ -32,24 +30,20 @@
                     <span class="glyphicon glyphicon-repeat"></span>
                     {% trans "Rejudge" %}
                 </button>
-                <ul class="dropdown-menu">
-                    <li class="dropdown-item">
-                        <a href="#"
-                        data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}">
-                            <span class="glyphicon glyphicon-eye-open"></span>
-                            {% trans "Normal rejudge" %}
-                        </a>
-                    </li>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"
+                    data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        {% trans "Normal rejudge" %}
+                    </a>
                     {% for link, name in supported_extra_args.items %}
-                        <li class="dropdown-item">
-                            <a href="#"
-                            data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}?{{ link }}=true">
-                                <span class="glyphicon glyphicon-eye-close"></span>
-                                {{ name }}
-                            </a>
-                        </li>
+                        <a class="dropdown-item" href="#"
+                        data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}?{{ link }}=true">
+                            <span class="glyphicon glyphicon-eye-close"></span>
+                            {{ name }}
+                        </a>
                     {% endfor %}
-                </ul>
+                </div>
             </div>
             {% endblock %}
         {% endif %}

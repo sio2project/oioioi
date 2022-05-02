@@ -227,15 +227,13 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {% trans "Add from other contest" %}
                             </button>
-                            <ul class="dropdown-menu">
+                            <div class="dropdown-menu">
                                 {% for c in other_contests %}
-                                    <li class="dropdown-item">
-                                        <a data-post-url="{% url 'teachers_bulk_add_members' contest_id=contest.id other_contest_id=c.id %}">
-                                            {{ c }}
-                                        </a>
-                                    </li>
+                                    <a class="dropdown-item" data-post-url="{% url 'teachers_bulk_add_members' contest_id=contest.id other_contest_id=c.id %}">
+                                        {{ c }}
+                                    </a>
                                 {% endfor %}
-                            </ul>
+                            </div>
                         </span>
                     {% endif %}
                 </div>

@@ -4,18 +4,18 @@
     <span class="sr-only">{% trans "Toggle navigation" %}</span>
     <span class="glyphicon glyphicon-menu-hamburger"></span>
 </a>
-<ul class="dropdown-menu">
+<div class="dropdown-menu">
     {% for ancestor in current_node.get_ancestors %}
-        <li class="dropdown-item hidden-md hidden-lg"><a href="{% portal_url node=ancestor %}">
+        <a class="dropdown-item hidden-md hidden-lg" href="{% portal_url node=ancestor %}">
             {{ ancestor|full_name:request }}
-        </a></li>
-        <li class="dropdown-divider hidden-md hidden-lg" role="separator"></li>
+        </a>
+        <div class="dropdown-divider hidden-md hidden-lg" role="separator"></div>
     {% endfor %}
-    <li class="dropdown-item"><a class="active" href="{% portal_url node=current_node %}">{{ current_node|full_name:request }}</a></li>
+    <a class="dropdown-item active" href="{% portal_url node=current_node %}">{{ current_node|full_name:request }}</a>
     {% for child in current_node.get_children %}
-        <li class="dropdown-item"><a href="{% portal_url node=child %}">
+        <a class="dropdown-item" href="{% portal_url node=child %}">
             <span class="glyphicon glyphicon-chevron-right"></span>
             {{ child|full_name:request }}
-        </a></li>
+        </a>
     {% endfor %}
-</ul>
+</div>
