@@ -41,7 +41,7 @@ function setFocusToLoginInput(){
            data-toggle="dropdown" role="button" aria-expanded="false">
             {% is_maintenance_enabled as enabled %}
             {% if user.is_superuser and enabled %}
-                <span id="maintenance-label" class="label label-warning"
+                <span id="maintenance-label" class="badge badge-warning"
                         data-toggle="tooltip" data-placement="bottom" title="{% trans "Maintenance Mode is ON" %}">
                     <span class="label-short glyphicon glyphicon-cog"></span>
                     <span class="label-full">{% trans "Maintenance Mode is ON" %}</span>

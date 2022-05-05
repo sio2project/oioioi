@@ -75,11 +75,11 @@
                                 <a href="{{ link }}">
                                 {% endif %}
                                     {% if result.score == result.submission_report.score_report.max_score %}
-                                        <div class="label label-success"> {{ result.score }}</div>
+                                        <div class="badge badge-success"> {{ result.score }}</div>
                                     {% elif result.score > 0 %}
-                                        <div class="label label-warning"> {{ result.score }}</div>
+                                        <div class="badge badge-warning"> {{ result.score }}</div>
                                     {% else %}
-                                        <div class="label label-danger"> {{ result.score }}</div>
+                                        <div class="badge badge-danger"> {{ result.score }}</div>
                                     {% endif %}
                                 {% if not is_admin %}
                                 </a>

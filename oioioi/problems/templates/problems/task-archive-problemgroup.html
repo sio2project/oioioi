@@ -46,11 +46,11 @@
             <td>
                 {% if result.exists %}
                     {% if result.score == result.max_score %}
-                        <a class="label label-success" href="{{ result.submission_url }}"> {{ result.score }}</a>
+                        <a class="badge badge-success" href="{{ result.submission_url }}"> {{ result.score }}</a>
                     {% elif result.score > 0 %}
-                        <a class="label label-warning" href="{{ result.submission_url }}"> {{ result.score }}</a>
+                        <a class="badge badge-warning" href="{{ result.submission_url }}"> {{ result.score }}</a>
                     {% else %}
-                        <a class="label label-danger" href="{{ result.submission_url }}"> {{ result.score }}</a>
+                        <a class="badge badge-danger" href="{{ result.submission_url }}"> {{ result.score }}</a>
                     {% endif %}
                 {% endif %}
             </td>

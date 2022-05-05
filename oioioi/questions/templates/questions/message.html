@@ -60,7 +60,7 @@
 {% if form %}
 <div class="oioioi-message--reply">
     <p class="oioioi-message__info oioioi-message__info--new">
-        <span class="oioioi-message__label label label-default">{% trans "New reply" %}</span>
+        <span class="oioioi-message__badge badge badge-secondary">{% trans "New reply" %}</span>
     </p>
     <form enctype="multipart/form-data" id="reply_form" method="post">
         {% csrf_token %}
