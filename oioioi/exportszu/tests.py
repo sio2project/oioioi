@@ -141,7 +141,7 @@ class TestExportSubmissionsView(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get('/c/c/dashboard/')
         self.assertInHTML(
-            '<a href="/c/c/export_submissions/" class="list-group-item " >\n'
+            '<a class="list-group-item list-group-item-action " href="/c/c/export_submissions/">\n'
             'Export submissions\n</a>',
             response.content.decode('utf-8'),
         )
