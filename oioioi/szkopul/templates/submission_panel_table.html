@@ -1,5 +1,5 @@
 <div class="table-responsive">
-    <table class="{% block table-classes %}table table-condensed submission{% endblock %}">
+    <table class="{% block table-classes %}table table-sm submission{% endblock %}">
         <tbody>
             {% for record in submissions %}
                 {% include 'contests/my_submission_table_base_row_begin.html' with shortened=True %}

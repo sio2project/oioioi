@@ -31,7 +31,7 @@
             </div>
         {% else %}
             {% if display_labels != False %}
-                <label for="{{ field.id_for_label }}" class="control-label {% if field.errors %}text-danger{% endif %}">
+                <label for="{{ field.id_for_label }}" class="control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-2{% endif %}">
                     {{ field.label }}
                 </label>
             {% endif %}
