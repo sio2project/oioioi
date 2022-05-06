@@ -30,7 +30,7 @@ $timeline-group-delete-btn-margin: 8px !default;
   user-select: none;
 
   &__now-bar {
-    border-bottom: $border-radius-small dotted $timeline-now-line-color;
+    border-bottom: $border-radius-sm dotted $timeline-now-line-color;
     left: -$timeline-full-left-offset;
     position: absolute;
   }
@@ -43,7 +43,7 @@ $timeline-group-delete-btn-margin: 8px !default;
   }
 
   &__datebox {
-    border-radius: $border-radius-base;
+    border-radius: $border-radius;
     cursor: default;
     height: $timeline-input-height;
     position: absolute;
@@ -128,5 +128,5 @@ $timeline-group-delete-btn-margin: 8px !default;
 }
 
 .bootstrap-datetimepicker-widget {
-  color: $text-color;
+  color: $body-color;
 }
