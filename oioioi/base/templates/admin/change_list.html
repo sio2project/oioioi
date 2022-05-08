@@ -1,27 +1,93 @@
-{# Extends the change_list.html from Django Admin. #}
-{# It's possible since Django 1.9: https://stackoverflow.com/a/38894304 #}
-{# and is desribed in Django's docs as preferred way to override admin templates: #}
-{# https://docs.djangoproject.com/en/1.11/ref/contrib/admin/#overriding-vs-replacing-an-admin-template #}
-
-{% extends "admin/change_list.html" %}
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_list %}
 
 {% block extrastyle %}
-    {{ block.super }}
+  {{ block.super }}
+  <!--<link rel="stylesheet" href="{% static "admin/css/changelists.css" %}"> -->
+  {% if cl.formset %}
+    <link rel="stylesheet" href="{% static "admin/css/forms.css" %}">
+  {% endif %}
+  {% if cl.formset or action_form %}
+    <script src="{% url 'admin:jsi18n' %}"></script>
+  {% endif %}
+  {{ media.css }}
+  {% if not actions_on_top and not actions_on_bottom %}
     <style>
-        #changelist-filter {
-            z-index: 900;
-        }
-        #changelist-form {
-            max-width: initial;
-            /* Margin and width same as ".filtered #toolbar" etc. in
-             * /django/contrib/admin/static/admin/css/changelists.css,
-             * leaving the space for the #changelist-filter. */
-            margin-right: 280px;
-            width: auto;
-        }
-        #changelist .toplinks li {
-            display: inline-block;
-            margin: 5px 5px 5px 5px;
-        }
+      #changelist table thead th:first-child {width: inherit}
     </style>
+  {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+{{ media.js }}
+<script src="{% static 'admin/js/filters.js' %}" defer></script>
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} app-{{ opts.app_label }} model-{{ opts.model_name }} change-list{% endblock %}
+
+{% if not is_popup %}
+{% block breadcrumbs %}
+{% endblock %}
+{% endif %}
+
+{% block coltype %}{% endblock %}
+
+<!-- TODO:
+                {% if cl.has_active_filters %}<h3 id="changelist-filter-clear">
+                  <a href="{{ cl.clear_all_filters_qs }}">&#10006; {% translate "Clear all filters" %}</a>
+                </h3>{% endif %}
+                -->
+
+{% block content %}
+  <div id="content-main">
+    {% block object-tools %}
+        <div class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+          <ul class="nav navbar-nav">
+            {% block object-tools-items %}
+              {% change_list_object_tools %}
+            {% endblock %}
+          </ul>
+          {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+          {% block search %}{% search_form cl %}{% endblock %}
+          {% block filters %}
+            {% if cl.has_filters %}
+              <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                  <a href="#" class="btn btn-outline-secondary ml-2 dropdown-toggle" id="filtersDropdown" role="button" data-toggle="dropdown" aria-expanded="false">{% trans 'Filter' %}</a>
+                  <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="filtersDropdown">
+                    {% for spec in cl.filter_specs %}
+                      {% admin_list_filter cl spec %}
+                    {% endfor %}
+                  </ul>
+                </li>
+              </ul>
+            {% endif %}
+          {% endblock %}
+        </div>
+    {% endblock %}
+    {% if cl.formset and cl.formset.errors %}
+        <p class="errornote">
+        {% if cl.formset.total_error_count == 1 %}{% translate "Please correct the error below." %}{% else %}{% translate "Please correct the errors below." %}{% endif %}
+        </p>
+        {{ cl.formset.non_form_errors }}
+    {% endif %}
+    <div class="module{% if cl.has_filters %} filtered{% endif %}" id="changelist">
+      <div class="changelist-form-container">
+        {% block date_hierarchy %}{% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}{% endblock %}
+
+        <form id="changelist-form" class="form-wide" method="post"{% if cl.formset and cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>{% csrf_token %}
+        {% if cl.formset %}
+          <div>{{ cl.formset.management_form }}</div>
+        {% endif %}
+
+        {% block result_list %}
+          {% result_list cl %}
+          {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+        {% endblock %}
+        {% block pagination %}{% pagination cl %}{% endblock %}
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock %}

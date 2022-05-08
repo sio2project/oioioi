@@ -1,0 +1,16 @@
+{% if show %}
+<div class="xfull">
+  <ul class="nav">
+    {% block date-hierarchy-toplinks %}
+    {% block date-hierarchy-back %}
+    {% if back %}<li class="nav-item date-back"><a class="nav-link" href="{{ back.link }}">&lsaquo; {{ back.title }}</a></li>{% endif %}
+    {% endblock %}
+    {% block date-hierarchy-choices %}
+    {% for choice in choices %}
+    <li class="nav-item"><a class="nav-link {% if not choice.link %}disabled{% endif %}" href="{{ choice.link }}">{{ choice.title }}</a></li>
+    {% endfor %}
+    {% endblock %}
+    {% endblock %}
+  </ul>
+</div>
+{% endif %}
