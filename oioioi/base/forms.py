@@ -71,10 +71,17 @@ def adjust_preferences_factory_fields():
     choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
     choices = [(k, _(v)) for k, v in choices_not_translated]
 
+    def handle_preferred_language(user):
+        if user is None:
+            return "None"
+        ensure_preferences_exist_for_user(user)
+        return user.userpreferences.language
+
     PreferencesFactory.add_field(
         "preferred_language",
         ChoiceField,
-        lambda name, user: "None" if user is None else user.userpreferences.language,
+        lambda name, user: handle_preferred_language(user),
+        label=_("Preferred language"),
         choices=choices,
         required=False
     )
