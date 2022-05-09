@@ -15,6 +15,12 @@
 {% endblock %}
 
 {% block content %}
+
+{#    TRANSIFEX TEST TODO: remove when GH actions works    #}
+    Transifex Test
+    {% trans "sample text transifex github actions" %}
+{#    TRANSFIEX TEST END    #}
+
     {% if not user.is_authenticated %}
         <h1>{% trans "Registration" %}</h1>
     {% else %}
