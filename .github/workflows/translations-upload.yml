@@ -57,11 +57,9 @@ jobs:
         ../tx pull -af
         git diff HEAD
 
-    - name: Make messages
+    - name: Make messages + push
       run: |
         django-admin makemessages --all --no-obsolete --symlinks
         django-admin makemessages --all --no-obsolete --symlinks -d djangojs
-
-    - name: Push messages
-      run: |
+        git diff
         ../tx push --source
