@@ -779,6 +779,7 @@ class TestRegistration(TestCase):
         self.assertEqual(User.objects.filter(username='test_foo').count(), 0)
 
 
+
 class TestArchive(TestCase):
     good_files = ['archive.tgz', 'archive.zip']
     bad_files = ['archive-with-symlink.tgz', 'archive-with-hardlink.tgz']
@@ -1318,6 +1319,28 @@ class TestPreferences(TestCase):
 
         response = self.client.get('/')
         self.assertContains(response, 'Edycja profilu')
+
+    def test_registration_preferences(self):
+        response = self.client.get(reverse('registration_register'))
+        self.assertContains(response, 'Preferred language')
+
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('edit_profile')
+        response = self.client.get(url)
+        data = {
+            'username': 'test_user',
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': 'foo@bar.com',
+            'terms_accepted': True,
+            'preferred_language': 'en',
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.client.logout()
+
+        response = self.client.get(reverse('registration_register'))
+        self.assertContains(response, 'Preferred language')
 
 
 @override_settings(LANGUAGE_CODE='pl')
