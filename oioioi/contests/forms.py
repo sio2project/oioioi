@@ -117,12 +117,11 @@ class SubmissionForm(forms.Form):
 
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
-    _css = {'all': ('common/submit.css',)}
     _js = ['common/submit.js',]
 
     @property
     def media(self):
-        return FormMedia(self._js, self._css)
+        return FormMedia(self._js)
 
     def __init__(self, request, *args, **kwargs):
         add_kind_and_user_fields = kwargs.pop('add_kind_and_user_fields', True)

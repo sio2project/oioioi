@@ -77,7 +77,7 @@ class QuizProblemController(ProblemController):
             </td>''',
                 ((p.get_absolute_url(), p.caption) for p in pictures),
             ),
-        )
+        ) if pictures else u''
 
     def render_question(self, request, question):
         pictures = question.quizquestionpicture_set.all()

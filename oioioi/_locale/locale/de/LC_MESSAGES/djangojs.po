@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-11 17:33+0200\n"
+"POT-Creation-Date: 2022-05-09 12:01+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
 "Last-Translator: Michal Boron <beredentod@gmail.com>, 2019\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -52,11 +52,11 @@ msgstr "Keine Verbindung"
 msgid "Corrupt data"
 msgstr "Beschädigte Daten"
 
-#: base/static/common/clipboard-setup.js:3
+#: base/static/common/clipboard-setup.js:4
 msgid "copied!"
 msgstr ""
 
-#: base/static/common/clipboard-setup.js:5
+#: base/static/common/clipboard-setup.js:6
 msgid "Press Ctrl+C to copy"
 msgstr ""
 
