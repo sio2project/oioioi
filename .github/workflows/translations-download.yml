@@ -51,9 +51,6 @@ jobs:
 
     - name: Update repository
       run: |
-        git checkout master
-        git fetch origin
-        git reset --hard origin/master
         ../tx pull -af
         git diff HEAD
 
@@ -62,6 +59,7 @@ jobs:
         cd oioioi/locale
         django-admin compilemessages
         git status
+        cd ../..
 
     - name: Setup commiter
       run: |
@@ -71,6 +69,7 @@ jobs:
     - name: Commit changes
       run: |
         if [[ `git status --porcelain` ]]; then
+          git diff
           git commit -am "Github Actions - Downloaded translations."
           git push origin master
         fi
