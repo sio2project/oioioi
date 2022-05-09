@@ -104,6 +104,7 @@ def adjust_preferences_factory_fields(request):
         "preferred_language",
         ChoiceField,
         lambda name, user: user.userpreferences.language,
+        label=_("Preferred language"),
         order=-1,
         choices=choices,
         required=False
@@ -114,6 +115,7 @@ def adjust_preferences_factory_fields(request):
             "enable_editor",
             BooleanField,
             lambda name, user: user.userpreferences.enable_editor,
+            label=_("Enable editor"),
             order=0,
             required=False
         )

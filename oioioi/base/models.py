@@ -64,7 +64,7 @@ class UserPreferences(models.Model):
     )
 
     enable_editor = models.BooleanField(
-        _("Używaj edytora kodu"),
+        _("enable_editor"),
         default=False,
     )
 
