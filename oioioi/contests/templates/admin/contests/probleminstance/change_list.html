@@ -1,8 +1,6 @@
 {% extends "admin/change_list.html" %}
 {% load i18n %}
 
-{% block object-tools %}
-<ul class="list-group">
-    <li class="list-group-item"><a href="{% url 'oioioiadmin:problems_problem_add' %}">{% trans "Add problem" %}</a></li>
-</ul>
+{% block object-tools-items %}
+<a class="btn btn-sm btn-outline-success" href="{% url 'oioioiadmin:problems_problem_add' %}">{% trans "Add problem" %}</a>
 {% endblock %}

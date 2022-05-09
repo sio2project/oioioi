@@ -28,6 +28,6 @@
 
 .submission-admin {
   display: block;
-  padding: 10px !important;
-  margin: -10px !important;
+  padding: ($spacer * .30);
+  margin: (-$spacer * .30);
 }
