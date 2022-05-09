@@ -64,4 +64,4 @@ jobs:
 
     - name: Push messages
       run: |
-        tx push --source
+        ../tx push --source
