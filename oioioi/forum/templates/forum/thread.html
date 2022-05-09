@@ -10,9 +10,9 @@
 {% endblock %}
 
 {% block forum-contents %}
-    <div class="card-column">
+    <div class="card-column mb-3">
         {% for post in post_set %}
-            <div class="card" id="forum-post-{{ post.id }}">
+            <div class="card mb-2" id="forum-post-{{ post.id }}">
                 <div class="anchor-jump-fix" id="forum-anchor-{{ post.id }}"></div>
                 {% if post.hidden %}
                     <div class="card-header">

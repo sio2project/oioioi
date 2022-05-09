@@ -50,7 +50,7 @@
 {% block content %}
   <div id="content-main">
     {% if cl.has_filters or cl.search_fields or action_form and actions_on_top and cl.show_admin_actions %}
-      <div class="navbar navbar-expand-lg navbar-light bg-light border mb-3">
+      <div class="navbar navbar-expand-lg navbar-light breadcrumb p-2 mb-3">
         {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
         {% block search %}{% search_form cl %}{% endblock %}
         {% block filters %}
