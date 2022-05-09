@@ -71,5 +71,7 @@ jobs:
         if [[ `git status --porcelain` ]]; then
           git diff
           git commit -am "Github Actions - Downloaded translations."
-          git push origin master
         fi
+
+    - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
