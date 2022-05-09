@@ -51,14 +51,12 @@ jobs:
 
     - name: Update repository
       run: |
-        git checkout master
-        git fetch origin
-        git reset --hard origin/master
         ../tx pull -af
-        git diff HEAD
+        git diff
 
     - name: Make messages + push
       run: |
+        cd oioioi
         django-admin makemessages --all --no-obsolete --symlinks
         django-admin makemessages --all --no-obsolete --symlinks -d djangojs
         git diff
