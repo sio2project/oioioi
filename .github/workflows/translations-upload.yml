@@ -60,4 +60,4 @@ jobs:
         django-admin makemessages --all --no-obsolete --symlinks
         django-admin makemessages --all --no-obsolete --symlinks -d djangojs
         git diff
-        ../tx push --source
+        ../../tx push --source
