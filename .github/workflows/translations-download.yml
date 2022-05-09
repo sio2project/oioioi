@@ -56,10 +56,10 @@ jobs:
 
     - name: Compile messages
       run: |
-        cd oioioi/locale
+        cd oioioi
         django-admin compilemessages
         git status
-        cd ../..
+        cd ..
 
     - name: Setup commiter
       run: |
