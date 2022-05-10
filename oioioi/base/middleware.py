@@ -188,7 +188,7 @@ class UserPreferencesMiddleware(object):
         just_logged_in = ('first_view_after_logging' in request.session) and \
                             request.session['first_view_after_logging'] is True
 
-        ensure_preferences_exist_for_user(request)
+        ensure_preferences_exist_for_user(request.user)
 
         self.lang = settings.LANGUAGE_CODE
         pref_lang = request.user.userpreferences.language
