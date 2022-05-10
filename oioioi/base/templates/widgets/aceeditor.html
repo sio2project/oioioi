@@ -18,8 +18,23 @@
     var ace_size_offset_w = 28;
     var editor_started = false;
     var editor_starting = false;
+    function set_mode(editor, mode) {
+        editor.session.setMode("ace/mode/" + mode);
+    }
+    function set_mode_from_val(editor, val) {
+        switch (val) {
+            case "": case "C": case "C++":
+                set_mode(editor, "c_cpp");
+                break;
+            case "Pascal":
+                set_mode(editor, "pascal");
+                break;
+            case "Python":
+                set_mode(editor, "python");
+                break;
+        }
+    }
     function start_editor() {
-        console.log("starting editor");
         editor_starting = true;
         // Load code dynamicly:
         var ace_script = document.createElement('script');
@@ -36,14 +51,11 @@
         lang_tools_script.referrerPolicy = "no-referrer";
 
         ace_script.onload = function () {
-            console.log("loadded 1");
             document.documentElement.firstChild.appendChild(lang_tools_script);
             lang_tools_script.onload = function() {
-
-                console.log("start");
                 ace.require("ace/ext/language_tools");
                 var editor = ace.edit("{{ editor_id }}");
-                editor.session.setMode("ace/mode/c_cpp");
+                //set_mode(editor, "c_cpp");
                 editor.setTheme("ace/theme/chrome");
                 editor.setOptions({
                     enableBasicAutocompletion: true,
@@ -54,17 +66,29 @@
                 var textarea = $('textarea[name="code"]').hide();
                 editor.getSession().on('change', function(){
                     textarea.val(editor.getSession().getValue());
+                    textarea.trigger("input");
                 });
                 document.addEventListener("mouseup", function(e){
                     editor.resize();
                 });
+
+
                 editor_started = true;
                 editor_starting = false;
-                console.log("Editor started");
+
+                // add events to language selectors:
+                const piIds = getAllPiIds();
+                const progLangs = new Map(Array.from(piIds, x => [x, '#id_prog_lang_' + x]));
+                const languageFields = $(Array.from(progLangs.values()).join());
+                languageFields.on('change', function() {
+                    set_mode_from_val(editor, this.value);
+                });
+                languageFields.trigger("change");
+
+                // turn editor on:
                 toggle_editor(true);
             }
         };
-        console.log("ace append");
         document.documentElement.firstChild.appendChild(ace_script);
     }
     function toggle_editor(state) {
@@ -79,7 +103,6 @@
             return;
         }
         if (state) {
-            console.log("On");
             var editor = ace.edit("{{ editor_id }}");
             var textarea = $('textarea[name="code"]');
             editor.getSession().setValue(textarea.val());
@@ -88,7 +111,6 @@
             textarea.hide();
         }
         else {
-            console.log("Off");
             $('textarea[name="code"]').show();
             $("#{{ editor_id }}").hide();
         }

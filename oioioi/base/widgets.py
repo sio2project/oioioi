@@ -45,4 +45,4 @@ class AceEditorWidget(forms.widgets.Textarea):
              'inner_code': '',
              'replace_code_area': 'textarea[name="code"]',
              'toggle_checkbox_id': 'id_toggle_editor',
-             'default_state': 'false' if not self.default_state else 'true'},)
+             'default_state': 'true' if self.default_state else 'false'},)

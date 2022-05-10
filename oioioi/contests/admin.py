@@ -216,7 +216,7 @@ class ContestAdmin(admin.ModelAdmin):
             'default_submissions_limit',
             'contact_email',
         ]
-        if (settings.USE_ACE_EDITOR):
+        if settings.USE_ACE_EDITOR:
             fields.append('enable_editor')
 
         if request.user.is_superuser:

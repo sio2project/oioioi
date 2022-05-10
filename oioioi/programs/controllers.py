@@ -618,7 +618,7 @@ class ProgrammingProblemController(ProblemController):
 
         code_widget = None
         if use_editor:
-            ensure_preferences_exist_for_user(request)
+            ensure_preferences_exist_for_user(request.user)
             default_state = request.user.userpreferences.enable_editor
             reciept_types = ((False, "no editor"), (True, "editor"), )
             form.fields["toggle_editor"] = forms.ChoiceField(
