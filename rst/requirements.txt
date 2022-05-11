@@ -1,0 +1,2 @@
+Sphinx
+furo  # sphinx theme https://github.com/pradyunsg/furo
