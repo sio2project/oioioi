@@ -88,6 +88,6 @@ class PreferencesFactory(object):
         )
 
 
-def ensure_preferences_exist_for_user(request):
-    if not hasattr(request.user, "userpreferences"):
-        UserPreferences.objects.get_or_create(user=request.user)
+def ensure_preferences_exist_for_user(user):
+    if not hasattr(user, "userpreferences"):
+        UserPreferences.objects.get_or_create(user=user)
