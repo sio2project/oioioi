@@ -1,0 +1,19 @@
+.admin-change-form {
+  .form-row:last-child {
+    border-bottom: none !important;
+  }
+
+  label {
+    font-family: $font-family-base !important;
+    font-size: $font-size-base !important;
+    font-weight: $font-weight-base !important;
+    line-height: $line-height-base !important;
+    color: $body-color !important;
+  }
+}
+
+#changelist-form {
+  tr.selected {
+    background-color: #ffc !important;
+  }
+}

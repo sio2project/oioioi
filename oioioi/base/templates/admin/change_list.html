@@ -11,11 +11,6 @@
     <script src="{% url 'admin:jsi18n' %}"></script>
   {% endif %}
   {{ media.css }}
-  {% if not actions_on_top and not actions_on_bottom %}
-    <style>
-      #changelist table thead th:first-child {width: inherit}
-    </style>
-  {% endif %}
 {% endblock %}
 
 {% block extrahead %}
@@ -40,7 +35,7 @@
                 -->
 
 {% block object-tools %}
-  <div class="btn-group float-right">
+  <div class="float-right">
     {% block object-tools-items %}
       {% change_list_object_tools %}
     {% endblock %}
