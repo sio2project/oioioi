@@ -125,6 +125,11 @@ def add_class(field, css_class):
 
 
 @register.filter
+def add_form(field, form_id):
+    return _append_attr(field, "form", form_id)
+
+
+@register.filter
 def partition(thelist, n):
     """
     From: http://djangosnippets.org/snippets/6/

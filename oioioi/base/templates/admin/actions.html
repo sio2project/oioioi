@@ -3,10 +3,10 @@
     <div class="form-group">
       {% block actions %}
         {% block actions-form %}
-        {% for field in action_form %}{% if field.label %}<label class="control-label mr-2">{{ field.label }}</label> {% endif %}{{ field | add_class:"form-control" }}{% endfor %}
+        {% for field in action_form %}{% if field.label %}<label class="control-label mr-2">{{ field.label }}</label> {% endif %}{{ field | add_class:"form-control" | add_form:"changelist-form" }}{% endfor %}
         {% endblock %}
         {% block actions-submit %}
-        <button type="submit" class="ml-2 btn btn-outline-secondary" title="{% translate "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">{% translate "Go" %}</button>
+        <button form="changelist-form" type="submit" class="ml-2 btn btn-outline-secondary" title="{% translate "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">{% translate "Go" %}</button>
         {% endblock %}
         {% block actions-counter %}
         {% if actions_selection_counter %}
