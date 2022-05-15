@@ -1,0 +1,77 @@
+# This is a Transifex translations integration file.
+
+name: Transifex translations download
+
+env:
+  TX_TOKEN: ${{ secrets.TRANSIFEX_API_TOKEN }}
+
+# This job should be only ran by hand.
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+
+    - name: Install apt dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl libpq-dev libdb-dev gettext
+        sudo apt-get install -y fp-compiler fp-units-base fp-units-math
+
+    - name: Cache restore pip
+      id: cache-pip
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'requirements*.txt') }}
+
+    - name: Install pip dependencies
+      run: |
+        python -m pip install --upgrade pip wheel setuptools
+        pip install -U "setuptools<58.0.0"  # downgrade setuptools due to incompatible django-supervisor
+        python setup.py install_egg_info
+        pip install --upgrade -r requirements.txt
+
+    - name: Install TX client
+      run: |
+        cd ..
+        curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+
+    - name: Update repository
+      run: |
+        ../tx pull -af
+        git diff HEAD
+
+    - name: Compile messages
+      run: |
+        cd oioioi
+        django-admin compilemessages
+        git status
+        cd ..
+
+    - name: Setup commiter
+      run: |
+        git config --local user.name "SIO2 Automatic Agent"
+        git config --local user.email "sio2@sio2project.mimuw.edu.pl"
+
+    - name: Commit changes
+      run: |
+        if [[ `git status --porcelain` ]]; then
+          git diff
+          git commit -am "Github Actions - Downloaded translations."
+        fi
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v4

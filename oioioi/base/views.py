@@ -18,6 +18,7 @@ from django.views.decorators.vary import vary_on_cookie, vary_on_headers
 from two_factor.views import LoginView as Login2FAView
 
 import oioioi.base.forms
+from oioioi.base.forms import handle_new_preference_fields
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.preferences import PreferencesFactory, ensure_preferences_exist_for_user
@@ -95,42 +96,13 @@ def handler403(request, exception):
     return HttpResponseForbidden(message)
 
 
-def adjust_preferences_factory_fields(request):
-    choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
-    choices = [(k, _(v)) for k, v in choices_not_translated]
-
-    PreferencesFactory.add_field(
-        "preferred_language",
-        ChoiceField,
-        lambda name, user: user.userpreferences.language,
-        choices=choices,
-        required=False
-    )
-
-
-def handle_new_preference_fields(request):
-    if "preferred_language" in request.POST:
-        pref_lang = request.POST["preferred_language"]
-
-        if pref_lang not in ([k for k, _ in settings.LANGUAGES] + [""]):
-            # bad lang code passed in form
-            return
-
-        ensure_preferences_exist_for_user(request)
-
-        if pref_lang != "":
-            request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = pref_lang
-        request.user.userpreferences.language = pref_lang
-        request.user.userpreferences.save()
-
-
 @account_menu_registry.register_decorator(
     _("Edit profile"), lambda request: reverse('edit_profile'), order=99
 )
 @enforce_condition(not_anonymous)
 def edit_profile_view(request):
+    ensure_preferences_exist_for_user(request.user)
     if request.method == 'POST':
-        adjust_preferences_factory_fields(request)
         form = PreferencesFactory().create_form(
             oioioi.base.forms.UserForm,
             request.user,
@@ -138,13 +110,12 @@ def edit_profile_view(request):
             allow_login_change=not has_valid_username(request.user),
         )
 
-        handle_new_preference_fields(request)
+        handle_new_preference_fields(request, request.user)
 
         if form.is_valid():
             form.save()
             return redirect('index')
     else:
-        adjust_preferences_factory_fields(request)
         form = PreferencesFactory().create_form(
             oioioi.base.forms.UserForm,
             request.user,

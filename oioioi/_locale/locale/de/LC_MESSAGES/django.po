@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-03 17:49+0200\n"
+"POT-Creation-Date: 2022-05-09 12:01+0000\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
 "Last-Translator: Michal Boron <beredentod@gmail.com>, 2019\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -968,20 +968,24 @@ msgid ""
 msgstr ""
 
 #: base/templates/registration/registration_form.html:6
-#: base/templates/registration/registration_form.html:19
+#: base/templates/registration/registration_form.html:25
 msgid "Registration"
 msgstr ""
 
 #: base/templates/registration/registration_form.html:8
-#: base/templates/registration/registration_form.html:21
+#: base/templates/registration/registration_form.html:27
 msgid "Edit your profile"
 msgstr ""
 
-#: base/templates/registration/registration_form.html:25
+#: base/templates/registration/registration_form.html:21
+msgid "sample text transifex github actions"
+msgstr ""
+
+#: base/templates/registration/registration_form.html:31
 msgid "Please fill the form below to register."
 msgstr ""
 
-#: base/templates/registration/registration_form.html:32
+#: base/templates/registration/registration_form.html:38
 #: base/templates/simple-centered-form.html:12
 #: contests/templates/contests/my_submissions.html:14
 #: contests/templates/contests/problems_list.html:93
@@ -1013,7 +1017,7 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: base/templates/registration/registration_form.html:34
+#: base/templates/registration/registration_form.html:40
 msgid "Delete account"
 msgstr ""
 
