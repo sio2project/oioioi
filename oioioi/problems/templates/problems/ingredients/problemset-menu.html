@@ -1,9 +1,9 @@
 {% load i18n simple_tags %}
 
-<ul class="nav nav-pills nav-justified nav-margin">
+<ul class="nav nav-pills nav-fill mb-3">
     {% for tab in problemset_tabs %}
-        <li role="presentation" class="menu-item{{ tab.color }} {% active_url tab.url 'menu-item-active' %}{{ tab.color }}">
-            <a href="{{ tab.url }}
+        <li role="presentation" class="nav-item">
+            <a class="nav-link menu-link{{ tab.color }} {% active_url tab.url 'active' %}" href="{{ tab.url }}
             {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
                 {{ tab.name }}
             </a>

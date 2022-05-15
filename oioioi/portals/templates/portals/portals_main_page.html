@@ -46,10 +46,10 @@
         </div>
 
 
-        <ul class="nav nav-pills nav-justified nav-margin">
+        <ul class="nav nav-pills nav-fill mb-3">
             {% for view_type, view_name in views %}
-            <li role="presentation" {% if view_type == curr_view_type %} class="active" {% endif %}>
-                <a href="{% url 'portals_main_page_type' view_type=view_type %}">
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if view_type == curr_view_type %}active{% endif %}" href="{% url 'portals_main_page_type' view_type=view_type %}">
                     {{ view_name }}
                 </a>
             </li>

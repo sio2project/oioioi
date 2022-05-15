@@ -22,70 +22,9 @@
   margin-top: 7rem;
 }
 
-@media screen and (min-width: 768px) {
-  .menu-item {
-    border-radius: 12px 12px 0 0;
-  }
-
-  .menu-item:hover {
-    border-radius: 12px 12px 0 0;
-    overflow: hidden;
-  }
-
-  .menu-item-active {
-    @include gradient-y(#eeeeee, #ffffff);
-  }
+.menu-link-green {
+  background-color: #c0ffc0;
 }
-
-@media screen and (min-width: 768px) {
-  .menu-item-green {
-    border-radius: 12px 12px 0 0;
-    background-color: #c0ffc0;
-  }
-
-  .menu-item-green:hover {
-    border-radius: 12px 12px 0 0;
-    overflow: hidden;
-  }
-
-  .menu-item-active-green {
-    @include gradient-y(#80ff80, #c0ffc0);
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .menu-item {
-    border-radius: 12px 12px 12px 12px;
-  }
-
-  .menu-item:hover {
-    border-radius: 12px 12px 12px 12px;
-    overflow: hidden;
-    background-color: #eeeeee;
-  }
-
-  .menu-item-active {
-    background-color: #f5f5f5;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .menu-item-green {
-    border-radius: 12px 12px 12px 12px;
-    background-color: #c0ffc0;
-  }
-
-  .menu-item-green:hover {
-    border-radius: 12px 12px 12px 12px;
-    overflow: hidden;
-    background-color: #eeeeee;
-  }
-
-  .menu-item-active-green {
-    background-color: #a0ffa0;
-  }
-}
-
 
 #tag-row {
   display: flex;

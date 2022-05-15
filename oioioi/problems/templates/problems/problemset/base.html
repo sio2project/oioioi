@@ -18,23 +18,23 @@
     <div class="row search-row">
         {% if show_filters %}
             <ul class="nav nav-pills filter-bar">
-                <li role="presentation" {% if not request.GET.filter or request.GET.filter == "all" %}class="active"{% endif %}>
-                    <a href="{% prob_filter request.GET "all" %}">
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if not request.GET.filter or request.GET.filter == "all" %}active{% endif %}" href="{% prob_filter request.GET "all" %}">
                         {% trans "All" %}
                     </a>
                 </li>
-                <li role="presentation" {% if request.GET.filter == "solved" %}class="active"{% endif %}>
-                    <a href="{% prob_filter request.GET "solved" %}">
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if request.GET.filter == "solved" %}active{% endif %}" href="{% prob_filter request.GET "solved" %}">
                         {% trans "Solved" %}
                     </a>
                 </li>
-                <li role="presentation" {% if request.GET.filter == "attempted" %}class="active"{% endif %}>
-                    <a href="{% prob_filter request.GET "attempted" %}">
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if request.GET.filter == "attempted" %}active{% endif %}" href="{% prob_filter request.GET "attempted" %}">
                         {% trans "Attempted" %}
                     </a>
                 </li>
-                <li role="presentation" {% if request.GET.filter == "not_attempted" %}class="active"{% endif %}>
-                    <a href="{% prob_filter request.GET "not_attempted" %}">
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if request.GET.filter == "not_attempted" %}active{% endif %}" href="{% prob_filter request.GET "not_attempted" %}">
                         {% trans "Not attempted" %}
                     </a>
                 </li>

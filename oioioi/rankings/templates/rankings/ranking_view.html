@@ -31,10 +31,10 @@
 
 {% if choices|length > 1 %}
 <div>
-    <ul class="nav nav-pills">
+    <ul class="nav nav-pills mb-3">
         {% for choice in choices %}
-            <li role="presentation" {% if choice.0 == key %}class="active"{% endif %}>
-                <a href="{% url 'ranking' contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a>
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if choice.0 == key %}active{% endif %}"href="{% url 'ranking' contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a>
             </li>
         {% endfor %}
     </ul>

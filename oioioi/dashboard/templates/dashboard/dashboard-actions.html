@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if top_links|length > 0 %}
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs mb-3">
         <li role="presentation" class="nav-item"><a class="nav-link active" href="#">{% trans "Dashboard" %}</a></li>
         {% for item in top_links %}
             {% if item %}

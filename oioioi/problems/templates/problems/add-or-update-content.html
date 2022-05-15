@@ -2,7 +2,7 @@
 
 <div class="tabbed-content">
     {% if tabs|length > 1 %}
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs mb-3">
             {% for tab in tabs %}
                 <li class="nav-item">
                     <a class="nav-link {% if tab.obj == current_tab %}active{% endif %}" href="{{ tab.link }}">{{ tab.obj.short_description }}</a></li>
