@@ -1,5 +1,40 @@
 /// <reference types="cypress" />
 
+context("Register", () => {
+    before(() => {
+        cy.visit("/");
+        cy.hideDjangoToolbar();
+    });
+
+    it("Register new user", () => {
+
+        const user_info: OIOIOI.User = {
+            username:       "test_username",
+            first_name:     "test_name",
+            last_name:      "test_surname",
+            email:          "test@test.com",
+            password:       "test_password",
+        };
+
+        registerNewUser(user_info);
+        checkIfCanLoginIn(user_info);
+        tryRemovingUserUser(user_info, false);
+        tryRemovingUserUser(user_info);
+    });
+});
+
+let registerNewUser = (user_info: OIOIOI.User) => {
+
+    visitRegistrationSite();
+
+    cy.get('.container').within(() => {
+        fillRegistrationForm(user_info);
+
+        // Submit the form.
+        cy.get('button[type="submit"]').first().click();
+    })
+};
+
 let visitRegistrationSite = () => {
     cy.get('.username').click();
     cy.get('#navbar-login > .btn-default').click();
@@ -26,22 +61,12 @@ let fillRegistrationForm = (user_info: OIOIOI.User) => {
     cy.get('#id_captcha_1').type('PASSED');
 };
 
-let registerNewUser = (user_info: OIOIOI.User) => {
-
-    visitRegistrationSite();
-    fillRegistrationForm(user_info);
-
-    // Submit the form.
-    cy.get(':nth-child(11) > .btn').click();
-};
-
-let gotoEditProfile = () => {
-    cy.get('#username').click();
-    cy.get('.oioioi-navbar__user > .dropdown > .dropdown-menu > :nth-child(1) > a').click();
-}
-
 let checkIfCanLoginIn = (user: OIOIOI.User) => {
     cy.login(user);
+    checkUserData(user);
+};
+
+let checkUserData = (user: OIOIOI.User) => {
     gotoEditProfile();
 
     const profile_form = new Map<string, string>([
@@ -54,9 +79,9 @@ let checkIfCanLoginIn = (user: OIOIOI.User) => {
     for (let [field, value] of profile_form) {
         cy.get(field).should('have.value', value);
     }
-};
+}
 
-let removeUser = (user: OIOIOI.User, shouldRemove: boolean) => {
+let tryRemovingUserUser = (user: OIOIOI.User, shouldRemove: boolean = true) => {
     gotoEditProfile();
 
     cy.get('.btn-danger').click();
@@ -70,28 +95,12 @@ let removeUser = (user: OIOIOI.User, shouldRemove: boolean) => {
         });
     }
     else {
-
+        cy.get('.btn-group > .btn-default').click();
+        checkUserData(user);
     }
 }
 
-context("Register", () => {
-    before(() => {
-        cy.visit("/");
-        cy.hideDjangoToolbar();
-    });
-
-    it("Register new user", () => {
-        
-        const user_info: OIOIOI.User = {
-            username:       "test_user",
-            first_name:     "test_name",
-            last_name:      "test_surname",
-            email:          "test@test.com",
-            password:       "test_password",
-        };
-
-        registerNewUser(user_info);
-        checkIfCanLoginIn(user_info);
-        removeUser(user_info, true);
-    });
-});
+let gotoEditProfile = () => {
+    cy.get('#username').click();
+    cy.get('.oioioi-navbar__user > .dropdown > .dropdown-menu > :nth-child(1) > a').click();
+}
