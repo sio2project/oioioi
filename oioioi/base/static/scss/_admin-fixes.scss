@@ -10,6 +10,10 @@
     line-height: $line-height-base !important;
     color: $body-color !important;
   }
+
+  tr.form-row:not(.empty-form) {
+    display: contents;
+  }
 }
 
 #changelist-form {
