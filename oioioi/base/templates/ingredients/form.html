@@ -17,49 +17,49 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-        <div class="form-group {% if inline %}mr-2{% endif %}">
-        {% if field|is_checkbox %}
-            <div class="form-check">
-                {% if field.errors %}
-                    {{ field | add_class:"form-check-input" | add_class:"is-invalid" }}
-                {% else %}
-                    {{ field | add_class:"form-check-input" }}
-                {% endif %}
-                <label class="form-check-label">
-                     {{ field.label }}
-                </label>
-            </div>
-        {% else %}
-            {% if display_labels != False %}
-                <label for="{{ field.id_for_label }}" class="control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-2{% endif %}">
-                    {{ field.label }}
-                </label>
-            {% endif %}
-
-            {% if field|is_checkbox_select_multiple or field|is_radioselect %}
-                {% for pk, choice in field.field.widget.choices %}
-                    <div class="form-check ml-2">
-                        <input class="form-check-input" id="id_{{ field.name }}_{{ forloop.counter0 }}" name="{{ field.name }}" type="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %}" value="{{ pk }}">
-                        <label class="form-check-label" for="id_{{ field.name }}_{{ forloop.counter0 }}">
-                            {{ choice }}
-                        </label>
-                    </div>
-                {% endfor %}
+    <div class="form-group {% if inline %}mr-2{% endif %}">
+    {% if field|is_checkbox %}
+        <div class="form-check">
+            {% if field.errors %}
+                {{ field | add_class:"form-check-input" | add_class:"is-invalid" }}
             {% else %}
-                {% if field.errors %}
-                    {{ field | add_class:"form-control" | add_class:"is-invalid" }}
-                {% else %}
-                    {{ field | add_class:"form-control" }}
-                {% endif %}
+                {{ field | add_class:"form-check-input" }}
+            {% endif %}
+            <label class="form-check-label">
+                 {{ field.label }}
+            </label>
+        </div>
+    {% else %}
+        {% if display_labels != False %}
+            <label for="{{ field.id_for_label }}" class="control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-2{% endif %}">
+                {{ field.label }}
+            </label>
+        {% endif %}
+
+        {% if field|is_checkbox_select_multiple or field|is_radioselect %}
+            {% for pk, choice in field.field.widget.choices %}
+                <div class="form-check ml-2">
+                    <input class="form-check-input{% if field.errors %} is-invalid{% endif %}" id="id_{{ field.name }}_{{ forloop.counter0 }}" name="{{ field.name }}" type="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %}" value="{{ pk }}">
+                    <label class="form-check-label" for="id_{{ field.name }}_{{ forloop.counter0 }}">
+                        {{ choice }}
+                    </label>
+                </div>
+            {% endfor %}
+        {% else %}
+            {% if field.errors %}
+                {{ field | add_class:"form-control" | add_class:"is-invalid" }}
+            {% else %}
+                {{ field | add_class:"form-control" }}
             {% endif %}
         {% endif %}
-            {% for error in field.errors %}
-                <small class="{% if not inline %}form-text{% endif %} text-danger">{{ error }}</small>
-            {% endfor %}
-            {% if field.help_text %}
-                <small class="{% if not inline %}form-text{% endif %} {% if field.errors %}text-danger{% else %}text-muted{% endif %}">{{ field.help_text }}</small>
-            {% endif %}
-        </div>
+    {% endif %}
+        {% for error in field.errors %}
+            <small class="{% if not inline %}form-text{% endif %} text-danger">{{ error }}</small>
+        {% endfor %}
+        {% if field.help_text %}
+            <small class="{% if not inline %}form-text{% endif %} {% if field.errors %}text-danger{% else %}text-muted{% endif %}">{{ field.help_text }}</small>
+        {% endif %}
+    </div>
 {% endfor %}
 
 {% if focus != False %}
