@@ -15,6 +15,7 @@ from registration.backends.default.views import (
 from registration.models import RegistrationProfile
 
 from oioioi.base.forms import OioioiPasswordResetForm, RegistrationFormWithNames
+from oioioi.base.forms import handle_new_preference_fields
 from oioioi.base.models import PreferencesSaved
 from oioioi.base.preferences import PreferencesFactory
 
@@ -56,6 +57,8 @@ class RegistrationView(DefaultRegistrationView):
             signals.user_activated.send(
                 sender=self.__class__, user=user, request=request
             )
+
+        handle_new_preference_fields(request, user)
         return user
 
 
