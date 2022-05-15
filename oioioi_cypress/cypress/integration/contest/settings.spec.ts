@@ -3,10 +3,6 @@
 import "cypress-file-upload";
 import { v4 as uuidv4 } from "uuid";
 
-Cypress.on("uncaught:exception", (err, runnable) => {
-  return false;
-});
-
 const TYPE_OPTIONS = {
   parseSpecialCharSequences: false,
   delay: 0,
@@ -15,27 +11,10 @@ const TYPE_OPTIONS = {
 const CONTEST_TYPES = [
   "Simple programming contest",
   "Polish Olympiad in Informatics - Online",
-  // "Polish Junior Olympiad in Informatics - Online",
-  // "Polish Junior Olympiad in Informatics 2020 - Online",
-  // "Polish Junior Olympiad in Informatics 2021 - Online",
-  // "Polish Olympiad in Informatics 2018 - Online",
-  // "Polish Olympiad in Informatics - Onsite",
-  // "Polish Olympiad in Informatics 2018 - Onsite",
-  // "Junior Polish Olympiad in Informatics 2020 - Onsite",
-  // "Junior Polish Olympiad in Informatics 2019 - Online Finals",
-  // "Polish Olympiad in Informatics - Onsite - Finals",
-  // "Polish Olympiad in Informatics 2018 - Onsite - Finals",
-  // "Baltic Olympiad in Informatics",
-  // "Baltic Olympiad in Informatics - online",
-  // "Central European Olympiad in Informatics",
-  // "Polish Olympiad in Informatics 2019 - Online",
-  // "Polish Olympiad in Informatics 2020 - Online",
-  // "Polish Olympiad in Informatics 2021 - Online",
-  // "Zdalne Warsztaty Olimpijskie 2021",
-  // "Junior Polish Olympiad in Informatics 2021 - Onsite",
-  // "Polish Olympiad in Informatics Finals - Online",
-  // "Junior Polish Olympiad in Informatics 2021 - Onsite Finals",
-  // "Polish Olympiad in Informatics 2021 - Online Second Stage",
+  "Polish Olympiad in Informatics - Onsite",
+  "Polish Olympiad in Informatics - Onsite - Finals",
+  "Baltic Olympiad in Informatics",
+  "Baltic Olympiad in Informatics - online",
   "ACM style contest",
   "ACM style contest (open)",
 ];

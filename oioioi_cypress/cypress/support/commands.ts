@@ -23,3 +23,21 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("hideDjangoToolbar", () => {
+    cy.get('body').then((body) => {
+        if (body.find('#djHideToolBarButton').length > 0) {
+            cy.get('#djHideToolBarButton').click()
+        }
+    })
+})
+
+Cypress.Commands.add("login", (user: OIOIOI.User) => {
+    cy.visit("/")
+
+    cy.get('.username').click()
+
+    cy.get('#navbar-login-input').type(user.username)
+    cy.get(':nth-child(4) > .form-control').type(user.password)
+    cy.get('#navbar-login > .btn-primary').click()
+})
