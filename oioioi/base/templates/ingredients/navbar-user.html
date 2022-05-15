@@ -30,8 +30,10 @@ function setFocusToLoginInput(){
                 <div class="form-group">
                     <input type="password" name="auth-password" class="form-control" placeholder="{% trans "Password" %}">
                 </div>
-                <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button>
-                <a role="button" class="btn btn-outline-secondary" href="{% url 'registration_register' %}">{% trans "Register" %}</a>
+                <div class="form-row">
+                    <div class="col"><button type="submit" class="btn btn-primary">{% trans "Log in" %}</button></div>
+                    <div class="col"><a role="button" class="btn btn-outline-secondary" href="{% url 'registration_register' %}">{% trans "Register" %}</a></div>
+                </div>
             </form>
         </div>
     </div>

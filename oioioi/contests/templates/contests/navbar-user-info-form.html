@@ -8,7 +8,7 @@
 
 {% if ctx.contest %}
     {% if is_admin or can_see_personal_data %}
-        <div class="dropdown-divider" role="separator"></div>
+        <div class="dropdown-divider mb-0" role="separator"></div>
         <form class="p-3" action="{% url 'user_info_redirect' contest_id=ctx.contest.id %}"
               method="post"
               id="user_info_dropdown_form">

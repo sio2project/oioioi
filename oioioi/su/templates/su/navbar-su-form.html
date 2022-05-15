@@ -1,7 +1,7 @@
 {% load i18n simple_filters %}
 
 {% if ctx.user.is_superuser %}
-    <div class="dropdown-divider" role="separator"></div>
+    <div class="dropdown-divider mb-0" role="separator"></div>
     <form class="p-3" action="{% url 'su' %}" method="post" id="su-dropdown-form">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">

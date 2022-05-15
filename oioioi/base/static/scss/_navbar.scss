@@ -35,6 +35,8 @@ $oioioi-navbar-dropdown-header-bgcolor: #e8e8e8 !default;
 $oioioi-navbar-dropdown-header-border: 2px solid #999999 !default;
 $oioioi-navbar-dropdown-header-margin-top: 12px !default;
 
+$oioioi-navbar-dropdown-input-min-width: 230px !default;
+
 // Required for navbar-fixed-top
 body {
   padding-top: $oioioi-navbar-height + $countdown-height + $padding-base-vertical * 2;
@@ -98,14 +100,23 @@ body {
     max-height: calc(100vh - #{$oioioi-navbar-height});
     overflow-y: auto;
     padding-top: 0; // we don't want empty space before first header
+
+    input {
+      min-width: $oioioi-navbar-dropdown-input-min-width;
+    }
+
+    /* We have to include default text styles for labels to override static/admin/css/forms.css */
+    label {
+      font-family: $font-family-base;
+      font-size: $font-size-base;
+      font-weight: $font-weight-base;
+      line-height: $line-height-base;
+      color: $body-color;
+    }
   }
 
   .dropdown.open > a {
     color: $oioioi-navbar-link-active-color;
-  }
-
-  .navbar-form .form-group {
-    margin-bottom: $form-group-margin-bottom;
   }
 
   // Navbar sections special styles
