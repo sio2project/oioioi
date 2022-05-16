@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+# pip requirements:
+#   python ^3.6
+#   inquirer
+# 
+# system:
+#   docker
+#   docker-compose
+
+
 # This script was created in order to help the users
 # execute commands faster. The main idea was to omit
 # copy-pasting commands from GitHub. This script
@@ -18,14 +27,14 @@ BASE_DOCKER_COMMAND="OIOIOI_UID=$(id -u) docker-compose" + \
 
 
 RAW_COMMANDS = [
-    ("build", "Build whole OIOIOI from source.", "build"),
+    ("build", "Build whole OIOIOI from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop all SIO2 containers", "down"),
     ("run", "Run server", "exec web python3 manage.py runserver 0.0.0.0:8000"),
     ("bash", "Open command prompt on web container.", "exec web bash"),
     ("bash_db", "Open command prompt on database container.", "exec db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "exec web python manage.py flush --noinput"),
+    ("flush-db", "Clear database.", "exec web python manage.py flush --noinput", True),
     ("add-superuser", "Create admin_admin.", "exec web python manage.py createsuperuser"),
     ("test", "Run unit tests.", "exec web ../oioioi/test.sh"),
     ("test-slow", "Run unit tests. (--runslow)", "exec web ../oioioi/test.sh --runslow"),
@@ -35,7 +44,7 @@ RAW_COMMANDS = [
 ]
 
 
-longest_command_arg = max([len(arg) for (arg, _, _) in RAW_COMMANDS])
+longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
 
 
 class Help(Exception):
@@ -43,10 +52,11 @@ class Help(Exception):
 
 
 class Option:
-    def __init__(self, arg, help, command):
+    def __init__(self, arg, help, command, warn = False):
         self.arg = arg
         self.help = help
         self.command = command
+        self.warn = warn
     
     def long_str(self) -> str:
         return f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
@@ -101,8 +111,24 @@ def run_command(command) -> None:
     os.system(command)
 
 
+def warn_user(action: Option) -> None:
+    print("You are going to execute command marked as `dangerous`. Are you sure? [y/N]")
+    while True:
+        choice = input().lower()
+        if len(choice) == 0 or "no"[:len(choice)] == choice:
+            return False
+        elif "yes"[:len(choice)] == choice:
+            return True
+        else:
+            print("Please answer [yes] or [no].")
+
+
 def run() -> None:
     action = get_action_from_args() or get_action_from_cli()
+    if action.warn:
+        if not warn_user(action):
+            print("Aborting.")
+            return
     run_command(f'{BASE_DOCKER_COMMAND} {action.command}')
 
 
