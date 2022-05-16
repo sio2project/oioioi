@@ -36,7 +36,7 @@
     }
     function start_editor() {
         editor_starting = true;
-        // Load code dynamicly:
+        // Load code dynamically:
         var ace_script = document.createElement('script');
         var lang_tools_script = document.createElement('script');
 
@@ -55,7 +55,6 @@
             lang_tools_script.onload = function() {
                 ace.require("ace/ext/language_tools");
                 var editor = ace.edit("{{ editor_id }}");
-                //set_mode(editor, "c_cpp");
                 editor.setTheme("ace/theme/chrome");
                 editor.setOptions({
                     enableBasicAutocompletion: true,

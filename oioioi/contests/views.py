@@ -238,7 +238,6 @@ def problem_statement_zip_view(request, problem_instance, statement_id, path):
 @enforce_condition(
     has_any_submittable_problem, template='contests/nothing_to_submit.html'
 )
-
 def submit_view(request, problem_instance_id=None):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES)
