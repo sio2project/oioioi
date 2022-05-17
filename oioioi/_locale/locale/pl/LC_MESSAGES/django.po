@@ -66,9 +66,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-09 12:01+0000\n"
+"POT-Creation-Date: 2022-05-16 10:55+0000\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
-"Last-Translator: Aleksander Tudruj, 2022\n"
+"Last-Translator: Tomasz Waleń, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -100,11 +100,11 @@ msgstr "Lp."
 msgid "Username"
 msgstr "Login"
 
-#: acm/controllers.py:249 base/forms.py:130 rankings/controllers.py:266
+#: acm/controllers.py:249 base/forms.py:165 rankings/controllers.py:266
 msgid "First name"
 msgstr "Imię"
 
-#: acm/controllers.py:249 base/forms.py:131 rankings/controllers.py:266
+#: acm/controllers.py:249 base/forms.py:166 rankings/controllers.py:266
 msgid "Last name"
 msgstr "Nazwisko"
 
@@ -207,7 +207,7 @@ msgstr "Wyświetlanie powiadomień"
 #: sinolpack/admin.py:18 sinolpack/admin.py:40 statistics/admin.py:11
 #: teams/admin.py:62 zeus/admin.py:17
 msgid "Advanced"
-msgstr ""
+msgstr "Szczegóły"
 
 #: balloons/admin.py:146
 msgid "Not yet generated"
@@ -469,7 +469,7 @@ msgstr "Uczestnicy"
 
 #: base/api.py:49
 msgid "Your API token"
-msgstr ""
+msgstr "Twój token API"
 
 #: base/fields.py:29
 msgid "Dotted name of some Python object"
@@ -506,34 +506,39 @@ msgstr "(wraz z numerem kierunkowym)"
 msgid "Enter a postal code in the format XX-XXX"
 msgstr "Wprowadź kod pocztowy w formacie XX-XXX"
 
-#: base/forms.py:25
+#: base/forms.py:26
 msgid "This value may contain only letters, numbers and underscore."
 msgstr "To pole może zawierać jedynie litery, liczby i podkreślniki."
 
-#: base/forms.py:26
+#: base/forms.py:27
 msgid "Invalid username"
 msgstr "Niepoprawny login"
 
-#: base/forms.py:32
+#: base/forms.py:33
 #| msgid "This value may contain only letters, numbers and underscore."
 msgid "This value may contain only letters, numbers and punctuation marks."
 msgstr ""
 
-#: base/forms.py:33
-#| msgid "Invalid username"
-msgid "Invalid first name"
-msgstr ""
-
 #: base/forms.py:34
 #| msgid "Invalid username"
-msgid "Invalid last name"
-msgstr ""
+msgid "Invalid first name"
+msgstr "Błędne imię"
 
-#: base/forms.py:164
+#: base/forms.py:35
+#| msgid "Invalid username"
+msgid "Invalid last name"
+msgstr "Błęde nazwisko"
+
+#: base/forms.py:84
+#| msgid "Programming language"
+msgid "Preferred language"
+msgstr "Preferowany język"
+
+#: base/forms.py:199
 msgid "You cannot change your username."
 msgstr "Nie możesz zmienić swojego loginu."
 
-#: base/forms.py:191
+#: base/forms.py:226
 msgid "That email address doesn't have an associated local user account."
 msgstr "Ten adres email nie ma przypisanego lokalnego konta użytkownika."
 
@@ -574,12 +579,12 @@ msgstr "Menu konta"
 #: base/menu.py:230
 #| msgid "Personal Data Menu"
 msgid "Personal Menu"
-msgstr ""
+msgstr "Menu osobiste"
 
 #: base/middleware.py:145
 #, python-format
 msgid "Your login - %(login)s - contains forbidden characters. "
-msgstr ""
+msgstr "Twoja nazwa użytkownika - %(login)s - zawiera zakazane znaki."
 
 #: base/middleware.py:149
 #, python-format
@@ -631,7 +636,7 @@ msgstr ""
 #: base/templates/404.html:8
 #| msgid "File not found: "
 msgid "Page not found"
-msgstr ""
+msgstr "Nie znaleziono strony"
 
 #: base/templates/405.html:9
 #| msgid ""
@@ -694,7 +699,7 @@ msgstr "Nie, wróć."
 
 #: base/templates/api-key.html:4
 msgid "API token"
-msgstr ""
+msgstr "Token API"
 
 #: base/templates/api-key.html:9
 #| msgid "Your question was answered."
@@ -714,7 +719,7 @@ msgstr ""
 #: base/templates/api-key.html:22
 #| msgid "Show more"
 msgid "Show token"
-msgstr ""
+msgstr "Pokaż token"
 
 #: base/templates/api-key.html:29 programs/templates/programs/source.html:20
 #: teachers/templates/teachers/members.html:159
@@ -734,7 +739,7 @@ msgstr ""
 #: base/templates/api-key.html:41
 #| msgid "System Administration"
 msgid "the documentation"
-msgstr ""
+msgstr "dokumentacja"
 
 #: base/templates/base.html:9 base/templates/navbar-left.html:23
 #: portals/templates/portals/portal-initial-main-page-name.txt:1
@@ -834,7 +839,7 @@ msgstr "Tryb serwisowy jest WŁĄCZONY"
 #: base/templates/ingredients/translation-formset.html:21
 #| msgid "Programming language"
 msgid "Current language"
-msgstr ""
+msgstr "Bieżący język"
 
 #: base/templates/ingredients/translation-formset.html:25
 #| msgid "Programming language"
@@ -897,7 +902,7 @@ msgstr "Twoje konto zostanie usunięte. Tej czynności nie można cofnąć."
 #: base/templates/registration/delete_account_confirmation.html:20
 #| msgid "Forgot password?"
 msgid "Incorrect password"
-msgstr ""
+msgstr "Błędne hasło"
 
 #: base/templates/registration/delete_account_done.html:4
 #: base/templates/registration/delete_account_done.html:8
@@ -921,7 +926,7 @@ msgstr "Zmiana hasła"
 msgid "Password changed."
 msgstr "Hasło zostało zmienione."
 
-#: base/templates/registration/password_change_form.html:3 base/views.py:31
+#: base/templates/registration/password_change_form.html:3 base/views.py:32
 msgid "Change password"
 msgstr "Zmień hasło"
 
@@ -1024,24 +1029,20 @@ msgid ""
 msgstr "Przesłaliśmy instrukcje jak aktywować konto na podany adres e-mail. Powinieneś otrzymać je wkrótce.        "
 
 #: base/templates/registration/registration_form.html:6
-#: base/templates/registration/registration_form.html:25
+#: base/templates/registration/registration_form.html:19
 msgid "Registration"
 msgstr "Rejestracja"
 
 #: base/templates/registration/registration_form.html:8
-#: base/templates/registration/registration_form.html:27
+#: base/templates/registration/registration_form.html:21
 msgid "Edit your profile"
 msgstr "Edycja Twojego profilu"
 
-#: base/templates/registration/registration_form.html:21
-msgid "sample text transifex github actions"
-msgstr "przykładowy tekst to testowania github actions z transifexem"
-
-#: base/templates/registration/registration_form.html:31
+#: base/templates/registration/registration_form.html:25
 msgid "Please fill the form below to register."
 msgstr "Wypełnij poniższy formularz aby założyć konto."
 
-#: base/templates/registration/registration_form.html:38
+#: base/templates/registration/registration_form.html:32
 #: base/templates/simple-centered-form.html:12
 #: contests/templates/contests/my_submissions.html:14
 #: contests/templates/contests/problems_list.html:93
@@ -1073,7 +1074,7 @@ msgstr "Wypełnij poniższy formularz aby założyć konto."
 msgid "Submit"
 msgstr "Wyślij"
 
-#: base/templates/registration/registration_form.html:40
+#: base/templates/registration/registration_form.html:34
 msgid "Delete account"
 msgstr "Usuń konto"
 
@@ -1340,15 +1341,15 @@ msgstr "Wpisz poprawny ciąg znaków składający się wyłącznie z małych lit
 msgid "Enter a valid value."
 msgstr ""
 
-#: base/views.py:37
+#: base/views.py:38
 msgid "Two factor authentication"
 msgstr "Weryfikacja dwuetapowa"
 
-#: base/views.py:128
+#: base/views.py:100
 msgid "Edit profile"
 msgstr "Edycja profilu"
 
-#: base/views.py:159
+#: base/views.py:130
 msgid "Log out"
 msgstr "Wyloguj"
 

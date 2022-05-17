@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import LogoutView as AuthLogoutView
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.forms import ChoiceField
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
