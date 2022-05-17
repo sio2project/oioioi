@@ -17,14 +17,12 @@
 
 import sys
 import os
-from tokenize import Number
 import inquirer
 
 
-BASE_DOCKER_COMMAND="OIOIOI_UID=$(id -u) docker-compose" + \
-     " -f docker-compose-dev.yml" + \
-     " -f extra/docker/docker-compose-dev-noserver.yml"
-
+BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
+                      " -f docker-compose-dev.yml" + \
+                      " -f extra/docker/docker-compose-dev-noserver.yml"
 
 RAW_COMMANDS = [
     ("build", "Build whole OIOIOI from source.", "build", True),
@@ -38,11 +36,14 @@ RAW_COMMANDS = [
     ("add-superuser", "Create admin_admin.", "exec web python manage.py createsuperuser"),
     ("test", "Run unit tests.", "exec web ../oioioi/test.sh"),
     ("test-slow", "Run unit tests. (--runslow)", "exec web ../oioioi/test.sh --runslow"),
-    ("test-abc", "Run specific test file. (edit the toolbox)", "exec web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
-    ("test-coverage", "Run coverage tests.", "exec 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
-    ("server-cypress", "Run CyPress test server.", "exec web python manage.py testserver ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json --no-input --addrport 0.0.0.0:8000 --settings oioioi.cypress_settings"),
+    ("test-abc", "Run specific test file. (edit the toolbox)",
+     "exec web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
+    ("test-coverage", "Run coverage tests.",
+     "exec 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
+    ("server-cypress", "Run CyPress test server.",
+     "exec web python manage.py testserver ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json --no-input "
+     "--addrport 0.0.0.0:8000 --settings oioioi.cypress_settings"),
 ]
-
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
 
@@ -52,12 +53,12 @@ class Help(Exception):
 
 
 class Option:
-    def __init__(self, arg, help, command, warn = False):
+    def __init__(self, arg, help, command, warn=False):
         self.arg = arg
         self.help = help
         self.command = command
         self.warn = warn
-    
+
     def long_str(self) -> str:
         return f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
 
@@ -146,9 +147,9 @@ def run() -> None:
 
 def print_help() -> None:
     print("OIOIOI helper toolbox", "", "This script allows to control OIOIOI with Docker commands.",
-            f"Commands are always being run with '{BASE_DOCKER_COMMAND}' prefix.",
-            f"Aveliable commands are: ", "",
-            *COMMANDS, "", "Example `build`:", f"{sys.argv[0]} build", sep="\n")
+          f"Commands are always being run with '{BASE_DOCKER_COMMAND}' prefix.",
+          f"Aveliable commands are: ", "",
+          *COMMANDS, "", "Example `build`:", f"{sys.argv[0]} build", sep="\n")
 
 
 def main() -> None:
