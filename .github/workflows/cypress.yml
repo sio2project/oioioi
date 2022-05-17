@@ -17,5 +17,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U inquirer
       - name: Build OIOIOI
-        run: ./easy_toolbox.py build --no-input
-
+        run: |
+          python easy_toolbox.py build --no-input
+      - name: Run environment
+        run: |
+          python easy_toolbox.py up --no-input
+          python easy_toolbox.py server-cypress --no-input &
+      - name: Run tests
+        run: |
+          pushd oioioi_cypress
+          yarn
+          npx wait-on http://localhost:8000
+          CYPRESS_baseUrl=http://localhost:8000 yarn cy:run
+          popd
