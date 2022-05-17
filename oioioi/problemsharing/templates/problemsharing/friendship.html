@@ -19,7 +19,7 @@
     <form method="post" class="form-inline nav-content">{% csrf_token %}
         {% include "ingredients/form.html" with inline=True %}
         <button type="submit" class="btn btn-primary a-btn-slide-text" name="befriend">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            <i class="fa-solid fa-plus" aria-hiddent="true"></i>
             <span><strong>{% trans "Befriend" %}</strong></span>
         </button>
     </form>
@@ -31,7 +31,7 @@
                     <form method="post">{% csrf_token %}
                         <input type="hidden" name="id" value="{{ friend.id }}">
                         <button type="submit" class="btn-link" name="unfriend">
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                         {{ friend.get_full_name }} ({{ friend.username }})
                     </form>

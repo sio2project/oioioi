@@ -7,14 +7,12 @@
 <h1>{% trans "Export submissions to MOSS" %}</h1>
 
 <div class="alert alert-warning" role="alert">
-    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
     {% trans "Submitting source codes to MOSS makes them public to anyone with the link." %}
     <span></span>
 </div>
 
 {% if moss_error %}
     <div class="alert alert-danger" role="alert">
-        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
         <span class="sr-only">{% trans "Error" %}:</span>
         {{ moss_error }}
     </div>

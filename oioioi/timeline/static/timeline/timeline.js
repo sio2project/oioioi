@@ -35,7 +35,7 @@ $(document).ready(function() {
         );
 
         var POPOVER_CONTENT = gettext('Change date in a datebox by clicking \
-the corresponding <span class="glyphicon glyphicon-calendar"></span> button. \
+the corresponding <span class="fa-solid fa-calendar"></span> button. \
 You can also use the keyboard: \
 <br> \
 <ul> \
@@ -47,7 +47,7 @@ You can also use the keyboard: \
 You can filter events by clicking the vertical bar representing a round. \
 <hr> \
 If you want to split a date group, click the corresponding \
-<span class="glyphicon glyphicon-resize-vertical"></span> button.'
+<span class="fa-solid fa-arrows-up-down"></span> button.'
         );
 
         var SEPARATOR_HTML = '<div class="oioioi-timeline__separator"></div>';

@@ -19,7 +19,7 @@ $(function(){
             span.removeClass(e.data('prev-icon'));
 
             e.toggleClass('loading disabled');
-            span.addClass('glyphicon glyphicon-refresh');
+            span.addClass('fa-solid fa-rotate-right');
         });
 
         var t = $(e.data('target'));

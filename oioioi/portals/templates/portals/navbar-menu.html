@@ -2,7 +2,7 @@
 
 <a href="#" type="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
     <span class="sr-only">{% trans "Toggle navigation" %}</span>
-    <span class="glyphicon glyphicon-menu-hamburger"></span>
+    <i class="fa-solid fa-bars"></i>
 </a>
 <div class="dropdown-menu">
     {% for ancestor in current_node.get_ancestors %}
@@ -14,7 +14,7 @@
     <a class="dropdown-item active" href="{% portal_url node=current_node %}">{{ current_node|full_name:request }}</a>
     {% for child in current_node.get_children %}
         <a class="dropdown-item" href="{% portal_url node=child %}">
-            <span class="glyphicon glyphicon-chevron-right"></span>
+           <i class="fa-solid fa-chevron-right"></i>
             {{ child|full_name:request }}
         </a>
     {% endfor %}

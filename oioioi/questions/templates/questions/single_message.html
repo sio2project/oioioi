@@ -23,14 +23,14 @@
             <span class="oioioi-message__actions float-right">
                 {% if show_icon_hyperlink %}
                     <a class="oioioi-message__action" href="{% url "message" message.id %}">
-                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <i class="fa-solid fa-eye"></i>
                     </a>
                 {% endif %}
                 <a class="oioioi-message__action" href="{% url "oioioiadmin:questions_message_change" message.id %}">
-                    <span class="glyphicon glyphicon-edit"></span>
+                    <i class="fa-solid fa-pen-to-square"></i>
                 </a>
                 <a class="oioioi-message__action" href="{% url "oioioiadmin:questions_message_delete" message.id %}">
-                    <span class="glyphicon glyphicon-remove"></span>
+                    <i class="fa-solid fa-xmark"></i>
                 </a>
             </span>
         {% endif %}

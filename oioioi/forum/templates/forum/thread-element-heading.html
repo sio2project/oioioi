@@ -5,11 +5,11 @@
     {% trans "This post was hidden by the contest administrator" %}
     {% if is_admin %}
         <a href="#" data-post-url="{% url 'forum_post_show' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id %}">
-            <span class="glyphicon glyphicon-ok"></span> {% trans "unhide" %}
+            <i class="fa-solid fa-check"></i> {% trans "unhide" %}
         </a>
         |
         <a href="#forum-anchor-{{ post.id }}" data-toggle="collapse" data-target="#forum-post-{{ post.id }} > .card-body">
-            <span class="glyphicon glyphicon-resize-full"></span> {% trans "expand" %}
+            <i class="fa-solid fa-up-right-and-down-left-from-center"></i> {% trans "expand" %}
         </a>
     {% endif %}
 </p>

@@ -18,12 +18,14 @@
         {% endcomment %}
         {% compress js %}
             <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
+            <script src="{{ STATIC_URL }}fontawesomefree/js/all.min.js"></script>
             {% common_scripts %}
         {% endcompress %}
 
         {% block styles %}
             {% compress css %}
                 <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}scss/style.scss">
+                <link href="{{ STATIC_URL }}fontawesomefree/css/all.min.css" rel="stylesheet" type="text/css">
                 {% common_styles %}
             {% endcompress %}
         {% endblock %}

@@ -10,6 +10,6 @@ $rotation-interval: 1s !default;
   }
 }
 
-.btn.loading .glyphicon {
+.btn.loading .fa-solid {
   animation: loading-rotate-animation $rotation-interval linear infinite;
 }

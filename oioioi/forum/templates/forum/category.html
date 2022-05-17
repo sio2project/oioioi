@@ -11,7 +11,7 @@
         <div class="float-right">
             <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}">
-                <span class="glyphicon glyphicon-comment"></span>
+                <i class="fa-solid fa-message"></i>
                 {% trans "Add new thread" %}
             </a>
         </div>
@@ -48,7 +48,7 @@
                     {% if is_admin %}
                         <td>
                             <a href="#" data-post-url="{% url 'forum_thread_delete' contest_id=contest.id category_id=category.id thread_id=t.id %}">
-                                <span class="glyphicon glyphicon-trash"></span>
+                                <i class="fa-solid fa-trash"></i>
                             </a>
                         </td>
                         <td>

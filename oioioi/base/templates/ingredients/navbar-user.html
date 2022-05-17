@@ -17,7 +17,7 @@ function setFocusToLoginInput(){
     <div class="dropdown">
         <a href="#" id="navbar-username" class="dropdown-toggle" data-toggle="dropdown" role="button" onclick="setFocusToLoginInput()"
            aria-expanded="false">
-            <span class="glyphicon glyphicon-user"></span>
+            <i class="fa-solid fa-user"></i>
             <span class="username"> {% trans "Log in" %}</span>
         </a>
         <div class="dropdown-menu dropdown-menu-right">
@@ -45,14 +45,14 @@ function setFocusToLoginInput(){
             {% if user.is_superuser and enabled %}
                 <span id="maintenance-label" class="badge badge-warning"
                         data-toggle="tooltip" data-placement="bottom" title="{% trans "Maintenance Mode is ON" %}">
-                    <span class="label-short glyphicon glyphicon-cog"></span>
+                    <i class="label-short fa-solid fa-gear"></i>
                     <span class="label-full">{% trans "Maintenance Mode is ON" %}</span>
                 </span>
             {% endif %}
             {% if avatar %}
                 <img src="{{ avatar }}" alt="avatar" class="navbar-avatar">
             {% else %}
-                <span class="glyphicon glyphicon-user"></span>
+                <i class="fa-solid fa-user"></i>
             {% endif %}
             <strong class="username" id="username">{{ user.username }}</strong>
         </a>

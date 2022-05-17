@@ -15,12 +15,12 @@
     {% if is_admin %}
         <div class="float-right">
             <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'user_info' message.author_id %}">
-                <span class="glyphicon glyphicon-user"></span>
+                <i class="fa-solid fa-user"></i>
                 {% trans "Display user" %}
             </a>
             {% if message.can_have_replies %}
                 <a role="button" class="btn btn-sm btn-outline-secondary" href="javascript:scroll_and_focus('#id_content');">
-                    <span class="glyphicon glyphicon-pencil"></span>
+                    <i class="fa-solid fa-pencil"></i>
                     {% trans "Reply" %}
                 </a>
             {% endif %}
@@ -69,7 +69,7 @@
             <div class="include-template btn-group">
                 <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
                     data-toggle="dropdown" tabindex="-1" aria-expanded="false">
-                    <span class="glyphicon glyphicon-pencil"></span>
+                    <i class="fa-solid fa-pencil"></i>
                     {% trans "Include template" %} <span class="caret"></span>
                 </button>
                 <div class="dropdown-menu template-replies">
@@ -82,7 +82,7 @@
                 </div>
             </div>
             <button type="button" tabindex="-1" id="respond_inline" class="btn btn-outline-secondary btn-sm" onclick="add_question_content();">
-                <span class="glyphicon glyphicon-pencil"></span>
+                <i class="fa-solid fa-pencil"></i>
                 {% trans "Respond inline" %}
             </button>
         </div>

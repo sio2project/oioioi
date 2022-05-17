@@ -72,11 +72,11 @@
                     <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-group date inline float-left">
                         <input type="text" name="{{ record.date_id }}" class="oioioi-timeline__datetime-input form-control" value="{{ record.date|date:'Y-m-d H:i' }}" {{ attrs }} />
                         <span class="input-group-addon oioioi-timeline__calendar-icon">
-                            <span class="glyphicon glyphicon-calendar"></span>
+                            <i class="fa-solid fa-calendar"></i>
                         </span>
                     </div>
                     <div class="oioioi-timeline__date-title inline">{{ record.text }}<small class="group-members"></small></div>
-                    <span class="oioioi-timeline__group-delete-btn glyphicon glyphicon-resize-vertical"></span>
+                    <i class="oioioi-timeline__group-delete-btn fa-solid fa-up-down"></i>
                 </div>
                 {% endfor %}
             </div>

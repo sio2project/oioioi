@@ -59,6 +59,7 @@ requirements = [
     "raven<6.11",
     "unidecode<1.3",
     "sentry-sdk",
+    "fontawesomefree==6.1.1",
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.
     "django-nested-admin<3.4",
