@@ -75,20 +75,31 @@ def check_commands() -> None:
 
 
 def get_action_from_args() -> Option:
-    if len(sys.argv) < 2:
+    disable_warn = False
+    no_flag = []
+
+    for arg in sys.argv[1:]:
+        if arg in ['--help', '-h']:
+            raise Help()
+        elif arg in ['--on-input', '-i']:
+            disable_warn = True
+        else:
+            no_flag.append(arg)
+
+    if len(no_flag) < 1:
         return None
-    if len(sys.argv) > 2:
+    if len(no_flag) > 1:
         raise Exception("Too many arguments!")
 
-    if (sys.argv[1] in ['--help' ,'-h']):
-        raise Help()
-    
-    candidates = list(filter(lambda opt: opt.arg == sys.argv[1], COMMANDS))
+    candidates = list(filter(lambda opt: opt.arg == no_flag[0], COMMANDS))
     if len(candidates) < 1:
         raise Exception("No argument was found!")
     if len(candidates) > 1:
         raise Exception("More then one matching argument was found!")
-    
+
+    if disable_warn:
+        candidates[0].warn = False
+
     return candidates[0]
 
 
@@ -111,8 +122,8 @@ def run_command(command) -> None:
     os.system(command)
 
 
-def warn_user(action: Option) -> None:
-    print("You are going to execute command marked as `dangerous`. Are you sure? [y/N]")
+def warn_user(action: Option) -> bool:
+    print(f"You are going to execute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]")
     while True:
         choice = input().lower()
         if len(choice) == 0 or "no"[:len(choice)] == choice:
