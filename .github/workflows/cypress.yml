@@ -1,0 +1,17 @@
+name: Cypress nightly tests
+
+on:
+  schedule:
+    - cron: '15 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build OIOIOI
+        run: ./easy_toolbox.py build
+
