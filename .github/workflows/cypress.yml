@@ -32,7 +32,7 @@ jobs:
 
       - name: Run test server
         run: |
-          python easy_toolbox.py server-cypress --no-input &
+          python easy_toolbox.py run --no-input &
 
       - name: Run tests
         run: |
