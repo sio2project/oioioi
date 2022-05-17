@@ -16,17 +16,27 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U inquirer
+
       - name: Build OIOIOI
         run: |
           python easy_toolbox.py build --no-input
-      - name: Run environment
+
+      - name: Containers `up`
         run: |
           python easy_toolbox.py up --no-input
-          python easy_toolbox.py run --no-input
-#      - name: Run tests
-#        run: |
-#          pushd oioioi_cypress
-#          yarn
-#          npx wait-on http://localhost:8000
-#          CYPRESS_baseUrl=http://localhost:8000 yarn cy:run
-#          popd
+
+      - name: Wait for migrations
+        uses: whatnick/wait-action@master
+        with:
+          time: 30s
+
+      - name: Run test server
+          python easy_toolbox.py server-cypress --no-input &
+
+      - name: Run tests
+        run: |
+          pushd oioioi_cypress
+          yarn
+          npx wait-on http://localhost:8000
+          CYPRESS_baseUrl=http://localhost:8000 yarn cy:run
+          popd
