@@ -28,7 +28,7 @@ RAW_COMMANDS = [
     ("build", "Build whole OIOIOI from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop all SIO2 containers", "down"),
-    ("run", "Run server", "exec web python3 manage.py runserver 0.0.0.0:8000"),
+    ("run", "Run server", "exec -T web python3 manage.py runserver 0.0.0.0:8000"),
     ("bash", "Open command prompt on web container.", "exec web bash"),
     ("bash_db", "Open command prompt on database container.", "exec db bash"),
     # This one CLEARS the database. Use wisely.
