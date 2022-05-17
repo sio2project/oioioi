@@ -22,11 +22,11 @@ jobs:
       - name: Run environment
         run: |
           python easy_toolbox.py up --no-input
-          python easy_toolbox.py run --no-input &
-      - name: Run tests
-        run: |
-          pushd oioioi_cypress
-          yarn
-          npx wait-on http://localhost:8000
-          CYPRESS_baseUrl=http://localhost:8000 yarn cy:run
-          popd
+          python easy_toolbox.py run --no-input
+#      - name: Run tests
+#        run: |
+#          pushd oioioi_cypress
+#          yarn
+#          npx wait-on http://localhost:8000
+#          CYPRESS_baseUrl=http://localhost:8000 yarn cy:run
+#          popd
