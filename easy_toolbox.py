@@ -10,7 +10,7 @@
 
 
 # This script was created in order to help the users
-# execute commands faster. The main idea was to omit
+# exec -Tute commands faster. The main idea was to omit
 # copy-pasting commands from GitHub. This script
 # is prepared and should be upgraded or/and extended
 # for any future needs.
@@ -29,19 +29,19 @@ RAW_COMMANDS = [
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop all SIO2 containers", "down"),
     ("run", "Run server", "exec -T web python3 manage.py runserver 0.0.0.0:8000"),
-    ("bash", "Open command prompt on web container.", "exec web bash"),
-    ("bash_db", "Open command prompt on database container.", "exec db bash"),
+    ("bash", "Open command prompt on web container.", "exec -T web bash"),
+    ("bash_db", "Open command prompt on database container.", "exec -T db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "exec web python manage.py flush --noinput", True),
-    ("add-superuser", "Create admin_admin.", "exec web python manage.py createsuperuser"),
-    ("test", "Run unit tests.", "exec web ../oioioi/test.sh"),
-    ("test-slow", "Run unit tests. (--runslow)", "exec web ../oioioi/test.sh --runslow"),
+    ("flush-db", "Clear database.", "exec -T web python manage.py flush --noinput", True),
+    ("add-superuser", "Create admin_admin.", "exec -T web python manage.py createsuperuser"),
+    ("test", "Run unit tests.", "exec -T web ../oioioi/test.sh"),
+    ("test-slow", "Run unit tests. (--runslow)", "exec -T web ../oioioi/test.sh --runslow"),
     ("test-abc", "Run specific test file. (edit the toolbox)",
-     "exec web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
+     "exec -T web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
     ("test-coverage", "Run coverage tests.",
-     "exec 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
+     "exec -T 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
     ("server-cypress", "Run CyPress test server.",
-     "exec web python manage.py testserver ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json --no-input "
+     "exec -T web python manage.py testserver ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json --no-input "
      "--addrport 0.0.0.0:8000 --settings oioioi.cypress_settings"),
 ]
 
@@ -125,7 +125,7 @@ def run_command(command) -> None:
 
 
 def warn_user(action: Option) -> bool:
-    print(f"You are going to execute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]")
+    print(f"You are going to exec -Tute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]")
     while True:
         choice = input().lower()
         if len(choice) == 0 or "no"[:len(choice)] == choice:
@@ -159,7 +159,7 @@ def main() -> None:
     except Help:
         print_help()
     except Exception as e:
-        print(f"An error occurred during execution: {e}", file=sys.stderr)
+        print(f"An error occurred during exec -Tution: {e}", file=sys.stderr)
 
 
 if __name__ == '__main__':
