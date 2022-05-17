@@ -17,5 +17,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install -U inquirer
       - name: Build OIOIOI
-        run: ./easy_toolbox.py build -i
+        run: ./easy_toolbox.py build --no-input
 

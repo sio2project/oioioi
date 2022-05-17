@@ -74,15 +74,18 @@ def check_commands() -> None:
         raise Exception("Error in COMMANDS. Same name was declared for more then one command.")
 
 
+NO_INPUT = False
+
+
 def get_action_from_args() -> Option:
-    disable_warn = False
     no_flag = []
 
     for arg in sys.argv[1:]:
         if arg in ['--help', '-h']:
             raise Help()
-        elif arg in ['--on-input', '-i']:
-            disable_warn = True
+        elif arg in ['--no-input', '-i']:
+            global NO_INPUT
+            NO_INPUT = True
         else:
             no_flag.append(arg)
 
@@ -96,9 +99,6 @@ def get_action_from_args() -> Option:
         raise Exception("No argument was found!")
     if len(candidates) > 1:
         raise Exception("More then one matching argument was found!")
-
-    if disable_warn:
-        candidates[0].warn = False
 
     return candidates[0]
 
@@ -117,8 +117,9 @@ def get_action_from_cli() -> Option:
 
 def run_command(command) -> None:
     print('Running command', command)
-    width = os.get_terminal_size().columns
-    print('=' * width)
+    if not NO_INPUT:
+        width = os.get_terminal_size().columns
+        print('=' * width)
     os.system(command)
 
 
@@ -136,7 +137,7 @@ def warn_user(action: Option) -> bool:
 
 def run() -> None:
     action = get_action_from_args() or get_action_from_cli()
-    if action.warn:
+    if action.warn and not NO_INPUT:
         if not warn_user(action):
             print("Aborting.")
             return
