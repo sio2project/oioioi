@@ -10,7 +10,7 @@
 
 
 # This script was created in order to help the users
-# exec -Tute commands faster. The main idea was to omit
+# execute commands faster. The main idea was to omit
 # copy-pasting commands from GitHub. This script
 # is prepared and should be upgraded or/and extended
 # for any future needs.
