@@ -30,6 +30,10 @@ jobs:
         with:
           time: 30s
 
+      - name: Apply CyPress settings
+        run: |
+          python easy_toolbox.py cypress-apply-settings --no-input
+
       - name: Run test server
         run: |
           python easy_toolbox.py run --no-input &

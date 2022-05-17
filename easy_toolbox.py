@@ -29,7 +29,7 @@ RAW_COMMANDS = [
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop all SIO2 containers", "down"),
     ("run", "Run server", "exec -T web python3 manage.py runserver 0.0.0.0:8000"),
-    ("bash", "Open command prompt on web container.", "exec -T web bash"),
+    ("bash", "Open command prompt on web container.", "exec web bash"),
     ("bash_db", "Open command prompt on database container.", "exec -T db bash"),
     # This one CLEARS the database. Use wisely.
     ("flush-db", "Clear database.", "exec -T web python manage.py flush --noinput", True),
@@ -43,6 +43,8 @@ RAW_COMMANDS = [
     ("server-cypress", "Run CyPress test server.",
      "exec -T web python manage.py testserver ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json --no-input "
      "--addrport 0.0.0.0:8000 --settings oioioi.cypress_settings"),
+    ("cypress-apply-settings", "Apply settings for CyPress.",
+     "exec -T web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
@@ -121,7 +123,7 @@ def run_command(command) -> None:
     if not NO_INPUT:
         width = os.get_terminal_size().columns
         print('=' * width)
-    os.system(command)
+    sys.exit(os.WEXITSTATUS(os.system(command)))
 
 
 def warn_user(action: Option) -> bool:
