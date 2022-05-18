@@ -104,7 +104,7 @@ def edit_profile_view(request):
     ensure_preferences_exist_for_user(request.user)
     if request.method == 'POST':
         form = PreferencesFactory().create_form(
-            oioioi.base.forms.UserForm,
+            oioioi.base.forms.UserChangeForm,
             request.user,
             request.POST,
             allow_login_change=not has_valid_username(request.user),
@@ -117,7 +117,7 @@ def edit_profile_view(request):
             return redirect('index')
     else:
         form = PreferencesFactory().create_form(
-            oioioi.base.forms.UserForm,
+            oioioi.base.forms.UserChangeForm,
             request.user,
             allow_login_change=not has_valid_username(request.user),
         )

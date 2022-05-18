@@ -206,6 +206,24 @@ class UserForm(forms.ModelForm):
         PreferencesSaved.send(self, user=instance)
         return instance
 
+class UserChangeForm(UserForm):
+    current_password = forms.CharField(widget=forms.PasswordInput())
+
+    def __init__(self,  *args, **kwargs):
+
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+        self.user = kwargs.pop('instance', None)
+
+    def clean_current_password(self):
+        current_password = self.cleaned_data["current_password"]
+
+        if self.user.email == self.cleaned_data['email']:
+            return current_password
+
+        if not self.user.check_password(current_password):
+            raise forms.ValidationError(_("Password incorrect."), code='password_incorrect', )
+        return current_password
+
 
 class OioioiUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
