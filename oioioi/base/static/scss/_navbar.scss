@@ -22,10 +22,10 @@ $oioioi-navbar-time-changed-background: darken(theme-color("primary"), 20) !defa
 $oioioi-navbar-user-changed-background: darken(theme-color("danger"), 20) !default;
 
 // Breakpoint at which admin labels get shrunk to save some space
-$oioioi-navbar-label-md-width: 80px !default;
+$oioioi-navbar-label-lg-width: 80px !default;
 $oioioi-navbar-contest-max-width: 220px !default;
-$oioioi-navbar-contest-sm-max-width: 160px !default;
-$oioioi-navbar-contest-xs-max-width: 120px !default;
+$oioioi-navbar-contest-md-max-width: 160px !default;
+$oioioi-navbar-contest-sm-max-width: 120px !default;
 
 // Breakpoint at which countdown text gets hidden
 $oioioi-navbar-countdown-breakpoint: 640px !default;
@@ -180,7 +180,7 @@ body {
   .oioioi-navbar__menu-uncollapsed {
     > a > .label,
     .dropdown > a > .label {
-      max-width: $oioioi-navbar-label-md-width;
+      max-width: $oioioi-navbar-label-lg-width;
     }
   }
 }
@@ -206,7 +206,7 @@ body {
 
 
     .dropdown > .contest-picker > .contest-name {
-      max-width: $oioioi-navbar-contest-sm-max-width;
+      max-width: $oioioi-navbar-contest-md-max-width;
     }
 
     .dropdown-header {
@@ -252,7 +252,7 @@ body {
     }
 
     .dropdown > .contest-picker > .contest-name {
-      max-width: $oioioi-navbar-contest-xs-max-width;
+      max-width: $oioioi-navbar-contest-sm-max-width;
     }
   }
 }

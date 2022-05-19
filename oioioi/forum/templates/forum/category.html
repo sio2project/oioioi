@@ -39,7 +39,7 @@
             {% for t in threads %}
                 {% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=t.id as thread_link %}
                 <tr>
-                    <td class="{% if is_admin %} col-sm-4 {% else %} col-xs-6 {% endif %}">
+                    <td class="{% if is_admin %} col-md-4 {% else %} col-sm-6 {% endif %}">
                         <a class="show" href="{{ thread_link }}">
                             {{ t.name }}
                         </a>

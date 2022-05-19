@@ -23,14 +23,14 @@
         function set_sub_btn(subscribed) {
             $('#sub-btn').attr('disabled', false)
             $('#sub-text').text(subscribed ? unsub_text : sub_text);
-            $('#busy-indicator').addClass('hidden');
-            $('#envelope-icon').removeClass('hidden');
+            $('#busy-indicator').addClass('d-none');
+            $('#envelope-icon').removeClass('d-none');
         }
 
         function sub_btn_busy() {
             $('#sub-btn').attr('disabled', true)
-            $('#busy-indicator').removeClass('hidden');
-            $('#envelope-icon').addClass('hidden');
+            $('#busy-indicator').removeClass('d-none');
+            $('#envelope-icon').addClass('d-none');
         }
 
         function show_banner(success, caption, text) {

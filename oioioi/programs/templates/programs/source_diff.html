@@ -20,20 +20,20 @@
 </div>
 
 <div class="nav-content row">
-    <div class="col-xs-6">
+    <div class="col-sm-6">
         {% if decode_error1 %}
             {% include "programs/file_decoding_error.html" with download_url=download_url1 %}
         {% endif %}
     </div>
-    <div class="col-xs-6">
+    <div class="col-sm-6">
         {% if decode_error2 %}
             {% include "programs/file_decoding_error.html" with download_url=download_url2 %}
         {% endif %}
     </div>
-    <div class="col-xs-6">
+    <div class="col-sm-6">
         {% include "programs/source_diff_columns.html" with source=source1 %}
     </div>
-    <div class="col-xs-6 no-left-padding">
+    <div class="col-sm-6 no-left-padding">
         {% include "programs/source_diff_columns.html" with source=source2 %}
     </div>
 </div>

@@ -19,7 +19,7 @@
 {% block main-content %}
 <div class="container content">
     <div class="row">
-        <div class="col-md-11">
+        <div class="col-lg-11">
             <h1>
                 {% if member_type == 'teacher' %}
                     {% trans "Contest teachers" %}
@@ -32,7 +32,7 @@
 
     {% if member_type == 'pupil' and usergroups_active and has_usergroup %}
         <div class="row">
-            <div class="col-md-11">
+            <div class="col-lg-11">
                 {% trans "On this page you can view, add and remove pupils from the contest." %}
                 {% trans "Currently, two options of managing pupils are available." %}<br>
                 {% trans "First (newer one) is to add one of your user groups to the contest with all its users." %}
@@ -46,7 +46,7 @@
         </div>
 
         <div class="row">
-            <div class="col-md-11">
+            <div class="col-lg-11">
                 <h2 class="method-title">
                     {% trans "Groups" %}
                      <button class="disabled btn-link help-tooltip" data-toggle="tooltip" title='{% trans "Groups enable adding and removing many pupils at once. In the list below you can find all groups added to this contest and manage them. All pupils in the groups below have access to this contest." %}'>
@@ -128,7 +128,7 @@
     {% endif %}
 
     <div class="row">
-        <div class="col-md-11">
+        <div class="col-lg-11">
 
             {% if member_type == 'pupil' and usergroups_active and has_usergroup %}
                 <h2 class="method-title" id="members-view">
@@ -191,7 +191,7 @@
                 {% if members %}
                     <div class="row">
                         {% for member in members %}
-                            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                            <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" name="member" value="{{ member.id }}" {% if member_type == 'teacher' and member == user %}disabled{% endif %}>

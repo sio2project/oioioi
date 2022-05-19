@@ -37,6 +37,6 @@
     </p>
     <p class="oioioi-message__body">{{ message.content|urlize }}</p>
     {% if not is_reply %}
-        <div class="hidden message_to_quote">{{ message.to_quote }}</div>
+        <div class="d-none message_to_quote">{{ message.to_quote }}</div>
     {% endif %}
 </div>

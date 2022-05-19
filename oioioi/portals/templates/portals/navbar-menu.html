@@ -6,10 +6,10 @@
 </a>
 <div class="dropdown-menu">
     {% for ancestor in current_node.get_ancestors %}
-        <a class="dropdown-item hidden-md hidden-lg" href="{% portal_url node=ancestor %}">
+        <a class="dropdown-item d-lg-none" href="{% portal_url node=ancestor %}">
             {{ ancestor|full_name:request }}
         </a>
-        <div class="dropdown-divider hidden-md hidden-lg" role="separator"></div>
+        <div class="dropdown-divider d-lg-none" role="separator"></div>
     {% endfor %}
     <a class="dropdown-item active" href="{% portal_url node=current_node %}">{{ current_node|full_name:request }}</a>
     {% for child in current_node.get_children %}

@@ -17,12 +17,12 @@
 
 {% for field in form.visible_fields %}
     <div class="form-group row">
-        <div class="col-sm-3 text-right">
+        <div class="col-md-3 text-right">
             <label for="{{ field.id_for_label }}" class="col-form-label {% if field.errors %}text-danger{% endif %}">
                 {{ field.label }}
             </label>
         </div>
-        <div class="col-sm-9">
+        <div class="col-md-9">
         {% if field|is_checkbox %}
             <div class="form-check">
                 {% if field.errors %}

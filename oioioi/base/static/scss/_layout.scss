@@ -2,13 +2,13 @@
 
 $oioioi-narrow-input-max-width: 300px !default;
 
-/*.empty-space-filler {
+.empty-space-filler {
   margin-top: $padding-large-vertical;
 }
 
 .empty-space-filler-bottom {
   margin-bottom: $padding-large-vertical;
-}*/
+}
 
 .no-left-padding {
   padding-left: 0;
@@ -26,7 +26,7 @@ $oioioi-narrow-input-max-width: 300px !default;
   max-width: $oioioi-narrow-input-max-width;
 }
 
-@include media-breakpoint-down(md) {
+@include media-breakpoint-up(md) {
   .form-inline .form-group:not(:first-child) {
     margin-left: 2em;
   }

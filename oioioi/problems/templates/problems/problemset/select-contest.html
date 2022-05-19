@@ -8,7 +8,7 @@
 
 {% include "problems/problemset/contest-list.html" with contests=administered_contests %}
 
-<form id="add_to_contest" method="post" class="hidden">
+<form id="add_to_contest" method="post"  class="d-none">
     {% csrf_token %}
     <input id="url_key" name="url_key" type="hidden">
 </form>

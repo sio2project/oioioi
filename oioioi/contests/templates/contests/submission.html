@@ -26,7 +26,7 @@
     {{ header }}
     <div class="row">
         {% for report in reports %}
-            <div class="{% if submission.status != 'CE' and  submission.status != 'SE' %}col-lg-6{% endif %}">
+            <div class="{% if submission.status != 'CE' and  submission.status != 'SE' %}col-xl-6{% endif %}">
                 {{ report }}
             </div>
         {% endfor %}
@@ -71,7 +71,7 @@
                             <td colspan=100>
                                 <div id="hidden-report-{{ report.id }}"
                                      data-loadurl="{% url 'report' submission_id=submission.id report_id=report.id %}"
-                                     class="collapse col-lg-6"></div>
+                                     class="collapse col-xl-6"></div>
                             </td>
                         </tr>
                     {% endfor %}

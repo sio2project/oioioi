@@ -9,40 +9,40 @@
         <table class="table button-flat">
             <thead>
                 <tr>
-                    <th class="col-xs-{{ col_proportions.id }}">
+                    <th class="col-sm-{{ col_proportions.id }}">
                         <a href="{% ordered_col request.GET "short_name" %}">
                             {% trans "ID" %}
                         </a>
                     </th>
 
-                    <th class="col-xs-{{ col_proportions.name }}">
+                    <th class="col-sm-{{ col_proportions.name }}">
                         <a href="{% ordered_col request.GET "name" %}">
                             {% trans "Name" %}
                         </a>
                     </th>
 
                     {% if show_tags %}
-                        <th class="col-xs-{{ col_proportions.tags }}">
+                        <th class="col-sm-{{ col_proportions.tags }}">
                             {% trans "Tags" %}
                         </th>
                     {% endif %}
 
                     {% if show_statistics %}
-                        <th class="col-xs-{{ col_proportions.statistics1 }} text-center">
+                        <th class="col-sm-{{ col_proportions.statistics1 }} text-center">
                             <a href="{% ordered_col request.GET "submitted" True %}"
                                data-toggle="tooltip"
                                title="{% trans "How many users submitted a solution for this task" %}">
                                 {% trans "Submitters" %}
                             </a>
                         </th>
-                        <th class="col-xs-{{ col_proportions.statistics2 }} text-center">
+                        <th class="col-sm-{{ col_proportions.statistics2 }} text-center">
                             <a href="{% ordered_col request.GET "solved_pc" True %}"
                                data-toggle="tooltip"
                                title="{% trans "Percentage of users who submitted that also solved this task" %}">
                                 {% trans "% Correct" %}
                             </a>
                         </th>
-                        <th class="col-xs-{{ col_proportions.statistics3 }} text-center">
+                        <th class="col-sm-{{ col_proportions.statistics3 }} text-center">
                             <a href="{% ordered_col request.GET "avg_best_score" True %}"
                                data-toggle="tooltip"
                                title="{% trans "Average score result for this task" %}">
@@ -57,7 +57,7 @@
                     {% endif %}
 
                     {% if show_user_statistics %}
-                        <th class="col-xs-{{ col_proportions.user_score }} text-center">
+                        <th class="col-sm-{{ col_proportions.user_score }} text-center">
                             <a href="{% ordered_col request.GET "user_score" True %}"
                                data-toggle="tooltip"
                                title="{% trans "Your score for this problem" %}">
@@ -67,7 +67,7 @@
                     {% endif %}
 
                     {% if show_add_button %}
-                        <th class="col-xs-{{ col_proportions.add_button }} text-center">
+                        <th class="col-sm-{{ col_proportions.add_button }} text-center">
                             {% trans "Actions" %}
                         </th>
                     {% endif %}
@@ -140,7 +140,7 @@
                                 <button class="btn btn-outline-secondary dropdown-toggle add-to-contest-button" type="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret add-contest-caret"></span>
-                                    <span class="hidden loading-spinner job-active"><i class="fa-solid fa-rotate-right spinner"></i></span>
+                                    <span class="d-none loading-spinner job-active"><i class="fa-solid fa-rotate-right spinner"></i></span>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right">
                                 {% if administered_recent_contests %}
@@ -174,7 +174,7 @@
 </div>
 {% endif %}
 
-<form id="add_to_contest" method="post" class="hidden">
+<form id="add_to_contest" method="post"  class="d-none">
     {% csrf_token %}
     <input id="url_key" name="url_key" type="hidden">
 </form>
