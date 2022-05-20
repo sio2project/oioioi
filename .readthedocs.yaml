@@ -21,9 +21,9 @@ sphinx:
 
 python:
    install:
-     - method: setuptools
-       path: "setuptools<58.0.0"
-     - requirements: requirements.txt
-     - method: setuptools
-       path: "sphinx"
-     system_packages: true
+   - method: setuptools
+     path: "setuptools<58.0.0"
+   - requirements: requirements.txt
+   - method: setuptools
+     path: "sphinx"
+   system_packages: true
