@@ -39,7 +39,7 @@
     <body class="{% block body-class %}{% endblock %}">
         <div class="wrapper">
             {# We cannot move it into seperate file, because blocks has be overriden by extending this template #}
-            <header id="oioioi-navbar" class="oioioi-navbar hidden-print
+            <header id="oioioi-navbar" class="oioioi-navbar d-print-none
             {% if request.session.admin_time %} oioioi-navbar--admin-time {% endif %}
             {% if is_under_su %} oioioi-navbar--admin-su {% endif %} {% block navbar-class %}{% endblock %}">
 
