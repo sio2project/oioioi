@@ -1,0 +1,41 @@
+name: Create documentation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+
+    - name: Install apt dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl libpq-dev libdb-dev
+
+    - name: Install pip dependencies
+      run: |
+        python -m pip install --upgrade pip wheel setuptools
+        pip install -U "setuptools<58.0.0"  # downgrade setuptools due to incompatible django-supervisor
+        python setup.py install_egg_info
+        pip install --upgrade -r rst/requirements.txt
+        pip install --upgrade -r requirements.txt
+
+    - name: Run Sphinx
+      run: |
+        cd rst
+        make html
+
+    - name: Archive HTML documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: oioioi-docs-html
+        path: |
+          rst/build/html
