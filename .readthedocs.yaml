@@ -14,6 +14,9 @@ build:
     - libdb-dev
   tools:
     python: "3.8"
+  jobs:
+    pre_build:
+      - pip install -U "setuptools<<58.0.0"
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -21,10 +24,5 @@ sphinx:
 
 python:
    install:
-   - method: pip
-     path: .
-     extra_requirements:
-       - "setuptools<58.0.0"
-       - furo
    - requirements: requirements.txt
    system_packages: true
