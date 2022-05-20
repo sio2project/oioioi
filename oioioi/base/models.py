@@ -57,9 +57,15 @@ class UserPreferences(models.Model):
     )
 
     language = models.CharField(
+        _("preferred_language"),
         max_length=2,
         choices=list(settings.LANGUAGES) + [("", _("None"))],
         default=""
+    )
+
+    enable_editor = models.BooleanField(
+        _("enable_editor"),
+        default=False,
     )
 
 

@@ -32,3 +32,17 @@ class DateTimePicker(forms.widgets.DateTimeInput):
             'widgets/datetimepicker.html',
             {'name': name, 'value': value, 'attrs': flatatt(self.build_attrs(attrs))},
         )
+
+class AceEditorWidget(forms.widgets.Textarea):
+    def __init__(self, attrs, default_state=False):
+        super(AceEditorWidget, self).__init__(attrs={'rows': 10, 'class': 'monospace'})
+        self.default_state = default_state
+
+    def render(self, name, value, attrs=None, renderer=None):
+        return super(AceEditorWidget, self).render(name, value, attrs=attrs, renderer=renderer) + \
+            render_to_string('widgets/aceeditor.html',
+             {'editor_id': 'editor',
+             'inner_code': '',
+             'replace_code_area': 'textarea[name="code"]',
+             'toggle_checkbox_id': 'id_toggle_editor',
+             'default_state': 'true' if self.default_state else 'false'},)

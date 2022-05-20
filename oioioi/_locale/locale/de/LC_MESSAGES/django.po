@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-09 12:01+0000\n"
+"POT-Creation-Date: 2022-05-16 10:55+0000\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
 "Last-Translator: Michal Boron <beredentod@gmail.com>, 2019\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -44,11 +44,11 @@ msgstr "#"
 msgid "Username"
 msgstr "Benutzername"
 
-#: acm/controllers.py:249 base/forms.py:130 rankings/controllers.py:266
+#: acm/controllers.py:249 base/forms.py:165 rankings/controllers.py:266
 msgid "First name"
 msgstr "Vorname"
 
-#: acm/controllers.py:249 base/forms.py:131 rankings/controllers.py:266
+#: acm/controllers.py:249 base/forms.py:166 rankings/controllers.py:266
 msgid "Last name"
 msgstr "Nachname"
 
@@ -450,34 +450,39 @@ msgstr ""
 msgid "Enter a postal code in the format XX-XXX"
 msgstr ""
 
-#: base/forms.py:25
+#: base/forms.py:26
 msgid "This value may contain only letters, numbers and underscore."
 msgstr ""
 
-#: base/forms.py:26
+#: base/forms.py:27
 msgid "Invalid username"
 msgstr ""
 
-#: base/forms.py:32
+#: base/forms.py:33
 #| msgid "This value may contain only letters, numbers and underscore."
 msgid "This value may contain only letters, numbers and punctuation marks."
 msgstr ""
 
-#: base/forms.py:33
+#: base/forms.py:34
 #| msgid "Invalid username"
 msgid "Invalid first name"
 msgstr ""
 
-#: base/forms.py:34
+#: base/forms.py:35
 #| msgid "Invalid username"
 msgid "Invalid last name"
 msgstr ""
 
-#: base/forms.py:164
+#: base/forms.py:84
+#| msgid "Programming language"
+msgid "Preferred language"
+msgstr ""
+
+#: base/forms.py:199
 msgid "You cannot change your username."
 msgstr ""
 
-#: base/forms.py:191
+#: base/forms.py:226
 msgid "That email address doesn't have an associated local user account."
 msgstr ""
 
@@ -865,7 +870,7 @@ msgstr ""
 msgid "Password changed."
 msgstr ""
 
-#: base/templates/registration/password_change_form.html:3 base/views.py:31
+#: base/templates/registration/password_change_form.html:3 base/views.py:32
 msgid "Change password"
 msgstr ""
 
@@ -968,24 +973,20 @@ msgid ""
 msgstr ""
 
 #: base/templates/registration/registration_form.html:6
-#: base/templates/registration/registration_form.html:25
+#: base/templates/registration/registration_form.html:19
 msgid "Registration"
 msgstr ""
 
 #: base/templates/registration/registration_form.html:8
-#: base/templates/registration/registration_form.html:27
+#: base/templates/registration/registration_form.html:21
 msgid "Edit your profile"
 msgstr ""
 
-#: base/templates/registration/registration_form.html:21
-msgid "sample text transifex github actions"
-msgstr ""
-
-#: base/templates/registration/registration_form.html:31
+#: base/templates/registration/registration_form.html:25
 msgid "Please fill the form below to register."
 msgstr ""
 
-#: base/templates/registration/registration_form.html:38
+#: base/templates/registration/registration_form.html:32
 #: base/templates/simple-centered-form.html:12
 #: contests/templates/contests/my_submissions.html:14
 #: contests/templates/contests/problems_list.html:93
@@ -1017,7 +1018,7 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
-#: base/templates/registration/registration_form.html:40
+#: base/templates/registration/registration_form.html:34
 msgid "Delete account"
 msgstr ""
 
@@ -1282,15 +1283,15 @@ msgstr ""
 msgid "Enter a valid value."
 msgstr ""
 
-#: base/views.py:37
+#: base/views.py:38
 msgid "Two factor authentication"
 msgstr ""
 
-#: base/views.py:128
+#: base/views.py:100
 msgid "Edit profile"
 msgstr ""
 
-#: base/views.py:159
+#: base/views.py:130
 msgid "Log out"
 msgstr ""
 
