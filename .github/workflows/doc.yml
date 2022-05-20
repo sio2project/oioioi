@@ -25,10 +25,7 @@ jobs:
         python -m pip install --upgrade pip wheel setuptools
         pip install -U "setuptools<58.0.0"  # downgrade setuptools due to incompatible django-supervisor
         python setup.py install_egg_info
-        # install main requirements
-        pip install --upgrade -r requirements.txt
-        # install sphinx related requirements
-        cd rst
+        pip install --upgrade -r rst/requirements.txt
         pip install --upgrade -r requirements.txt
 
     - name: Run Sphinx
