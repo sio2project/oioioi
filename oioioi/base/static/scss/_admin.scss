@@ -1,0 +1,31 @@
+.admin-change-form {
+  .form-row:last-child {
+    border-bottom: none !important;
+  }
+
+  .col-label label {
+    @extend .col-form-label;
+  }
+
+  .form-control-box {
+    input, select {
+      @extend .form-control;
+    }
+
+    .datetime input {
+      max-width: 10rem;
+      display: inline;
+      margin-right: 0.5rem;
+    }
+  }
+
+  tr.form-row:not(.empty-form) {
+    display: contents;
+  }
+}
+
+#changelist-form {
+  tr.selected {
+    background-color: #ffc !important;
+  }
+}
