@@ -14,7 +14,7 @@
 # copy-pasting commands from GitHub. This script
 # is prepared and should be upgraded or/and extended
 # for any future needs.
-
+inquirer
 import sys
 import os
 import inquirer
@@ -27,7 +27,7 @@ BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
 RAW_COMMANDS = [
     ("build", "Build whole OIOIOI from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
-    ("down", "Stop all SIO2 containers", "down"),
+    ("down", "Stop all SIO2 containers", "down", True),
     ("run", "Run server", "exec -T web python3 manage.py runserver 0.0.0.0:8000"),
     ("bash", "Open command prompt on web container.", "exec web bash"),
     ("bash_db", "Open command prompt on database container.", "exec -T db bash"),
@@ -40,9 +40,6 @@ RAW_COMMANDS = [
      "exec -T web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
     ("test-coverage", "Run coverage tests.",
      "exec -T 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
-    ("server-cypress", "Run CyPress test server.",
-     "exec -T web python manage.py testserver ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json --no-input "
-     "--addrport 0.0.0.0:8000 --settings oioioi.cypress_settings"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
      "exec -T web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
 ]
@@ -55,11 +52,11 @@ class Help(Exception):
 
 
 class Option:
-    def __init__(self, arg, help, command, warn=False):
-        self.arg = arg
-        self.help = help
-        self.command = command
-        self.warn = warn
+    def __init__(self, _arg, _help, _command, _warn=False):
+        self.arg = _arg
+        self.help = _help
+        self.command = _command
+        self.warn = _warn
 
     def long_str(self) -> str:
         return f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
