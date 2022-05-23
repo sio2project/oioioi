@@ -14,7 +14,7 @@
 # copy-pasting commands from GitHub. This script
 # is prepared and should be upgraded or/and extended
 # for any future needs.
-
+inquirer
 import sys
 import os
 import inquirer
