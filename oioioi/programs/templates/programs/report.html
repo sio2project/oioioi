@@ -6,7 +6,7 @@
         <h4>{% trans "Initial testing report" %}</h4>
     {% elif report.kind == 'NORMAL' %}
         <h4>{% trans "Final testing report" %}</h4>
-    {% elif report.kind == 'd-none %}
+    {% elif report.kind == 'HIDDEN' %}
         <h4>{% trans "Hidden testing report" %}</h4>
     {% elif report.kind == 'FULL' %}
         <h4>{% trans "Full testing report" %}</h4>
