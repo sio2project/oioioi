@@ -28,20 +28,20 @@ RAW_COMMANDS = [
     ("build", "Build whole OIOIOI from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop all SIO2 containers", "down", True),
-    ("run", "Run server", "exec web python3 manage.py runserver 0.0.0.0:8000"),
-    ("bash", "Open command prompt on web container.", "exec web bash"),
-    ("bash_db", "Open command prompt on database container.", "exec db bash"),
+    ("run", "Run server", "exec{} web python3 manage.py runserver 0.0.0.0:8000"),
+    ("bash", "Open command prompt on web container.", "exec{} web bash"),
+    ("bash_db", "Open command prompt on database container.", "exec{} db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "exec web python manage.py flush --noinput", True),
-    ("add-superuser", "Create admin_admin.", "exec web python manage.py createsuperuser"),
-    ("test", "Run unit tests.", "exec web ../oioioi/test.sh"),
-    ("test-slow", "Run unit tests. (--runslow)", "exec web ../oioioi/test.sh --runslow"),
+    ("flush-db", "Clear database.", "exec{} web python manage.py flush --noinput", True),
+    ("add-superuser", "Create admin_admin.", "exec{} web python manage.py createsuperuser"),
+    ("test", "Run unit tests.", "exec{} web ../oioioi/test.sh"),
+    ("test-slow", "Run unit tests. (--runslow)", "exec{} web ../oioioi/test.sh --runslow"),
     ("test-abc", "Run specific test file. (edit the toolbox)",
-     "exec web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
+     "exec{} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
     ("test-coverage", "Run coverage tests.",
-     "exec 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
+     "exec{} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
-     "exec web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
+     "exec{} web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
@@ -59,9 +59,8 @@ class Option:
         self.warn = _warn
 
     # If we use exec we should add -T for GitHub actions (disable tty).
-    def disable_tty(self):
-        if (self.command.startswith("exec")):
-            self.command = self.command.replace("exec", "exec -T", 1)
+    def fill_tty(self, disable=False):
+        self.command = self.command.format(" -T" if disable else "")
 
     def long_str(self) -> str:
         return f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
@@ -83,7 +82,8 @@ NO_INPUT = False
 
 
 def get_action_from_args() -> Option:
-    no_flag = []
+    # not flags
+    arguments = []
 
     for arg in sys.argv[1:]:
         if arg in ['--help', '-h']:
@@ -92,14 +92,14 @@ def get_action_from_args() -> Option:
             global NO_INPUT
             NO_INPUT = True
         else:
-            no_flag.append(arg)
+            arguments.append(arg)
 
-    if len(no_flag) < 1:
+    if len(arguments) < 1:
         return None
-    if len(no_flag) > 1:
+    if len(arguments) > 1:
         raise Exception("Too many arguments!")
 
-    candidates = list(filter(lambda opt: opt.arg == no_flag[0], COMMANDS))
+    candidates = list(filter(lambda opt: opt.arg == arguments[0], COMMANDS))
     if len(candidates) < 1:
         raise Exception("No argument was found!")
     if len(candidates) > 1:
@@ -132,9 +132,9 @@ def warn_user(action: Option) -> bool:
     print(f"You are going to execute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]")
     while True:
         choice = input().lower()
-        if len(choice) == 0 or "no"[:len(choice)] == choice:
+        if not choice or "no".startswith(choice):
             return False
-        elif "yes"[:len(choice)] == choice:
+        elif "yes".startswith(choice):
             return True
         else:
             print("Please answer [yes] or [no].")
@@ -142,8 +142,7 @@ def warn_user(action: Option) -> bool:
 
 def run() -> None:
     action = get_action_from_args() or get_action_from_cli()
-    if NO_INPUT:
-        action.disable_tty()
+    action.fill_tty(disable=NO_INPUT)
     if action.warn and not NO_INPUT:
         if not warn_user(action):
             print("Aborting.")
