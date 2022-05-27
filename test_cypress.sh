@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# https://intoli.com/blog/exit-on-errors-in-bash-scripts/
+set -e
+
 # cy:run    runs tests in terminal mode
 # cy:open   opens interactive gui
 
