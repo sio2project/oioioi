@@ -36,7 +36,6 @@ jobs:
 
       - name: Flush database and run test server
         run: |
-          python easy_toolbox.py flush-db --no-input
           python easy_toolbox.py run --no-input &
 
       - name: Run tests
