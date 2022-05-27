@@ -3,6 +3,8 @@
 # https://intoli.com/blog/exit-on-errors-in-bash-scripts/
 set -e
 
+# Run this script with -g to run CyPress with GUI
+#   or without to run tests in terminal mode. 
 # cy:run    runs tests in terminal mode
 # cy:open   opens interactive gui
 
@@ -22,7 +24,7 @@ done
 
 pushd oioioi_cypress
     # Resolve dependencies
-	yarn
+    yarn
     # Wait for a server. If not ready after 10s end program else run tests.
     npx wait-on http://localhost:8000 --timeout 10000 &&\
     CYPRESS_baseUrl=http://localhost:8000 yarn cy:${gui}
