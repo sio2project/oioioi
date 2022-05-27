@@ -2,7 +2,7 @@ name: Cypress nightly tests
 
 on:
   schedule:
-    - cron: '15 5 * * *'
+    - cron: '* 5 * * 1,3,5'
   workflow_dispatch:
 
 jobs:
@@ -30,11 +30,11 @@ jobs:
         with:
           time: 30s
 
-      # - name: Apply CyPress settings
-      #   run: |
-      #     python easy_toolbox.py cypress-apply-settings --no-input
+      - name: Apply CyPress settings
+        run: |
+          python easy_toolbox.py cypress-apply-settings --no-input
 
-      - name: Flush database and run test server
+      - name: Run test server
         run: |
           python easy_toolbox.py run --no-input &
 
