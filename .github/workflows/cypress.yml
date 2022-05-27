@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install `easy_toolbox.py` requirements
         run: |
           python -m pip install --upgrade pip
@@ -30,9 +30,9 @@ jobs:
         with:
           time: 30s
 
-      - name: Apply CyPress settings
-        run: |
-          python easy_toolbox.py cypress-apply-settings --no-input
+      # - name: Apply CyPress settings
+      #   run: |
+      #     python easy_toolbox.py cypress-apply-settings --no-input
 
       - name: Flush database and run test server
         run: |
@@ -42,3 +42,10 @@ jobs:
       - name: Run tests
         run: |
           ./test_cypress.sh
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+            name: cypress-screenshots
+            path: cypress/screenshots
