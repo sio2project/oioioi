@@ -34,14 +34,11 @@ jobs:
         run: |
           python easy_toolbox.py cypress-apply-settings --no-input
 
-      - name: Run test server
+      - name: Flush database and run test server
         run: |
+          python easy_toolbox.py flush-db --no-input
           python easy_toolbox.py run --no-input &
 
       - name: Run tests
         run: |
-          pushd oioioi_cypress
-          yarn
-          npx wait-on http://localhost:8000
-          CYPRESS_baseUrl=http://localhost:8000 yarn cy:run
-          popd
+          ./test_cypress.sh
