@@ -7,7 +7,8 @@ set -e
 # cy:open   opens interactive gui
 
 echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-echo -e "    Remember to flush the database!     "
+echo -e "    Remember to flush the database      "
+echo -e "   and create superuser admin, admin.   "
 echo -e "Some tests may relay on a empty database"
 echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 

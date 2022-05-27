@@ -47,4 +47,4 @@ jobs:
         if: failure()
         with:
             name: cypress-screenshots
-            path: cypress/screenshots
+            path: oioioi_cypress/cypress/screenshots
