@@ -7,20 +7,23 @@
     @extend .col-form-label;
   }
 
-  .form-control-box {
-    input, select {
-      @extend .form-control;
-    }
-
-    .datetime input {
-      max-width: 10rem;
-      display: inline;
-      margin-right: 0.5rem;
-    }
-  }
-
   tr.form-row:not(.empty-form) {
     display: contents;
+  }
+
+  .empty-form {
+    display: none;
+  }
+
+  .vTextField, .vIntegerField, .vLargeTextField, select {
+    @extend .form-control;
+  }
+ 
+  .vDateField, .vTimeField {
+    @extend .form-control;
+    max-width: 10rem;
+    display: inline;
+    margin-right: 0.5rem;
   }
 }
 

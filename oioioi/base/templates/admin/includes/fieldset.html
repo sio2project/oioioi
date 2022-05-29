@@ -5,7 +5,7 @@
     <div class="card mb-2">
         <div class="card-header py-2"><h5 class="mb-0">{{ fieldset.name }}</h5></div>
     {% endif %}
-        <div class="card-body py-2">
+        <div class="card-body py-2 px-3">
             {% if fieldset.description %}
                 <div class="description">{{ fieldset.description|safe }}</div>
             {% endif %}
@@ -27,9 +27,7 @@
                                         {% if field.is_readonly %}
                                             <div class="readonly">{{ field.contents }}</div>
                                         {% else %}
-                                            <div class="form-control-box">
-                                                {{ field.field }}
-                                            </div>
+                                            {{ field.field }}
                                         {% endif %}
                                         {% if field.field.help_text %}
                                             <small class="help text-muted form-text">{{ field.field.help_text|safe }}</small>
