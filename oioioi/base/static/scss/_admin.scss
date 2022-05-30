@@ -15,7 +15,7 @@
     display: none;
   }
 
-  .vTextField, .vIntegerField, .vLargeTextField, select {
+  .vTextField, .vIntegerField, .vLargeTextField, .vURLField, select {
     @extend .form-control;
   }
  
