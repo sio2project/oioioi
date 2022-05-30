@@ -15,7 +15,7 @@
     display: none;
   }
 
-  .vTextField, .vIntegerField, .vLargeTextField, .vURLField, select {
+  .vTextField, .vIntegerField, .vLargeTextField, .vURLField, select, input[type=password] {
     @extend .form-control;
   }
  
@@ -24,6 +24,10 @@
     max-width: 10rem;
     display: inline;
     margin-right: 0.5rem;
+  }
+
+  .col-control {
+    max-width: 40rem;
   }
 }
 

@@ -11,23 +11,41 @@
             {% endif %}
             {% for line in fieldset %}
                 <div class="form-group{% if line.fields|length_is:'1' and line.errors %} errors{% endif %}{% if not line.has_visible_field %} d-none{% endif %}{% for field in line %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% endfor %}">
-                    {% if line.fields|length_is:'1' %}{{ line.errors }}{% endif %}
                     {% for field in line %}
                         <div{% if not line.fields|length_is:'1' %} class="fieldBox{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% if not field.is_readonly and field.errors %} errors{% endif %}{% if field.field.is_hidden %} d-none{% endif %}"{% elif field.is_checkbox %} class="form-check checkbox-row"{% endif %}>
-                            {% if not line.fields|length_is:'1' and not field.is_readonly %}{{ field.errors }}{% endif %}
                             {% if field.is_checkbox %}
-                                {{ field.field | add_class:"form-check-input" }}{{ field.label_tag }}
+                                {% if field.errors %}
+                                    {{ field.field | add_class:"form-check-input" | add_class:"is-invalid" }}
+                                {% else %}
+                                    {{ field.field | add_class:"form-check-input" }}
+                                {% endif %}
+                                {{ field.label_tag }}
+
+                                {% if not field.is_readonly %}
+                                    {% for error in field.field.errors %}
+                                        <small class="{% if not inline %}form-text{% endif %} text-danger">{{ error }}</small>
+                                    {% endfor %}
+                                {% endif %}
                                 {% if field.field.help_text %}
                                     <small class="help text-muted form-text">{{ field.field.help_text|safe }}</small>
                                 {% endif %}
                             {% else %}
                                 <div class="row">
-                                    <div class="col-md-2 col-label">{{ field.label_tag }}</div>
-                                    <div class="col-md-10">
+                                    <div class="col-xl-2 col-md-3 col-label">{{ field.label_tag }}</div>
+                                    <div class="col-xl-10 col-md-9 col-control">
                                         {% if field.is_readonly %}
                                             <div class="readonly">{{ field.contents }}</div>
                                         {% else %}
-                                            {{ field.field }}
+                                            {% if field.errors %}
+                                                {{ field.field | add_class:"is-invalid" }}
+                                            {% else %}
+                                                {{ field.field }}
+                                            {% endif %}
+                                        {% endif %}
+                                        {% if not field.is_readonly %}
+                                            {% for error in field.field.errors %}
+                                                <small class="{% if not inline %}form-text{% endif %} text-danger">{{ error }}</small>
+                                            {% endfor %}
                                         {% endif %}
                                         {% if field.field.help_text %}
                                             <small class="help text-muted form-text">{{ field.field.help_text|safe }}</small>
@@ -35,7 +53,6 @@
                                     </div>
                                 </div>
                             {% endif %}
-
                         </div>
                     {% endfor %}
                 </div>
