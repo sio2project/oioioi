@@ -34,10 +34,24 @@ Cypress.Commands.add("hideDjangoToolbar", () => {
 
 Cypress.Commands.add("login", (user: OIOIOI.User) => {
     cy.visit("/")
-
     cy.get('.username').click()
+    cy.get('#navbar-login').within(() => {
+        cy.get('input[name="auth-username"]').type(user.username);
+        cy.get('input[name="auth-password"]').type(user.password);
+        cy.get('button[type="submit"]').click();
+    });
+});
 
-    cy.get('#navbar-login-input').type(user.username)
-    cy.get(':nth-child(4) > .form-control').type(user.password)
-    cy.get('#navbar-login > .btn-primary').click()
-})
+Cypress.Commands.add("setLang", (language: string) => {
+    cy.visit("/");
+    cy.get(".oioioi-navbar__lang").click();
+    cy.get(".lang-select").contains(language).click();
+});
+
+Cypress.Commands.add("enLang", () => {
+    cy.setLang("English");
+});
+
+Cypress.Commands.add("plLang", () => {
+    cy.setLang("Polski");
+});

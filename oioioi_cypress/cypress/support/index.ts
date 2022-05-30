@@ -14,14 +14,20 @@
 // ***********************************************************
 
 declare namespace Cypress {
-    interface Chainable {
+    interface Chainable<Subject = any> {
 
         // If Django Toolbar is enabled it can hoover some clickable elements, 
         // so we should hide it before each test. By default, it is disabled,
         // but who knows ¯\_(ツ)_/¯
-        hideDjangoToolbar(): void
+        hideDjangoToolbar(): Chainable<null>
 
-        login(user: OIOIOI.User): void
+        // User related commands
+        login(user: OIOIOI.User): Chainable<null>
+
+        // Language related commands
+        setLang(language: string): Chainable<null>
+        enLang(): Chainable<null>
+        plLang(): Chainable<null>
     }
 }
 

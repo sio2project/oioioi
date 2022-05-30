@@ -4,44 +4,35 @@ context("Register", () => {
     before(() => {
         cy.visit("/");
         cy.hideDjangoToolbar();
+        cy.enLang()
     });
 
     it("Register new user", () => {
-
-        const user_info: OIOIOI.User = {
-            username:       "test_username",
-            first_name:     "test_name",
-            last_name:      "test_surname",
-            email:          "test@test.com",
-            password:       "test_password",
-        };
-
-        registerNewUser(user_info);
-        checkIfCanLoginIn(user_info);
-        tryRemovingUserUser(user_info, false);
-        tryRemovingUserUser(user_info);
+        cy.fixture("credentials").then((data) => {
+            registerNewUser(data.user);
+            checkIfCanLogIn(data.user);
+            tryRemovingUser(data.user, false);
+            tryRemovingUser(data.user);
+        });
     });
 });
 
-let registerNewUser = (user_info: OIOIOI.User) => {
-
+const registerNewUser = (user_info: OIOIOI.User) => {
     visitRegistrationSite();
-
     cy.get('.container').within(() => {
         fillRegistrationForm(user_info);
-
-        // Submit the form.
         cy.get('button[type="submit"]').first().click();
     })
 };
 
-let visitRegistrationSite = () => {
+const visitRegistrationSite = () => {
     cy.get('.username').click();
-    cy.get('#navbar-login > .btn-default').click();
+    cy.get('#navbar-login').within(() => {
+        cy.get('a[role="button"]').click();
+    });
 };
 
-let fillRegistrationForm = (user_info: OIOIOI.User) => {
-
+const fillRegistrationForm = (user_info: OIOIOI.User) => {
     const form_text_map = new Map<string, string>([
         ['#id_username',    user_info.username],
         ['#id_first_name',  user_info.first_name],
@@ -61,12 +52,12 @@ let fillRegistrationForm = (user_info: OIOIOI.User) => {
     cy.get('#id_captcha_1').type('PASSED');
 };
 
-let checkIfCanLoginIn = (user: OIOIOI.User) => {
+const checkIfCanLogIn = (user: OIOIOI.User) => {
     cy.login(user);
     checkUserData(user);
 };
 
-let checkUserData = (user: OIOIOI.User) => {
+const checkUserData = (user: OIOIOI.User) => {
     gotoEditProfile();
 
     const profile_form = new Map<string, string>([
@@ -79,28 +70,28 @@ let checkUserData = (user: OIOIOI.User) => {
     for (let [field, value] of profile_form) {
         cy.get(field).should('have.value', value);
     }
-}
+};
 
-let tryRemovingUserUser = (user: OIOIOI.User, shouldRemove: boolean = true) => {
+const tryRemovingUser = (user: OIOIOI.User, shouldRemove: boolean = true) => {
     gotoEditProfile();
+    cy.contains('Delete').click();
 
-    cy.get('.btn-danger').click();
-    cy.get('.form-control').type(user.password);
+    cy.get('form[method="post"]').within(() => {
+        cy.get('input[name="auth-password"]').type(user.password);
+        cy.contains(shouldRemove ? 'Yes' : 'No').click();
+    });
 
     if (shouldRemove) {
-        cy.get('.btn-danger').click();
         cy.login(user);
         cy.get('.well').should(($page) => {
             expect($page).to.contain('Please enter a correct username and password.');
         });
     }
     else {
-        cy.get('.btn-group > .btn-default').click();
         checkUserData(user);
     }
-}
+};
 
-let gotoEditProfile = () => {
-    cy.get('#username').click();
-    cy.get('.oioioi-navbar__user > .dropdown > .dropdown-menu > :nth-child(1) > a').click();
-}
+const gotoEditProfile = () => {
+    cy.visit('/edit_profile/');
+};
