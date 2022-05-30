@@ -30,19 +30,13 @@ context("Submit", () => {
 
 const loginAsAdmin = () => {
   cy.visit("/");
-  cy.get(".username").click();
-
   cy.fixture("credentials").then((data) => {
-    cy.get("#navbar-login-input").type(data.user.username);
-    cy.get(":nth-child(4) > .form-control").type(data.user.password);
-    cy.get("#navbar-login > .btn-primary").click();
+    cy.login(data.admin);
   });
 };
 
 const chooseEnglishLang = () => {
-  cy.visit("/");
-  cy.get(".oioioi-navbar__lang").click();
-  cy.get(".lang-select").contains("English").click();
+  cy.enLang();
 };
 
 const addContest = () => {
