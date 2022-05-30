@@ -12,6 +12,7 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.forms import BooleanField, ChoiceField
 from django.forms import ChoiceField
 from django.utils.translation import gettext_lazy as _
 from registration.forms import RegistrationForm
@@ -86,19 +87,44 @@ def adjust_preferences_factory_fields():
         required=False
     )
 
+    def handle_enable_editor(user):
+        if user is None:
+            return False
+        ensure_preferences_exist_for_user(user)
+        return user.userpreferences.enable_editor
+
+    if settings.USE_ACE_EDITOR:
+        PreferencesFactory.add_field(
+            "enable_editor",
+            BooleanField,
+            lambda name, user: handle_enable_editor(user),
+            label=_("Enable editor"),
+            order=0,
+            required=False
+        )
+
 def handle_new_preference_fields(request, user):
+    changed = False
+    ensure_preferences_exist_for_user(user)
     if "preferred_language" in request.POST:
         pref_lang = request.POST["preferred_language"]
 
-        if pref_lang not in ([k for k, _ in settings.LANGUAGES] + [""]):
-            # bad lang code passed in form
-            return
+        if pref_lang in ([k for k, _ in settings.LANGUAGES] + [""]):
+            ensure_preferences_exist_for_user(user)
 
-        ensure_preferences_exist_for_user(user)
+            if pref_lang != "":
+                request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = pref_lang
+            user.userpreferences.language = pref_lang
+            changed = True
 
-        if pref_lang != "":
-            request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = pref_lang
-        user.userpreferences.language = pref_lang
+    if settings.USE_ACE_EDITOR:
+        if "enable_editor" in request.POST:
+            user.userpreferences.enable_editor = True
+        else:
+            user.userpreferences.enable_editor = False
+        changed = True
+
+    if changed:
         user.userpreferences.save()
 
 _maybe_add_field(
