@@ -68,15 +68,15 @@
                 <div id="round_label_{{ round.0 }}" class="oioioi-timeline__round-label"><strong>{{ round.1 }}</strong></div>
                 {% endif %}
                 {% for record in events %}
-                <div id="datetimepickerbox_{{ round.0 }}_{{ forloop.counter }}" data-timeline-round-num="{{ round.0 }}" data-timeline-order="{{ record.order }}" data-timeline-type="{{ record.type }}" class="oioioi-timeline__datebox btn-primary">
+                <div id="datetimepickerbox_{{ round.0 }}_{{ forloop.counter }}" data-timeline-round-num="{{ round.0 }}" data-timeline-order="{{ record.order }}" data-timeline-type="{{ record.type }}" class="oioioi-timeline__datebox">
                     <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-group date inline float-left">
                         <input type="text" name="{{ record.date_id }}" class="oioioi-timeline__datetime-input form-control" value="{{ record.date|date:'Y-m-d H:i' }}" {{ attrs }} />
-                        <span class="input-group-addon oioioi-timeline__calendar-icon">
-                            <i class="fa-solid fa-calendar"></i>
-                        </span>
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary bg-light border datepickerbutton oioioi-timeline__calendar-icon" type="button"><i class="fa-solid fa-calendar"></i></button>
+                            <div class="oioioi-timeline__date-title bg-transparent input-group-text text-white">{{ record.text }}<small class="group-members"></small></div>
+                            <button class="btn btn-secondary border bg-transparent oioioi-timeline__group-delete-btn" type="button"><i class=" fa-solid fa-up-down"></i></button>
+                        </div>
                     </div>
-                    <div class="oioioi-timeline__date-title inline">{{ record.text }}<small class="group-members"></small></div>
-                    <i class="oioioi-timeline__group-delete-btn fa-solid fa-up-down"></i>
                 </div>
                 {% endfor %}
             </div>

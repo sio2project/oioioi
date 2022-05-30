@@ -13,7 +13,7 @@ $timeline-round-bar-gutter: 2px !default;
 $timeline-round-bar-full-width: $timeline-round-bar-width + $timeline-round-bar-gutter !default;
 $timeline-round-bar-offset: 1px !default;
 
-$timeline-input-height: 34px !default;
+$timeline-input-height: $input-height !default;
 $timeline-input-left-margin: 8px !default;
 
 $timeline-now-line-color: #9ecfff !default;
@@ -61,23 +61,15 @@ $timeline-group-delete-btn-margin: 8px !default;
     }
   }
 
-  &__date-title {
-    line-height: $timeline-input-height;
-    margin-left: $timeline-input-left-margin;
-    white-space: nowrap;
-  }
-
   &__group-delete-btn {
     cursor: pointer;
-    margin-right: $timeline-group-delete-btn-margin;
-    margin-top: $timeline-group-delete-btn-margin;
   }
 
-  &__datebox > &__group-delete-btn {
+  &__datebox &__group-delete-btn {
     display: none;
   }
 
-  &__datebox-group > &__group-delete-btn {
+  &__datebox-group &__group-delete-btn {
     display: block;
   }
 
