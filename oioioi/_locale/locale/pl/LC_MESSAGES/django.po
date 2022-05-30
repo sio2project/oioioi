@@ -5,8 +5,9 @@
 # Translators:
 # Translators:
 # Accounts-Payable - Alkemics, 2015
-# Aleksander Tudruj, 2022
+# Tudny, 2022
 # Alicja Kluczek <alicja2602@gmail.com>, 2021-2022
+# Andrzej Radzimiński, 2022
 # Artur Puzio <cytadela8@op.pl>, 2018-2019
 # Chen-Do LU <clu@alkemics.com>, 2015
 # Filip Mikina <filipmikina@gmail.com>, 2018
@@ -54,7 +55,7 @@
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # Tomasz Waleń, 2022
-# Aleksander Tudruj, 2022
+# Tudny, 2022
 # Tymoteusz Wiśniewski <tymo@tymo.xyz>, 2020-2021
 # welter <macio92@gmail.com>, 2013
 # Wiktor Czyż <czyz.wiktor@gmail.com>, 2020
@@ -68,7 +69,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-16 10:55+0000\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
-"Last-Translator: Tomasz Waleń, 2022\n"
+"Last-Translator: Tudny, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -263,7 +264,7 @@ msgstr "Pobieranie %s…\n"
 #, python-format
 #| msgid "File not found: "
 msgid "File not found: %s"
-msgstr ""
+msgstr "Nie znaleziono pliku: %s"
 
 #: balloons/management/commands/import_balloons_displays.py:54
 #: base/management/commands/import_users.py:47
@@ -517,7 +518,7 @@ msgstr "Niepoprawny login"
 #: base/forms.py:33
 #| msgid "This value may contain only letters, numbers and underscore."
 msgid "This value may contain only letters, numbers and punctuation marks."
-msgstr ""
+msgstr "To pole może zawierać wyłącznie litery, cyfry i znaki interpunkcyjne."
 
 #: base/forms.py:34
 #| msgid "Invalid username"
@@ -527,7 +528,7 @@ msgstr "Błędne imię"
 #: base/forms.py:35
 #| msgid "Invalid username"
 msgid "Invalid last name"
-msgstr "Błęde nazwisko"
+msgstr "Błędne nazwisko"
 
 #: base/forms.py:84
 #| msgid "Programming language"
@@ -589,7 +590,7 @@ msgstr "Twoja nazwa użytkownika - %(login)s - zawiera zakazane znaki."
 #: base/middleware.py:149
 #, python-format
 msgid "Your name - %(name)s %(surname)s - contains forbidden characters. "
-msgstr ""
+msgstr "W Twoim imieniu i nazwisku - %(name)s%(surname)s  - znajdują się niedozwolone znaki."
 
 #: base/middleware.py:153
 #, python-format
@@ -599,7 +600,7 @@ msgstr ""
 msgid ""
 "Please click <a href='%(link)s'>here</a> to change it. It will take only a "
 "while."
-msgstr ""
+msgstr "Kliknij <a href='%(link)s'>tutaj</a> aby je zmienić. To zajmie tylko chwilę."
 
 #: base/models.py:45 default_settings.py:542 oi/forms.py:100 oi/models.py:149
 #: pa/models.py:49 participants/models.py:101
@@ -608,11 +609,11 @@ msgstr "Znam i akceptuję regulamin"
 
 #: base/models.py:47
 msgid "first-party marketing consent"
-msgstr ""
+msgstr "zgoda na marketing własny"
 
 #: base/models.py:50
 msgid "third-party marketing consent"
-msgstr ""
+msgstr "zgoda na marketing stron trzecich"
 
 #: base/models.py:61 pa/controllers.py:163 pa/controllers.py:327
 #: pa/models.py:68
@@ -631,7 +632,7 @@ msgstr "„CONFIG_VERSION” w twoim własnym katalogu deployment (%(deployment_
 #: base/templates/403.html:9
 #| msgid " &mdash; Sorry, but you're not allowed to see anything here. "
 msgid "Sorry, but you're not allowed to see anything here."
-msgstr ""
+msgstr "Niestety, nie ma tu niczego, co moglibyśmy Ci pokazać."
 
 #: base/templates/404.html:8
 #| msgid "File not found: "
@@ -645,12 +646,12 @@ msgid ""
 "\n"
 "            Sorry, but this method is not allowed.\n"
 "        "
-msgstr ""
+msgstr "\nTa metoda protokołu HTTP nie jest dozwolona."
 
 #: base/templates/405.html:13
 #, python-format
 msgid "You can try again using %(allowed)s."
-msgstr ""
+msgstr "Spróbuj ponownie, korzystając z %(allowed)s."
 
 #: base/templates/405.html:14
 msgid ""
@@ -661,7 +662,7 @@ msgstr "Innymi słowy prawdopodobnie wpisałeś adres do przeglądarki; zamiast 
 #: base/templates/500.html:9
 #| msgid "500 &mdash; Holy guacamole, internal server error!"
 msgid "Holy guacamole, internal server error!"
-msgstr ""
+msgstr "Ojej, toż to straszny błąd wewnętrzny serwera!"
 
 #: base/templates/500.html:18
 msgid "A report has been emailed to the admins. They will love it."
@@ -704,17 +705,17 @@ msgstr "Token API"
 #: base/templates/api-key.html:9
 #| msgid "Your question was answered."
 msgid "Your key was regenerated."
-msgstr ""
+msgstr "Twój klucz został ponownie wygenerowany."
 
 #: base/templates/api-key.html:10
 msgid "Remember to change it in all your applications."
-msgstr ""
+msgstr "Pamiętaj, aby zmienić to we wszystkich Twoich aplikacjach."
 
 #: base/templates/api-key.html:15
 msgid ""
 "The token allows you to authenticate through the API. Remember to protect "
 "it. If the token is no longer a secret you should regenerate it."
-msgstr ""
+msgstr "Token pozwala autoryzować się poprzez API. Pamiętaj, żeby go chronić. Jeśli Twój token przestanie być tajny, pamiętaj, aby go wygenerować ponownie."
 
 #: base/templates/api-key.html:22
 #| msgid "Show more"
@@ -734,7 +735,7 @@ msgstr "Wygeneruj ponownie klucz"
 
 #: base/templates/api-key.html:40
 msgid "To learn more about the API see"
-msgstr ""
+msgstr "Aby dowiedzieć się więcej na temat API, zobacz"
 
 #: base/templates/api-key.html:41
 #| msgid "System Administration"
@@ -793,7 +794,7 @@ msgstr "Baza zadań"
 #: portals/templates/portals/portals_main_page.html:4
 #| msgid "My portal"
 msgid "Portals"
-msgstr ""
+msgstr "Portale"
 
 #: base/templates/ingredients/navbar-menu.html:4
 #: base/templates/navbar-left.html:18
@@ -844,7 +845,7 @@ msgstr "Bieżący język"
 #: base/templates/ingredients/translation-formset.html:25
 #| msgid "Programming language"
 msgid "Translation language"
-msgstr ""
+msgstr "Język"
 
 #: base/templates/registration/activate.html:4
 msgid "Account activation"
@@ -1339,7 +1340,7 @@ msgstr "Wpisz poprawny ciąg znaków składający się wyłącznie z małych lit
 
 #: base/utils/validators.py:32
 msgid "Enter a valid value."
-msgstr ""
+msgstr "Wprowadź poprawną wartość."
 
 #: base/views.py:38
 msgid "Two factor authentication"
@@ -1578,7 +1579,7 @@ msgid ""
 "Exclusiveness configs usually cover entire rounds, but currently round "
 "\"%s\" is not exclusive from %s! Please verify that your exclusiveness "
 "configs are correct."
-msgstr ""
+msgstr "Konfiguracje wykluczenia zazwyczaj pokrywają całe rundy, ale aktualna runda \"%s\" nie ma wykluczenia od %s! Upewnij się, że konfiguracje wykluczenia są poprawne."
 
 #: contestexcl/admin.py:117
 #, python-format
@@ -1586,12 +1587,12 @@ msgid ""
 "Exclusiveness configs usually cover entire rounds, but currently round "
 "\"%s\" is not exclusive from %s to %s! Please verify that your exclusiveness"
 " configs are correct."
-msgstr ""
+msgstr "Konfiguracje wykluczenia zazwyczaj pokrywają całe rundy, ale aktualna runda \"%s\" nie ma wykluczenia od %s do %s! Upewnij się, że konfiguracje wykluczenia są poprawne."
 
 #: contestexcl/forms.py:11
 #| msgid "Disable"
 msgid "disable?"
-msgstr ""
+msgstr "wyłącz?"
 
 #: contestexcl/forms.py:13
 #| msgid ""
@@ -1600,12 +1601,12 @@ msgstr ""
 msgid ""
 "Caution! If you disable exclusiveness, it can only be re-enabled by a "
 "superadmin!"
-msgstr ""
+msgstr "Uwaga! Jeśli wyłączysz wykluczanie i nie jesteś superadminem nie będziesz mógł go włączyć ponownie!"
 
 #: contestexcl/forms.py:26
 #| msgid "exclusiveness configs"
 msgid "This exclusiveness config is already disabled!"
-msgstr ""
+msgstr "Ta konfiguracja wykluczenia była już wyłączona!"
 
 #: contestexcl/middleware.py:89
 msgid ""
@@ -1747,22 +1748,22 @@ msgstr "Oceń ponownie wszystkie zgłoszenia zadania"
 #: contests/admin.py:462
 #| msgid "Rejudge request received."
 msgid "Rejudge not needed"
-msgstr ""
+msgstr "Ponowna ocena nie jest potrzebna"
 
 #: contests/admin.py:469
 #| msgid "Problem settings"
 msgid "Advanced settings"
-msgstr ""
+msgstr "Ustawienia zaawansowane"
 
 #: contests/admin.py:470
 #| msgid "problem statement"
 msgid "Replace statement"
-msgstr ""
+msgstr "Podmień treść"
 
 #: contests/admin.py:471
 #| msgid "package"
 msgid "Edit package"
-msgstr ""
+msgstr "Modyfikuj paczkę"
 
 #: contests/admin.py:477 contests/templates/contests/submission.html:46
 #: problems/admin.py:622
@@ -1812,7 +1813,7 @@ msgstr "runda"
 #: contests/admin.py:618
 #| msgid "System error"
 msgid "has active system error"
-msgstr ""
+msgstr "czy ma aktywny błąd systemowy"
 
 #: contests/admin.py:622 disqualification/admin.py:83
 #: disqualification/controllers.py:298
@@ -1899,18 +1900,18 @@ msgstr "Konkurs publiczny"
 #, python-format
 #| msgid "Your submission was judged."
 msgid "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
-msgstr ""
+msgstr "%(contest_name)s, %(task_name)s: Twoje zgłoszenie zostało ocenione.\n"
 
 #: contests/controllers.py:1062 testrun/controllers.py:362
 #, python-format
 #| msgid "Your submission was judged."
 msgid "%(task_name)s: Your submission was judged.\n"
-msgstr ""
+msgstr "%(task_name)s: Twoje zgłoszenie zostało ocenione.\n"
 
 #: contests/controllers.py:1065
 #, python-format
 msgid "The score is %(score)s."
-msgstr ""
+msgstr "Wynik to%(score)s."
 
 #: contests/forms.py:29
 msgid "Start date"
@@ -2020,7 +2021,7 @@ msgstr "domyślny limit zgłoszeń"
 #: contests/models.py:66 contests/models.py:354
 #| msgid "Related submission"
 msgid "Use 0 for unlimited submissions."
-msgstr ""
+msgstr "Wpisz 0, aby ustawić nielimitowane zgłoszenia."
 
 #: contests/models.py:72
 msgid "contact email"
@@ -2206,7 +2207,7 @@ msgstr "konfiguracja treści zadania"
 #: contests/models.py:321
 #| msgid "statements visibility"
 msgid "ranking visibility"
-msgstr ""
+msgstr "widoczność rankingu"
 
 #: contests/models.py:323
 #| msgid ""
@@ -2214,15 +2215,15 @@ msgstr ""
 msgid ""
 "If set to Auto, the visibility is determined according to the type of the contest.\n"
 "Until the date of publication of the results, the ranking is visible only to administrators."
-msgstr ""
+msgstr "W przypadku ustawienia na „Domyślne”, o widoczności treści zdecyduje typ konkursu.\nDo upłynięcia daty opublikowania wyników ranking jest widoczny tylko dla administracji."
 
 #: contests/models.py:331
 msgid "ranking visibility config"
-msgstr ""
+msgstr "ustawienie widoczności rankingu"
 
 #: contests/models.py:332
 msgid "ranking visibility configs"
-msgstr ""
+msgstr "ustawienia widoczności rankingu"
 
 #: contests/models.py:350 portals/models.py:28 problems/models.py:63
 msgid "short name"
@@ -2327,7 +2328,7 @@ msgstr "Administrator"
 #: contests/models.py:595
 #| msgid "Back to admin"
 msgid "Basic Admin"
-msgstr ""
+msgstr "Uproszczony administrator"
 
 #: contests/models.py:596
 msgid "Observer"
@@ -2409,7 +2410,7 @@ msgstr "Potwierdź ponowną ocenę"
 msgid ""
 "Something about this problem has changed. If the change was trivial (like a "
 "typo) then rejudge is not needed."
-msgstr ""
+msgstr "Coś się zmieniło w tym zadaniu. Jeżeli zmiana była kosmetyczna (na przykład literówka w treści zadania), to ponowna ocena zgłoszeń nie jest potrzebna."
 
 #: contests/templates/contests/confirm_rejudge.html:9
 #: contests/templates/contests/confirm_rejudge_not_needed.html:10
@@ -2418,7 +2419,7 @@ msgstr ""
 msgid ""
 "If the tests for the problem have changed then you should proceed with a "
 "rejudge."
-msgstr ""
+msgstr "Jeżeli testy do tego zlecenia ulegly zmienie powinieneś zlecić ponowną ocenę zgłoszeń."
 
 #: contests/templates/contests/confirm_rejudge.html:12
 #, python-format
@@ -2429,13 +2430,13 @@ msgstr "Zlecasz ponowną ocenę %(count)s zgłoszeń. To może trochę zająć..
 #: contests/templates/contests/confirm_rejudge_not_needed.html:6
 #| msgid "Confirm rejudge"
 msgid "Confirm rejudge is not needed"
-msgstr ""
+msgstr "Potwierdź, że ponowna ocena nie jest potrzebna"
 
 #: contests/templates/contests/confirm_rejudge_not_needed.html:13
 msgid ""
 "You are going to mark the submissions to this problem as not needing a "
 "rejudge."
-msgstr ""
+msgstr "Zamierzasz oznaczyć zgłoszenia do tego problemu jako niewymagające ponownej oceny."
 
 #: contests/templates/contests/confirm_resetting_limits.html:4
 #: contests/templates/contests/confirm_resetting_limits.html:6
@@ -2462,7 +2463,7 @@ msgid ""
 "                problem site\n"
 "            </a>.\n"
 "        "
-msgstr ""
+msgstr "\n        Za chwilę zresetujesz limity czasu i pamięci oraz wyniki punktowe dla wszystkich testów zadania %(probleminstance)s.\n        <br>\n        Limity oraz wyniki dla tego zadania zostaną zastąpione przez te, ustawione na\n        <a href=\"%(url)s\">\n        stronie problemu\n        </a>.\n    "
 
 #: contests/templates/contests/failure_report.html:4
 msgid ""
@@ -2486,7 +2487,7 @@ msgstr "Końcowy zbiór danych (<code>recipe</code> oraz\n<code>error_handlers</
 #: problems/problem_site.py:135
 #| msgid "Download"
 msgid "Downloads"
-msgstr ""
+msgstr "Pliki i testy"
 
 #: contests/templates/contests/files.html:16
 msgid "Add file"
@@ -2527,7 +2528,7 @@ msgstr "\n            <p>Brak dostępnych konursów.</p>\n        "
 #: contests/templates/contests/my_submissions_table.html:36
 #| msgid "Error details"
 msgid "Details"
-msgstr ""
+msgstr "Szczegóły"
 
 #: contests/templates/contests/my_submissions.html:5
 #: contests/templates/contests/my_submissions.html:17
@@ -2584,20 +2585,20 @@ msgstr "Nazwa"
 
 #: contests/templates/contests/problems_list.html:21
 msgid "Tries left"
-msgstr ""
+msgstr "Pozostało prób"
 
 #: contests/templates/contests/problems_list.html:23
 #| msgid "submissions limit"
 msgid "Submissions limit"
-msgstr ""
+msgstr "Limit zgłoszeń"
 
 #: contests/templates/contests/problems_list.html:64
 msgid "unlimited"
-msgstr ""
+msgstr "nielimitowany"
 
 #: contests/templates/contests/problems_list.html:67
 msgid "of"
-msgstr ""
+msgstr "z"
 
 #: contests/templates/contests/problems_list.html:106
 msgid "No problems are active at the moment."
@@ -2620,7 +2621,7 @@ msgstr "\nZa chwilę dodasz zadanie %(problem_instance)sdo konkursu %(destinatio
 #: contests/templates/contests/reattach_problem_confirm.html:23
 #| msgid "Add from other contest"
 msgid "Copy limits from source contest"
-msgstr ""
+msgstr "Skopiuj limity z konkursu źródłowego"
 
 #: contests/templates/contests/reattach_problem_confirm.html:28
 msgid "Attach"
@@ -2697,7 +2698,7 @@ msgstr "Zwykła ponowna ocena"
 #: contests/templates/contests/submission_header.html:72
 #| msgid "Submit solution"
 msgid "Submit another"
-msgstr ""
+msgstr "Wyślij inne"
 
 #: contests/templates/contests/submission_header.html:78
 #: disqualification/admin.py:74 similarsubmits/admin.py:87
@@ -2753,19 +2754,19 @@ msgstr "Zobacz informacje o użytkowniku"
 #| msgid_plural "%(count)d rejudge requests reveived."
 msgid "%(count)d rejudge request received."
 msgid_plural "%(count)d rejudge requests received."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Otrzymano %(count)d zlecenie ponownej oceny."
+msgstr[1] "Otrzymano %(count)d zlecenia ponownej oceny."
+msgstr[2] "Otrzymano %(count)d zleceń ponownej oceny."
+msgstr[3] "Otrzymano %(count)d zleceń ponownej oceny."
 
 #: contests/views.py:624
 msgid "Needs rejudge flag turned off."
-msgstr ""
+msgstr "Wyłączono flagę \"wymaga ponownej oceny\""
 
 #: contests/views.py:639
 #| msgid "Tests limits resetted successfully"
 msgid "Tests limits reset successfully"
-msgstr ""
+msgstr "Zresetowanie limitów powiodło się"
 
 #: contests/views.py:685
 msgid "Problem {} added successfully."
@@ -2891,17 +2892,17 @@ msgstr "To nie jest zgłoszenie wybranego użytkownika."
 
 #: disqualification/models.py:55
 msgid "information displayed on dashboard for every disqualified participant"
-msgstr ""
+msgstr "informacja widoczna na stronie głównej konkursu dla każdego zdyskwalifikowanego uczestnika "
 
 #: disqualification/models.py:60
 #| msgid "complaints configuration"
 msgid "diqualifications configuration"
-msgstr ""
+msgstr "konfiguracja dyskwalifikacji"
 
 #: disqualification/models.py:61
 #| msgid "statistics configurations"
 msgid "disqualifications configurations"
-msgstr ""
+msgstr "konfiguracje dyskwalifikacji"
 
 #: disqualification/templates/disqualification/generic-admin.html:4
 msgid "Disqualification (admin panel)"
@@ -2921,7 +2922,7 @@ msgid ""
 "        We have found your submission not being compliant with terms of the contest by breaking following rules:\n"
 "    </p>\n"
 "    "
-msgstr ""
+msgstr "\nZauważyliśmy, że Twoje zgłoszenie nie jest zgodne z zasadami konkursu z powodu złamania następujących zasad:"
 
 #: disqualification/templates/disqualification/reason.html:10
 msgid "(not guilty)"
@@ -3026,7 +3027,7 @@ msgstr "Tutaj możesz wyeksportować zgłoszenia z tego konkursu do archiwum w f
 #: exportszu/templates/exportszu/export_submissions.html:9
 msgid ""
 "For large contests building the archive may take a while. Please be patient."
-msgstr ""
+msgstr "W przypadku dużych konkursów tworzenie archiwum może zająć dłuższą chwilę. Prosimy o cierpliwość."
 
 #: exportszu/templates/exportszu/export_submissions.html:15
 #: problems/templates/problems/manage-problem-package-files.html:34
@@ -3116,7 +3117,7 @@ msgstr "Posty"
 
 #: forum/admin.py:84 forum/admin.py:87
 msgid "Bans"
-msgstr ""
+msgstr "Bany"
 
 #: forum/admin.py:126
 msgid "Empty category"
@@ -3169,15 +3170,15 @@ msgstr "Oddal sprawozdania dla zaznaczonych wiadomości"
 #| msgid "This post was reported."
 msgid "One post was approved."
 msgid_plural "%(counter)d posts were approved."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Zatwierdzono wiadomość."
+msgstr[1] "Zatwierdzono %(counter)d wiadomości."
+msgstr[2] "Zatwierdzono %(counter)d wiadomości."
+msgstr[3] "Zatwierdzono %(counter)d wiadomości."
 
 #: forum/admin.py:338
 #| msgid "Hide selected posts"
 msgid "Approve selected posts"
-msgstr ""
+msgstr "Zatwierdź zaznaczone wiadomości"
 
 #: forum/admin.py:347
 #, python-format
@@ -3185,15 +3186,15 @@ msgstr ""
 #| msgid_plural "\"Reported\" status removed from %(counter)d posts."
 msgid "\"Approved\" status removed from one post."
 msgid_plural "\"Approved\" status removed from %(counter)d posts."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Cofnięto zatwierdzenie wiadomości."
+msgstr[1] "Cofnięto zatwierdzenie %(counter)d wiadomości."
+msgstr[2] "Cofnięto zatwierdzenie %(counter)d wiadomości."
+msgstr[3] "Cofnięto zatwierdzenie %(counter)d wiadomości."
 
 #: forum/admin.py:354
 #| msgid "Hide selected posts"
 msgid "Revoke approval of selected posts"
-msgstr ""
+msgstr "Cofnij zatwierdzenie zaznaczonych wiadomości"
 
 #: forum/forms.py:26 questions/templates/questions/list_table.html:32
 #: simpleui/templates/simpleui/contest/ingredients/questions.html:12
@@ -3202,7 +3203,7 @@ msgstr "Temat"
 
 #: forum/forms.py:37
 msgid "Remove user reports"
-msgstr ""
+msgstr "Usuń donosy użytkowników"
 
 #: forum/forms.py:42 forum/forms.py:53
 #: forum/templates/forum/thread-element-footer.html:98
@@ -3246,12 +3247,12 @@ msgstr "kategoria"
 #: forum/models.py:66
 #| msgid "Order"
 msgid "order"
-msgstr ""
+msgstr "kolejność"
 
 #: forum/models.py:68
 #| msgid "creation date"
 msgid "reactions enabled"
-msgstr ""
+msgstr "reakcje włączone"
 
 #: forum/models.py:73
 msgid "categories"
@@ -3304,7 +3305,7 @@ msgstr "zgłoszony"
 #: forum/models.py:177
 #| msgid "reported"
 msgid "report_reason"
-msgstr ""
+msgstr "powód_donosu"
 
 #: forum/models.py:179 oi/models.py:94
 msgid "approved"
@@ -3320,36 +3321,36 @@ msgstr "wiadomości"
 
 #: forum/models.py:258
 msgid "Upvote"
-msgstr ""
+msgstr "Łapka w górę"
 
 #: forum/models.py:259
 #| msgid "Download"
 msgid "Downvote"
-msgstr ""
+msgstr "Łapka w dół"
 
 #: forum/models.py:287
 msgid "admin who banned"
-msgstr ""
+msgstr "banujący"
 
 #: forum/models.py:294
 #| msgid "Banned"
 msgid "banned at"
-msgstr ""
+msgstr "czas zbanowania"
 
 #: forum/models.py:296
 #| msgid "Reason"
 msgid "reason"
-msgstr ""
+msgstr "przyczyna"
 
 #: forum/templates/forum/ban_user.html:5
 #| msgid "Find user"
 msgid "Ban user"
-msgstr ""
+msgstr "Zablokuj użytkownika"
 
 #: forum/templates/forum/ban_user.html:8
 #| msgid "Find user"
 msgid "Ban user:"
-msgstr ""
+msgstr "Zablokuj użytkownika:"
 
 #: forum/templates/forum/ban_user.html:15
 msgid ""
@@ -3358,7 +3359,7 @@ msgid ""
 "            reporting, making and editing posts. Reading forum contents will\n"
 "            not be affected.\n"
 "        "
-msgstr ""
+msgstr "\nZbanowany użytkownik ma zablokowane wszystkie interakcje z forum m.in.: tworzenie, edytowanie, i donoszenie na posty. Przeglądanie forum nie zostanie zablokowane."
 
 #: forum/templates/forum/category.html:6
 #: forum/templates/forum/category.html:19 forum/templates/forum/forum.html:38
@@ -3419,31 +3420,31 @@ msgstr "Na pewno chcesz usunąć %(elem)s?"
 #: forum/templates/forum/confirm_delete_post.html:7
 #| msgid "Are you sure, that you want to delete %(elem)s?"
 msgid "Are you sure, that you want to delete post:"
-msgstr ""
+msgstr "Czy jestes pewien, że chcesz usunąć post?"
 
 #: forum/templates/forum/confirm_delete_post.html:9
 #: forum/templates/forum/confirm_report.html:9
 #, python-format
 #| msgid "threads"
 msgid "in %(thread)s?"
-msgstr ""
+msgstr "w %(thread)s?"
 
 #: forum/templates/forum/confirm_report.html:4
 #| msgid "Delete confirmation"
 msgid "Report confirmation"
-msgstr ""
+msgstr "Potwierdzenie donosu"
 
 #: forum/templates/forum/confirm_report.html:7
 #| msgid "Are you sure, that you want to delete %(elem)s?"
 msgid "Are you sure, that you want to report post:"
-msgstr ""
+msgstr "Czy jesteś pewien, że chcesz donieść na post?"
 
 #: forum/templates/forum/confirm_report.html:17
 #: oireports/templates/oireports/no-reports.html:7
 #: oireports/templates/oireports/report-options.html:4
 #: oireports/templates/oireports/report-options.html:7
 msgid "Report"
-msgstr "Sprawozdanie"
+msgstr "Zgłoś"
 
 #: forum/templates/forum/edit_post.html:5
 #: forum/templates/forum/edit_post.html:20
@@ -3456,7 +3457,7 @@ msgstr "Edycja wiadomości"
 #: forum/templates/forum/latest_posts.html:10
 #| msgid "Last post"
 msgid "Latest posts"
-msgstr ""
+msgstr "Ostatnie posty"
 
 #: forum/templates/forum/forum.html:12
 msgid "Add new category"
@@ -3473,12 +3474,12 @@ msgstr "Odblokuj forum"
 #: forum/templates/forum/forum.html:63
 #| msgid "Disable complaints"
 msgid "Disable post reactions"
-msgstr ""
+msgstr "Wyłącz reakcje do postów"
 
 #: forum/templates/forum/forum.html:65
 #| msgid "Re-enable registration"
 msgid "Enable post reactions"
-msgstr ""
+msgstr "Włącz reakcje do postów"
 
 #: forum/templates/forum/forum.html:94
 msgid "There is no category in the forum, sorry."
@@ -3486,17 +3487,17 @@ msgstr "To forum nie zawiera żadnej kategorii."
 
 #: forum/templates/forum/latest_posts.html:34
 msgid "No posts to show."
-msgstr ""
+msgstr "Brak postów do wyświetlenia."
 
 #: forum/templates/forum/thread-element-footer.html:43
 #| msgid "This post was reported."
 msgid "This user was banned."
-msgstr ""
+msgstr "Ten użytkownik został zablokowany."
 
 #: forum/templates/forum/thread-element-footer.html:46
 #| msgid "author"
 msgid "ban author"
-msgstr ""
+msgstr "zbanuj autora"
 
 #: forum/templates/forum/thread-element-footer.html:51
 #: newsfeed/templates/newsfeed/news.html:8
@@ -3518,16 +3519,16 @@ msgstr "ukryj"
 #: forum/templates/forum/thread-element-footer.html:74
 #| msgid "approved"
 msgid "approve"
-msgstr ""
+msgstr "zatwierdź"
 
 #: forum/templates/forum/thread-element-footer.html:81
 #| msgid "This post was reported."
 msgid "This post was approved."
-msgstr ""
+msgstr "Wiadomość została zatwierdzona."
 
 #: forum/templates/forum/thread-element-footer.html:84
 msgid "revoke approval"
-msgstr ""
+msgstr "cofnij zatwierdzenie"
 
 #: forum/templates/forum/thread-element-footer.html:89
 msgid "report"
@@ -3537,16 +3538,16 @@ msgstr "zgłoś"
 #, python-format
 #| msgid "This post was reported by %(reporter)s."
 msgid "This post was reported by %(reporter_name)s."
-msgstr ""
+msgstr "Na ten post został zgłoszony donos od %(reporter_name)s."
 
 #: forum/templates/forum/thread-element-footer.html:100
 msgid "Reporter was banned."
-msgstr ""
+msgstr "Donosiciel został zbanowany."
 
 #: forum/templates/forum/thread-element-footer.html:103
 #| msgid "reported"
 msgid "ban reporter"
-msgstr ""
+msgstr "zbanuj donosiciela"
 
 #: forum/templates/forum/thread-element-footer.html:107
 msgid "This post was reported."
@@ -3577,7 +3578,7 @@ msgstr "Dodaj temat"
 msgid ""
 "You are banned on this forum. You can't add, edit or report posts. To appeal"
 " contact contest administrators."
-msgstr ""
+msgstr "Zostałeś zbanowany na tym forum. Nie możesz dodawać, edytować, ani donosić na posty. Aby się odwołać skontaktuj się z administratorem konkursu."
 
 #: forum/utils.py:109
 msgid ""
@@ -3596,27 +3597,27 @@ msgstr "Forum zostanie zablokowane o %s"
 
 #: forum/views.py:380
 msgid "Post reactions are not enabled."
-msgstr ""
+msgstr "Reakcje do postów nie są włączone."
 
 #: forum/views.py:386
 #| msgid "Invalid activation link."
 msgid "Invalid reaction type."
-msgstr ""
+msgstr "Nieprawidłowy typ reakcji."
 
 #: forum/views.py:502
 msgid "You can't ban an admin."
-msgstr ""
+msgstr "Nie można zbanować administratora."
 
 #: forum/views.py:513
 #, python-format
 msgid "Banned user: %s"
-msgstr ""
+msgstr "Zbanowany użytkownik: %s"
 
 #: forum/views.py:520
 #, python-format
 #| msgid "Hidden reports"
 msgid "Removed %d reports"
-msgstr ""
+msgstr "Usunięto donosów: %d"
 
 #: globalmessage/admin.py:12
 msgid "Auto show and hide"
@@ -3883,7 +3884,7 @@ msgstr "Edytuj wiadomość"
 #, python-format
 #| msgid "Are you sure you want to delete %(news.title)s?"
 msgid "Are you sure you want to delete %(news_version.title)s?"
-msgstr ""
+msgstr "Na pewno chcesz usunąć %(news_version.title)s?"
 
 #: newsfeed/templates/newsfeed/news.html:20
 #: portals/templates/portals/delete-node.html:14
@@ -3903,7 +3904,7 @@ msgstr "Aktualności"
 #: notifications/templates/notifications/notifications.html:16
 #| msgid "Related submission"
 msgid "Recent submissions"
-msgstr ""
+msgstr "Ostatnie zgłoszenia"
 
 #: notifications/templates/notifications/notifications.html:17
 #: status/templates/status/outdated-modal.html:19
@@ -3912,13 +3913,13 @@ msgstr "Odśwież"
 
 #: notifications/templates/notifications/notifications.html:22
 msgid "Your most recent submissions should appear here in a moment."
-msgstr ""
+msgstr "Twoje ostatnie zgłoszenia powinny się tu za chwilkę pojawić."
 
 #: notifications/templates/notifications/notifications.html:25
 msgid ""
 "Connection to notifications server was lost. You may no longer receive "
 "notifications."
-msgstr ""
+msgstr "Utracono połączenie z serwerem powiadomień. Powiadomienia nie będą się pojawiać."
 
 #: oi/admin.py:42 oi/admin.py:44 participants/admin.py:233
 msgid "Participants"
@@ -4425,17 +4426,17 @@ msgstr "Liga B"
 #: pa/controllers.py:266
 #| msgid "PA style ranking"
 msgid "PA style ranking (with division C)"
-msgstr ""
+msgstr "Ranking w stylu PA (z ligą C)"
 
 #: pa/controllers.py:269
 #| msgid "Division A + B"
 msgid "Division A + B + C"
-msgstr ""
+msgstr "Liga A + B + C"
 
 #: pa/controllers.py:270
 #| msgid "Division A + B"
 msgid "Division B + C"
-msgstr ""
+msgstr "Liga B + C"
 
 #: pa/controllers.py:287
 msgid "Algorithmic Engagements finals"
@@ -4444,11 +4445,11 @@ msgstr "Finały Potyczek Algorytmicznych"
 #: pa/controllers.py:321
 #| msgid "Algorithmic Engagements finals"
 msgid "Algorithmic Engagements with Division C"
-msgstr ""
+msgstr "Potyczki Algorytmiczne z Ligą C"
 
 #: pa/controllers.py:327
 msgid "C"
-msgstr ""
+msgstr "C"
 
 #: pa/forms.py:17 participants/models.py:103
 msgid ""
@@ -4480,7 +4481,7 @@ msgstr "Liga A"
 #: pa/models.py:67
 #| msgid "Division B"
 msgid "Division C"
-msgstr ""
+msgstr "Liga C"
 
 #: pa/models.py:79
 msgid "Divisions"
@@ -4603,11 +4604,11 @@ msgstr "%(number)s/%(region)s/%(local_number)s"
 
 #: participants/models.py:152
 msgid "text"
-msgstr ""
+msgstr "tekst"
 
 #: participants/models.py:161 participants/models.py:162
 msgid "text asking participant to accept contest terms"
-msgstr ""
+msgstr "Tekst proszący uczestnika o zaakceptowanie regulaminu."
 
 #: participants/templates/admin/participants/extend_round.html:4
 #: participants/templates/admin/participants/extend_round.html:7
@@ -4672,12 +4673,12 @@ msgstr "Zmiana danych rejestracji"
 
 #: plagiarism/admin.py:9
 msgid "Plagiarism tools"
-msgstr ""
+msgstr "Wykrywanie plagiatów"
 
 #: plagiarism/forms.py:16
 #| msgid "Choose round"
 msgid "Choose problem"
-msgstr ""
+msgstr "Wybierz zadanie"
 
 #: plagiarism/forms.py:21 programs/controllers.py:557
 msgid "Programming language"
@@ -4685,37 +4686,37 @@ msgstr "Język programowania"
 
 #: plagiarism/forms.py:28
 msgid "MOSS user ID"
-msgstr ""
+msgstr "ID użytkownika MOSS"
 
 #: plagiarism/management/commands/moss_submit.py:11
 msgid "Submits submissions to the MOSS (code similarity detection tool)."
-msgstr ""
+msgstr "Wysyła zgłoszenia do systemu MOSS (Code Similarity Detection Tool)"
 
 #: plagiarism/management/commands/moss_submit.py:54
 #, python-format
 #| msgid "There was an error adding the problem"
 msgid "There was an error with the submission: %s"
-msgstr ""
+msgstr "Wystąpił błąd ze zgłoszeniem: %s"
 
 #: plagiarism/management/commands/moss_submit.py:59
 #, python-format
 msgid "Successfully submitted the source codes. URL to the results: %s"
-msgstr ""
+msgstr "Pomyślnie wysłano kody źródłowe. Adres URL do wyników: %s"
 
 #: plagiarism/templates/plagiarism/moss_submit.html:4
 #| msgid "Submit solution"
 msgid "Submit to MOSS"
-msgstr ""
+msgstr "Wyślij do systemu MOSS"
 
 #: plagiarism/templates/plagiarism/moss_submit.html:7
 #| msgid "Export submissions"
 msgid "Export submissions to MOSS"
-msgstr ""
+msgstr "Wyeksportuj zgłoszenia do systemu MOSS"
 
 #: plagiarism/templates/plagiarism/moss_submit.html:11
 msgid ""
 "Submitting source codes to MOSS makes them public to anyone with the link."
-msgstr ""
+msgstr "Wysłanie kodów źródłowych do systemu MOSS sprawi, że każdy z linkiem do wyników będzie mógł je zobaczyć."
 
 #: plagiarism/templates/plagiarism/moss_submit.html:24
 msgid ""
@@ -4726,39 +4727,39 @@ msgid ""
 "However keep in mind, that MOSS does NOT automatically detect plagiarism; it can only detect\n"
 "similarity between codes and you will still have to manually make a decision whether the code is copied or not.\n"
 "You have to be a registered user of the MOSS system in order to provide your user id and make a query.\n"
-msgstr ""
+msgstr "\nTutaj możesz wyeksportować zgłoszenia z tego konkursu do systemu MOSS (Measure Of Software Similarity)\nutrzymywanego przez Uniwersytet w Stanfordzie.\nTo narzędzie automatycznie znajduje wszystkie pary kodów źródłowych, które wyglądają podejrzanie podobnie.\nMiej na uwadze, że system MOSS NIE wykrywa automatycznie plagiatorstwa; potrafi jedynie wskazać podobieństwa między kodami,\na ostateczna decyzja czy kod został skopiowany musi zostać podjęta przez człowieka.\nMusisz być zarejestrowanym użytkownikiem systemu MOSS aby wysłać do niego zgłoszenia.\n"
 
 #: plagiarism/templates/plagiarism/moss_submit.html:32
 msgid ""
 "You can learn more about the system and the registration process at the"
-msgstr ""
+msgstr "Możesz dowiedzieć się więcej o systemie oraz procesie rejestracji na"
 
 #: plagiarism/templates/plagiarism/moss_submit.html:33
 msgid "MOSS site"
-msgstr ""
+msgstr "stronie MOSS"
 
 #: plagiarism/templates/plagiarism/moss_submit.html:47
 msgid ""
 "\n"
 "    OIOIOI does not store or share your user id with anyone.\n"
 "    It is only used to make a single query with the source codes on your behalf.\n"
-msgstr ""
+msgstr "\nOIOIOI nie przechowuje ani nie udostępnia nikomu Twojego identyfikatora użytkownika.\nJest on tylko używany do wykonania pojedynczego zgłoszenia do systemu w Twoim imieniu.\n"
 
 #: plagiarism/utils.py:69
 msgid "Moss rejected the query, check your user ID."
-msgstr ""
+msgstr "MOSS odrzucił zgłoszenie, sprawdź swój identyfikator użytkownika."
 
 #: plagiarism/utils.py:72 plagiarism/utils.py:112
 msgid "Can't make a query with no submissions."
-msgstr ""
+msgstr "Nie można wykonać zgłoszenia bez kodów źródłowych."
 
 #: plagiarism/utils.py:96 plagiarism/utils.py:98
 msgid "Moss returned an invalid url."
-msgstr ""
+msgstr "MOSS zwrócił niepoprawny link do wyników."
 
 #: plagiarism/utils.py:102
 msgid "Could not connect with the MOSS."
-msgstr ""
+msgstr "Nie można połączyć się z systemem MOSS."
 
 #: portals/forms.py:38
 #, python-format
@@ -4767,13 +4768,13 @@ msgstr "Węzeł %(parent)s ma już węzeł podrzędny o tej krótkiej nazwie."
 
 #: portals/forms.py:76
 msgid "Search by URL or name"
-msgstr ""
+msgstr "Szukaj po adresie URL lub nazwie"
 
 #: portals/migrations/0009_global_portals_add_default.py:14
 #: portals/migrations/0009_global_portals_add_default.py:34
 #| msgid "Create the global portal"
 msgid "Default global portal"
-msgstr ""
+msgstr "Domyślny portal globalny"
 
 #: portals/models.py:29 portals/models.py:115
 msgid "Shown in the URL."
@@ -4794,12 +4795,12 @@ msgstr "kod panelu"
 #: portals/models.py:107
 #| msgid "My portal"
 msgid "My portal."
-msgstr ""
+msgstr "Mój portal."
 
 #: portals/models.py:108
 #| msgid "description"
 msgid "short description"
-msgstr ""
+msgstr "krótki opis"
 
 #: portals/models.py:110
 msgid "is public"
@@ -4807,12 +4808,12 @@ msgstr "jest publiczny"
 
 #: portals/models.py:123
 msgid "Exactly one from the following should be chosen: owner, link_name"
-msgstr ""
+msgstr "Dokładnie jedno z poniższych musi zostać wybrane: owner, link_name"
 
 #: portals/templates/portals/add-node.html:4 portals/views.py:212
 #| msgid "Add a problem"
 msgid "Add a subpage"
-msgstr ""
+msgstr "Dodaj podstronę"
 
 #: portals/templates/portals/create-global-portal.html:4
 msgid "Create the global portal"
@@ -4823,7 +4824,7 @@ msgid ""
 "\n"
 "You are going to create new global portal. Choose name, which will\n"
 "appear in link.\n"
-msgstr ""
+msgstr "\nZamierzasz utworzyć nowy globalny portal. Wybierz nazwę, która \nbędzie pojawiać się w linku.\n"
 
 #: portals/templates/portals/create-global-portal.html:20
 #: portals/templates/portals/create-user-portal.html:10
@@ -4842,12 +4843,12 @@ msgstr "Nie masz jeszcze portalu. Chcesz go utworzyć?"
 #: portals/templates/portals/delete-node.html:6
 #| msgid "Are you sure you want to delete the following node:"
 msgid "Are you sure you want to delete the following page:"
-msgstr ""
+msgstr "Na pewno chcesz usunąć następującą stronę:"
 
 #: portals/templates/portals/delete-node.html:10
 #| msgid " descendants will be deleted as well. This cannot be undone."
 msgid "Its subpages will be deleted as well. This cannot be undone."
-msgstr ""
+msgstr "Podstrony zostaną również usunięte. Ta operacja jest nieodwracalna."
 
 #: portals/templates/portals/delete-portal.html:4
 #: portals/templates/portals/manage-portal.html:84
@@ -4863,12 +4864,12 @@ msgid ""
 "            Are you sure you want to delete your portal?\n"
 "            All its pages will be deleted too. This cannot be undone.\n"
 "        "
-msgstr ""
+msgstr "\nNa pewno chcesz usunąć swój portal?\nUsunięte zostaną wszystkie jego strony. Ta operacja jest nieodwracalna."
 
 #: portals/templates/portals/edit-node.html:4 portals/views.py:167
 #| msgid "Edit tags"
 msgid "Edit page"
-msgstr ""
+msgstr "Edytuj stronę"
 
 #: portals/templates/portals/manage-portal.html:4
 #: portals/templates/portals/manage-portal.html:61 portals/views.py:271
@@ -4877,45 +4878,45 @@ msgstr "Zarządzaj portalem"
 
 #: portals/templates/portals/manage-portal.html:62
 msgid "Short description of your portal:"
-msgstr ""
+msgstr "Krótki opis Twojego portalu:"
 
 #: portals/templates/portals/manage-portal.html:70
 msgid "Save description and public option"
-msgstr ""
+msgstr "Zapisz opis i opcję upublicznienia"
 
 #: portals/templates/portals/manage-portal.html:72
 #| msgid "description"
 msgid "Save description"
-msgstr ""
+msgstr "Zapisz opis"
 
 #: portals/templates/portals/manage-portal.html:78
 #| msgid "Drag and drop nodes to reorganize the portal structure."
 msgid "Drag and drop pages to reorganize the portal structure."
-msgstr ""
+msgstr "Przeciągaj i upuszczaj strony, by reorganizować strukturę portalu."
 
 #: portals/templates/portals/menu.html:11
 #| msgid "Add tag"
 msgid "Add subpages"
-msgstr ""
+msgstr "Dodaj podstrony"
 
 #: portals/templates/portals/menu.html:15
 #| msgid "There are no problems here :("
 msgid "There are no subpages"
-msgstr ""
+msgstr "Brak podstron"
 
 #: portals/templates/portals/node-form.html:79
 #| msgid "Problem Name"
 msgid "Problem Table"
-msgstr ""
+msgstr "Tabela zadań"
 
 #: portals/templates/portals/node-form.html:89
 msgid "Inline math mode"
-msgstr ""
+msgstr "Zapis matematyczny (w tej samej linii)"
 
 #: portals/templates/portals/node-form.html:99
 #| msgid "Maintenance mode"
 msgid "Math mode"
-msgstr ""
+msgstr "Zapis matematyczny (w nowej linii)"
 
 #: portals/templates/portals/portal-initial-main-page-body.txt:1
 #| msgid ""
@@ -4924,7 +4925,7 @@ msgstr ""
 msgid ""
 "\n"
 "This is the main page of the portal. Click \"Edit page\" above to modify it.\n"
-msgstr ""
+msgstr "\nOto strona główna portalu globalnego. Naciśnij „Edytuj stronę” powyżej, by ją zmodyfikować.\n"
 
 #: portals/templates/portals/portals_main_page.html:17
 #, python-format
@@ -4933,7 +4934,7 @@ msgid ""
 "            If you want to create or edit your portal <a href=\"%(user_portal)s\"> click here</a>.\n"
 "            If you want to publish your portal below, please contact us.\n"
 "        "
-msgstr ""
+msgstr "\nJeśli chcesz utworzyć lub edytować swój portal <a href=\"%(user_portal)s\">kliknij tutaj</a>.\nJeśli chcesz, by Twój portal pojawił się na liście, prosimy, napisz do nas."
 
 #: portals/templates/portals/portals_main_page.html:28
 #, python-format
@@ -4941,21 +4942,21 @@ msgid ""
 "\n"
 "                    If you want to create new global portal <a href=\"%(create_global_portal)s\"> click here</a>.\n"
 "                "
-msgstr ""
+msgstr "\nJeśli chcesz stworzyć nowy globalny portal <a href=\"%(create_global_portal)s\">kliknij tutaj</a>."
 
 #: portals/templates/portals/portals_main_page.html:71
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: portals/templates/portals/portals_main_page.html:72
 #| msgid "description"
 msgid "Short description"
-msgstr ""
+msgstr "Krótki opis"
 
 #: portals/templates/portals/portals_main_page.html:96
 #| msgid "There are no problems here :("
 msgid "There are no portals here :("
-msgstr ""
+msgstr "Brak portali :("
 
 #: portals/templates/portals/widgets/redirect.html:9
 #, python-format
@@ -4967,37 +4968,37 @@ msgstr "Użytkownicy bez uprawnień do edycji tego portalu byliby teraz przekier
 #: portals/views.py:158
 #| msgid "Main page"
 msgid "View page"
-msgstr ""
+msgstr "Pokaż stronę"
 
 #: portals/views.py:253
 #| msgid "Delete tag"
 msgid "Delete page"
-msgstr ""
+msgstr "Usuń stronę"
 
 #: portals/views.py:367
 #| msgid "Main page"
 msgid "Portals main page"
-msgstr ""
+msgstr "Strona główna portali"
 
 #: portals/views.py:369 portals/views.py:397
 #| msgid "Public problems"
 msgid "Public portals"
-msgstr ""
+msgstr "Portale publiczne"
 
 #: portals/views.py:370
 #| msgid "My portal"
 msgid "All portals"
-msgstr ""
+msgstr "Wszystkie portale"
 
 #: portals/views.py:371
 #| msgid "Create the global portal"
 msgid "Global portals"
-msgstr ""
+msgstr "Portale globalne"
 
 #: portals/views.py:415
 #| msgid "Create portal"
 msgid "Related portal pages"
-msgstr ""
+msgstr "Powiązane portale"
 
 #: portals/views.py:433
 msgid "My portal"
@@ -5068,40 +5069,40 @@ msgstr "Znaczniki"
 
 #: problems/admin.py:256 problems/models.py:583
 msgid "origin tag"
-msgstr ""
+msgstr "tag pochodzenia"
 
 #: problems/admin.py:257 problems/models.py:584
 #| msgid "Edit tags"
 msgid "origin tags"
-msgstr ""
+msgstr "tagi pochodzenia"
 
 #: problems/admin.py:295
 #| msgid "Package information"
 msgid "origin information"
-msgstr ""
+msgstr "informacje o pochodzeniu"
 
 #: problems/admin.py:296
 #| msgid "Package information"
 msgid "additional origin information"
-msgstr ""
+msgstr "dodatkowe informacje o pochodzeniu"
 
 #: problems/admin.py:324 problems/forms.py:234
 msgid "Difficulty Tag"
-msgstr ""
+msgstr "Tag Trudnosći"
 
 #: problems/admin.py:325 problems/views.py:1128
 msgid "Difficulty Tags"
-msgstr ""
+msgstr "Tagi Trudności"
 
 #: problems/admin.py:351 problems/forms.py:252
 #| msgid "Algorithmic Engagements"
 msgid "Algorithm Tag"
-msgstr ""
+msgstr "Tag Algorytmiczny"
 
 #: problems/admin.py:352 problems/views.py:1114
 #| msgid "Algorithmic Engagements"
 msgid "Algorithm Tags"
-msgstr ""
+msgstr "Tagi Algorytmiczne"
 
 #: problems/admin.py:442
 #, python-format
@@ -5124,7 +5125,7 @@ msgstr "Informacje o paczce"
 #: problems/admin.py:600
 #| msgid "Package file"
 msgid "Package download"
-msgstr ""
+msgstr "Pobierz paczkę"
 
 #: problems/admin.py:609
 #: problems/templates/problems/ingredients/action-btn-panel.html:5
@@ -5146,7 +5147,7 @@ msgstr "Paczka zadania konkursu"
 #: problems/api.py:65 problems/api.py:111
 #| msgid "Permission denied"
 msgid "Permission denied."
-msgstr ""
+msgstr "Brak uprawnień."
 
 #: problems/controllers.py:517
 msgid "Visible only for admins"
@@ -5155,7 +5156,7 @@ msgstr "Widoczny tylko dla adminów"
 #: problems/forms.py:58
 #| msgid "visibility date"
 msgid "Visibility"
-msgstr ""
+msgstr "Widoczność"
 
 #: problems/forms.py:100
 msgid "Enter problem's secret key"
@@ -5164,37 +5165,37 @@ msgstr "Wprowadź tajny klucz zadania"
 #: problems/forms.py:109
 #| msgid "Missing argument (filename)"
 msgid "Statement filename"
-msgstr ""
+msgstr "Plik z treścią"
 
 #: problems/forms.py:110 problems/forms.py:128
 msgid "Replacement file"
-msgstr ""
+msgstr "Nowy plik"
 
 #: problems/forms.py:127
 #| msgid "Filename"
 msgid "File name"
-msgstr ""
+msgstr "Nazwa pliku"
 
 #: problems/forms.py:204
 msgid "Origin Tag"
-msgstr ""
+msgstr "Tag Pochodzenia"
 
 #: problems/forms.py:207
 msgid ""
 "Origin tags inform about the problem's general origin - e.g. a specific "
 "competition, olympiad, or programming camp."
-msgstr ""
+msgstr "Tagi pochodzenia informują o ogólnym źródle zadania, na przykład konkursie, olimpiadzie, lub obozie informatycznym."
 
 #: problems/forms.py:219
 #| msgid "Package information"
 msgid "Origin Information"
-msgstr ""
+msgstr "Informacje o pochodzeniu"
 
 #: problems/forms.py:222
 msgid ""
 "Origin information values inform about the problem's specific origin- a "
 "year, round, day, etc."
-msgstr ""
+msgstr "Wartości informacji o pochodzeniu informują o szczegółach pochodzenia zadania - konkretnym roku, rundzie, dniu, itp."
 
 #: problems/forms.py:237
 msgid ""
@@ -5202,14 +5203,14 @@ msgid ""
 " problems that are meant for learning the basics of programming (these are "
 "'Very easy') and those that are 'Hard' and exceptionally hard - the latter "
 "fall into the 'Very hard' category."
-msgstr ""
+msgstr "Większość problemów zalicza się do 'Łatwej' i 'Średniej' trudności. Niektóre są jednak przeznaczone do nauki podstaw programowania (te oznaczamy jako 'Bardzo łatwe'). Istnieją również problemy 'Trudne' i 'Bardzo trudne'."
 
 #: problems/forms.py:255
 msgid ""
 "Algorithm tags inform about the algorithms, theorems and data structures "
 "needed to solve a problem. Algorithm tags can also inform about the type of "
 "a problem, e.g. if a problem is a quiz."
-msgstr ""
+msgstr "Tagi algorytmiczne informują o algorytmach, twierdzeniach oraz strukturach danych potrzebnych do rozwiązania zadania. Mogą informować również o typ problemu, na przykład czy zadanie jest quizem."
 
 #: problems/management/commands/addproblem.py:11
 msgid "Adds the problem from the given package to the database."
@@ -5229,36 +5230,36 @@ msgstr "Podczas dodawania zadania wystąpił błąd"
 #| msgid "Postal submission"
 msgid "\t%(count)d submission"
 msgid_plural "\t%(count)d submissions"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "%(count)d zgłoszenie"
+msgstr[1] "%(count)d zgłoszenia"
+msgstr[2] "%(count)d zgłoszeń"
+msgstr[3] "%(count)d zgłoszeń"
 
 #: problems/management/commands/recalculate_statistics.py:39
 #, python-format
 msgid "\tfrom %(count)d user"
 msgid_plural "\tfrom %(count)d users"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "od %(count)d użytkownika"
+msgstr[1] "od %(count)d użytkowników"
+msgstr[2] "od %(count)d użytkowników"
+msgstr[3] "od %(count)d użytkowników"
 
 #: problems/management/commands/recalculate_statistics.py:62
 msgid "Recalculates the Problemset statistics for every problem."
-msgstr ""
+msgstr "Przelicza statystyki bazy zadań dla każdego zadania."
 
 #: problems/management/commands/recalculate_statistics.py:71
 #, python-format
 msgid "Recalculating statistics for %(count)d problem"
 msgid_plural "Recalculating statistics for %(count)d problems"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Przeliczanie statystyk dla %(count)d zadania"
+msgstr[1] "Przeliczanie statystyk dla %(count)d zadań"
+msgstr[2] "Przeliczanie statystyk dla %(count)d zadań"
+msgstr[3] "Przeliczanie statystyk dla %(count)d zadań"
 
 #: problems/management/commands/recalculate_statistics.py:86
 msgid "Recalculated!"
-msgstr ""
+msgstr "Przeliczono!"
 
 #: problems/management/commands/showbrokensolutions.py:11
 msgid ""
@@ -5282,12 +5283,12 @@ msgstr "Menu Paska Nawigacji"
 #: problems/models.py:61
 #| msgid "Team name"
 msgid "legacy name"
-msgstr ""
+msgstr "przestarzała nazwa"
 
 #: problems/models.py:90
 #| msgid "visibility date"
 msgid "visibility"
-msgstr ""
+msgstr "widoczność"
 
 #: problems/models.py:98
 msgid "package type"
@@ -5313,12 +5314,12 @@ msgstr "Może administrować zadaniem"
 #: problems/models.py:936
 #| msgid "Enumeration"
 msgid "name translation"
-msgstr ""
+msgstr "tłumaczenie nazwy"
 
 #: problems/models.py:200 problems/models.py:697 problems/models.py:862
 #: problems/models.py:937
 msgid "Human-readable name."
-msgstr ""
+msgstr "Nazwa czytelna dla człowieka."
 
 #: problems/models.py:208 problems/models.py:339
 msgid "problem name"
@@ -5327,7 +5328,7 @@ msgstr "nazwa zadania"
 #: problems/models.py:209
 #| msgid "problem name"
 msgid "problem names"
-msgstr ""
+msgstr "nazwy zadania"
 
 #: problems/models.py:244
 msgid "problem statement"
@@ -5374,7 +5375,7 @@ msgid ""
 " \n"
 "Error description: %(error)r\n"
 " \n"
-msgstr ""
+msgstr "Operacja zakończona niepowodzeniem: %(name)s\nOpis operacji:%(desc)s\n\nOpis błędu: %(error)r\n\n"
 
 #: problems/models.py:400
 #, python-format
@@ -5382,7 +5383,7 @@ msgid ""
 "Failed operation unknown.\n"
 "Error description: %(error)s\n"
 " \n"
-msgstr ""
+msgstr "Nieznana operacja zakończona niepowodzeniem.\nOpis błędu: %(error)s\n\n"
 
 #: problems/models.py:471
 msgid "problem site"
@@ -5395,29 +5396,29 @@ msgstr "strony zadań"
 #: problems/models.py:486
 #| msgid "Shared solutions"
 msgid "attempted solutions"
-msgstr ""
+msgstr "próby rozwiązania"
 
 #: problems/models.py:487
 #| msgid "Incorrect solution"
 msgid "correct solutions"
-msgstr ""
+msgstr "poprawne rozwiązania"
 
 #: problems/models.py:488
 msgid "average result"
-msgstr ""
+msgstr "średni wynik"
 
 #: problems/models.py:496
 msgid "user submitted"
-msgstr ""
+msgstr "użytkownik zgłosił"
 
 #: problems/models.py:497
 msgid "user solved"
-msgstr ""
+msgstr "użytkownik rozwiązał"
 
 #: problems/models.py:498
 #| msgid "Test scores"
 msgid "user's best score"
-msgstr ""
+msgstr "najlepszy wynik użytkownika"
 
 #: problems/models.py:568
 msgid ""
@@ -5425,11 +5426,11 @@ msgid ""
 "hyphens.<br>This should refer to general origin, i.e. a particular contest, "
 "competition, programming camp, etc.<br>This will be displayed verbatim in "
 "the Problemset."
-msgstr ""
+msgstr "Krótka, wyszukiwalna nazwa zawierająca jedynie małe litery alfabetu łacińskiego, cyfry, oraz myślniki.<br>Powinna odnosić się do ogólnego źródła zadania, na przykład konkursu, zawodów, obozu informatycznego, itp.<br>Będze widoczna w tej postaci w Bazie Zadań."
 
 #: problems/models.py:579
 msgid "Selected problems will be tagged with this tag.<br>"
-msgstr ""
+msgstr "Zaznaczone zadania zostaną otagowane tym znacznikiem."
 
 #: problems/models.py:596 problems/models.py:692 problems/models.py:799
 #: problems/models.py:857 problems/models.py:932 programs/admin.py:434
@@ -5442,52 +5443,52 @@ msgstr "język"
 msgid ""
 "Full, official name of the contest, competition, programming camp, etc. "
 "which this tag represents."
-msgstr ""
+msgstr "Pełna, oficjalna nazwa konkursu, zawodów, obozu informatycznego, itp., który jest opisany przez ten tag."
 
 #: problems/models.py:609
 #| msgid "Rule violation"
 msgid "abbreviation"
-msgstr ""
+msgstr "skrót"
 
 #: problems/models.py:610
 msgid "(optional) Official abbreviation of the full name."
-msgstr ""
+msgstr "(opcjonalne) Oficjalny skrót pełnej nazwy."
 
 #: problems/models.py:616
 msgid ""
 "(optional) Longer description which Will be displayed in the Task Archive "
 "next to the name."
-msgstr ""
+msgstr "(opcjonalne) Dłuższy opis, który będzie wyświetlony w Archiwum Zadań obok nazwy tagu."
 
 #: problems/models.py:623
 msgid "origin tag localization"
-msgstr ""
+msgstr "tłumaczenie tagu pochodzenia"
 
 #: problems/models.py:624
 msgid "origin tag localizations"
-msgstr ""
+msgstr "tłumaczenia tagów pochodzenia"
 
 #: problems/models.py:644 problems/models.py:724
 #| msgid "parent"
 msgid "parent tag"
-msgstr ""
+msgstr "nadrzędny tag"
 
 #: problems/models.py:646
 msgid ""
 "This category will be a possible category of information for problems tagged"
 " with the selected tag."
-msgstr ""
+msgstr "Ta kategoria będzie jedną z możliwych kategorii informacji dla zadań otagowanych wybranym tagiem."
 
 #: problems/models.py:655
 msgid ""
 "Type of information within this category. Short, searchable name consisting "
 "of only lowercase letters, numbers, and hyphens.<br>Examples: 'year', "
 "'edition', 'stage', 'day'."
-msgstr ""
+msgstr "Rodzaj informacji w tej kategorii. Krótka, wyszukiwalna nazwa zawierająca jedynie małe litery alfabetu łacińskiego, cyfry, i myślniki.<br>Przykładowo: 'year', 'edition, 'stage', 'day'."
 
 #: problems/models.py:663
 msgid "grouping order"
-msgstr ""
+msgstr "kolejność grupowania"
 
 #: problems/models.py:665
 msgid ""
@@ -5500,23 +5501,23 @@ msgid ""
 "usually means that this category will not be used for grouping - some "
 "categories could be too specific (e.g. when grouping would result in "
 "'groups' of single Problems)."
-msgstr ""
+msgstr "Czasami związek z tagiem nadrzędnym sam w sobie nie jest wystarczający, by przekazać pełną hierarchię informacji.<br>Niektóre kategorie są szersze, a inne szczegółowe Przy wyświetlaniu, szczegółowe tagi raczej powinnny być grupowane wizualnie po/pod tagami szerszymi.<br>Im szersza kategoria, tym niższą kolejność grupowania powinna mieć, na przykład kategoria 'year' powinna mieć niższy order niż 'round'.<br>Pusta wartość oznacza \"nieskończoność\", co zwykle oznacza, że kategoria nie będzie grupowana - niektóre kategorie mogą być na to zbyt szczegółowe (na przykład gdy z grupowania wynikłyby \"grupy\" pojedynczych zadań)."
 
 #: problems/models.py:678
 msgid "origin tag - information category"
-msgstr ""
+msgstr "tag pochodzenia - kategoria informacji"
 
 #: problems/models.py:679
 msgid "origin tags - information categories"
-msgstr ""
+msgstr "tagi pochodzenia - kategorie informacji"
 
 #: problems/models.py:702
 msgid "origin info category localization"
-msgstr ""
+msgstr "tłumaczenie kategorii informacji pochodzenia"
 
 #: problems/models.py:703
 msgid "origin info category localizations"
-msgstr ""
+msgstr "tłumaczenia kategorii informacji pochodzenia"
 
 #: problems/models.py:726
 msgid ""
@@ -5526,15 +5527,15 @@ msgid ""
 "think of this distinction as prepending an OriginTag.name prefix to an "
 "OriginInfoValue.value<br>e.g. for OriginTag 'pa' and OriginInfoValue '2011',"
 " this unique OriginInfoValue.name would be 'pa_2011'"
-msgstr ""
+msgstr "Jeśli tag pochodzenia T jest nadrzędny dla wartości pochodzenia V, z obecności V na zadaniu wynika obecność T.<br>Wartości pochodzenia z tymi samymi wartościami są rozróżnialne, jeśli mają różne tagi nadrzędne.<br>Można myśleć o tym rozróżnieniu, jak o dopisaniu jako prefiks nazwy tagu przed wartością.<br>Na przykład dla tagu 'pa' i wartości '2011', ta unikatowa \"nazwa wartości\" byłaby równa 'pa_2011'."
 
 #: problems/models.py:742
 msgid "This information should be categorized under the selected category."
-msgstr ""
+msgstr "Ta informacja należy do wybranej kategorii."
 
 #: problems/models.py:748
 msgid "value"
-msgstr ""
+msgstr "wartość"
 
 #: problems/models.py:750
 msgid ""
@@ -5542,100 +5543,100 @@ msgid ""
 "numbers.<br>This will be displayed verbatim in the Problemset - it must be "
 "unique within its parent tag.<br>Examples: for year: '2011', but for round: "
 "'r1' (just '1' for round would be ambiguous)."
-msgstr ""
+msgstr "Krótka, wyszukiwalna wartość zawierająca jedynie małe litery alfabetu łacińskiego, cyfry, i myślniki.<br>Będzie ona wyświetlona w tej postaci z Bazie Zadań - musi zatem być unikatowa w obrębie swojego tagu nadrzędnego.<br>Przykłady: dla roku: '2011', ale dla rundy: 'r1' (samo '1' dla rundy byłoby zbyt niejednoznaczne)."
 
 #: problems/models.py:760
 #| msgid "Display user"
 msgid "display order"
-msgstr ""
+msgstr "kolejność wyświetlania"
 
 #: problems/models.py:761
 msgid "Order in which this value will be sorted within its category."
-msgstr ""
+msgstr "Kolejność wyświetlania tej wartości w obrębie swojej kategorii."
 
 #: problems/models.py:768
 msgid ""
 "Select problems described by this value. They will also be tagged with the "
 "parent tag.<br>"
-msgstr ""
+msgstr "Wybierz zadania opisywane przez tę wartość. Zostaną one także otagowane tagiem nadrzędnym.<br>"
 
 #: problems/models.py:786
 #| msgid "Not enough information given"
 msgid "origin tag - information value"
-msgstr ""
+msgstr "tag pochodzenia - wartość informacji"
 
 #: problems/models.py:787
 #| msgid "Not enough information given"
 msgid "origin tags - information values"
-msgstr ""
+msgstr "tagi pochodzenia - wartości informacji"
 
 #: problems/models.py:803
 msgid "translated value"
-msgstr ""
+msgstr "przetłumaczona wartość"
 
 #: problems/models.py:804
 msgid "Human-readable value."
-msgstr ""
+msgstr "Wartość czytelna dla człowieka."
 
 #: problems/models.py:809
 msgid "origin info value localization"
-msgstr ""
+msgstr "tłumaczenie wartości informacji o pochodzeniu"
 
 #: problems/models.py:810
 msgid "origin info value localizations"
-msgstr ""
+msgstr "tłumaczenia wartości informacji o pochodzeniu"
 
 #: problems/models.py:834
 #| msgid "Edit tags"
 msgid "difficulty tag"
-msgstr ""
+msgstr "tag trudności"
 
 #: problems/models.py:835
 #| msgid "Edit tags"
 msgid "difficulty tags"
-msgstr ""
+msgstr "tagi trudności"
 
 #: problems/models.py:867
 msgid "difficulty tag localization"
-msgstr ""
+msgstr "tłumaczenie tagu pochodzenia"
 
 #: problems/models.py:868
 msgid "difficulty tag localizations"
-msgstr ""
+msgstr "tłumaczenia tagów pochodzenia"
 
 #: problems/models.py:884
 msgid "difficulty proposal"
-msgstr ""
+msgstr "propozycja poziomu trudności"
 
 #: problems/models.py:885
 msgid "difficulty proposals"
-msgstr ""
+msgstr "propozycje poziomu trudności"
 
 #: problems/models.py:906
 #| msgid "Algorithmic Engagements"
 msgid "algorithm tag"
-msgstr ""
+msgstr "tag algorytmiczny"
 
 #: problems/models.py:907
 #| msgid "Algorithmic Engagements"
 msgid "algorithm tags"
-msgstr ""
+msgstr "tagi algorytmiczne"
 
 #: problems/models.py:942
 msgid "algorithm tag localization"
-msgstr ""
+msgstr "tłumaczenie tagu algorytmicznego"
 
 #: problems/models.py:943
 msgid "algorithm tag localizations"
-msgstr ""
+msgstr "tłumaczenia tagów algorytmicznych"
 
 #: problems/models.py:959
 msgid "algorithm tag proposal"
-msgstr ""
+msgstr "propozycja taga algorytmicznego"
 
 #: problems/models.py:960
 msgid "algorithm tag proposals"
-msgstr ""
+msgstr "propozycje tagów algorytmicznych"
 
 #: problems/problem_site.py:231 problems/templates/problems/secret-key.html:12
 msgid "Secret key"
@@ -5652,31 +5653,31 @@ msgstr "Dodaj do konkursu"
 #: problems/problem_site.py:295
 #| msgid "problem statement"
 msgid "Replace problem statement"
-msgstr ""
+msgstr "Podmień treść zadania"
 
 #: problems/problem_site.py:319
 #| msgid "Team does not exist"
 msgid "Picked statement file does not exist."
-msgstr ""
+msgstr "Wybrany plik z treścią nie istnieje."
 
 #: problems/problem_site.py:332
 msgid "File replacement not provided"
-msgstr ""
+msgstr "Nie wybrano nowego pliku"
 
 #: problems/problem_site.py:337
 msgid "Original and replacement files must have the same name"
-msgstr ""
+msgstr "Zarówno oryginalny jak i nowy plik muszą mieć tę samą nazwę"
 
 #: problems/problem_site.py:362
 #: problems/templates/problems/replace-problem-statement.html:10
 #| msgid "Package file"
 msgid "Manage package files"
-msgstr ""
+msgstr "Zarządzanie plikami paczki"
 
 #: problems/problem_site.py:417
 #| msgid "No files to delete."
 msgid "No file selected"
-msgstr ""
+msgstr "Nie wybrano pliku"
 
 #: problems/problem_sources.py:85
 msgid "Upload package"
@@ -5752,7 +5753,7 @@ msgstr "Wgraj ponownie\n        pakiet z zadaniem<strong>%(problem)s</strong>.<b
 #: problems/templates/problems/add-or-update-content.html:17
 #| msgid "Select problem"
 msgid "Selected problem"
-msgstr ""
+msgstr "Wybierz zadanie"
 
 #: problems/templates/problems/add-or-update.html:4
 msgid "Add or update problem"
@@ -5760,7 +5761,7 @@ msgstr "Dodaj lub aktualizuj zadanie"
 
 #: problems/templates/problems/add-to-contest.html:4
 msgid "Beware, this problem has its tests published."
-msgstr ""
+msgstr "Uwaga, do tego zadania zostały opublikowane testy."
 
 #: problems/templates/problems/external-statement.html:7
 #, python-format
@@ -5770,13 +5771,13 @@ msgstr ""
 msgid ""
 "You can also open the problem's statement by clicking <a "
 "href=\"%(statement_url)s\"><b>here</b></a>."
-msgstr ""
+msgstr "Możesz też otworzyć treść zadania klikając <a href=\"%(statement_url)s\"><b>tutaj</b></a>."
 
 #: problems/templates/problems/external-statement.html:12
 #: problems/templates/problems/from-zip-statement.html:8
 #: problems/templates/problems/no-problem-statement.html:11
 msgid "<p>Problem's author: </p>"
-msgstr ""
+msgstr "<p>Autor zadania</p>"
 
 #: problems/templates/problems/files.html:15
 msgid "Description"
@@ -5806,7 +5807,7 @@ msgstr "Pobierz pakiet z zadaniem"
 #: problems/templates/problems/ingredients/model-solutions-embedded.html:5
 #| msgid "are no model solutions in this problem package.\n"
 msgid "There are no model solutions in this problem package."
-msgstr ""
+msgstr "W paczce nie było żadnych rozwiązań wzorcowych."
 
 #: problems/templates/problems/ingredients/model-solutions-embedded.html:31
 #: programs/templates/programs/admin/model_solutions.html:48
@@ -5815,7 +5816,7 @@ msgstr "W sumie"
 
 #: problems/templates/problems/ingredients/tag-form.html:11
 msgid "Help us improve the problemset!"
-msgstr ""
+msgstr "Pomóż nam usprawnić bazę zadań!"
 
 #: problems/templates/problems/ingredients/tag-form.html:18
 msgid ""
@@ -5827,7 +5828,7 @@ msgid ""
 "                                and difficulty tags for this problem. Thank you!\n"
 "                            </p>\n"
 "                        "
-msgstr ""
+msgstr "\n<h5>\nGratulacje, rozwiązałeś zadanie poprawnie!</h5>\n<p>\nBaza zadań nie jest idealna, ale staramy się ciągle ją rozwijać. Przydałaby się w tym i Twoja pomoc. Jeśli możesz, wypełnij poniższy formularz, dzieląc się z resztą użytkowników algorytmami użytymi w rozwiązaniu oraz jego trudnością. Dziękujemy!</p>"
 
 #: problems/templates/problems/ingredients/tag-form.html:28
 msgid ""
@@ -5837,23 +5838,23 @@ msgid ""
 "                                You've already submitted your proposals.\n"
 "                            </p>\n"
 "                        "
-msgstr ""
+msgstr "\n<h5>Dziękujemy za Twój wkład!</h5>\n<p>Wypełniłeś już formularz do tego problemu</p>"
 
 #: problems/templates/problems/ingredients/tag-form.html:39
 msgid ""
 " Think of algorithms used to solve this\n"
 "                            problem as well as areas of algorithmics it falls into, such as Graphs or NumberTheory\n"
 "                            "
-msgstr ""
+msgstr "Pomyśl jakich algorytmów użyłeś do rozwiązania tego zadania, a także, pod jakie dziedziny algorytmiki ono podpada. Przykładami takich tagów są np. Graphs, albo NumberTheory"
 
 #: problems/templates/problems/ingredients/tag-form.html:41
 #| msgid "Algorithmic Engagements"
 msgid "Algorithms"
-msgstr ""
+msgstr "Algorytmy"
 
 #: problems/templates/problems/ingredients/tag-form.html:48
 msgid "e.g. Dijkstra"
-msgstr ""
+msgstr "np. Dijkstra"
 
 #: problems/templates/problems/ingredients/tag-form.html:54
 msgid "Add"
@@ -5865,38 +5866,38 @@ msgid ""
 "                            which is the default for the problemset. However, there are problems that are meant\n"
 "                            for learning basics of programming (these are 'easy') and those that are exceptionally 'hard'\n"
 "                            "
-msgstr ""
+msgstr "Większość problemów zalicza się do normalnej trudności - jest to ta domyślna. Niektóre są jednak przeznaczone do nauki podstaw programowania (te oznaczamy jako łatwe), a niektóre są wyjątkowo \"trudne\""
 
 #: problems/templates/problems/ingredients/tag-form.html:68
 msgid "Difficulty"
-msgstr ""
+msgstr "Poziom trudności"
 
 #: problems/templates/problems/ingredients/tag-form.html:89
 msgid "There's been a server error during submitting"
-msgstr ""
+msgstr "Podczas wysyłania formularza wystąpił błąd serwera"
 
 #: problems/templates/problems/ingredients/tag-form.html:92
 msgid ""
 "You have to specify at least one algorithm tag and exactly one difficulty "
 "tag!"
-msgstr ""
+msgstr "Musisz wprowadzić przynajmniej jeden tag algorytmiczny oraz wybrać dokładnie jeden tag pochodzenia!"
 
 #: problems/templates/problems/ingredients/tags-panel.html:5
 msgid "Current tags"
-msgstr ""
+msgstr "Aktualne tagi"
 
 #: problems/templates/problems/ingredients/tags-panel.html:18
 msgid "Users algorithms proposals"
-msgstr ""
+msgstr "Propozycje tagów algorytmicznych"
 
 #: problems/templates/problems/ingredients/tags-panel.html:26
 msgid "Users difficulty proposals"
-msgstr ""
+msgstr "Propozycje poziomu trudności"
 
 #: problems/templates/problems/ingredients/tags-panel.html:34
 #: simpleui/templates/simpleui/problem_settings/settings.html:45
 msgid "Edit tags"
-msgstr ""
+msgstr "Edytuj tagi"
 
 #: problems/templates/problems/no-problem-statement.html:4
 msgid ""
@@ -5920,16 +5921,16 @@ msgstr "Zestaw zadań – dodaj lub zaktualizuj zadanie"
 #: problems/templates/problems/problemset/base.html:33
 #| msgid "Accepted"
 msgid "Attempted"
-msgstr ""
+msgstr "Ruszone"
 
 #: problems/templates/problems/problemset/base.html:38
 #| msgid "Not yet generated"
 msgid "Not attempted"
-msgstr ""
+msgstr "Nietknięte"
 
 #: problems/templates/problems/problemset/base.html:52
 msgid "Search by name or tag"
-msgstr ""
+msgstr "Wyszukaj po nazwie lub tagu"
 
 #: problems/templates/problems/problemset/contest-list.html:33
 msgid "No contests yet :("
@@ -5938,45 +5939,45 @@ msgstr "Nie ma żadnych konkursów :("
 #: problems/templates/problems/problemset/problem-list.html:34
 #| msgid "You can't submit a solution for another team!"
 msgid "How many users submitted a solution for this task"
-msgstr ""
+msgstr "Ilu użytkowników zgłosiło rozwiązanie do tego zadania"
 
 #: problems/templates/problems/problemset/problem-list.html:35
 #| msgid "Submit"
 msgid "Submitters"
-msgstr ""
+msgstr "Zgłosiło"
 
 #: problems/templates/problems/problemset/problem-list.html:41
 msgid "Percentage of users who submitted that also solved this task"
-msgstr ""
+msgstr "Ile procent użytkowników, którzy zgłosili, zgłosiło poprawne rozwiązanie"
 
 #: problems/templates/problems/problemset/problem-list.html:42
 #, python-format
 msgid "%% Correct"
-msgstr ""
+msgstr "%%Rozwiązało"
 
 #: problems/templates/problems/problemset/problem-list.html:48
 #| msgid "Generate user output for this test"
 msgid "Average score result for this task"
-msgstr ""
+msgstr "Średni wynik dla tego zadania"
 
 #: problems/templates/problems/problemset/problem-list.html:49
 msgid "Average"
-msgstr ""
+msgstr "Średnio"
 
 #: problems/templates/problems/problemset/problem-list.html:63
 #| msgid "Other submissions for this problem"
 msgid "Your score for this problem"
-msgstr ""
+msgstr "Twój wynik dla tego zadania"
 
 #: problems/templates/problems/problemset/problem-list.html:64
 #| msgid "total score"
 msgid "Your score"
-msgstr ""
+msgstr "Twój wynik"
 
 #: problems/templates/problems/problemset/problem-list.html:158
 #| msgid "to contest"
 msgid "More contests..."
-msgstr ""
+msgstr "Więcej konkursów..."
 
 #: problems/templates/problems/problemset/problem-list.html:180
 msgid "There are no problems here :("
@@ -5990,21 +5991,21 @@ msgstr "Wybierz konkurs, do którego chcesz dodać zadanie <code>%(problem_name)
 #: problems/templates/problems/related-portal-pages.html:11
 #| msgid "file name"
 msgid "Page name"
-msgstr ""
+msgstr "Nazwa strony"
 
 #: problems/templates/problems/related-portal-pages.html:12
 msgid "Owner"
-msgstr ""
+msgstr "Właściciel"
 
 #: problems/templates/problems/related-portal-pages.html:13
 #| msgid "description"
 msgid "Portal description"
-msgstr ""
+msgstr "Opis portalu"
 
 #: problems/templates/problems/related-portal-pages.html:33
 #| msgid "Create portal"
 msgid "No related portal pages."
-msgstr ""
+msgstr "Brak powiązanych portali."
 
 #: problems/templates/problems/replace-problem-statement.html:4
 msgid ""
@@ -6013,12 +6014,12 @@ msgid ""
 "    Note that the changes are temporary and don't alter the problem package.\n"
 "    If you need permanent changes use the\n"
 "    "
-msgstr ""
+msgstr "\nUżyj tej opcji tylko jeśli musisz szybko podmienić treść zadania.\nPamiętaj, że zmiany są tymczasowe i nie modyfikują paczki zadania.\nJeśli potrzebujesz permanentnych zmian, użyj zakładki"
 
 #: problems/templates/problems/replace-problem-statement.html:12
 #| msgid "Options"
 msgid "option"
-msgstr ""
+msgstr " opcja"
 
 #: problems/templates/problems/secret-key.html:4
 msgid ""
@@ -6037,35 +6038,35 @@ msgstr "Brak nadesłanych rozwiązań."
 #: problems/templates/problems/task-archive.html:8
 #| msgid "Task archive"
 msgid "Task Archive"
-msgstr ""
+msgstr "Archiwum zadań konkursowych"
 
 #: problems/templates/problems/task-archive-tag.html:25
 msgid "Filters"
-msgstr ""
+msgstr "Filtry"
 
 #: problems/templates/problems/task-archive-tag.html:34
 msgid "Apply filters"
-msgstr ""
+msgstr "Zastosuj filtry"
 
 #: problems/templates/problems/task-archive-tag.html:44
 #| msgid "Problemset"
 msgid "Search in Problemset"
-msgstr ""
+msgstr "Szukaj w Bazie Zadań"
 
 #: problems/templates/problems/task-archive-tag.html:111
 #: problems/templates/problems/task-archive.html:29
 msgid "Hmm... there doesn't seem to be anything here..."
-msgstr ""
+msgstr "Hmm... wygląda na to, że nic tutaj nie ma..."
 
 #: problems/templates/problems/task-archive.html:14
 msgid "Welcome to the Task Archive"
-msgstr ""
+msgstr "Witaj w Archiwum Zadań"
 
 #: problems/templates/problems/task-archive.html:16
 msgid ""
 "Here you can find tasks from various competitions, olympiads, and "
 "programming camps"
-msgstr ""
+msgstr "Znajdują się tu zadania z różnych zawodów, olimpiad, i obozów informatycznych"
 
 #: problems/validators.py:6
 #| msgid ""
@@ -6073,7 +6074,7 @@ msgstr ""
 msgid ""
 "Enter a valid name consisting only of lowercase letters, numbers, and "
 "hyphens."
-msgstr ""
+msgstr "Wprowadź prawidłową nazwę zawierającą jedynie małe litery alfabetu łacińskiego, cyfry, i myślniki."
 
 #: problems/views.py:100 szkopul/views.py:16 teachers/admin.py:129
 #: usercontests/admin.py:44
@@ -6094,7 +6095,7 @@ msgstr "Moje zadania"
 
 #: problems/views.py:308 problems/views.py:543
 msgid "Shared with me"
-msgstr ""
+msgstr "Udostępnione mi"
 
 #: problems/views.py:315 problems/views.py:559
 msgid "All problems"
@@ -6107,7 +6108,7 @@ msgstr "Witaj w zestawie zadań, miejscu gdzie przechowywane są wszystkie zadan
 #: problems/views.py:576
 #| msgid "Problem site"
 msgid "Problem view"
-msgstr ""
+msgstr "Widok zadania"
 
 #: problems/views.py:680
 msgid "Reports are not available now (ಥ ﹏ ಥ)"
@@ -6120,22 +6121,22 @@ msgstr "Wysłano rozwiązania wzorcowe do sprawdzenia."
 #: problems/views.py:1006 problems/views.py:1023 problems/views.py:1033
 #: problems/views.py:1046 problems/views.py:1068
 msgid "Origin Tags"
-msgstr ""
+msgstr "Tagi Pochodzenia"
 
 #: problemsharing/models.py:20
 #| msgid "Create"
 msgid "creator"
-msgstr ""
+msgstr "autor"
 
 #: problemsharing/models.py:27
 msgid "receiver"
-msgstr ""
+msgstr "odbiorca"
 
 #: problemsharing/templates/problemsharing/friendship.html:5
 #: problemsharing/templates/problemsharing/friendship.html:9
 #: problemsharing/views.py:19
 msgid "Friends"
-msgstr ""
+msgstr "Znajomi"
 
 #: problemsharing/templates/problemsharing/friendship.html:11
 msgid ""
@@ -6146,34 +6147,34 @@ msgid ""
 "            Your friends can find your tasks in the Problemset.\n"
 "        </small>\n"
 "        "
-msgstr ""
+msgstr "\n Twoi znajomi mogą dodawać do swoich konkursów wszystkie twoje zadania, które nie są oznaczone jako \"Prywatne\".<br><small>\nZwróć uwagę, że Znajomości są jednostronne. Dodając kogoś do znajomych nie potrzebujesz jego potwierdzenia,\nlecz aby móc widzieć jego zadania musisz być na jego liście znajomych. Dodawać do znajomych można jedynie innych nauczycieli.\nTwoi znajomi mogą odnaleźć twoje zadania w Bazie Zadań.\n</small>"
 
 #: problemsharing/templates/problemsharing/friendship.html:23
 #| msgid "Remove friend"
 msgid "Befriend"
-msgstr ""
+msgstr "Dodaj do znajomych"
 
 #: problemsharing/templates/problemsharing/friendship.html:42
 #| msgid "Your friends"
 msgid "You have no friends :("
-msgstr ""
+msgstr "Nie masz znajomych :("
 
 #: problemsharing/views.py:50
 msgid "This user is already your friend"
-msgstr ""
+msgstr "Ten użytkownik już jest twoim znajomym"
 
 #: problemsharing/views.py:53
 msgid "You can't befriend yourself"
-msgstr ""
+msgstr "Nie możesz dodać do znajomych siebie samego"
 
 #: problemsharing/views.py:59
 #| msgid "Friends"
 msgid "Friend added"
-msgstr ""
+msgstr "Dodano do znajomych"
 
 #: problemsharing/views.py:69
 msgid "Invalid request (this user is not your friend)"
-msgstr ""
+msgstr "Niepoprawne zapytanie (ten użytkownik nie jest twoim znajomym)"
 
 #: programs/admin.py:85 sinolpack/package.py:770
 #, python-format
@@ -6200,7 +6201,7 @@ msgstr "Pliki wykonywalne weryfikatora"
 
 #: programs/admin.py:249
 msgid "Compiler overrides"
-msgstr ""
+msgstr "Nadpisywanie kompilatorów"
 
 #: programs/admin.py:414
 msgid "You shall select exactly two submissions to diff"
@@ -6267,7 +6268,7 @@ msgstr "Prosty konkurs programistyczny"
 
 #: programs/forms.py:22
 msgid " (default compiler: "
-msgstr ""
+msgstr "(domyślny kompilator: "
 
 #: programs/handlers.py:678
 msgid "submission report"
@@ -6275,15 +6276,15 @@ msgstr "sprawozdanie zgłoszenia"
 
 #: programs/models.py:28
 msgid "Real CPU"
-msgstr ""
+msgstr "Prawdziwe CPU"
 
 #: programs/models.py:29
 msgid "SIO2Jail"
-msgstr ""
+msgstr "SIO2Jail"
 
 #: programs/models.py:39
 msgid "execution mode"
-msgstr ""
+msgstr "tryb wykonania"
 
 #: programs/models.py:41
 #| msgid ""
@@ -6291,17 +6292,17 @@ msgstr ""
 msgid ""
 "If set to Auto, the execution mode is determined according to the type of "
 "the contest."
-msgstr ""
+msgstr "W przypadku ustawienia Auto tryb wykonywania jest ustalany na podstawie typu konkursu."
 
 #: programs/models.py:47
 #| msgid "teams configuration"
 msgid "programs configuration"
-msgstr ""
+msgstr "konfiguracja programów"
 
 #: programs/models.py:48
 #| msgid "teams configurations"
 msgid "programs configurations"
-msgstr ""
+msgstr "konfiguracje programów"
 
 #: programs/models.py:52
 msgid "Normal test"
@@ -6355,12 +6356,12 @@ msgstr "testy"
 #: programs/models.py:137
 #| msgid "Output limit exceeded"
 msgid "test limit override"
-msgstr ""
+msgstr "nadpisanie limitu na teście"
 
 #: programs/models.py:138
 #| msgid "Reset tests limits"
 msgid "tests limit overrides"
-msgstr ""
+msgstr "nadpisanie limitu na testach"
 
 #: programs/models.py:148
 msgid "checker executable file"
@@ -6476,37 +6477,37 @@ msgstr "Pozwól użytkownikom generować wyjścia ich programów przy testach z 
 
 #: programs/models.py:379 programs/models.py:414
 msgid "compiler"
-msgstr ""
+msgstr "kompilator"
 
 #: programs/models.py:383
 #| msgid "problem name"
 msgid "problem compiler"
-msgstr ""
+msgstr "kompilator zadania"
 
 #: programs/models.py:384
 #| msgid "problem sites"
 msgid "problem compilers"
-msgstr ""
+msgstr "kompilatory zadania"
 
 #: programs/models.py:417
 #| msgid "contest icon"
 msgid "contest compiler"
-msgstr ""
+msgstr "kompilator konkursu"
 
 #: programs/models.py:418
 #| msgid "contest icons"
 msgid "contest compilers"
-msgstr ""
+msgstr "kompilatory konkursów"
 
 #: programs/models.py:432
 #| msgid "problem short name"
 msgid "problem allowed language"
-msgstr ""
+msgstr "dozwolony język programowania dla zadania"
 
 #: programs/models.py:433
 #| msgid "problem packages"
 msgid "problem allowed languages"
-msgstr ""
+msgstr "dozwolone języki programowania dla zadania"
 
 #: programs/notifications.py:39
 #, python-format
@@ -6758,7 +6759,7 @@ msgstr "Zapisz jako szablon"
 #: questions/forms.py:116
 #| msgid "All messages"
 msgid "All message types"
-msgstr ""
+msgstr "Wszystkie rodzaje wiadomości"
 
 #: questions/forms.py:117
 msgid "Public announcements"
@@ -6771,7 +6772,7 @@ msgstr "Typ wiadomości"
 #: questions/forms.py:127
 #| msgid "categories"
 msgid "All categories"
-msgstr ""
+msgstr "Wszystkie kategorie"
 
 #: questions/forms.py:132 questions/forms.py:139
 msgid "Author username"
@@ -6803,15 +6804,15 @@ msgstr "Publiczne ogłoszenie"
 
 #: questions/models.py:26
 msgid "QUESTION"
-msgstr ""
+msgstr "PYTANIE"
 
 #: questions/models.py:27
 msgid "PRIVATE"
-msgstr ""
+msgstr "PRYWATNE"
 
 #: questions/models.py:28
 msgid "PUBLIC"
-msgstr ""
+msgstr "PUBLICZNE"
 
 #: questions/models.py:49
 msgid "topic"
@@ -6887,7 +6888,7 @@ msgstr "Historia"
 
 #: questions/templates/questions/filter_form.html:16
 msgid "Clear filters"
-msgstr ""
+msgstr "Wyczyść filtry"
 
 #: questions/templates/questions/list.html:16
 msgid "Subscribe"
@@ -7052,7 +7053,7 @@ msgstr "Ogólne, %s"
 #, python-format
 #| msgid "Re: "
 msgid "Re: %s"
-msgstr ""
+msgstr "Odp: %s"
 
 #: questions/views.py:370
 msgid "Ask question"
@@ -7107,12 +7108,12 @@ msgstr "Kolejność"
 #: quizzes/models.py:27
 #| msgid "Quiz answers"
 msgid "Hide answers"
-msgstr ""
+msgstr "Ukryj odpowiedzi"
 
 #: quizzes/models.py:29
 msgid ""
 "Instead of listing answers, expect the contestant to type in their answer."
-msgstr ""
+msgstr "Zamiast podać możliwe odpowiedzi, oczekuj od uczestnika wpisania odpowiedzi."
 
 #: quizzes/models.py:35
 msgid "Quiz question"
@@ -7137,32 +7138,32 @@ msgstr "Odpowiedzi"
 #: quizzes/models.py:54
 #| msgid "Options"
 msgid "Caption"
-msgstr ""
+msgstr "Podpis"
 
 #: quizzes/models.py:55
 #| msgid "Package file"
 msgid "Image file"
-msgstr ""
+msgstr "Plik z obrazem"
 
 #: quizzes/models.py:81
 #| msgid "Quiz question"
 msgid "Quiz question picture"
-msgstr ""
+msgstr "Ilustracja do pytania"
 
 #: quizzes/models.py:82
 #| msgid "Quiz questions"
 msgid "Quiz question pictures"
-msgstr ""
+msgstr "Ilustracje do pytania"
 
 #: quizzes/models.py:96
 #| msgid "Quiz answer"
 msgid "Quiz answer picture"
-msgstr ""
+msgstr "Ilustracja do odpowiedzi"
 
 #: quizzes/models.py:97
 #| msgid "Quiz answers"
 msgid "Quiz answer pictures"
-msgstr ""
+msgstr "Ilustracje do odpowiedzi"
 
 #: quizzes/models.py:102 quizzes/models.py:108 quizzes/models.py:124
 msgid "Quiz submission"
@@ -7187,17 +7188,17 @@ msgstr "Zgłoszenie odpowiedzi"
 #: quizzes/models.py:129
 #| msgid "Quiz answer"
 msgid "Text answer"
-msgstr ""
+msgstr "Odpowiedź wpisana"
 
 #: quizzes/models.py:133
 #| msgid "Quiz submission answer"
 msgid "Quiz submission text answer"
-msgstr ""
+msgstr "Zgłoszenie odpowiedzi wpisanej"
 
 #: quizzes/models.py:134
 #| msgid "Quiz submission answers"
 msgid "Quiz submission text answers"
-msgstr ""
+msgstr "Zgłoszenia odpowiedzi wpisanych"
 
 #: quizzes/models.py:139
 msgid "Submission report"
@@ -7260,7 +7261,7 @@ msgstr "Szukaj użytkownika…"
 msgid ""
 "Mark all rankings as one's needing recalculation.In combination with "
 "rankingsd will eventually recalculate all rankings."
-msgstr ""
+msgstr "Oznacza wszystkie ranking jako potrzebujące przeliczenia. W połączeniu z rankingsd przeliczy w końcu wszystkie rankingi."
 
 #: rankings/management/commands/rankingsd.py:12
 msgid ""
@@ -7297,7 +7298,7 @@ msgstr "Brak dostępnych rankingów."
 #: rankings/templates/rankings/ranking_view.html:18
 #| msgid "Regenerate key"
 msgid "Regenerate ranking"
-msgstr ""
+msgstr "Wygeneruj ranking ponownie"
 
 #: rankings/templates/rankings/ranking_view.html:25
 msgid "Find my place"
@@ -7386,7 +7387,7 @@ msgstr "limit ujawniania"
 
 #: scoresreveal/models.py:29
 msgid "If empty, all submissions are revealed automatically."
-msgstr ""
+msgstr "Jeśli pozostawiono puste, wszystkie zgłoszenia są odsłaniane automatycznie."
 
 #: scoresreveal/models.py:34
 msgid "disable for last minutes of the round"
@@ -7433,14 +7434,14 @@ msgid_plural ""
 "\n"
 "                    In this task, you can see the score of every submission, unless it is submitted during the last <strong>%(counter)s</strong> minutes of the round.\n"
 "                "
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "\nW tym zadaniu możesz zobaczyć wynik każdego zgłoszenia, które nie zostało wysłane w ciągu ostatniej <strong>minuty</strong> rundy."
+msgstr[1] "\nW tym zadaniu możesz zobaczyć wynik każdego zgłoszenia, które nie zostało wysłane w ciągu ostatnich <strong>%(counter)s</strong> minut rundy."
+msgstr[2] "\nW tym zadaniu możesz zobaczyć wynik każdego zgłoszenia, które nie zostało wysłane w ciągu ostatnich <strong>%(counter)s</strong> minut rundy."
+msgstr[3] "\nW tym zadaniu możesz zobaczyć wynik każdego zgłoszenia, które nie zostało wysłane w ciągu ostatnich <strong>%(counter)s</strong> minut rundy."
 
 #: scoresreveal/templates/scoresreveal/submission-footer.html:22
 msgid "In this task, you can see the score of every submission."
-msgstr ""
+msgstr "W tym zadaniu możesz zobaczyć wynik każdego zgłoszenia."
 
 #: scoresreveal/templates/scoresreveal/submission-footer.html:33
 #, python-format
@@ -7522,7 +7523,7 @@ msgstr "Każdy wiersz reprezentuje grupę, zgłoszenia powinny być przedstawion
 
 #: similarsubmits/forms.py:31
 msgid "Find transitive closure"
-msgstr ""
+msgstr "Znajdź domknięcie przechodnie"
 
 #: similarsubmits/forms.py:33
 msgid ""
@@ -7835,10 +7836,10 @@ msgid_plural ""
 "\n"
 "                  %(count)s users\n"
 "              "
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "\n%(count)s zawodnik"
+msgstr[1] "\n%(count)s zawodników"
+msgstr[2] "\n%(count)s zawodników"
+msgstr[3] "\n%(count)s zawodników"
 
 #: simpleui/templates/simpleui/main_dashboard/contest.html:57
 #, python-format
@@ -7859,7 +7860,7 @@ msgstr[3] "\n              %(count)s zgłoszeń\n          "
 #: simpleui/templates/simpleui/main_dashboard/dashboard.html:19
 #| msgid "Teacher dashboard"
 msgid "User dashboard"
-msgstr ""
+msgstr "Panel użytkownika"
 
 #: simpleui/templates/simpleui/main_dashboard/dashboard.html:23
 msgid "Create contest"
@@ -7878,12 +7879,12 @@ msgid ""
 "\n"
 "                <p>There are no contests to display. You can <a href=\"%(link)s\">create one</a>.</p>\n"
 "            "
-msgstr ""
+msgstr "\n<p>Nie posiadasz aktualnie żadnych konkursów. Żeby temu zaradzić możesz <a href=\"%(link)s\"> stworzyć jakiś</a>.</p>"
 
 #: simpleui/templates/simpleui/main_dashboard/dashboard.html:50
 #| msgid "There are no contests you could take part in."
 msgid "There are no contests to display."
-msgstr ""
+msgstr "Nie posiadasz aktualnie żadnych konkursów."
 
 #: simpleui/templates/simpleui/main_dashboard/dashboard.html:69
 #: teachers/templates/teachers/contest-selection.html:28
@@ -7917,7 +7918,7 @@ msgstr "Załączniki"
 #: simpleui/templates/simpleui/problem_settings/settings.html:53
 #| msgid "attachments"
 msgid "Edit attachments"
-msgstr ""
+msgstr "Edytuj załączniki"
 
 #: simpleui/templates/simpleui/problem_settings/settings.html:60
 msgid "Tests"
@@ -7967,7 +7968,7 @@ msgstr "Kompilacja pliku %(filename)s zakończyła się porażką. Wyjście komp
 #: sinolpack/package.py:299
 #, python-format
 msgid "Ingen failed: %r"
-msgstr ""
+msgstr "Błąd generowania danych wejściowych: %r"
 
 #: sinolpack/package.py:332
 #, python-format
@@ -7985,7 +7986,7 @@ msgstr "Nie znaleziono dodatkowych plików %r w prog/"
 msgid ""
 "You cannot upload package with problem statement in HTML. Try again using "
 "PDF format."
-msgstr ""
+msgstr "Nie możesz wgrać paczki z treścią w formacie HTML. Spróbuj ponownie używając formatu PDF."
 
 #: sinolpack/package.py:610
 msgid "index.html has to be utf8 or iso8859-2 encoded"
@@ -8126,7 +8127,7 @@ msgstr "Przełączanie na administratora jest niedozwolone z powodów bezpiecze�
 
 #: su/forms.py:28
 msgid "You can't log in as inactive user."
-msgstr ""
+msgstr "Nie możesz zalogować się jako nieaktywny użytkownik."
 
 #: su/forms.py:37
 msgid "Authentication backend"
@@ -8226,12 +8227,12 @@ msgstr "Wstrzymane"
 #: szkopul/templates/ingredients/contests-panel.html:5
 #| msgid "Contests"
 msgid "Latest Contests"
-msgstr ""
+msgstr "Ostatnie Konkursy"
 
 #: szkopul/templates/ingredients/contests-panel.html:30
 #| msgid "There are no contests you could take part in."
 msgid "There are no contests we can show you right now :("
-msgstr ""
+msgstr "Nie ma tutaj konkursów, które mógłbyś zobaczyć :("
 
 #: szkopul/templates/ingredients/main-page-bottom.html:3
 msgid "News"
@@ -8261,16 +8262,16 @@ msgstr "Wspiera nas"
 #: szkopul/templates/ingredients/submissions-panel.html:5
 #| msgid "My submissions"
 msgid "My Submissions"
-msgstr ""
+msgstr "Moje Zgłoszenia"
 
 #: szkopul/templates/ingredients/submissions-panel.html:17
 #| msgid "You have not submitted anything yet."
 msgid "You haven't submitted anything yet. Try entering a contest!"
-msgstr ""
+msgstr "Nie masz jeszcze żadnych zgłoszeń. Czas dołączyć do konkursu!"
 
 #: szkopul/templates/main-page.html:20
 msgid "Welcome back! Let's write some code."
-msgstr ""
+msgstr "Witaj ponownie! Czas napisać trochę kodu."
 
 #: szkopul/templates/main-page.html:58
 msgid "Welcome!"
@@ -8281,7 +8282,7 @@ msgid ""
 "Welcome to Szkopuł - a place for solving algorithmic challenges!<br> In "
 "order to submit solutions and register for contests you need to <a "
 "href=\"register\">make an account</a>."
-msgstr ""
+msgstr "Witaj na Szkopule - portalu do rozwiązywania wyzwań algorytmicznych!<br> Zanim będziesz mógł wysyłać swoje rozwiązania, musisz <a href=\"register\">założyć konto</a>."
 
 #: szkopul/templates/szkopul/contact-info.html:13
 #, python-format
@@ -8293,7 +8294,7 @@ msgid ""
 "If you are not, just use email.</p> <p>Please do not ask us things like "
 "\"how to solve task XYZ?\".</p> <p>Please remember that the support team has"
 " to sleep sometimes or go to work in real life.</p>"
-msgstr ""
+msgstr "<p>W razie problemów technicznych ze Szkopułem, prosimy o kontakt mailowy pod adresem <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p> <p>Jeżeli czat IRC nie jest Ci obcy, zespół techniczny jest również dostępny na sieci PIRC (<code>irc.pirc.pl</code>) na kanale <code>#szkopul</code>. Jeżeli nie jesteś, użyj po prostu maila.</p> <p>Prosimy nie zadawać pytań typu \"Jak rozwiązać zadanie Wielomian?\".</p> <p>Pragniemy podkreślić, że zespół techniczny również potrzebuje snu, pracuje, studiuje.</p>"
 
 #: teachers/admin.py:46
 #: teachers/templates/teachers/simpleui/teacher_contest_dashboard.html:8
@@ -8338,7 +8339,7 @@ msgstr "Jest nauczycielem"
 #: teachers/templates/registration/activation_complete.html:4
 #| msgid "Registration complete"
 msgid "Registration completed"
-msgstr ""
+msgstr "Rejestracja zakończona"
 
 #: teachers/templates/registration/activation_complete.html:14
 #: teachers/templates/teachers/request.html:4
@@ -8475,62 +8476,62 @@ msgstr "Uczniowie"
 
 #: teachers/templates/teachers/members.html:36
 msgid "On this page you can view, add and remove pupils from the contest."
-msgstr ""
+msgstr "Na tej stronie możesz dodać, usunąć oraz przejrzeć listę uczniów w konkursie."
 
 #: teachers/templates/teachers/members.html:37
 msgid "Currently, two options of managing pupils are available."
-msgstr ""
+msgstr "Aktualnie są dostępne dwie opcje zarządzania uczniami w konkursie."
 
 #: teachers/templates/teachers/members.html:38
 msgid ""
 "First (newer one) is to add one of your user groups to the contest with all "
 "its users."
-msgstr ""
+msgstr "Pierwsza (nowsza) to dodawanie wcześniej zdefiniowanych grup użytkowników do konkursu, co skutkuje dodaniem wszystkich uczniów zapisanych do danej grupy."
 
 #: teachers/templates/teachers/members.html:39
 msgid ""
 "Alternatively, you can use older method of sharing access link with your "
 "pupils."
-msgstr ""
+msgstr "Alternatywnie, możesz także używać starszej metody polegającej na proszeniu uczniów o wklejenie specjalnego linku do przeglądarki."
 
 #: teachers/templates/teachers/members.html:40
 msgid "All pupils have the same contest rights."
-msgstr ""
+msgstr "Niezależnie od metody dodania, każdy uczeń ma te same uprawnienia w konkursie."
 
 #: teachers/templates/teachers/members.html:43
 #| msgid "Invite members"
 msgid "Go to members"
-msgstr ""
+msgstr "Przewiń do części Członkowie"
 
 #: teachers/templates/teachers/members.html:51
 #| msgid "Group"
 msgid "Groups"
-msgstr ""
+msgstr "Grupy użytkowników"
 
 #: teachers/templates/teachers/members.html:52
 msgid ""
 "Groups enable adding and removing many pupils at once. In the list below you"
 " can find all groups added to this contest and manage them. All pupils in "
 "the groups below have access to this contest."
-msgstr ""
+msgstr "Grupy użytkowników pozwalają na grupowe dodawanie i usuwanie użytkowników z konkursu jednym kliknięciem. Poniżej znajduje się lista wszystkich grup dodanych do tego konkursu, którą możesz dowolnie modyfikować. Każdy użytkownik, który należy do przynajmniej jednej z poniższych grup ma dostęp do konkursu."
 
 #: teachers/templates/teachers/members.html:74
 #| msgid "You have not submitted anything yet."
 msgid "You have not added any group to this contest yet."
-msgstr ""
+msgstr "Nie dodałeś jeszcze żadnej grupy do tego konkursu."
 
 #: teachers/templates/teachers/members.html:99
 msgid "Strange, this group doesn't have any members."
-msgstr ""
+msgstr "Dziwne, ta grupa jest pusta."
 
 #: teachers/templates/teachers/members.html:103
 msgid "Modify group"
-msgstr ""
+msgstr "Modyfikuj grupę"
 
 #: teachers/templates/teachers/members.html:104
 #| msgid "Register to the contest"
 msgid "Remove group from this contest"
-msgstr ""
+msgstr "Usuń grupę z tego konkursu"
 
 #: teachers/templates/teachers/members.html:135
 #: teachers/templates/teachers/members.html:188
@@ -8543,7 +8544,7 @@ msgid ""
 "This section enables you to add pupils to contest in the old fashioned way, "
 "by sharing access link. You can also create new user group from members "
 "below, which will be automatically added to this contest."
-msgstr ""
+msgstr "Ta sekcja pozwala Ci dodawać nowych uczniów do konkursy w starym stylu, poprzez dzielenie się specjalnym linkiem. Możesz również stworzyć nową grupę użytkowników składającą się z poniższych uczniów, która zostanie automatycznie dodana do konkursu."
 
 #: teachers/templates/teachers/members.html:146
 #| msgid ""
@@ -8551,7 +8552,7 @@ msgstr ""
 msgid ""
 "To allow a teacher to access this contest, ask them to visit the following "
 "link:"
-msgstr ""
+msgstr "Aby dać nauczycielom dostęp do konkursu, poproś ich o użycie następującego odnośnika:"
 
 #: teachers/templates/teachers/members.html:148
 #| msgid ""
@@ -8559,7 +8560,7 @@ msgstr ""
 msgid ""
 "To allow a pupil to access this contest, ask them to visit the following "
 "link:"
-msgstr ""
+msgstr "Aby dać uczniom dostęp do konkursu, poproś ich o użycie następującego odnośnika:"
 
 #: teachers/templates/teachers/members.html:153
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:18
@@ -8578,11 +8579,11 @@ msgstr "Rejestracja uczniów jest wyłączona."
 #: teachers/templates/teachers/members.html:170
 #| msgid "Re-enable registration"
 msgid "Enable registration"
-msgstr ""
+msgstr "Włącz rejestrację"
 
 #: teachers/templates/teachers/members.html:179
 msgid "Create new group from members below"
-msgstr ""
+msgstr "Stwórz nową grupę z poniższych uczniów"
 
 #: teachers/templates/teachers/members.html:207
 msgid "No teachers."
@@ -8667,7 +8668,7 @@ msgstr "Panel nauczyciela"
 
 #: teachers/templates/teachers/simpleui/teacher_dashboard.html:14
 msgid "Your user groups"
-msgstr ""
+msgstr "Twoje grupy użytkowników"
 
 #: teachers/views.py:116
 msgid "User already accepted."
@@ -8872,11 +8873,11 @@ msgstr "Uruchomienie próbne"
 #: testrun/controllers.py:365
 #| msgid "Contest added successfully."
 msgid "The test run was successful."
-msgstr ""
+msgstr "Uruchomienie próbne zakończyło się powodzeniem."
 
 #: testrun/controllers.py:367
 msgid "The test run has failed."
-msgstr ""
+msgstr "Uruchomienie próbne zakończyło się niepowodzeniem."
 
 #: testrun/models.py:16
 msgid "No error"
@@ -8986,54 +8987,54 @@ msgstr "Nieprawidłowy format daty"
 
 #: usercontests/admin.py:63 usercontests/forms.py:19
 msgid "Please provide round end date."
-msgstr ""
+msgstr "Podaj datę zakończenia rundy."
 
 #: usercontests/admin.py:68
 #, python-format
 msgid ""
 "Round '%(round_name)s'                          has to end before "
 "%(end_contests)s."
-msgstr ""
+msgstr "Runda '%(round_name)s' musi się zakończyć przed %(end_contests)s."
 
 #: usercontests/auth.py:11
 #| msgid "contest icons"
 msgid "User contest ownership"
-msgstr ""
+msgstr "Własność konkursu użytkownika"
 
 #: usercontests/controllers.py:10
 #| msgid "Contest for teachers"
 msgid "Contest for everyone"
-msgstr ""
+msgstr "Konkurs dla wszystkich"
 
 #: usercontests/forms.py:23
 #, python-format
 msgid "The contest has to end before %(contests_end)s."
-msgstr ""
+msgstr "Konkurs musi się zakończyć przed %(contests_end)s."
 
 #: usergroups/admin.py:46 usergroups/admin.py:54
 #| msgid "Group"
 msgid "User Groups"
-msgstr ""
+msgstr "Grupy użytkowników"
 
 #: usergroups/management/commands/remove_user_group_rankings.py:11
 msgid "Remove user group rankings from database"
-msgstr ""
+msgstr "Usuń rankingi grup użytkowników z bazy danych"
 
 #: usergroups/templates/usergroups/confirm_addition.html:5
 #, python-format
 msgid "Confirm joining group %(group_name)s"
-msgstr ""
+msgstr "Potwierdź chęć dołączenia do grupy %(group_name)s."
 
 #: usergroups/templates/usergroups/confirm_addition.html:9
 #, python-format
 #| msgid "Are you sure you want to delete %(news.title)s?"
 msgid "Are you sure you want to join group %(group_name)s?"
-msgstr ""
+msgstr "Czy na pewno chcesz dołączyć do grupy %(group_name)s?"
 
 #: usergroups/templates/usergroups/confirm_detaching.html:5
 #, python-format
 msgid "Confirm removing group %(group_name)s from contest"
-msgstr ""
+msgstr "Potwierdź usunięcie grupy %(group_name)s z konkursu"
 
 #: usergroups/templates/usergroups/confirm_detaching.html:14
 #, python-format
@@ -9042,53 +9043,53 @@ msgid ""
 "\n"
 "        Are you sure you want to remove group %(groups)s from contest %(contest_id)s?\n"
 "    "
-msgstr ""
+msgstr "\nJesteś pewien, że chcesz usunąć grupę %(groups)s z konkursu %(contest_id)s?"
 
 #: usergroups/templates/usergroups/confirm_detaching.html:19
 #| msgid "The following user requests a teacher account:"
 msgid "The following users will lose access to the contest:"
-msgstr ""
+msgstr "Następujący użytkownicy stracą dostęp do konkursu:"
 
 #: usergroups/templates/usergroups/teacher_add_usergroup.html:4
 #| msgid "Add new category"
 msgid "Add new user group"
-msgstr ""
+msgstr "Stwórz nową grupę użytkowników"
 
 #: usergroups/templates/usergroups/teacher_add_usergroup.html:8
 #| msgid "group"
 msgid "New group"
-msgstr ""
+msgstr "Nowa grupa"
 
 #: usergroups/templates/usergroups/teacher_add_usergroup.html:15
 #| msgid "Created one group"
 #| msgid_plural "Created %(groups_count)d groups"
 msgid "Create group"
-msgstr ""
+msgstr "Stwórz grupę"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:5
 #| msgid "Error details"
 msgid "User group details"
-msgstr ""
+msgstr "Szczegóły grupy użytkowników"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:10
 #, python-format
 msgid "Group %(group_name)s"
-msgstr ""
+msgstr "Grupa %(group_name)s"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:14
 #| msgid ""
 #| "ow a teacher to access this contest, ask him/her to visit the lowing k:"
 msgid "To add a user to this group, ask him/her to visit the following link:"
-msgstr ""
+msgstr "Aby dodać użytkownika do tej grupy, poproś, żeby wszedł na poniższy link:"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:28
 msgid "Addition to this group is currently disabled."
-msgstr ""
+msgstr "Dołączanie do tej grupy jest aktualnie zablokowane."
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:30
 #| msgid "Enable complaints"
 msgid "Enable addition"
-msgstr ""
+msgstr "Odblokuj możliwość dołączenia do grupy"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:37
 #| msgid ""
@@ -9096,151 +9097,151 @@ msgstr ""
 msgid ""
 "To share ownership of this group with another teacher ask him/her to visit "
 "the following link:"
-msgstr ""
+msgstr "Aby dodać nowych nauczycieli jako współwłaścicieli tej grupy, poproś ich o wejście na poniższy link:"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:52
 msgid "Option to share this group with others is currently disabled."
-msgstr ""
+msgstr "Możliwość dzielenia się grupą jest aktualnie wyłączona."
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:54
 #| msgid "Enable complaints"
 msgid "Enable sharing"
-msgstr ""
+msgstr "Włącz możliwość dzielenia się grupą"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:79
 msgid "No members in this group."
-msgstr ""
+msgstr "W tej grupie nie ma żadnych użytkowników."
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:99
 msgid "Owners"
-msgstr ""
+msgstr "Właściciele"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:130
 #| msgid "disqualifications"
 msgid "Group modifications"
-msgstr ""
+msgstr "Modyfikacje grupy"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:134
 msgid "Change group name"
-msgstr ""
+msgstr "Zmień nazwę grupy"
 
 #: usergroups/templates/usergroups/teacher_usergroup_detail.html:135
 #| msgid "Delete tag"
 msgid "Delete group"
-msgstr ""
+msgstr "Usuń grupę"
 
 #: usergroups/templates/usergroups/teacher_usergroups_list.html:5
 msgid "Your User Groups"
-msgstr ""
+msgstr "Twoje grupy użytkowników"
 
 #: usergroups/templates/usergroups/teacher_usergroups_list.html:10
 #| msgid "Group"
 msgid "Your Groups"
-msgstr ""
+msgstr "Twoje grupy użytkowników"
 
 #: usergroups/templates/usergroups/teacher_usergroups_list.html:14
 msgid ""
 "By grouping users in groups you can perform certain actions on all of them "
 "at the same time, e.g.: add all of them to the given contest without asking "
 "them to paste any link into the browser."
-msgstr ""
+msgstr "Grupując użytkowników w grupy możesz przeprowadzać pewne akcje na nich wszystkich za pomocą jednego kliknięcia, np.: dodać całą grupę do konkursu bez potrzeby proszenia każdego użytkownika z osobna o wklejenie specjalnego linku do przeglądarki."
 
 #: usergroups/templates/usergroups/teacher_usergroups_list.html:15
 msgid "You can also share yours groups with other teachers."
-msgstr ""
+msgstr "Możesz również podzielić się twoimi grupami z innymi nauczycielami."
 
 #: usergroups/templates/usergroups/teacher_usergroups_list.html:20
 msgid "You don't have any defined user groups at the moment."
-msgstr ""
+msgstr "Nie jesteś aktualnie właścicielem żadnej grupy użytkowników."
 
 #: usergroups/templates/usergroups/teacher_usergroups_list.html:35
 #| msgid "Add new category"
 msgid "Add new group"
-msgstr ""
+msgstr "Stwórz nową grupę"
 
 #: usergroups/views.py:75
 #| msgid "Import members completed successfully."
 msgid "New user group from contest members created successfully!"
-msgstr ""
+msgstr "Pomyślnie stworzona grupę z uczestników konkursu!"
 
 #: usergroups/views.py:78
 #| msgid "Tests limits resetted successfully"
 msgid "New user group created successfully!"
-msgstr ""
+msgstr "Pomyślnie stworzono nową grupę użytkowników!"
 
 #: usergroups/views.py:142
 #| msgid "group"
 msgid "User group"
-msgstr ""
+msgstr "Grupa użytkowników"
 
 #: usergroups/views.py:151
 #, python-format
 #| msgid "Successfully deleted tag"
 msgid "Successfully deleted group %s!"
-msgstr ""
+msgstr "Pomyślnie usunięto grupę %s!"
 
 #: usergroups/views.py:203
 msgid "Provided key is not unique! Ask your teacher to regenerate it."
-msgstr ""
+msgstr "Wprowadzony klucz nie jest unikalny! Poproś swojego nauczyciela o wygenerowanie go ponownie."
 
 #: usergroups/views.py:212
 #| msgid "You are already registered."
 msgid "You are already member of this group."
-msgstr ""
+msgstr "Już jesteś członkiem tej grupy."
 
 #: usergroups/views.py:226
 #, python-format
 #| msgid "Your account has been succesfully deleted"
 msgid "You have been successfully added to group %s!"
-msgstr ""
+msgstr "Pomyślnie dołączyłeś do grupy %s!"
 
 #: usergroups/views.py:231
 msgid "You cannot join this group. This option is currently disabled."
-msgstr ""
+msgstr "Nie możesz dołączyć do tej grupy. Ta opcja jest aktualnie wyłączona."
 
 #: usergroups/views.py:248
 msgid "Deletion of selected members successful!"
-msgstr ""
+msgstr "Pomyślnie usunięto zaznaczonych członków grupy!"
 
 #: usergroups/views.py:262
 msgid "Provided key is not unique! Ask group's owner to regenerate it."
-msgstr ""
+msgstr "Wprowadzony klucz nie jest unikalny! Poproś właściciela grupy o wygenerowanie go ponownie."
 
 #: usergroups/views.py:267
 #| msgid "You are already registered."
 msgid "You are already owner of this group."
-msgstr ""
+msgstr "Już jesteś właścicielem tej grupy."
 
 #: usergroups/views.py:271
 #, python-format
 msgid "You became owner of group %s."
-msgstr ""
+msgstr "Zostałem właścicielem grupy %s."
 
 #: usergroups/views.py:276
 msgid ""
 "You cannot become owner of this group. This option is currently disabled."
-msgstr ""
+msgstr "Nie możesz zostać właścicielem tej grupy. Ta opcja jest aktualnie wyłączona."
 
 #: usergroups/views.py:328
 msgid "You cannot renounce ownership. Consider deleting group instead."
-msgstr ""
+msgstr "Nie możesz z własnej woli przestać być współwłaścicielem tej grupy. Zamiast tego rozważ jej usunięcie."
 
 #: usergroups/views.py:332
 msgid "Deletion of selected owners successful!"
-msgstr ""
+msgstr "Pomyślnie zredukowano liczbę współwłaścicieli grupy!"
 
 #: usergroups/views.py:345
 #| msgid "%s is already a participant of this contest."
 msgid "The group is already attached to the contest."
-msgstr ""
+msgstr "Ta grupa jest już dodana do tego konkursu."
 
 #: usergroups/views.py:348
 msgid "The group was successfully attached to the contest!"
-msgstr ""
+msgstr "Pomyślnie dodano grupę do konkursu!"
 
 #: usergroups/views.py:385
 msgid "The group was successfully detached from the contest!"
-msgstr ""
+msgstr "Pomyślnie usunięto grupę z konkursu!"
 
 #: workers/templates/workers/list_workers.html:4
 #: workers/templates/workers/list_workers.html:33
