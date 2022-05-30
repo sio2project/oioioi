@@ -25,23 +25,24 @@ BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
                       " -f extra/docker/docker-compose-dev-noserver.yml"
 
 RAW_COMMANDS = [
-    ("build", "Build whole OIOIOI from source.", "build", True),
+    ("build", "Build OIOIOI container from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop all SIO2 containers", "down", True),
-    ("run", "Run server", "exec{} web python3 manage.py runserver 0.0.0.0:8000"),
-    ("bash", "Open command prompt on web container.", "exec{} web bash"),
-    ("bash_db", "Open command prompt on database container.", "exec{} db bash"),
+    ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
+    ("bash", "Open command prompt on web container.", "{exec} web bash"),
+    ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "exec{} web python manage.py flush --noinput", True),
-    ("add-superuser", "Create admin_admin.", "exec{} web python manage.py createsuperuser"),
-    ("test", "Run unit tests.", "exec{} web ../oioioi/test.sh"),
-    ("test-slow", "Run unit tests. (--runslow)", "exec{} web ../oioioi/test.sh --runslow"),
+    ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),
+    ("add-superuser", "Create admin_admin.",
+     "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
+    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh"),
+    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow"),
     ("test-abc", "Run specific test file. (edit the toolbox)",
-     "exec{} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
+     "{exec} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
     ("test-coverage", "Run coverage tests.",
-     "exec{} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
+     "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
-     "exec{} web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
+     "{exec} web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
@@ -60,7 +61,7 @@ class Option:
 
     # If we use exec we should add -T for GitHub actions (disable tty).
     def fill_tty(self, disable=False):
-        self.command = self.command.format(" -T" if disable else "")
+        self.command = self.command.format(exec="exec -T" if disable else "exec")
 
     def long_str(self) -> str:
         return f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
