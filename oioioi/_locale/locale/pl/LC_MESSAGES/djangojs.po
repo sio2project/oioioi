@@ -25,6 +25,7 @@
 # Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
 # teqwve <mrtaddewicz@gmail.com>, 2017
+# Tudny, 2022
 # Wojciech Dubiel <wd371280@students.mimuw.edu.pl>, 2021
 # Zuzanna Opała <opala.zuzanna@gmail.com>, 2018-2019
 msgid ""
@@ -33,7 +34,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-16 10:55+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
-"Last-Translator: Wojciech Dubiel <wd371280@students.mimuw.edu.pl>, 2021\n"
+"Last-Translator: Tudny, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -75,17 +76,17 @@ msgstr "Uszkodzone dane"
 
 #: base/static/common/clipboard-setup.js:4
 msgid "copied!"
-msgstr ""
+msgstr "skopiowane!"
 
 #: base/static/common/clipboard-setup.js:6
 msgid "Press Ctrl+C to copy"
-msgstr ""
+msgstr "Naciśnij Ctrl+C, żeby skopiować"
 
 #: clock/static/common/clocks.js:264
 #| msgid "end of the %(round_name)s"
 #| msgid_plural "end of the %(round_name)s"
 msgid "end of the %(round_name)s"
-msgstr ""
+msgstr " końca %(round_name)s"
 
 #: clock/static/common/clocks.js:267
 msgid "to the end"
@@ -95,7 +96,7 @@ msgstr "do końca"
 #| msgid "start of the %(round_name)s"
 #| msgid_plural "start of the %(round_name)s"
 msgid "start of the %(round_name)s"
-msgstr ""
+msgstr "rozpoczęcia %(round_name)s"
 
 #: clock/static/common/clocks.js:274
 msgid "to the start"
@@ -162,30 +163,30 @@ msgstr[3] "Pozostało %(countdown_days)s do %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_hours)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_hours)sleft to the %(countdown_destination)s."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "zostało %(countdown_hours)s do %(countdown_destination)s."
+msgstr[1] "zostało %(countdown_hours)s do %(countdown_destination)s."
+msgstr[2] "zostało %(countdown_hours)s do %(countdown_destination)s."
+msgstr[3] "zostało %(countdown_hours)s do %(countdown_destination)s."
 
 #: clock/static/common/clocks.js:353
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_minutes)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_minutes)sleft to the %(countdown_destination)s."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "zostało %(countdown_minutes)s do %(countdown_destination)s."
+msgstr[1] "zostało %(countdown_minutes)s do %(countdown_destination)s."
+msgstr[2] "zostało %(countdown_minutes)s do %(countdown_destination)s."
+msgstr[3] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 
 #: clock/static/common/clocks.js:363
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_seconds)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_seconds)sleft to the %(countdown_destination)s."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "zostało %(countdown_seconds)s do %(countdown_destination)s."
+msgstr[1] "zostało %(countdown_seconds)s do %(countdown_destination)s."
+msgstr[2] "zostało %(countdown_seconds)s do %(countdown_destination)s."
+msgstr[3] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 
 #: clock/static/common/clocks.js:370
 msgid "The round is over!"
@@ -198,44 +199,44 @@ msgstr "Runda rozpoczęta!"
 #: contests/static/contests/display-submissions-left.js:17
 msgid "You have %(sub_num)s submission left."
 msgid_plural "You have %(sub_num)s submissions left."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Zostało ci %(sub_num)s zgłoszeń."
+msgstr[1] "Zostało ci %(sub_num)s zgłoszeń."
+msgstr[2] "Zostało ci %(sub_num)s zgłoszeń."
+msgstr[3] "Zostało ci %(sub_num)s zgłoszeń."
 
 #: notifications/static/common/notifications.js:154
 msgid "You don't have any submissions."
-msgstr ""
+msgstr "Nie masz żadnych zgłoszeń."
 
 #: notifications/static/common/notifications.js:164
 msgid "A network error occured. Recent submissions list could not be loaded"
-msgstr ""
+msgstr "Wystąpił bład sieci. Nie udało się pobrać listy ostatnich zgłoszeń."
 
 #: notifications/static/common/notifications.js:172
 msgid ""
 "Would you like to enable desktop notifications (for submission results and "
 "more)?"
-msgstr ""
+msgstr "Czy chcesz właczyć powiadomienia systemowe (o wynikach zgłoszeń i nie tylko)?"
 
 #: notifications/static/common/notifications.js:175
 msgid "Yes, please!"
-msgstr ""
+msgstr "Tak, poproszę!"
 
 #: notifications/static/common/notifications.js:191
 msgid "Never ask again on this computer"
-msgstr ""
+msgstr "Nigdy już nie pytaj na tym komputerze"
 
 #: programs/static/common/choose_compiler.js:4
 msgid "Here you can override default compilers for problems in this contest"
-msgstr ""
+msgstr "Tutaj możesz nadpisać domyślne kompilatory dla zadań w tym konkursie."
 
 #: programs/static/common/choose_compiler.js:31
 msgid "Compiler"
-msgstr ""
+msgstr "Kompilator"
 
 #: programs/static/common/choose_compiler.js:31
 msgid "Failed to fetch available compilers</font>"
-msgstr ""
+msgstr "Nie udało się pobrać dostępnych kompilatorów </font>"
 
 #: programs/static/common/filedrag.js:85
 msgid "Drop file here"
@@ -274,10 +275,10 @@ msgstr "Uczestnicy"
 msgid "<strong>%(low)s - %(high)s points</strong><br>%(cnt)s participant"
 msgid_plural ""
 "<strong>%(low)s - %(high)s points</strong><br>%(cnt)s participants"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "<strong>%(low)s - %(high)s punktów</strong><br>%(cnt)s zawodnik"
+msgstr[1] "<strong>%(low)s - %(high)s punktów</strong><br>%(cnt)s zawodników"
+msgstr[2] "<strong>%(low)s - %(high)s punktów</strong><br>%(cnt)s zawodników"
+msgstr[3] "<strong>%(low)s - %(high)s punktów</strong><br>%(cnt)s zawodników"
 
 #: su/static/common/su.js:22
 msgid "Reason: User assoctiated with this session has changed."
@@ -286,16 +287,16 @@ msgstr "Powód: użytkownik związany z tą sesją uległ zmianie."
 #: testrun/static/testrun/display-testruns-info.js:17
 msgid "You have %(sub_num)s test run left."
 msgid_plural "You have %(sub_num)s test runs left."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Zostało ci %(sub_num)s uruchomienie próbne."
+msgstr[1] "Zostało ci %(sub_num)s uruchomień próbnych."
+msgstr[2] "Zostało ci %(sub_num)s uruchomień próbnych."
+msgstr[3] "Zostało ci %(sub_num)s uruchomień próbnych."
 
 #: testrun/static/testrun/display-testruns-info.js:43
 msgid ""
 "Time limit: <b>%(timeLimit)s</b> s<br>Memory limit: <b>%(memoryLimit)s</b> "
 "MB"
-msgstr ""
+msgstr "Limit czasu: <b>%(timeLimit)s</b>s<br>Limit pamięci: <b>%(memoryLimit)s</b>MB"
 
 #: timeline/static/timeline/timeline.js:37
 #| msgid ""
@@ -315,7 +316,7 @@ msgid ""
 " events by clicking the vertical bar representing a round. <hr> If you want "
 "to split a date group, click the corresponding <span class=\"glyphicon "
 "glyphicon-resize-vertical\"></span> button."
-msgstr ""
+msgstr "Zmień datę w polu daty klikając przycisk <span class=\"glyphicon glyphicon-calendar\"></span>. Możesz też użyć klawiatury: <br> <ul>     <li><strong>TAB</strong> - idź do następnego pola daty</li>     <li><strong>ENTER</strong> - potwierdź datę</li>     <li><strong>ESC, CTRL+Z</strong> - zresetuj datę</li> </ul> <hr> Możesz filtrować wydarzenia klikając pionowe paski reprezentujące rundy. <hr> Jeśli chcesz podzielić grupę dat, kliknij na odpowiedni przycisk <span class=\"glyphicon glyphicon-resize-vertical\"></span>."
 
 #: timeline/static/timeline/timeline.js:56
 msgid "now"
@@ -335,4 +336,4 @@ msgstr "Pojemność"
 
 #: workers/static/common/load_chart.js:63
 msgid "Task load"
-msgstr ""
+msgstr "Obciążenie zadaniami"
