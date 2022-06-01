@@ -1237,7 +1237,7 @@ class TestLoginChange(TestCase):
 
             self.client.post(
                 self.url_edit_profile,
-                {'username': 'valid_user', 'terms_accepted': True},
+                {'username': 'valid_user', 'terms_accepted': True, 'email': "test_user@example.com"},
                 follow=True,
             )
             self.assertEqual(self.user.username, l)
