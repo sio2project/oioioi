@@ -845,18 +845,26 @@ class TestAdmin(TestCase):
 class TestBaseViews(TestCase):
     fixtures = ['test_users']
 
+    def setUp(self):
+        self.email = 'test@test.com'
+        self.password = 'test123'
+        self.username = 'test_edit_user'
+        self.user = User.objects.create_user(
+            self.username, self.email, self.password
+        )
+        self.client.login(username=self.user.username)
+
     def test_edit_profile(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        user = User.objects.get(username='test_user')
         url = reverse('edit_profile')
         response = self.client.get(url)
         self.assertIn(
             'registration/registration_form.html', [t.name for t in response.templates]
         )
-        self.assertEqual(response.context['form'].instance, user)
+        self.assertEqual(response.context['form'].instance, self.user)
 
+        # Trying to change email without password.
         data = {
-            'username': 'test_user',
+            'username': self.username,
             'first_name': 'fn',
             'last_name': 'ln',
             'email': 'foo@bar.com',
@@ -864,11 +872,65 @@ class TestBaseViews(TestCase):
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
-        user = User.objects.get(username='test_user')
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.assertContains(response, "Password incorrect.")
+        user = User.objects.get(username=self.username)
+        self.assertEqual(user.email, self.email)
+
+
+        # Trying to change email with wrong password.
+        data = {
+            'username': self.username,
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': 'foo@bar.com',
+            'confirm_password' : 'not-the-password',
+            'terms_accepted': True,
+        }
+
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.assertContains(response, "Password incorrect.")
+        user = User.objects.get(username=self.username)
+        self.assertEqual(user.email, self.email)
+
+        # Password is not required to change data other than email.
+        data = {
+            'username': self.username,
+            'first_name': 'fn',
+            'last_name': 'ln',
+            'email': self.email,
+            'terms_accepted': True,
+        }
+
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        user = User.objects.get(username=self.username)
+        self.assertEqual(user.email, self.email)
         self.assertEqual(user.first_name, 'fn')
         self.assertEqual(user.last_name, 'ln')
-        self.assertEqual(user.email, 'foo@bar.com')
+        self.assertEqual(user.email, self.email)
+
+
+        data = {
+            'username': self.username,
+            'first_name': 'fn_new',
+            'last_name': 'ln_new',
+            'email': 'new@mail.com',
+            'confirm_password' : self.password,
+            'terms_accepted': True,
+        }
+
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        user = User.objects.get(username=self.username)
+        self.assertEqual(user.first_name, 'fn_new')
+        self.assertEqual(user.last_name, 'ln_new')
+        self.assertEqual(user.email, 'new@mail.com')
+
 
     def test_terms_not_accepted(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -877,7 +939,7 @@ class TestBaseViews(TestCase):
             'username': 'test_user',
             'first_name': 'fn',
             'last_name': 'ln',
-            'email': 'foo@bar.com',
+            'email': 'test_user@example.com',
             'terms_accepted': False,
         }
         response = self.client.post(url, data, follow=True)
@@ -892,7 +954,7 @@ class TestBaseViews(TestCase):
             'username': 'test_user',
             'first_name': 'fn',
             'last_name': 'ln',
-            'email': 'foo@bar.com',
+            'email': 'test_user@example.com',
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -909,7 +971,7 @@ class TestBaseViews(TestCase):
             'username': 'changed_user',
             'first_name': 'fn',
             'last_name': 'ln',
-            'email': 'foo@bar.com',
+            'email': 'test_user@example.com',
             'terms_accepted': True,
         }
         response = self.client.post(url, data, follow=True)
@@ -924,7 +986,7 @@ class TestBaseViews(TestCase):
             'username': u'test_user',
             'first_name': u'good_name',
             'last_name': u'wrong_unicode_\U0001F923',
-            'email': u'foo@bar.com',
+            'email': u'test_user@example.com',
             'terms_accepted': True,
         }
         response = self.client.post(url, data, follow=True)
@@ -941,7 +1003,7 @@ class TestBaseViews(TestCase):
             'username': u'test_user',
             'first_name': u'wrong_unicode_\U0001f600',
             'last_name': u'good_name',
-            'email': u'foo@bar.com',
+            'email': u'test_user@example.com',
             'terms_accepted': True,
         }
         response = self.client.post(url, data, follow=True)
@@ -958,7 +1020,7 @@ class TestBaseViews(TestCase):
             'username': u'test_user',
             'first_name': u'Jan Maria',
             'last_name': u'Le Guien',
-            'email': u'foo@bar.com',
+            'email': u'test_user@example.com',
             'terms_accepted': True,
         }
         response = self.client.post(url, data, follow=True)
@@ -975,7 +1037,7 @@ class TestBaseViews(TestCase):
             'username': u'test_user',
             'first_name': u'\u00a0Jan',
             'last_name': u'correct',
-            'email': u'foo@bar.com',
+            'email': u'test_user@example.com',
             'terms_accepted': True,
         }
         response = self.client.post(url, data, follow=True)
@@ -988,7 +1050,7 @@ class TestBaseViews(TestCase):
             'username': u'test_user',
             'first_name': u'Jan\u2003',
             'last_name': u'correct',
-            'email': u'foo@bar.com',
+            'email': u'test_user@example.com',
             'terms_accepted': True,
         }
         response = self.client.post(url, data, follow=True)
@@ -1029,7 +1091,7 @@ class TestBaseViews(TestCase):
                 'username': 'test_user',
                 'first_name': 'fn',
                 'last_name': 'ln',
-                'email': 'foo@bar.com',
+                'email': 'test_user@example.com',
                 'dog': 'Janusz',
                 'answer': '42',
                 'terms_accepted': True,
