@@ -233,7 +233,7 @@ class UserForm(forms.ModelForm):
         return instance
 
 class UserChangeForm(UserForm):
-    confirm_password = forms.CharField(widget=forms.PasswordInput())
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), required=False)
 
     class Media(object):
         js = ('js/email-change.js',)
