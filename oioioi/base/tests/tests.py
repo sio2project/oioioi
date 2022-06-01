@@ -846,25 +846,25 @@ class TestBaseViews(TestCase):
     fixtures = ['test_users']
 
     def setUp(self):
-        self.email = 'test@test.com'
-        self.password = 'test123'
-        self.username = 'test_edit_user'
-        self.user = User.objects.create_user(
-            self.username, self.email, self.password
-        )
-        self.client.login(username=self.user.username)
+        user = User.objects.get(username='test_user')
+        user.set_password('pass')
+        user.save()
+
 
     def test_edit_profile(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        user = User.objects.get(username='test_user')
+
         url = reverse('edit_profile')
         response = self.client.get(url)
         self.assertIn(
             'registration/registration_form.html', [t.name for t in response.templates]
         )
-        self.assertEqual(response.context['form'].instance, self.user)
+        self.assertEqual(response.context['form'].instance, user)
 
         # Trying to change email without password.
         data = {
-            'username': self.username,
+            'username': 'test_user',
             'first_name': 'fn',
             'last_name': 'ln',
             'email': 'foo@bar.com',
@@ -872,15 +872,15 @@ class TestBaseViews(TestCase):
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
         self.assertContains(response, "Password incorrect.")
-        user = User.objects.get(username=self.username)
-        self.assertEqual(user.email, self.email)
+        user = User.objects.get(username='test_user')
+        self.assertEqual(user.email, "test_user@example.com")
 
 
         # Trying to change email with wrong password.
         data = {
-            'username': self.username,
+            'username': 'test_user',
             'first_name': 'fn',
             'last_name': 'ln',
             'email': 'foo@bar.com',
@@ -890,43 +890,43 @@ class TestBaseViews(TestCase):
 
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
         self.assertContains(response, "Password incorrect.")
-        user = User.objects.get(username=self.username)
-        self.assertEqual(user.email, self.email)
+        user = User.objects.get(username='test_user')
+        self.assertEqual(user.email, "test_user@example.com")
 
         # Password is not required to change data other than email.
         data = {
-            'username': self.username,
+            'username': 'test_user',
             'first_name': 'fn',
             'last_name': 'ln',
-            'email': self.email,
+            'email': "test_user@example.com",
             'terms_accepted': True,
         }
 
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
-        user = User.objects.get(username=self.username)
-        self.assertEqual(user.email, self.email)
+        self.assertEqual(User.objects.filter(username="test_user").count(), 1)
+        user = User.objects.get(username="test_user")
+        self.assertEqual(user.email, "test_user@example.com")
         self.assertEqual(user.first_name, 'fn')
         self.assertEqual(user.last_name, 'ln')
-        self.assertEqual(user.email, self.email)
+        self.assertEqual(user.email, "test_user@example.com")
 
 
         data = {
-            'username': self.username,
+            'username': "test_user",
             'first_name': 'fn_new',
             'last_name': 'ln_new',
             'email': 'new@mail.com',
-            'confirm_password' : self.password,
+            'confirm_password' : "pass",
             'terms_accepted': True,
         }
 
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
-        user = User.objects.get(username=self.username)
+        self.assertEqual(User.objects.filter(username="test_user").count(), 1)
+        user = User.objects.get(username="test_user")
         self.assertEqual(user.first_name, 'fn_new')
         self.assertEqual(user.last_name, 'ln_new')
         self.assertEqual(user.email, 'new@mail.com')
