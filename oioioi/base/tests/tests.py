@@ -10,7 +10,6 @@ import sys
 import tempfile
 from importlib import import_module, reload
 
-import six
 from captcha.models import CaptchaStore
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, get_user
