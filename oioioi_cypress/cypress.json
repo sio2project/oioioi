@@ -1,0 +1,5 @@
+{
+  "chromeWebSecurity": false,
+  "browser": "electron",
+  "video": false
+}

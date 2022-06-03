@@ -24,3 +24,4 @@
 /deployment/
 /venv*/
 /.idea/
+/.vscode/
