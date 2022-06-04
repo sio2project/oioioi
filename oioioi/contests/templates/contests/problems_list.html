@@ -7,7 +7,7 @@
 {% block main-content %}
 <h1>{% trans "Problems" %}</h1>
 {% if problem_instances %}
-    <div class="table-responsive">
+    <div class="table-responsive-md">
         {% autopaginate problem_instances problems_on_page %}
         {% paginate %}
         <table class="table table-striped table--narrow">

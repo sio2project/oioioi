@@ -1,7 +1,7 @@
 {% load i18n check_perm get_user_name %}
 {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
 
-<table class="{% block table-classes %}table table-responsive{% endblock %}">
+<table class="{% block table-classes %}table table-responsive-md{% endblock %}">
     <thead>
         <tr>
             {% if not hide_author %}
