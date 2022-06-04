@@ -16,9 +16,9 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    <div class="form-group {% if inline %}mr-2{% endif %}">
+    {% if not inline %}<div class="form-group">{% endif %}
     {% if field|is_checkbox %}
-        <div class="form-check">
+        <div class="form-check {% if inline %}mr-sm-2 mb-2{% endif %}">
             {% if field.errors %}
                 {{ field | add_class:"form-check-input" | add_class:"is-invalid" }}
             {% else %}
@@ -29,11 +29,9 @@
             </label>
         </div>
     {% else %}
-        {% if display_labels != False %}
-            <label for="{{ field.id_for_label }}" class="control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-2{% endif %}">
-                {{ field.label }}
-            </label>
-        {% endif %}
+        <label for="{{ field.id_for_label }}" class="{% if display_labels == False %}sr-only{% endif %} control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-sm-2 mb-2{% endif %}">
+            {{ field.label }}
+        </label>
 
         {% if field|is_checkbox_select_multiple or field|is_radioselect %}
             {% for pk, choice in field.field.widget.choices %}
@@ -45,10 +43,18 @@
                 </div>
             {% endfor %}
         {% else %}
-            {% if field.errors %}
-                {{ field | add_class:"form-control" | add_class:"is-invalid" }}
+            {% if inline %}
+                {% if field.errors %}
+                    {{ field | add_class:"form-control" | add_class:"is-invalid" | add_class:"mr-sm-2" | add_class:"mb-2" }}
+                {% else %}
+                    {{ field | add_class:"form-control" | add_class:"mr-sm-2" | add_class:"mb-2" }}
+                {% endif %}
             {% else %}
-                {{ field | add_class:"form-control" }}
+                {% if field.errors %}
+                    {{ field | add_class:"form-control" | add_class:"is-invalid" }}
+                {% else %}
+                    {{ field | add_class:"form-control" }}
+                {% endif %}
             {% endif %}
         {% endif %}
     {% endif %}
@@ -58,7 +64,7 @@
         {% if field.help_text %}
             <small class="{% if not inline %}form-text{% endif %} {% if field.errors %}text-danger{% else %}text-muted{% endif %}">{{ field.help_text }}</small>
         {% endif %}
-    </div>
+    {% if not inline %}</div>{% endif %}
 {% endfor %}
 
 {% if focus != False %}

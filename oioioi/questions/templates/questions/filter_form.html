@@ -6,15 +6,13 @@
         {{ error | escape }}
     </div>
 {% endfor %}
-<div class="questions-filter breadcrumb p-2 mb-3">
+<div class="questions-filter breadcrumb pt-2 pb-0 mb-3">
     <form enctype="multipart/form-data" class="form-inline form-wide">
         {% include "ingredients/form.html" with focus=False inline=True %}
-        <div class="btn-group">
-            <button type="button" class="btn btn-outline-secondary" onclick="location.href = location.origin + location.pathname"
-                    {% if are_all_values_default %} disabled {% endif %}>
-                {% trans "Clear filters" %}
-            </button>
-        </div>
+        <button type="button" class="btn btn-outline-secondary mb-2" onclick="location.href = location.origin + location.pathname"
+                {% if are_all_values_default %} disabled {% endif %}>
+            {% trans "Clear filters" %}
+        </button>
     </form>
     <script>
         $(function() {

@@ -25,9 +25,3 @@ $oioioi-narrow-input-max-width: 300px !default;
 .oioioi-narrow-input {
   max-width: $oioioi-narrow-input-max-width;
 }
-
-@include media-breakpoint-up(md) {
-  .form-inline .form-group:not(:first-child) {
-    margin-left: 2em;
-  }
-}

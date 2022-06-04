@@ -35,6 +35,12 @@
   }
 }
 
+@include media-breakpoint-down(xs) {
+  #changelist-search {
+    width: 100%;
+  }
+}
+
 #changelist-form {
   tr.selected {
     background-color: #ffc !important;
