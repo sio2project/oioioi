@@ -33,6 +33,14 @@
   .col-control {
     max-width: 40rem;
   }
+
+  .selector {
+    h2 {
+      @extend .h5;
+      margin-bottom: 0;
+      padding: ($spacer * 0.5);
+    }
+  }
 }
 
 @include media-breakpoint-down(xs) {
