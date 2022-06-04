@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "es2021",
+		"lib": [
+			"es2021",
+			"dom"
+		],
+		"types": [
+			"cypress",
+			"cypress-file-upload"
+		],
+		"baseUrl": ".",
+		"alwaysStrict": true,
+		"strict": true
+	},
+	"include": [
+		"cypress/**/*.ts",
+	]
+}
