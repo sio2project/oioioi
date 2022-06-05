@@ -104,15 +104,6 @@ body {
     input {
       min-width: $oioioi-navbar-dropdown-input-min-width;
     }
-
-    /* We have to include default text styles for labels to override static/admin/css/forms.css */
-    label {
-      font-family: $font-family-base;
-      font-size: $font-size-base;
-      font-weight: $font-weight-base;
-      line-height: $line-height-base;
-      color: $body-color;
-    }
   }
 
   .dropdown.open > a {

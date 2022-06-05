@@ -15,31 +15,67 @@
     display: none;
   }
 
-  .vTextField, .vIntegerField, .vLargeTextField, .vURLField, select, input[type=password] {
+  input[type=date], input[type=email], input[type=number],
+   input[type=password], input[type=tel], input[type=text], input[type=time],
+   input[type=url], input[type=week], select, textarea {
     @extend .form-control;
-  }
- 
-  .vDateField, .vTimeField {
-    @extend .form-control;
-    max-width: 10rem;
-    display: inline;
-    margin-right: 0.5rem;
+
+    &.vDateField, &.vTimeField {
+      max-width: 10rem;
+      display: inline;
+      margin-right: 0.5rem;
+    }
+
+    &.vLargeTextField {
+      height: auto;
+    }
   }
 
-  .vLargeTextField {
-    height: auto;
+  input[type=file] {
+    @extend .form-control-file;
   }
 
-  .col-control {
-    max-width: 40rem;
+  .datetime, .datetime span {
+    font-size: $font-size-base !important;
   }
 
-  .selector {
-    h2 {
-      @extend .h5;
+  .related-widget-wrapper {
+    display: inline-flex;
+
+    .selector {
+      display: inline-flex;
+
+      .selector-chooser {
+        height: fit-content;
+      }
+    }
+
+    &-link {
+      width: 1.5rem;
+
+      img {
+        height: 100%;
+      }
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    .col-control {
+      max-width: 40rem;
+    }
+  }
+
+  .form-row ul {
+    list-style: none;
+    padding: 0;
+  }
+}
+
+.admin-change-form, .clockbox {
+  h2 {
+      @extend .h6;
       margin-bottom: 0;
       padding: ($spacer * 0.5);
-    }
   }
 }
 
