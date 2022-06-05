@@ -17,12 +17,19 @@
   border-width: 1px;
   margin: 2rem 1rem;
   border-radius: 15px;
-  padding: 5px 20px;
+  padding: 10px 20px;
+
+  h4 {
+    margin-bottom: 0.5rem;
+  }
+
+  p, h5 {
+    margin-bottom: 0;
+  }
 }
 
 .settings-group {
   width: 100%;
-  margin: 5px;
 }
 
 .item-title {
