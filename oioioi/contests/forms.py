@@ -219,7 +219,7 @@ class SubmissionForm(forms.Form):
         )
         self.additional_scripts = [hide_default_fields_script]
 
-        # fix field order (put kind and user at the end)
+        # fix field order:
         self.move_field_to_end('user')
         self.move_field_to_end('kind')
 

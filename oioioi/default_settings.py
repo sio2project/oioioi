@@ -682,3 +682,6 @@ FORUM_PAGE_SIZE = 15
 
 # Check seems to be broken. https://stackoverflow.com/a/65578574
 SILENCED_SYSTEM_CHECKS = ['admin.E130']
+
+# Experimental
+USE_ACE_EDITOR = False

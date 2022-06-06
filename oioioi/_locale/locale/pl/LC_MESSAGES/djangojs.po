@@ -25,15 +25,16 @@
 # Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
 # teqwve <mrtaddewicz@gmail.com>, 2017
+# Tudny, 2022
 # Wojciech Dubiel <wd371280@students.mimuw.edu.pl>, 2021
 # Zuzanna Opała <opala.zuzanna@gmail.com>, 2018-2019
 msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-11 17:33+0200\n"
+"POT-Creation-Date: 2022-05-16 10:55+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
-"Last-Translator: Wojciech Dubiel <wd371280@students.mimuw.edu.pl>, 2021\n"
+"Last-Translator: Tudny, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -73,13 +74,13 @@ msgstr "Brak połączenia z serwerem"
 msgid "Corrupt data"
 msgstr "Uszkodzone dane"
 
-#: base/static/common/clipboard-setup.js:3
+#: base/static/common/clipboard-setup.js:4
 msgid "copied!"
 msgstr "skopiowane!"
 
-#: base/static/common/clipboard-setup.js:5
+#: base/static/common/clipboard-setup.js:6
 msgid "Press Ctrl+C to copy"
-msgstr "Naciśnij Ctrl+C żeby skopiować"
+msgstr "Naciśnij Ctrl+C, żeby skopiować"
 
 #: clock/static/common/clocks.js:264
 #| msgid "end of the %(round_name)s"
@@ -162,8 +163,8 @@ msgstr[3] "Pozostało %(countdown_days)s do %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_hours)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_hours)sleft to the %(countdown_destination)s."
-msgstr[0] "została %(countdown_hours)s do %(countdown_destination)s."
-msgstr[1] "zostały %(countdown_hours)s do %(countdown_destination)s."
+msgstr[0] "zostało %(countdown_hours)s do %(countdown_destination)s."
+msgstr[1] "zostało %(countdown_hours)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_hours)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_hours)s do %(countdown_destination)s."
 
@@ -172,8 +173,8 @@ msgstr[3] "zostało %(countdown_hours)s do %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_minutes)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_minutes)sleft to the %(countdown_destination)s."
-msgstr[0] "zostały %(countdown_minutes)s do %(countdown_destination)s."
-msgstr[1] "zostały %(countdown_minutes)s do %(countdown_destination)s."
+msgstr[0] "zostało %(countdown_minutes)s do %(countdown_destination)s."
+msgstr[1] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 
@@ -182,8 +183,8 @@ msgstr[3] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_seconds)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_seconds)sleft to the %(countdown_destination)s."
-msgstr[0] "została %(countdown_seconds)s do %(countdown_destination)s."
-msgstr[1] "zostały %(countdown_seconds)s do %(countdown_destination)s."
+msgstr[0] "zostało %(countdown_seconds)s do %(countdown_destination)s."
+msgstr[1] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 
@@ -198,8 +199,8 @@ msgstr "Runda rozpoczęta!"
 #: contests/static/contests/display-submissions-left.js:17
 msgid "You have %(sub_num)s submission left."
 msgid_plural "You have %(sub_num)s submissions left."
-msgstr[0] "Zostało ci %(sub_num)s zgłoszenie."
-msgstr[1] "Zostały ci %(sub_num)s zgłoszenia."
+msgstr[0] "Zostało ci %(sub_num)s zgłoszeń."
+msgstr[1] "Zostało ci %(sub_num)s zgłoszeń."
 msgstr[2] "Zostało ci %(sub_num)s zgłoszeń."
 msgstr[3] "Zostało ci %(sub_num)s zgłoszeń."
 
@@ -287,8 +288,8 @@ msgstr "Powód: użytkownik związany z tą sesją uległ zmianie."
 msgid "You have %(sub_num)s test run left."
 msgid_plural "You have %(sub_num)s test runs left."
 msgstr[0] "Zostało ci %(sub_num)s uruchomienie próbne."
-msgstr[1] "Zostały ci %(sub_num)s uruchomienia próbne."
-msgstr[2] "Zostąło ci %(sub_num)s uruchomień próbnych"
+msgstr[1] "Zostało ci %(sub_num)s uruchomień próbnych."
+msgstr[2] "Zostało ci %(sub_num)s uruchomień próbnych."
 msgstr[3] "Zostało ci %(sub_num)s uruchomień próbnych."
 
 #: testrun/static/testrun/display-testruns-info.js:43

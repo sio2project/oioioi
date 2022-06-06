@@ -12,11 +12,13 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.forms import BooleanField, ChoiceField
+from django.forms import ChoiceField
 from django.utils.translation import gettext_lazy as _
 from registration.forms import RegistrationForm
 
 from oioioi.base.models import Consents, PreferencesSaved
-from oioioi.base.preferences import PreferencesFactory
+from oioioi.base.preferences import PreferencesFactory, ensure_preferences_exist_for_user
 from oioioi.base.utils.user import UNICODE_CATEGORY_LIST, USERNAME_REGEX
 from oioioi.base.utils.validators import UnicodeValidator, ValidationError
 
@@ -66,6 +68,64 @@ def _maybe_add_field(label, *args, **kwargs):
         kwargs.setdefault('label', label)
         PreferencesFactory.add_field(*args, **kwargs)
 
+def adjust_preferences_factory_fields():
+    choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
+    choices = [(k, _(v)) for k, v in choices_not_translated]
+
+    def handle_preferred_language(user):
+        if user is None:
+            return "None"
+        ensure_preferences_exist_for_user(user)
+        return user.userpreferences.language
+
+    PreferencesFactory.add_field(
+        "preferred_language",
+        ChoiceField,
+        lambda name, user: handle_preferred_language(user),
+        label=_("Preferred language"),
+        choices=choices,
+        required=False
+    )
+
+    def handle_enable_editor(user):
+        if user is None:
+            return False
+        ensure_preferences_exist_for_user(user)
+        return user.userpreferences.enable_editor
+
+    if settings.USE_ACE_EDITOR:
+        PreferencesFactory.add_field(
+            "enable_editor",
+            BooleanField,
+            lambda name, user: handle_enable_editor(user),
+            label=_("Enable editor"),
+            order=0,
+            required=False
+        )
+
+def handle_new_preference_fields(request, user):
+    changed = False
+    ensure_preferences_exist_for_user(user)
+    if "preferred_language" in request.POST:
+        pref_lang = request.POST["preferred_language"]
+
+        if pref_lang in ([k for k, _ in settings.LANGUAGES] + [""]):
+            ensure_preferences_exist_for_user(user)
+
+            if pref_lang != "":
+                request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = pref_lang
+            user.userpreferences.language = pref_lang
+            changed = True
+
+    if settings.USE_ACE_EDITOR:
+        if "enable_editor" in request.POST:
+            user.userpreferences.enable_editor = True
+        else:
+            user.userpreferences.enable_editor = False
+        changed = True
+
+    if changed:
+        user.userpreferences.save()
 
 _maybe_add_field(
     settings.REGISTRATION_RULES_CONSENT,
@@ -91,6 +151,7 @@ _maybe_add_field(
     required=False,
 )
 
+adjust_preferences_factory_fields()
 
 def save_consents(sender, user, **kwargs):
     form = sender
@@ -170,6 +231,27 @@ class UserForm(forms.ModelForm):
         instance = super(UserForm, self).save(*args, **kwargs)
         PreferencesSaved.send(self, user=instance)
         return instance
+
+class UserChangeForm(UserForm):
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), required=False)
+
+    class Media(object):
+        js = ('js/email-change.js',)
+
+    def __init__(self,  *args, **kwargs):
+
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+        self.user = kwargs.pop('instance', None)
+
+    def clean_confirm_password(self):
+        confirm_password = self.cleaned_data["confirm_password"]
+
+        if self.user.email == self.cleaned_data['email']:
+            return confirm_password
+
+        if not self.user.check_password(confirm_password):
+            raise forms.ValidationError(_("Password incorrect."), code='password_incorrect', )
+        return confirm_password
 
 
 class OioioiUserCreationForm(UserCreationForm):

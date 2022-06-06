@@ -95,6 +95,10 @@ class Contest(models.Model):
             "their weights."
         ),
     )
+    enable_editor = models.BooleanField(
+        verbose_name=_("enable editor"),
+        default=False
+    )
 
     @property
     def controller(self):
