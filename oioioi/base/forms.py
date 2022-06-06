@@ -232,6 +232,27 @@ class UserForm(forms.ModelForm):
         PreferencesSaved.send(self, user=instance)
         return instance
 
+class UserChangeForm(UserForm):
+    confirm_password = forms.CharField(widget=forms.PasswordInput(), required=False)
+
+    class Media(object):
+        js = ('js/email-change.js',)
+
+    def __init__(self,  *args, **kwargs):
+
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+        self.user = kwargs.pop('instance', None)
+
+    def clean_confirm_password(self):
+        confirm_password = self.cleaned_data["confirm_password"]
+
+        if self.user.email == self.cleaned_data['email']:
+            return confirm_password
+
+        if not self.user.check_password(confirm_password):
+            raise forms.ValidationError(_("Password incorrect."), code='password_incorrect', )
+        return confirm_password
+
 
 class OioioiUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):

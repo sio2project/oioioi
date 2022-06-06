@@ -10,7 +10,6 @@ import sys
 import tempfile
 from importlib import import_module, reload
 
-import six
 from captcha.models import CaptchaStore
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, get_user
@@ -845,161 +844,163 @@ class TestAdmin(TestCase):
 class TestBaseViews(TestCase):
     fixtures = ['test_users']
 
-    def test_edit_profile(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        user = User.objects.get(username='test_user')
-        url = reverse('edit_profile')
-        response = self.client.get(url)
+    def setUp(self):
+        self.username = 'test_user'
+        self.user = User.objects.get(username=self.username)
+
+        # Unchanged user data.
+        self.first_name = self.user.first_name
+        self.last_name = self.user.last_name
+        self.email = self.user.email
+        self.data = {
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'email': self.email,
+            'terms_accepted': True,
+        }
+
+        self.password = 'pass'
+        self.user.set_password(self.password)
+        self.user.save()
+
+        self.assertTrue(self.client.login(username=self.username))
+        self.url_edit_profile = reverse('edit_profile')
+
+    def test_edit_profile_view(self):
+        response = self.client.get(self.url_edit_profile)
         self.assertIn(
             'registration/registration_form.html', [t.name for t in response.templates]
         )
-        self.assertEqual(response.context['form'].instance, user)
-
-        data = {
-            'username': 'test_user',
-            'first_name': 'fn',
-            'last_name': 'ln',
-            'email': 'foo@bar.com',
-            'terms_accepted': True,
-        }
-        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.context['form'].instance, self.user)
+        # Changing name is allowed without password.
+        self.data['first_name'] = 'fn'
+        self.data['last_name'] = 'ln'
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
-        user = User.objects.get(username='test_user')
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        user = User.objects.get(username=self.username)
         self.assertEqual(user.first_name, 'fn')
         self.assertEqual(user.last_name, 'ln')
-        self.assertEqual(user.email, 'foo@bar.com')
+
+    def test_edit_email(self):
+        # Trying to change email without password.
+        self.data['email'] = 'new@mail.com'
+        self.data['first_name'] = 'fn_new'
+        self.data['last_name'] = 'ln_new'
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.assertContains(response, "Password incorrect.")
+        # User data should not change.
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, self.email)
+        self.assertEqual(self.user.first_name, self.first_name)
+        self.assertEqual(self.user.last_name, self.last_name)
+
+
+        # Trying to change email with wrong password.
+        self.data['confirm_password'] = 'not-the-password'
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.assertContains(response, "Password incorrect.")
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, self.email)
+        self.assertEqual(self.user.first_name, self.first_name)
+        self.assertEqual(self.user.last_name, self.last_name)
+
+        # Changing email with correct password.
+        self.data['confirm_password'] = self.password
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.user.refresh_from_db()
+
+        # Changing user data succeeded.
+        self.assertEqual(self.user.email, 'new@mail.com')
+        self.assertEqual(self.user.first_name, 'fn_new')
+        self.assertEqual(self.user.last_name, 'ln_new')
 
     def test_terms_not_accepted(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('edit_profile')
-        data = {
-            'username': 'test_user',
-            'first_name': 'fn',
-            'last_name': 'ln',
-            'email': 'foo@bar.com',
-            'terms_accepted': False,
-        }
-        response = self.client.post(url, data, follow=True)
+        self.data['terms_accepted'] = False
+
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='test_user')
+        self.user.refresh_from_db()
         # Check that the terms are still accepted
-        self.assertTrue(user.consents.terms_accepted)
+        self.assertTrue(self.user.consents.terms_accepted)
         # and that the user sees an error
         self.assertContains(response, 'field is required')
 
-        data = {
-            'username': 'test_user',
-            'first_name': 'fn',
-            'last_name': 'ln',
-            'email': 'foo@bar.com',
-        }
-        response = self.client.post(url, data, follow=True)
+
+        self.data.pop('terms_accepted')
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='test_user')
+        self.user.refresh_from_db()
         # Check that the terms are still accepted
-        self.assertTrue(user.consents.terms_accepted)
+        self.assertTrue(self.user.consents.terms_accepted)
         # and that the user sees an error
         self.assertContains(response, 'field is required')
 
     def test_username_change_attempt(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('edit_profile')
-        data = {
-            'username': 'changed_user',
-            'first_name': 'fn',
-            'last_name': 'ln',
-            'email': 'foo@bar.com',
-            'terms_accepted': True,
-        }
-        response = self.client.post(url, data, follow=True)
+        self.data['username'] = 'changed_user'
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(User.objects.filter(username='changed_user').count(), 0)
-        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
 
     def test_unicode_wrong_first_name(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('edit_profile')
-        data = {
-            'username': u'test_user',
-            'first_name': u'good_name',
-            'last_name': u'wrong_unicode_\U0001F923',
-            'email': u'foo@bar.com',
-            'terms_accepted': True,
-        }
-        response = self.client.post(url, data, follow=True)
+        self.data['first_name'] = u'wrong_unicode_\U0001F923'
+        self.data['last_name'] = 'new_last'
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='test_user')
+        self.user.refresh_from_db()
         # Check that the name is not changed
-        self.assertEqual(user.first_name, 'Test')
-        self.assertEqual(user.last_name, 'User')
+        self.assertEqual(self.user.first_name, self.first_name)
+        self.assertEqual(self.user.last_name, self.last_name)
 
     def test_unicode_wrong_last_name(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('edit_profile')
-        data = {
-            'username': u'test_user',
-            'first_name': u'wrong_unicode_\U0001f600',
-            'last_name': u'good_name',
-            'email': u'foo@bar.com',
-            'terms_accepted': True,
-        }
-        response = self.client.post(url, data, follow=True)
+        self.data['first_name'] = 'new_first'
+        self.data['last_name'] = u'wrong_unicode_\U0001F923'
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='test_user')
+        self.user.refresh_from_db()
         # Check that the name is not changed
-        self.assertEqual(user.first_name, 'Test')
-        self.assertEqual(user.last_name, 'User')
+        self.assertEqual(self.user.first_name, self.first_name)
+        self.assertEqual(self.user.last_name, self.last_name)
 
     def test_names_with_valid_spaces(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('edit_profile')
-        data = {
-            'username': u'test_user',
-            'first_name': u'Jan Maria',
-            'last_name': u'Le Guien',
-            'email': u'foo@bar.com',
-            'terms_accepted': True,
-        }
-        response = self.client.post(url, data, follow=True)
+        self.data['first_name'] =  u'Jan Maria',
+        self.data['last_name'] = u'Le Guien',
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='test_user')
-        self.assertEqual(user.first_name, u'Jan Maria')
-        self.assertEqual(user.last_name, u'Le Guien')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, u'Jan Maria')
+        self.assertEqual(self.user.last_name, u'Le Guien')
 
     def test_names_with_invalid_spaces(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('edit_profile')
+        self.data['first_name'] = u'\u00a0Jan'
 
-        data = {
-            'username': u'test_user',
-            'first_name': u'\u00a0Jan',
-            'last_name': u'correct',
-            'email': u'foo@bar.com',
-            'terms_accepted': True,
-        }
-        response = self.client.post(url, data, follow=True)
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='test_user')
-        # Check that the name is euther not changed or truncated
-        self.assertIn(user.first_name, ['Test', 'Jan'])
+        self.user.refresh_from_db()
+        # Check that the name is either not changed or truncated
+        self.assertIn(self.user.first_name, [self.first_name, 'Jan'])
 
-        data = {
-            'username': u'test_user',
-            'first_name': u'Jan\u2003',
-            'last_name': u'correct',
-            'email': u'foo@bar.com',
-            'terms_accepted': True,
-        }
-        response = self.client.post(url, data, follow=True)
+        self.data['first_name'] = u'Jan\u2003'
+
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='test_user')
-        # Check that the name is euther not changed or truncated
-        self.assertIn(user.first_name, ['Test', 'Jan'])
+        self.user.refresh_from_db()
+        # Check that the name is either not changed or truncated
+        self.assertIn(self.user.first_name, [self.first_name, 'Jan'])
 
     def test_profile_dynamic_fields(self):
         from oioioi.base.models import PreferencesSaved
         from oioioi.base.preferences import PreferencesFactory
+
+        self.client.logout()
 
         def callback_func(sender, **kwargs):
             self.assertEqual(sender.cleaned_data['dog'], 'Janusz')
@@ -1017,24 +1018,21 @@ class TestBaseViews(TestCase):
             )
             PreferencesSaved.connect(callback_func)
 
-            self.assertTrue(self.client.login(username='test_user'))
-            url = reverse('edit_profile')
+            self.assertTrue(self.client.login(username=self.username))
 
-            response = self.client.get(url)
+            response = self.client.get(self.url_edit_profile)
 
             for text in ['Doggy', 'Andrzej', '72', 'The answer to everything']:
                 self.assertContains(response, text)
 
-            data = {
-                'username': 'test_user',
+            self.data.update({
                 'first_name': 'fn',
                 'last_name': 'ln',
-                'email': 'foo@bar.com',
                 'dog': 'Janusz',
                 'answer': '42',
-                'terms_accepted': True,
-            }
-            self.client.post(url, data, follow=True)
+            })
+
+            self.client.post(self.url_edit_profile, self.data, follow=True)
             # callback_func should be called already
         finally:
             PreferencesSaved.disconnect(callback_func)
@@ -1237,7 +1235,7 @@ class TestLoginChange(TestCase):
 
             self.client.post(
                 self.url_edit_profile,
-                {'username': 'valid_user', 'terms_accepted': True},
+                {'username': 'valid_user', 'terms_accepted': True, 'email': "test_user@example.com"},
                 follow=True,
             )
             self.assertEqual(self.user.username, l)
