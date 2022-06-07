@@ -31,3 +31,27 @@
   padding: ($spacer * .5);
   margin: (-$spacer * .5);
 }
+
+.syntax-highlighttable {
+  pre {
+    margin-bottom: 0;
+  }
+
+  .linenodiv, .syntax-highlight {
+    @extend .card;
+    @extend .bg-light;
+    padding: ($spacer * 0.5);
+  }
+}
+
+.diff-highlight {
+  pre {
+    margin-bottom: 0;
+  }
+
+  &.line-numbers, &.code {
+    @extend .card;
+    @extend .bg-light;
+    padding: ($spacer * 0.5);
+  }
+}
