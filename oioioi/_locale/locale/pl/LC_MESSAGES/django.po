@@ -5,7 +5,7 @@
 # Translators:
 # Translators:
 # Accounts-Payable - Alkemics, 2015
-# Tudny, 2022
+# Aleksander Tudruj <aleksanderwt@gmail.com>, 2022
 # Alicja Kluczek <alicja2602@gmail.com>, 2021-2022
 # Andrzej Radzimiński, 2022
 # Artur Puzio <cytadela8@op.pl>, 2018-2019
@@ -55,7 +55,7 @@
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # Tomasz Waleń, 2022
-# Tudny, 2022
+# Aleksander Tudruj <aleksanderwt@gmail.com>, 2022
 # Tymoteusz Wiśniewski <tymo@tymo.xyz>, 2020-2021
 # welter <macio92@gmail.com>, 2013
 # Wiktor Czyż <czyz.wiktor@gmail.com>, 2020
@@ -69,7 +69,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-05-16 10:55+0000\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
-"Last-Translator: Tudny, 2022\n"
+"Last-Translator: Aleksander Tudruj <aleksanderwt@gmail.com>, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
