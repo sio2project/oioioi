@@ -1,11 +1,13 @@
 {% load i18n static admin_urls admin_list  %}
-{% if cl.search_fields %}
+{% if cl.search_fields or cl.has_filters %}
 <form class="form-inline ml-sm-auto" id="changelist-search" method="get">
-    <input type="text" class="form-control mr-sm-2 mb-2" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" autofocus{% if cl.search_help_text %} aria-describedby="searchbar_helptext"{% endif %}>
-    <input type="submit" class="btn btn-outline-primary mr-2 mb-2" value="{% translate 'Search' %}">
-    {% for pair in cl.params.items %}
-    {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
-    {% endfor %}
+    {% if cl.search_fields %}
+      <input type="text" class="form-control mr-sm-2 mb-2" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" autofocus{% if cl.search_help_text %} aria-describedby="searchbar_helptext"{% endif %}>
+      <input type="submit" class="btn btn-outline-primary mr-2 mb-2" value="{% translate 'Search' %}">
+      {% for pair in cl.params.items %}
+      {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
+      {% endfor %}
+    {% endif %}
 
     {% block filters %}
       {% if cl.has_filters %}
