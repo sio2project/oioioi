@@ -85,8 +85,100 @@
   }
 }
 
-#changelist-form {
+#changelist-form table {
   tr.selected {
     background-color: #ffc !important;
+  }
+
+  td, th {
+    padding: ($spacer * .5);
+    padding-right: $spacer;
+  }
+
+  th.column-actions_field {
+    min-width: 18rem;
+  }
+
+  th.action-checkbox-column {
+    width: 1.5rem;
+    text-align: center;
+    padding-right: ($spacer * .5);
+  }
+
+  td.action-checkbox {
+    text-align: center;
+    padding-right: ($spacer * .5);
+  }
+
+  th.sorted {
+    .text-dark {
+      padding-right: 50px;
+      display: block;
+    }
+
+    a.sortremove {
+      visibility: hidden;
+    }
+
+    &:hover a.sortremove {
+      visibility: visible;
+    }
+
+    .sortpriority {
+      font-size: .8em;
+      min-width: 12px;
+      text-align: center;
+      vertical-align: 3px;
+      margin-left: 2px;
+      margin-right: 2px;
+    }
+
+    .sortoptions {
+      float: right;
+      text-align: right;
+
+      a {
+        position: relative;
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        background: url(/static/admin/img/sorting-icons.svg) 0 0 no-repeat;
+        background-size: 14px auto;
+
+        &.sortremove {
+          background-position: 0 0;
+
+          &:after {
+            content: '\\';
+            position: absolute;
+            top: -6px;
+            left: 3px;
+            font-weight: 200;
+            font-size: 18px;
+          }
+
+          &:focus, &:hover {
+            background-position: 0 -14px;
+          }
+        }
+
+        &.ascending {
+          background-position: 0 -28px;
+
+          &:focus, &:hover {
+            background-position: 0 -42px;
+          }
+        }
+
+        &.descending {
+          top: 1px;
+          background-position: 0 -56px;
+
+          &:focus, &:hover {
+            background-position: 0 -70px;
+          }
+        }
+      }
+    }
   }
 }
