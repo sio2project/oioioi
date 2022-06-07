@@ -50,9 +50,11 @@ const chooseEnglishLang = () => {
 
 const addContest = (type: string, name: string) => {
   cy.visit("/admin/contests/contest/add");
-  cy.get("#id_controller_name").select(type);
-  cy.get("input").get("[name='name']").type(name, TYPE_OPTIONS);
-  cy.get(".default").click();
+  cy.get("#contest_form").within(() => {
+    cy.get("#id_controller_name").select(type);
+    cy.get("input").get("[name='name']").type(name, TYPE_OPTIONS);
+    cy.get("input[name='_save']:visible").click();
+  });
 };
 
 const accessSettings = (name: string) => {

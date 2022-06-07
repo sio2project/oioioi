@@ -83,7 +83,7 @@ const tryRemovingUser = (user: OIOIOI.User, shouldRemove: boolean = true) => {
 
     if (shouldRemove) {
         cy.login(user);
-        cy.get('.well').should(($page) => {
+        cy.get('.card').should(($page) => {
             expect($page).to.contain('Please enter a correct username and password.');
         });
     }
