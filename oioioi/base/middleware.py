@@ -206,7 +206,7 @@ class UserPreferencesMiddleware(object):
     def _process_response(self, request, response):
         if settings.LANGUAGE_COOKIE_NAME in request.COOKIES:
             response.set_cookie(settings.LANGUAGE_COOKIE_NAME,
-                                request.COOKIES[settings.LANGUAGE_COOKIE_NAME])
+                                request.COOKIES[settings.LANGUAGE_COOKIE_NAME], samesite='lax')
         else:
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, self.lang)
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, self.lang, samesite='lax')
         return response
