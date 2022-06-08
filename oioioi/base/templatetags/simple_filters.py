@@ -42,6 +42,20 @@ def lookup(d, key):
 
 
 @register.filter
+def safe_lookup(d, key):
+    """
+    Lookup value from dictionary. Returns None if key ``key``
+    is not present in ``d``.
+
+    Example:
+
+    {% load simple_filters %}
+    {{ dict|safe_lookup:key }}
+    """
+    return d.get(key)
+
+
+@register.filter
 def multival_lookup(d, key):
     """
     Returns a value list corresponding to a key from Django's MultiValueDict

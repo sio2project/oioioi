@@ -29,14 +29,14 @@
             </label>
         </div>
     {% else %}
-        <label for="{{ field.id_for_label }}" class="{% if display_labels == False %}sr-only{% endif %} control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-sm-2 mb-2{% endif %}">
+        <label for="{{ field.auto_id }}" class="{% if display_labels == False %}sr-only{% endif %} control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-sm-2 mb-2{% endif %}" data-submit="{{ field.field.widget.attrs|safe_lookup:"data-submit" }}">
             {{ field.label }}
         </label>
 
         {% if field|is_checkbox_select_multiple or field|is_radioselect %}
             {% for pk, choice in field.field.widget.choices %}
                 <div class="form-check ml-2">
-                    <input class="form-check-input{% if field.errors %} is-invalid{% endif %}" id="id_{{ field.name }}_{{ forloop.counter0 }}" name="{{ field.name }}" type="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %}" value="{{ pk }}">
+                    <input class="form-check-input{% if field.errors %} is-invalid{% endif %}" id="id_{{ field.name }}_{{ forloop.counter0 }}" name="{{ field.name }}" type="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %}" value="{{ pk }}" data-submit="{{ field.field.widget.attrs|safe_lookup:"data-submit" }}">
                     <label class="form-check-label" for="id_{{ field.name }}_{{ forloop.counter0 }}">
                         {{ choice }}
                     </label>
