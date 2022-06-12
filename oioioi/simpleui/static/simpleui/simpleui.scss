@@ -1,5 +1,5 @@
 @import "scss/utility";
-@import "bootstrap/stylesheets/bootstrap/grid";
+@import "bootstrap/stylesheets/grid";
 
 $font-size-h1: floor(($font-size-base * 1.7));
 $font-size-h2: floor(($font-size-base * 1.25));
@@ -36,7 +36,6 @@ html {
 
 .table {
   td {
-    border: none;
     padding: 5px 8px;
   }
 }
@@ -51,8 +50,8 @@ h6 { font-size: $font-size-h6; }
 h1, .h1,
 h2, .h2,
 h3, .h3 {
-  margin-top: $line-height-computed;
-  margin-bottom: ($line-height-computed / 2);
+  margin-top: $spacer;
+  margin-bottom: ($spacer / 2);
   line-height: $headings-line-height;
 
   small,
@@ -64,8 +63,8 @@ h3, .h3 {
 h4, .h4,
 h5, .h5,
 h6, .h6 {
-  margin-top: ($line-height-computed / 2);
-  margin-bottom: ($line-height-computed / 2);
+  margin-top: ($spacer / 2);
+  margin-bottom: ($spacer / 2);
 
   small,
   .small {

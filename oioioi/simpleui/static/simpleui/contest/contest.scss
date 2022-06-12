@@ -10,7 +10,11 @@
   @include make-row;
 
   &__header {
-    @include make-md-column(12);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(lg) {
+      @include make-col(12);
+    }
   }
 
   &__name {
@@ -20,20 +24,36 @@
   &__submissions {
     @extend .contest__section;
 
-    @include make-md-column(12);
-    @include make-lg-column(6);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(lg) {
+      @include make-col(12);
+    }
+    @include media-breakpoint-up(xl) {
+      @include make-col(6);
+    }
   }
 
   &__questions {
     @extend .contest__section;
 
-    @include make-md-column(12);
-    @include make-lg-column(6);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(lg) {
+      @include make-col(12);
+    }
+    @include media-breakpoint-up(xl) {
+      @include make-col(6);
+    }
   }
 
   &__rounds {
     @extend .contest__section;
 
-    @include make-md-column(12);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(lg) {
+      @include make-col(12);
+    }
   }
 }

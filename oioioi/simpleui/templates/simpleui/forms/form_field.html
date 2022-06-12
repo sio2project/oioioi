@@ -1,10 +1,16 @@
 {% load simple_filters %}
 
 <div class="form-group{% if field.errors %} has-error{% endif %}">
-    <label class="control-label" for="id_pif-0-round">{{ field.label }}</label>
-        {{ field|add_class:"form-control" }}
-        <span class="help-inline">
-            {% for error in field.errors %}{{ error }}{% endfor %}
-            {% if not field.errors %} {{ field.help_text }} {% endif %}
-        </span>
+    <label class="control-label {% if field.errors %}text-danger{% endif %}" for="id_pif-0-round">{{ field.label }}</label>
+        {% if field.errors %}
+            {{ field | add_class:"form-control" | add_class:"is-invalid" }}
+        {% else %}
+            {{ field | add_class:"form-control" }}
+        {% endif %}
+        {% for error in field.errors %}
+            <small class="{% if not inline %}form-text{% endif %} text-danger">{{ error }}</small>
+        {% endfor %}
+        {% if field.help_text %}
+            <small class="{% if not inline %}form-text{% endif %} {% if field.errors %}text-danger{% else %}text-muted{% endif %}">{{ field.help_text }}</small>
+        {% endif %}
 </div>

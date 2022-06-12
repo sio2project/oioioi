@@ -1,5 +1,5 @@
 @import "scss/utility";
-@import "bootstrap/stylesheets/bootstrap/grid";
+@import "bootstrap/stylesheets/grid";
 
 .problem {
   border: 1px solid black;
@@ -9,10 +9,20 @@
   position: relative;
 
   &__container {
-    @include make-xs-column(12);
-    @include make-sm-column(6);
-    @include make-md-column(4);
-    @include make-lg-column(3);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(sm) {
+      @include make-col(12);
+    }
+    @include media-breakpoint-up(md) {
+      @include make-col(6);
+    }
+    @include media-breakpoint-up(lg) {
+      @include make-col(4);
+    }
+    @include media-breakpoint-up(xl) {
+      @include make-col(3);
+    }
   }
 
   &__header {
