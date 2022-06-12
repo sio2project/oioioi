@@ -80,7 +80,7 @@
 }
 
 @include media-breakpoint-down(xs) {
-  #changelist-search {
+  #changelist-search, #changelist-actions {
     width: 100%;
   }
 }
@@ -181,4 +181,16 @@
       }
     }
   }
+}
+
+$filter-option-selected-border-size: 0.25rem !default;
+
+.filter-option {
+  color: $secondary;
+}
+
+.filter-option-selected {
+  border-left: $filter-option-selected-border-size solid $primary;
+  color: $primary;
+  padding-left: ($spacer * 1.5 - $filter-option-selected-border-size);
 }

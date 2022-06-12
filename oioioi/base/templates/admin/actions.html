@@ -1,5 +1,5 @@
 {% load i18n simple_filters %}
-<div class="actions form-inline">
+<div id="changelist-actions" class="actions form-inline">
     {% block actions %}
       {% block actions-form %}
       {% for field in action_form %}{% if field.label %}<label class="control-label mr-sm-2 mb-2">{{ field.label }}</label> {% endif %}{{ field | add_class:"form-control" | add_form:"changelist-form" | add_class:"mr-sm-2" | add_class:"mb-2" }}{% endfor %}
