@@ -18,12 +18,14 @@
         {% endcomment %}
         {% compress js %}
             <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
+            <script src="{{ STATIC_URL }}fontawesomefree/js/all.min.js"></script>
             {% common_scripts %}
         {% endcompress %}
 
         {% block styles %}
             {% compress css %}
                 <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}scss/style.scss">
+                <link href="{{ STATIC_URL }}fontawesomefree/css/all.min.css" rel="stylesheet" type="text/css">
                 {% common_styles %}
             {% endcompress %}
         {% endblock %}
@@ -37,7 +39,7 @@
     <body class="{% block body-class %}{% endblock %}">
         <div class="wrapper">
             {# We cannot move it into seperate file, because blocks has be overriden by extending this template #}
-            <header id="oioioi-navbar" class="oioioi-navbar hidden-print
+            <header id="oioioi-navbar" class="oioioi-navbar d-print-none
             {% if request.session.admin_time %} oioioi-navbar--admin-time {% endif %}
             {% if is_under_su %} oioioi-navbar--admin-su {% endif %} {% block navbar-class %}{% endblock %}">
 
@@ -113,7 +115,7 @@
             <script type="text/javascript">const oioioi_base_url = "{{ base_url|escapejs }}";</script>
             <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
             {% compress js %}
-                <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.bundle.min.js"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-typeahead.js"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}js/utils.js"></script>

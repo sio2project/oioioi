@@ -6,5 +6,5 @@
 "
      class="{% for class in widget.css_classes %}{{ class }} {% endfor %}">
 <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
-<span class="file_cancel_button glyphicon glyphicon-remove" style="display:none"></span>
+    <i class="file_cancel_button fa-solid fa-xmark" style="display:none"></i>
 </div>

@@ -1768,7 +1768,7 @@ class TestPermissionsBasicAdmin(TestCase):
         pos2 = html.find('</div', pos)
         self.assertNotEqual(pos2, -1)
 
-        self.assertEqual(html[pos:pos2].count('list-group-item'), 4)
+        self.assertEqual(html[pos:pos2].count('list-group-item'), 8)
 
     def test_menu_settings(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -1785,7 +1785,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, 'contesticon_set-group')
         self.assertContains(response, 'contestlogo-group')
 
-        self.assertContains(response, 'inline-group', count=7)
+        self.assertContains(response, 'js-inline-admin-formset', count=7)
 
     def test_menu_problems(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -1854,7 +1854,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, 'problemsite-group')
         self.assertNotContains(response, 'test_run_config-group')
         self.assertContains(response, 'libraryproblemdata-group')
-        self.assertContains(response, 'inline-group', 7)
+        self.assertContains(response, 'js-inline-admin-formset', 7)
 
     def test_probleminstance_admin(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -2016,7 +2016,7 @@ class TestPermissionsBasicAdmin(TestCase):
         pos2 = html.find('</div', pos)
         self.assertNotEqual(pos2, -1)
 
-        self.assertEqual(html[pos:pos2].count('list-group-item'), 8)
+        self.assertEqual(html[pos:pos2].count('list-group-item'), 16)
 
     def test_usermenu_files(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -3298,11 +3298,11 @@ class TestContestChangeForm(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Advanced </button>')
-        self.assertNotContains(response, '<h2>Rounds</h2>')
+        self.assertNotContains(response, '<h5 class="mb-0">Rounds</h5>')
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Advanced </button>')
-        self.assertContains(response, '<h2>Rounds</h2>')
+        self.assertContains(response, '<h5 class="mb-0">Rounds</h5>')
         self.assertNotContains(response, 'None </button>')

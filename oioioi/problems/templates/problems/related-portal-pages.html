@@ -4,7 +4,7 @@
 {% if pages %}
 {% autopaginate pages 20 %}
 {% paginate %}
-<div class="table-responsive">
+<div class="table-responsive-md">
     <table class="table">
         <thead>
         <tr>
@@ -30,7 +30,7 @@
 </div>
 {% else %}
 <div class="alert alert-info">
-    <p>{% trans "No related portal pages." %}</p>
+    {% trans "No related portal pages." %}
 </div>
 {% endif %}
 {% paginate %}

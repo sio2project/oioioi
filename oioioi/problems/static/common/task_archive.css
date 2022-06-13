@@ -8,21 +8,6 @@
     margin-top: 0;
 }
 
-.problemgroup-heading .collapse-toggle:after {
-    font-family: 'Glyphicons Halflings';
-    content: "\e114";
-    float: left;
-    color: grey;
-    font-size: xx-small;
-    line-height: 2em;
-    vertical-align: middle;
-    padding-right: 1em;
-}
-
-.problemgroup-heading .collapse-toggle.collapsed:after {
-    content: "\e080";
-}
-
 .problemgroup-body {
     padding-left: 1em;
 }
@@ -81,16 +66,4 @@
 
 #filters-collapse {
     margin-top: 1em;
-}
-
-.filters-heading .collapse-toggle:after {
-    font-family: 'Glyphicons Halflings';
-    content: "\e114";
-    float: left;
-    color: grey;
-    font-size: small;
-    padding-right: 0.5em;
-}
-.filters-heading .collapse-toggle.collapsed:after {
-    content: "\e080";
 }

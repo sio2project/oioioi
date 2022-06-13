@@ -41,9 +41,11 @@ const chooseEnglishLang = () => {
 
 const addContest = () => {
   cy.visit("/admin/contests/contest/add");
-  cy.get("#id_controller_name").select("Simple programming contest");
-  cy.get("input").get("[name='name']").type(CONTEST_NAME, TYPE_OPTIONS);
-  cy.get(".default").click();
+  cy.get("#contest_form").within(() => {
+    cy.get("#id_controller_name").select("Simple programming contest");
+    cy.get("input").get("[name='name']").type(CONTEST_NAME, TYPE_OPTIONS);
+    cy.get("input[name='_save']:visible").click();
+  });
 };
 
 const addProblem = () => {

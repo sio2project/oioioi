@@ -1,31 +1,31 @@
 @import "utility";
 
-$oioioi-navbar-background: $navbar-inverse-bg !default;
-$oioioi-navbar-color: $navbar-inverse-color !default;
-$oioioi-navbar-height: $navbar-height !default;
+$oioioi-navbar-background: #222 !default;
+$oioioi-navbar-color: #cfcfcf !default;
+$oioioi-navbar-height: 50px !default;
 $oioioi-navbar-padding-base-horizontal: $padding-base-horizontal !default;
 $oioioi-navbar-padding-base-vertical: $padding-base-vertical !default;
 
 $oioioi-navbar-default-brand-color: #cfcfcf !default;
-$oioioi-navbar-default-brand-hover-color: $navbar-inverse-brand-hover-color !default;
+$oioioi-navbar-default-brand-hover-color: $navbar-dark-brand-hover-color !default;
 
 $oioioi-navbar-link-color: #cfcfcf !default;
 
-$oioioi-navbar-link-hover-color: $navbar-inverse-link-hover-color!default;
-$oioioi-navbar-link-active-color: $navbar-inverse-link-active-color !default;
+$oioioi-navbar-link-hover-color: #fff !default;
+$oioioi-navbar-link-active-color: $oioioi-navbar-link-hover-color !default;
 
 $oioioi-navbar-highlighted-color: #fff !default;
 $oioioi-navbar-avatar-size: 25px !default;
 
 // Special case navbar colors
-$oioioi-navbar-time-changed-background: darken($btn-primary-bg, 20) !default;
-$oioioi-navbar-user-changed-background: darken($btn-danger-bg, 20) !default;
+$oioioi-navbar-time-changed-background: darken(theme-color("primary"), 20) !default;
+$oioioi-navbar-user-changed-background: darken(theme-color("danger"), 20) !default;
 
 // Breakpoint at which admin labels get shrunk to save some space
-$oioioi-navbar-label-md-width: 80px !default;
+$oioioi-navbar-label-lg-width: 80px !default;
 $oioioi-navbar-contest-max-width: 220px !default;
-$oioioi-navbar-contest-sm-max-width: 160px !default;
-$oioioi-navbar-contest-xs-max-width: 120px !default;
+$oioioi-navbar-contest-md-max-width: 160px !default;
+$oioioi-navbar-contest-sm-max-width: 120px !default;
 
 // Breakpoint at which countdown text gets hidden
 $oioioi-navbar-countdown-breakpoint: 640px !default;
@@ -35,9 +35,11 @@ $oioioi-navbar-dropdown-header-bgcolor: #e8e8e8 !default;
 $oioioi-navbar-dropdown-header-border: 2px solid #999999 !default;
 $oioioi-navbar-dropdown-header-margin-top: 12px !default;
 
+$oioioi-navbar-dropdown-input-min-width: 230px !default;
+
 // Required for navbar-fixed-top
 body {
-  padding-top: $navbar-height + $countdown-height + $padding-base-vertical * 2;
+  padding-top: $oioioi-navbar-height + $countdown-height + $padding-base-vertical * 2;
 }
 
 // Redefine navbar styles to make use of flexbox
@@ -46,7 +48,7 @@ body {
   @include fixed(0, 0, auto, 0);
   background: $oioioi-navbar-background;
   color: $oioioi-navbar-color;
-  height: $navbar-height;
+  height: $oioioi-navbar-height;
   padding: 0 $padding-base-horizontal;
   z-index: 1000;
 
@@ -69,7 +71,7 @@ body {
   .oioioi-navbar__extra > a,
   .oioioi-navbar__extra > .dropdown > a,
   .oioioi-navbar__menu-uncollapsed > a {
-    @include centered-block($navbar-height);
+    @include centered-block($oioioi-navbar-height);
     color: $oioioi-navbar-link-color;
     padding: 0 $oioioi-navbar-padding-base-horizontal;
     text-decoration: none;
@@ -91,21 +93,21 @@ body {
   }
 
   .navbar-clock {
-    @include centered-block($navbar-height);
+    @include centered-block($oioioi-navbar-height);
   }
 
   .dropdown-menu {
-    max-height: calc(100vh - #{$navbar-height});
+    max-height: calc(100vh - #{$oioioi-navbar-height});
     overflow-y: auto;
     padding-top: 0; // we don't want empty space before first header
+
+    input {
+      min-width: $oioioi-navbar-dropdown-input-min-width;
+    }
   }
 
   .dropdown.open > a {
     color: $oioioi-navbar-link-active-color;
-  }
-
-  .navbar-form .form-group {
-    margin-bottom: $form-group-margin-bottom;
   }
 
   // Navbar sections special styles
@@ -161,25 +163,25 @@ body {
 }
 
 
-// Medium screens
+// Large screens
 // * Labels get shrunk
-@media (max-width: $screen-md-max) {
+@include media-breakpoint-down(lg) {
   .oioioi-navbar,
   .oioioi-navbar > .oioioi-navbar__extra,
   .oioioi-navbar__menu-uncollapsed {
     > a > .label,
     .dropdown > a > .label {
-      max-width: $oioioi-navbar-label-md-width;
+      max-width: $oioioi-navbar-label-lg-width;
     }
   }
 }
 
-// Small screens
+// Medium screens
 // * Menu replaces brand
 // * Navbar links collapse to a dropdown menu
 // * Contest picker max width decreases
 // * Username and labels gets hidden (only icons)
-@media (max-width: $screen-sm-max) {
+@include media-breakpoint-down(md) {
   .oioioi-navbar {
     > .oioioi-navbar__menu {
       display: block;
@@ -195,7 +197,7 @@ body {
 
 
     .dropdown > .contest-picker > .contest-name {
-      max-width: $oioioi-navbar-contest-sm-max-width;
+      max-width: $oioioi-navbar-contest-md-max-width;
     }
 
     .dropdown-header {
@@ -218,10 +220,10 @@ body {
   }
 }
 
-// Extra smalls screens
+// Small screens
 // * Navbar extras gets hidden
 // * Dropdown menus gets 100% width
-@media (max-width: $screen-xs-max) {
+@include media-breakpoint-down(sm) {
   .oioioi-navbar {
      > .oioioi-navbar__extra {
       display: none;
@@ -241,7 +243,7 @@ body {
     }
 
     .dropdown > .contest-picker > .contest-name {
-      max-width: $oioioi-navbar-contest-xs-max-width;
+      max-width: $oioioi-navbar-contest-sm-max-width;
     }
   }
 }
@@ -258,10 +260,10 @@ body {
   }
 }
 
-// Even smaller screens
+// Extra-small screens
 // * Username/login text gets hidden (only icon)
 // * Navbar padding gets removed
-@media (max-width: $screen-xs-min) {
+@include media-breakpoint-down(xs) {
   .oioioi-navbar {
     padding: 0;
     > .oioioi-navbar__user .username {

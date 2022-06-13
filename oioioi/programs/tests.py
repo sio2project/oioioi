@@ -1515,9 +1515,10 @@ class TestLimitsLimits(TestCase):
         response = self.edit_settings()
         self.assertContains(
             response,
-            "Memory limit mustn't be greater than %dKiB."
-            % settings.MAX_MEMORY_LIMIT_FOR_TEST,
-            html=True,
+            escape(
+                "Memory limit mustn't be greater than %dKiB."
+                % settings.MAX_MEMORY_LIMIT_FOR_TEST
+            ),
         )
 
 

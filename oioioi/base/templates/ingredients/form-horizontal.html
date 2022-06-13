@@ -1,46 +1,64 @@
-{% load simple_filters %}
+{% load i18n simple_filters %}
 
-{% for error in form.non_field_errors %}
-<div class="alert alert-danger">
-    {{ error }}
-</div>
-{% endfor %}
+{% if form.non_field_errors %}
+    <div class="form-group">
+        {% for error in form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                <span class="sr-only">{% trans "Error" %}:</span>
+                {{ error }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 
 {% for field in form.hidden_fields %}
     {{ field }}
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    {% if field|is_checkbox %}
-        <div class="checkbox {% if field.errors %}has-error{% endif %}">
-            <label class="col-sm-offset-3 col-sm-9 control-label">
-                {{ field }} {{ field.label }}
-            </label>
-        {% elif field|is_radioselect %}
-        <div class="radio {% if field.errors %}has-error{% endif %}">
-            <label for="{{ field.auto_id }}" class="col-sm-3 control-label">
+    <div class="form-group row">
+        <div class="col-md-3 text-right">
+            <label for="{{ field.id_for_label }}" class="col-form-label {% if field.errors %}text-danger{% endif %}">
                 {{ field.label }}
             </label>
-            <div class="col-sm-9">
-                {{ field }}
+        </div>
+        <div class="col-md-9">
+        {% if field|is_checkbox %}
+            <div class="form-check">
+                {% if field.errors %}
+                    {{ field | add_class:"form-check-input" | add_class:"is-invalid" }}
+                {% else %}
+                    {{ field | add_class:"form-check-input" }}
+                {% endif %}
+                <label class="form-check-label">
+                     {{ field.label }}
+                </label>
             </div>
         {% else %}
-        <div class="form-group {% if field.errors %}has-error{% endif %}">
-            {% if display_labels != False %}
-                <label for="{{ field.auto_id }}" class="col-sm-3 control-label">
-                    {{ field.label }}
-                </label>
+            {% if field|is_checkbox_select_multiple or field|is_radioselect %}
+                {% for pk, choice in field.field.widget.choices %}
+                    <div class="form-check">
+                        <input class="form-check-input{% if field.errors %} is-invalid{% endif %}" id="id_{{ field.name }}_{{ forloop.counter0 }}" name="{{ field.name }}" type="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %}" value="{{ pk }}">
+                        <label class="form-check-label" for="id_{{ field.name }}_{{ forloop.counter0 }}">
+                            {{ choice }}
+                        </label>
+                    </div>
+                {% endfor %}
+            {% else %}
+                {% if field.errors %}
+                    {{ field | add_class:"form-control" | add_class:"is-invalid" }}
+                {% else %}
+                    {{ field | add_class:"form-control" }}
+                {% endif %}
             {% endif %}
-            <div class="col-sm-9">
-                {{ field | add_class:"form-control" }}
-            </div>
         {% endif %}
-        {% for error in field.errors %}
-            <span class="help-block">{{ error }}</span>
-        {% endfor %}
-        {% if field.help_text %}
-            <span class="help-block">{{ field.help_text }}</span>
-        {% endif %}
+            {% for error in field.errors %}
+                <small class="{% if not inline %}form-text{% endif %} text-danger">{{ error }}</small>
+            {% endfor %}
+            {% if field.help_text %}
+                <small class="{% if not inline %}form-text{% endif %} {% if field.errors %}text-danger{% else %}text-muted{% endif %}">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
     </div>
 {% endfor %}
 
@@ -57,3 +75,12 @@
         })
     </script>
 {% endif %}
+
+{% if form.additional_scripts %}
+    {% for script in form.additional_scripts %}
+        <script>
+            {{ script }}
+        </script>
+    {% endfor %}
+{% endif %}
+

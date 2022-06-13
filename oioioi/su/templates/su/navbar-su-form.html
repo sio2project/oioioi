@@ -1,32 +1,28 @@
 {% load i18n simple_filters %}
 
 {% if ctx.user.is_superuser %}
-    <li class="divider" role="separator"></li>
-    <li class="navbar-form">
-        <form action="{% url 'su' %}" method="post" id="su-dropdown-form">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
+    <div class="dropdown-divider mb-0" role="separator"></div>
+    <form class="p-3" action="{% url 'su' %}" method="post" id="su-dropdown-form">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
 
-            <div class="form-group">
-                <label for="su-username">{% trans "Username" %}</label>
-                <input type="text" name="user" id="su-username" class="form-control" placeholder="{% trans "Su to..." %}"
-                       data-hints-url="{% url 'get_suable_users' %}" autocomplete="off">
-            </div>
+        <div class="form-group">
+            <label for="su-username">{% trans "Username" %}</label>
+            <input type="text" name="user" id="su-username" class="form-control" placeholder="{% trans "Su to..." %}"
+                   data-hints-url="{% url 'get_suable_users' %}" autocomplete="off">
+        </div>
 
-            <div class="form-group">
-                {{ form.backend.label_tag }}
-                {{ form.backend|add_class:"form-control" }}
-            </div>
+        <div class="form-group">
+            {{ form.backend.label_tag }}
+            {{ form.backend|add_class:"form-control" }}
+        </div>
 
-            <button type="submit" class="btn btn-block btn-default">{% trans "Login as user" %}</button>
-            <script>init_user_selection("su-username", {{ num_hints }})</script>
-        </form>
-    </li>
+        <button type="submit" class="btn btn-block btn-outline-secondary">{% trans "Login as user" %}</button>
+        <script>init_user_selection("su-username", {{ num_hints }})</script>
+    </form>
 {% elif is_under_su %}
-    <li class="divider" role="separator"></li>
-    <li>
-        <a href="#" data-post-url="{% url 'su_reset' %}" data-post-field-next="{{ ctx.request.get_full_path }}">
-            {% trans "Back to admin" %}
-        </a>
-    </li>
+    <div class="dropdown-divider" role="separator"></div>
+    <a class="dropdown-item" href="#" data-post-url="{% url 'su_reset' %}" data-post-field-next="{{ ctx.request.get_full_path }}">
+        {% trans "Back to admin" %}
+    </a>
 {% endif %}

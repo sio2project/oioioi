@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if contests %}
-    <div class="table-responsive">
+    <div class="table-responsive-md">
         <table class="table">
             <thead>
                 <tr>
@@ -17,8 +17,8 @@
                         <div class="add-to-contest-group">
                             <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
                                class="long-job" data-urlkey="{{ site_key }}">{{ contest.name }}</a>
-                            <span class="loading-spinner hidden">
-                                <span class="glyphicon glyphicon-refresh glyphicon-spin"></span>
+                            <span class="loading-spinner d-none">
+                                <i class="fa-solid fa-rotate-right spinner"></i>
                             </span>
                         </div>
                     </td>

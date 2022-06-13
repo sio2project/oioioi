@@ -205,11 +205,11 @@ class TestTaskArchive(TestCase):
 
         html = response.content.decode('utf-8')
 
-        pos = html.find('label-danger')
+        pos = html.find('badge-danger')
         self.assertTrue(pos == -1)
-        pos = html.find('label-warning')
+        pos = html.find('badge-warning')
         self.assertTrue(pos == -1)
-        pos = html.find('<a class="label label-success" href="/s/2/"> 100</a>')
+        pos = html.find('<a class="badge badge-success" href="/s/2/"> 100</a>')
         self.assertTrue(pos != -1)
 
         self.assertTrue(self.client.login(username='test_user2'))
@@ -223,11 +223,11 @@ class TestTaskArchive(TestCase):
 
         html = response.content.decode('utf-8')
 
-        pos = html.find('<a class="label label-danger" href="/s/3/"> 0</a>')
+        pos = html.find('<a class="badge badge-danger" href="/s/3/"> 0</a>')
         self.assertTrue(pos != -1)
-        pos = html.find('<a class="label label-warning" href="/s/6/"> 50</a>')
+        pos = html.find('<a class="badge badge-warning" href="/s/6/"> 50</a>')
         self.assertTrue(pos != -1)
-        pos = html.find('label-success')
+        pos = html.find('badge-success')
         self.assertTrue(pos == -1)
 
         def test_can_access_with_result(score, max_score):

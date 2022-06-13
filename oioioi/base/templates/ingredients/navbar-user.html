@@ -17,26 +17,25 @@ function setFocusToLoginInput(){
     <div class="dropdown">
         <a href="#" id="navbar-username" class="dropdown-toggle" data-toggle="dropdown" role="button" onclick="setFocusToLoginInput()"
            aria-expanded="false">
-            <span class="glyphicon glyphicon-user"></span>
+            <i class="fa-solid fa-user"></i>
             <span class="username"> {% trans "Log in" %}</span>
-            <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu pull-right">
-            <li class="navbar-form">
-                <form id="navbar-login" class="navbar-login" action="{% url 'login' %}" method="post">
-                    {% csrf_token %}
-                    <input name="login_view-current_step" type="hidden" value="auth">
-                    <div class="form-group">
-                        <input id="navbar-login-input" type="text" name="auth-username" class="form-control" placeholder="{% trans "Login" %}" tabindex="-1">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" name="auth-password" class="form-control" placeholder="{% trans "Password" %}">
-                    </div>
-                    <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button>
-                    <a role="button" class="btn btn-default" href="{% url 'registration_register' %}">{% trans "Register" %}</a>
-                </form>
-            </li>
-        </ul>
+        <div class="dropdown-menu dropdown-menu-right">
+            <form id="navbar-login" class="navbar-login p-3" action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+                <input name="login_view-current_step" type="hidden" value="auth">
+                <div class="form-group">
+                    <input id="navbar-login-input" type="text" name="auth-username" class="form-control" placeholder="{% trans "Login" %}" tabindex="-1">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="auth-password" class="form-control" placeholder="{% trans "Password" %}">
+                </div>
+                <div class="form-row">
+                    <div class="col"><button type="submit" class="btn btn-primary btn-block">{% trans "Log in" %}</button></div>
+                    <div class="col"><a role="button" class="btn btn-outline-secondary btn-block" href="{% url 'registration_register' %}">{% trans "Register" %}</a></div>
+                </div>
+            </form>
+        </div>
     </div>
 {% else %}
     <div class="dropdown">
@@ -44,28 +43,27 @@ function setFocusToLoginInput(){
            data-toggle="dropdown" role="button" aria-expanded="false">
             {% is_maintenance_enabled as enabled %}
             {% if user.is_superuser and enabled %}
-                <span id="maintenance-label" class="label label-warning"
+                <span id="maintenance-label" class="badge badge-warning"
                         data-toggle="tooltip" data-placement="bottom" title="{% trans "Maintenance Mode is ON" %}">
-                    <span class="label-short glyphicon glyphicon-cog"></span>
+                    <i class="label-short fa-solid fa-gear"></i>
                     <span class="label-full">{% trans "Maintenance Mode is ON" %}</span>
                 </span>
             {% endif %}
             {% if avatar %}
                 <img src="{{ avatar }}" alt="avatar" class="navbar-avatar">
             {% else %}
-                <span class="glyphicon glyphicon-user"></span>
+                <i class="fa-solid fa-user"></i>
             {% endif %}
             <strong class="username" id="username">{{ user.username }}</strong>
-            <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu pull-right">
+        <div class="dropdown-menu dropdown-menu-right">
             {% generate_menu 'oioioi.base.menu.account_menu_registry' %}
             {% for item in menu %}
-                <li><a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a></li>
+                <a class="dropdown-item" href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a>
             {% endfor %}
 
             {% su_dropdown_form %}
             {% user_info_dropdown_form %}
-        </ul>
+        </div>
     </div>
 {% endif %}

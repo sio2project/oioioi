@@ -1,0 +1,23 @@
+{% load i18n simple_filters %}
+<div id="changelist-actions" class="actions form-inline">
+    {% block actions %}
+      {% block actions-form %}
+      {% for field in action_form %}{% if field.label %}<label class="control-label mr-sm-2 mb-2">{{ field.label }}</label> {% endif %}{{ field | add_class:"form-control" | add_form:"changelist-form" | add_class:"mr-sm-2" | add_class:"mb-2" }}{% endfor %}
+      {% endblock %}
+      {% block actions-submit %}
+      <button form="changelist-form" type="submit" class="btn btn-outline-secondary mb-2 mr-2" title="{% translate "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">{% translate "Go" %}</button>
+      {% endblock %}
+      {% block actions-counter %}
+      {% if actions_selection_counter %}
+          <span class="small quiet action-counter mb-2" data-actions-icnt="{{ cl.result_list|length }}">{{ selection_note }}</span>
+          {% if cl.result_count != cl.result_list|length %}
+          <span class="all d-none">{{ selection_note_all }}</span>
+          <span class="question d-none">
+              <a href="#" title="{% translate "Click here to select the objects across all pages" %}">{% blocktranslate with cl.result_count as total_count %}Select all {{ total_count }} {{ module_name }}{% endblocktranslate %}</a>
+          </span>
+          <span class="clear d-none"><a href="#">{% translate "Clear selection" %}</a></span>
+          {% endif %}
+      {% endif %}
+      {% endblock %}
+    {% endblock %}
+</div>

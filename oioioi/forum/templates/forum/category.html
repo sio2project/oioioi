@@ -8,21 +8,21 @@
 {% block forum-head %}
 <div class="clearfix">
     {% if user.is_authenticated and can_interact_with_users %}
-        <div class="pull-right">
-            <a role="button" class="btn btn-sm btn-default"
+        <div class="float-right">
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}">
-                <span class="glyphicon glyphicon-comment"></span>
+                <i class="fa-solid fa-message"></i>
                 {% trans "Add new thread" %}
             </a>
         </div>
     {% endif %}
-    <h1 class="pull-left">{% trans "Category" %}: {{ category.name }}</h1>
+    <h1 class="float-left">{% trans "Category" %}: {{ category.name }}</h1>
 </div>
 {% endblock %}
 
 {% block forum-contents %}
 {% if threads %}
-<div class="table-responsive">
+<div class="table-responsive-md">
     <table class="table auto-width">
         <thead>
             <tr>
@@ -39,7 +39,7 @@
             {% for t in threads %}
                 {% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=t.id as thread_link %}
                 <tr>
-                    <td class="{% if is_admin %} col-sm-4 {% else %} col-xs-6 {% endif %}">
+                    <td class="{% if is_admin %} col-md-4 {% else %} col-sm-6 {% endif %}">
                         <a class="show" href="{{ thread_link }}">
                             {{ t.name }}
                         </a>
@@ -48,11 +48,11 @@
                     {% if is_admin %}
                         <td>
                             <a href="#" data-post-url="{% url 'forum_thread_delete' contest_id=contest.id category_id=category.id thread_id=t.id %}">
-                                <span class="glyphicon glyphicon-trash"></span>
+                                <i class="fa-solid fa-trash"></i>
                             </a>
                         </td>
                         <td>
-                            <div class="{% if t.count_reported > 0 %}label label-danger{% endif %}">
+                            <div class="{% if t.count_reported > 0 %}badge badge-danger{% endif %}">
                                 {{ t.count_reported }}
                             </div>
                         </td>

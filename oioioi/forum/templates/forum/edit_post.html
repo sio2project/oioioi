@@ -4,23 +4,13 @@
 
 {% block title %}{% trans "Edit post" %} - {% trans "Thread" %}: {{ thread.name }}{% endblock %}
 
-{% block main-content %}
-<h2>{% trans "Thread" %}: {{ thread.name }}</h2>
-<ol class="breadcrumb">
-    <li>
-        <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
-    </li>
-    <li>
-        <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
-    </li>
-    <li>
-        <a href="{% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=thread.id %}">{{ thread.name }}</a>
-    </li>
-    <li>
-        {% trans "Edit post" %}
-    </li>
-</ol>
+{% block forum-breadcrumbs-add %}
+<li class="breadcrumb-item">
+    <span>{% trans "Edit post" %}</span>
+</li>
+{% endblock %}
 
+{% block forum-contents %}
 <h4>{% trans "Edit post" %}</h4>
 <form method="post">
     {% csrf_token %}

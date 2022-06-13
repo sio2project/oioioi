@@ -247,6 +247,7 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
 
     'captcha',
+    'fontawesomefree',
 )
 
 CAPTCHA_FLITE_PATH = find_executable_path('flite')

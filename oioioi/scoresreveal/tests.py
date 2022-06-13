@@ -34,9 +34,9 @@ class TestScoresManualReveal(TestCase):
         response = self.client.get(submission_url)
         self.assertEqual(response.status_code, 200)
         if success:
-            self.assertContains(response, '</span> Reveal score')
+            self.assertContains(response, '</i> Reveal score')
         else:
-            self.assertNotContains(response, '</span> Reveal score')
+            self.assertNotContains(response, '</i> Reveal score')
 
         url = reverse('submission_score_reveal', kwargs=kwargs)
         response = self.client.post(url, follow=True)
@@ -171,7 +171,7 @@ class TestScoresAutoReveal(TestCase):
         submission_url = reverse('submission', kwargs=kwargs)
         response = self.client.get(submission_url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, '</span> Reveal score')
+        self.assertNotContains(response, '</i> Reveal score')
 
         return response
 

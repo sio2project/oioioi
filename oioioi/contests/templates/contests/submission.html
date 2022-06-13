@@ -26,21 +26,21 @@
     {{ header }}
     <div class="row">
         {% for report in reports %}
-            <div class="{% if submission.status != 'CE' and  submission.status != 'SE' %}col-lg-6{% endif %}">
+            <div class="{% if submission.status != 'CE' and  submission.status != 'SE' %}col-xl-6{% endif %}">
                 {{ report }}
             </div>
         {% endfor %}
     </div>
     {% if can_admin %}
         <h4>
-            <button type="button" class="btn btn-default btn-sm"
+            <button type="button" class="btn btn-outline-secondary btn-sm"
                     data-toggle="collapse" data-target="#hidden-reports">
-                <span class="glyphicon glyphicon-chevron-down"></span>
+                <i class="fa-solid fa-chevron-down"></i>
             </button>
             <span>{% trans "Hidden reports" %}</span>
         </h4>
-        <div id="hidden-reports" class="collapse table-responsive">
-            <table class="table table-condensed">
+        <div id="hidden-reports" class="collapse table-responsive-md">
+            <table class="table table-sm">
                 <thead>
                     <tr>
                         <th>{% trans "Actions" %}</th>
@@ -55,10 +55,10 @@
                     {% for report in all_reports %}
                         <tr>
                             <td>
-                                <button type="button" class="btn btn-default btn-sm"
+                                <button type="button" class="btn btn-outline-secondary btn-sm"
                                         data-async-toggle="collapse"
                                         data-target="#hidden-report-{{ report.id }}">
-                                    <span class="glyphicon glyphicon-chevron-down"></span>
+                                    <i class="fa-solid fa-chevron-down"></i>
                                 </button>
                             </td>
                             <td>{{ report.id }}</td>
@@ -71,7 +71,7 @@
                             <td colspan=100>
                                 <div id="hidden-report-{{ report.id }}"
                                      data-loadurl="{% url 'report' submission_id=submission.id report_id=report.id %}"
-                                     class="collapse col-lg-6"></div>
+                                     class="collapse col-xl-6"></div>
                             </td>
                         </tr>
                     {% endfor %}

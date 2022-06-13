@@ -4,14 +4,14 @@
 {% block controls_admin_buttons %}
 {{ block.super }}
 {% if saved_diff_id %}
-    <a role="button" class="btn btn-sm btn-default" id="diff-button-do"
+    <a role="button" class="btn btn-sm btn-outline-secondary" id="diff-button-do"
         href="{% url 'source_diff' submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
-        <span class="glyphicon glyphicon-resize-small"></span>
+        <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
         {% trans "Diff with saved" %}
     </a>
 {% else %}
-    <button class="btn btn-sm btn-default" id="diff-button-save">
-        <span class="glyphicon glyphicon-resize-small"></span>
+    <button class="btn btn-sm btn-outline-secondary" id="diff-button-save">
+        <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
         <span id="text">{% trans "Diff with other" %}</span>
     </button>
 {% endif %}
@@ -19,14 +19,14 @@
 
 {% block controls_buttons %}
     {{ block.super }}
-    <a role="button" class="btn btn-sm btn-default"
+    <a role="button" class="btn btn-sm btn-outline-secondary"
         href="{% url 'show_submission_source' submission_id=submission.submission.id %}">
-        <span class="glyphicon glyphicon-eye-open"></span>
+        <i class="fa-solid fa-eye"></i>
         {% trans "Show code" %}
     </a>
-    <a role="button" class="btn btn-sm btn-default"
+    <a role="button" class="btn btn-sm btn-outline-secondary"
         href="{% url 'download_submission_source' submission_id=submission.submission.id %}">
-        <span class="glyphicon glyphicon-download-alt"></span>
+        <i class="fa-solid fa-download"></i>
         {% trans "Download" %}
     </a>
     {% if not saved_diff_id %}

@@ -6,35 +6,36 @@
 {% block main-content %}
 {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
 <div class="clearfix">
-    <div class="pull-right">
+    <div class="float-right">
         {% if is_admin and key %}
-            <a role="button" class="btn btn-sm btn-default"
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'ranking_csv' contest_id=contest.id key=key %}">
-                <span class="glyphicon glyphicon-download"></span>
+                <i class="fa-solid fa-download"></i>
                 {% trans "Export to CSV" %}
             </a>
-            <a role="button" class="btn btn-sm btn-default"
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="#" data-post-url="{% url 'ranking_invalidate' contest_id=contest.id key=key %}">
+                <i class="fa-solid fa-rotate-right"></i>
                 {% trans "Regenerate ranking" %}
             </a>
         {% endif %}
         {% if form and user.is_authenticated and not is_admin %}
-            <a role="button" class="btn btn-sm btn-default"
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'ranking' contest_id=contest.id key=key %}?user={{ request.user.username }}">
-                <span class="glyphicon glyphicon-search"></span>
+                <i class="fa-solid fa-magnifying-glass"></i>
                 {% trans "Find my place" %}
             </a>
         {% endif %}
     </div>
-    <h1 class="pull-left">{% trans "Ranking" %}</h1>
+    <h1 class="float-left">{% trans "Ranking" %}</h1>
 </div>
 
 {% if choices|length > 1 %}
 <div>
-    <ul class="nav nav-pills">
+    <ul class="nav nav-pills mb-3">
         {% for choice in choices %}
-            <li role="presentation" {% if choice.0 == key %}class="active"{% endif %}>
-                <a href="{% url 'ranking' contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a>
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if choice.0 == key %}active{% endif %}"href="{% url 'ranking' contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a>
             </li>
         {% endfor %}
     </ul>
@@ -45,7 +46,7 @@
     {% if is_admin %}
         <form class="form-inline nav-content">
             {% include "ingredients/form.html" with inline=True %}
-            <button class="btn btn-default" type="submit">
+            <button class="btn btn-outline-secondary mb-2" type="submit">
                 {% trans "Find" %}
             </button>
         </form>

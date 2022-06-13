@@ -23,14 +23,14 @@
         function set_sub_btn(subscribed) {
             $('#sub-btn').attr('disabled', false)
             $('#sub-text').text(subscribed ? unsub_text : sub_text);
-            $('#busy-indicator').addClass('hidden');
-            $('#envelope-icon').removeClass('hidden');
+            $('#busy-indicator').addClass('d-none');
+            $('#envelope-icon').removeClass('d-none');
         }
 
         function sub_btn_busy() {
             $('#sub-btn').attr('disabled', true)
-            $('#busy-indicator').removeClass('hidden');
-            $('#envelope-icon').addClass('hidden');
+            $('#busy-indicator').removeClass('d-none');
+            $('#envelope-icon').addClass('d-none');
         }
 
         function show_banner(success, caption, text) {
@@ -82,44 +82,44 @@
     });
     </script>
     <div class="clearfix">
-        <div class="pull-right">
+        <div class="float-right">
             {% if user.is_authenticated %}
                 {% if not onsite %}
-                    <button class="btn btn-sm btn-default" id="sub-btn"
+                    <button class="btn btn-sm btn-outline-secondary" id="sub-btn"
                             {% if no_email %} title="You need to add an e-mail address to your account" disabled {% endif %}
                     >
-                        <span id="envelope-icon" class="glyphicon glyphicon-envelope"></span>
-                        <span id="busy-indicator" class="glyphicon glyphicon-refresh spinner hidden"></span>
+                        <i class="fa-solid fa-envelope"></i>
+                        <i class="fa-solid fa-rotate-right spinner d-none"></i>
                         <span id="sub-text"></span>
                     </button>
                 {% endif %}
                 {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
                 {% if is_admin %}
-                    <a role="button" class="btn btn-sm btn-default"
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'add_contest_message' contest_id=contest.id %}">
-                        <span class="glyphicon glyphicon-comment"></span>
+                        <i class="fa-solid fa-message"></i>
                         {% trans "Add news" %}
                     </a>
-                    <a role="button" class="btn btn-sm btn-default"
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
-                        <span class="glyphicon glyphicon-pencil"></span>
+                        <i class="fa-solid fa-pencil"></i>
                         {% trans "Edit reply templates" %}
                     </a>
                 {% elif categories %}
-                    <a role="button" class="btn btn-sm btn-default"
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'add_contest_message' contest_id=contest.id %}">
-                        <span class="glyphicon glyphicon-question-sign"></span>
+                        <i class="fa-solid fa-circle-question"></i>
                         {% trans "Ask a question" %}
                     </a>
                 {% endif %}
             {% endif %}
-            <a role="button" class="btn btn-sm btn-default"
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                href="{% url 'contest_all_messages' contest_id=contest.id %}">
-                <span class="glyphicon glyphicon-list"></span>
+                <i class="fa-solid fa-list"></i>
                 {% trans "Show all messages" %}
             </a>
         </div>
-        <h1 class="pull-left">{% trans "Questions and news" %}</h1>
+        <h1 class="float-left">{% trans "Questions and news" %}</h1>
     </div>
     <div id="sub-alert-success" class="alert alert-success collapse">
         <strong></strong> <span></span>

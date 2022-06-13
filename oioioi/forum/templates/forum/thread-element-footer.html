@@ -18,7 +18,7 @@
             <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=upvote">
         {% endif %}
         <span class="{% if post.user_upvoted %} text-success {% else %} text-muted {% endif %}">
-            <span class="glyphicon glyphicon-plus"></span> {{ post.upvotes_count }}
+            <i class="fa-solid fa-plus"></i> {{ post.upvotes_count }}
         </span>
         {% if can_interact_with_users %}
             </a>
@@ -28,7 +28,7 @@
             <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=downvote">
         {% endif %}
         <span class="{% if post.user_downvoted %} text-danger {% else %} text-muted {% endif %}">
-            <span class="glyphicon glyphicon-minus"></span> {{ post.downvotes_count }}
+            <i class="fa-solid fa-minus"></i> {{ post.downvotes_count }}
         </span>
         {% if can_interact_with_users %}
             </a>
@@ -60,7 +60,7 @@
       </a>
     {% if forloop.last and post.can_be_removed or is_admin %}
         | <a href="{{ forum_post_delete_url }}">
-            <span class="glyphicon glyphicon-trash"></span>
+            <i class="fa-solid fa-trash"></i>
           </a>
     {% endif %}
 {% endif %}

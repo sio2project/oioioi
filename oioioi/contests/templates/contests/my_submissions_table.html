@@ -12,15 +12,15 @@
         elements.click(function() {
             {% url 'get_report_HTML' submission_id=record.submission.id as link %}
             $("#report{{ record.submission.id }}div").load("{{ link }}");
-            $("#report{{ record.submission.id }}div").addClass("col-lg-6");
+            $("#report{{ record.submission.id }}div").addClass("col-xl-6");
             $("#report{{ record.submission.id }}").toggle("fast");
         });
     });
     {% endfor %}
 </script>
 {% endif %}
-<div class="table-responsive">
-    <table class="{% block table-classes %}table table-condensed submission{% endblock %}">
+<div class="table-responsive-md">
+    <table class="{% block table-classes %}table table-sm submission{% endblock %}">
         <thead>
             <tr>
                 <th class="submission__margin submission--{{ record.submission.status }}"></th>

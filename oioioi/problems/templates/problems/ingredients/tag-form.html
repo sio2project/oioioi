@@ -24,7 +24,7 @@
                             </p>
                         {% endblocktrans %}
                     </section>
-                    <section id="after-submission" class="hidden">
+                    <section id="after-submission"  class="d-none">
                         {% blocktrans %}
                             <h5>Thank you for your input!</h5>
                             <p>
@@ -55,7 +55,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div id="tags-container" class="hidden"></div>
+                        <div id="tags-container"  class="d-none"></div>
                     </section>
 
 
@@ -85,10 +85,10 @@
                         {% trans "Submit" %}
                     </button>
                 </div>
-                <p id="server-error" class="hidden text-danger error-message">
+                <p id="server-error" class="d-none text-danger error-message">
                     {% trans "There's been a server error during submitting" %}
                 </p>
-                <p id="invalid-form" class="hidden text-danger error-message">
+                <p id="invalid-form" class="d-none text-danger error-message">
                     {% trans "You have to specify at least one algorithm tag and exactly one difficulty tag!" %}
                 </p>
             </form>

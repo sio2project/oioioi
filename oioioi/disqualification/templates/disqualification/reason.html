@@ -9,7 +9,7 @@
         {% if is_admin %}
             {% if not reason.guilty %} {% trans "(not guilty)" %}{% endif %}
             <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-toggle="tooltip" title="{% trans "Edit" %}">
-                <span class="glyphicon glyphicon-edit"></span>
+                <i class="fa-solid fa-pen-to-square"></i>
             </a>
         {% endif %}
         </b>

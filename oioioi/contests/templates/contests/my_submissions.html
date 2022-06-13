@@ -6,15 +6,15 @@
 
 {% block main-content %}
     <div class="clearfix">
-        <div class="pull-right">
+        <div class="float-right">
             <a role="button"
-               class="btn btn-sm btn-default"
+               class="btn btn-sm btn-outline-secondary"
                href="{% url 'submit' contest_id=contest.id %}">
-                <span class="glyphicon glyphicon-upload"></span>
+                <i class="fa-regular fa-circle-up"></i>
                 {% trans "Submit" %}
             </a>
         </div>
-        <h1 class="pull-left">{% trans "My submissions" %}</h1>
+        <h1 class="float-left">{% trans "My submissions" %}</h1>
     </div>
 
     {{ header }}

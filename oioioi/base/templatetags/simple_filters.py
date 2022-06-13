@@ -42,6 +42,20 @@ def lookup(d, key):
 
 
 @register.filter
+def safe_lookup(d, key):
+    """
+    Lookup value from dictionary. Returns None if key ``key``
+    is not present in ``d``.
+
+    Example:
+
+    {% load simple_filters %}
+    {{ dict|safe_lookup:key }}
+    """
+    return d.get(key)
+
+
+@register.filter
 def multival_lookup(d, key):
     """
     Returns a value list corresponding to a key from Django's MultiValueDict
@@ -122,6 +136,11 @@ def add_class(field, css_class):
     ```
     """
     return _append_attr(field, "class", css_class)
+
+
+@register.filter
+def add_form(field, form_id):
+    return _append_attr(field, "form", form_id)
 
 
 @register.filter

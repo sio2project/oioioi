@@ -1,0 +1,5 @@
+{% load i18n %}
+<li class="dropdown-item-text text-nowrap mb-1">{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</li>
+{% for choice in choices %}
+    <a class="dropdown-item dropdown-item-action filter-option {% if choice.selected %}filter-option-selected{% endif %}" href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a>
+{% endfor %}

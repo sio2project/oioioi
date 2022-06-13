@@ -1,7 +1,7 @@
 $(document).ready(function() {
     const menu = $('#menu-accordion');
-    const subMenus = menu.find('.panel-collapse');
-    const openedClassName = 'in';
+    const subMenus = menu.find('.card-collapse');
+    const openedClassName = 'show';
 
     // when a group is shown, save it as the active accordion group
     menu.on('shown.bs.collapse', function() {

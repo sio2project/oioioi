@@ -11,27 +11,48 @@
 .settings {
   @include make-row;
 
+  #main_form {
+    width: 100%;
+  }
+
   &__header{
-    @include make-md-column(12);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(lg) {
+      @include make-col(12);
+    }
     margin-bottom: 20px;
   }
 
   &__general {
     @extend .settings__section;
 
-    @include make-sm-column(12);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(md) {
+      @include make-col(12);
+    }
   }
 
   &__tags_and_attachments {
     @extend .settings__section;
+    @include make-row;
 
-    @include make-sm-column(12);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(md) {
+      @include make-col(12);
+    }
   }
 
   &__links {
     @extend .settings__section;
 
-    @include make-sm-column(6);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(md) {
+      @include make-col(6);
+    }
 
     text-align: center;
   }
@@ -39,13 +60,21 @@
   &__tests {
     @extend .settings__section;
 
-    @include make-sm-column(12);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(md) {
+      @include make-col(12);
+    }
   }
 
   &__actions {
     @extend .settings__section;
 
-    @include make-sm-column(12);
+    @include make-col-ready;
+
+    @include media-breakpoint-up(md) {
+      @include make-col(12);
+    }
 
     text-align: right;
     margin-top: 10px;

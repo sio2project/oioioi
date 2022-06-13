@@ -10,21 +10,21 @@
 {% endblock %}
 
 {% block forum-contents %}
-    <div class="panel-group">
+    <div class="card-column mb-3">
         {% for post in post_set %}
-            <div class="panel panel-default" id="forum-post-{{ post.id }}">
+            <div class="card mb-2" id="forum-post-{{ post.id }}">
                 <div class="anchor-jump-fix" id="forum-anchor-{{ post.id }}"></div>
                 {% if post.hidden %}
-                    <div class="panel-heading">
+                    <div class="card-header">
                         {% include "forum/thread-element-heading.html" with post=post %}
                     </div>
                 {% endif %}
                 {% if not post.hidden or is_admin %}
-                    <div class="panel-body {% if post.hidden %} collapse {% endif %}">
+                    <div class="card-body {% if post.hidden %} collapse {% endif %}">
                         {{ post.content|urlize|linebreaksbr }}
                     </div>
                 {% endif %}
-                <div class="panel-footer forum-panel-footer">
+                <div class="card-footer forum-card-footer">
                     {% include "forum/thread-element-footer.html" with post=post %}
                 </div>
             </div>

@@ -4,7 +4,7 @@
   <div class="contest_header">
     <h2><a href="{{ contest.dashboard_url }}">{{contest.name}}</a></h2>
     <a class="settings" href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
-      <span class="glyphicon glyphicon-cog"></span> {% trans "Settings" %}
+      <i class="fa-solid fa-gear"></i> {% trans "Settings" %}
     </a>
   </div>
   <div class="clear"></div>

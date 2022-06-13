@@ -39,8 +39,8 @@
             {% endif %}
 
             <p>
-                <a href="#reveal_confirmation" class="btn btn-default" role="button" data-toggle="modal">
-                    <span class="glyphicon glyphicon-align-left"></span> {% trans "Reveal score" %}
+                <a href="#reveal_confirmation" class="btn btn-outline-secondary" role="button" data-toggle="modal">
+                    <i class="fa-solid fa-align-left"></i> {% trans "Reveal score" %}
                 </a>
             </p>
             <div id="reveal_confirmation" class="modal fade" tabindex="-1" role="dialog">
@@ -56,7 +56,7 @@
                         <div class="modal-footer">
                             <form action="{% url 'submission_score_reveal' submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
                                 {% csrf_token %}
-                                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "No" %}</button>
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{% trans "No" %}</button>
                                 <button type="submit" class="btn btn-primary">{% trans "Yes" %}</button>
                             </form>
                         </div>

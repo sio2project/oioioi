@@ -17,7 +17,7 @@
     {% endfor %}
 </script>
 
-<div class="table-responsive">
+<div class="table-responsive-md">
     <table class="{% block table-classes %}table{% endblock %}">
         <thead>
             <tr>
@@ -56,13 +56,13 @@
                 <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
                 <td>
                     {% if not record.read and not is_admin %}
-                        <span class="label label-info" id="new-msg-label">{% trans "NEW" %}</span>
+                        <span class="badge badge-info" id="new-msg-label">{% trans "NEW" %}</span>
                     {% endif %}
                     <a onclick="event.cancelBubble = true;" href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a>
                 </td>
                 {% if is_admin %}
                     <td>
-                        <span class="label {% if record.needs_reply %}label-danger{% else %}label-default{% endif %}">
+                        <span class="badge {% if record.needs_reply %}badge-danger{% else %}badge-secondary{% endif %}">
                             {{ msg.get_kind_label }}
                         </span>
                     </td>

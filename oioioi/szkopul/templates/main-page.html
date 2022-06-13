@@ -22,24 +22,24 @@
 
             <div class="dashboard-container">
 
-                <div class="row dashboard-row hidden-xs hidden-sm">
-                    <div class="dashboard-panel col-md-8">
+                <div class="row dashboard-row d-none d-lg-flex">
+                    <div class="dashboard-panel col-lg-8">
                         {% include "ingredients/submissions-panel.html" %}
                     </div>
 
-                    <div class="dashboard-panel col-md-4">
+                    <div class="dashboard-panel col-lg-4">
                         {% include "ingredients/contests-panel.html" %}
                     </div>
                 </div>
 
-                <div class="row dashboard-row hidden-md hidden-lg">
-                    <div class="dashboard-panel col-xs-10">
+                <div class="row dashboard-row d-lg-none">
+                    <div class="dashboard-panel col-sm-10 mb-3">
                         {% include "ingredients/submissions-panel.html" %}
                     </div>
                 </div>
 
-                <div class="row dashboard-row hidden-md hidden-lg">
-                    <div class="dashboard-panel col-xs-10">
+                <div class="row dashboard-row d-lg-none">
+                    <div class="dashboard-panel col-sm-10">
                         {% include "ingredients/contests-panel.html" %}
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                      alt="SZKOpuł">
             </div>
             <div class="row content-row">
-                <div class="col-md-10">
+                <div class="col-lg-10">
                     <h2>{% trans "Welcome!" %}</h2>
                     <p class="welcome-msg">
                         {% blocktrans trimmed %}

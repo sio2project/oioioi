@@ -10,12 +10,10 @@
 {% endblock %}
 
 {% block body %}
-    <div class="{% block row-class %}row{% endblock %}">
-        {% block flash %}
-            <div>
-                {% include "ingredients/flash.html" %}
-            </div>
-        {% endblock %}
-        {% block main-body %}{% endblock %}
-    </div>
+    {% block flash %}
+        <div>
+            {% include "ingredients/flash.html" %}
+        </div>
+    {% endblock %}
+    {% block main-body %}{% endblock %}
 {% endblock %}

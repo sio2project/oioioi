@@ -4,29 +4,33 @@
 {% block title %}{% trans "Confirm deletion" %}{% endblock %}
 
 {% block content %}
-    <div class="alert alert-danger text-center">
-        <h1>{% trans "Confirm deletion" %}</h1>
-        <p>{% trans "You are going to delete your account. It cannot be undone." %}
-        <p>{% trans "Are you sure?" %}
-        <form method="post" class="center-block">
-            {% csrf_token %}
-            <div class="form-group">
-                <input type="password" name="auth-password"
-                       placeholder="{% trans "Password" %}"
-                       class="form-control oioioi-narrow-input center-block empty-space-filler" />
+    <div class="card bg-light text-center ml-auto mr-auto" style="width: fit-content;">
+        <div class="card-header text-center">
+            <h1 class="mb-0">{% trans "Confirm deletion" %}</h1>
+        </div>
+        <form method="post" class="form-wide center-block">
+            <div class="card-body">
+                <p>{% trans "You are going to delete your account. It cannot be undone." %}</p>
+                <p><b>{% trans "Are you sure?" %}</b></p>
+                {% csrf_token %}
+                <div class="form-group mb-0">
+                    <input type="password" name="auth-password"
+                           placeholder="{% trans "Password" %}"
+                           class="form-control {% if failed %}is-invalid{% endif %}" />
+                    {% if failed %}
+                        <small class="{% if not inline %}form-text{% endif %} text-danger">{% trans "Incorrect password" %}</small>
+                    {% endif %}
+                </div>
             </div>
-            {% if failed %}
-            <div class="alert-danger">
-                <p>{% trans "Incorrect password" %}</p>
-            </div>
-            {% endif %}
-            <div class="btn-group">
-                <button type="submit" class="btn btn-danger">
-                    {% trans "Yes, I'm sure" %}
-                </button>
-                <button type="button" class="btn btn-default" onclick="location.href={% url 'edit_profile' %}">
-                    {% trans "No, go back" %}
-                </button>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col px-1"><button type="submit" class="btn btn-danger btn-block">
+                        {% trans "Yes, I'm sure" %}
+                    </button></div>
+                    <div class="col px-1"><button type="button" class="btn btn-outline-secondary btn-block" onclick="location.href={% url 'edit_profile' %}">
+                        {% trans "No, go back" %}
+                    </button></div>
+                </div>
             </div>
         </form>
     </div>

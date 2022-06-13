@@ -5,44 +5,44 @@
 
 {% if problems %}
     {% autopaginate problems 20 %}
-    <div class="table-responsive">
+    <div class="table-responsive-md">
         <table class="table button-flat">
             <thead>
                 <tr>
-                    <th class="col-xs-{{ col_proportions.id }}">
+                    <th class="col-sm-{{ col_proportions.id }}">
                         <a href="{% ordered_col request.GET "short_name" %}">
                             {% trans "ID" %}
                         </a>
                     </th>
 
-                    <th class="col-xs-{{ col_proportions.name }}">
+                    <th class="col-sm-{{ col_proportions.name }}">
                         <a href="{% ordered_col request.GET "name" %}">
                             {% trans "Name" %}
                         </a>
                     </th>
 
                     {% if show_tags %}
-                        <th class="col-xs-{{ col_proportions.tags }}">
+                        <th class="col-sm-{{ col_proportions.tags }}">
                             {% trans "Tags" %}
                         </th>
                     {% endif %}
 
                     {% if show_statistics %}
-                        <th class="col-xs-{{ col_proportions.statistics1 }} text-center">
+                        <th class="col-sm-{{ col_proportions.statistics1 }} text-center">
                             <a href="{% ordered_col request.GET "submitted" True %}"
                                data-toggle="tooltip"
                                title="{% trans "How many users submitted a solution for this task" %}">
                                 {% trans "Submitters" %}
                             </a>
                         </th>
-                        <th class="col-xs-{{ col_proportions.statistics2 }} text-center">
+                        <th class="col-sm-{{ col_proportions.statistics2 }} text-center">
                             <a href="{% ordered_col request.GET "solved_pc" True %}"
                                data-toggle="tooltip"
                                title="{% trans "Percentage of users who submitted that also solved this task" %}">
                                 {% trans "% Correct" %}
                             </a>
                         </th>
-                        <th class="col-xs-{{ col_proportions.statistics3 }} text-center">
+                        <th class="col-sm-{{ col_proportions.statistics3 }} text-center">
                             <a href="{% ordered_col request.GET "avg_best_score" True %}"
                                data-toggle="tooltip"
                                title="{% trans "Average score result for this task" %}">
@@ -57,7 +57,7 @@
                     {% endif %}
 
                     {% if show_user_statistics %}
-                        <th class="col-xs-{{ col_proportions.user_score }} text-center">
+                        <th class="col-sm-{{ col_proportions.user_score }} text-center">
                             <a href="{% ordered_col request.GET "user_score" True %}"
                                data-toggle="tooltip"
                                title="{% trans "Your score for this problem" %}">
@@ -67,7 +67,7 @@
                     {% endif %}
 
                     {% if show_add_button %}
-                        <th class="col-xs-{{ col_proportions.add_button }} text-center">
+                        <th class="col-sm-{{ col_proportions.add_button }} text-center">
                             {% trans "Actions" %}
                         </th>
                     {% endif %}
@@ -137,34 +137,28 @@
 
                         <td class="text-center">
                             <div class="btn-group">
-                                <button class="btn btn-default dropdown-toggle add-to-contest-button" type="button"
+                                <button class="btn btn-outline-secondary dropdown-toggle add-to-contest-button pl-1 pr-2" type="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret add-contest-caret"></span>
-                                    <span class="hidden loading-spinner job-active"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></span>
+                                    <span class="d-none loading-spinner job-active"><i class="fa-solid fa-rotate-right spinner"></i></span>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-right">
+                                <div class="dropdown-menu dropdown-menu-right">
                                 {% if administered_recent_contests %}
-                                    <li class="dropdown-header">{% trans "Add to contest" %}</li>
+                                    <h5 class="dropdown-header">{% trans "Add to contest" %}</h5>
                                     {% for contest in administered_recent_contests %}
-                                        <li>
-                                            <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
-                                               data-urlkey="{{ problem.problemsite.url_key }}">{{ contest.name }}</a>
-                                        </li>
+                                        <a class="dropdown-item" href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
+                                           data-urlkey="{{ problem.problemsite.url_key }}">{{ contest.name }}</a>
                                     {% endfor %}
-                                    <li role="separator" class="divider"></li>
-                                    <li>
-                                        <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
-                                            {% trans "More contests..." %}
-                                        </a>
-                                    </li>
+                                    <div role="separator" class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+                                        {% trans "More contests..." %}
+                                    </a>
                                 {% elif show_add_button %}
-                                    <li>
-                                        <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
-                                            {% trans "Add to contest" %}
-                                        </a>
-                                    </li>
+                                    <a class="dropdown-item" href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+                                        {% trans "Add to contest" %}
+                                    </a>
                                 {% endif %}
-                                </ul>
+                                </div>
                             </div>
                         </td>
                 </tr>
@@ -176,11 +170,11 @@
 {% else %}
 
 <div class="alert alert-info">
-    <p>{% trans "There are no problems here :(" %}</p>
+    {% trans "There are no problems here :(" %}
 </div>
 {% endif %}
 
-<form id="add_to_contest" method="post" class="hidden">
+<form id="add_to_contest" method="post"  class="d-none">
     {% csrf_token %}
     <input id="url_key" name="url_key" type="hidden">
 </form>

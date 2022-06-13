@@ -18,8 +18,8 @@
     </p>
     <form method="post" class="form-inline nav-content">{% csrf_token %}
         {% include "ingredients/form.html" with inline=True %}
-        <button type="submit" class="btn btn-primary a-btn-slide-text" name="befriend">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        <button type="submit" class="btn btn-primary a-btn-slide-text mb-2" name="befriend">
+            <i class="fa-solid fa-plus" aria-hiddent="true"></i>
             <span><strong>{% trans "Befriend" %}</strong></span>
         </button>
     </form>
@@ -27,18 +27,18 @@
     <div class="row">
         {% if friends %}
             {% for friend in friends %}
-                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <form method="post">{% csrf_token %}
                         <input type="hidden" name="id" value="{{ friend.id }}">
                         <button type="submit" class="btn-link" name="unfriend">
-                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                         {{ friend.get_full_name }} ({{ friend.username }})
                     </form>
                 </div>
             {% endfor %}
         {% else %}
-            <div class="col-xs-12 col-sm-8 col-md-6 col-lg-4">
+            <div class="col-sm-12 col-md-8 col-lg-6 col-xl-4">
                 <strong>{% trans "You have no friends :(" %}</strong>
             </div>
         {% endif %}

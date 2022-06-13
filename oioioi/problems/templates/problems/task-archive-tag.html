@@ -16,12 +16,13 @@
     </h3>
     <p>{{ origin_tag.description }} </p>
 
-    <div class="panel panel-default">
-        <div id="filters-panel" class="panel-heading">
+    <div class="card">
+        <div id="filters-panel" class="card-header">
             <div class="filters-heading">
                 <a class="collapse-toggle collapsed"
                     data-toggle="collapse"
                     href="#filters-collapse">
+                    <span class="text-muted"><i class="fa-solid fa-chevron-down"></i></span>
                     {% trans "Filters" %}
                 </a>
             </div>
@@ -40,7 +41,7 @@
                         <form id="problemset-search"
                               method=get
                               action="{% url "problemset_main" %}">
-                            <button type="submit" class="btn btn-default">
+                            <button type="submit" class="btn btn-outline-secondary">
                                 {% trans "Search in Problemset" %}
                             </button>
                         </form>
@@ -56,7 +57,7 @@
                     <td>
                     <div class="btn-group btn-block">
                         <button type="button"
-                                class="btn btn-block btn-default checkbox-menu-toggle collapsed"
+                                class="btn btn-block btn-outline-secondary checkbox-menu-toggle collapsed"
                                 style="z-index: {{ forloop.revcounter|add:"2" }}"
                                 data-target="#{{ category.name }}-filters">
                             {{ category.full_name }}
@@ -66,10 +67,11 @@
                         <ul class="dropdown-menu checkbox-menu allow-focus collapse"
                             id="{{ category.name }}-filters" >
                             {% for value in category.values.all %}
-                                <li {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
-                                    class="active"
+                                <li class="dropdown-item
+                                    {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                                    active
                                     {% endif %}
-                                >
+                                ">
                                     <label unselectable>
                                         <input type="checkbox"
                                                name="{{ category.name }}"
@@ -105,7 +107,7 @@
                 </table>
             </div>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             {% if not problems.subnodes and not problems.problem_info %}
                 <div class="alert alert-warning">
                     {% trans "Hmm... there doesn't seem to be anything here..." %}

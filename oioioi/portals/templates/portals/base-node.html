@@ -12,20 +12,20 @@
 {% endblock %}
 
 {% block main-content %}
-    <div class="hidden-sm hidden-xs">
+    <div class="d-none d-lg-block">
         {% block portal_breadcrumbs %}
             {% breadcrumbs %}
         {% endblock %}
     </div>
     {% generate_menu portal_admin_menu %}
     {% if menu %}
-        <ul class="nav nav-tabs nav-margin">
+        <ul class="nav nav-tabs mb-3">
             {% for item in menu %}
                 {{ item.name }}
-                <li{% if item.url == request.get_full_path %} class="active"{% endif %}>
-                    <a href="{{ item.url }}" {{ item.attrs }}>
+                <li class="nav-item">
+                    <a class="nav-link {% if item.url == request.get_full_path %}active{% endif %}" href="{{ item.url }}" {{ item.attrs }}>
                         {% if item.icon %}
-                            <span class="glyphicon glyphicon-{{ item.icon }}"></span>
+                            <i class="fa-solid fa-{{ item.icon }}"></i>
                         {% endif %}
                         {{ item.text }}
                     </a>

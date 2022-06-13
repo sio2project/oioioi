@@ -8,7 +8,7 @@
 <tr>
     {% if can_admin %}
         <td id="submission{{ record.submission.id }}-icon">
-            <span class="glyphicon glyphicon-chevron-down"></span>
+            <i class="fa-solid fa-chevron-down"></i>
         </td>
     {% else %}
         <td id="submission{{ record.submission.id }}-margin" class="{% if record.can_see_status %}submission__margin
@@ -22,7 +22,7 @@
         {% endif %}
     </a></td>
     {% if not inside_problem_view %}
-        <td id="submission{{ record.submission.id }}-problem-instance" class="col-md-4">
+        <td id="submission{{ record.submission.id }}-problem-instance" class="col-lg-4">
             {{ record.submission.problem_instance }}
         </td>
     {% endif %}
