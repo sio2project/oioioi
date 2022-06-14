@@ -19,7 +19,7 @@
         {% endif %}
 </div>
 
-<div class="problemgroup-body collapse{% if not collapse %} in{% endif %}" id="{{id}}">
+<div class="problemgroup-body collapse{% if not collapse %} show{% endif %}" id="{{id}}">
 {% endif %}
 
 {% if problems.subnodes %}
@@ -35,7 +35,7 @@
         {% endwith %}
     {% endfor %}
 {% else %}
-    <table class="table table-sm table--auto-width table--borderless">
+    <table class="table table-sm table--auto-width table--borderless mb-0">
     <tbody>
         {% for problem, result in problems.problem_info %}
         <tr>

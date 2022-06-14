@@ -23,7 +23,7 @@ def prefetch_tags(problems):
 def tag_label(tag):
     prefix = get_tag_prefix(tag)
     return format_html(
-        u'<a title="{tooltip}" class="label tag-label tag-label-{cls}" href="{href}" '
+        u'<a title="{tooltip}" class="badge tag-label tag-label-{cls}" href="{href}" '
         '>{name}</a>',
         tooltip=getattr(tag, 'full_name', tag.name),
         name=get_tag_name(tag),
@@ -36,7 +36,7 @@ def tag_label(tag):
 def origininfo_label(info):
     prefix = get_tag_prefix(info)
     return format_html(
-        u'<a title="{tooltip}" class="label tag-label tag-label-{cls}" href="{href}" '
+        u'<a title="{tooltip}" class="badge tag-label tag-label-{cls}" href="{href}" '
         '>{name}</a>',
         tooltip=info.full_name,
         name=info.value,

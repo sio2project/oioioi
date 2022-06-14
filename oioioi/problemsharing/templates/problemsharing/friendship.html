@@ -30,7 +30,7 @@
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3">
                     <form method="post">{% csrf_token %}
                         <input type="hidden" name="id" value="{{ friend.id }}">
-                        <button type="submit" class="btn-link" name="unfriend">
+                        <button type="submit" class="btn btn-link" name="unfriend">
                             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                         </button>
                         {{ friend.get_full_name }} ({{ friend.username }})
