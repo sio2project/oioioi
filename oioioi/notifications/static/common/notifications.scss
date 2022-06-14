@@ -4,6 +4,7 @@
 
 #notifications_panel .dropdown-menu {
   padding-bottom: 0;
+  min-width: 600px;
   > li {
     white-space: nowrap;
     &.dropdown-header {
