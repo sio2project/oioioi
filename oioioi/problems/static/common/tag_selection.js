@@ -1,6 +1,6 @@
 function add_search_tag(parent_node, key, value, text) {
     const node = $('.search-tag-root').first().clone(true);
-    node.find('.label')
+    node.find('.badge')
         .removeClass('tag-label-')
         .addClass('tag-label-' + key);
     node.find('input')

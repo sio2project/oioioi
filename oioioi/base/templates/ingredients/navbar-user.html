@@ -45,8 +45,8 @@ function setFocusToLoginInput(){
             {% if user.is_superuser and enabled %}
                 <span id="maintenance-label" class="badge badge-warning"
                         data-toggle="tooltip" data-placement="bottom" title="{% trans "Maintenance Mode is ON" %}">
-                    <i class="label-short fa-solid fa-gear"></i>
-                    <span class="label-full">{% trans "Maintenance Mode is ON" %}</span>
+                    <i class="badge-short fa-solid fa-gear"></i>
+                    <span class="badge-full">{% trans "Maintenance Mode is ON" %}</span>
                 </span>
             {% endif %}
             {% if avatar %}
