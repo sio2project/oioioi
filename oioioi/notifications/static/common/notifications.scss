@@ -1,6 +1,6 @@
-@import "bootstrap/stylesheets/bootstrap/functions";
-@import "bootstrap/stylesheets/bootstrap/variables";
-@import "bootstrap/stylesheets/bootstrap/mixins";
+@import "bootstrap/stylesheets/functions";
+@import "bootstrap/stylesheets/variables";
+@import "bootstrap/stylesheets/mixins";
 
 #notifications_panel .dropdown-menu {
   padding-bottom: 0;
@@ -12,7 +12,7 @@
       padding: 0.5em;
     }
     .table {
-      color: $text-color;
+      color: $body-color;
       margin-bottom: 0;
     }
   }
