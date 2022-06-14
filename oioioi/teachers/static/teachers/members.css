@@ -109,6 +109,7 @@ a.disabled {
 }
 
 .help-tooltip {
+    margin-left: 0.25rem;
     padding-left: 0;
     padding-right: 0;
 }
