@@ -32,7 +32,7 @@ Cypress.Commands.add("hideDjangoToolbar", () => {
     })
 })
 
-Cypress.Commands.add("login", (user: OIOIOI.User) => {
+Cypress.Commands.add("login", (user: OIOIOI.User, verify: boolean = true) => {
     cy.visit("/")
     cy.get('.username').click()
     cy.get('#navbar-login').within(() => {
@@ -40,6 +40,10 @@ Cypress.Commands.add("login", (user: OIOIOI.User) => {
         cy.get('input[name="auth-password"]').type(user.password);
         cy.get('button[type="submit"]').click();
     });
+    if (verify) {
+        cy.get('body').should('not.contain',
+            'Please enter a correct username and password.')
+    }
 });
 
 Cypress.Commands.add("setLang", (language: string) => {
