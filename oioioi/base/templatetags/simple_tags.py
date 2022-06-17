@@ -1,5 +1,7 @@
 from django import template
+from django.contrib.admin.views.main import PAGE_VAR
 from django.urls import NoReverseMatch, reverse
+from django.utils.html import format_html
 
 register = template.Library()
 
@@ -43,3 +45,21 @@ def site_displayed_tag(context):
 @register.simple_tag
 def call_method_with_arguments(obj, method_name, *args):
     return getattr(obj, method_name)(*args)
+
+
+# Adapted from django/contrib/admin/templatetags/admin_list.py
+@register.simple_tag
+def admin_paginator_number(cl, i):
+    """
+    Generate an individual page index link in a paginated list.
+    """
+    if i == cl.paginator.ELLIPSIS:
+        return format_html('<span class="page-link">{}</span>', cl.paginator.ELLIPSIS)
+    elif i == cl.page_num:
+        return format_html('<span class="page-link">{}</span>', i)
+    else:
+        return format_html(
+            '<a class="page-link" href="{}">{}</a> ',
+            cl.get_query_string({PAGE_VAR: i}),
+            i,
+        )
