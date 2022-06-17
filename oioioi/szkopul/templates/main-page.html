@@ -10,7 +10,9 @@
 {# disables the clock on the main page #}
 {% block countdown-clock %}{% endblock countdown-clock %}
 
-{% block container-class %}container{% endblock %}
+{% block container-class %}
+    {% if user.is_authenticated %}szkopul-dashboard__container{% else %}container{% endif %}
+{% endblock %}
 
 {% block body %}
     {% block content %}

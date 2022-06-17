@@ -1,3 +1,11 @@
+@import "scss/utility";
+@import "bootstrap/stylesheets/grid";
+
+.szkopul-dashboard__container {
+  @extend .container-fluid;
+  max-width: 1400px;
+}
+
 .dashboard-container {
   margin-top: 50px;
   margin-bottom: 60px;
