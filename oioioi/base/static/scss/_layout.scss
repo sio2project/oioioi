@@ -1,4 +1,5 @@
 @import "utility";
+@import "bootstrap/stylesheets/grid";
 
 $oioioi-narrow-input-max-width: 300px !default;
 
@@ -24,4 +25,9 @@ $oioioi-narrow-input-max-width: 300px !default;
 
 .oioioi-narrow-input {
   max-width: $oioioi-narrow-input-max-width;
+}
+
+.oioioi-form__container {
+  @extend .container;
+  max-width: $oioioi-form-max-width;
 }
