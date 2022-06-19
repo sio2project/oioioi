@@ -884,10 +884,17 @@ class TestBaseViews(TestCase):
         self.assertEqual(user.last_name, 'ln')
 
     def test_edit_email(self):
-        # Trying to change email without password.
-        self.data['email'] = 'new@mail.com'
+        #Trying to use incorrect email.
+        self.data['email'] = 'a@a'
         self.data['first_name'] = 'fn_new'
         self.data['last_name'] = 'ln_new'
+        response = self.client.post(self.url_edit_profile, self.data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username=self.username).count(), 1)
+        self.assertContains(response, "Enter a valid email address.")
+
+        # Trying to change email without password.
+        self.data['email'] = 'new@mail.com'
         response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(User.objects.filter(username=self.username).count(), 1)
