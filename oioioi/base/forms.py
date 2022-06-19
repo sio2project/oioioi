@@ -246,6 +246,9 @@ class UserChangeForm(UserForm):
     def clean_confirm_password(self):
         confirm_password = self.cleaned_data["confirm_password"]
 
+        if 'email' not in self.cleaned_data:
+            return confirm_password
+
         if self.user.email == self.cleaned_data['email']:
             return confirm_password
 
