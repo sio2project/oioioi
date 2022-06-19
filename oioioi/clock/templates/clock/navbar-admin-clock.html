@@ -10,7 +10,7 @@
         <time id="clock">{{ current_time }}</time>
     </a>
     <div class="dropdown-menu dropdown-menu-right">
-        <form action="{% url 'admin_time' %}" method="post">
+        <form class="px-3 py-1" action="{% url 'admin_time' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ path }}">
 
@@ -20,12 +20,12 @@
                     placeholder="{% trans "(yyyy-mm-dd hh:mm:ss)" %}"/>
             </div>
 
-            <div class="btn-group btn-group-justified" role="group">
-                <div class="btn-group" role="group">
-                    <button class="btn btn-primary" type="submit" name="ok-button">{% trans "Ok" %}</button>
+            <div class="form-row">
+                <div class="col">
+                    <button class="btn btn-primary btn-block" type="submit" name="ok-button">{% trans "Ok" %}</button>
                 </div>
-                <div class="btn-group" role="group">
-                    <button class="btn btn-outline-secondary" type="submit" name="reset-button">{% trans "Reset" %}</button>
+                <div class="col">
+                    <button class="btn btn-outline-secondary btn-block" type="submit" name="reset-button">{% trans "Reset" %}</button>
                 </div>
             </div>
         </form>
