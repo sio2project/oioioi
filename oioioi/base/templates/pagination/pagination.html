@@ -1,28 +1,27 @@
 {% if is_paginated %}
 {% load i18n %}
 
-<div class="text-center">
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-            <li><a href="?page={{ page_obj.previous_page_number }}{{ getvars }}">«</a></li>
-        {% else %}
-            <li class="disabled"><a href="#">«</a></li>
-        {% endif %}
-        {% for page in pages %}
-            {% if page %}
-            <li class="{% if page == page_obj.number %}active{% endif %}">
-                <a href="?page={{ page }}{{ getvars }}">{{ page }}</a>
-            </li>
+<ul class="justify-content-center pagination">
+    {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{{ getvars }}">«</a></li>
+    {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+    {% endif %}
+    {% for page in pages %}
+        {% if page %}
+            {% if page == page_obj.number %}
+                <li class="page-item active"><span class="page-link">{{ page }}</span></li>
             {% else %}
-            <li class="disabled"><a href="#">...</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ page }}{{ getvars }}">{{ page }}</a></li>
             {% endif %}
-        {% endfor %}
-        {% if page_obj.has_next %}
-            <li><a href="?page={{ page_obj.next_page_number }}{{ getvars }}">»</a></li>
         {% else %}
-            <li class="disabled"><a href="#">»</a></li>
+        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
         {% endif %}
-    </ul>
-</div>
+    {% endfor %}
+    {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{{ getvars }}">»</a></li>
+    {% else %}
+        <li class="page-item disabled"><a class="page-link" href="#">»</a></li>
+    {% endif %}
+</ul>
 {% endif %}
-

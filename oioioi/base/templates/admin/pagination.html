@@ -1,12 +1,14 @@
-{% load admin_list %}
+{% load admin_list simple_tags %}
 {% load i18n %}
-<div class="paginator">
+<div class="paginator mb-2 d-flex flex-row align-items-center">
 {% if pagination_required %}
-{% for i in page_range %}
-    {% paginator_number cl i %}
-{% endfor %}
+    <ul class="pagination mb-0 mr-2">
+    {% for i in page_range %}
+        <li class="page-item {% if i == cl.paginator.ELLIPSIS %}disabled{% elif i == cl.page_num %}active{% endif %}">{% admin_paginator_number cl i %}</li>
+    {% endfor %}
+    </ul>
 {% endif %}
-{{ cl.result_count }} {% if cl.result_count == 1 %}{{ cl.opts.verbose_name }}{% else %}{{ cl.opts.verbose_name_plural }}{% endif %}
-{% if show_all_url %}<a href="{{ show_all_url }}" class="showall">{% translate 'Show all' %}</a>{% endif %}
-{% if cl.formset and cl.result_count %}<input class="ml-2 btn btn-primary btn-sm" type="submit" name="_save" value="{% translate 'Save' %}">{% endif %}
+<span class="small mr-2">{{ cl.result_count }} {% if cl.result_count == 1 %}{{ cl.opts.verbose_name }}{% else %}{{ cl.opts.verbose_name_plural }}{% endif %}</span>
+{% if show_all_url %}<span class="small">(<a href="{{ show_all_url }}" class="showall">{% translate 'Show all' %}</a>)</span>{% endif %}
+{% if cl.formset and cl.result_count %}<input class="ml-auto btn btn-primary" type="submit" name="_save" value="{% translate 'Save' %}">{% endif %}
 </div>

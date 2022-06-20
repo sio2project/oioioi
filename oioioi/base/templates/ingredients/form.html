@@ -29,9 +29,11 @@
             </label>
         </div>
     {% else %}
-        <label for="{{ field.auto_id }}" class="{% if display_labels == False %}sr-only{% endif %} control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-sm-2 mb-2{% endif %}" data-submit="{{ field.field.widget.attrs|safe_lookup:"data-submit" }}">
-            {{ field.label }}
-        </label>
+        {% if field.label %}
+            <label for="{{ field.auto_id }}" class="{% if display_labels == False %}sr-only{% endif %} control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-sm-2 mb-2{% endif %}" data-submit="{{ field.field.widget.attrs|safe_lookup:"data-submit" }}">
+                {{ field.label }}
+            </label>
+        {% endif %}
 
         {% if field|is_checkbox_select_multiple or field|is_radioselect %}
             {% for pk, choice in field.field.widget.choices %}
