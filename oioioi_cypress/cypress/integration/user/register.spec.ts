@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-context("Register", () => {
+context("Simple user operations", () => {
     before(() => {
         cy.visit("/");
         cy.hideDjangoToolbar();
@@ -15,6 +15,12 @@ context("Register", () => {
             tryRemovingUser(data.user);
         });
     });
+
+    it("Login as admin", () => {
+        cy.fixture("credentials").then((data) => {
+            checkIfCanLogIn(data.admin);
+        });
+    })
 });
 
 const registerNewUser = (user_info: OIOIOI.User) => {
@@ -82,7 +88,7 @@ const tryRemovingUser = (user: OIOIOI.User, shouldRemove: boolean = true) => {
     });
 
     if (shouldRemove) {
-        cy.login(user);
+        cy.login(user, false);
         cy.get('.card').should(($page) => {
             expect($page).to.contain('Please enter a correct username and password.');
         });
