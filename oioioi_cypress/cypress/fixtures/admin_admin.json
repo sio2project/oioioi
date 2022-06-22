@@ -1,20 +1,13 @@
 [
-  {
-    "pk": 1,
-    "model": "auth.user",
-    "fields": {
+  { "fields": {
       "username": "admin",
-      "first_name": "Admin",
-      "last_name": "Admin",
+      "first_name": "",
+      "last_name": "",
       "is_active": true,
       "is_superuser": true,
       "is_staff": true,
-      "last_login": "2012-07-31T20:27:58.768Z",
-      "groups": [],
-      "user_permissions": [],
-      "password": "pbkdf2_sha256$10000$xWTWx2IvUptP$s1g7RDNT2Be2fvDbp+XK+DBTstDGOKY66w9x65n/l/Y=",
-      "email": "admin@example.com",
-      "date_joined": "2012-07-31T20:27:58.768Z"
-    }
-  }
+      "password": "pbkdf2_sha256$20000$Mk9k3hrwU5iX$3cjKZ+gxHhs4xOLrnbaqxiMIrFr61BwXqqx2hrlfZ/g=",
+      "email": "admin@example.com" }
+  , "model": "auth.user"
+  , "pk": 1 }
 ]
