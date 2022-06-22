@@ -25,7 +25,7 @@ context("Simple user operations", () => {
 
 const registerNewUser = (user_info: OIOIOI.User) => {
     visitRegistrationSite();
-    cy.get('.container').within(() => {
+    cy.get('.oioioi-form__container').within(() => {
         fillRegistrationForm(user_info);
         cy.get('button[type="submit"]').first().click();
     })
