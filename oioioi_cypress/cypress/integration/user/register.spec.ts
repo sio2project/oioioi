@@ -78,7 +78,7 @@ const checkUserData = (user: OIOIOI.User) => {
         // it to be incomplete. E.g. admin_admin.json is missing
         // first and last name just like oioioi_selenium/data.json
         // which is used as a default data.
-        if (value != undefined) {
+        if (value !== undefined) {
             cy.get(field).should('have.value', value);
         }
     }
