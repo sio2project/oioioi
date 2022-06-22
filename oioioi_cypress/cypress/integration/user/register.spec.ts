@@ -25,7 +25,7 @@ context("Simple user operations", () => {
 
 const registerNewUser = (user_info: OIOIOI.User) => {
     visitRegistrationSite();
-    cy.get('.container').within(() => {
+    cy.get('.oioioi-form__container').within(() => {
         fillRegistrationForm(user_info);
         cy.get('button[type="submit"]').first().click();
     })
@@ -74,7 +74,13 @@ const checkUserData = (user: OIOIOI.User) => {
     ]);
 
     for (let [field, value] of profile_form) {
-        cy.get(field).should('have.value', value);
+        // Value can be undefined when fixture is incomplete and we want
+        // it to be incomplete. E.g. admin_admin.json is missing
+        // first and last name just like oioioi_selenium/data.json
+        // which is used as a default data.
+        if (value !== undefined) {
+            cy.get(field).should('have.value', value);
+        }
     }
 };
 
