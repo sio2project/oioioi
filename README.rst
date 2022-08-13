@@ -126,6 +126,20 @@ To run one of the tools::
     ./run_static.sh pylint
     ./run_static.sh pep8
 
+Script toolbox for Docker (development)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Copy-pasting all Docker commands from GitHub can be tedious. Instead use a set of pre-prepared commands embedded into `easy_toolbox.py`.
+For help run `easy_toolbox.py -h`. Add custom commands by editing `RAW_COMMANDS` in the file. Script can be used with user-friendly
+CLI or by passing commands as arguments.
+Developer environment can be easily set up by running::
+
+    ./easy_toolbox.py build
+    ./easy_toolbox.py up
+    # wait for the scripts to finish migration (up to one minute)
+    ./easy_toolbox.py run
+
+For system requirements check `easy_toolbox.py`.
+
 Manual installation
 ~~~~~~~~~~~~~~~~~~~
 
