@@ -140,7 +140,7 @@ Developer environment can be easily set up by running::
 
 For system requirements check `easy_toolbox.py`.
 
-Manual installation
+Manual installation (deprecated)
 ~~~~~~~~~~~~~~~~~~~
 
 See `INSTALL`_ for instructions.
