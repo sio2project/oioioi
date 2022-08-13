@@ -612,9 +612,9 @@ class ProgrammingProblemController(ProblemController):
             {'data-languagehintsurl': reverse('get_language_hints')}
         )
 
-        use_editor = False
+        use_editor = settings.USE_ACE_EDITOR
         if problem_instance.contest is not None:
-            use_editor = settings.USE_ACE_EDITOR and problem_instance.contest.enable_editor
+            use_editor = use_editor and problem_instance.contest.enable_editor
 
         code_widget = None
         if use_editor:
