@@ -91,3 +91,25 @@ to create separate testing environment for Cypress using SQLite database and dat
 ## Contributing
 In order to contribute to OIOIOI just `fork` the repository, clone the copy, make changes as in normal repository
 and when the change is ready, create a push request to master branch of `sio2project/oioioi`.
+
+## GitHub Actions
+As mentioned above GitHub Actions replaced most of the Hudson jobs. Right now the available workflows are:
+- Unit tests
+- Nightly tests (unit tests with testes marked as 'slow')
+- Bi-Nightly Cypress e2e tests
+- Documentation generator
+- Transifex translations downloader
+- Transifex translations uploader
+
+## Deployment
+No changes can be seen on `szkopul.edu.pl` without deployment. 
+@twalen is responsible for conducting the deployments, and they are usually done during
+maintenance window (see `szkopul.edu.pl` main page for details).
+
+During deployment translation files are being uploaded and downloaded. The translation manager is 
+[Transifex](https://www.transifex.com/sio2project/sio2project/dashboard/). When you add localized text 
+to OIOIOI it is uploaded to Transifex with GitHub Action and later, when translated, downloaded,
+compiled and saved to the codebase. (Both of these jobs need to be run manually).
+
+## Ticketing
+All the ticketing is still done via [Jira](https://jira.sio2project.mimuw.edu.pl/).
