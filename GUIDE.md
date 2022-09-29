@@ -24,7 +24,7 @@ gpasswd -a $USER docker
 newgrp docker
 ```
 
-All the commands below are run in `oioioi` directory (main directory of the repository).
+All the commands below are being run in `oioioi` directory (main directory of the repository).
 In order to use `easy_toolbox.py` alternative method, check python package requirements in `easy_toolbox.py`. 
 
 To build OIOIOI image run 
