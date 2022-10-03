@@ -31,7 +31,7 @@ requirements = [
     "django-two-factor-auth>=1.15,<1.16",
     "django-formtools>=2.4,<2.5",
     "django-registration-redux>=2.12,<2.13",
-    "Celery==4.4",    # 5.0 is breaking
+    "Celery==5.2.2",
     "coreapi>=2.3,<2.4",
     "dj-pagination>=2.5,<2.6",
     "django-compressor>=4.3,<4.4",
