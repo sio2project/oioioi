@@ -70,6 +70,8 @@ requirements = [
     "phonenumbers<8.13",
     # this is the last pdfminer.six version to support python2
     "pdfminer.six==20191110",
+    # https://stackoverflow.com/questions/73929564/entrypoints-object-has-no-attribute-get-digital-ocean
+    "importlib-metadata<5.0",
 ]
 
 setup(
