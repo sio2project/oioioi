@@ -1,4 +1,4 @@
-{% load i18n menu get_su get_user_info_form get_maintenance_state %}
+{% load i18n menu get_su get_user_info_form get_maintenance_state static %}
 
 {% if user.is_anonymous %}
 
@@ -50,7 +50,7 @@ function setFocusToLoginInput(){
                 </span>
             {% endif %}
             {% if avatar %}
-                <img src="{{ avatar }}" alt="avatar" class="navbar-avatar">
+                <img src="{{ avatar }}" alt="avatar" class="navbar-avatar" onerror="this.onerror = null; this.src = '{% static 'images/user/default_user.png' %}'">
             {% else %}
                 <i class="fa-solid fa-user"></i>
             {% endif %}
