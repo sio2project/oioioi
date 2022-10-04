@@ -50,7 +50,7 @@ function setFocusToLoginInput(){
                 </span>
             {% endif %}
             {% if avatar %}
-                <img src="{{ avatar }}" alt="avatar" class="navbar-avatar" onerror="this.onerror = null; this.src = '{% static 'images/user/default_user.png' %}'">
+                <img src="{{ avatar }}" alt="avatar" class="navbar-avatar">
             {% else %}
                 <i class="fa-solid fa-user"></i>
             {% endif %}

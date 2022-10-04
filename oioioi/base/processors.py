@@ -34,7 +34,7 @@ def mathjax_location(request):
 
 
 def gravatar(request):
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.email:
 
         def generator():
             return str(get_gravatar_url(request.user.email, size=25)) or ''
