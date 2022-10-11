@@ -3,6 +3,7 @@ import os
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.http import Http404
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import request_cached
@@ -16,6 +17,7 @@ from oioioi.contests.utils import (
     is_contest_admin,
     visible_problem_instances,
 )
+from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem
 from oioioi.testspackages.models import TestsPackage
@@ -74,6 +76,11 @@ def get_tests_package_file(test_package):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def test_view(request, package_id):
     tp = get_object_or_404(TestsPackage, id=package_id)
+    # Check if TestPackage is attached to requested contest
+    if not ProblemInstance.objects.filter(
+        problem=tp.problem, contest=request.contest
+    ).exists():
+        raise Http404
     if not is_contest_admin(request) and not tp.is_visible(request.timestamp):
         raise PermissionDenied
     return get_tests_package_file(tp)
