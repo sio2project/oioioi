@@ -2,7 +2,7 @@
 
 # pip requirements:
 #   python ^3.6
-#   inquirer
+#   inquirer     (only for CLI)
 # 
 # system:
 #   docker
@@ -17,7 +17,6 @@
 
 import sys
 import os
-import inquirer
 
 
 BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
@@ -110,6 +109,7 @@ def get_action_from_args() -> Option:
 
 
 def get_action_from_cli() -> Option:
+    import inquirer
     questions = [
         inquirer.List(
             "action",
