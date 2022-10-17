@@ -2,7 +2,7 @@
 
 # pip requirements:
 #   python ^3.6
-#   inquirer     (only for CLI)
+#   inquirer     (only for GUI)
 # 
 # system:
 #   docker
@@ -108,7 +108,7 @@ def get_action_from_args() -> Option:
     return candidates[0]
 
 
-def get_action_from_cli() -> Option:
+def get_action_from_gui() -> Option:
     import inquirer
     questions = [
         inquirer.List(
@@ -142,7 +142,7 @@ def warn_user(action: Option) -> bool:
 
 
 def run() -> None:
-    action = get_action_from_args() or get_action_from_cli()
+    action = get_action_from_args() or get_action_from_gui()
     action.fill_tty(disable=NO_INPUT)
     if action.warn and not NO_INPUT:
         if not warn_user(action):
