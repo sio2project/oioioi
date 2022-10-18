@@ -113,3 +113,42 @@ compiled and saved to the codebase. (Both of these jobs need to be run manually)
 
 ## Ticketing
 All the ticketing is still done via [Jira](https://jira.sio2project.mimuw.edu.pl/).
+
+## FAQ
+
+### When to use `./easy_toolbox.py build`?
+Essentially, it is not easy to answer. 
+Firstly, let's understand what each of the commands does.
+As you may already know, SIO2 development environment works in containerized infrastructure. 
+We have four containers up and running, required for SIO2 to work properly. 
+Database (`db`), RabbitMQ (`broker`), Worker (`worker`) and OIOIOI (`web`). 
+Postgres and RabbitMQ already have existing docker images on Docker Hub. 
+We only need to build (here comes the magic word) SIO dependent images. 
+`Dockerfile` defines what steps are to be done in order to create the environment. 
+Once you built the image, you can set the container up. 
+Remember - things like dependencies (`requirements[_static].txt`, `setup.py`) are downloaded during the built, 
+so if you changed something in those places you either need to build the image again, 
+or apply these changes by hand (e.g. do `pip install`). 
+If you have good internet connection and adequate CPU, it shouldn't be hard to build the image again, 
+especially that it is more stable approach. 
+
+### When to use `./easy_toolbox.py up`?
+Whenever you don't have the containers up.
+After running it you should see the following output:
+```bash
+Running command OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml up -d
+===================================================================================================================================
+Creating network "oioioi_default" with the default driver
+Creating oioioi_broker_1 ... done
+Creating oioioi_db_1     ... done
+Creating oioioi_web_1    ... done
+Creating oioioi_worker_1 ... done
+```
+If not, check the output of `docker ps -a` and `docker logs <container_name>`.
+
+### When to use `./easy_toolbox.py run`?
+Whenever you want the Django we service to be running.
+In development environment we use dev server, so it should catch all changes in the code.
+You can have the server running all the time - just make sure, 
+that Django discovered your changes 
+(the server will restart with appropriate message like "detected changes in file `xyz.py`").
