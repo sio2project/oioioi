@@ -147,7 +147,7 @@ Creating oioioi_worker_1 ... done
 If not, check the output of `docker ps -a` and `docker logs <container_name>`.
 
 ### When to use `./easy_toolbox.py run`?
-Whenever you want the Django we service to be running.
+Whenever you want the Django web service to be running.
 In development environment we use dev server, so it should catch all changes in the code.
 You can have the server running all the time - just make sure, 
 that Django discovered your changes 
