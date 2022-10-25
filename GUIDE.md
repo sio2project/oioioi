@@ -1,16 +1,17 @@
 # TAG - New Joiner onboarding - 2022 edition
-A few useful tips for TAG new joiners. SIO2Project is a growing project mainly maintained by the TAG team.
+A few useful tips for **TAG** new joiners. **SIO2Project** is a growing project mainly maintained by the TAG team.
 The project's architecture was previously held on self-served platforms such as Gerrit, Hudson etc.
-By the end of academic year 2022 most of the architecture was moved to GitHub.
+By the end of academic year 2022 most of the architecture was moved to **GitHub**.
 
 * Gerrit (code review) -> GitHub code review
 * Hudson (automated jobs) -> GitHub Actions
+* Jira (ticketing system) -> GitHub Issues
 
 There are still some deployment jobs left on Hudson, but GitHub Secrets can be a bright future for OIOIOI.
-All the tickets raised during development are still in Jira, and it is not intended to change that.
+~~All the tickets raised during development are still in Jira, and it is not intended to change that.~~
 
 ## Prepare your development environment
-First things first - the best way to run OIOIOI (web service of SIO2Project) is to use Docker.
+First things first - the best way to run OIOIOI (web service of SIO2Project) is to use **Docker**.
 Any other installation method described in documentation does not work, so you just need to follow
 instructions in `README.rst`. Using `docker-compose` works only on Linux and MacOS - Windows is not supported.
 
@@ -112,7 +113,8 @@ to OIOIOI it is uploaded to Transifex with GitHub Action and later, when transla
 compiled and saved to the codebase. (Both of these jobs need to be run manually).
 
 ## Ticketing
-All the ticketing is still done via [Jira](https://jira.sio2project.mimuw.edu.pl/).
+~~All the ticketing is still done via [Jira](https://jira.sio2project.mimuw.edu.pl/).~~
+Ticketing was moved to GitHub Issues.
 
 ## FAQ
 
@@ -152,3 +154,7 @@ In development environment we use dev server, so it should catch all changes in 
 You can have the server running all the time - just make sure, 
 that Django discovered your changes 
 (the server will restart with appropriate message like "detected changes in file `xyz.py`").
+
+### What to do when I get permission denied error?
+Check if you added user to docker group.
+For more information check 'Prepare your development environment' section.
