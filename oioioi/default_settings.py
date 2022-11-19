@@ -333,40 +333,23 @@ SUBMITTABLE_LANGUAGES = {
     'Pascal': {
         'display_name': 'Pascal'
     },
-<<<<<<< HEAD
     # 'Java': {
     #     'display_name': 'Java'
     # },
     # 'Python': {
     #     'display_name': 'Python'
     # }
-=======
-    'Java': {
-        'display_name': 'Java'
-    },
-    'Python': {
-        'display_name': 'Python'
-    },
     'Output-only': {
         'type': 'extra',
         'display_name': 'Output-only',
     }
->>>>>>> de6026fbb889a37ff07866dbab60d87c5ee941ed
 }
 
 # This setting is used for associating programming languages with file extensions.
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_LANGUAGES.
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
-<<<<<<< HEAD
-                          'Java': ['java'], 'Python': ['py']}
-ALLOWED_LANGUAGES = ['C', 'C++', 'Pascal']
-USE_UNSAFE_EXEC = False
-DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
-RUN_LOCAL_WORKERS = False
-=======
                           'Java': ['java'], 'Python': ['py'], 'Output-only': ['txt', 'out']}
->>>>>>> de6026fbb889a37ff07866dbab60d87c5ee941ed
 
 # This setting specifies which compilers are available in sioworkers.
 # By default that means ones defined here:

@@ -1,5 +1,3 @@
-from itertools import izip
-
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.models import Submission, SubmissionReport
@@ -53,7 +51,7 @@ class PhaseOpenContestController(ProgrammingContestController):
 
             lastHighest = 0
             total = 0
-            for subs, phase in izip(subs_by_phase, phases):
+            for subs, phase in zip(subs_by_phase, phases):
                 if subs:
                     phase_score = subs[-1].score.to_int()
                     if phase_score > lastHighest:

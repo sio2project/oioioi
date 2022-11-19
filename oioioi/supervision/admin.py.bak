@@ -42,7 +42,7 @@ class MemberAdminInline(admin.StackedInline):
     extra = 0
     raw_id_fields = ('user',)
 
-    User.__unicode__ = lambda self: "{} {} ({})".format(
+    User.__unicode__ = lambda self: u"{} {} ({})".format(
         self.first_name,
         self.last_name,
         self.username)

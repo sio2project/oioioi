@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import six
 
 from django.core.management.base import BaseCommand
@@ -23,5 +21,5 @@ class Command(BaseCommand):
                 old_score=result.score
                 contest.controller.update_user_result_for_problem(result)
                 result.save()
-                if !quiet:
+                if not quiet:
                     print(old_score, "-->", result.score)

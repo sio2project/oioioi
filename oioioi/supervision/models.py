@@ -22,7 +22,7 @@ class Group(models.Model):
         verbose_name_plural = _("groups")
 
     def __unicode__(self):
-        return unicode(u"{}".format(self.name))
+        return str("{}".format(self.name))
 
 
 class Membership(models.Model):
@@ -40,7 +40,7 @@ class Membership(models.Model):
         if not present:
             present = "not " + present
 
-        return unicode(u"{} {} {} {} {}".format(
+        return str("{} {} {} {} {}".format(
             self.user,
             _("inside"),
             self.group,
@@ -65,7 +65,7 @@ class Supervision(models.Model):
         verbose_name_plural = _("supervisions")
 
     def __unicode__(self):
-        return unicode(u"{} {} {}".format(
+        return str("{} {} {}".format(
             self.group,
             _("inside"),
             self.round
