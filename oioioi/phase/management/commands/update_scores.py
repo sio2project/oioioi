@@ -11,15 +11,17 @@ class Command(BaseCommand):
     
     def add_arguments(self, parser):
         parser.add_argument('id', type=str, help='Contest id')
+        parser.add_argument('-q', action='store_true', default=False, dest='quiet', help="Don't print result changes")
 
     def handle(self, *args, **options):
-        id = options['id']
+        quiet = options['quiet']
         
-        contest=Contest.objects.get(id=id)
+        contest = Contest.objects.get(id=options['id'])
         for prob_inst in ProblemInstance.objects.filter(contest=contest):
-            print("---", prob_inst.problem)
+            print("--- Updating ", prob_inst.problem)
             for result in UserResultForProblem.objects.filter(problem_instance=prob_inst):
-                print(result.score, end='	--> ')
+                old_score=result.score
                 contest.controller.update_user_result_for_problem(result)
                 result.save()
-                print(result.score)
+                if !quiet:
+                    print(old_score, "-->", result.score)
