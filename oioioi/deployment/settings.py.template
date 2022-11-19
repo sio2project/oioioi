@@ -1,5 +1,6 @@
 from oioioi.default_settings import *
 import os.path
+import os
 
 # This should match INSTALLATION_CONFIG_VERSION in
 # "oioioi/default_settings.py".
@@ -24,7 +25,7 @@ TEMPLATES[0]['APP_DIRS'] = False
 
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
-SITE_NAME = 'OIOIOI'
+SITE_NAME = os.environ.get('SITE_NAME', 'OIOIOI')
 SITE_ID = 1
 
 # The website address as it will be displayed to users in some places,
@@ -34,16 +35,8 @@ SITE_ID = 1
 
 # Email addresses to send error message reports.
 ADMINS = (
-    ('Your Name', 'youremail@example.com'),
+    (os.environ.get('ADMIN_NAME', 'Your Name'), os.environ.get('ADMIN_EMAIL', 'youremail@example.com')),
 )
-
-# Sender email address for messages sent by OIOIOI to users.
-DEFAULT_FROM_EMAIL = 'webmaster@localhost'
-DEFAULT_FROM_ADDRESS = DEFAULT_FROM_EMAIL
-
-# Sender email address for error messages sent to admins.
-SERVER_EMAIL = DEFAULT_FROM_EMAIL
-
 
 # Email addresses to send communication from users (for example requests for
 # teacher accounts).
@@ -52,23 +45,23 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'NAME': os.environ.get('POSTGRES_NAME', 'oioioi'),     # Or path to database file if using sqlite3.
+        'USER': os.environ.get('POSTGRES_USER', 'oioioi'),     # Not used with sqlite3.
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),   # Not used with sqlite3.
+        'HOST': os.environ.get('POSTGRES_HOST', 'db'),         # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
     }
 }
 
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ.get('DOMAIN_NAME', '*')]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = '__TIMEZONE__'
+TIME_ZONE = os.environ.get('TIME_ZONE', '__TIMEZONE__')
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -91,16 +84,24 @@ SECRET_KEY = '__SECRET__'
 #OISUBMIT_MAGICKEY = '__OTHER_SECRET__'
 
 # SMTP server parameters for sending emails.
-EMAIL_SUBJECT_PREFIX = '[OIOIOI] '
-EMAIL_USE_TLS = False
-EMAIL_HOST = 'mail'
-EMAIL_PORT = 25
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_SUBJECT_PREFIX = '[{}] '.format(SITE_NAME)
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False').lower() == 'true'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'mail')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+REGISTRATION_EMAIL_HTML = False  # Use custom message template
+
+# Sender email address for messages sent by OIOIOI to users.
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+DEFAULT_FROM_ADDRESS = DEFAULT_FROM_EMAIL
+
+# Sender email address for error messages sent to admins.
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Comment to send user activation emails. Needs an SMTP server to be
 # configured above.
-SEND_USER_ACTIVATION_EMAIL = False
+SEND_USER_ACTIVATION_EMAIL = not (EMAIL_HOST == 'mail')
 
 # RabbitMQ server URL for distributed workers.
 #
@@ -170,6 +171,33 @@ LOGGING['loggers']['oioioi.zeus'] = {
 # Set this to false if you don't need sioworkersd instance (e. g.
 # because you use instance started by another instance of OIOIOI)
 #RUN_SIOWORKERSD = True
+
+# This setting specifies which compilers are available in sioworkers.
+# By default that means ones defined here:
+# https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
+AVAILABLE_COMPILERS = {
+    'C': {
+        'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
+    },
+    'C++': {
+        'g++4_8_2_cpp11': {'display_name': 'g++:4.8.2 std=c++11'}
+    },
+    'Pascal': {
+        'fpc2_6_2': {'display_name': 'fpc:2.6.2'}
+    },
+    'Java': {
+        'java1_8': {'display_name': 'java:1.8'}
+    },
+    'Python': {
+        'python': {'display_name': 'python'}
+    }
+}
+
+# This setting sets the default compilers used throughout the platform.
+# By uncommenting the below dict you can change all or any one of them.
+DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
+                     'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
+                     'Python': 'python'}
 
 # Contest mode - automatic activation of contests.
 #
@@ -269,7 +297,7 @@ DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 # - "vcpu" - (default) OITimeTool
 # - "sio2jail" - SIO2Jail
 # - "cpu" - ptrace (measures real time)
-#DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
+DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 
 # WARNING: setting this to False is experimental until we make sure that
 # checkers do work well in sandbox
@@ -305,7 +333,7 @@ SINOLPACK_RESTRICT_HTML = False
 
 #Upper bounds for tests' time [ms] and memory [KiB] limits.
 MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
-MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
+MAX_MEMORY_LIMIT_FOR_TEST = int(os.environ.get('MAX_MEMORY_LIMIT_FOR_TEST_IN_MB', 256)) * 1024
 
 # Controls if uwsgi in default configuration shall use gevent loop.
 # To use it, you have to install gevent - please consult
@@ -367,6 +395,10 @@ INSTALLED_APPS = (
 #    'oioioi.problemsharing',
 #    'oioioi.usergroups',
 #    'oioioi.usercontests',
+#    'oioioi.phase',
+#    'oioioi.supervision',
+#    'oioioi.moi',
+#    'oioioi.quiz',
 ) + INSTALLED_APPS
 
 # Set to True to show the link to the problemset with contests on navbar.
@@ -469,21 +501,42 @@ ZEUS_INSTANCES = {
 #IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'
 
 # Error reporting
-import raven
+SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+if SENTRY_DSN:
+    import logging
 
-RAVEN_CONFIG = {
-    # Won't do anything with no dsn
-    # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
-    'dsn': '',
-    # This should be a path to git repo
-    'release': raven.fetch_git_sha(
-        os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
-}
+    import sentry_sdk
+
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+
+    SENTRY_LOG_LEVEL = logging.INFO
+
+    sentry_logging = LoggingIntegration(
+        level=SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
+        event_level=None,  # Send no events from log messages
+    )
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[sentry_logging, DjangoIntegration(), CeleryIntegration()],
+    )
 
 # Bonus to judging priority ang judging weight for each contest on this
 # OIOIOI instance.
 #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
 #OIOIOI_INSTANCE_WEIGHT_BONUS = 0
+
+if 'oioioi.supervision' in INSTALLED_APPS:
+    TEMPLATES[0]['OPTIONS']['context_processors'].append('oioioi.supervision.processors.under_supervision')
+
+if 'oioioi.portals' in INSTALLED_APPS:
+    TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        'oioioi.contestlogo.processors.logo_processor',
+        'oioioi.contestlogo.processors.icon_processor',
+        'oioioi.globalmessage.processors.global_message_processor',
+        'oioioi.portals.processors.portal_processor',
+    ]
 
 # If set to True, usercontests will become read-only: it will be impossible to
 # change, delete or submit to existing usercontests, as well as add new ones.

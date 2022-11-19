@@ -39,7 +39,8 @@
             {# We cannot move it into seperate file, because blocks has be overriden by extending this template #}
             <header id="oioioi-navbar" class="oioioi-navbar hidden-print
             {% if request.session.admin_time %} oioioi-navbar--admin-time {% endif %}
-            {% if is_under_su %} oioioi-navbar--admin-su {% endif %} {% block navbar-class %}{% endblock %}">
+            {% if is_under_su %} oioioi-navbar--admin-su {% endif %}
+            {% if is_under_supervision %} oioioi-navbar--supervision {% endif %} {% block navbar-class %}{% endblock %}">
 
                 {% block navbar-logo %}
                     {% include "ingredients/navbar-logo.html" with always_visible=True %}
@@ -85,6 +86,11 @@
                 <div class="oioioi-navbar__user-su">
                     {% block navbar_user_su_panel %}
                         {% include "ingredients/navbar-user-su.html" %}
+                    {% endblock %}
+                </div>
+                <div class="oioioi-navbar__user-supervision">
+                    {% block navbar_user_supervision_panel %}
+                        {% include "ingredients/navbar-user-supervision.html" %}
                     {% endblock %}
                 </div>
                 <div class="oioioi-navbar__user">

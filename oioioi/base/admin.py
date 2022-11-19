@@ -6,6 +6,7 @@ from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib.admin.utils import NestedObjects, model_ngettext, unquote
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import router
@@ -396,3 +397,10 @@ class MixinsAdmin(InstanceDependentAdmin):
 
     def _mixins_for_instance(self, request, instance=None):
         raise NotImplementedError
+
+
+class SiteAdmin(admin.ModelAdmin):
+    pass
+
+
+site.register(Site, SiteAdmin)

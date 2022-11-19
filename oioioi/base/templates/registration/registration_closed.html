@@ -1,0 +1,23 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% if not user.is_authenticated %}
+    {% trans 'Registration' %}
+    {% else %}
+    {% trans 'Edit your profile' %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if not user.is_authenticated %}
+        <h1>{% trans 'Registration' %}</h1>
+    {% else %}
+        <h1>{% trans 'Edit your profile' %}</h1>
+    {% endif %}
+
+    {% if not form.instance %}
+        <p>Rejestracja jest aktualnie wyłączona.</p>
+        <p>Jeśli chcesz otrzymać konto, zgłoś się do osoby prowadzącej zajęcia.</p>
+    {% endif %}
+{% endblock %}

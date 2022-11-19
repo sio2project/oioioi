@@ -458,6 +458,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         context = self.make_context(request_or_context)
         if context.is_admin:
             return True
+
+        if 'oioioi.supervision' in settings.INSTALLED_APPS:
+            from oioioi.supervision.utils import can_user_enter_round
+            if hasattr(request_or_context, 'user') and \
+                    not can_user_enter_round(request_or_context.user, round):
+                return False
+
         rtimes = self.get_round_times(request_or_context, round)
         return not rtimes.is_future(context.timestamp)
 
@@ -540,6 +547,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if is_contest_basicadmin(request):
             return True
+
+        if 'oioioi.supervision' in settings.INSTALLED_APPS:
+            from oioioi.supervision.utils import can_user_enter_round
+            if hasattr(request, 'user') and \
+                    not can_user_enter_round(request.user, problem_instance.round):
+                return False
 
         if check_round_times:
             rtimes = self.get_round_times(request, problem_instance.round)

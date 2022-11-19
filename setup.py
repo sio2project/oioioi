@@ -90,7 +90,7 @@ python23_universal_requirements = [
 
         "pika",
 
-        "raven",
+        "sentry-sdk",
         "unidecode",
 
         # A library allowing to nest inlines in django admin.

@@ -10,6 +10,7 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.disqualification.models import Disqualification
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController
+from oioioi.contests.models import Submission
 
 
 class DisqualificationContestControllerMixin(object):

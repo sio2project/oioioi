@@ -68,7 +68,9 @@ class Command(BaseCommand):
                 except User.DoesNotExist:
                     self.stdout.write(_("Error for user=%(user)s: user does"
                         " not exist\n") % {'user': login})
-                    ok = False
+                    # ok = False
+                    all_count -= 1
+                    continue
                 except DatabaseError as e:
                     # This assumes that we'll get the message in this
                     # encoding. It is not perfect, but much better than

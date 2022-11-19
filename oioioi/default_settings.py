@@ -221,7 +221,6 @@ INSTALLED_APPS = (
     'dj_pagination',
     'mptt',
     'overextends',
-    'raven.contrib.django.raven_compat',
 
     'django.contrib.admin',
     'django.contrib.admindocs',
@@ -303,12 +302,12 @@ SUBMITTABLE_LANGUAGES = {
     'Pascal': {
         'display_name': 'Pascal'
     },
-    'Java': {
-        'display_name': 'Java'
-    },
-    'Python': {
-        'display_name': 'Python'
-    }
+    # 'Java': {
+    #     'display_name': 'Java'
+    # },
+    # 'Python': {
+    #     'display_name': 'Python'
+    # }
 }
 
 # This setting is used for associating programming languages with file extensions.
@@ -316,6 +315,7 @@ SUBMITTABLE_LANGUAGES = {
 # as in SUBMITTABLE_LANGUAGES.
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
                           'Java': ['java'], 'Python': ['py']}
+ALLOWED_LANGUAGES = ['C', 'C++', 'Pascal']
 USE_UNSAFE_EXEC = False
 DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
 RUN_LOCAL_WORKERS = False
@@ -444,7 +444,9 @@ LOGGING = {
             'handlers': ['console', 'emit_notification'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        # Errors logged by the SDK itself
+        "sentry_sdk": {"level": "ERROR", "handlers": ["console"], "propagate": False},
     }
 }
 

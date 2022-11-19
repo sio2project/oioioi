@@ -8,6 +8,7 @@
     {% block extrastyle %}{% endblock %}
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
     {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+	<script src="{% static "js/jquery.min.js" %}"></script>
 
     <style>
         body { padding-top: 67px }

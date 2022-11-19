@@ -18,6 +18,22 @@ class TestRunConfigForInstanceInline(admin.TabularInline):
     form = AlwaysChangedModelForm
 
 
+class TestRunConfigForInstanceInline(admin.TabularInline):
+    model = TestRunConfigForInstance
+    can_delete = True
+    extra = 0
+    form = AlwaysChangedModelForm
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+
 class TestRunProgrammingProblemAdminMixin(object):
     """Adds :class:`~oioioi.testrun.models.TestRunConfig` to an admin panel.
     """

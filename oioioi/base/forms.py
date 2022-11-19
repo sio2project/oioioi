@@ -6,12 +6,14 @@ from django.contrib.auth.forms import (PasswordResetForm, UserChangeForm,
                                        UserCreationForm)
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
 
 from oioioi.base.models import PreferencesSaved
 from oioioi.base.utils.user import USERNAME_REGEX
 from oioioi.base.utils.validators import ValidationError
+
 
 
 def adjust_username_field(form):
@@ -33,13 +35,19 @@ class RegistrationFormWithNames(RegistrationForm):
             ('first_name', forms.CharField(label=_("First name"))),
             ('last_name', forms.CharField(label=_("Last name")))
         ]
+        tmp_fields.append(
+            ('agreement', forms.BooleanField(label=mark_safe(
+                '{} <a data-toggle="modal" href="#termsAndConditionsModal">{}</a>'
+                    .format(_("I accept"), _("Terms and Conditions"))
+            )))
+        )
         self.fields = OrderedDict(tmp_fields)
 
 
 class UserForm(forms.ModelForm):
     class Meta(object):
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email']
+        fields = ['username', 'email']
 
     def __init__(self, *args, **kwargs):
         self.allow_login_change = kwargs.pop('allow_login_change', False)

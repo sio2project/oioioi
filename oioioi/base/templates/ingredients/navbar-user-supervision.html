@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<div>
+    {% if is_under_supervision %}
+        <span id="supervision-label" class="label label-success"
+                data-toggle="tooltip" data-placement="bottom" title="{% trans "Supervision" %}">
+            <span class="label-short glyphicon glyphicon-search"></span>
+            <span class="label-full">{% trans "Supervision" %}</span>
+        </span>
+    {% endif %}
+</div>

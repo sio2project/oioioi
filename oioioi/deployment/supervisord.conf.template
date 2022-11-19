@@ -8,9 +8,9 @@ identifier=oioioi-supervisor
 
 [program:uwsgi]
 {% if settings.UWSGI_USE_GEVENT %}
-command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --loop=gevent --async=50 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --loop=gevent --async=50 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --ignore-sigpipe --ignore-write-errors --disable-write-exception --wsgi-file={{ PROJECT_DIR }}/wsgi.py
 {% else %}
-command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --ignore-sigpipe --ignore-write-errors --disable-write-exception --wsgi-file={{ PROJECT_DIR }}/wsgi.py
 {% endif %}
 stopsignal=INT
 startretries=0
