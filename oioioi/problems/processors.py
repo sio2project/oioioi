@@ -1,9 +1,7 @@
-import six
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.functional import lazy
-from django.utils.translation import ungettext
-
+from django.utils.translation import ngettext
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_basicadmin
@@ -17,25 +15,32 @@ def dangling_problems_processor(request):
         return {}
 
     def generator():
-        dangling_pis = ProblemInstance.objects.filter(contest=request.contest,
-                round__isnull=True)
+        dangling_pis = ProblemInstance.objects.filter(
+            contest=request.contest,
+            round__isnull=True,
+        )
         count = dangling_pis.count()
         if not count:
             return ''
         elif count == 1:
             pi = dangling_pis.get()
-            link = reverse('oioioiadmin:contests_probleminstance_change',
-                        args=(pi.id,))
+            link = reverse(
+                'oioioiadmin:contests_probleminstance_change',
+                args=(pi.id,),
+            )
             if request.path == link:
                 return ''
         else:
             link = reverse('oioioiadmin:contests_probleminstance_changelist')
-        text = ungettext('%(count)d PROBLEM WITHOUT ROUND',
-                '%(count)d PROBLEMS WITHOUT ROUNDS',
-                count) % {'count': count}
+        text = ngettext(
+            '%(count)d PROBLEM WITHOUT ROUND',
+            '%(count)d PROBLEMS WITHOUT ROUNDS',
+            count,
+        )
+        text = text % {'count': count}
         return make_navbar_badge(link, text)
-    return {'extra_navbar_right_dangling_problems': lazy(generator,
-            six.text_type)()}
+
+    return {'extra_navbar_right_dangling_problems': lazy(generator, str)()}
 
 
 def problemset_link_visible_processor(request):
@@ -49,19 +54,25 @@ def problems_need_rejudge_processor(request):
         return {}
 
     def generator():
-        pis = ProblemInstance.objects.filter(contest=request.contest,
-                needs_rejudge=True)
+        pis = ProblemInstance.objects.filter(
+            contest=request.contest, needs_rejudge=True
+        )
         count = pis.count()
         if not count:
             return ''
         else:
             link = reverse('oioioiadmin:contests_probleminstance_changelist')
-        text = ungettext("%(count)d PROBLEM NEEDS REJUDGING",
-                "%(count)d PROBLEMS NEED REJUDGING",
-                count) % {'count': count}
+        text = ngettext(
+            "%(count)d PROBLEM NEEDS REJUDGING",
+            "%(count)d PROBLEMS NEED REJUDGING",
+            count,
+        )
+        text = text % {'count': count}
         return make_navbar_badge(link, text)
-    return {'extra_navbar_right_not_rejudged_problems':
-                lazy(generator, six.text_type)()}
+
+    return {
+        'extra_navbar_right_not_rejudged_problems': lazy(generator, str)()
+    }
 
 
 def can_add_to_problemset_processor(request):

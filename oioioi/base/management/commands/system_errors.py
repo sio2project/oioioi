@@ -1,8 +1,7 @@
 from __future__ import print_function
 
 from django.core.management.base import BaseCommand
-from django.utils.translation import ugettext as _
-from six.moves import map
+from django.utils.translation import gettext as _
 
 from oioioi.contests.models import Contest, FailureReport
 from oioioi.programs.models import TestReport
@@ -14,11 +13,9 @@ class Command(BaseCommand):
     requires_model_validation = True
 
     def add_arguments(self, parser):
-        parser.add_argument('contest_id',
-                            nargs='?',
-                            default=None,
-                            type=str,
-                            help='Contest id')
+        parser.add_argument(
+            'contest_id', nargs='?', default=None, type=str, help='Contest id'
+        )
 
     def handle(self, *args, **options):
         c = options['contest_id']
@@ -26,21 +23,20 @@ class Command(BaseCommand):
             c = Contest.objects.get(id=c)
 
         frs = FailureReport.objects.filter(submission_report__status='ACTIVE')
-        trs = TestReport.objects.filter(status='SE',
-                                        submission_report__status='ACTIVE')
+        trs = TestReport.objects.filter(status='SE', submission_report__status='ACTIVE')
 
         if c is not None:
-            kwargs = {'submission_report__submission'
-                      '__problem_instance__contest': c}
+            kwargs = {'submission_report__submission' '__problem_instance__contest': c}
             frs = frs.filter(**kwargs)
             trs = trs.filter(**kwargs)
 
-        trs.exclude(submission_report__id__in=[
-                fr.submission_report.id for fr in frs])
+        trs.exclude(submission_report__id__in=[fr.submission_report.id for fr in frs])
 
-        frs.select_related('submission_report',
-                           'submission_report__submission',
-                           'submission_report__submission__problem_instance')
+        frs.select_related(
+            'submission_report',
+            'submission_report__submission',
+            'submission_report__submission__problem_instance',
+        )
 
         frs_out, trs_out = [], []
 

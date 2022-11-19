@@ -1,16 +1,12 @@
 from datetime import datetime  # pylint: disable=E0611
 
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.utils.timezone import utc
-import six
-from six import BytesIO
-if six.PY2:
-    import slate
-else:
-    import slate3k as slate
+from io import BytesIO
 
+from django.contrib.auth.models import User
+from django.urls import reverse
+from django.utils.timezone import utc
 from oioioi.base.tests import TestCase, fake_time
+from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.models import Contest
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.oireports.views import CONTEST_REPORT_KEY
@@ -18,9 +14,14 @@ from oioioi.participants.models import Participant
 
 
 class TestReportViews(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission',
-                'test_rounds_with_different_end_dates']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_rounds_with_different_end_dates',
+    ]
 
     def setUp(self):
         contest = Contest.objects.get()
@@ -39,7 +40,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
             'report_region': CONTEST_REPORT_KEY,
             'testgroup[zad1]': ['0', '1', '2', '3'],
             'form_type': 'pdf_report',
-            'single_report_user': ''
+            'single_report_user': '',
         }
 
         # Let's check if report is not available for regular user.
@@ -51,12 +52,15 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
-            pages = slate.PDF(BytesIO(self.streamingContent(response)))
-            self.assertIn("test_user", pages[0])
-            self.assertIn("Wynik:34", pages[0])
-            self.assertIn("ZAD1", pages[0])
-            self.assertIn("1bRuntimeerror0.00s/0.10sprogramexited", pages[0])
-            self.assertNotIn("test_user2", pages.text())
+
+            pages = extract_text_from_pdf(BytesIO(self.streamingContent(response)))
+            self.assertIn(b"test_user", pages[0])
+            self.assertIn(b"Wynik:34", pages[0].replace(b' ', b''))
+            self.assertIn(b"ZAD1", pages[0])
+            self.assertIn(
+                b"1bRuntimeerror0.00s/0.10sprogramexited", pages[0].replace(b' ', b'')
+            )
+            self.assertTrue(all(b"test_user2" not in page for page in pages))
 
     def test_xml_view(self):
         contest = Contest.objects.get()
@@ -66,7 +70,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
             'report_region': CONTEST_REPORT_KEY,
             'testgroup[zad1]': ['0', '1', '2', '3'],
             'form_type': 'xml_report',
-            'single_report_user': ''
+            'single_report_user': '',
         }
 
         # Let's check if report is not available for regular user.
@@ -95,7 +99,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
             'testgroup[zad1]': ['0', '1', '2', '3'],
             'form_type': 'xml_report',
             'is_single_report': 'on',
-            'single_report_user': 'test_user2'
+            'single_report_user': 'test_user2',
         }
 
         self.assertTrue(self.client.login(username='test_admin'))
@@ -112,4 +116,4 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2016, 11, 6, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertContains(response, 'selected="selected">Past round')
+            self.assertContains(response, 'selected>Past round')

@@ -1,9 +1,9 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from oioioi.oisubmit import views
 
 app_name = 'oisubmit'
 
 contest_patterns = [
-    url(r'^oisubmit/$', views.oisubmit_view, name='oisubmit'),
+    re_path(r'^oisubmit/$', views.oisubmit_view, name='oisubmit'),
 ]

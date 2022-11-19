@@ -1,0 +1,35 @@
+{% load i18n %}
+
+{% if contests %}
+    <div class="table-responsive-md">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "Name" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contest in contests %}
+                <tr>
+                    <td>{{ contest.id }}</td>
+                    <td>
+                        <div class="add-to-contest-group">
+                            <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
+                               class="long-job" data-urlkey="{{ site_key }}">{{ contest.name }}</a>
+                            <span class="loading-spinner d-none">
+                                <i class="fa-solid fa-rotate-right spinner"></i>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% else %}
+    <div class="alert alert-info">
+        <p>{% trans "No contests yet :(" %}</p>
+    </div>
+{% endif %}

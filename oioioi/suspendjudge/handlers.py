@@ -10,11 +10,12 @@ from oioioi.suspendjudge.models import SuspendedProblem
 def _is_suspended(problem_instance_id, suspend_init_tests=None):
     if suspend_init_tests is None:
         return SuspendedProblem.objects.filter(
-            problem_instance=problem_instance_id).exists()
+            problem_instance=problem_instance_id
+        ).exists()
     else:
         return SuspendedProblem.objects.filter(
-            problem_instance=problem_instance_id,
-            suspend_init_tests=suspend_init_tests).exists()
+            problem_instance=problem_instance_id, suspend_init_tests=suspend_init_tests
+        ).exists()
 
 
 def _is_hidden_rejudge(env):
@@ -24,8 +25,9 @@ def _is_hidden_rejudge(env):
 @_get_submission_or_skip
 def _is_admin_submission(env, submission):
     if submission.user is not None:
-        return submission.user.has_perm('contests.contest_admin',
-                               submission.problem_instance.contest)
+        return submission.user.has_perm(
+            'contests.contest_admin', submission.problem_instance.contest
+        )
     return False
 
 
@@ -39,10 +41,12 @@ def _is_model_solution(env):
 def check_problem_instance_state(env, suspend_init_tests=None, **kwargs):
     suspend = False
     with transaction.atomic():
-        if _is_suspended(env['problem_instance_id'], suspend_init_tests) and \
-                not _is_hidden_rejudge(env) and \
-                not _is_admin_submission(env) and \
-                not _is_model_solution(env):
+        if (
+            _is_suspended(env['problem_instance_id'], suspend_init_tests)
+            and not _is_hidden_rejudge(env)
+            and not _is_admin_submission(env)
+            and not _is_model_solution(env)
+        ):
             mark_job_state(env, 'SUSPENDED')
             suspend = True
     if suspend:

@@ -1,3 +1,0 @@
-{% load i18n %}{% blocktrans %}
-This is the main page of your portal. Click "Edit page" above to modify it.
-{%endblocktrans %}

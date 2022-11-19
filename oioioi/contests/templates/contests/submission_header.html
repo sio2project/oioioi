@@ -1,0 +1,142 @@
+{% load i18n %}
+{% block controls %}
+<div class="clearfix">
+    <div class="float-right">
+        {% if can_admin %}
+            {% block controls_admin_buttons %}
+            {% if submission.valid_kinds_for_submission %}
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        <i class="fa-solid fa-tags"></i>
+                        {% trans "Change kind" %}
+                    </button>
+                    <div class="dropdown-menu">
+                        {% for value, description in submission.valid_kinds_for_submission %}
+                            <a class="dropdown-item" href="#"
+                            data-post-url="{% url 'change_submission_kind' submission_id=submission.submission.id kind=value %}">
+                                <i class="fa-solid fa-tag"></i>
+                                {{ description }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                        data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    {% trans "Rejudge" %}
+                </button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#"
+                    data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}">
+                        <i class="fa-solid fa-eye"></i>
+                        {% trans "Normal rejudge" %}
+                    </a>
+                    {% for link, name in supported_extra_args.items %}
+                        <a class="dropdown-item" href="#"
+                        data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}?{{ link }}=true">
+                            <i class="fa-solid fa-eye-slash"></i>
+                            {{ name }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endblock %}
+        {% endif %}
+        {% block controls_buttons %}
+        {% if contest %}
+            <a role="button"
+                class="btn btn-sm btn-outline-secondary"
+                href= "{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
+                <i class="fa-regular fa-circle-up"></i>
+                {% trans "Submit another" %}
+            </a>
+        {% else %}
+            {% if submission.submission.problem_instance.problem.problemsite %}
+                <a role="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    href= "{% url 'problem_site' site_key=submission.submission.problem_instance.problem.problemsite.url_key %}">
+                    <i class="fa-regular fa-circle-up"></i>
+                    {% trans "Submit another" %}
+                </a>
+            {% endif %}
+        {% endif %}
+        {% endblock %}
+    </div>
+    <h1 class="float-left">{% trans "Submission" %} {{ submission.submission.id }}</h1>
+</div>
+{% endblock %}
+
+{% block submission_details %}
+<div class="table-responsive-md">
+    <table class="table table--center" id="submission-status-table">
+        <thead>
+            <tr>
+                {% if can_admin %}
+                    <th>{% trans "User name" %}</th>
+                {% endif %}
+                <th>{% trans "Problem" %}</th>
+                <th>{% trans "Submission date" %}</th>
+                <th>{% trans "Status" %}</th>
+                {% if can_admin %}
+                    <th>{% trans "Kind" %}</th>
+                {% endif %}
+                <th>{% trans "Score" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% if can_admin %}
+                    <td>
+                        {% if submission.submission.user and contest %}
+                            <a href="{% url 'user_info' submission.submission.user_id %}">
+                                {{ submission.submission.user.get_full_name }}
+                            </a>
+                        {% else %}
+                            {{ submission.submission.user.get_full_name }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'oioioiadmin:contests_submission_changelist' %}?pi={{ submission.submission.problem_instance.problem.name|urlencode }}">
+                            {{ submission.submission.problem_instance }}
+                        </a>
+                    </td>
+                {% else %}
+                    <td>{{ problem }} </td>
+                {% endif %}
+                <td>{{ submission.submission.get_date_display }}</td>
+                {% if submission.can_see_status %}
+                    <td class="submission submission--{{ submission.display_type }}">
+                        {{ submission.message }}
+                    </td>
+                {% else %}
+                    <td></td>
+                {% endif %}
+                {% if can_admin %}
+                    <td>
+                        {{ submission.submission.get_kind_display }}
+                    </td>
+                {% endif %}
+                <td>
+                    {% if submission.can_see_score %}
+                        {{ submission.submission.score|default_if_none:'' }}
+                    {% endif %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block submission_comment %}
+{% if submission.can_see_comment and submission.submission.comment %}
+    <h4>{% trans "Submission comment" %}</h4>
+    <pre>
+        {{ submission.submission.comment }}
+    </pre>
+{% endif %}
+{% endblock %}

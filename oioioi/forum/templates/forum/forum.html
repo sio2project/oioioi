@@ -6,35 +6,35 @@
 {% block forum-head %}
     <div class="clearfix">
         {% if is_admin %}
-            <div class="pull-right">
-                <a role="button" class="btn btn-sm btn-default"
+            <div class="float-right">
+                <a role="button" class="btn btn-sm btn-outline-secondary"
                     href="{% url 'oioioiadmin:forum_category_add' %}">
                     {% trans "Add new category" %}
                 </a>
                 {% if not is_locked %}
-                    <a role="button" class="btn btn-sm btn-default" href="#"
+                    <a role="button" class="btn btn-sm btn-outline-secondary" href="#"
                         data-post-url="{% url 'forum_lock' contest_id=contest.id %}">
                         {% trans "Lock forum now" %}
                     </a>
                 {% else %}
-                    <a role="button" class="btn btn-sm btn-default" href="#"
+                    <a role="button" class="btn btn-sm btn-outline-secondary" href="#"
                         data-post-url="{% url 'forum_unlock' contest_id=contest.id %}">
                         {% trans "Unlock forum now" %}
                     </a>
                 {% endif %}
             </div>
         {% endif %}
-        <h1 class="pull-left">{% trans "Forum" %}: {{ forum }}</h1>
+        <h1 class="float-left">{% trans "Forum" %}: {{ forum }}</h1>
     </div>
 {% endblock %}
 
 {% block forum-contents %}
     {% if category_set.exists %}
-        <div class="table-responsive">
+        <div class="table-responsive-md">
             <table class="table auto-width">
                 <thead>
                     <tr>
-                        <th class="{% if is_admin %} col-sm-4 {% else %} col-xs-8 {% endif %}">
+                        <th class="{% if is_admin %} col-md-4 {% else %} col-sm-8 {% endif %}">
                             {% trans "Category" %}
                         </th>
                         <th>{% trans "Threads" %}</th>
@@ -58,12 +58,29 @@
                             <td>{{ c.count_posts }}</td>
                             {% if is_admin %}
                                 <td>
-                                    <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.id %}">
-                                        <span class="glyphicon glyphicon-trash"></span>
+                                    <a href="#" data-post-url="{% url 'forum_category_toggle_reactions' contest_id=contest.id category_id=c.id %}">
+                                        {% if c.reactions_enabled %}
+                                            {% trans "Disable post reactions" %}
+                                        {% else %}
+                                            {% trans "Enable post reactions" %}
+                                        {% endif %}
                                     </a>
+                                    <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.id %}">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                    {% if forloop.counter0 > 0 %}
+                                    <a href="#" data-post-url="{% url 'forum_category_move_up' contest_id=contest.id category_id=c.id %}">
+                                        <i class="fa-solid fa-chevron-up"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if forloop.counter < category_set|length %}
+                                    <a href="#" data-post-url="{% url 'forum_category_move_down' contest_id=contest.id category_id=c.id %}">
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </a>
+                                    {% endif %}
                                 </td>
                                 <td>
-                                    <div {% if c.count_reported > 0 %}class="label label-danger"{% endif %}>
+                                    <div {% if c.count_reported > 0 %}class="badge badge-danger"{% endif %}>
                                         {{ c.count_reported }}
                                     </div>
                                 </td>

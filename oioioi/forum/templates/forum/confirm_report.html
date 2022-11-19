@@ -1,0 +1,21 @@
+{% extends "simple-centered-custom-confirmation.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Report confirmation" %} - {% trans "Forum" %}{% endblock %}
+
+{% block help_text %}
+    {% blocktrans %}Are you sure, that you want to report post:{% endblocktrans %}
+    {% include 'forum/post-preview.html' %}
+    {% blocktrans %}in {{thread}}?{% endblocktrans %}
+{% endblock %}
+
+{% block form %}
+    <form method="post" class="form-wide">
+        {% csrf_token %}
+        {% include "ingredients/form.html" %}
+        <div class="form-group">
+            <button type="submit" class="btn btn-danger">{% trans "Report" %}</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="history.back()">{% trans "Cancel" %}</button>
+        </div>
+    </form>
+{% endblock %}

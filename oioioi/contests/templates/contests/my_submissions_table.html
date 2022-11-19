@@ -12,16 +12,15 @@
         elements.click(function() {
             {% url 'get_report_HTML' submission_id=record.submission.id as link %}
             $("#report{{ record.submission.id }}div").load("{{ link }}");
-            $("#report{{ record.submission.id }}div").addClass("col-lg-6");
+            $("#report{{ record.submission.id }}div").addClass("col-xl-6");
             $("#report{{ record.submission.id }}").toggle("fast");
         });
     });
     {% endfor %}
 </script>
 {% endif %}
-
-<div class="table-responsive">
-    <table class="{% block table-classes %}table table-condensed submission{% endblock %}">
+<div class="table-responsive-md">
+    <table class="{% block table-classes %}table table-sm submission{% endblock %}">
         <thead>
             <tr>
                 <th class="submission__margin submission--{{ record.submission.status }}"></th>
@@ -34,46 +33,15 @@
                 {% if show_scores %}
                     <th>{% trans "Score" %}</th>
                 {% endif %}
+                <th class="details-th">{% trans "Details" %}</th>
                 {% block more-headers-after %}{% endblock %}
             </tr>
         </thead>
         <tbody>
             {% for record in submissions %}
-                <tr>
-                    {% if can_admin %}
-                        <td id="submission{{ record.submission.id }}-icon">
-                            <span class="glyphicon glyphicon-chevron-down"></span>
-                        </td>
-                    {% else %}
-                        <td class="{% if record.can_see_status %}submission__margin
-                            submission--{{ record.display_type }}{% endif %}"></td>
-                    {% endif %}
-                    <td><a href="{{ record.link }}">
-                        {{ record.submission.get_date_display }}
-                    </a></td>
-                    {% if not inside_problem_view %}
-                        <td id="submission{{ record.submission.id }}-problem-instance" class="col-md-4">
-                            {{ record.submission.problem_instance }}
-                        </td>
-                    {% endif %}
-                    <td id="submission{{ record.submission.id }}-kind">
-                        {{ record.submission.get_kind_display }}
-                    </td>
-                    <td id="submission{{ record.submission.id }}-status"
-                        class="{% if record.can_see_status %}submission--{{ record.display_type }} {% endif %}">
-                        {% if record.can_see_status %}
-                            {{ record.message }}
-                        {% endif %}
-                    </td>
-                    {% if show_scores %}
-                        <td id="submission{{ record.submission.id }}-score">
-                            {% if record.can_see_score %}
-                                {{ record.submission.get_score_display|default_if_none:'' }}
-                            {% endif %}
-                        </td>
-                    {% endif %}
-                    {% block more-columns-after %}{% endblock %}
-                </tr>
+                {% include 'contests/my_submission_table_base_row_begin.html' %}
+                {% block more-columns-after %}{% endblock %}
+                {% include 'contests/my_submission_table_base_row_end.html' %}
                 {% if record.can_see_comment and not hide_reports %}
                     <tr class="padded-collapsing-content">
                         <td colspan="100">

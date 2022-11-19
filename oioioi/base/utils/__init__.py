@@ -1,85 +1,85 @@
 # pylint: disable=bad-super-call
-import re
-import os
-import sys
-import json
 import base64
-import shutil
-import tempfile
 import functools
+import json
+import os
+import re
+import shutil
+import sys
+import tempfile
 from contextlib import contextmanager
 from importlib import import_module
 
 import six
-import six.moves.urllib.parse
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+import urllib.parse
 from django.forms.utils import flatatt
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.template import Template
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.encoding import force_text
-from django.utils.translation import ugettext_lazy as _
-
+from django.utils.translation import gettext_lazy as _
 
 # Metaclasses
 
 
 class ClassInitMeta(type):
     """Meta class triggering __classinit__ on class intialization."""
+
     def __init__(cls, class_name, bases, new_attrs):
         super(ClassInitMeta, cls).__init__(class_name, bases, new_attrs)
         cls.__classinit__()
 
 
-class ClassInitBase(six.with_metaclass(ClassInitMeta, object)):
+class ClassInitBase(object, metaclass=ClassInitMeta):
     """Abstract base class injecting ClassInitMeta meta class."""
 
     @classmethod
     def __classinit__(cls):
         """
-            Empty __classinit__ implementation.
+        Empty __classinit__ implementation.
 
-            This must be a no-op as subclasses can't reliably call base class's
-            __classinit__ from their __classinit__s.
+        This must be a no-op as subclasses can't reliably call base class's
+        __classinit__ from their __classinit__s.
 
-            Subclasses of __classinit__ should look like:
+        Subclasses of __classinit__ should look like:
 
-            .. python::
+        .. python::
 
-                class MyClass(ClassInitBase):
+            class MyClass(ClassInitBase):
 
-                    @classmethod
-                    def __classinit__(cls):
-                        # Need globals().get as MyClass may be still undefined.
-                        super(globals().get('MyClass', cls),
-                                cls).__classinit__()
-                        ...
+                @classmethod
+                def __classinit__(cls):
+                    # Need globals().get as MyClass may be still undefined.
+                    super(globals().get('MyClass', cls),
+                            cls).__classinit__()
+                    ...
 
-                class Derived(MyClass):
+            class Derived(MyClass):
 
-                    @classmethod
-                    def __classinit__(cls):
-                        super(globals().get('Derived', cls),
-                                cls).__classinit__()
-                        ...
+                @classmethod
+                def __classinit__(cls):
+                    super(globals().get('Derived', cls),
+                            cls).__classinit__()
+                    ...
         """
         pass
 
 
 class RegisteredSubclassesBase(ClassInitBase):
     """A base class for classes which should have a list of subclasses
-       available.
+    available.
 
-       The list of subclasses is available in their :attr:`subclasses` class
-       attributes. Classes which have *explicitly* set :attr:`abstract` class
-       attribute to ``True`` are not added to :attr:`subclasses`.
+    The list of subclasses is available in their :attr:`subclasses` class
+    attributes. Classes which have *explicitly* set :attr:`abstract` class
+    attribute to ``True`` are not added to :attr:`subclasses`.
 
-       If a class has ``modules_with_subclasses`` attribute (list or string),
-       then specified modules for all installed applications can be loaded by
-       calling :meth:`~RegisteredSubclassesBase.load_subclasses`.
+    If a class has ``modules_with_subclasses`` attribute (list or string),
+    then specified modules for all installed applications can be loaded by
+    calling :meth:`~RegisteredSubclassesBase.load_subclasses`.
     """
 
     _subclasses_loaded = False
@@ -92,25 +92,26 @@ class RegisteredSubclassesBase(ClassInitBase):
             # This is RegisteredSubclassesBase class.
             return
 
-        if '__unmixed_class__' in cls.__dict__ \
-                and cls.__unmixed_class__ is not cls:
+        if '__unmixed_class__' in cls.__dict__ and cls.__unmixed_class__ is not cls:
             # This is an artificial class created by mixins mechanism
             return
 
-        assert 'subclasses' not in cls.__dict__, \
-                '%s defines attribute subclasses, but has ' \
-                'RegisteredSubclassesMeta metaclass' % (cls,)
+        assert 'subclasses' not in cls.__dict__, (
+            '%s defines attribute subclasses, but has '
+            'RegisteredSubclassesMeta metaclass' % (cls,)
+        )
         cls.subclasses = []
         cls.abstract = cls.__dict__.get('abstract', False)
 
         def find_superclass(cls):
-            superclasses = [c for c in cls.__bases__
-                            if issubclass(c, this_cls)]
+            superclasses = [c for c in cls.__bases__ if issubclass(c, this_cls)]
             if not superclasses:
                 return None
             if len(superclasses) > 1:
-                raise AssertionError('%s derives from more than one '
-                        'RegisteredSubclassesBase' % (cls.__name__,))
+                raise AssertionError(
+                    '%s derives from more than one '
+                    'RegisteredSubclassesBase' % (cls.__name__,)
+                )
             superclass = superclasses[0]
             if '__unmixed_class__' in superclass.__dict__:
                 superclass = superclass.__unmixed_class__
@@ -129,8 +130,9 @@ class RegisteredSubclassesBase(ClassInitBase):
         if cls._subclasses_loaded:
             return
         from django.conf import settings
+
         modules_to_load = getattr(cls, 'modules_with_subclasses', [])
-        if isinstance(modules_to_load, six.string_types):
+        if isinstance(modules_to_load, str):
             modules_to_load = [modules_to_load]
         for app_module in list(settings.INSTALLED_APPS):
             for name in modules_to_load:
@@ -256,8 +258,11 @@ class ObjectWithMixins(ClassInitBase):
     def _make_mx_class(cls, mixins):
         if mixins:
             bases = tuple(mixins) + (cls,)
-            return type(cls.__name__ + 'WithMixins', bases,
-                    dict(__module__=cls.__module__, __unmixed_class__=cls))
+            return type(
+                cls.__name__ + 'WithMixins',
+                bases,
+                dict(__module__=cls.__module__, __unmixed_class__=cls),
+            )
         else:
             return cls
 
@@ -292,10 +297,12 @@ class ObjectWithMixins(ClassInitBase):
     def mix_in(cls, mixin):
         """Appends the given mixin to the list of class mixins."""
         assert cls.__unmixed_class__ is cls
-        assert cls.allow_too_late_mixins or \
-                '_has_instances' not in cls.__dict__, \
-                "Adding mixin %r to %r too late. The latter already has " \
-                "instances." % (mixin, cls)
+        assert (
+            cls.allow_too_late_mixins or '_has_instances' not in cls.__dict__
+        ), "Adding mixin %r to %r too late. The latter already has instances." % (
+            mixin,
+            cls,
+        )
         cls.mixins.append(mixin)
         cls._mx_class = None
         cls._fixup_subclasses()
@@ -304,8 +311,9 @@ class ObjectWithMixins(ClassInitBase):
 # Memoized-related bits copied from SqlAlchemy.
 
 
-class memoized_property(object):   # Copied from SqlAlchemy
+class memoized_property(object):  # Copied from SqlAlchemy
     """A read-only @property that is only evaluated once."""
+
     def __init__(self, fget, doc=None):
         self.fget = fget
         self.__doc__ = doc or fget.__doc__
@@ -320,10 +328,10 @@ class memoized_property(object):   # Copied from SqlAlchemy
 
 def memoized(fn):
     """Simple wrapper that adds result caching for functions with positional
-       arguments only.
+    arguments only.
 
-       The arguments must be hashable so that they can be stored as keys in
-       a dict.
+    The arguments must be hashable so that they can be stored as keys in
+    a dict.
     """
     cache = {}
 
@@ -332,18 +340,20 @@ def memoized(fn):
         if args not in cache:
             cache[args] = fn(*args)
         return cache[args]
+
     memoizer.cache = cache
     return memoizer
 
 
 def reset_memoized(memoized_fn):
     """Clear the memoization cache of a function decorated by
-       :fun:`memoized`."""
+    :fun:`memoized`."""
     memoized_fn.cache.clear()
 
 
 def request_cached(fn):
     """Adds per-request caching for functions which operate on sole request."""
+
     @functools.wraps(fn)
     def cacher(request):
         if not hasattr(request, '_cache'):
@@ -351,6 +361,7 @@ def request_cached(fn):
         if fn not in request._cache:
             request._cache[fn] = fn(request)
         return request._cache[fn]
+
     return cacher
 
 
@@ -365,8 +376,9 @@ def make_html_link(href, name, method='GET', extra_attrs=None):
     if not extra_attrs:
         extra_attrs = {}
     attrs.update(extra_attrs)
-    return mark_safe(u'<a %s>%s</a>' % (flatatt(attrs),
-                     conditional_escape(force_text(name))))
+    return mark_safe(
+        u'<a %s>%s</a>' % (flatatt(attrs), conditional_escape(force_str(name)))
+    )
 
 
 def make_html_links(links, extra_attrs=None):
@@ -380,11 +392,9 @@ def make_html_links(links, extra_attrs=None):
 
 def make_navbar_badge(link, text, id=None):
     if link is not None or text is not None:
-        return render_to_string('utils/navbar-badge.html', context={
-            'link': link,
-            'text': text,
-            'id': id
-        })
+        return render_to_string(
+            'utils/navbar-badge.html', context={'link': link, 'text': text, 'id': id}
+        )
     return ""
 
 
@@ -394,37 +404,43 @@ def make_navbar_badge(link, text, id=None):
 def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
     """A framework for building pages that are split into tabs.
 
-        The current tab is picked using the 'key' GET parameter.
-        The given template is rendered using the given context, which is
-        extended by 'current_tab', representing the opened tab, 'tabs',
-        a set of 'obj' and 'link' pairs for each existing tab, where 'obj'
-        represents the tab and 'link' is a link to the tab's page,
-        and 'content', the tab's rendered content.
+    The current tab is picked using the 'key' GET parameter.
+    The given template is rendered using the given context, which is
+    extended by 'current_tab', representing the opened tab, 'tabs',
+    a set of 'obj' and 'link' pairs for each existing tab, where 'obj'
+    represents the tab and 'link' is a link to the tab's page,
+    and 'content', the tab's rendered content.
 
-        :param request: a HttpRequest object given to the view
-        :param template: the rendered template
-        :param context: additional context to be passed to the template
-        :param tabs: an iterable of tabs. Each tab must have a unique 'key'
-                attribute that will be used to create an URL to the tab,
-                a 'view' attribute returning either HttpResponseRedirect,
-                TemplateResponse or rendered html, and an optional 'condition'
-                attribute: a function taking a request and returning
-                if the tab should be accessible for this request. If there is
-                no condition then it is assumed to be always returning True.
-        :param tab_kwargs: a dict to be passed as kwargs to each tab's view
-        :param link_builder: a function which receives a tab and returns
-                a link to the tab. It should contain a proper path
-                and the appropriate 'key' parameter.
+    :param request: a HttpRequest object given to the view
+    :param template: the rendered template
+    :param context: additional context to be passed to the template
+    :param tabs: an iterable of tabs. Each tab must have a unique 'key'
+            attribute that will be used to create an URL to the tab,
+            a 'view' attribute returning either HttpResponseRedirect,
+            TemplateResponse or rendered html, and an optional 'condition'
+            attribute: a function taking a request and returning
+            if the tab should be accessible for this request. If there is
+            no condition then it is assumed to be always returning True.
+    :param tab_kwargs: a dict to be passed as kwargs to each tab's view
+    :param link_builder: a function which receives a tab and returns
+            a link to the tab. It should contain a proper path
+            and the appropriate 'key' parameter.
     """
-    tabs = [t for t in tabs if not hasattr(t, 'condition')
-                                or t.condition(request)]
+    tabs = [
+        t
+        for t in tabs
+        if not hasattr(t, 'condition')
+        or 'problem' not in context
+        or t.condition(request, context['problem'])
+    ]
     if 'key' not in request.GET:
         if not tabs:
             raise Http404
         qs = request.GET.dict()
         qs['key'] = next(iter(tabs)).key
-        return HttpResponseRedirect(request.path + '?' +
-                six.moves.urllib.parse.urlencode(qs))
+        return HttpResponseRedirect(
+            request.path + '?' + urllib.parse.urlencode(qs)
+        )
     key = request.GET['key']
     for tab in tabs:
         if tab.key == key:
@@ -442,13 +458,14 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
     else:
         content = response
 
-    tabs_context = [{'obj': tab, 'link': link_builder(tab)}
-                    for tab in tabs]
-    context.update({
-        'current_tab': current_tab,
-        'tabs': tabs_context,
-        'content': mark_safe(force_text(content))
-    })
+    tabs_context = [{'obj': tab, 'link': link_builder(tab)} for tab in tabs]
+    context.update(
+        {
+            'current_tab': current_tab,
+            'tabs': tabs_context,
+            'content': mark_safe(force_str(content)),
+        }
+    )
     return TemplateResponse(request, template, context)
 
 
@@ -460,7 +477,7 @@ def uploaded_file_name(uploaded_file):
     if hasattr(uploaded_file, 'temporary_file_path'):
         yield uploaded_file.temporary_file_path()
     else:
-        f = tempfile.NamedTemporaryFile(suffix=uploaded_file.name)
+        f = tempfile.NamedTemporaryFile(suffix=os.path.basename(uploaded_file.name))
         shutil.copyfileobj(uploaded_file, f)
         f.flush()
         yield f.name
@@ -509,9 +526,7 @@ class ProgressBar(object):
     def _show(self, preserve=False):
         done_p = 100 * self.value / self.max_value
         done_l = self.length * self.value / self.max_value
-        s = '|' + '=' * done_l + \
-            ' ' * (self.length - done_l) + \
-            '|  %d%%' % done_p
+        s = '|' + '=' * done_l + ' ' * (self.length - done_l) + '|  %d%%' % done_p
         self.to_clear = 0 if preserve else len(s)
         sys.stdout.write(s + ('\n' if preserve else ''))
         sys.stdout.flush()
@@ -524,8 +539,8 @@ class ProgressBar(object):
     def update(self, value=None, preserve=False):
         """Set new value (if given) and redraw the bar.
 
-           :param preserve: controls if bar will end with a new line and
-                            stay after next update.
+        :param preserve: controls if bar will end with a new line and
+                         stay after next update.
         """
         if value:
             if value > self.max_value:
@@ -541,13 +556,15 @@ class ProgressBar(object):
 def jsonify(view):
     """A decorator to serialize view result with JSON.
 
-       The object returned by ``view`` will be converted to JSON and returned
-       as an appropriate :class:`django.http.HttpResponse`.
+    The object returned by ``view`` will be converted to JSON and returned
+    as an appropriate :class:`django.http.HttpResponse`.
     """
+
     @functools.wraps(view)
     def inner(*args, **kwargs):
         data = view(*args, **kwargs)
         return HttpResponse(json.dumps(data), content_type='application/json')
+
     return inner
 
 
@@ -558,29 +575,36 @@ def add_header(header, value):
             response = view(*args, **kwargs)
             response[header] = value
             return response
+
         return inner
+
     return decorator
 
 
 def allow_cross_origin(arg='*'):
     """Add Access-Control-Allow-Origin header with given value,
-       or '*' if none given.
+    or '*' if none given.
 
-       May be used as any of:
+    May be used as any of:
 
-       @allow_cross_origin
-       @allow_cross_origin()
-       @allow_cross_origin('http://example.com')
+    @allow_cross_origin
+    @allow_cross_origin()
+    @allow_cross_origin('http://example.com')
     """
     if callable(arg):
         return allow_cross_origin()(arg)
     return add_header('Access-Control-Allow-Origin', arg)
 
 
+def is_ajax(request):
+    """Check if 'request' is an jQuery AJAX call."""
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+
 def generate_key():
     """Generate an random key, encoded in url-safe way."""
     # 18 bytes = 144 bits of entropy, 24 bytes in base64.
-    return base64.urlsafe_b64encode(os.urandom(18))
+    return six.ensure_text(base64.urlsafe_b64encode(os.urandom(18)))
 
 
 # User-related
@@ -588,7 +612,7 @@ def generate_key():
 
 def get_user_display_name(user):
     """This method returns the full user name if available and
-       the username otherwise.
+    the username otherwise.
     """
     return user.get_full_name() or user.username
 
@@ -599,11 +623,11 @@ def get_user_display_name(user):
 def find_closure(groups):
     """Finds closure of sets.
 
-       If any two elements were within same input set,they will be in
-       one unique set in the output.
+    If any two elements were within same input set,they will be in
+    one unique set in the output.
 
-       >>> find_closure([[1, 2], [2, 3], [4]])
-       [[1, 2, 3], [4],]
+    >>> find_closure([[1, 2], [2, 3], [4]])
+    [[1, 2, 3], [4],]
     """
     parent = {}
 

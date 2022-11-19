@@ -16,12 +16,9 @@
             <p>{{ offending.reason }}</p>
         {% endfor %}
 
-        {% blocktrans %}
-        <p>
-            By the power of the contest rules you are going to be disqualified.
-            If you are willing to plea, please use Complaints form.
-        </p>
-        {% endblocktrans %}
+        {% if contest_disq_info %}
+            <p>{{ contest_disq_info }}</p>
+        {% endif %}
     </div>
 {% endif %}
 
@@ -33,11 +30,8 @@
 
         <p>{{ contestwide }}</p>
 
-        {% blocktrans %}
-            <p>
-                By the power of the contest rules you are going to be disqualified.
-                If you are willing to plea, please use Complaints form.
-            </p>
-        {% endblocktrans %}
+        {% if contest_disq_info %}
+            <p>{{ contest_disq_info }}</p>
+        {% endif %}
     </div>
 {% endif %}

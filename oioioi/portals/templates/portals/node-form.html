@@ -1,6 +1,14 @@
 {% extends "portals/base-node.html" %}
 {% load i18n %}
 
+{% block extrahead %}{{ block.super }}
+<style>
+    .phi-letter::after {
+        content: "<span>&#966;</span>";
+    }
+</style>
+{% endblock %}
+
 {% block panel %}
     <h2>{% block form_header %}{% endblock %}</h2>
     <form method="post" style="max-width: initial;">
@@ -68,7 +76,7 @@
                                     name: "cmdYoutube",
                                     title: "YouTube",
                                     icon: {
-                                        glyph: 'glyphicon glyphicon-play'
+                                        fa: 'fa fa-play'
                                     },
                                     callback: function (e) {
                                         e.replaceSelection('[[YouTube|<url>]]');
@@ -76,9 +84,9 @@
                                 },
                                 {
                                     name: "cmdProblemTable",
-                                    title: "{% trans 'Problem Table' %}",
+                                    title: '{% trans "Problem Table" %}',
                                     icon: {
-                                        glyph: 'glyphicon glyphicon-align-justify'
+                                        fa: 'fa fa-table-list'
                                     },
                                     callback: function (e) {
                                         e.replaceSelection('[[ProblemTable|url1;url2;...]]');
@@ -86,9 +94,9 @@
                                 },
                                 {
                                     name: "cmdInlineMathJax",
-                                    title: "{% trans 'Inline math mode' %}",
+                                    title: '{% trans "Inline math mode" %}',
                                     icon: {
-                                        glyph: 'icofont icofont-square-root'
+                                        fa: 'fa fa-square-root-variable'
                                     },
                                     callback: function (e) {
                                         replaceSelectionOutside(e, "\\\\(", "<mathjax>", "\\\\)");
@@ -96,9 +104,9 @@
                                 },
                                 {
                                     name: "cmdOutOfLineMathJax",
-                                    title: "{% trans 'Math mode' %}",
+                                    title: '{% trans "Math mode" %}',
                                     icon: {
-                                        glyph: 'icofont icofont-golden-ratio'
+                                        fa: 'fa fa-bars-staggered'
                                     },
                                     callback: function (e) {
                                         replaceSelectionOutside(e, "$$", "<mathjax>", "$$");

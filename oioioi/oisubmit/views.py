@@ -1,6 +1,5 @@
 from datetime import timedelta  # pylint: disable=E0611
 
-import six
 from django.http import HttpResponseServerError
 from django.template.response import TemplateResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -37,13 +36,14 @@ def oisubmit_view(request):
             request.timestamp = submission_date
             pi = form.cleaned_data['problem_instance']
 
-            task_submission_no = Submission.objects \
-                .filter(user=request.user, problem_instance__id=pi.id) \
-                .filter(kind=form.cleaned_data['kind']) \
-                .count() + 1
+            task_submission_no = (
+                Submission.objects.filter(user=request.user, problem_instance__id=pi.id)
+                .filter(kind=form.cleaned_data['kind'])
+                .count()
+                + 1
+            )
 
-            submissions_limit = \
-                pi.controller.get_submissions_limit(request, pi)
+            submissions_limit = pi.controller.get_submissions_limit(request, pi)
 
             errors = []
 
@@ -66,30 +66,36 @@ def oisubmit_view(request):
             if received_suspected:
                 form.cleaned_data['kind'] = 'SUSPECTED'
 
-            submission = request.contest.controller.create_submission(request,
-                    pi, form.cleaned_data, judge_after_create=(not errors))
+            submission = request.contest.controller.create_submission(
+                request, pi, form.cleaned_data, judge_after_create=(not errors)
+            )
 
-            extra_data = OISubmitExtraData(submission=submission,
-                                localtime=form.cleaned_data['localtime'],
-                                siotime=form.cleaned_data['siotime'],
-                                servertime=servertime,
-                                received_suspected=received_suspected,
-                                comments=err_msg)
+            extra_data = OISubmitExtraData(
+                submission=submission,
+                localtime=form.cleaned_data['localtime'],
+                siotime=form.cleaned_data['siotime'],
+                servertime=servertime,
+                received_suspected=received_suspected,
+                comments=err_msg,
+            )
             extra_data.save()
 
             if errors:
-                msg = '\n'.join(six.text_type(SUSPICION_REASONS[err]) for err
-                                in errors if err in SUSPICION_REASONS)
+                msg = '\n'.join(
+                    str(SUSPICION_REASONS[err])
+                    for err in errors
+                    if err in SUSPICION_REASONS
+                )
                 return oisubmit_response(True, msg)
             else:
                 msg = submission_date.strftime("%Y-%m-%d %H:%M:%S")
-                return oisubmit_response(False, six.text_type(msg))
+                return oisubmit_response(False, str(msg))
         else:
             if list(form.errors.keys())[0] in INCORRECT_FORM_COMMENTS:
                 msg = INCORRECT_FORM_COMMENTS[list(form.errors.keys())[0]]
             else:
                 msg = list(form.errors.values())[0].as_text()
-            return oisubmit_response(True, six.text_type(msg))
+            return oisubmit_response(True, str(msg))
     else:
         form = OISubmitSubmissionForm(request)
     return TemplateResponse(request, 'contests/submit.html', {'form': form})

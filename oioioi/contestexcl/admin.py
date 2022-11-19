@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.contestexcl.forms import ExclusivenessConfigForm
@@ -13,6 +13,7 @@ class ExclusivenessConfigInline(admin.TabularInline):
     extra = 0
     form = ExclusivenessConfigForm
     fields = ('enabled', 'start_date', 'end_date', 'disable')
+    category = _("Advanced")
 
     def get_fields(self, request, obj=None):
         fields = super(ExclusivenessConfigInline, self).get_fields(request, obj)
@@ -27,14 +28,16 @@ class ExclusivenessConfigInline(admin.TabularInline):
             return [f for f in self.get_fields(request, obj) if f != 'disable']
         return []
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):
         # Most fields are protected by get_readonly_fields
-        return (request.user.is_superuser
-            or not obj # This is confusing but for some reason is correct
-            or obj.exclusivenessconfig_set.filter(enabled=True).exists())
+        return (
+            request.user.is_superuser
+            or not obj  # This is confusing but for some reason is correct
+            or obj.exclusivenessconfig_set.filter(enabled=True).exists()
+        )
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
@@ -42,28 +45,29 @@ class ExclusivenessConfigInline(admin.TabularInline):
 
 class ContestAdminWithExclusivenessInlineMixin(object):
     """Adds :class:`~oioioi.contestexcl.models.ExclusivenessConfig` to an admin
-       panel.
+    panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(ContestAdminWithExclusivenessInlineMixin, self) \
-            .__init__(*args, **kwargs)
+        super(ContestAdminWithExclusivenessInlineMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ExclusivenessConfigInline]
 
     def _warn_on_contestexcl_overlap(self, request, ex_confs):
         for obj in ex_confs:
             qs = ExclusivenessConfig.objects.get_active_between(
-                obj.start_date,
-                obj.end_date
+                obj.start_date, obj.end_date
             ).select_related('contest')
-            qs = [ex_conf for ex_conf in qs
-                  if ex_conf.contest != request.contest]
+            qs = [ex_conf for ex_conf in qs if ex_conf.contest != request.contest]
             if qs:
-                contest_names = ', '.join([ex_conf.contest.name
-                                           for ex_conf in qs])
-                msg = _("The following contests' exclusion times"
+                contest_names = ', '.join([ex_conf.contest.name for ex_conf in qs])
+                msg = (
+                    _(
+                        "The following contests' exclusion times"
                         " overlap with the current one: %s. Watch out, because"
-                        " it may cause conflicts!") % contest_names
+                        " it may cause conflicts!"
+                    )
+                    % contest_names
+                )
                 messages.warning(request, msg)
 
     def _warn_on_not_exclusive_rounds(self, request, ex_confs):
@@ -76,14 +80,14 @@ class ContestAdminWithExclusivenessInlineMixin(object):
             for ex_conf in ex_confs:
                 # Check if there's a gap before the next excl config
                 if ex_conf.start_date > round_excl_end_date:
-                    round_not_excl_dates.append((round_excl_end_date,
-                                                 ex_conf.start_date))
+                    round_not_excl_dates.append(
+                        (round_excl_end_date, ex_conf.start_date)
+                    )
                     round_excl_end_date = ex_conf.start_date
 
                 # Update how much of the round is covered by the next config
                 if ex_conf.end_date:
-                    round_excl_end_date = max(round_excl_end_date,
-                                              ex_conf.end_date)
+                    round_excl_end_date = max(round_excl_end_date, ex_conf.end_date)
                 else:
                     break
 
@@ -91,8 +95,7 @@ class ContestAdminWithExclusivenessInlineMixin(object):
                 if round.end_date and round_excl_end_date >= round.end_date:
                     break
             else:
-                round_not_excl_dates.append((round_excl_end_date,
-                                             round.end_date))
+                round_not_excl_dates.append((round_excl_end_date, round.end_date))
 
             if round_not_excl_dates:
                 # Default to first date if there are no future dates
@@ -103,18 +106,19 @@ class ContestAdminWithExclusivenessInlineMixin(object):
                         break
 
                 if not first_future_date[1]:
-                    msg = _("Exclusiveness configs usually cover entire rounds,"
-                            " but currently round \"%s\" is not exclusive from"
-                            " %s! Please verify that your exclusiveness"
-                            " configs are correct.") % (round.name,
-                                                        first_future_date[0])
+                    msg = _(
+                        "Exclusiveness configs usually cover entire rounds,"
+                        " but currently round \"%s\" is not exclusive from"
+                        " %s! Please verify that your exclusiveness"
+                        " configs are correct."
+                    ) % (round.name, first_future_date[0])
                 else:
-                    msg = _("Exclusiveness configs usually cover entire rounds,"
-                            " but currently round \"%s\" is not exclusive from"
-                            " %s to %s! Please verify that your exclusiveness"
-                            " configs are correct.") % (round.name,
-                                                        first_future_date[0],
-                                                        first_future_date[1])
+                    msg = _(
+                        "Exclusiveness configs usually cover entire rounds,"
+                        " but currently round \"%s\" is not exclusive from"
+                        " %s to %s! Please verify that your exclusiveness"
+                        " configs are correct."
+                    ) % (round.name, first_future_date[0], first_future_date[1])
                 messages.warning(request, msg)
 
     def save_formset(self, request, form, formset, change):

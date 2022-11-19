@@ -18,10 +18,16 @@
     {% csrf_token %}
     <input type="hidden" name="post" value="yes" />
     <div class="form-group">
+        <div class="checkbox"><label for="copy-limits">
+            <input type="checkbox" id="copy-limits" name="copy-limits" />
+            {% trans "Copy limits from source contest" %}
+        </label></div>
+    </div>
+    <div class="form-group">
         <button type="submit" class="btn btn-primary">
             {% trans "Attach" %}
         </button>
-        <button type="button" class="btn btn-default" onclick="history.back()">
+        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
             {% trans "No, go back" %}
         </button>
     </div>

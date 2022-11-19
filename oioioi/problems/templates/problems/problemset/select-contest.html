@@ -1,46 +1,14 @@
 {% extends "problems/problemset/base.html" %}
 {% load i18n %}
-{% load staticfiles %}
+{% load static %}
 
 {% block main_content %}
 
 <h3>{% blocktrans %}Select contest to add the <code>{{ problem_name }}</code> problem to {% endblocktrans %}</h3>
 
-{% if administered_contests %}
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>{% trans "ID" %}</th>
-                    <th>{% trans "Name" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for contest in administered_contests %}
-                <tr>
-                    <td>{{ contest.id }}</td>
-                    <td>
-                        <div class="add-to-contest-group">
-                            <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
-                               class="long-job" data-urlkey="{{ site_key }}">{{ contest.name }}</a>
-                            <span class="loading-spinner hidden">
-                                <span class="glyphicon glyphicon-refresh glyphicon-spin"></span>
-                            </span>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+{% include "problems/problemset/contest-list.html" with contests=administered_contests %}
 
-{% else %}
-    <div class="alert alert-info">
-        <p>{% trans "No contests yet :(" %}</p>
-    </div>
-{% endif %}
-
-<form id="add_to_contest" method="post" class="hidden">
+<form id="add_to_contest" method="post"  class="d-none">
     {% csrf_token %}
     <input id="url_key" name="url_key" type="hidden">
 </form>

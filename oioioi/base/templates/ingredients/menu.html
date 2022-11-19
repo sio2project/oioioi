@@ -2,26 +2,28 @@
 {% all_with_prefix extra_menu_top_ %}
 
 
-<div class="panel-group" id="menu-accordion" role="tablist" aria-multiselectable="true">
+<div class="accordion" id="menu-accordion" role="tablist" aria-multiselectable="true">
     {% if side_menus|length > 1 %}
         {% for registry in side_menus %}
             {% generate_menu registry %}
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="menu-heading-{{ forloop.counter }}">
-                    <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#menu-accordion"
+            <div class="card">
+                <div class="card-header" role="tab" id="menu-heading-{{ forloop.counter }}">
+                    <h5 class="card-title mb-0">
+                        <a class="text-dark text-decoration-none collapsed" role="button" data-toggle="collapse"
                             href="#menu-{{ forloop.counter }}" aria-controls="menu-{{ forloop.counter }}"
-                            aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
+                            aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}"
+                            data-target="#menu-{{ forloop.counter }}">
                             {{ registry.text }}
                         </a>
-                    </h4>
+                    </h5>
                 </div>
-                <div id="menu-{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.last %}in{% endif %}"
+                <div id="menu-{{ forloop.counter }}" class="card-collapse collapse {% if forloop.last %}show{% endif %}"
                      role="tabpanel" aria-labelledby="menu-heading-{{ forloop.counter }}"
-                     aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
-                    <div class="list-group">
+                     aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}"
+                     data-parent="#menu-accordion">
+                    <div class="list-group list-group-flush border-top">
                     {% for item in menu %}
-                        <a href="{{ item.url }}" class="list-group-item {% active_url item.url %}" {{ item.attrs }}>
+                        <a href="{{ item.url }}" class="list-group-item list-group-item-action {% active_url item.url %}" {{ item.attrs }}>
                             {% if item.has_icon and menu_icons %}
                                 {{ menu_icons|cyclic_lookup:forloop.counter0 }}
                             {% endif %}
@@ -34,11 +36,13 @@
         {% endfor %}
     {% else %}
         {% generate_menu side_menus|first %}
-        <div class="panel panel-default">
-            <div class="panel-heading">{% trans "Menu" %}</div>
-            <div class="list-group">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{% trans "Menu" %}</h5>
+            </div>
+            <div class="list-group list-group-flush border-top">
                 {% for item in menu %}
-                    <a href="{{ item.url }}" id="{{ item.name }}" {{ item.attrs }} class="list-group-item {% active_url item.url %}">
+                    <a href="{{ item.url }}" id="{{ item.name }}" {{ item.attrs }} class="list-group-item list-group-item-action {% active_url item.url %}">
                         {% if menu_icons %}
                             {{ menu_icons|cyclic_lookup:forloop.counter0 }}
                         {% endif %}

@@ -1,10 +1,13 @@
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-from oioioi.balloons.models import (BalloonsDeliveryAccessData,
-                                    BalloonsDisplay, ProblemBalloonsConfig)
+from oioioi.balloons.models import (
+    BalloonsDeliveryAccessData,
+    BalloonsDisplay,
+    ProblemBalloonsConfig,
+)
 from oioioi.base import admin
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.utils import make_html_link
@@ -33,8 +36,12 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def color_display(self, instance):
-        return format_html(u'<span class="balloons_admin" style="background: {}">'
-                           '{}</span>', instance.color, instance.color)
+        return format_html(
+            u'<span class="balloons_admin" style="background: {}">' '{}</span>',
+            instance.color,
+            instance.color,
+        )
+
     color_display.short_description = _("Color")
 
     def get_queryset(self, request):
@@ -47,15 +54,19 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
             if request.contest:
                 qs = qs.filter(contest=request.contest)
             kwargs['queryset'] = qs
-        return super(ProblemBalloonsConfigAdmin, self) \
-                .formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(ProblemBalloonsConfigAdmin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
 
-contest_site.contest_register(ProblemBalloonsConfig,
-        ProblemBalloonsConfigAdmin)
-contest_admin_menu_registry.register('problemballoonsconfig_admin',
-        _("Balloon colors"), lambda request:
-        reverse('oioioiadmin:balloons_problemballoonsconfig_changelist'),
-        is_contest_admin, order=60)
+
+contest_site.contest_register(ProblemBalloonsConfig, ProblemBalloonsConfigAdmin)
+contest_admin_menu_registry.register(
+    'problemballoonsconfig_admin',
+    _("Balloon colors"),
+    lambda request: reverse('oioioiadmin:balloons_problemballoonsconfig_changelist'),
+    is_contest_admin,
+    order=60,
+)
 
 
 class BalloonsDisplayAdmin(admin.ModelAdmin):
@@ -92,22 +103,27 @@ class BalloonsDisplayAdmin(admin.ModelAdmin):
                 if qs or not request.user.is_superuser:
                     kwargs['queryset'] = qs
 
-        return super(BalloonsDisplayAdmin, self) \
-                .formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(BalloonsDisplayAdmin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
+
 
 admin.site.register(BalloonsDisplay, BalloonsDisplayAdmin)
-system_admin_menu_registry.register('balloonsdisplay_admin',
-        _("Balloon displays"), lambda request:
-        reverse('oioioiadmin:balloons_balloonsdisplay_changelist'),
-        order=60)
+system_admin_menu_registry.register(
+    'balloonsdisplay_admin',
+    _("Balloon displays"),
+    lambda request: reverse('oioioiadmin:balloons_balloonsdisplay_changelist'),
+    order=60,
+)
 
 
 class BalloonsDeliveryAccessDataInline(admin.TabularInline):
     model = BalloonsDeliveryAccessData
     fields = ('access_link', 'valid_until', 'regeneration_link')
     readonly_fields = ('access_link', 'valid_until', 'regeneration_link')
+    category = _("Advanced")
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
@@ -118,32 +134,39 @@ class BalloonsDeliveryAccessDataInline(admin.TabularInline):
 
     def access_link(self, instance):
         if instance.access_key:
-            url = reverse('balloons_access_set_cookie', kwargs={
-                'contest_id': instance.contest.id,
-                'access_key': instance.access_key
-            })
+            url = reverse(
+                'balloons_access_set_cookie',
+                kwargs={
+                    'contest_id': instance.contest.id,
+                    'access_key': instance.access_key,
+                },
+            )
             return make_html_link(url, url)
         else:
             return _("Not yet generated")
+
     access_link.short_description = _("Access link")
 
     def regeneration_link(self, instance):
         return make_html_link(
-            reverse('balloons_access_regenerate',
-                    kwargs={'contest_id': instance.contest.id}),
+            reverse(
+                'balloons_access_regenerate', kwargs={'contest_id': instance.contest.id}
+            ),
             _("Regenerate key"),
-            'POST'
+            'POST',
         )
+
     regeneration_link.short_description = _("Regeneration link")
 
 
 class BalloonsDeliveryAccessDataAdminMixin(object):
     """Adds :class:`~oioioi.balloons.BalloonsDeliveryAccessData` fields to an
-       admin panel.
+    admin panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(BalloonsDeliveryAccessDataAdminMixin, self) \
-            .__init__(*args, **kwargs)
+        super(BalloonsDeliveryAccessDataAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [BalloonsDeliveryAccessDataInline]
+
+
 ContestAdmin.mix_in(BalloonsDeliveryAccessDataAdminMixin)

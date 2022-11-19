@@ -5,7 +5,7 @@
         <div class="problem__settings">
             <a href="{% url 'simpleui_problem_settings' problem_instance.problem_instance.id %}">
                 {% blocktrans %}
-                <span class="glyphicon glyphicon-cog"></span> Settings
+                <i class="fa-solid fa-gear"></i> Settings
                 {% endblocktrans %}
             </a>
         </div>
@@ -23,7 +23,7 @@
     </div>
 
     <div class="row">
-        <div class="col-xs-6">
+        <div class="col-sm-6">
             {% trans "Recent activity:" %}
             <div class="problem__submissions">
                 <a href="{% url 'oioioiadmin:contests_submission_changelist' %}?pi={{ problem_instance.problem_instance.problem.name|urlencode }}">
@@ -45,7 +45,7 @@
             </div>
         </div>
         {% if not public_contest %}
-            <div class="col-xs-6">
+            <div class="col-sm-6">
                 <div id="pointsChart-{{ problem_instance.problem_instance.short_name }}" class="problem__stats">
                 </div>
             </div>

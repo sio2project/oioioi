@@ -1,9 +1,8 @@
-from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase
-from oioioi.maintenancemode.models import (get_maintenance_mode,
-                                           set_maintenance_mode)
+from oioioi.maintenancemode.models import get_maintenance_mode, set_maintenance_mode
 
 
 class TestMaintenanceMode(TestCase):
@@ -34,10 +33,13 @@ class TestMaintenanceMode(TestCase):
         response = self.client.get('/', follow=True)
         self.assertRedirects(response, reverse('maintenance'))
         self.assertContains(response, 'test message')
-        response = self.client.post(reverse('logout'), {
-            'user': 'test_user',
-            'backend': 'django.contrib.auth.backends.ModelBackend',
-        })
+        response = self.client.post(
+            reverse('logout'),
+            {
+                'user': 'test_user',
+                'backend': 'django.contrib.auth.backends.ModelBackend',
+            },
+        )
         self.assertEqual(response.status_code, 302)
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
@@ -57,25 +59,34 @@ class TestMaintenanceMode(TestCase):
     def test_su_no_redirect(self):
         set_maintenance_mode(True, 'test message')
         self.assertTrue(self.client.login(username='test_admin'))
-        self.client.post(reverse('su'), {
-            'user': 'test_user',
-            'backend': 'django.contrib.auth.backends.ModelBackend',
-        })
+        self.client.post(
+            reverse('su'),
+            {
+                'user': 'test_user',
+                'backend': 'django.contrib.auth.backends.ModelBackend',
+            },
+        )
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
     def test_admin_change_message(self):
         set_maintenance_mode(False)
         self.assertTrue(self.client.login(username='test_admin'))
-        self.client.post(reverse('set_maintenance_mode'), {
-            'message': 'new test message',
-            'set_button': 1,
-        })
+        self.client.post(
+            reverse('set_maintenance_mode'),
+            {
+                'message': 'new test message',
+                'set_button': 1,
+            },
+        )
         info = get_maintenance_mode()
         self.assertEqual('new test message', info['message'])
         self.assertEqual(True, info['state'])
-        self.client.post(reverse('set_maintenance_mode'), {
-            'turn_off_button': 1,
-        })
+        self.client.post(
+            reverse('set_maintenance_mode'),
+            {
+                'turn_off_button': 1,
+            },
+        )
         info = get_maintenance_mode()
         self.assertEqual(False, info['state'])

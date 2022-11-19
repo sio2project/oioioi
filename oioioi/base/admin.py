@@ -1,5 +1,4 @@
-import six
-import six.moves.urllib.parse
+import urllib.parse
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
@@ -8,27 +7,30 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.db import router
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
-from django.utils.encoding import force_text
+from django.urls import reverse
+from django.utils.encoding import force_str
 from django.utils.html import escape
 from django.utils.text import capfirst
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.forms import OioioiUserChangeForm, OioioiUserCreationForm
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
+from oioioi.base.models import Consents
 from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import ClassInitMeta, ObjectWithMixins
 from oioioi.base.utils.redirect import safe_redirect
+
+NO_CATEGORY = '__no_category__'
 
 
 class TabularInline(admin.TabularInline):
     # by default we assume that if item is added to specific
     # admin menu mixin it should be visible and editable
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -36,12 +38,15 @@ class TabularInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class StackedInline(admin.StackedInline):
     # by default we assume that if item is added to specific
     # admin menu mixin it should be visible and editable
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return True
 
     def has_change_permission(self, request, obj=None):
@@ -49,38 +54,43 @@ class StackedInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
     pass
 
 
-class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
-        ObjectWithMixins)):
+class ModelAdmin(
+    admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta
+):
 
     # This is handled by AdminSite._reinit_model_admins
     allow_too_late_mixins = True
 
     def response_change(self, request, obj):
-        not_popup = '_popup' not in request.GET and \
-                    '_popup' not in request.POST
+        not_popup = '_popup' not in request.GET and '_popup' not in request.POST
         if '_continue' in request.POST and not_popup:
             return HttpResponseRedirect(request.get_full_path())
-        if 'came_from' in request.GET and '_continue' not in request.POST \
-                and '_saveasnew' not in request.POST \
-                and '_addanother' not in request.POST:
+        if (
+            'came_from' in request.GET
+            and '_continue' not in request.POST
+            and '_saveasnew' not in request.POST
+            and '_addanother' not in request.POST
+        ):
             return safe_redirect(request, request.GET.get('came_from'))
         return super(ModelAdmin, self).response_change(request, obj)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        response = super(ModelAdmin, self).change_view(request, object_id,
-                form_url, extra_context)
-        if isinstance(response, TemplateResponse) \
-                and 'came_from' in request.GET:
-            response.context_data['form_url'] += '?' + \
-                    six.moves.urllib.parse.urlencode({
-                        'came_from': request.GET.get('came_from')
-                    })
+        response = super(ModelAdmin, self).change_view(
+            request, object_id, form_url, extra_context
+        )
+        if isinstance(response, TemplateResponse) and 'came_from' in request.GET:
+            response.context_data['form_url'] += '?' + urllib.parse.urlencode(
+                {'came_from': request.GET.get('came_from')}
+            )
         return response
 
     def response_delete(self, request):
@@ -88,11 +98,15 @@ class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
         if 'came_from' in request.GET:
             return safe_redirect(request, request.GET.get('came_from'))
         if not self.has_change_permission(request):
-            return HttpResponseRedirect(reverse('admin:index',
-                                            current_app=self.admin_site.name))
-        return HttpResponseRedirect(reverse('admin:%s_%s_changelist' %
-                                    (opts.app_label, opts.model_name),
-                                    current_app=self.admin_site.name))
+            return HttpResponseRedirect(
+                reverse('admin:index', current_app=self.admin_site.name)
+            )
+        return HttpResponseRedirect(
+            reverse(
+                'admin:%s_%s_changelist' % (opts.app_label, opts.model_name),
+                current_app=self.admin_site.name,
+            )
+        )
 
     def delete_view(self, request, object_id, extra_context=None):
         opts = self.model._meta
@@ -102,21 +116,26 @@ class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
             raise PermissionDenied
 
         if obj is None:
-            raise Http404(_("%(name)s object with primary key %(key)r does "
-                "not exist.") % {'name': force_text(opts.verbose_name),
-                    'key': escape(object_id)})
+            raise Http404(
+                _("%(name)s object with primary key %(key)r does not exist.")
+                % {'name': force_str(opts.verbose_name), 'key': escape(object_id)}
+            )
 
         if request.POST:  # The user has already confirmed the deletion.
-            obj_display = force_text(obj)
+            obj_display = force_str(obj)
             self.log_deletion(request, obj, obj_display)
             self.delete_model(request, obj)
-            self.message_user(request, _("The %(name)s \"%(obj)s\" was "
-                "deleted successfully.") % {
-                    'name': force_text(opts.verbose_name),
-                    'obj': force_text(obj_display)})
+            self.message_user(
+                request,
+                _("The %(name)s \"%(obj)s\" was deleted successfully.")
+                % {
+                    'name': force_str(opts.verbose_name),
+                    'obj': force_str(obj_display),
+                },
+            )
             return self.response_delete(request)
 
-        object_name = force_text(opts.verbose_name)
+        object_name = force_str(opts.verbose_name)
         context = {
             "object_name": object_name,
             "object": obj,
@@ -127,17 +146,22 @@ class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
 
         request.current_app = self.admin_site.name
 
-        return TemplateResponse(request, self.delete_confirmation_template or [
-            "admin/%s/%s/delete_confirmation.html" % (app_label,
-                opts.object_name.lower()),
-            "admin/%s/delete_confirmation.html" % app_label,
-            "admin/delete_confirmation.html"
-        ], context)
+        return TemplateResponse(
+            request,
+            self.delete_confirmation_template
+            or [
+                "admin/%s/%s/delete_confirmation.html"
+                % (app_label, opts.object_name.lower()),
+                "admin/%s/delete_confirmation.html" % app_label,
+                "admin/delete_confirmation.html",
+            ],
+            context,
+        )
 
     def get_custom_list_select_related(self):
         """Returns a list of fields passed to queryset.select_related
-           By default - empty list. Override this method (instead of
-           get_queryset()) to pass another field to the select_related.
+        By default - empty list. Override this method (instead of
+        get_queryset()) to pass another field to the select_related.
         """
         return []
 
@@ -149,33 +173,37 @@ class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
         else:
             return qs
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
 
 def delete_selected(modeladmin, request, queryset, **kwargs):
     """Default ModelAdmin action that deletes the selected objects.
 
-       Django's default handler doesn't even check the
-       has_delete_permission() of corresponding ModelAdmin with specific
-       instances (only the general permission), and requires django's User
-       model permissions as well. Theese aren't currently used in OIOIOI, so
-       this custom method doesn't care about them.
+    Django's default handler doesn't even check the
+    has_delete_permission() of corresponding ModelAdmin with specific
+    instances (only the general permission), and requires django's User
+    model permissions as well. Theese aren't currently used in OIOIOI, so
+    this custom method doesn't care about them.
 
-       This implementation checks if deleted model is registered in the
-       current AdminSite and if it is, then uses has_delete_permission() with
-       it's instance.
+    This implementation checks if deleted model is registered in the
+    current AdminSite and if it is, then uses has_delete_permission() with
+    it's instance.
 
-       It first displays a confirmation page that shows all the
-       deleteable objects, or, if the user has no permission for one of the
-       related objects (foreignkeys), a "permission denied" message.
-       Next, it deletes all selected objects and redirects back
-       to the change list.
+    It first displays a confirmation page that shows all the
+    deleteable objects, or, if the user has no permission for one of the
+    related objects (foreignkeys), a "permission denied" message.
+    Next, it deletes all selected objects and redirects back
+    to the change list.
     """
     opts = modeladmin.model._meta
     app_label = opts.app_label
 
     # Find related objects and check their permissions
     # This is a custom method as well
-    to_delete, perms_needed, protected = \
-            collect_deleted_objects(modeladmin, request, queryset)
+    to_delete, perms_needed, protected = collect_deleted_objects(
+        modeladmin, request, queryset
+    )
 
     # The user has already confirmed the deletion.
     # Do the deletion and return a None to display the change list view again.
@@ -185,12 +213,12 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
         n = queryset.count()
         if n:
             for obj in queryset:
-                obj_display = force_text(obj)
+                obj_display = force_str(obj)
                 modeladmin.log_deletion(request, obj, obj_display)
             queryset.delete()
             message_text = _("Successfully deleted %(count)d %(items)s.") % {
                 "count": n,
-                "items": model_ngettext(modeladmin.opts, n)
+                "items": model_ngettext(modeladmin.opts, n),
             }
             modeladmin.message_user(request, message_text, messages.SUCCESS)
         # If specific_redirect was not given in kwargs, return None to display the change list page again.
@@ -200,9 +228,9 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
             return redirect(kwargs['specific_redirect'])
 
     if len(queryset) == 1:
-        objects_name = force_text(opts.verbose_name)
+        objects_name = force_str(opts.verbose_name)
     else:
-        objects_name = force_text(opts.verbose_name_plural)
+        objects_name = force_str(opts.verbose_name_plural)
 
     if perms_needed or protected:
         title = _("Cannot delete %(name)s") % {"name": objects_name}
@@ -226,26 +254,31 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
     custom_template = modeladmin.delete_selected_confirmation_template
 
     # Display the confirmation page
-    return TemplateResponse(request, custom_template or [
-        "admin/%s/%s/delete_selected_confirmation.html" % (app_label,
-            opts.model_name),
-        "admin/%s/delete_selected_confirmation.html" % app_label,
-        "admin/delete_selected_confirmation.html"
-    ], context)
+    return TemplateResponse(
+        request,
+        custom_template
+        or [
+            "admin/%s/%s/delete_selected_confirmation.html"
+            % (app_label, opts.model_name),
+            "admin/%s/delete_selected_confirmation.html" % app_label,
+            "admin/delete_selected_confirmation.html",
+        ],
+        context,
+    )
 
-delete_selected.short_description = \
-    _("Delete selected %(verbose_name_plural)s")
+
+delete_selected.short_description = _("Delete selected %(verbose_name_plural)s")
 
 
 def collect_deleted_objects(modeladmin, request, queryset):
     """Collects objects that are related to queryset items and checks
-       their permissions.
+    their permissions.
 
-       This method checks if the user has permissions to delete items that are
-       anyhow related to theese in the queryset (regardless of the depth).
+    This method checks if the user has permissions to delete items that are
+    anyhow related to theese in the queryset (regardless of the depth).
 
-       ``modeladmin`` is expected to be a ModelAdmin instance corresponding
-       to the class of items contained in the ``queryset``.
+    ``modeladmin`` is expected to be a ModelAdmin instance corresponding
+    to the class of items contained in the ``queryset``.
     """
     db_backend = router.db_for_write(queryset.first().__class__)
     # NestedObjects is undocumented API, can blow up at any time
@@ -262,12 +295,12 @@ def collect_deleted_objects(modeladmin, request, queryset):
 
         if has_admin:
             model_admin = admin_site._registry[obj.__class__]
-            if not request.user.is_superuser and \
-                    not model_admin.has_delete_permission(request, obj):
+            if not request.user.is_superuser and not model_admin.has_delete_permission(
+                request, obj
+            ):
                 perms_needed.add(opts.verbose_name)
 
-        return '%s: %s' % (capfirst(force_text(opts.verbose_name)),
-                           force_text(obj))
+        return '%s: %s' % (capfirst(force_str(opts.verbose_name)), force_str(obj))
 
     # Get a nested list of dependent objects
     to_delete = collector.nested(format_callback)
@@ -300,20 +333,21 @@ class AdminSite(DjangoAdminSite):
 
     def login(self, request, extra_context=None):
         next_url = request.GET.get('next', None)
-        suffix = '?' + six.moves.urllib.parse.urlencode({'next': next_url}) \
-                if next_url else ''
+        suffix = (
+            '?' + urllib.parse.urlencode({'next': next_url})
+            if next_url
+            else ''
+        )
         return HttpResponseRedirect(reverse('auth_login') + suffix)
 
 
 site = AdminSite(name='oioioiadmin')
 
-system_admin_menu_registry = MenuRegistry(_("System Administration"),
-                                          is_superuser)
+system_admin_menu_registry = MenuRegistry(_("System Administration"), is_superuser)
 side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
 
-class OioioiUserAdmin(six.with_metaclass(ModelAdminMeta, UserAdmin,
-        ObjectWithMixins)):
+class OioioiUserAdmin(UserAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
     form = OioioiUserChangeForm
     add_form = OioioiUserCreationForm
 
@@ -323,25 +357,28 @@ class OioioiUserAdmin(six.with_metaclass(ModelAdminMeta, UserAdmin,
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_("Personal info"), {'fields': ('first_name', 'last_name', 'email')}),
-        (_("Permissions"), {'fields': ('is_active', 'is_superuser',
-                                       'groups')}),
+        (_("Permissions"), {'fields': ('is_active', 'is_superuser', 'groups')}),
         (_("Important dates"), {'fields': ('last_login', 'date_joined')}),
     )
     list_filter = ['is_superuser', 'is_active']
-    list_display = ['username', 'email', 'first_name', 'last_name',
-            'is_active']
+    list_display = ['username', 'email', 'first_name', 'last_name', 'is_active']
     filter_horizontal = ()
     actions = ['activate_user']
 
     def activate_user(self, request, qs):
         qs.update(is_active=True)
+
     activate_user.short_description = _("Mark users as active")
 
 
 site.register(User, OioioiUserAdmin)
 
-system_admin_menu_registry.register('users', _("Users"),
-        lambda request: reverse('oioioiadmin:auth_user_changelist'), order=10)
+system_admin_menu_registry.register(
+    'users',
+    _("Users"),
+    lambda request: reverse('oioioiadmin:auth_user_changelist'),
+    order=10,
+)
 
 
 class InstanceDependentAdmin(admin.ModelAdmin):
@@ -366,8 +403,7 @@ class InstanceDependentAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         model_admin = self._find_model_admin(request, object_id)
-        return model_admin.change_view(request, object_id, form_url,
-                extra_context)
+        return model_admin.change_view(request, object_id, form_url, extra_context)
 
     def delete_view(self, request, object_id, extra_context=None):
         model_admin = self._find_model_admin(request, object_id)
@@ -381,26 +417,53 @@ class InstanceDependentAdmin(admin.ModelAdmin):
         model_admin = self._find_model_admin(request, object_id)
         return model_admin.history_view(request, object_id, extra_context)
 
+    def has_view_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
 
 class MixinsAdmin(InstanceDependentAdmin):
     def __init__(self, *args, **kwargs):
         super(InstanceDependentAdmin, self).__init__(*args, **kwargs)
         if not issubclass(self.default_model_admin, ObjectWithMixins):
-            raise AssertionError('MixinsAdmin.default_model_admin must '
-                'be a subclass of ObjectWithMixins')
+            raise AssertionError(
+                'MixinsAdmin.default_model_admin must '
+                'be a subclass of ObjectWithMixins'
+            )
 
     def _model_admin_for_instance(self, request, instance=None):
         mixins = self._mixins_for_instance(request, instance)
         if mixins:
-            return self.default_model_admin(self.model, self.admin_site,
-                mixins=mixins)
+            return self.default_model_admin(self.model, self.admin_site, mixins=mixins)
 
     def _mixins_for_instance(self, request, instance=None):
         raise NotImplementedError
 
 
-class SiteAdmin(admin.ModelAdmin):
-    pass
+# From original TalentSio
+#class SiteAdmin(admin.ModelAdmin):
+#    pass
+#
+#
+#site.register(Site, SiteAdmin)
+class ConsentsInline(StackedInline):
+    model = Consents
+    extra = 0
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        # Protected by parent ModelAdmin
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
-site.register(Site, SiteAdmin)
+class UserWithConsentsAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(UserWithConsentsAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines += [ConsentsInline]
+
+
+OioioiUserAdmin.mix_in(UserWithConsentsAdminMixin)

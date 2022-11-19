@@ -2,17 +2,40 @@ import sys
 
 import unicodecsv
 from django.core.management.base import BaseCommand
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.participants.models import Participant
 
 COLUMNS = [
     ('user', '', ['id', 'username', 'first_name', 'last_name']),
-    ('registration_model', '',
-        ['address', 'postal_code', 'city', 'phone', 'birthday',
-         'birthplace', 't_shirt_size', 'class_type', 'terms_accepted',
-         ('school', 'school', ['name', 'address', 'postal_code', 'city',
-                               'province', 'phone', 'email'])]),
+    (
+        'registration_model',
+        '',
+        [
+            'address',
+            'postal_code',
+            'city',
+            'phone',
+            'birthday',
+            'birthplace',
+            't_shirt_size',
+            'class_type',
+            'terms_accepted',
+            (
+                'school',
+                'school',
+                [
+                    'name',
+                    'address',
+                    'postal_code',
+                    'city',
+                    'province',
+                    'phone',
+                    'email',
+                ],
+            ),
+        ],
+    ),
 ]
 
 
@@ -20,20 +43,19 @@ class Command(BaseCommand):
     help = _("Export personal data.")
 
     def add_arguments(self, parser):
-        parser.add_argument('contest_id',
-                            type=str,
-                            help="Contest to export from")
-        parser.add_argument('out_file',
-                            type=str,
-                            help="File path to export to")
+        parser.add_argument('contest_id', type=str, help="Contest to export from")
+        parser.add_argument('out_file', type=str, help="File path to export to")
 
     def gen_csv_header(self):
         def render_sublist(sublist, prefix):
             result = []
             for field in sublist:
                 if isinstance(field, tuple):
-                    result.extend(render_sublist(field[2],
-                        prefix + field[1] + '_' if field[1] else prefix))
+                    result.extend(
+                        render_sublist(
+                            field[2], prefix + field[1] + '_' if field[1] else prefix
+                        )
+                    )
                 else:
                     result.append(prefix + field)
             return result
@@ -45,8 +67,7 @@ class Command(BaseCommand):
             result = []
             for field in sublist:
                 if isinstance(field, tuple):
-                    result.extend(render_sublist(field[2],
-                        getattr(model, field[0])))
+                    result.extend(render_sublist(field[2], getattr(model, field[0])))
                 else:
                     result.append(getattr(model, field))
             return result

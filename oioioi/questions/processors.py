@@ -1,7 +1,6 @@
-import six
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.functional import lazy
-from django.utils.translation import ungettext
+from django.utils.translation import ngettext
 
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.utils import can_enter_contest, is_contest_basicadmin
@@ -20,7 +19,8 @@ def navbar_tip_processor(request):
 
     def generator():
         return make_navbar_badge(**navbar_messages_generator(request))
-    return {'extra_navbar_right_messages': lazy(generator, six.text_type)()}
+
+    return {'extra_navbar_right_messages': lazy(generator, str)()}
 
 
 @status_registry.register
@@ -41,20 +41,25 @@ def navbar_messages_generator(request):
         messages = new_messages(request, vis_messages)
     count = messages.count()
     if count:
-        text = ungettext('%(count)d NEW MESSAGE', '%(count)d NEW MESSAGES',
-                         count) % {'count': count}
+        text = ngettext('%(count)d NEW MESSAGE', '%(count)d NEW MESSAGES', count) % {
+            'count': count
+        }
 
         if count == 1:
             m = messages.get()
-            link = reverse('message', kwargs={
-                'contest_id': request.contest.id,
-                'message_id': m.top_reference_id
-                if vis_messages.filter(id=m.top_reference_id).exists()
-                else m.id
-            })
+            link = reverse(
+                'message',
+                kwargs={
+                    'contest_id': request.contest.id,
+                    'message_id': m.top_reference_id
+                    if vis_messages.filter(id=m.top_reference_id).exists()
+                    else m.id,
+                },
+            )
         else:
-            link = reverse('contest_messages', kwargs={'contest_id':
-                                                           request.contest.id})
+            link = reverse(
+                'contest_messages', kwargs={'contest_id': request.contest.id}
+            )
         return {'link': link, 'text': text, 'id': 'contest_new_messages'}
     else:
         return {'link': None, 'text': None, 'id': 'contest_new_messages'}

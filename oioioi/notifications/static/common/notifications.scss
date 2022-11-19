@@ -1,7 +1,10 @@
-@import "bootstrap/stylesheets/bootstrap/variables";
+@import "bootstrap/stylesheets/functions";
+@import "bootstrap/stylesheets/variables";
+@import "bootstrap/stylesheets/mixins";
 
 #notifications_panel .dropdown-menu {
   padding-bottom: 0;
+  min-width: 600px;
   > li {
     white-space: nowrap;
     &.dropdown-header {
@@ -10,7 +13,7 @@
       padding: 0.5em;
     }
     .table {
-      color: $text-color;
+      color: $body-color;
       margin-bottom: 0;
     }
   }

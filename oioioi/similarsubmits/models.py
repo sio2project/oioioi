@@ -1,16 +1,16 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import Contest, Submission
 
-check_django_app_dependencies(__name__, ['oioioi.disqualification'],
-                              strict=True)
+check_django_app_dependencies(__name__, ['oioioi.disqualification'], strict=True)
 
 
 class SubmissionsSimilarityGroup(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
-                                on_delete=models.CASCADE)
+    contest = models.ForeignKey(
+        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
+    )
     comment = models.TextField(blank=True, verbose_name=_("admin comment"))
 
     class Meta(object):
@@ -20,12 +20,17 @@ class SubmissionsSimilarityGroup(models.Model):
 
 class SubmissionsSimilarityEntry(models.Model):
     submission = models.ForeignKey(
-        Submission, verbose_name=_("submission"), related_name='similarities',
-        on_delete=models.CASCADE
+        Submission,
+        verbose_name=_("submission"),
+        related_name='similarities',
+        on_delete=models.CASCADE,
     )
     group = models.ForeignKey(
-        SubmissionsSimilarityGroup, verbose_name=_("group"),
-        related_name='submissions', on_delete=models.CASCADE)
+        SubmissionsSimilarityGroup,
+        verbose_name=_("group"),
+        related_name='submissions',
+        on_delete=models.CASCADE,
+    )
     guilty = models.BooleanField(default=True, verbose_name=_("guilty"))
 
     class Meta(object):

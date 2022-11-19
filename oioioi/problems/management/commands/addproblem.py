@@ -3,8 +3,7 @@ import os.path
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.module_loading import import_string
-from django.utils.translation import ugettext as _
-
+from django.utils.translation import gettext as _
 from oioioi.problems.package import NoBackend, backend_for_package
 
 
@@ -12,13 +11,10 @@ class Command(BaseCommand):
     help = _("Adds the problem from the given package to the database.")
 
     def add_arguments(self, parser):
-        parser.add_argument('filename',
-                            type=str)
-        parser.add_argument('no_throw',
-                            type=str,
-                            nargs='?',
-                            default="",
-                            choices=['nothrow'])
+        parser.add_argument('filename', type=str)
+        parser.add_argument(
+            'no_throw', type=str, nargs='?', default='', choices=['', 'nothrow']
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -33,10 +29,9 @@ class Command(BaseCommand):
 
         filename = options['filename']
         if not os.path.exists(filename):
-            raise CommandError(_("File not found: ") + filename)
+            raise CommandError(_("File not found: %s") % filename)
         try:
-            backend = \
-                    import_string(backend_for_package(filename))()
+            backend = import_string(backend_for_package(filename))()
         except NoBackend:
             raise CommandError(_("Package format not recognized"))
 

@@ -1,0 +1,197 @@
+.admin-change-form {
+  .form-row:last-child {
+    border-bottom: none !important;
+  }
+
+  .col-label label {
+    @extend .col-form-label;
+  }
+
+  tr.form-row:not(.empty-form) {
+    display: contents;
+  }
+
+  .empty-form {
+    display: none;
+  }
+
+  input[type=date], input[type=email], input[type=number],
+   input[type=password], input[type=tel], input[type=text], input[type=time],
+   input[type=url], input[type=week], select, textarea {
+    @extend .form-control;
+
+    &.vDateField, &.vTimeField {
+      max-width: 10rem;
+      display: inline;
+      margin-right: 0.5rem;
+    }
+
+    &.vLargeTextField {
+      height: auto;
+    }
+  }
+
+  input[type=file] {
+    @extend .form-control-file;
+  }
+
+  .datetime, .datetime span {
+    font-size: $font-size-base !important;
+  }
+
+  .related-widget-wrapper {
+    display: inline-flex;
+    float: none !important;
+
+    .selector {
+      display: inline-flex;
+
+      .selector-chooser {
+        height: fit-content;
+      }
+    }
+
+    &-link {
+      width: 1.5rem;
+
+      img {
+        height: 100%;
+      }
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    .col-control {
+      max-width: 40rem;
+    }
+  }
+
+  .form-row ul {
+    list-style: none;
+    padding: 0;
+  }
+}
+
+.admin-change-form, .clockbox {
+  h2 {
+      @extend .h6;
+      margin-bottom: 0;
+      padding: ($spacer * 0.5);
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  #changelist-search, #changelist-actions {
+    width: 100%;
+  }
+}
+
+#changelist-form table {
+  tr.selected {
+    background-color: #ffc !important;
+  }
+
+  td, th {
+    padding: ($spacer * .5);
+    padding-right: $spacer;
+  }
+
+  th.column-actions_field {
+    min-width: 18rem;
+  }
+
+  th.action-checkbox-column {
+    width: 1.5rem;
+    text-align: center;
+    padding-right: ($spacer * .5);
+  }
+
+  td.action-checkbox {
+    text-align: center;
+    padding-right: ($spacer * .5);
+  }
+
+  th.sorted {
+    .text-dark {
+      padding-right: 50px;
+      display: block;
+    }
+
+    a.sortremove {
+      visibility: hidden;
+    }
+
+    &:hover a.sortremove {
+      visibility: visible;
+    }
+
+    .sortpriority {
+      font-size: .8em;
+      min-width: 12px;
+      text-align: center;
+      vertical-align: 3px;
+      margin-left: 2px;
+      margin-right: 2px;
+    }
+
+    .sortoptions {
+      float: right;
+      text-align: right;
+
+      a {
+        position: relative;
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        background: url(/static/admin/img/sorting-icons.svg) 0 0 no-repeat;
+        background-size: 14px auto;
+
+        &.sortremove {
+          background-position: 0 0;
+
+          &:after {
+            content: '\\';
+            position: absolute;
+            top: -6px;
+            left: 3px;
+            font-weight: 200;
+            font-size: 18px;
+          }
+
+          &:focus, &:hover {
+            background-position: 0 -14px;
+          }
+        }
+
+        &.ascending {
+          background-position: 0 -28px;
+
+          &:focus, &:hover {
+            background-position: 0 -42px;
+          }
+        }
+
+        &.descending {
+          top: 1px;
+          background-position: 0 -56px;
+
+          &:focus, &:hover {
+            background-position: 0 -70px;
+          }
+        }
+      }
+    }
+  }
+}
+
+$filter-option-selected-border-size: 0.25rem !default;
+
+.filter-option {
+  color: $secondary;
+}
+
+.filter-option-selected {
+  border-left: $filter-option-selected-border-size solid $primary;
+  color: $primary;
+  padding-left: ($spacer * 1.5 - $filter-option-selected-border-size);
+}

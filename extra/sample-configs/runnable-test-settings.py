@@ -1,7 +1,7 @@
 # pylint: disable=wildcard-import
 
-from oioioi.test_settings import *
 import oioioi.default_settings
+from oioioi.test_settings import *
 
 DEBUG = True
 COMPRESS_ENABLED = True

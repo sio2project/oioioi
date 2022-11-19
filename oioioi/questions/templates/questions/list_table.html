@@ -2,15 +2,32 @@
 {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
 
 
-<div class="table-responsive">
+<script>
+    {% for record in records %}
+        $(document).ready(function() {
+            $("#dropdown{{ record.message.id }}").hide();
+            var elements = $("#question{{ record.message.id }}");
+
+            elements.addClass("clickable");
+
+            elements.click(function() {
+                $("#dropdown{{ record.message.id }}").toggle("fast");
+            });
+        });
+    {% endfor %}
+</script>
+
+<div class="table-responsive-md">
     <table class="{% block table-classes %}table{% endblock %}">
         <thead>
             <tr>
                 {% if not hide_author %}<th>{% trans "Author" %}</th>{% endif %}
-                <th>{% trans "Date" %}</th>
                 {% if is_admin %}
                 <th>{% trans "Publication date" %}</th>
+                {% else %}
+                <th>{% trans "Date" %}</th>
                 {% endif %}
+                <th>{% trans "Round" %}</th>
                 <th>{% trans "Category" %}</th>
                 <th>{% trans "Topic" %}</th>
                 {% if is_admin %}
@@ -22,36 +39,50 @@
             {% for record in records %}
             {% with record.message as msg %}
             {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
-            <tr class="{% if record.needs_reply %}danger{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
+            <tr id="question{{ record.message.id }}" class="{% if record.needs_reply %}danger{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
                 {% if not hide_author %}
                     <td>
-                        {% if is_admin and msg.top_reference %}
-                            {% full_name msg.top_reference.author %}
-                        {% else %}
-                            {% full_name msg.author %}
-                        {% endif %}
+                        <text onclick="event.cancelBubble = true;">
+                            {% if is_admin and msg.top_reference %}
+                                {% full_name msg.top_reference.author %}
+                            {% else %}
+                                {% full_name msg.author %}
+                            {% endif %}
+                        </text>
                     </td>
                 {% endif %}
-                {% if is_admin %}
-                    <td><a href="{{ link }}">{{ msg.date }}</a></td>
-                    <td>{% if msg.pub_date %}<a href="{{ link }}">{{ msg.pub_date }}</a>{% endif %}</td>
-                {% else %}
-                    <td><a href="{{ link }}">{{ msg.get_user_date }}</a></td>
-                {% endif %}
+                <td>{{ msg.get_user_date }}</td>
+                <td>{{ msg.round }}</td>
                 <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
                 <td>
                     {% if not record.read and not is_admin %}
-                        <span class="label label-info" id="new-msg-label">{% trans "NEW" %}</span>
+                        <span class="badge badge-info" id="new-msg-label">{% trans "NEW" %}</span>
                     {% endif %}
-                    <a href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a>
+                    <a onclick="event.cancelBubble = true;" href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a>
                 </td>
                 {% if is_admin %}
                     <td>
-                        <span class="label {% if record.needs_reply %}label-danger{% else %}label-default{% endif %}">
-                            {{ msg.kind }}
+                        <span class="badge {% if record.needs_reply %}badge-danger{% else %}badge-secondary{% endif %}">
+                            {{ msg.get_kind_label }}
                         </span>
                     </td>
                 {% endif %}
+            </tr>
+            <tr class="padded-collapsing-content">
+                <td colspan="100" style="padding: 0">
+                    <div id="dropdown{{ record.message.id }}">
+                          <div id="dropdown{{ record.message.id }}div" style="padding: 8px">
+                              <div>
+                                  {% if msg.top_reference %}
+                                      {% include "questions/single_message.html" with message=msg.top_reference is_reply=False has_replies=True show_icon_hyperlink=False is_new=False %}
+                                      {% include "questions/single_message.html" with message=msg is_reply=True has_replies=False show_icon_hyperlink=False is_new=False %}
+                                  {% else %}
+                                      {% include "questions/single_message.html" with message=msg is_reply=False has_replies=False show_icon_hyperlink=False is_new=False %}
+                                  {% endif %}
+                              </div>
+                          </div>
+                    </div>
+                </td>
             </tr>
             {% endwith %}
             {% endfor %}

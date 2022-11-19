@@ -1,4 +1,4 @@
-{% load i18n staticfiles compress %}
+{% load i18n static compress %}
 {% get_current_language as LANGUAGE_CODE %}
 
 <div id="translation-formset" class="clearfix">
@@ -8,7 +8,6 @@
         <div class="form-group">
             {% for error in formset.non_form_errors %}
                 <div class="alert alert-danger" role="alert">
-                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                     <span class="sr-only">{% trans "Error" %}:</span>
                     {{ error }}
                 </div>
@@ -22,7 +21,7 @@
             {{ LANGUAGE_CODE|language_name_translated }}
         </div>
         <div class="second-column">
-            <label for="translation-select">{% trans "Tranlation language" %}:</label>
+            <label for="translation-select">{% trans "Translation language" %}:</label>
             <select id="translation-select" class="form-control">
                 <option value="">------</option>
                 {% for lang_short, lang_name in LANGUAGES %}

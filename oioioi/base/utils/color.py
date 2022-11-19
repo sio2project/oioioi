@@ -1,30 +1,33 @@
 import re
 
+import django
 from django import forms
-from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
 
 
 class ColorWidget(forms.TextInput):
     """Based on:
-       http://laktek.com/2008/10/27/really-simple-color-picker-in-jquery/
-       Requires jQuery > 1.2.6
+    http://laktek.com/2008/10/27/really-simple-color-picker-in-jquery/
+    Requires jQuery > 1.2.6
 
-       Displays a fixed set of preselected color options.
-       Hex value can also be edited manually.
-       Only supports Hex values.  Alpha channel not supported.
+    Displays a fixed set of preselected color options.
+    Hex value can also be edited manually.
+    Only supports Hex values.  Alpha channel not supported.
     """
+
     class Media(object):
         js = ('js/jquery.colorPicker.js',)
 
-    def render(self, name, value, attrs=None):
-        rendered = super(ColorWidget, self).render(name, value, attrs)
-        return rendered + mark_safe(u'''<script type="text/javascript">
+    def render(self, name, value, attrs=None, renderer=None):
+        html = super(ColorWidget, self).render(name, value, attrs, renderer)
+        return html + mark_safe(
+            u'''<script type="text/javascript">
             $('#id_%s').colorPicker();
-            </script>''' % name)
+            </script>'''
+            % name
+        )
 
 
 class ColorField(models.CharField):

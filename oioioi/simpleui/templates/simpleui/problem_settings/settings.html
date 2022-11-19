@@ -1,21 +1,16 @@
 {% extends "simpleui/simpleui-base.html" %}
-{% load i18n compress staticfiles %}
+{% load i18n compress static %}
 
 {% block title %}{% trans "Problem settings" %}{% endblock %}
 
 {% block styles %}
     {{ block.super }}
     {% compress css %}
-        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/simpleui.scss">
-        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/problem_settings/problem_settings.scss">
+        <link charset="utf-8" rel="stylesheet" type="text/x-scss"
+              href="{{ STATIC_URL }}simpleui/simpleui.scss">
+        <link charset="utf-8" rel="stylesheet" type="text/x-scss"
+              href="{{ STATIC_URL }}simpleui/problem_settings/problem_settings.scss">
     {% endcompress %}
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static 'simpleui/problem_settings/attachments.js' %}"></script>
-    <script type="text/javascript" src="{% static 'simpleui/problem_settings/tags.js' %}"></script>
-    <script type="text/javascript" src="{% static 'simpleui/problem_settings/problem_settings.js' %}"></script>
 {% endblock %}
 
 {% block container-class %}simpleui__container{% endblock %}
@@ -23,7 +18,7 @@
 {% block main-body %}
     <div class="settings">
         <header class="settings__header">
-            <h1>{{ problem.name }} ({{problem_instance.short_name}})</h1>
+            <h1>{{ problem.name }} ({{ problem_instance.short_name }})</h1>
         </header>
         <form method="POST" id="main_form" enctype="multipart/form-data">
             {% csrf_token %}
@@ -38,27 +33,39 @@
                         {% include "simpleui/forms/form_field.html" with field=pif.submissions_limit %}
                     </div>
                 </section>
-
-                <section class="settings__attachments">
-                    <h2>{% trans "Attachments" %}</h2>
-                    {% include "simpleui/problem_settings/ingredients/attachments.html" %}
-                </section>
-
-                <section class="settings__tags">
-                    <h2>{% trans "Tags" %}</h2>
-                    {% include "simpleui/problem_settings/ingredients/tags.html" %}
-                </section>
             {% endfor %}
+
+            {% if can_admin_problem %}
+                <section class="settings__tags_and_attachments">
+                    <div class="settings__links">
+                        <h2>{% trans "Tags" %}</h2>
+                        <a role="button" class="btn btn-primary admin-link"
+                           href="{% url 'oioioiadmin:problems_problem_change' problem.id %}#difficultytagthrough-group"
+                           target="_blank">
+                            {% trans "Edit tags" %}
+                        </a>
+                    </div>
+                    <div class="settings__links">
+                        <h2>{% trans "Attachments" %}</h2>
+                        <a role="button" class="btn btn-primary admin-link"
+                           href="{% url 'oioioiadmin:problems_problem_change' problem.id %}#attachments-group"
+                           target="_blank">
+                            {% trans "Edit attachments" %}
+                        </a>
+                    </div>
+                </section>
+            {% endif %}
 
             <section class="settings__tests">
                 <h2>{% trans "Tests" %}</h2>
                 {% include "simpleui/problem_settings/ingredients/tests.html" %}
             </section>
             <section class="settings__actions">
-                <a role="button" class="btn btn-danger" href="{% url 'oioioiadmin:contests_probleminstance_delete' problem_instance.id %}">
-                    {% trans 'Delete' %}
+                <a role="button" class="btn btn-danger"
+                   href="{% url 'oioioiadmin:contests_probleminstance_delete' problem_instance.id %}">
+                    {% trans "Delete" %}
                 </a>
-                <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
             </section>
         </form>
     </div>

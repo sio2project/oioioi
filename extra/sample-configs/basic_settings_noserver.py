@@ -1,0 +1,2 @@
+SERVER = None
+DEBUG = True

@@ -30,16 +30,12 @@ def add_news_view(request):
         current_language = get_language_from_request(request)
         formset = NewsLanguageVersionFormset(
             initial=[
-                {
-                    'language': lang_short,
-                    'DELETE': lang_short != current_language
-                }
-                for lang_short, lang_name in settings.LANGUAGES
+                {'language': lang_short, 'DELETE': lang_short != current_language}
+                for lang_short, _ in settings.LANGUAGES
             ],
             queryset=NewsLanguageVersion.objects.none(),
         )
-    return TemplateResponse(request,
-                            'newsfeed/news-add.html', {'formset': formset})
+    return TemplateResponse(request, 'newsfeed/news-add.html', {'formset': formset})
 
 
 @enforce_condition(is_superuser)
@@ -67,9 +63,7 @@ def edit_news_view(request, news_id):
             return redirect('newsfeed')
     else:
         current_language = get_language_from_request(request)
-        languages = [
-            lang_short for lang_short, lang_name in settings.LANGUAGES
-        ]
+        languages = [lang_short for lang_short, _ in settings.LANGUAGES]
         queryset = NewsLanguageVersion.objects.filter(news=news_item)
 
         for news_language_version in queryset:
@@ -82,8 +76,7 @@ def edit_news_view(request, news_id):
             ],
             queryset=NewsLanguageVersion.objects.filter(news=news_item),
         )
-    return TemplateResponse(request,
-                            'newsfeed/news-edit.html', {'formset': formset})
+    return TemplateResponse(request, 'newsfeed/news-edit.html', {'formset': formset})
 
 
 def newsfeed_view(request):
@@ -93,6 +86,6 @@ def newsfeed_view(request):
     for news in news_list:
         news_version_list.append(news.get_content(request))
 
-    return TemplateResponse(request, 'newsfeed/newsfeed-view.html', {
-        'news_version_list': news_version_list
-    })
+    return TemplateResponse(
+        request, 'newsfeed/newsfeed-view.html', {'news_version_list': news_version_list}
+    )

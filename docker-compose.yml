@@ -1,28 +1,38 @@
 version: '3'
 services:
   db:
-    image: library/postgres
-    restart: always
+    image: library/postgres:12.2
     environment:
       POSTGRES_USER: "oioioi"
-      POSTGRES_PASSWORD: ""
+      POSTGRES_PASSWORD: "password"
       POSTGRES_DB: "oioioi"
+    volumes:
+      - postgress-data:/var/lib/postgresql/data
+    stop_grace_period: 1m
   web:
-    command: /sio2/oioioi/oioioi_init.sh
-    image: oioioi
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: sio2project/oioioi:$OIOIOI_VERSION
+    command: ["/sio2/oioioi/oioioi_init.sh"]
     ports:
       - "8000:8000"
+    volumes:
+      - $OIOIOI_CONFIGDIR/basic_settings.py:/sio2/deployment/basic_settings.py
+    stop_grace_period: 3m
     depends_on:
       - db
+      - broker
   worker:
+    image: sio2project/oioioi:$OIOIOI_VERSION
+    command: ["/sio2/oioioi/worker_init.sh"]
+    stop_grace_period: 1m
     cap_add:
       - ALL
-    command: /sio2/oioioi/worker_init.sh
-    image: oioioi
     depends_on:
-      - web
-    deploy:
-      replicas: 10
+      - db
+  broker:
+    image: library/rabbitmq:3.8
+    environment:
+      RABBITMQ_DEFAULT_USER: oioioi
+      RABBITMQ_DEFAULT_PASS: oioioi
+    stop_grace_period: 1m
+volumes:
+  postgress-data:

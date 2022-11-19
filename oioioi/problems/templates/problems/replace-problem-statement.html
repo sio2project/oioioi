@@ -1,0 +1,65 @@
+{% load i18n simple_filters %}
+
+<p>
+    {% blocktrans %}
+    Use this option only when you have to quickly replace problem statement.
+    Note that the changes are temporary and don't alter the problem package.
+    If you need permanent changes use the
+    {% endblocktrans %}
+    <a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}?key=manage_files_problem_package">
+        {% trans "Manage package files" %}
+    </a>
+    {% trans "option" %}.
+</p>
+<form enctype="multipart/form-data" method="post">
+
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="form-group">
+            {% for error in form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    <span class="sr-only">{% trans "Error" %}:</span>
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="form-group {% if form.file_name.errors %}has-error{% endif %}">
+        {% if display_labels != False %}
+            <label for="{{ form.file_name.auto_id }}" class="control-label">
+                {{ form.file_name.label }}
+            </label>
+        {% endif %}
+        {{ form.file_name | add_class:"form-control" }}
+        {% for error in form.file_name.errors %}
+            <div class="{% if inline %}help-inline{% else %}help-block{% endif %}">{{ error }}</div>
+        {% endfor %}
+        {% if form.file_name.help_text %}
+            <div class="{% if inline %}help-inline{% else %}help-block{% endif %}">{{ form.file_name.help_text }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group {% if form.file_replacement.errors %}has-error{% endif %}">
+        {% if display_labels != False %}
+            <label for="{{ form.file_replacement.auto_id }}" class="control-label">
+                {{ form.file_replacement.label }}
+            </label>
+        {% endif %}
+        {{ form.file_replacement | add_class:"form-control" }}
+        {% for error in form.file_replacement.errors %}
+            <div class="{% if inline %}help-inline{% else %}help-block{% endif %}">{{ error }}</div>
+        {% endfor %}
+        {% if form.file_replacement.help_text %}
+            <div class="{% if inline %}help-inline{% else %}help-block{% endif %}">{{ form.file_replacement.help_text }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        {% block upload_btn %}
+            <button type="submit" name="upload_button" class="btn btn-primary">{% trans "Submit" %}</button>
+        {% endblock %}
+    </div>
+</form>
+
+

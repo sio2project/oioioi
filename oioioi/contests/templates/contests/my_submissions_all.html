@@ -2,8 +2,8 @@
 {% load i18n %}
 {% load pagination_tags %}
 
-{% block navbar-logo %}
-    {% include "szkopul/navbar-logo-with-menu.html" %}
+{% block left-navbar %}
+    {% include "navbar-left.html" %}
 {% endblock %}
 
 {% block row-class %}row text-center{% endblock %}
@@ -13,9 +13,9 @@
 
 {% block title %}{% trans "All submissions" %}{% endblock %}
 
-{% block main-content-style %}col-md-8{% endblock %}
+{% block main-content-style %}col-lg-8{% endblock %}
 
 {% block main-content %}
-    <div class="centered-title"><h1>{% trans 'All submissions' %}</h1></div>
+    <div class="centered-title"><h1>{% trans "All submissions" %}</h1></div>
     <div>{% include "problems/submissions.html" %}</div>
 {% endblock %}

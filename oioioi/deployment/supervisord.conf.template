@@ -7,24 +7,21 @@ directory={{ PROJECT_DIR }}
 identifier=oioioi-supervisor
 
 [program:uwsgi]
-{% if settings.UWSGI_USE_GEVENT %}
-command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --loop=gevent --async=50 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --ignore-sigpipe --ignore-write-errors --disable-write-exception --wsgi-file={{ PROJECT_DIR }}/wsgi.py
-{% else %}
-command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --ignore-sigpipe --ignore-write-errors --disable-write-exception --wsgi-file={{ PROJECT_DIR }}/wsgi.py
-{% endif %}
+command=uwsgi {% if settings.SERVER == 'uwsgi-http' %}--http :8000 --static-map {{ settings.STATIC_URL }}={{ settings.STATIC_ROOT }} {% else %}-s {{ PROJECT_DIR }}/uwsgi.sock {% endif %}--umask=000 {% if settings.UWSGI_USE_GEVENT %}--loop=gevent --async=50 {% endif %}--processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --ignore-sigpipe --ignore-write-errors --disable-write-exception --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+# --ignore-sigpipe --ignore-write-errors --disable-write-exception from original TalentSio
 stopsignal=INT
 startretries=0
 redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/uwsgi.log
 stderr_logfile={{ PROJECT_DIR }}/logs/uwsgi-err.log
-{% if settings.UWSGI_ENABLED == False %}exclude=true{% elif settings.UWSGI_ENABLED == 'auto' and settings.DEBUG %}exclude=true{% endif %}
+{% if settings.SERVER|slice:":5" != 'uwsgi' %}exclude=true{% endif %}
 
-[program:celerycam]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_DIR }}/pidfiles/celerycam.pid
-startretries=0
-redirect_stderr=false
-stdout_logfile={{ PROJECT_DIR }}/logs/celerycam.log
-stderr_logfile={{ PROJECT_DIR }}/logs/celerycam-err.log
+[program:django-http]
+command={{ PYTHON }} {{ PROJECT_DIR }}//manage.py runserver 0.0.0.0:8000
+stopasgroup=true
+stdout_logfile={{ PROJECT_DIR }}/logs/runserver.log
+stderr_logfile={{ PROJECT_DIR }}/logs/runserver-err.log
+{% if settings.SERVER != 'django' %}exclude=true{% endif %}
 
 [program:rankingsd]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
@@ -41,7 +38,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/mailnotifyd.log
 stderr_logfile={{ PROJECT_DIR }}/logs/mailnotifyd-err.log
 
 [program:unpackmgr]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+command=celery -A oioioi.celery worker -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
 redirect_stderr=false
@@ -49,7 +46,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
 stderr_logfile={{ PROJECT_DIR }}/logs/unpackmgr-err.log
 
 [program:evalmgr]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
+command=celery -A oioioi.celery worker -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
 redirect_stderr=false
@@ -57,7 +54,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr.log
 stderr_logfile={{ PROJECT_DIR }}/logs/evalmgr-err.log
 
 [program:evalmgr-zeus]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-zeus -c 1
+command=celery -A oioioi.celery worker -E -l info -Q evalmgr-zeus -c 1
 startretries=0
 stopwaitsecs=15
 redirect_stderr=false
@@ -95,18 +92,12 @@ stderr_logfile={{ PROJECT_DIR }}/logs/receive_from_workers-err.log
 {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' %}exclude=true{% endif %}
 
 [program:sioworkersd]
-command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid sioworkersd --database={{ PROJECT_DIR }}/sioworkersd.db
+command={{ PYTHON }} /home/oioioi/.local/bin//twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid sioworkersd --database={{ PROJECT_DIR }}/sioworkersd.db
 startretries=0
 redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log
 stderr_logfile={{ PROJECT_DIR }}/logs/sioworkersd-err.log
 {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
-
-[program:cleanupd]
-command={{ PROJECT_DIR }}/manage.py cleanupd
-redirect_stderr=false
-stdout_logfile={{ PROJECT_DIR }}/logs/cleanupd.log
-stderr_logfile={{ PROJECT_DIR }}/logs/cleanupd-err.log
 
 [program:ipauthsyncd]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauthsyncd

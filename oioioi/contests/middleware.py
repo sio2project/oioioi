@@ -1,8 +1,8 @@
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import NoReverseMatch, resolve, reverse
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import NoReverseMatch, resolve, reverse
 
 from oioioi.contests.current_contest import ContestMode, contest_re, set_cc_id
 from oioioi.contests.models import Contest, ContestView
@@ -23,59 +23,59 @@ def activate_contest(request, contest):
         except ValueError:
             pass
         recent_contests = [contest.id] + recent_contests
-        recent_contests = \
-            recent_contests[:getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
+        recent_contests = recent_contests[: getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
         request.session['recent_contests'] = recent_contests
 
-    if not request.real_user.is_anonymous \
-            and not request.session.get('first_view_after_logging', False):
-        cv, created = ContestView.objects \
-                .get_or_create(user=request.real_user, contest=contest)
+    if not request.real_user.is_anonymous and not request.session.get(
+        'first_view_after_logging', False
+    ):
+        cv, created = ContestView.objects.get_or_create(
+            user=request.real_user, contest=contest
+        )
         # Do not repeatedly update timestamp for latest contest.
-        if cv != ContestView.objects.filter(user=request.real_user).latest() \
-                or created:
+        if cv != ContestView.objects.filter(user=request.real_user).latest() or created:
             cv.timestamp = request.timestamp
             cv.save()
 
 
 class CurrentContestMiddleware(object):
     """Middleware which tracks the currently visited contest and stores it
-       to be used in other parts of the current contest mechanism.
+    to be used in other parts of the current contest mechanism.
 
-       It is assumed that all contest-specific url patterns are defined in the
-       ``contest_patterns`` variable in each module's urlconf. These patterns
-       are extended with non contest-specific patterns defined in
-       the ``urlpatterns`` variable and then used to generate URLs prefixed
-       with a contest ID (thus the non contest-specific URLs come in two
-       versions, with and without a contest ID prefix).
-       If a request matches a contest ID-prefixed URL and the ID is valid,
-       the contest becomes the current contest. If the ID is not valid,
-       a 404 Not Found is generated.
+    It is assumed that all contest-specific url patterns are defined in the
+    ``contest_patterns`` variable in each module's urlconf. These patterns
+    are extended with non contest-specific patterns defined in
+    the ``urlpatterns`` variable and then used to generate URLs prefixed
+    with a contest ID (thus the non contest-specific URLs come in two
+    versions, with and without a contest ID prefix).
+    If a request matches a contest ID-prefixed URL and the ID is valid,
+    the contest becomes the current contest. If the ID is not valid,
+    a 404 Not Found is generated.
 
-       After a contest becomes the current contest, the corresponding
-       :class:`~oioioi.contests.models.Contest` instance is available in
-       ``request.contest``. In addition to that, our custom
-       :func:`~oioioi.contests.current_contest.reverse` function automatically
-       prefixes generated URLs with the contest's ID if appropriate.
+    After a contest becomes the current contest, the corresponding
+    :class:`~oioioi.contests.models.Contest` instance is available in
+    ``request.contest``. In addition to that, our custom
+    :func:`~oioioi.contests.current_contest.reverse` function automatically
+    prefixes generated URLs with the contest's ID if appropriate.
 
-       Using ``settings.CONTEST_MODE``, the administrator may decide
-       that users should, if possible, be forcibly put into a contest.
-       Then, if there is no contest ID in a request's URL, but the URL
-       also comes with a contest-specific version and a contest exists,
-       a redirection is performed to one of the existing contests. Which one
-       it is is determined by the following algorithm:
+    Using ``settings.CONTEST_MODE``, the administrator may decide
+    that users should, if possible, be forcibly put into a contest.
+    Then, if there is no contest ID in a request's URL, but the URL
+    also comes with a contest-specific version and a contest exists,
+    a redirection is performed to one of the existing contests. Which one
+    it is is determined by the following algorithm:
 
-        #. If last contest is saved in session, this value is used.
-        #. If the session value is not available or invalid,
-           ``settings.DEFAULT_CONTEST`` is used.
-        #. If not set, the most recently created contest will be chosen.
+     #. If last contest is saved in session, this value is used.
+     #. If the session value is not available or invalid,
+        ``settings.DEFAULT_CONTEST`` is used.
+     #. If not set, the most recently created contest will be chosen.
 
-       URL patterns may be explicitly defined as requiring that no contest
-       is given using the ``noncontest_patterns`` variable in each module's
-       urlconf. Again, using ``settings.CONTEST_MODE``, the administrator
-       may decide that if a contest is available, users cannot access those
-       URLs. Trying to access them then generates a 403 Permission Denied
-       unless one is a superuser.
+    URL patterns may be explicitly defined as requiring that no contest
+    is given using the ``noncontest_patterns`` variable in each module's
+    urlconf. Again, using ``settings.CONTEST_MODE``, the administrator
+    may decide that if a contest is available, users cannot access those
+    URLs. Trying to access them then generates a 403 Permission Denied
+    unless one is a superuser.
     """
 
     def __init__(self, get_response):
@@ -160,6 +160,8 @@ class CurrentContestMiddleware(object):
             if nonglobal:
                 # That wasn't a global url and it doesn't have
                 # a contest version. It must be a noncontest-only url.
-                if settings.CONTEST_MODE == ContestMode.contest_only \
-                        and not request.user.is_superuser:
+                if (
+                    settings.CONTEST_MODE == ContestMode.contest_only
+                    and not request.user.is_superuser
+                ):
                     raise PermissionDenied

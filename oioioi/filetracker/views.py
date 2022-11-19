@@ -15,10 +15,8 @@ def raw_file_view(request, filename):
         raise Http404
 
     file = default_storage.open(filename, 'rb')
-    content_type = mimetypes.guess_type(file.name)[0] or \
-        'application/octet-stream'
-    response = StreamingHttpResponse(FileWrapper(file),
-                                     content_type=content_type)
+    content_type = mimetypes.guess_type(file.name)[0] or 'application/octet-stream'
+    response = StreamingHttpResponse(FileWrapper(file), content_type=content_type)
     try:
         response['Content-Length'] = default_storage.size(filename)
     except NotImplementedError:

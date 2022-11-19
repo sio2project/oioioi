@@ -1,11 +1,40 @@
-Dockerfile*
-docker*
-.idea
-.github
-*.swp
-venv
-logs
-deployment
+# use syntax common to .gitignore and .dockerignore
+
+# /rst/source/sections/modules.rst
+/build/
+/dist/
+# /test_report.html
+# /test_report/
+# /test_log.txt
+# /test_screenshots.tar.gz
+/.coverage
+/cover/
+**/*.egg
+**/*.egg-info
+**/*.pid
+**/.DS_Store
+**/*.pyc
+**/__pycache__/
+**/*.kdev*
+**/*~
+/.tox/
+/.pytest_cache/
+/.eggs/
+**/*.swp
+/deployment/
+/venv*/
+/.idea/
+
+# docker specific
+
+/Dockerfile*
+/docker*
+/.dockerignore
+/.git
+/.gitignore
+/.github
+/extra/
 /test*
-*.rst
-/rst
+!/test_report.css
+/*.rst
+/rst/

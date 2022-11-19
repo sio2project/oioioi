@@ -1,5 +1,5 @@
 {% extends "simpleui/simpleui-base.html" %}
-{% load i18n staticfiles compress %}
+{% load i18n static compress %}
 
 {% block title %}{% trans "Contest dashboard" %}{% endblock %}
 
@@ -58,7 +58,7 @@
             <div class="inline-menu">
                 <a href="{% url 'oioioiadmin:contests_submission_changelist' %}">{% trans "Show all" %}</a>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive-md">
                 {% include "simpleui/contest/ingredients/submissions.html" %}
             </div>
         </section>
@@ -68,7 +68,7 @@
             <div class="inline-menu">
                 <a href="{% url 'contest_messages' %}">{% trans "Show all" %}</a>
             </div>
-            <div class="table-responsive">
+            <div class="table-responsive-md">
                 {% include "simpleui/contest/ingredients/questions.html" %}
             </div>
         </section>

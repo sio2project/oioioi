@@ -2,8 +2,8 @@
 {% load runtimeformat %}
 
 
-<div class="table-responsive">
-    <table class="table table-condensed table-bordered table-report submission">
+<div class="table-responsive-md">
+    <table class="table table-sm table-bordered table-report submission">
         <thead>
             <tr>
                 <th class="submission__margin submission--{{ test.status }}"></th>
@@ -17,26 +17,27 @@
         </thead>
         <tbody>
             {% for group in groups %}
-                {% for test in group.tests %}
+                {% for record in group.tests %}
+                {% with test=record.test %}
                     <tr class="test-row-{{ group.report.id }}">
-                        <td class="submission__margin submission--{{ test.status }}"></td>
-                        <td class="test-actions-toggler {% if is_admin %}fix-pull-right{% endif %}">
+                        <td class="submission__margin submission--{{ record.display_type }}"></td>
+                        <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}">
                             {{ test.test_name }}
-                            <span class="test-actions pull-right">
+                            <span class="test-actions float-right">
                                 {% if test.test %}
                                     <small>
                                         {% if is_admin %}
-                                            <a title="{% trans 'Download output for this test' %}"
+                                            <a title='{% trans "Download output for this test" %}'
                                                href="{% url 'download_output_file' test_id=test.test.id %}">
                                                 out
                                             </a>
-                                            <a title="{% trans 'Download input for this test' %}"
+                                            <a title='{% trans "Download input for this test" %}'
                                                href="{% url 'download_input_file' test_id=test.test.id %}">
                                                 in
                                             </a>
                                         {% endif %}
                                         {% if allow_download_out and test.generate_status == 'OK' %}
-                                            <a title="{% trans 'Download user output for this test' %}"
+                                            <a title='{% trans "Download user output for this test" %}'
                                                href="{% url 'download_user_output' testreport_id=test.id %}">
                                                 usr-out
                                             </a>
@@ -45,7 +46,7 @@
                                 {% endif %}
                             </span>
                         </td>
-                        <td class="submission--{{ test.status }}">
+                        <td class="submission--{{ record.display_type }}">
                             {{ test.get_status_display }}
                         </td>
                         <td>
@@ -62,6 +63,7 @@
                             </td>
                         {% endif %}
                     </tr>
+                {% endwith %}
                 {% endfor %}
             {% endfor %}
         </tbody>

@@ -35,8 +35,8 @@
         {% include "ingredients/form.html" with focus="#id_content" %}
         {% if message.top_reference %}
             <div class="form-group">
-                <button type="button" class="btn btn-default btn-sm" tabindex="-1" id="respond_inline" onclick="add_question_content();">
-                    <span class="glyphicon glyphicon-pencil"></span>
+                <button type="button" class="btn btn-outline-secondary btn-sm" tabindex="-1" id="respond_inline" onclick="add_question_content();">
+                    <i class="fa-solid fa-pencil"></i>
                     {% blocktrans %}Add question content{% endblocktrans %}
                 </button>
             </div>
@@ -45,7 +45,7 @@
             <button type="submit" class="btn btn-primary">
                 {% trans "Save" %}
             </button>
-            <div class="pull-right">
+            <div class="float-right">
                 <a role="button" class="btn btn-primary" href="history/">{% trans "History" %}</a>
                 <a role="button" class="btn btn-danger" href="delete/">{% trans "Delete" %}</a>
             </div>

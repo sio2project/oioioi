@@ -1,4 +1,4 @@
-{% extends "simple-centered.html" %}
+{% extends "simple-centered-form-ready.html" %}
 {% load i18n %}
 
 {% block title %}
@@ -7,6 +7,11 @@
     {% else %}
     {% trans "Edit your profile" %}
     {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {{ form.media.js }}
 {% endblock %}
 
 {% block content %}
@@ -27,7 +32,7 @@
         <div class="form-group">
             <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
             {% if user.is_authenticated %}
-                <a role="button" href="/delete_account" class="btn btn-danger pull-right">{% trans "Delete account" %}</a>
+                <a role="button" href="/delete_account" class="btn btn-danger float-right">{% trans "Delete account" %}</a>
             {% endif %}
         </div>
     </form>

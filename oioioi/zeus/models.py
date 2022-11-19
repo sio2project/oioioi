@@ -1,7 +1,7 @@
 import os
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import submission_statuses
@@ -16,8 +16,7 @@ submission_statuses.register('MCE', _("Outgoing message count limit exceeded"))
 
 
 class ZeusProblemData(models.Model):
-    problem = models.OneToOneField(Problem, primary_key=True,
-                                   on_delete=models.CASCADE)
+    problem = models.OneToOneField(Problem, primary_key=True, on_delete=models.CASCADE)
     zeus_id = models.CharField(max_length=255)
     zeus_problem_id = models.IntegerField(default=0)
 
@@ -25,8 +24,11 @@ class ZeusProblemData(models.Model):
 def make_custom_library_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return 'testruns/%s/%d/lib%s' % (instance.problem_instance.contest.id,
-            instance.id, os.path.splitext(filename)[1])
+    return 'testruns/%s/%d/lib%s' % (
+        instance.problem_instance.contest.id,
+        instance.id,
+        os.path.splitext(filename)[1],
+    )
 
 
 class ZeusTestReport(TestReport):

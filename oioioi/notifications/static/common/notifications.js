@@ -162,7 +162,9 @@ NotificationsClient.prototype.renderMessages = function() {
             this.HEADER_REFRESH_SPINNER.removeClass("spinner");
             this.setErrorState();
             let text = gettext("A network error occured. Recent submissions list could not be loaded");
-            this.TABLE_NOTIFICATIONS.text(text);
+            this.TABLE_NOTIFICATIONS.html(
+                $("<span></span>").addClass("dropdown-item-text").text(text)
+            );
         });
 };
 

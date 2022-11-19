@@ -1,10 +1,9 @@
 import datetime
 import logging
-import SocketServer
 import threading
 import time
 
-import six.moves.socketserver
+import socketserver
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
@@ -20,8 +19,7 @@ logger = logging.getLogger(__name__)
 # https://gist.github.com/andreif/6069838
 
 
-class BaseRequestHandler(six.moves.socketserver.BaseRequestHandler):
-
+class BaseRequestHandler(socketserver.BaseRequestHandler):
     def get_data(self):
         raise NotImplementedError
 
@@ -33,8 +31,9 @@ class BaseRequestHandler(six.moves.socketserver.BaseRequestHandler):
 
         logger.debug('%s', request)
 
-        reply = DNSRecord(DNSHeader(id=request.header.id, qr=1, aa=1, ra=1),
-                q=request.q)
+        reply = DNSRecord(
+            DNSHeader(id=request.header.id, qr=1, aa=1, ra=1), q=request.q
+        )
 
         qname = request.q.qname
         qn = str(qname)
@@ -55,23 +54,38 @@ class BaseRequestHandler(six.moves.socketserver.BaseRequestHandler):
                 for u in User.objects.filter(iptouser__isnull=False):
                     if qnhost == username_to_hostname(u.username):
                         for itu in u.iptouser_set.all():
-                            reply.add_answer(RR(rname=qname, rtype=QTYPE.A,
-                                rclass=1,
-                                ttl=self.server.command.options['ttl'],
-                                rdata=A(itu.ip_addr)))
+                            reply.add_answer(
+                                RR(
+                                    rname=qname,
+                                    rtype=QTYPE.A,
+                                    rclass=1,
+                                    ttl=self.server.command.options['ttl'],
+                                    rdata=A(itu.ip_addr),
+                                )
+                            )
         elif qn.endswith('.in-addr.arpa'):
             if qt in ['*', 'PTR']:
-                qn = qn[:-len('.in-addr.arpa')]
+                qn = qn[: -len('.in-addr.arpa')]
                 parts = qn.split('.')
                 if len(parts) == 4:
                     ip = '.'.join(reversed(parts))
                     try:
                         iptu = IpToUser.objects.get(ip_addr=ip)
-                        fqdn = username_to_hostname(iptu.user.username) + \
-                                '.' + settings.IPAUTH_DNSSERVER_DOMAIN + '.'
-                        reply.add_answer(RR(rname=qname, rtype=QTYPE.PTR,
-                            rclass=1, ttl=self.server.command.options['ttl'],
-                            rdata=PTR(fqdn)))
+                        fqdn = (
+                            username_to_hostname(iptu.user.username)
+                            + '.'
+                            + settings.IPAUTH_DNSSERVER_DOMAIN
+                            + '.'
+                        )
+                        reply.add_answer(
+                            RR(
+                                rname=qname,
+                                rtype=QTYPE.PTR,
+                                rclass=1,
+                                ttl=self.server.command.options['ttl'],
+                                rdata=PTR(fqdn),
+                            )
+                        )
                     except IpToUser.DoesNotExist:
                         pass
 
@@ -81,8 +95,13 @@ class BaseRequestHandler(six.moves.socketserver.BaseRequestHandler):
 
     def handle(self):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')
-        logger.debug("%s request %s (%s %s):", self.__class__.__name__[:3],
-                now, self.client_address[0], self.client_address[1])
+        logger.debug(
+            "%s request %s (%s %s):",
+            self.__class__.__name__[:3],
+            now,
+            self.client_address[0],
+            self.client_address[1],
+        )
         try:
             data = self.get_data()
             logger.debug('%d %s', len(data), data.encode('hex'))
@@ -115,38 +134,38 @@ class UDPRequestHandler(BaseRequestHandler):
         return self.request[1].sendto(data, self.client_address)
 
 
-class UDPServer(six.moves.socketserver.ThreadingUDPServer):
+class UDPServer(socketserver.ThreadingUDPServer):
     def __init__(self, command, *args, **kwargs):
-        six.moves.socketserver.ThreadingUDPServer.__init__(self, *args,
-                **kwargs)
+        socketserver.ThreadingUDPServer.__init__(self, *args, **kwargs)
         self.command = command
 
 
-class TCPServer(six.moves.socketserver.ThreadingTCPServer):
+class TCPServer(socketserver.ThreadingTCPServer):
     def __init__(self, command, *args, **kwargs):
-        six.moves.socketserver.ThreadingTCPServer.__init__(self, *args,
-                **kwargs)
+        socketserver.ThreadingTCPServer.__init__(self, *args, **kwargs)
         self.command = command
 
 
 class Command(BaseCommand):
-    help = "DNS server for ipdnsauth.\n\nAnswers DNS queries for names " \
+    help = (
+        "DNS server for ipdnsauth.\n\nAnswers DNS queries for names "
         "and IP addresses managed by ipdnsauth module."
+    )
 
     def add_arguments(self, parser):
-        parser.add_argument('--port', '-p',
-                            type=int,
-                            default=8053,
-                            help="Specify port to listen on")
-        parser.add_argument('--bind-addr',
-                            dest='bind_addr',
-                            type=str,
-                            default='',
-                            help="IP address to bind the server")
-        parser.add_argument('--ttl',
-                            type=int,
-                            default=60,
-                            help="Specify TTL for returned records")
+        parser.add_argument(
+            '--port', '-p', type=int, default=8053, help="Specify port to listen on"
+        )
+        parser.add_argument(
+            '--bind-addr',
+            dest='bind_addr',
+            type=str,
+            default='',
+            help="IP address to bind the server",
+        )
+        parser.add_argument(
+            '--ttl', type=int, default=60, help="Specify TTL for returned records"
+        )
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
@@ -163,8 +182,9 @@ class Command(BaseCommand):
         ]
         threads = []
         for name, s in servers:
-            thread = threading.Thread(target=s.serve_forever,
-                    name=('ipauth-dnsserver-' + name))
+            thread = threading.Thread(
+                target=s.serve_forever, name=('ipauth-dnsserver-' + name)
+            )
             thread.daemon = True
             thread.start()
             threads.append(thread)

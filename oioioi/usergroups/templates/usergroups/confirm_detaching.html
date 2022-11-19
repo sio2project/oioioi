@@ -1,7 +1,9 @@
 {% extends "simple-centered-confirmation.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Confirm removing group from contest " %}{{ group_name }}{% endblock %}
+{% block title %}
+    {% blocktrans %}Confirm removing group {{ group_name }} from contest{% endblocktrans %}
+{% endblock %}
 
 {% block styles %}
 {{ block.super }}

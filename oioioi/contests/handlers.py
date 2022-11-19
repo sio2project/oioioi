@@ -9,11 +9,14 @@ from smtplib import SMTPException
 
 from django.core.mail import mail_admins
 from django.db import transaction
-from six.moves import range
 
 from oioioi.base.utils.db import require_transaction
-from oioioi.contests.models import (FailureReport, ProblemInstance, Submission,
-                                    SubmissionReport)
+from oioioi.contests.models import (
+    FailureReport,
+    ProblemInstance,
+    Submission,
+    SubmissionReport,
+)
 from oioioi.problems.models import ProblemStatistics, UserStatistics
 
 logger = logging.getLogger(__name__)
@@ -30,19 +33,20 @@ def _get_submission_or_skip(*args, **kwargs):
 
     def wrapper(fn):
         """A decorator which tries to get a submission by id from env or skips
-           the decorated function if the submission doesn't exist.
+        the decorated function if the submission doesn't exist.
         """
+
         @wraps(fn)
         @require_transaction
         def decorated(env, *args, **kwargs):
             if 'submission_id' not in env:
                 return env
             try:
-                submission = submission_class.objects.get(
-                        id=env['submission_id'])
+                submission = submission_class.objects.get(id=env['submission_id'])
             except Submission.DoesNotExist:
                 return env
             return fn(env, submission, *args, **kwargs)
+
         return decorated
 
     if len(args) == 1:
@@ -52,7 +56,7 @@ def _get_submission_or_skip(*args, **kwargs):
 
 def wait_for_submission_in_db(env, **kwargs):
     """Celery may start handling a submission before it is actually saved
-       in the DB. This is a workaround for this.
+    in the DB. This is a workaround for this.
     """
     for _i in range(WAIT_FOR_SUBMISSION_RETRIES):
         with transaction.atomic():
@@ -89,8 +93,7 @@ def update_user_results(env, **kwargs):
         user = submission.user
         if not user:
             return env
-        problem_instance = \
-                ProblemInstance.objects.get(id=env['problem_instance_id'])
+        problem_instance = ProblemInstance.objects.get(id=env['problem_instance_id'])
         round = problem_instance.round
         contest = None
         if round is not None:
@@ -109,18 +112,24 @@ def update_user_results(env, **kwargs):
 @transaction.atomic
 @_get_submission_or_skip
 def update_problem_statistics(env, submission, **kwargs):
-    problem_statistics, created = ProblemStatistics.objects \
-            .select_for_update() \
-            .get_or_create(problem=submission.problem_instance.problem)
+    # Ignore model solutions
+    if not submission.user:
+        return env
 
-    user_statistics, created = UserStatistics.objects \
-            .select_for_update() \
-            .get_or_create(user=submission.user,
-                           problem_statistics=problem_statistics)
+    (
+        problem_statistics,
+        created,
+    ) = ProblemStatistics.objects.select_for_update().get_or_create(
+        problem=submission.problem_instance.problem
+    )
 
-    submission.problem_instance.controller \
-            .update_problem_statistics(problem_statistics, user_statistics,
-                                       submission)
+    user_statistics, created = UserStatistics.objects.select_for_update().get_or_create(
+        user=submission.user, problem_statistics=problem_statistics
+    )
+
+    submission.problem_instance.controller.update_problem_statistics(
+        problem_statistics, user_statistics, submission
+    )
 
     user_statistics.save()
     problem_statistics.save()
@@ -137,8 +146,7 @@ def call_submission_judged(env, submission, **kwargs):
         return env
 
     assert contest.id == env['contest_id']
-    contest.controller.submission_judged(submission,
-            rejudged=env['is_rejudge'])
+    contest.controller.submission_judged(submission, rejudged=env['is_rejudge'])
     return env
 
 
@@ -146,15 +154,18 @@ def call_submission_judged(env, submission, **kwargs):
 @_get_submission_or_skip
 def create_error_report(env, submission, exc_info, **kwargs):
     """Builds a :class:`oioioi.contests.models.SubmissionReport` for
-       an evaulation which have failed.
+    an evaulation which have failed.
 
-       USES
-           * `env['submission_id']`
+    USES
+        * `env['submission_id']`
     """
 
-    logger.error("System Error evaluating submission #%s:\n%s",
-            env.get('submission_id', '???'),
-            pprint.pformat(env, indent=4), exc_info=exc_info)
+    logger.error(
+        "System Error evaluating submission #%s:\n%s",
+        env.get('submission_id', '???'),
+        pprint.pformat(env, indent=4),
+        exc_info=exc_info,
+    )
 
     submission_report = SubmissionReport(submission=submission)
     submission_report.kind = 'FAILURE'
@@ -172,18 +183,18 @@ def create_error_report(env, submission, exc_info, **kwargs):
 @_get_submission_or_skip
 def mail_admins_on_error(env, submission, exc_info, **kwargs):
     """Sends email to all admins defined in settings.ADMINS on each
-       grading error occurrence.
+    grading error occurrence.
 
-       USES
-           * `env['submission_id']`
+    USES
+        * `env['submission_id']`
     """
 
     try:
-        mail_admins("System Error evaluating submission #%s" %
-                    env.get('submission_id', '???'),
-                    u''.join(traceback.format_exception(*exc_info)))
+        mail_admins(
+            "System Error evaluating submission #%s" % env.get('submission_id', '???'),
+            u''.join(traceback.format_exception(*exc_info)),
+        )
     except (socket.error, SMTPException) as e:
-        logger.error("An error occurred while sending email: %s",
-                     e.message)
+        logger.error("An error occurred while sending email: %s", e.message)
 
     return env

@@ -1,11 +1,9 @@
-import BaseHTTPServer
 import cgi
 import json
 import logging
-import SocketServer
 
-import six.moves.BaseHTTPServer
-import six.moves.socketserver
+import http.server
+import socketserver
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -13,7 +11,7 @@ from django.db import transaction
 from oioioi.evalmgr.tasks import delay_environ
 
 
-class ServerHandler(six.moves.BaseHTTPServer.BaseHTTPRequestHandler):
+class ServerHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         # security through obscurity
         self.send_error(404)
@@ -22,9 +20,11 @@ class ServerHandler(six.moves.BaseHTTPServer.BaseHTTPRequestHandler):
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
-            environ={'REQUEST_METHOD': 'POST',
-                     'CONTENT_TYPE': self.headers['Content-Type'],
-                     })
+            environ={
+                'REQUEST_METHOD': 'POST',
+                'CONTENT_TYPE': self.headers['Content-Type'],
+            },
+        )
         if "data" not in form:
             self.send_error(404)
         else:
@@ -41,10 +41,10 @@ class ServerHandler(six.moves.BaseHTTPServer.BaseHTTPRequestHandler):
             self.send_response(200, 'OK')
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
-            self.wfile.write('OK')
+            self.wfile.write(b'OK')
 
 
-class Server(six.moves.socketserver.TCPServer):
+class Server(socketserver.TCPServer):
     # See SIO-1741 and
     # https://docs.python.org/2/library/socketserver.html#SocketServer.BaseServer.allow_reuse_address
     allow_reuse_address = True
@@ -53,6 +53,7 @@ class Server(six.moves.socketserver.TCPServer):
 class Command(BaseCommand):
     def handle(self, *args, **options):
         Handler = ServerHandler
-        httpd = Server((settings.SIOWORKERS_LISTEN_ADDR,
-            settings.SIOWORKERS_LISTEN_PORT), Handler)
+        httpd = Server(
+            (settings.SIOWORKERS_LISTEN_ADDR, settings.SIOWORKERS_LISTEN_PORT), Handler
+        )
         httpd.serve_forever()

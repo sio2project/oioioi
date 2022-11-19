@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n simple_tags %}
+{% load i18n statistics_tags %}
 
 {% block left-navbar %}
     {% include 'navbar-left.html' %}
@@ -15,15 +16,40 @@
     {% include 'problems/ingredients/problemset-menu.html' %}
 
     <div class="row search-row">
+        {% if show_filters %}
+            <ul class="nav nav-pills filter-bar">
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if not request.GET.filter or request.GET.filter == "all" %}active{% endif %}" href="{% prob_filter request.GET "all" %}">
+                        {% trans "All" %}
+                    </a>
+                </li>
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if request.GET.filter == "solved" %}active{% endif %}" href="{% prob_filter request.GET "solved" %}">
+                        {% trans "Solved" %}
+                    </a>
+                </li>
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if request.GET.filter == "attempted" %}active{% endif %}" href="{% prob_filter request.GET "attempted" %}">
+                        {% trans "Attempted" %}
+                    </a>
+                </li>
+                <li role="presentation" class="nav-item">
+                    <a class="nav-link {% if request.GET.filter == "not_attempted" %}active{% endif %}" href="{% prob_filter request.GET "not_attempted" %}">
+                        {% trans "Not attempted" %}
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
         {% if show_search_bar %}
-        <form id="problemsite_search-form" class="col-md-6 col-sm-8 col-xs-12 search-bar">
+        <form id="problemsite_search-form" class="col-lg-6 col-md-8 col-sm-12 search-bar">
             <div class="input-group">
                 <input type="search" class="form-control search-query"
                        id="problemsite_search" name="q"
                        data-hints-url="{% url 'get_search_hints' view_type=view_type %}"
+                       data-selected-origin-tag-hints-url="{% url 'get_selected_origintag_hints' %}"
                        data-origininfocategory-hints-url="{% url 'get_origininfocategory_hints' %}"
                        autocomplete="off"
-                       placeholder="{% trans 'Search by name or tag' %}"
+                       placeholder='{% trans "Search by name or tag" %}'
                        value="{{ problem_search }}"/>
 
                 {% if request.GET.select_problem_src %}
@@ -33,26 +59,22 @@
                 <script>init_search_selection('problemsite_search');</script>
 
                 <span class="input-group-btn">
-                <button type="submit" class="btn btn-default">
-                    <span class="glyphicon glyphicon-search"></span>
+                <button type="submit" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
                 </span>
-
             </div>
             <div id="tag-row">
             {% with delete_me="this.parentNode.parentNode.remove()" %}
 
                 {% include "problems/problemset/search-tag.html" with input_class="collapse" input_attr="disabled" %}
-                {% for tag in tags %}
-                    {% include "problems/problemset/search-tag.html" with input_name="tag" input_text=tag input_attr="readonly" input_script=delete_me  %}
+                {% for tag in difficulty_tags %}
+                    {% include "problems/problemset/search-tag.html" with input_name="difficulty" input_text=tag.full_name input_attr="readonly" input_script=delete_me %}
                 {% endfor %}
-                {% for tag in difficultytags %}
-                    {% include "problems/problemset/search-tag.html" with input_name="difficulty" input_text=tag input_attr="readonly" input_script=delete_me %}
-                {% endfor %}
-                {% for tag in algorithmtags %}
+                {% for tag in algorithm_tags %}
                     {% include "problems/problemset/search-tag.html" with input_name="algorithm" input_text=tag input_attr="readonly" input_script=delete_me %}
                 {% endfor %}
-                {% for tag, origininfo in origintags.items %}
+                {% for tag, origininfo in origin_tags.items %}
                 <div id="origintag-group-{{ tag }}" class="origintag-group">
                     {% include "problems/problemset/search-tag.html" with input_name="origin" input_text=tag input_attr="readonly" input_script="this.parentNode.parentNode.parentNode.remove()" %}
                     {% for info in origininfo %}
@@ -63,9 +85,9 @@
 
             {% endwith %}
             </div>
-
         </form>
         {% endif %}
+
     </div>
 </div>
 

@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
@@ -43,8 +43,7 @@ class TestContestStatus(TestCase):
 
     def test_initial(self):
         contest = Contest.objects.get()
-        url = reverse('contest_dashboard',
-            kwargs={'contest_id': contest.id})
+        url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)

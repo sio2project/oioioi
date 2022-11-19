@@ -36,6 +36,14 @@
     }
   },
   {
+    "pk": 1,
+    "model": "base.consents",
+    "fields": {
+      "user_id": 1001,
+      "terms_accepted": true
+    }
+  },
+  {
     "pk": 1002,
     "model": "auth.user",
     "fields": {

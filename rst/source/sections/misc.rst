@@ -8,9 +8,8 @@ This section briefly describes currently used applications of Celery across the 
 
 - :doc:`Problem uploading </sections/problem_uploading>`
 - :doc:`Problem evaluation </sections/evaluation>`
-- Django bindings with `djcelery`_ for tasks and workers administration
 
-.. _djcelery: http://docs.celeryproject.org/en/latest/django/index.html
+.. _celery: http://docs.celeryproject.org/en/latest/django/index.html
 
 Getting current time
 --------------------

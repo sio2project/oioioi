@@ -1,7 +1,7 @@
 import re
 from datetime import datetime  # pylint: disable=E0611
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_timezone_now
@@ -39,14 +39,15 @@ class TestACMRanking(TestCase):
 
     def test_fixture(self):
         self.assertTrue(Contest.objects.exists())
-        self.assertEqual(Contest.objects.get().controller_name,
-                'oioioi.acm.controllers.ACMContestController')
+        self.assertEqual(
+            Contest.objects.get().controller_name,
+            'oioioi.acm.controllers.ACMContestController',
+        )
 
     def test_ranking_view(self):
         contest = Contest.objects.get()
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
-        csv_url = reverse('ranking_csv', kwargs={'contest_id': contest.id,
-                                                 'key': 'c'})
+        csv_url = reverse('ranking_csv', kwargs={'contest_id': contest.id, 'key': 'c'})
 
         self.assertTrue(self.client.login(username='test_user'))
 
@@ -129,9 +130,9 @@ class TestACMRanking(TestCase):
 
     def test_model_solution_submission_view(self):
         contest = Contest.objects.get()
-        url = reverse('submission',
-                      kwargs={'contest_id': contest.id,
-                              'submission_id': 1})
+        url = reverse(
+            'submission', kwargs={'contest_id': contest.id, 'submission_id': 1}
+        )
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)

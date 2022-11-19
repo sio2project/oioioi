@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 def create_default_global_portal(apps, schema_editor):
@@ -22,10 +22,8 @@ def create_default_global_portal(apps, schema_editor):
                                    **{'lft': 0, 'rght': 0, 'level': 0,
                                       'tree_id': 0})
         NodeLanguageVersion = apps.get_model('portals', 'NodeLanguageVersion')
-        name = render_to_string(
-            'portals/global-portal-initial-main-page-name.txt')
-        body = render_to_string(
-            'portals/global-portal-initial-main-page-body.txt')
+        name = render_to_string('portals/portal-initial-main-page-name.txt')
+        body = render_to_string('portals/portal-initial-main-page-body.txt')
         NodeLanguageVersion.objects.create(node=root,
                                            language=settings.LANGUAGE_CODE,
                                            full_name=name,

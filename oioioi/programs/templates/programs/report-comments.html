@@ -3,21 +3,22 @@
 
 <ul class="list-unstyled">
     {% for group in groups %}
-        {% for test in group.tests %}
+        {% for record in group.tests %}
+        {% with test=record.test %}
             {% if test.comment and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
             <li class="small text-muted">
                 <span>{{ test.test_name }}</span>
                 {% if allow_download_out and test.test %}
                     {% if test.generate_status == 'OK' %}
                         <a href="{% url 'download_user_output' testreport_id=test.id %}"
-                           title="{% trans 'Download user output for this test' %}">
+                           title='{% trans "Download user output for this test" %}'>
                             {% trans "[download out]" %}
                         </a>
                     {% elif test.generate_status == '?' %}
                         <span>[{% trans "processing" %}]</span>
                     {% else %}
                         <a href="#" data-post-url="{% url 'generate_user_output' testreport_id=test.id %}"
-                           title="{% trans 'Generate user output for this test' %}">
+                           title='{% trans "Generate user output for this test" %}'>
                             {% trans "[generate out]" %}
                         </a>
                     {% endif %}
@@ -27,22 +28,23 @@
                 {% endif %}
             </li>
             {% endif %}
+        {% endwith %}
         {% endfor %}
     {% endfor %}
 </ul>
 {% if allow_download_out %}
     {% if all_outs_generated %}
-        <a role="button" class="btn btn-default btn-sm"
-           title="{% trans 'Download all user outputs for this test report' %}"
+        <a role="button" class="btn btn-outline-secondary btn-sm"
+           title='{% trans "Download all user outputs for this test report" %}'
            href="{% url 'download_user_output' submission_report_id=report.id %}">
-            <span class="glyphicon glyphicon-download"></span>
+            <i class="fa-solid fa-download"></i>
             <span>{% trans "Download all" %}</span>
         </a>
     {% else %}
-        <a role="button" class="btn btn-default btn-sm"
-           title="{% trans 'Generate all user outputs for this test report' %}"
+        <a role="button" class="btn btn-outline-secondary btn-sm"
+           title='{% trans "Generate all user outputs for this test report" %}'
            data-post-url="{% url 'generate_user_output' submission_report_id=report.id %}">
-            <span class="glyphicon glyphicon-circle-arrow-down"></span>
+            <i class="fa-solid fa-circle-arrow-down"></i>
             <span>{% trans "Generate all" %}</span>
         </a>
     {% endif %}

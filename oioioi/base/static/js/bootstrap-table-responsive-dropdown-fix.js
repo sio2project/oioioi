@@ -1,5 +1,5 @@
 // https://github.com/twbs/bootstrap/issues/11037#issuecomment-274870381
-$('.table-responsive').on('shown.bs.dropdown', function (e) {
+$('.table-responsive-md').on('shown.bs.dropdown', function (e) {
     var t = $(this),
         m = $(e.target).find('.dropdown-menu'),
         tb = t.offset().top + t.height(),

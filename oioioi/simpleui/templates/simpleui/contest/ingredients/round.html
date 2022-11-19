@@ -2,17 +2,14 @@
 
 <div class="round__header">
     <div class="dropdown round__name">
-        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
             {{ selected_round.round }}
-            <span class="caret"></span>
         </button>
-        <ul class="dropdown-menu">
+        <div class="dropdown-menu">
             {% for round, round_time in round_times %}
-                <li>
-                    <a href="{% url contest_dashboard_url_name round.pk %}">{{ round }}</a>
-                </li>
+                <a class="dropdown-item" href="{% url contest_dashboard_url_name round.pk %}">{{ round }}</a>
             {% endfor %}
-        </ul>
+        </div>
     </div>
     <div class="round__menu">
         <a href="{% url 'oioioiadmin:problems_problem_add' %}">{% trans "Add a problem" %}</a>

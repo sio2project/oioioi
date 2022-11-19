@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse, resolve
 
 from oioioi.base.tests import TestCase
 
@@ -83,6 +83,13 @@ class TestNewsfeedPermissions(TestCase):
 class TestNewsfeedOptions(TestCase):
     fixtures = ['test_users', 'newsfeed']
 
+    def _assert_redirect_to_newsfeed(self, response):
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            resolve(response.redirect_chain[-1][0]).view_name,
+            'newsfeed'
+        )
+
     def test_news_add(self):
         url_newsfeed = reverse('newsfeed')
         url_add_news = reverse('add_news')
@@ -90,6 +97,7 @@ class TestNewsfeedOptions(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url_newsfeed)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Test news')
         self.assertNotContains(response, 'Testing add')
         response = self.client.get(url_add_news)
         self.assertEqual(response.status_code, 200)
@@ -104,7 +112,8 @@ class TestNewsfeedOptions(TestCase):
             'form-INITIAL_FORMS': 0,
         }
         response = self.client.post(url_add_news, post_data, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self._assert_redirect_to_newsfeed(response)
+        self.assertContains(response, 'Test news')
         self.assertContains(response, 'Testing add')
 
     def test_news_edit(self):
@@ -129,7 +138,7 @@ class TestNewsfeedOptions(TestCase):
             'form-INITIAL_FORMS': 1,
         }
         response = self.client.post(url_edit_news, post_data, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self._assert_redirect_to_newsfeed(response)
         self.assertContains(response, 'Test edited news')
         self.assertNotContains(response, 'Test news')
 
@@ -142,5 +151,5 @@ class TestNewsfeedOptions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Test news')
         response = self.client.get(url_delete_news, follow=True)
-        self.assertEqual(response.status_code, 200)
+        self._assert_redirect_to_newsfeed(response)
         self.assertNotContains(response, 'Test news')

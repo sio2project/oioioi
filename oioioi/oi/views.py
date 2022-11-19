@@ -11,8 +11,7 @@ from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import is_contest_admin
 from oioioi.dashboard.registry import dashboard_headers_registry
 from oioioi.oi.controllers import OIRegistrationController
-from oioioi.oi.forms import (AddSchoolForm, SchoolSelect, city_options,
-                             school_options)
+from oioioi.oi.forms import AddSchoolForm, SchoolSelect, city_options, school_options
 from oioioi.oi.models import School
 from oioioi.participants.utils import is_participant
 
@@ -20,12 +19,13 @@ from oioioi.participants.utils import is_participant
 @dashboard_headers_registry.register_decorator(order=10)
 def registration_notice_fragment(request):
     rc = request.contest.controller.registration_controller()
-    if isinstance(rc, OIRegistrationController) \
-            and request.user.is_authenticated \
-            and not is_contest_admin(request) \
-            and not is_participant(request):
-        return render_to_string('oi/registration_notice.html',
-            request=request)
+    if (
+        isinstance(rc, OIRegistrationController)
+        and request.user.is_authenticated
+        and not is_contest_admin(request)
+        and not is_participant(request)
+    ):
+        return render_to_string('oi/registration_notice.html', request=request)
     else:
         return None
 
@@ -63,15 +63,12 @@ def add_school_view(request):
                 data = request.session['oi_oiregistrationformdata']
                 data['school'] = school.id
                 request.session['oi_oiregistrationformdata'] = data
-                return redirect('participants_register',
-                                contest_id=request.contest.id)
+                return redirect('participants_register', contest_id=request.contest.id)
             else:
-                return redirect('default_contest_view',
-                                contest_id=request.contest.id)
+                return redirect('default_contest_view', contest_id=request.contest.id)
     else:
         form = AddSchoolForm()
-    return TemplateResponse(request, 'forms/add_school_form.html',
-                            {'form': form})
+    return TemplateResponse(request, 'forms/add_school_form.html', {'form': form})
 
 
 @enforce_condition(not_anonymous)
@@ -108,13 +105,15 @@ def schools_similar_view(request):
         for w in address.split():
             qobj |= Q(address__contains=w)
         # priority for schools with a matching part of the address
-        schools = list(schools.filter(qobj)[:num_hints]) + \
-                list(schools.filter(~qobj)[:num_hints])
+        schools = list(schools.filter(qobj)[:num_hints]) + list(
+            schools.filter(~qobj)[:num_hints]
+        )
 
     schools = schools[:num_hints]
 
     if schools:
-        return SimpleTemplateResponse('oi/schools_similar_confirm.html',
-                                  {'schools': schools})
+        return SimpleTemplateResponse(
+            'oi/schools_similar_confirm.html', {'schools': schools}
+        )
     else:
         return HttpResponse('')

@@ -12,16 +12,6 @@ Then run::
 
 and restart the judging machines.
 
-Upgrading from django 1.8
--------------------------
-Please make sure to reinstall all packages to avoid compatibility issues::
-
-  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
-  pip install -I --force-reinstall -r requirements.txt
-  ./manage.py migrate
-  ./manage.py collectstatic
-  ./manage.py supervisor restart all
-
 Changes in the deployment directory
 -----------------------------------
 
@@ -94,7 +84,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
        DATABASES = {
         'default': {
-         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+         'ENGINE': 'django.db.backends.', # Add 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
          'NAME': '',                      # Or path to database file if using sqlite3.
          'USER': '',                      # Not used with sqlite3.
          'PASSWORD': '',                  # Not used with sqlite3.
@@ -789,3 +779,316 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +#DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
         +#                     'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
         +#                     'Python': 'python'}
+
+#. * Added the 'USER_CONTEST_TIMEOUT' setting for limiting user contest duration.::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -405,6 +405,12 @@ AUTHENTICATION_BACKENDS += (
+         #    'oioioi.ipdnsauth.backends.IpDnsBackend',
+         )
+
+        +# Limits the duration of user contests.
+        +# Comment out if you don't want to limit the user contests duration.
+        +#import pytz
+        +#from datetime import datetime
+        +#USER_CONTEST_TIMEOUT = datetime(2020, 2, 7, 23, 0, 0, tzinfo=pytz.utc)
+        +
+         # Number of concurrently evaluated submissions (default is 1).
+         #EVALMGR_CONCURRENCY = 30
+
+#. * Removed 'celerycam' and 'cleanupd' from the list of supervisor programs.
+     Updated celery worker startup commands.::
+
+        --- a/oioioi/deployment/supervisord.conf.template
+        +++ b/oioioi/deployment/supervisord.conf.template
+        @@ -19,13 +19,6 @@ stdout_logfile={{ PROJECT_DIR }}/logs/uwsgi.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/uwsgi-err.log
+         {% if settings.UWSGI_ENABLED == False %}exclude=true{% elif settings.UWSGI_ENABLED == 'auto' and settings.DEBUG %}exclude=true{% endif %}
+
+        -[program:celerycam]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_DIR }}/pidfiles/celerycam.pid
+        -startretries=0
+        -redirect_stderr=false
+        -stdout_logfile={{ PROJECT_DIR }}/logs/celerycam.log
+        -stderr_logfile={{ PROJECT_DIR }}/logs/celerycam-err.log
+        -
+         [program:rankingsd]
+         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
+         startretries=0
+        @@ -41,7 +34,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/mailnotifyd.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/mailnotifyd-err.log
+
+         [program:unpackmgr]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+        +command=celery -A oioioi.celery worker -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+         startretries=0
+         stopwaitsecs=15
+         redirect_stderr=false
+        @@ -49,7 +42,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/unpackmgr-err.log
+
+         [program:evalmgr]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
+        +command=celery -A oioioi.celery worker -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
+         startretries=0
+         stopwaitsecs=15
+         redirect_stderr=false
+        @@ -57,7 +50,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/evalmgr-err.log
+
+         [program:evalmgr-zeus]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-zeus -c 1
+        +command=celery -A oioioi.celery worker -E -l info -Q evalmgr-zeus -c 1
+         startretries=0
+         stopwaitsecs=15
+         redirect_stderr=false
+        @@ -102,12 +95,6 @@ stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/sioworkersd-err.log
+         {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
+
+        -[program:cleanupd]
+        -command={{ PROJECT_DIR }}/manage.py cleanupd
+        -redirect_stderr=false
+        -stdout_logfile={{ PROJECT_DIR }}/logs/cleanupd.log
+        -stderr_logfile={{ PROJECT_DIR }}/logs/cleanupd-err.log
+        -
+         [program:ipauthsyncd]
+         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauthsyncd
+         startretries=0
+
+#. * Changed the 'UWSGI_ENABLED' setting to a more general 'SERVER' setting.
+     To make sure that your typical production setup (UWSGI + reverse proxy)
+     keeps working, set this to 'uwsgi'.::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -34,0 +38,6 @@
+        +# The server to be run. Options are:
+        +# 'django' - django's http server
+        +# 'uwsgi' - uwsgi daemon
+        +# 'uwsgi-http' - uwsgi deamon with built-in http server
+        +# None - nothing will be run
+        +SERVER = 'django'
+
+   * Appropriate changes were also made to the supervisor configuration.::
+
+        --- a/oioioi/deployment/supervisord.conf.template
+        +++ b/oioioi/deployment/supervisord.conf.template
+        @@ -7,17 +7,19 @@ directory={{ PROJECT_DIR }}
+         identifier=oioioi-supervisor
+
+         [program:uwsgi]
+        -{% if settings.UWSGI_USE_GEVENT %}
+        -command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --loop=gevent --async=50 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+        -{% else %}
+        -command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+        -{% endif %}
+        +command=uwsgi {% if settings.SERVER == 'uwsgi-http' %}--http :8000 --static-map {{ settings.STATIC_URL }}={{ settings.STATIC_ROOT }} {% else %}-s {{ PROJECT_DIR }}/uwsgi.sock {% endif %}--umask=000 {% if settings.UWSGI_USE_GEVENT %}--loop=gevent --async=50 {% endif %}--processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+         stopsignal=INT
+         startretries=0
+         redirect_stderr=false
+         stdout_logfile={{ PROJECT_DIR }}/logs/uwsgi.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/uwsgi-err.log
+        -{% if settings.UWSGI_ENABLED == False %}exclude=true{% elif settings.UWSGI_ENABLED == 'auto' and settings.DEBUG %}exclude=true{% endif %}
+        +{% if settings.SERVER|slice:":5" != 'uwsgi' %}exclude=true{% endif %}
+        +
+        +[program:django-http]
+        +command={{ PYTHON }} {{ PROJECT_DIR }}//manage.py runserver 0.0.0.0:8000
+        +stdout_logfile={{ PROJECT_DIR }}/logs/runserver/out.log
+        +stderr_logfile={{ PROJECT_DIR }}/logs/runserver/err.log
+        +{% if settings.SERVER != 'django' %}exclude=true{% endif %}
+
+         [program:rankingsd]
+         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
+
+#. * Removed OITimeTool and changed 'DEFAULT_SAFE_EXECUTION_MODE' from 'vcpu' to 'sio2jail'.
+     'vcpu' is no longer a viable safe execution option. Following changes have to be made
+     to settings.py: ::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -258,8 +258,7 @@ USE_UNSAFE_EXEC = True
+
+         # Default safe execution tool
+         # You can change the safe execution tool. Current options are:
+        -# - "vcpu" - (default) OITimeTool
+        -# - "sio2jail" - SIO2Jail
+        +# - "sio2jail" - (default) SIO2Jail
+         # - "cpu" - ptrace (measures real time)
+         #DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
+
+
+#. * Added audio playback of captcha. Following changes have to be made
+     to settings.py: ::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -479,3 +479,13 @@ ZEUS_INSTANCES = {
+         # change, delete or submit to existing usercontests, as well as add new ones.
+         # This operation is fully reversible.
+         #ARCHIVE_USERCONTESTS = True
+        +
+        +# If set to locations of flite and sox executables, enables audio playback
+        +# of captcha. Audio output generated by flite (CAPTCHA_FLITE_PATH) is identical
+        +# for captchas with the same text. To prevent potential security risk,
+        +# CAPTCHA_SOX_PATH should be set as well, in order to inject random noise into
+        +# audio files  generated by flite. If either sox or flite is installed
+        +# and is in PATH variable, then corresponding settings will be set automatically.
+        +# CAPTCHA_FLITE_PATH = ''
+        +# CAPTCHA_SOX_PATH = ''
+
+#. * Removed avatar module. Gravatar processors is now in the base module: ::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -308,7 +308,6 @@ MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
+
+        INSTALLED_APPS = (
+            'oioioi.contestlogo',
+        -    'oioioi.avatar',
+        #    'oioioi.teachers',
+        #    'oioioi.simpleui',
+        #    'oioioi.ipdnsauth',
+        @@ -364,9 +363,9 @@ PROBLEMSET_LINK_VISIBLE = True
+        EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
+
+        TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        +   'oioioi.base.processors.gravatar',
+            'oioioi.contestlogo.processors.logo_processor',
+            'oioioi.contestlogo.processors.icon_processor',
+        -   'oioioi.avatar.processors.gravatar',
+        #    'oioioi.notifications.processors.notification_processor',
+            'oioioi.globalmessage.processors.global_message_processor',
+        #    'oioioi.portals.processors.portal_processor',
+
+#. * Added type key for languages and added "Output-only" language.: ::
+
+        --- a/oioioi/default_settings.py
+        +++ b/oioioi/default_settings.py
+        @@ -14,7 +14,7 @@ from django.contrib.messages import constants as messages
+
+        from django.utils.translation import gettext_lazy as _
+
+        -INSTALLATION_CONFIG_VERSION = 47
+        +INSTALLATION_CONFIG_VERSION = 48
+
+        DEBUG = False
+        INTERNAL_IPS = ('127.0.0.1',)
+        @@ -318,9 +318,12 @@ SIOWORKERS_LISTEN_URL = None
+        RUN_LOCAL_WORKERS = False
+
+        # This setting specifies which languages are available on the platform.
+        -# Each language must contain a diplay_name entry. Such an entry may be useful
+        +# Each language must contain type and display_name entry. Such an entry may be useful
+        # if it is to contain characters, that probably shouldn't be allowed in the
+        -# language identifier, such as '#'.
+        +# language identifier, such as '#'. Languages of type 'main'
+        +# ('main' is default type, it doesn't need to be set)
+        +# are enabled on every problem by default, languages of type 'extra'
+        +# can only be enabled on a problem by adding them to the problems white list.
+        SUBMITTABLE_LANGUAGES = {
+            'C': {
+                'display_name': 'C'
+        @@ -336,6 +339,10 @@ SUBMITTABLE_LANGUAGES = {
+            },
+            'Python': {
+                'display_name': 'Python'
+        +    },
+        +    'Output-only': {
+        +        'type': 'extra',
+        +        'display_name': 'Output-only',
+            }
+        }
+
+        @@ -343,7 +350,7 @@ SUBMITTABLE_LANGUAGES = {
+        # There should be an entry for every language supported with key being the same
+        # as in SUBMITTABLE_LANGUAGES.
+        SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
+        -                          'Java': ['java'], 'Python': ['py']}
+        +                          'Java': ['java'], 'Python': ['py'], 'Output-only': ['txt', 'out']}
+
+        # This setting specifies which compilers are available in sioworkers.
+        # By default that means ones defined here:
+        @@ -366,6 +373,9 @@ AVAILABLE_COMPILERS = {
+            },
+            'Python': {
+                'python': {'display_name': 'python'}
+        +    },
+        +    'Output-only': {
+        +        'output-only': {'display_name': 'output-only'}
+            }
+        }
+
+        @@ -384,6 +394,9 @@ SYSTEM_COMPILERS = {
+            },
+            'Python': {
+                'system-python': {'display_name': 'system python'}
+        +    },
+        +    'Output-only': {
+        +        'output-only': {'display_name': 'output-only'}
+            }
+        }
+
+        @@ -392,11 +405,11 @@ SYSTEM_COMPILERS = {
+        # as in SUBMITTABLE_LANGUAGES and value contained in AVAILABLE_COMPILERS.
+        DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
+                            'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
+        -                     'Python': 'python'}
+        +                     'Python': 'python', 'Output-only': 'output-only'}
+
+        SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
+                            'Pascal': 'system-fpc', 'Java': 'system-java',
+        -                     'Python': 'system-python'}
+        +                     'Python': 'system-python', 'Output-only': 'output-only'}
+
+        USE_UNSAFE_EXEC = False
+        DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
+
+#. * Sentry client update from raven to sentry-sdk:
+    * Apply change in wsgi.py: ::
+
+        --- a/oioioi/deployment/wsgi.py.template
+        +++ b/oioioi/deployment/wsgi.py.template     @@ -27,9 +27,8 @@ init_env('__DIR__')
+        # This application object is used by any WSGI server configured to use this
+        # file. This includes Django's development server, if the WSGI_APPLICATION
+        # setting points here.
+        -from raven.contrib.django.raven_compat.middleware.wsgi import Sentry
+        from django.core.wsgi import get_wsgi_application
+        -application = Sentry(get_wsgi_application())
+        +application = get_wsgi_application()
+
+    * Apply change in settings.py: ::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -454,16 +454,23 @@ ZEUS_INSTANCES = {
+         #IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'
+
+         # Error reporting
+        -# import raven
+        +# import sentry_sdk
+        +# from sentry_sdk.integrations.django import DjangoIntegration
+         #
+        -# RAVEN_CONFIG = {
+        +# def filter_sentry(event, hint):
+        +#     extra = event.get('extra', {})
+        +#     if extra.get('omit_sentry', False):
+        +#         return None
+        +#     return event
+        +#
+        +#
+        +# sentry_sdk.init(
+         #     # Won't do anything with no dsn
+         #     # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
+        -#     'dsn': '',
+        -#     # This should be a path to git repo
+        -#     'release': raven.fetch_git_sha(
+        -#         os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
+        -# }
+        +#     dsn='',
+        +#     integrations=[DjangoIntegration()],
+        +#     before_send=filter_sentry,
+        +# )
+
+     * Remove all sentry and raven reminiscent from settings.py in LOGGING SECTION.

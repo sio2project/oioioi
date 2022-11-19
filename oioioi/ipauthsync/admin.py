@@ -8,7 +8,7 @@ class IpAuthSyncConfigInline(admin.TabularInline):
     extra = 0
     form = AlwaysChangedModelForm
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):
@@ -20,10 +20,9 @@ class IpAuthSyncConfigInline(admin.TabularInline):
 
 class ContestAdminWithIpAuthSyncInlineMixin(object):
     """Adds :class:`~oioioi.ipauthsync.models.IpAuthSyncConfig` to an admin
-       panel.
+    panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(ContestAdminWithIpAuthSyncInlineMixin, self) \
-            .__init__(*args, **kwargs)
+        super(ContestAdminWithIpAuthSyncInlineMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [IpAuthSyncConfigInline]

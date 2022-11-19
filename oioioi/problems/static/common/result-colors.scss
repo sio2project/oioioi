@@ -1,0 +1,41 @@
+@import "scss/utility";
+
+$result-green: #bbeebb !default;
+$result-green-gradient-to: #fff !default;
+$result-red: #ffbbbb !default;
+$result-red-gradient-to: #fff !default;
+$result-yellow: #ffd894 !default;
+$result-yellow-gradient-to: #fff !default;
+
+$result-margin-min-width: 20px !default;
+
+@mixin result($color, $color-gradient-to) {
+  background: $color;
+
+  &.result__margin {
+    @include gradient-x-three-colors($color-gradient-to, $color, 50%, $color-gradient-to);
+  }
+
+  &.result__status {
+    background: lighten($color, 5%);
+  }
+}
+
+.result {
+  &__margin {
+    min-width: $result-margin-min-width;
+    padding: 0;
+  }
+
+  &--FAILED {
+    @include result($result-red, $result-red-gradient-to);
+  }
+
+  &--TRIED {
+    @include result($result-yellow, $result-yellow-gradient-to);
+  }
+
+  &--OK {
+    @include result($result-green, $result-green-gradient-to);
+  }
+}

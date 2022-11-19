@@ -1,6 +1,5 @@
-from django.conf.urls import url
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.urls import re_path, reverse
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
@@ -10,7 +9,7 @@ from oioioi.globalmessage.models import GlobalMessage
 class GlobalMessageAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['enabled', 'message']}),
-        (_('Auto show and hide'), {'fields': ['start', 'end']}),
+        (_("Auto show and hide"), {'fields': ['start', 'end']}),
     ]
 
     def has_add_permission(self, request):
@@ -29,9 +28,7 @@ class GlobalMessageAdmin(admin.ModelAdmin):
         urls = super(GlobalMessageAdmin, self).get_urls()
 
         custom_urls = [
-            url(r'^$',
-                self.admin_site.admin_view(self.change_view),
-                {'object_id': pk}),
+            re_path(r'^$', self.admin_site.admin_view(self.change_view), {'object_id': pk}),
         ]
 
         return custom_urls + urls
@@ -41,11 +38,9 @@ admin.site.register(GlobalMessage, GlobalMessageAdmin)
 
 
 admin.system_admin_menu_registry.register(
-        'globalmessage',
-        _("Global message"),
-        lambda request: reverse(
-            'oioioiadmin:globalmessage_globalmessage_changelist'
-        ),
-        condition=is_superuser,
-        order=20
+    'globalmessage',
+    _("Global message"),
+    lambda request: reverse('oioioiadmin:globalmessage_globalmessage_changelist'),
+    condition=is_superuser,
+    order=20,
 )

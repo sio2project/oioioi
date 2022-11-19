@@ -12,7 +12,7 @@
     "pk": 1,
     "model": "problems.problem",
     "fields": {
-      "name": "Problem",
+      "legacy_name": "Problem",
       "short_name": "problem",
       "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
     }

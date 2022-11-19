@@ -8,10 +8,9 @@
     <p>
         We have found your submission not being compliant with terms of the contest by breaking following rules:
     </p>
-    {{ reason }}
-    <p>
-        By the power of the contest rules you are going to be disqualified.
-        If you are willing to plea, please use Complaints form.
-    </p>
     {% endblocktrans %}
+    {{ reason }}
+    {% if contest_disq_info %}
+        <p>{{ contest_disq_info }}</p>
+    {% endif %}
 </div>

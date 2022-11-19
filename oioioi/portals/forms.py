@@ -1,7 +1,15 @@
 from django.conf import settings
-from django.forms import ModelForm, ValidationError, inlineformset_factory, \
-    ChoiceField, HiddenInput, Form, CharField, TextInput
-from django.utils.translation import ugettext_lazy as _
+from django.forms import (
+    CharField,
+    ChoiceField,
+    Form,
+    HiddenInput,
+    ModelForm,
+    TextInput,
+    ValidationError,
+    inlineformset_factory,
+)
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.portals.models import Node, NodeLanguageVersion, Portal
 
@@ -9,7 +17,7 @@ from oioioi.portals.models import Node, NodeLanguageVersion, Portal
 class NodeForm(ModelForm):
     class Meta(object):
         model = Node
-        fields = ('short_name', )
+        fields = ('short_name',)
 
     def __init__(self, *args, **kwargs):
         super(NodeForm, self).__init__(*args, **kwargs)
@@ -28,9 +36,8 @@ class NodeForm(ModelForm):
         if same.exists() and same.get() != self.instance:
             raise ValidationError(
                 _("Node %(parent)s already has a child with this short name."),
-                params={
-                    'parent': self.instance.parent.get_lang_version().full_name
-                })
+                params={'parent': self.instance.parent.get_lang_version().full_name},
+            )
 
         return short_name
 
@@ -38,25 +45,39 @@ class NodeForm(ModelForm):
 class NodeLanguageVersionForm(ModelForm):
     class Meta(object):
         model = NodeLanguageVersion
-        fields = ('language', 'full_name', 'panel_code', )
+        fields = (
+            'language',
+            'full_name',
+            'panel_code',
+        )
 
-    language = ChoiceField(widget=HiddenInput(),
-                           choices=settings.LANGUAGES)
+    language = ChoiceField(widget=HiddenInput(), choices=settings.LANGUAGES)
 
 
 NodeLanguageVersionFormset = inlineformset_factory(
-    Node, NodeLanguageVersion, form=NodeLanguageVersionForm,
-    extra=len(settings.LANGUAGES), min_num=1, max_num=len(settings.LANGUAGES),
-    validate_min=True, validate_max=True, can_delete=True,
+    Node,
+    NodeLanguageVersion,
+    form=NodeLanguageVersionForm,
+    extra=len(settings.LANGUAGES),
+    min_num=1,
+    max_num=len(settings.LANGUAGES),
+    validate_min=True,
+    validate_max=True,
+    can_delete=True,
 )
 
 
 class PortalsSearchForm(Form):
-    q = CharField(max_length=30, label=None,
-                  widget=TextInput(attrs={'placeholder':
-                                              _('Search by URL or name'),
-                                          'class':
-                                              "form-control search-query"}))
+    q = CharField(
+        max_length=30,
+        label=None,
+        widget=TextInput(
+            attrs={
+                'placeholder': _("Search by URL or name"),
+                'class': "form-control search-query",
+            }
+        ),
+    )
 
     def __init__(self, *args, **kwargs):
         self.query = kwargs.pop('query')

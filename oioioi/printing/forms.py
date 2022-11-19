@@ -1,8 +1,7 @@
-import six
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.printing.pdf import PageLimitExceeded, generator
 from oioioi.programs.utils import decode_str
@@ -19,9 +18,11 @@ def validate_file_size(file):
 
 
 class PrintForm(forms.Form):
-    file = forms.FileField(allow_empty_file=False, label=_("File"),
-                           validators=[is_text_file_validator,
-                                       validate_file_size])
+    file = forms.FileField(
+        allow_empty_file=False,
+        label=_("File"),
+        validators=[is_text_file_validator, validate_file_size],
+    )
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
@@ -33,8 +34,10 @@ class PrintForm(forms.Form):
         try:
             cleaned_data['file'] = generator(
                 source=orig.expandtabs(4),
-                header=six.text_type(
-                    '%s (%s)' % (self.user.get_full_name(), self.user)))
+                header=str(
+                    '%s (%s)' % (self.user.get_full_name(), self.user)
+                ),
+            )
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))
         return cleaned_data['file']

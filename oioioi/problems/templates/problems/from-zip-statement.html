@@ -1,0 +1,12 @@
+{% load i18n %}
+<div width="100%" height="800px">
+    {{ statement }}
+</div>
+
+{% if can_admin_problem %}
+<div class="text-center bottom-text">
+    {% blocktrans %}<p>Problem's author: </p>{% endblocktrans %}
+    <p>{{ problem.author.first_name }} {{problem.author.last_name}} ({{problem.author.username}})</p>
+    <p><a href="mailto:{{problem.author.email}}">Send e-mail to the author</a></p>
+</div>
+{% endif %}

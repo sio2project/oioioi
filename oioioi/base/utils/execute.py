@@ -2,6 +2,8 @@ import os
 import string
 import subprocess
 
+import six
+
 # Reliable quoting, taken as-is from `pipes` standard module.
 # There is a slight chance it may work on non-Unix platforms, but
 # I wouldn't count on it. Either way tests will show.
@@ -27,23 +29,31 @@ class ExecuteError(RuntimeError):
     pass
 
 
-def execute(command, env=None, split_lines=False, ignore_errors=False,
-            errors_to_ignore=(), stdin=b'', cwd=None, capture_output=True):
+def execute(
+    command,
+    env=None,
+    split_lines=False,
+    ignore_errors=False,
+    errors_to_ignore=(),
+    stdin=b'',
+    cwd=None,
+    capture_output=True,
+):
     """Utility function to execute a command and return the output.
-       It's basically a little saner version of subprocess.call.
+    It's basically a little saner version of subprocess.call.
 
-       :param command: a string or a list; command to be executed
-       :param env: environment dictionary
-       :param split_lines: On True, the result lines are returned separated
-       :param ignore_errors: On False, throw an exception if the command
-            returned a non-zero return code.
-       :param errors_to_ignore: tuple of return codes not to be interpreted as
-            errors
-       :param stdin: a bytestring passed to the subprocess
-       :param cwd: working directory to temporarily chdir to
-       :param capture_output: if False, output will be passed to stdout/stderr
+    :param command: a string or a list; command to be executed
+    :param env: environment dictionary
+    :param split_lines: On True, the result lines are returned separated
+    :param ignore_errors: On False, throw an exception if the command
+         returned a non-zero return code.
+    :param errors_to_ignore: tuple of return codes not to be interpreted as
+         errors
+    :param stdin: a bytestring passed to the subprocess
+    :param cwd: working directory to temporarily chdir to
+    :param capture_output: if False, output will be passed to stdout/stderr
 
-       :returns: the standard output of the subprocess in a bytestring
+    :returns: the standard output of the subprocess in a bytestring
     """
 
     if env:
@@ -66,20 +76,32 @@ def execute(command, env=None, split_lines=False, ignore_errors=False,
             os.chdir(cwd)
 
     if capture_output:
-        p = subprocess.Popen(command, stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                shell=True, close_fds=True, env=env, preexec_fn=set_cwd)
+        p = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True,
+            close_fds=True,
+            env=env,
+            preexec_fn=set_cwd,
+        )
     else:
-        p = subprocess.Popen(command, stdin=subprocess.PIPE,
-                shell=True, close_fds=True, env=env, preexec_fn=set_cwd)
+        p = subprocess.Popen(
+            command,
+            stdin=subprocess.PIPE,
+            shell=True,
+            close_fds=True,
+            env=env,
+            preexec_fn=set_cwd,
+        )
 
-    stdout, _ = p.communicate(stdin)
+    stdout, _ = p.communicate(six.ensure_binary(stdin))
     rc = p.returncode
 
     if split_lines:
         stdout = stdout.splitlines()
     if rc and not ignore_errors and rc not in errors_to_ignore:
-        raise ExecuteError('Failed to execute command: %s\n%s' %
-            (command, stdout))
+        raise ExecuteError('Failed to execute command: %s\n%s' % (command, stdout))
 
     return stdout

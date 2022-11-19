@@ -1,0 +1,51 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Submit to MOSS" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Export submissions to MOSS" %}</h1>
+
+<div class="alert alert-warning" role="alert">
+    {% trans "Submitting source codes to MOSS makes them public to anyone with the link." %}
+    <span></span>
+</div>
+
+{% if moss_error %}
+    <div class="alert alert-danger" role="alert">
+        <span class="sr-only">{% trans "Error" %}:</span>
+        {{ moss_error }}
+    </div>
+{% endif %}
+
+<p>
+{% blocktrans %}
+Here you can export submissions from this contest to the MOSS (Measure Of Software Similarity) system
+maintained by the Stanford University.
+This tool automatically finds all pairs of submissions which look suspiciously similar.
+However keep in mind, that MOSS does NOT automatically detect plagiarism; it can only detect
+similarity between codes and you will still have to manually make a decision whether the code is copied or not.
+You have to be a registered user of the MOSS system in order to provide your user id and make a query.
+{% endblocktrans %}
+{% trans "You can learn more about the system and the registration process at the" %}
+<a href="https://theory.stanford.edu/~aiken/moss/">{% trans "MOSS site" %}</a>.
+</p>
+
+<form action="{% url 'moss_submit' %}" method="post">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary" role="button">
+            {% trans "Submit" %}
+        </button>
+    </div>
+</form>
+
+<p><strong>
+{% blocktrans %}
+    OIOIOI does not store or share your user id with anyone.
+    It is only used to make a single query with the source codes on your behalf.
+{% endblocktrans %}
+</strong></p>
+
+{% endblock %}

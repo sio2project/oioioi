@@ -1,13 +1,13 @@
 import unicodecsv
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.utils.encoding import force_text
-from six.moves import map
+from django.utils.encoding import force_str
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
+
 
 def is_contest_with_participants(contest):
     rcontroller = contest.controller.registration_controller()
@@ -18,10 +18,10 @@ def is_onsite_contest(contest):
     if not is_contest_with_participants(contest):
         return False
     from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
+
     rcontroller = contest.controller.registration_controller()
     padmin = rcontroller.participant_admin
-    return (padmin and
-            issubclass(padmin, OnsiteRegistrationParticipantAdmin))
+    return padmin and issubclass(padmin, OnsiteRegistrationParticipantAdmin)
 
 
 @make_request_condition
@@ -43,8 +43,7 @@ def contest_is_onsite(request):
 @request_cached
 def get_participant(request):
     try:
-        return Participant.objects.get(contest=request.contest,
-                                       user=request.user)
+        return Participant.objects.get(contest=request.contest, user=request.user)
     except Participant.DoesNotExist:
         return None
 
@@ -88,22 +87,24 @@ def is_participant(request):
 
 def _fold_registration_models_tree(object):
     """Function for serialize_participants_data. Walks over model of
-       the object, gets models related to the model and lists
-       all their fields."""
+    the object, gets models related to the model and lists
+    all their fields."""
     result = []
     objects_used = [object]
 
     # https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-old-meta-api
     def get_all_related_objects(_meta):
         return [
-                f for f in _meta.get_fields()
-                if (f.one_to_many or f.one_to_one)
-                and f.auto_created and not f.concrete
+            f
+            for f in _meta.get_fields()
+            if (f.one_to_many or f.one_to_one) and f.auto_created and not f.concrete
         ]
 
-    objs = [getattr(object, rel.get_accessor_name())
-            for rel in get_all_related_objects(object._meta)
-            if hasattr(object, rel.get_accessor_name())]
+    objs = [
+        getattr(object, rel.get_accessor_name())
+        for rel in get_all_related_objects(object._meta)
+        if hasattr(object, rel.get_accessor_name())
+    ]
     while objs:
         current = objs.pop(0)
         if current is None:
@@ -111,8 +112,10 @@ def _fold_registration_models_tree(object):
         objects_used.append(current)
 
         for field in current._meta.fields:
-            if field.remote_field is not None and \
-                    getattr(current, field.name) not in objects_used:
+            if (
+                field.remote_field is not None
+                and getattr(current, field.name) not in objects_used
+            ):
                 objs.append(getattr(current, field.name))
 
     for obj in objects_used:
@@ -125,7 +128,7 @@ def _fold_registration_models_tree(object):
 
 def serialize_participants_data(request, participants):
     """Serializes all personal data of participants to a table.
-       :param participants: A QuerySet from table participants.
+    :param participants: A QuerySet from table participants.
     """
 
     if not participants.exists():
@@ -133,13 +136,13 @@ def serialize_participants_data(request, participants):
 
     display_email = request.contest.controller.show_email_in_participants_data
 
-    keys = ['username', 'user ID', 'first name', 'last name'] + \
-          (['email address'] if display_email else [])
+    keys = ['username', 'user ID', 'first name', 'last name'] + (
+        ['email address'] if display_email else []
+    )
 
     def key_name(attr):
         (obj, field) = attr
-        return str(obj.__class__.__name__) + ": " + \
-                field.verbose_name.title()
+        return str(obj.__class__.__name__) + ": " + field.verbose_name.title()
 
     set_of_keys = set(keys)
     for participant in participants:
@@ -154,8 +157,7 @@ def serialize_participants_data(request, participants):
 
     data = []
     for participant in participants:
-        values = dict(list(map(key_value,
-                          _fold_registration_models_tree(participant))))
+        values = dict(list(map(key_value, _fold_registration_models_tree(participant))))
         values['username'] = participant.user.username
         values['user ID'] = participant.user.id
         values['first name'] = participant.user.first_name
@@ -170,12 +172,13 @@ def serialize_participants_data(request, participants):
 def render_participants_data_csv(request, participants, name):
     data = serialize_participants_data(request, participants)
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = \
-        'attachment; filename=%s-%s.csv' % \
-        (name, "personal-data")
+    response['Content-Disposition'] = 'attachment; filename=%s-%s.csv' % (
+        name,
+        "personal-data",
+    )
     if 'no_participants' not in data:
         writer = unicodecsv.writer(response)
-        writer.writerow(list(map(force_text, data['keys'])))
+        writer.writerow(list(map(force_str, data['keys'])))
         for row in data['data']:
-            writer.writerow(list(map(force_text, row)))
+            writer.writerow(list(map(force_str, row)))
     return response

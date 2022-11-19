@@ -18,15 +18,15 @@ _contest_dashboard_registry = OrderedRegistry()
 def register_contest_dashboard_view(order=sys.maxsize, condition=None):
     """Decorator for a view, which registers it as a contest dashboard.
 
-       A view registered this way can be shown as the main page of the contest.
-       If multiple views are registered, one with the lowest ``order`` for
-       which the ``condition`` holds true is selected.
+    A view registered this way can be shown as the main page of the contest.
+    If multiple views are registered, one with the lowest ``order`` for
+    which the ``condition`` holds true is selected.
 
-       :param order: value determining the order in which the dashboard is
-                     selected
-       :type order: int
-       :param condition: decides if a dashboard can be selected
-       :type condition: :class:`oioioi.base.permissions.Condition`
+    :param order: value determining the order in which the dashboard is
+                  selected
+    :type order: int
+    :param condition: decides if a dashboard can be selected
+    :type condition: :class:`oioioi.base.permissions.Condition`
     """
 
     if condition is None:
@@ -34,7 +34,8 @@ def register_contest_dashboard_view(order=sys.maxsize, condition=None):
 
     def decorator(view):
         _contest_dashboard_registry.register(
-            _ContestDashboardEntry(view, condition), order)
+            _ContestDashboardEntry(view, condition), order
+        )
         return view
 
     return decorator
@@ -43,9 +44,9 @@ def register_contest_dashboard_view(order=sys.maxsize, condition=None):
 def unregister_contest_dashboard_view(view):
     """Unregisters a contest dashboard view.
 
-       Does nothing if not found.
+    Does nothing if not found.
 
-       :param view: the dashboard view to unregister
+    :param view: the dashboard view to unregister
     """
 
     for entry in _contest_dashboard_registry:

@@ -5,7 +5,7 @@ from oioioi.base.menu import OrderedRegistry
 
 class AttachmentRegistry(object):
     """Maintains a collection of functions that
-       return attachments for 'Files' view.
+    return attachments for 'Downloads' view.
     """
 
     def __init__(self):
@@ -14,21 +14,21 @@ class AttachmentRegistry(object):
     def register(self, attachment_generator=None, order=sys.maxsize):
         """Register function generating attachments.
 
-            :Parameters:
-              `attachment_generator` : `function`
-                Function that takes `request` as an argument and
-                returns dictionary containing following keys: `category`,
-                `name`, `description`, `link`, `pub_date`.
+        :Parameters:
+            Function that takes elements from `**kwargs` as arguments and
+            returns dictionary containing following keys: `category`,
+            `name`, `description`, `link`, `pub_date`.
         """
         if attachment_generator is not None:
             self._registry.register(attachment_generator, order)
 
-    def to_list(self, request):
+    def to_list(self, **kwargs):
         attachments = []
         for idx, gen in enumerate(self._registry):
-            attachments.extend(gen(request))
+            attachments.extend(gen(**kwargs))
         return attachments
 
 
 # The default attachment registry
 attachment_registry = AttachmentRegistry()
+attachment_registry_problemset = AttachmentRegistry()

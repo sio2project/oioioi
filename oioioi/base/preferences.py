@@ -1,58 +1,59 @@
 from collections import OrderedDict
-
-import oioioi.base.forms
-
+from oioioi.base.models import UserPreferences
 
 # Huge thanks to: http://jacobian.org/writing/dynamic-form-generation/
 class PreferencesFactory(object):
     """Since each app might want to add new options for the user to edit in his
-       preferences, this class was created - it allows for adding new fields to
-       the form and requesting callback when the form will have been completed
-       Usage:
-       PreferencesFactory.add_field(
-           "Dog",
-           CharField,
-           lambda name, user: 'Spot',
-           max_length=20
-       )
+    preferences, this class was created - it allows for adding new fields to
+    the form and requesting callback when the form will have been completed
+    Usage:
+    PreferencesFactory.add_field(
+        "Dog",
+        CharField,
+        lambda name, user: 'Spot',
+        max_length=20
+    )
 
-       form = PreferencesFactory().create_form(user, allow_login_change=False)
+    form = PreferencesFactory().create_form(UserForm, user, allow_login_change=False)
     """
 
     _additional_fields = []
 
     @staticmethod
-    def add_field(field_name, field_type, initial_value_callback, order=0,
-                  *args, **kwargs):
+    def add_field(
+        field_name, field_type, initial_value_callback, order=0, *args, **kwargs
+    ):
         """When the user will want to edit preferences there will be additional
-           field listed, as if it was specified in the form:
+        field listed, as if it was specified in the form:
 
-           class OurForm(Forms.form):
-               field_name = field_type(*args, **kwargs)
+        class OurForm(Forms.form):
+            field_name = field_type(*args, **kwargs)
 
-           Order is an int that will be used to sort additional fields in
-           ordered dict, set to 0 if you don't care
+        Order is an int that will be used to sort additional fields in
+        ordered dict, set to 0 if you don't care
 
-           When instating the form, initial_value_callback will be called
-           with the field_name and user parameters
-           initial_value_callback(field_name, user), it should return a value
-           that can be put in field_type, this is what the user will see when
-           opens his preferences, preferably some saved info from before.
+        When instating the form, initial_value_callback will be called
+        with the field_name and user parameters
+        initial_value_callback(field_name, user), it should return a value
+        that can be put in field_type, this is what the user will see when
+        opens his preferences, preferably some saved info from before.
 
-           To actually get the results you should use the PreferencesSaved
-           signal from models (and to validate use the field validators, fool)
+        To actually get the results you should use the PreferencesSaved
+        signal from models (and to validate use the field validators, fool)
 
-           Keep in mind that adding fields that already exist is an
-           undefined behavior.
+        Keep in mind that adding fields that already exist is an
+        undefined behavior.
         """
-        PreferencesFactory._additional_fields.append({
-            'name': field_name,
-            'type': field_type,
-            'order': order,
-            'callback': initial_value_callback,
-            'args': args,
-            'kwargs': kwargs
-        })
+        PreferencesFactory._additional_fields.append(
+            {
+                'name': field_name,
+                'type': field_type,
+                'order': order,
+                'callback': initial_value_callback,
+                'args': args,
+                'kwargs': kwargs,
+            }
+        )
 
     @staticmethod
     def remove_field(field_name):
@@ -61,11 +62,10 @@ class PreferencesFactory(object):
             if field['name'] == field_name:
                 PreferencesFactory._additional_fields.remove(field)
 
-    def create_form(self, user, *args, **kwargs):
+    def create_form(self, form_class, user, *args, **kwargs):
         """Returns a form with all the additional fields which can then be
-           displayed to the user, additional args and kwargs will be sent to
-           the oioioi.base.forms.UserForm form's __init__ (instance though will
-           be provided for you)
+        displayed to the user, additional args and kwargs will be sent to
+        the form's __init__ (instance though will be provided for you)
         """
         PreferencesFactory._additional_fields.sort(
             key=lambda o: (o["order"], o["name"])
@@ -73,13 +73,9 @@ class PreferencesFactory(object):
         extra_fields = OrderedDict()
         field_values = {}
         for field in PreferencesFactory._additional_fields:
-            field_values[field['name']] = field['callback'](
-                field['name'],
-                user
-            )
+            field_values[field['name']] = field['callback'](field['name'], user)
             extra_fields[field['name']] = field['type'](
-                *field['args'],
-                **field['kwargs']
+                *field['args'], **field['kwargs']
             )
 
         # Since the user of this class might have put his own initial values we
@@ -87,10 +83,11 @@ class PreferencesFactory(object):
         initial = kwargs.pop('initial', {})
         initial.update(field_values)
 
-        return oioioi.base.forms.UserForm(
-            *args,
-            extra=extra_fields,
-            instance=user,
-            initial=initial,
-            **kwargs
+        return form_class(
+            *args, extra=extra_fields, instance=user, initial=initial, **kwargs
         )
+
+
+def ensure_preferences_exist_for_user(user):
+    if not hasattr(user, "userpreferences"):
+        UserPreferences.objects.get_or_create(user=user)

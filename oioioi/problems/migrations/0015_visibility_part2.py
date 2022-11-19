@@ -12,8 +12,8 @@ def is_public_to_visibility(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     Problem.objects.using(db_alias).all().update(
         visibility=Case(
-            When(is_public=True, then=Value(b'PU')),  # Public
-            default=Value(b'FR')  # Friends
+            When(is_public=True, then=Value('PU')),  # Public
+            default=Value('FR')  # Friends
         )
     )
 
@@ -23,7 +23,7 @@ def visibility_to_is_public(apps, schema_editor):
     db_alias = schema_editor.connection.alias
     Problem.objects.using(db_alias).all().update(
         is_public=Case(
-            When(visibility=b'PU', then=Value(True)),  # Public
+            When(visibility='PU', then=Value(True)),  # Public
             default=Value(False)  # Other, we lose distinction: Private, Friends
         )
     )

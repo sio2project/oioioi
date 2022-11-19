@@ -4,17 +4,16 @@
 {% block styles %}
 {{ block.super }}
 {% compress css %}
-    <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/simpleui.scss">
+    <link charset="utf-8" rel="stylesheet" type="text/x-scss"
+          href="{{ STATIC_URL }}simpleui/simpleui.scss">
 {% endcompress %}
 {% endblock %}
 
 {% block body %}
-    <div class="{% block row-class %}row{% endblock %}">
-        {% block flash %}
-            <div>
-                {% include "ingredients/flash.html" %}
-            </div>
-        {% endblock %}
-        {% block main-body %}{% endblock %}
-    </div>
+    {% block flash %}
+        <div>
+            {% include "ingredients/flash.html" %}
+        </div>
+    {% endblock %}
+    {% block main-body %}{% endblock %}
 {% endblock %}

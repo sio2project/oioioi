@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  margin-bottom: $oioioi-footer-height;
+  margin-bottom: calc(#{$oioioi-footer-height} + #{$spacer});
 }
 
 .footer {

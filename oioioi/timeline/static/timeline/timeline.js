@@ -35,7 +35,7 @@ $(document).ready(function() {
         );
 
         var POPOVER_CONTENT = gettext('Change date in a datebox by clicking \
-the corresponding <span class="glyphicon glyphicon-calendar"></span> button. \
+the corresponding <span class="fa-solid fa-calendar"></span> button. \
 You can also use the keyboard: \
 <br> \
 <ul> \
@@ -47,7 +47,7 @@ You can also use the keyboard: \
 You can filter events by clicking the vertical bar representing a round. \
 <hr> \
 If you want to split a date group, click the corresponding \
-<span class="glyphicon glyphicon-resize-vertical"></span> button.'
+<span class="fa-solid fa-arrows-up-down"></span> button.'
         );
 
         var SEPARATOR_HTML = '<div class="oioioi-timeline__separator"></div>';
@@ -56,7 +56,7 @@ If you want to split a date group, click the corresponding \
             gettext("now") + '</small></div>';
 
 
-        var DATEBOX_HEIGHT = 35;
+        var DATEBOX_HEIGHT = parseInt($('.form-control').css('height'), 10) + 2;
         // a horizontal gap between round bars and datepickers
         var DATEBOX_GAP = 40;
         // a vertical gap used to separate datepickers with no date specified
@@ -602,7 +602,18 @@ If you want to split a date group, click the corresponding \
             $timeline.find('.date').datetimepicker({
                 format: DATE_FORMAT,
                 locale: lang_code,
-                keyBinds: ''
+                keyBinds: '',
+                icons: {
+                    time: 'fa fa-clock',
+                    date: 'fa fa-calendar',
+                    up: 'fa fa-chevron-up',
+                    down: 'fa fa-chevron-down',
+                    previous: 'fa fa-chevron-left',
+                    next: 'fa fa-chevron-right',
+                    today: 'fa fa-check',
+                    clear: 'fa fa-trash',
+                    close: 'fa fa-xmark'
+                }
             });
 
             // connect equal dates

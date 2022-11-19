@@ -1,5 +1,5 @@
-from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils import timezone
 
 from oioioi.base.tests import TestCase
@@ -24,7 +24,7 @@ class TestVisible(TestCase):
             (None, yesterday, False, 'test_end_in_past'),
             (yesterday, tomorrow, True, 'test_start_past_end_future'),
             (yesterday - day, yesterday, False, 'test_start_past_end_past'),
-            (tomorrow, tomorrow + day, False, 'test_start_future_end_future')
+            (tomorrow, tomorrow + day, False, 'test_start_future_end_future'),
         )
 
         for test in tests:

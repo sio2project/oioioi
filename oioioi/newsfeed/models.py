@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, \
-    get_language_from_request, get_language
+from django.utils.translation import get_language, get_language_from_request
+from django.utils.translation import gettext_lazy as _
 from mistune import Markdown
 
 from oioioi.base.utils.deps import check_django_app_dependencies
@@ -27,11 +27,11 @@ class News(models.Model):
 
 
 class NewsLanguageVersion(models.Model):
-    """ Represents a content of a news.
-        News may have multiple versions - each in another language.
+    """Represents a content of a news.
+    News may have multiple versions - each in another language.
     """
-    news = models.ForeignKey(News, related_name='versions',
-                             on_delete=models.CASCADE)
+
+    news = models.ForeignKey(News, related_name='versions', on_delete=models.CASCADE)
     language = models.CharField(max_length=6, verbose_name=_("language code"))
     title = models.CharField(max_length=255, verbose_name=_("title"))
     content = models.TextField(verbose_name=_("content"))
@@ -39,19 +39,16 @@ class NewsLanguageVersion(models.Model):
     def rendered_content(self):
         return mark_safe(Markdown(escape=True).render(self.content))
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
+    def save(self, *args, **kwargs):
         try:
-            existing_language_version = self.news.versions.get(
-                language=self.language)
-            if self is not existing_language_version:
-                raise ValueError('Creating NewsLanguageVersion for News object'
-                                 ' that already has a NewsLanguageVersion with'
-                                 ' the given language.')
+            existing_language_version = self.news.versions.get(language=self.language)
+            if self != existing_language_version:
+                raise ValueError(
+                    'Creating NewsLanguageVersion for News object'
+                    ' that already has a NewsLanguageVersion with'
+                    ' the given language.'
+                )
         except NewsLanguageVersion.DoesNotExist:
             pass
 
-        return super(NewsLanguageVersion, self).save(
-            force_insert=force_insert, force_update=force_update,
-            using=using, update_fields=update_fields
-        )
+        return super(NewsLanguageVersion, self).save(*args, **kwargs)

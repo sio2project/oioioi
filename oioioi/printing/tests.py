@@ -1,20 +1,16 @@
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
-import six
-from six import StringIO
-
-if six.PY2:
-    import slate
-else:
-    import slate3k as slate
+from django.urls import reverse
+from io import BytesIO
 
 from oioioi.base.tests import TestCase
+from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import Contest
 from oioioi.printing.pdf import generator
 
-SAMPLE_TEXT = """Lorem ipsum dolor sit amet, consectetur adipiscing
+SAMPLE_TEXT = (
+    """Lorem ipsum dolor sit amet, consectetur adipiscing
         elit. Aenean aliquet commodo vulputate. Fusce vehicula tincidunt
         velit eu dictum. Nulla ultrices sagittis enim, ac dictum felis
         viverra vitae. Sed egestas dui tellus, vel auctor mauris.
@@ -24,7 +20,9 @@ SAMPLE_TEXT = """Lorem ipsum dolor sit amet, consectetur adipiscing
         imperdiet sit amet. Aenean porta dui at orci vestibulum aliquet.
         In hac habitasse platea dictumst. Praesent interdum, ipsum ac
         sagittis facilisis, tortor tortor viverra tortor, vehicula
-        pellentesque nulla sem nec leo.""" * 100
+        pellentesque nulla sem nec leo."""
+    * 100
+)
 
 
 class PrintingTestContestController(ContestController):
@@ -34,31 +32,33 @@ class PrintingTestContestController(ContestController):
 
 class TestPDFGenerator(TestCase):
     def test_pdf_generation(self):
-        pdf = StringIO(generator(source=SAMPLE_TEXT, header='header'))
-        text = slate.PDF(pdf)
+        pdf = BytesIO(generator(source=SAMPLE_TEXT, header='header'))
+        text = extract_text_from_pdf(pdf)
         self.assertEqual(9, len(text))
-        self.assertIn('Lorem ipsum dolor', text[0])
-        self.assertIn('Sed egestas dui tellus', text[4])
+        self.assertIn(b'Lorem ipsum dolor', text[0])
+        self.assertIn(b'Sed egestas dui tellus', text[4])
 
 
 class TestPrintingView(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_user'))
         self.contest = Contest.objects.get()
-        self.contest.controller_name = \
+        self.contest.controller_name = (
             'oioioi.printing.tests.PrintingTestContestController'
+        )
         self.contest.save()
-        self.url = reverse('print_view',
-                           kwargs={'contest_id': self.contest.id})
+        self.url = reverse('print_view', kwargs={'contest_id': self.contest.id})
 
     def print_file(self, content):
-        file = ContentFile(content, name='sample_code.cpp')
-        post_data = {
-            'file': file
-        }
+        file = ContentFile(content.encode('utf-8'), name='sample_code.cpp')
+        post_data = {'file': file}
         return self.client.post(self.url, post_data)
 
     @override_settings(PRINTING_COMMAND=['grep', '%PDF-'])

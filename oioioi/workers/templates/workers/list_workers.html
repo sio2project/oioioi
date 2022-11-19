@@ -32,19 +32,19 @@
 
 <h1>{% trans "Workers list" %}</h1>
 
-<form method="post" action="{% url 'show_workers' %}" class="form-inline empty-space-filler-bottom">
+<form method="post" action="{% url 'show_workers' %}" class="empty-space-filler-bottom">
     {% csrf_token %}
     <div class="row">
         {% for w in workers %}
-            <div class="col-sm-4 col-lg-3">
-                <div class="well well-sm">
-                    <table class="table table-condensed">
-                        <thead>
+            <div class="col-md-4 col-xl-3">
+                <div class="card bg-light p-2 mb-3">
+                    <table class="table table-sm mb-0">
+                        <thead class="table-borderless">
                             <tr>
                                 <th>
                                     <label for="work-{{ w.name }}">{{ w.name }}</label>
                                     <input id="work-{{ w.name }}" type="checkbox"
-                                        name="work-{{ w.name }}" class="pull-right"
+                                        name="work-{{ w.name }}" class="mt-1 float-right"
                                         {% if readonly %} onclick="return false"{% endif %}
                                         {% if w.select %} checked{% endif %}>
                                 </th>
@@ -61,9 +61,9 @@
                                 <td>
                                     {% trans "Can run cpu-exec" %}:
                                     {% if w.can_run_cpu_exec %}
-                                        <span class="glyphicon glyphicon-ok"></span>
+                                        <i class="fa-solid fa-check"></i>
                                     {% else %}
-                                        <span class="glyphicon glyphicon-remove"></span>
+                                        <i class="fa-solid fa-xmark"></i>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -78,7 +78,7 @@
             <button type="submit" name="confirm" value="1" class="btn btn-danger">
                 {% trans "Confirm" %}
             </button>
-            <button type="submit" name="nothing" value="1" class="btn btn-default">
+            <button type="submit" name="nothing" value="1" class="btn btn-outline-secondary">
                 {% trans "Go back" %}
             </button>
         {% else %}

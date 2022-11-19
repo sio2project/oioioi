@@ -1,16 +1,22 @@
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from oioioi.base.utils import generate_key
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import ProblemInstance
+from oioioi.default_settings import LANGUAGES
+from oioioi.problems.models import (
+    AlgorithmTag,
+    AlgorithmTagLocalization,
+    AlgorithmTagThrough,
+    ProblemSite,
+)
 from oioioi.problems.problem_sources import ProblemSource
 from oioioi.problems.utils import get_new_problem_instance
 from oioioi.quizzes.forms import EmptyQuizSourceForm
 from oioioi.quizzes.models import Quiz
-from oioioi.base.utils import generate_key
-from oioioi.problems.models import ProblemSite, Tag, TagThrough
 
 
 class EmptyQuizSource(ProblemSource):
@@ -27,29 +33,34 @@ class EmptyQuizSource(ProblemSource):
             form = EmptyQuizSourceForm(request.POST)
         else:
             form = EmptyQuizSourceForm()
+
         post_data = {'form': form, 'is_reupload': is_reupload}
 
         if request.method == "POST" and form.is_valid():
             with transaction.atomic():
                 controller = self.problem_controller_class
                 quiz = Quiz.objects.create(
-                    name=form.cleaned_data['name'],
+                    legacy_name=form.cleaned_data['name'],
                     short_name=form.cleaned_data['short_name'],
                     controller_name=controller,
-                    author=request.user
+                    author=request.user,
                 )
-                tag = Tag.objects.get_or_create(name='quiz')[0]
-                TagThrough.objects.create(
-                    problem=quiz,
-                    tag=tag
+
+                algorithm_tag, created = AlgorithmTag.objects.get_or_create(name='quiz')
+                if created:
+                    for language_code, language in LANGUAGES:
+                        AlgorithmTagLocalization.objects.get_or_create(
+                            algorithm_tag=algorithm_tag,
+                            language=language_code,
+                            full_name='Quiz',
+                        )
+                AlgorithmTagThrough.objects.get_or_create(
+                    problem=quiz, tag=algorithm_tag
                 )
-                ProblemSite.objects.create(
-                    problem=quiz,
-                    url_key=generate_key()
-                )
+
+                ProblemSite.objects.create(problem=quiz, url_key=generate_key())
                 pi = ProblemInstance.objects.create(
-                    problem=quiz,
-                    short_name=quiz.short_name
+                    problem=quiz, short_name=quiz.short_name
                 )
                 quiz.main_problem_instance = pi
                 quiz.save()
@@ -58,8 +69,9 @@ class EmptyQuizSource(ProblemSource):
                     get_new_problem_instance(quiz, contest)
 
                 messages.success(request, _("Quiz successfully added"))
-                return safe_redirect(request, reverse(
-                    'oioioiadmin:contests_probleminstance_changelist'))
 
-        return TemplateResponse(request, "quizzes/emptyquiz-source.html",
-                                post_data)
+                return safe_redirect(
+                    request, reverse('oioioiadmin:contests_probleminstance_changelist')
+                )
+
+        return TemplateResponse(request, "quizzes/emptyquiz-source.html", post_data)

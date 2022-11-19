@@ -1,11 +1,20 @@
 @import "scss/utility";
 
+.button-flat button {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 .search-row {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
 }
 
 .search-bar {
+  margin: 5rem 0 4rem 0;
+}
+
+.filter-bar {
   margin: 5rem 0 4rem 0;
 }
 
@@ -13,37 +22,9 @@
   margin-top: 7rem;
 }
 
-@media screen and (min-width: 768px) {
-  .menu-item {
-    border-radius: 12px 12px 0 0;
-  }
-
-  .menu-item:hover {
-    border-radius: 12px 12px 0 0;
-    overflow: hidden;
-  }
-
-  .menu-item-active {
-    @include gradient-vertical(#eeeeee, #ffffff);
-  }
+.menu-link-green {
+  background-color: #c0ffc0;
 }
-
-@media screen and (max-width: 768px) {
-  .menu-item {
-    border-radius: 12px 12px 12px 12px;
-  }
-
-  .menu-item:hover {
-    border-radius: 12px 12px 12px 12px;
-    overflow: hidden;
-    background-color: #eeeeee;
-  }
-
-  .menu-item-active {
-    background-color: #f5f5f5;
-  }
-}
-
 
 #tag-row {
   display: flex;
@@ -65,19 +46,6 @@
   cursor: default;
 }
 
-.search-tag .glyphicon {
-  top: 0;
-  cursor: pointer;
-  color: #ffffff;
-  vertical-align: middle;
-  opacity: 0.6;
-}
-
-.search-tag .glyphicon:hover {
-  opacity: 1.0;
-}
-
-
 .tag-label-origin {
     background-color: #C3A877;
     color: #000;
@@ -88,9 +56,5 @@
 }
 .tag-label-difficulty {
     background-color: #2DB941;
-    color: #fff;
-}
-.tag-label-tag {
-    background-color: #718D87;
     color: #fff;
 }

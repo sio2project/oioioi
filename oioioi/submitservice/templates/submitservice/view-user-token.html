@@ -1,5 +1,5 @@
 {% extends "base-with-menu.html" %}
-{% load i18n staticfiles %}
+{% load i18n static %}
 {% block title %}{% trans "Submitting solutions from terminal" %}{% endblock %}
 
 {% block main-content %}
@@ -30,7 +30,7 @@
 <p class="form-inline">Your current token is: <input type="text" class="form-control" title="token" disabled value="{{ token }}"/></p>
 <div class="alert alert-danger"><b>Warning:</b> you should be the only person that holds access to this code, as it authorizes users to submit solutions in your name.
      If you suspect that someone might know your token, get a new one now. Of course, you will need to reconfigure <code>submit.py</code>.</div>
-<button class="btn btn-default" data-post-url="{{ clear_token_url }} ">Generate new token</button>
+<button class="btn btn-outline-secondary" data-post-url="{{ clear_token_url }} ">Generate new token</button>
 
 {% endblocktrans %}
 {% endblock %}

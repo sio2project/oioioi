@@ -1,11 +1,11 @@
 import json
+import types
+from copy import copy
 
 from django import template
 from django.forms import CheckboxInput, CheckboxSelectMultiple, RadioSelect
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
-import six
-from six.moves import range, zip
 
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
@@ -42,6 +42,20 @@ def lookup(d, key):
 
 
 @register.filter
+def safe_lookup(d, key):
+    """
+    Lookup value from dictionary. Returns None if key ``key``
+    is not present in ``d``.
+
+    Example:
+
+    {% load simple_filters %}
+    {{ dict|safe_lookup:key }}
+    """
+    return d.get(key)
+
+
+@register.filter
 def multival_lookup(d, key):
     """
     Returns a value list corresponding to a key from Django's MultiValueDict
@@ -55,15 +69,45 @@ def indent_string(value, num_spaces=4):
     Adds ``num_spaces`` spaces at the
     beginning of every line in value.
     """
-    return ' '*num_spaces + value.replace('\n', '\n' + ' '*num_spaces)
+    return ' ' * num_spaces + value.replace('\n', '\n' + ' ' * num_spaces)
+
+
+def _append_attr(field, attribute, value):
+    # adapted from 'django-widget-tweaks'
+    field = copy(field)
+    # decorate field.as_widget method with updated attributes
+    old_as_widget = field.as_widget
+
+    def as_widget(self, widget=None, attrs=None, only_initial=False):
+        widget = widget or self.field.widget
+        attrs = attrs or {}
+
+        custom_append_attr = getattr(widget, "append_attr", None)
+        if not (custom_append_attr and custom_append_attr(attribute, value)):
+            if attrs.get(attribute):
+                attrs[attribute] += " " + value
+            elif widget.attrs.get(attribute):
+                attrs[attribute] = widget.attrs[attribute] + " " + value
+            else:
+                attrs[attribute] = value
+            if attribute == "type":  # change the Input type
+                self.field.widget.input_type = value
+                del attrs["type"]
+
+        html = old_as_widget(widget, attrs, only_initial)
+        self.as_widget = old_as_widget
+        return html
+
+    field.as_widget = types.MethodType(as_widget, field)
+    return field
 
 
 @register.filter(name='add_class')
-def add_class(value, arg):
+def add_class(field, css_class):
     """
     Adds css class to a django form field
-    :param value: form field
-    :param arg: css class
+    :param field: form field
+    :param css_class: css class
     :return: field with added class
 
     Example usage
@@ -91,11 +135,12 @@ def add_class(value, arg):
     <input class="my-class" id="my_field" name="my_field" />
     ```
     """
-    css_classes_str = value.field.widget.attrs.get('class', '')
-    css_classes = css_classes_str.split(' ')
-    if css_classes and arg not in css_classes:
-        css_classes_str = '%s %s' % (css_classes_str, arg)
-    return value.as_widget(attrs={'class': css_classes_str.strip()})
+    return _append_attr(field, "class", css_class)
+
+
+@register.filter
+def add_form(field, form_id):
+    return _append_attr(field, "form", form_id)
 
 
 @register.filter
@@ -138,10 +183,10 @@ def partition(thelist, n):
     p = len(thelist) // n
     num_longer = len(thelist) - p * n
 
-    return [thelist[((p + 1) * i):((p + 1) * (i + 1))]
-            for i in range(num_longer)] + \
-            [thelist[(p * i + num_longer):(p * (i + 1) + num_longer)]
-            for i in range(num_longer, n)]
+    return [thelist[((p + 1) * i) : ((p + 1) * (i + 1))] for i in range(num_longer)] + [
+        thelist[(p * i + num_longer) : (p * (i + 1) + num_longer)]
+        for i in range(num_longer, n)
+    ]
 
 
 @register.filter
@@ -189,7 +234,7 @@ def latex_escape(x):
     whether \write18 is disabled!
     http://www.texdev.net/2009/10/06/what-does-write18-mean/
     """
-    res = six.text_type(x)
+    res = str(x)
     # Braces + backslashes
     res = res.replace('\\', '\\textbackslash\\q{}')
     res = res.replace('{', '\\{')

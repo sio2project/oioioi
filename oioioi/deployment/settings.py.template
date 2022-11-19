@@ -31,20 +31,28 @@ SITE_ID = 1
 # The website address as it will be displayed to users in some places,
 # including but not limited to the mail notifications.
 # Defaults to 'http://localhost'.
-#PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com'
+#PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com/'
 
-# Email addresses to send error message reports.
-ADMINS = (
-    (os.environ.get('ADMIN_NAME', 'Your Name'), os.environ.get('ADMIN_EMAIL', 'youremail@example.com')),
-)
+# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = [os.environ.get('DOMAIN_NAME', '*')]
 
-# Email addresses to send communication from users (for example requests for
-# teacher accounts).
-MANAGERS = ADMINS
+# The server to be run. Options are:
+# 'django' - django's http server
+# 'uwsgi' - uwsgi daemon
+# 'uwsgi-http' - uwsgi deamon with built-in http server
+# None - nothing will be run
+SERVER = 'django'
+
+# Controls if uwsgi in default configuration shall use gevent loop.
+# To use it, you have to install gevent - please consult
+# https://github.com/surfly/gevent
+# This is recommended for heavy load, but you may still need to tune uwsgi
+# options in deployment/supervisord.conf
+#UWSGI_USE_GEVENT = False
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE': 'django.db.backends.', # Add 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': os.environ.get('POSTGRES_NAME', 'oioioi'),     # Or path to database file if using sqlite3.
         'USER': os.environ.get('POSTGRES_USER', 'oioioi'),     # Not used with sqlite3.
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),   # Not used with sqlite3.
@@ -53,9 +61,6 @@ DATABASES = {
         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
     }
 }
-
-# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = [os.environ.get('DOMAIN_NAME', '*')]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -83,6 +88,14 @@ SECRET_KEY = '__SECRET__'
 # Uncomment once oisubmit is used.
 #OISUBMIT_MAGICKEY = '__OTHER_SECRET__'
 
+ADMINS = (
+    (os.environ.get('ADMIN_NAME', 'Your Name'), os.environ.get('ADMIN_EMAIL', 'youremail@example.com')),
+)
+
+# Email addresses to send communication from users (for example requests for
+# teacher accounts).
+MANAGERS = ADMINS
+
 # SMTP server parameters for sending emails.
 EMAIL_SUBJECT_PREFIX = '[{}] '.format(SITE_NAME)
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False').lower() == 'true'
@@ -103,11 +116,36 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # configured above.
 SEND_USER_ACTIVATION_EMAIL = not (EMAIL_HOST == 'mail')
 
+# Contest mode - automatic activation of contests.
+#
+# Available choices are:
+#   ContestMode.neutral - no contest is activated automatically,
+# users have to explicitly enter into a contest specific page if they want
+# to participate. They can visit both contest specific as well as non-contest
+# specific pages.
+#   ContestMode.contest_if_possible - if there exists a contest, users
+# are automatically redirected to one when visiting a page which
+# has a contest specific version, e.g. visiting index ('/') could redirect
+# to "c" contest's dashboard page ('/c/c/dashboard') if there existed
+# a contest "c". The contest picking algorithm is described in detail
+# in oioioi.contests.middleware module.
+# If a page requires that no contest is active (e.g. user's portal page
+# from the "portals" app), it can still be visited and no redirection
+# will be made.
+#   ContestMode.contest_only - this setting is similar to the previous one
+# except that pages requiring no contest to be active can only be visited
+# by superusers (other users get "403 - Permission Denied").
+#
+# Some features may depend on this setting, e.g. the "portals" app requires
+# that either the "neutral" or the "contest_if_possible" option is picked.
+from oioioi.contests.current_contest import ContestMode
+CONTEST_MODE = ContestMode.neutral
+
 # RabbitMQ server URL for distributed workers.
 #
 # Uncomment once RabbitMQ is installed. By default SQLAlchemy is used,
 # but this is unreliable and not intended for production.
-#BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+#BROKER_URL = 'amqp://oioioi:oioioi@broker:5672//'
 
 # Uncomment the following lines to enable remote access to Filetracker. This is
 # needed if you install separate judging machines. Beware -- there is no
@@ -157,24 +195,38 @@ LOGGING['loggers']['oioioi.zeus'] = {
     'level': 'DEBUG',
 }
 
+# Set this to false if you don't need sioworkersd instance (e. g.
+# because you use instance started by another instance of OIOIOI)
+#RUN_SIOWORKERSD = True
+
 # On which interface should the sioworkers receiver listen. You should
 # set the address to 0.0.0.0 if you want remote workers to access
 # your server.
 #SIOWORKERS_LISTEN_ADDR = '127.0.0.1'
 #SIOWORKERS_LISTEN_PORT = 7890
 
-# URL to which should respond sioworkersd, when it has finished its job
+# URL to which sioworkersd should respond, when it has finished its job
 # When set to None the default url will be created using the pattern
 # http://$SIOWORKERS_LISTEN_ADDR:$SIOWORKERS_LISTEN_PORT
 #SIOWORKERS_LISTEN_URL = None
 
-# Set this to false if you don't need sioworkersd instance (e. g.
-# because you use instance started by another instance of OIOIOI)
-#RUN_SIOWORKERSD = True
+# Comment this out to disable workers running on the server machine.
+RUN_LOCAL_WORKERS = True
+
+# Comment out the following options after you have downloaded the sandboxes
+# with
+#
+#   manage.py download_sandboxes
+#
+# Before this only system compilers can be used.
+AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 
 # This setting specifies which compilers are available in sioworkers.
-# By default that means ones defined here:
+# By default that means the ones defined here:
 # https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
+# By uncommenting the below dict you can change all or any one of them.
+# Each compiler must contain a display_name entry.
 AVAILABLE_COMPILERS = {
     'C': {
         'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
@@ -199,105 +251,14 @@ DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
                      'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
                      'Python': 'python'}
 
-# Contest mode - automatic activation of contests.
-#
-# Available choices are:
-#   ContestMode.neutral - no contest is activated automatically,
-# users have to explicitly enter into a contest specific page if they want
-# to participate. They can visit both contest specific as well as non-contest
-# specific pages.
-#   ContestMode.contest_if_possible - if there exists a contest, users
-# are automatically redirected to one when visiting a page which
-# has a contest specific version, e.g. visiting index ('/') could redirect
-# to "c" contest's dashboard page ('/c/c/dashboard') if there existed
-# a contest "c". The contest picking algorithm is described in detail
-# in oioioi.contests.middleware module.
-# If a page requires that no contest is active (e.g. user's portal page
-# from the "portals" app), it can still be visited and no redirection
-# will be made.
-#   ContestMode.contest_only - this setting is similar to the previous one
-# except that pages requiring no contest to be active can only be visited
-# by superusers (other users get "403 - Permission Denied").
-#
-# Some features may depend on this setting, e.g. the "portals" app requires
-# that either the "neutral" or the "contest_if_possible" option is picked.
-#
-# The default setting is "contest_if_possible".
-# To access the contest mode setting you also have to uncomment
-# the following import line.
-#from oioioi.contests.current_contest import ContestMode
-#CONTEST_MODE =
-
-# Similarly comment this out to disable workers running on the server machine.
-RUN_LOCAL_WORKERS = True
-
-# Comment out the following options after you have downloaded the sandboxes
-# with
-#
-#   manage.py download_sandboxes
-#
-# Before this only system compilers can be used and the safe execution
-# supervisor is not available.
-USE_UNSAFE_EXEC = True
-SYSTEM_COMPILERS = {
-    'C': {
-        'system-gcc': {'display_name': 'system gcc'}
-    },
-    'C++': {
-        'system-g++': {'display_name': 'system g++'}
-    },
-    'Pascal': {
-        'system-fpc': {'display_name': 'system fpc'}
-    },
-    'Java': {
-        'system-java': {'display_name': 'system java'}
-    },
-    'Python': {
-        'system-python': {'display_name': 'system python'}
-    }
-}
-AVAILABLE_COMPILERS = SYSTEM_COMPILERS
-SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
-                     'Pascal': 'system-fpc', 'Java': 'system-java',
-                     'Python': 'system-python'}
-DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
-
-# This setting specifies which compilers are available in sioworkers.
-# By default that means the ones defined here:
-# https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
-# By uncommenting the below dict you can change all or any one of them.
-# Each compiler must contain a display_name entry.
-#AVAILABLE_COMPILERS = {
-#    'C': {
-#        'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
-#    },
-#    'C++': {
-#        'g++4_8_2_cpp11': {'display_name': 'g++:4.8.2 std=c++11'}
-#    },
-#    'Pascal': {
-#        'fpc2_6_2': {'display_name': 'fpc:2.6.2'}
-#    },
-#    'Java': {
-#        'java1_8': {'display_name': 'java:1.8'}
-#    },
-#    'Python': {
-#        'python': {'display_name': 'python'}
-#    }
-#}
-
-# This setting sets the default compilers used throughout the platform.
-# By uncommenting the below dict you can change all or any one of them.
-#DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
-#                     'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
-#                     'Python': 'python'}
-
+# Comment out the following option to enable the unsafe execution supervisor.
+# USE_UNSAFE_EXEC = True
 
 # Default safe execution tool
 # You can change the safe execution tool. Current options are:
-# - "vcpu" - (default) OITimeTool
-# - "sio2jail" - SIO2Jail
+# - "sio2jail" - (default) SIO2Jail
 # - "cpu" - ptrace (measures real time)
-DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
+#DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 
 # WARNING: setting this to False is experimental until we make sure that
 # checkers do work well in sandbox
@@ -335,13 +296,6 @@ SINOLPACK_RESTRICT_HTML = False
 MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
 MAX_MEMORY_LIMIT_FOR_TEST = int(os.environ.get('MAX_MEMORY_LIMIT_FOR_TEST_IN_MB', 256)) * 1024
 
-# Controls if uwsgi in default configuration shall use gevent loop.
-# To use it, you have to install gevent - please consult
-# https://github.com/surfly/gevent
-# This is recommended for heavy load, but you may still need to tune uwsgi
-# options in deployment/supervisord.conf
-UWSGI_USE_GEVENT = False
-
 # EXTRA MODULES
 #
 # Comment/uncomment components to disable/enable them.
@@ -355,49 +309,47 @@ UWSGI_USE_GEVENT = False
 # and/or AUTHENTICATION_BACKENDS commented/uncommented.
 
 INSTALLED_APPS = (
-#    'oioioi.contestlogo',
-#    'oioioi.avatar',
+    'oioioi.contestlogo',
 #    'oioioi.teachers',
 #    'oioioi.simpleui',
 #    'oioioi.ipdnsauth',
 #    'oioioi.ipauthsync',
-#    'oioioi.participants',
-#    'oioioi.oi',
-#    'oioioi.contestexcl',
+    'oioioi.participants',
+    'oioioi.oi',
+    'oioioi.contestexcl',
 #    'oioioi.oisubmit',
 #    'oioioi.zeus',
-#    'oioioi.testrun',
-#    'oioioi.printing',
-#    'oioioi.scoresreveal',
+    'oioioi.testrun',
+    'oioioi.printing',
+    'oioioi.scoresreveal',
 #    'oioioi.oireports',
 #    'oioioi.ontak',
 #    'oioioi.complaints',
-#    'oioioi.confirmations',
-#    'oioioi.acm',
-#    'oioioi.forum',
+    'oioioi.confirmations',
+    'oioioi.acm',
+    'oioioi.forum',
 #    'oioioi.disqualification',
 #    'oioioi.sharingcli',
-#    'oioioi.ctimes',
-#    'oioioi.suspendjudge',
+    'oioioi.ctimes',
+    'oioioi.suspendjudge',
 #    'oioioi.submitservice',
-#    'oioioi.timeline',
+    'oioioi.timeline',
 #    'oioioi.amppz',
-#    'oioioi.balloons',
-#    'oioioi.statistics',
-#    'oioioi.publicsolutions',
-#    'oioioi.testspackages',
+    'oioioi.balloons',
+    'oioioi.statistics',
+    'oioioi.publicsolutions',
+    'oioioi.testspackages',
 #    'oioioi.pa',
 #    'oioioi.notifications',
 #    'oioioi.mailsubmit',
 #    'oioioi.portals',
-#    'oioioi.globalmessage',
+    'oioioi.globalmessage',
 #    'oioioi.newsfeed',
 #    'oioioi.problemsharing',
 #    'oioioi.usergroups',
 #    'oioioi.usercontests',
-#    'oioioi.phase',
-#    'oioioi.supervision',
-#    'oioioi.moi',
+    'oioioi.phase',
+    'oioioi.supervision',
 #    'oioioi.quiz',
 ) + INSTALLED_APPS
 
@@ -416,18 +368,18 @@ PROBLEMSET_LINK_VISIBLE = True
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
-#    'oioioi.contestlogo.processors.logo_processor',
-#    'oioioi.contestlogo.processors.icon_processor',
-#    'oioioi.avatar.processors.gravatar',
+   'oioioi.base.processors.gravatar',
+   'oioioi.contestlogo.processors.logo_processor',
+   'oioioi.contestlogo.processors.icon_processor',
 #    'oioioi.notifications.processors.notification_processor',
-#    'oioioi.globalmessage.processors.global_message_processor',
+   'oioioi.globalmessage.processors.global_message_processor',
 #    'oioioi.portals.processors.portal_processor',
 #    'oioioi.portals.processors.portals_main_page_link_visible',
 ]
 
 MIDDLEWARE += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
-#    'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
+   'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.ipdnsauth.middleware.ForceDnsIpAuthMiddleware',
 )
 
@@ -436,6 +388,12 @@ AUTHENTICATION_BACKENDS += (
 #    'oioioi.usercontests.auth.UserContestAuthBackend',
 #    'oioioi.ipdnsauth.backends.IpDnsBackend',
 )
+
+# Limits the duration of user contests.
+# Comment out if you don't want to limit the user contests duration.
+#import pytz
+#from datetime import datetime
+#USER_CONTEST_TIMEOUT = datetime(2020, 2, 7, 23, 0, 0, tzinfo=pytz.utc)
 
 # Number of concurrently evaluated submissions (default is 1).
 #EVALMGR_CONCURRENCY = 30
@@ -501,6 +459,9 @@ ZEUS_INSTANCES = {
 #IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'
 
 # Error reporting
+
+# From original TalentSio
+
 SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
 if SENTRY_DSN:
     import logging
@@ -522,6 +483,26 @@ if SENTRY_DSN:
         integrations=[sentry_logging, DjangoIntegration(), CeleryIntegration()],
     )
 
+# From upstream
+
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
+#
+# def filter_sentry(event, hint):
+#     extra = event.get('extra', {})
+#     if extra.get('omit_sentry', False):
+#         return None
+#     return event
+#
+#
+# sentry_sdk.init(
+#     # Won't do anything with no dsn
+#     # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
+#     dsn='',
+#     integrations=[DjangoIntegration()],
+#     before_send=filter_sentry,
+# )
+
 # Bonus to judging priority ang judging weight for each contest on this
 # OIOIOI instance.
 #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
@@ -542,3 +523,13 @@ if 'oioioi.portals' in INSTALLED_APPS:
 # change, delete or submit to existing usercontests, as well as add new ones.
 # This operation is fully reversible.
 #ARCHIVE_USERCONTESTS = True
+
+# If set to locations of flite and sox executables, enables audio playback
+# of captcha. Audio output generated by flite (CAPTCHA_FLITE_PATH) is identical
+# across multiple generations. To prevent potential security risk,
+# CAPTCHA_SOX_PATH should be set as well, in order to inject random noise into
+# audio files  generated by flite.
+# If either sox or flite is installed and its location recognised by PATH
+# variable, then corresponding setting will be set automatically.
+# CAPTCHA_FLITE_PATH = ''
+# CAPTCHA_SOX_PATH = ''

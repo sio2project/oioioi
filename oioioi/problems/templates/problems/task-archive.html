@@ -18,11 +18,13 @@
     <div class="list-group">
         {% for tag in origin_tags %}
             <a href="{{ tag.name }}" class="list-group-item">
-                <h4 class="list-group-item-heading">
+                <h4 class="list-group-item-heading mb-0">
                     {% if tag.short_name %}{{ tag.short_name }} - {% endif %}
                     {{ tag.full_name }}
                 </h4>
-                <p class="list-group-item-text">{{ tag.description }}</p>
+                {% if tag.description %}
+                    <p class="list-group-item-text mt-2 mb-0">{{ tag.description }}</p>
+                {% endif %}
             </a>
         {% empty %}
             <div class="list-group-item list-group-item-warning">

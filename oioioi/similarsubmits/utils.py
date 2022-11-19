@@ -9,5 +9,6 @@ def is_correct_submissionssimilarity(request, *args, **kwargs):
     if not entry_id:
         return False
 
-    return SubmissionsSimilarityEntry.objects \
-            .filter(id=entry_id, group__contest=request.contest).exists()
+    return SubmissionsSimilarityEntry.objects.filter(
+        id=entry_id, group__contest=request.contest
+    ).exists()

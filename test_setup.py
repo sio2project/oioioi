@@ -11,9 +11,12 @@ The script assumes that there is no contest (this is a clean oioioi
 installation).
 """
 from __future__ import absolute_import
+
 import argparse
-import requests
 import time
+
+import requests
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -47,10 +50,10 @@ def main():
 
     # log in as pre-created superuser
     params = {
-        'auth-username' : USERNAME,
-        'auth-password' : PASSWORD,
-        'csrfmiddlewaretoken' : s.cookies['csrftoken'],
-        'login_view-current_step' : 'auth',
+        'auth-username': USERNAME,
+        'auth-password': PASSWORD,
+        'csrfmiddlewaretoken': s.cookies['csrftoken'],
+        'login_view-current_step': 'auth',
     }
 
     r = s.post(LOGIN, data=params)
@@ -59,43 +62,43 @@ def main():
     # create a new contest
     r = s.get(CREATE_CONTEST)
     params = {
-        'controller_name' : 'oioioi.programs.controllers.ProgrammingContestController',
-        'name' : 'test',
-        'id' : 'test',
-        'start_date_0' : '2018-11-20',
-        'start_date_1' : '20:00:00',
-        'csrfmiddlewaretoken' : s.cookies['csrftoken'],
-        'round_set-TOTAL_FORMS' : '0',
-        'round_set-INITIAL_FORMS' : '0',
-        'round_set-MIN_NUM_FORMS' : '0',
-        'round_set-MAX_NUM_FORMS' : '1000',
-        'c_attachments-TOTAL_FORMS' : '0',
-        'c_attachments-INITIAL_FORMS' : '0',
-        'c_attachments-MIN_NUM_FORMS' : '0',
-        'c_attachments-MAX_NUM_FORMS' : '1000',
-        'contestlink_set-TOTAL_FORMS' : '0',
-        'contestlink_set-INITIAL_FORMS' : '0',
-        'contestlink_set-MIN_NUM_FORMS' : '0',
-        'contestlink_set-MAX_NUM_FORMS' : '1000',
-        'messagenotifierconfig_set-TOTAL_FORMS' : '0',
-        'messagenotifierconfig_set-INITIAL_FORMS' : '0',
-        'messagenotifierconfig_set-MIN_NUM_FORMS' : '0',
-        'messagenotifierconfig_set-MAX_NUM_FORMS' : '1000',
-        'programs_config-TOTAL_FORMS' : '1',
-        'programs_config-INITIAL_FORMS' : '0',
-        'programs_config-MIN_NUM_FORMS' : '0',
-        'programs_config-MAX_NUM_FORMS' : '1',
-        'programs_config-0-id' : '',
-        'programs_config-0-contest' : '',
-        'programs_config-0-execuction_mode' : 'AUTO',
-        'problemstatementconfig-TOTAL_FORMS' : '1',
-        'problemstatementconfig-INITIAL_FORMS' : '0',
-        'problemstatementconfig-MIN_NUM_FORMS' : '0',
-        'problemstatementconfig-MAX_NUM_FORMS' : '1',
-        'problemstatementconfig-0-id' : '',
-        'problemstatementconfig-0-contest' : '',
-        'problemstatementconfig-0-visible' : 'AUTO',
-        '_save' : 'Save',
+        'controller_name': 'oioioi.programs.controllers.ProgrammingContestController',
+        'name': 'test',
+        'id': 'test',
+        'start_date_0': '2018-11-20',
+        'start_date_1': '20:00:00',
+        'csrfmiddlewaretoken': s.cookies['csrftoken'],
+        'round_set-TOTAL_FORMS': '0',
+        'round_set-INITIAL_FORMS': '0',
+        'round_set-MIN_NUM_FORMS': '0',
+        'round_set-MAX_NUM_FORMS': '1000',
+        'c_attachments-TOTAL_FORMS': '0',
+        'c_attachments-INITIAL_FORMS': '0',
+        'c_attachments-MIN_NUM_FORMS': '0',
+        'c_attachments-MAX_NUM_FORMS': '1000',
+        'contestlink_set-TOTAL_FORMS': '0',
+        'contestlink_set-INITIAL_FORMS': '0',
+        'contestlink_set-MIN_NUM_FORMS': '0',
+        'contestlink_set-MAX_NUM_FORMS': '1000',
+        'messagenotifierconfig_set-TOTAL_FORMS': '0',
+        'messagenotifierconfig_set-INITIAL_FORMS': '0',
+        'messagenotifierconfig_set-MIN_NUM_FORMS': '0',
+        'messagenotifierconfig_set-MAX_NUM_FORMS': '1000',
+        'programs_config-TOTAL_FORMS': '1',
+        'programs_config-INITIAL_FORMS': '0',
+        'programs_config-MIN_NUM_FORMS': '0',
+        'programs_config-MAX_NUM_FORMS': '1',
+        'programs_config-0-id': '',
+        'programs_config-0-contest': '',
+        'programs_config-0-execution_mode': 'AUTO',
+        'problemstatementconfig-TOTAL_FORMS': '1',
+        'problemstatementconfig-INITIAL_FORMS': '0',
+        'problemstatementconfig-MIN_NUM_FORMS': '0',
+        'problemstatementconfig-MAX_NUM_FORMS': '1',
+        'problemstatementconfig-0-id': '',
+        'problemstatementconfig-0-contest': '',
+        'problemstatementconfig-0-visible': 'AUTO',
+        '_save': 'Save',
     }
     r = s.post(CREATE_CONTEST, data=params)
     assert r.url == CONTEST
@@ -103,12 +106,12 @@ def main():
     # add problem
     r = s.get(ADD_PROBLEM)
     params = {
-        'contest_id' : 'test',
-        'csrfmiddlewaretoken' : s.cookies['csrftoken'],
-	'visibility' : 'FR'
+        'contest_id': 'test',
+        'csrfmiddlewaretoken': s.cookies['csrftoken'],
+        'visibility': 'FR',
     }
     with open(PROBLEM_PACKAGE, 'rb') as f:
-        s.post(ADD_PROBLEM, data = params, files = {'package_file' : f})
+        s.post(ADD_PROBLEM, data=params, files={'package_file': f})
 
     timeout = 30
     r = s.get(PROBLEM_INSTANCES)
@@ -132,14 +135,14 @@ def main():
     probleminstanceid = r.text[pos:endpos]
 
     params = {
-        'csrfmiddlewaretoken' : s.cookies['csrftoken'],
-        'problem_instance_id' : probleminstanceid,
-        'code' : '',
-        'user' : USERNAME,
-        'kind' : 'NORMAL',
+        'csrfmiddlewaretoken': s.cookies['csrftoken'],
+        'problem_instance_id': probleminstanceid,
+        'code': '',
+        'user': USERNAME,
+        'kind': 'NORMAL',
     }
     with open(SAMPLE_SOLUTION, 'r') as f:
-        r = s.post(SUBMIT, data = params, files = {'file' : f})
+        r = s.post(SUBMIT, data=params, files={'file': f})
     assert r.url == SUBMISSIONS
 
     # check whether workers are running and check the solution
@@ -151,6 +154,6 @@ def main():
         timeout -= 1
         r = s.get(SUBMISSIONS)
 
+
 if __name__ == '__main__':
     main()
-

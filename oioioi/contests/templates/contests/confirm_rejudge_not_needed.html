@@ -1,0 +1,15 @@
+{% extends "contests/base_confirmation_screen.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm rejudge is not needed" %}{% endblock %}
+
+{% block confirmation_header %}{% trans "Confirm rejudge is not needed" %}{% endblock %}
+{% block confirmation_form_explanation %}
+    <p>
+        {% trans "Something about this problem has changed. If the change was trivial (like a typo) then rejudge is not needed." %}
+        {% trans "If the tests for the problem have changed then you should proceed with a rejudge." %}
+    </p>
+    <p>
+        {% blocktrans %}You are going to mark the submissions to this problem as not needing a rejudge.{% endblocktrans %}
+    </p>
+{% endblock %}

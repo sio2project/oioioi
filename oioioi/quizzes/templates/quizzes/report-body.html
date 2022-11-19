@@ -2,8 +2,8 @@
 {% load runtimeformat %}
 
 
-<div class="table-responsive">
-    <table class="table table-condensed table-bordered table-report submission">
+<div class="table-responsive-md">
+    <table class="table table-sm table-bordered table-report submission">
         <thead>
         <tr>
             <th></th>
@@ -16,7 +16,7 @@
         {% for question_report in question_reports %}
             <tr class="test-row-{{ group.report.id }}">
                 <td class="submission__margin submission--{{ question_report.status }}"></td>
-                <td class="test-actions-toggler {% if is_admin %}fix-pull-right{% endif %}">
+                <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}">
                     {{ question_report.question.question }}
                 </td>
                 <td class="submission--{{ question_report.status }}">

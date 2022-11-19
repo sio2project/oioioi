@@ -4,14 +4,16 @@ import shutil
 import tarfile
 import tempfile
 
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.participants.models import Participant
 from oioioi.programs.models import ProgramSubmission
+from oioioi.programs.utils import get_extension
 
 
 class SubmissionData(object):
@@ -39,9 +41,21 @@ class SubmissionsWithUserDataCollector(object):
     the collector to provide access to fully prepared data.
     """
 
-    def __init__(self, contest, round=None, only_final=True):
+    def __init__(
+        self, contest, round=None, problem_instance=None, language=None, only_final=True
+    ):
         self.contest = contest
         self.round = round
+        self.problem_instance = problem_instance
+
+        if language:
+            exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            if language not in exts:
+                raise InvalidValue("Invalid programming language")
+            self.lang_exts = exts[language]
+        else:
+            self.lang_exts = None
+
         self.only_final = only_final
         self.filetracker = get_client()
 
@@ -53,19 +67,24 @@ class SubmissionsWithUserDataCollector(object):
         q_expressions = Q(user__isnull=False)
 
         if self.round:
-            q_expressions = q_expressions & Q(
-                    problem_instance__round=self.round)
+            q_expressions &= Q(problem_instance__round=self.round)
         else:
-            q_expressions = q_expressions & Q(
-                    problem_instance__contest=self.contest)
+            q_expressions &= Q(problem_instance__contest=self.contest)
+
+        if self.problem_instance:
+            q_expressions &= Q(problem_instance=self.problem_instance)
+
+        if self.lang_exts:
+            q_expr_langs = Q()
+            for ext in self.lang_exts:
+                q_expr_langs |= Q(source_file__contains='.%s@' % ext)
+            q_expressions &= q_expr_langs
 
         if self.only_final:
-            q_expressions = q_expressions & Q(
-                    submissionreport__userresultforproblem__isnull=False)
+            q_expressions &= Q(submissionreport__userresultforproblem__isnull=False)
 
         submissions_list = []
-        psubmissions = ProgramSubmission.objects.filter(q_expressions) \
-                .select_related()
+        psubmissions = ProgramSubmission.objects.filter(q_expressions).select_related()
 
         for s in psubmissions:
             data = SubmissionData()
@@ -76,16 +95,17 @@ class SubmissionsWithUserDataCollector(object):
             data.last_name = s.user.last_name
             data.problem_short_name = s.problem_instance.short_name
             data.score = s.score
-            data.solution_language = ccontroller.get_extension(s.source_file,
-                s.problem_instance)
+            data.solution_language = get_extension(s.source_file.name)
             data.source_file = s.source_file
 
             # here we try to get some optional data, it just may not be there
             # and it's ok
             try:
-                registration = Participant.objects.select_related() \
-                    .get(contest_id=self.contest.id, user=s.user) \
+                registration = (
+                    Participant.objects.select_related()
+                    .get(contest_id=self.contest.id, user=s.user)
                     .registration_model
+                )
                 try:
                     data.city = registration.city
                 except AttributeError:
@@ -120,27 +140,48 @@ def build_submissions_archive(out_file, submission_collector):
         os.mkdir(files_dir, 0o700)
         with open(os.path.join(files_dir, 'INDEX'), 'w') as f:
             index_csv = csv.writer(f)
-            header = ['submission_id', 'user_id', 'username', 'first_name',
-                'last_name', 'city', 'school', 'school_city',
-                'problem_short_name', 'score']
+            header = [
+                'submission_id',
+                'user_id',
+                'username',
+                'first_name',
+                'last_name',
+                'city',
+                'school',
+                'school_city',
+                'problem_short_name',
+                'score',
+            ]
             index_csv.writerow(header)
             for s in submission_list:
-                index_entry = [s.submission_id, s.user_id, s.username,
-                    s.first_name, s.last_name, s.city, s.school, s.school_city,
-                    s.problem_short_name, s.score]
+                index_entry = [
+                    s.submission_id,
+                    s.user_id,
+                    s.username,
+                    s.first_name,
+                    s.last_name,
+                    s.city,
+                    s.school,
+                    s.school_city,
+                    s.problem_short_name,
+                    s.score,
+                ]
 
                 def encode(obj):
                     if obj is None:
                         return 'NULL'
                     else:
-                        return force_text(obj)
+                        return force_str(obj, errors="ignore")
 
                 index_csv.writerow([encode(col) for col in index_entry])
 
         for s in submission_list:
             filename = '%s:%s:%s.%s' % (
-                    s.submission_id, s.username, s.problem_short_name,
-                    s.solution_language)
+                s.submission_id,
+                s.username,
+                s.problem_short_name,
+                s.solution_language,
+            )
             dest = os.path.join(files_dir, filename)
             submission_collector.get_submission_source(dest, s.source_file)
 

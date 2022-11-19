@@ -27,10 +27,10 @@ def get_user(request, user_id, backend_path):
 def su_to_user(request, user, backend_path=None):
     """Changes current *effective* user to ``user``.
 
-       After changing to ``user``, original ``request.user`` is saved in
-       ``request.real_user``.
-       If given, ``backend_path`` should be dotted name of authentication
-       backend, otherwise it's inherited from current user.
+    After changing to ``user``, original ``request.user`` is saved in
+    ``request.real_user``.
+    If given, ``backend_path`` should be dotted name of authentication
+    backend, otherwise it's inherited from current user.
     """
     if not backend_path:
         backend_path = request.user.backend

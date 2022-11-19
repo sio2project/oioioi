@@ -1,8 +1,8 @@
-import six
-
 from django.conf import settings
-from django.core.urlresolvers import get_script_prefix
+from django.urls import get_script_prefix
+from django.utils.functional import lazy
 from django.utils.module_loading import import_string
+from django_gravatar.helpers import get_gravatar_url
 
 from oioioi.base.menu import side_pane_menus_registry
 
@@ -16,7 +16,7 @@ def side_menus(request):
     nonempty_menus = []
 
     for menu in menus:
-        if isinstance(menu, six.string_types):
+        if isinstance(menu, str):
             menu = import_string(menu)
 
         if menu.is_anything_accessible(request):
@@ -31,3 +31,14 @@ def site_name(request):
 
 def mathjax_location(request):
     return {'mathjax_location': settings.MATHJAX_LOCATION}
+
+
+def gravatar(request):
+    if request.user.is_authenticated:
+
+        def generator():
+            return str(get_gravatar_url(request.user.email or 'oioioi', size=25))
+
+        return {'avatar': lazy(generator, str)()}
+    else:
+        return {}

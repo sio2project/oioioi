@@ -1,4 +1,4 @@
-{% extends "simple-centered.html" %}
+{% extends "simple-centered-form-ready.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Request teacher account" %}{% endblock %}
@@ -11,7 +11,7 @@
     {% include "ingredients/form.html" %}
     <div class="form-group">
         <button type="submit" class="btn btn-primary">
-            {% trans 'Send request' %}
+            {% trans "Send request" %}
         </button>
     </div>
 </form>

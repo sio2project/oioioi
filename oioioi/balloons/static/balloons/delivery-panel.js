@@ -17,7 +17,7 @@ $(function() {
             ' data-loading-text="' + gettext("Taking back...") + '">' +
             gettext("Not delivered") + '</button>';
     var firstAcceptedTemplate =
-            '<span class="glyphicon glyphicon-star"></span> ' +
+            '<i class="fa-solid fa-star"></i> ' +
             '<b>' + gettext("First to solve") + '</b> ';
     var lastRequestId = -1;
     var fetchInterval = 5000;

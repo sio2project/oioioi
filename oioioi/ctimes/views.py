@@ -13,26 +13,30 @@ def ctimes_view(request):
     now = request.timestamp
     contest = request.contest
     if contest is None:
-        return {
-            'status': 'NO_CONTEST'
-        }
+        return {'status': 'NO_CONTEST'}
 
     def end_le(a, b):
         """Compare round ends. None means "round does not end",
-           so it ends not earlier than any other."""
+        so it ends not earlier than any other."""
         return True if b is None else b >= a
 
     ccontroller = contest.controller
-    rounds = [(ccontroller.get_round_times(request, round), round)
-              for round in Round.objects.filter(contest=request.contest)]
-    rounds = [(rtime, round) for (rtime, round) in rounds
-              if end_le(now - timedelta(minutes=30), rtime.get_end())]
+    rounds = [
+        (ccontroller.get_round_times(request, round), round)
+        for round in Round.objects.filter(contest=request.contest)
+    ]
+    rounds = [
+        (rtime, round)
+        for (rtime, round) in rounds
+        if end_le(now - timedelta(minutes=30), rtime.get_end())
+    ]
 
     def ctimes_sort_key(round_time):
-        return (not (round_time.get_start() <= now
-                     and end_le(now, round_time.get_end())),
-                not round_time.get_start() - timedelta(minutes=5) <= now,
-                round_time.get_end())
+        return (
+            not (round_time.get_start() <= now and end_le(now, round_time.get_end())),
+            not round_time.get_start() - timedelta(minutes=5) <= now,
+            round_time.get_end(),
+        )
 
     try:
         (rtime, round) = min(rounds, key=lambda x: ctimes_sort_key(x[0]))
@@ -55,7 +59,7 @@ def ctimes_view(request):
             'start': format_date(start),
             'start_sec': to_seconds(start),
             'end': format_date(end),
-            'end_sec': to_seconds(end)
+            'end_sec': to_seconds(end),
         }
     except ValueError:
         return {

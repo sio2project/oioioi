@@ -109,6 +109,116 @@
       "question_max_score": 27,
       "status": "WA"
     }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000050",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "quizzes.quizsubmission",
+    "fields": {}
+  },
+  {
+    "pk": 2,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 2,
+      "creation_date": "2012-08-03T22:07:29.547Z"
+    }
+  },
+  { "pk": 7,
+    "model": "quizzes.quizsubmissionanswer",
+    "fields": {
+      "quiz_submission": 2,
+      "answer": 5,
+      "is_selected": false
+    }
+  },
+  { "pk": 8,
+    "model": "quizzes.quizsubmissionanswer",
+    "fields": {
+      "quiz_submission": 2,
+      "answer": 6,
+      "is_selected": false
+    }
+  },
+  { "pk": 9,
+    "model": "quizzes.quizsubmissionanswer",
+    "fields": {
+      "quiz_submission": 2,
+      "answer": 1,
+      "is_selected": true
+    }
+  },
+  { "pk": 10,
+    "model": "quizzes.quizsubmissionanswer",
+    "fields": {
+      "quiz_submission": 2,
+      "answer": 2,
+      "is_selected": false
+    }
+  },
+  { "pk": 11,
+    "model": "quizzes.quizsubmissionanswer",
+    "fields": {
+      "quiz_submission": 2,
+      "answer": 3,
+      "is_selected": true
+    }
+  },
+  { "pk": 12,
+    "model": "quizzes.quizsubmissionanswer",
+    "fields": {
+      "quiz_submission": 2,
+      "answer": 4,
+      "is_selected": true
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": "int:000000000000000050",
+      "submission_report": 2,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "quizzes.questionreport",
+    "fields": {
+      "submission_report": 2,
+      "score": "int:0000000000000000027",
+      "question": 1,
+      "comment": null,
+      "question_max_score": 27,
+      "status": "OK"
+    }
+  },
+    {
+    "pk": 4,
+    "model": "quizzes.questionreport",
+    "fields": {
+      "submission_report": 2,
+      "score": "int:0000000000000000000",
+      "question": 2,
+      "comment": null,
+      "question_max_score": 27,
+      "status": "WA"
+    }
   }
-
 ]

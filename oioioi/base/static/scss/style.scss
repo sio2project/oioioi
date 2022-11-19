@@ -2,8 +2,8 @@
 
 // Import Bootstrap
 @import "../bootstrap/stylesheets/bootstrap";
-@import "scss/bootstrap-fixes";
 
+@import "scss/admin";
 @import "scss/footer";
 @import "scss/navbar";
 @import "scss/table";
@@ -17,8 +17,12 @@ body {
   min-width: $oioioi-body-min-width;
 }
 
-form {
+form:not(.form-wide) {
   max-width: $oioioi-form-max-width;
+}
+
+textarea.non-resizable {
+  resize: none;
 }
 
 img {

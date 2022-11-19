@@ -7,7 +7,7 @@
 
 {% block main-content %}
 <h1>
-    {% trans "Group " %}{{ usergroup.name }}
+    {% blocktrans with group_name=usergroup.name %}Group {{ group_name }}{% endblocktrans %}
 </h1>
 
 {% if usergroup.addition_config.enabled %}
@@ -17,10 +17,10 @@
         <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'usergroups_disable_addition' usergroup_id=usergroup.id %}">
             {% trans "Disable link" %}
         </a>
-        <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'usergroups_regenerate_addition_key' usergroup_id=usergroup.id %}">
+        <a role="button" class="btn btn-outline-secondary btn-xs" data-post-url="{% url 'usergroups_regenerate_addition_key' usergroup_id=usergroup.id %}">
             {% trans "Regenerate key" %}
         </a>
-        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#addition_link">
+        <button class="btn btn-outline-secondary btn-copy btn-xs" data-clipboard-target="#addition_link">
             {% trans "Copy to clipboard" %}
         </button>
     </p>
@@ -41,10 +41,10 @@
         <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'usergroups_disable_sharing' usergroup_id=usergroup.id %}">
             {% trans "Disable link" %}
         </a>
-        <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'usergroups_regenerate_sharing_key' usergroup_id=usergroup.id %}">
+        <a role="button" class="btn btn-outline-secondary btn-xs" data-post-url="{% url 'usergroups_regenerate_sharing_key' usergroup_id=usergroup.id %}">
             {% trans "Regenerate key" %}
         </a>
-        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#sharing_link">
+        <button class="btn btn-outline-secondary btn-copy btn-xs" data-clipboard-target="#sharing_link">
             {% trans "Copy to clipboard" %}
         </button>
     </p>
@@ -64,7 +64,7 @@
     {% if usergroup.members.all %}
         <div class="row">
             {% for member in usergroup.members.all %}
-                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" name="member" value="{{ member.id }}">
@@ -81,11 +81,11 @@
     {% endif %}
 
     <div class="form-group">
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-members-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
             {% trans "Select all" %}
         </button>
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-members-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
             {% trans "Select none" %}
         </button>
@@ -100,7 +100,7 @@
 
     <div class="row">
             {% for owner in usergroup.owners.all %}
-                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" name="owner" value="{{ owner.id }}" {% if owner == user %}disabled{% endif %}>
@@ -112,11 +112,11 @@
         </div>
 
     <div class="form-group">
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-owners-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
             {% trans "Select all" %}
         </button>
-        <button type="button" class="btn btn-default btn-sm"
+        <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-owners-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
             {% trans "Select none" %}
         </button>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n simple_tags pagination_tags tag staticfiles node_language_version %}
+{% load i18n simple_tags pagination_tags tag static node_language_version %}
 
 {% block title %}{% trans "Portals" %} {% endblock %}
 
@@ -33,12 +33,12 @@
 
         <hr style="margin: 7px;">
         <div class="row">
-            <form method="get" class="col-md-4 col-sm-6 col-xs-12">
+            <form method="get" class="col-lg-4 col-md-6 col-sm-12">
                 <div class="input-group">
                     {{ form.q }}
                     <span class="input-group-btn">
-                        <button type="submit" class="btn btn-default">
-                            <span class="glyphicon glyphicon-search"></span>
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                     </span>
                 </div>
@@ -46,10 +46,10 @@
         </div>
 
 
-        <ul class="nav nav-pills nav-justified nav-margin">
-            {% for view_type, view_name in views.items %}
-            <li role="presentation" {% if view_type == curr_view_type %} class="active" {% endif %}>
-                <a href="{% url 'portals_main_page_type' view_type=view_type %}">
+        <ul class="nav nav-pills nav-fill mb-3">
+            {% for view_type, view_name in views %}
+            <li role="presentation" class="nav-item">
+                <a class="nav-link {% if view_type == curr_view_type %}active{% endif %}" href="{% url 'portals_main_page_type' view_type=view_type %}">
                     {{ view_name }}
                 </a>
             </li>
@@ -63,7 +63,7 @@
         <br>
         {% autopaginate portals 20 %}
         {% paginate %}
-        <div class="table-responsive">
+        <div class="table-responsive-md">
             <table class="table">
                 <thead>
                 <tr>
@@ -77,14 +77,14 @@
                     {% if portal.owner %}
                         {% url 'user_portal' username=portal.owner portal_path=portal.root.get_path as portal_url %}
                     {% else %}
-                        {% url 'global_portal' link_name=portal.link_name portal_path=portal.root.get_path as portal_url%}
+                        {% url 'global_portal' link_name=portal.link_name portal_path=portal.root.get_path as portal_url %}
                     {% endif %}
                     <tr>
                         <td>{{ portal.root|full_name:request }}</td>
                         <td>
-                            <a href="{{ portal_url }}"> {{ portal_url  | slice:"1:-1" }}</a>
+                            <a href="{{ portal_url }}"> {{ portal_url | slice:"1:-1" }}</a>
                         </td>
-                        <td>{{portal.short_description}}</td>
+                        <td>{{ portal.short_description }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -93,7 +93,7 @@
         {% paginate %}
     {% else %}
         <div class="alert alert-info">
-            <p>{% trans 'There are no portals here :(' %}</p>
+            <p>{% trans "There are no portals here :(" %}</p>
         </div>
     {% endif %}
 

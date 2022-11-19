@@ -1,10 +1,12 @@
-import six
 from django.template.context_processors import csrf
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
 
-from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   has_any_submittable_problem)
+from oioioi.contests.utils import (
+    can_enter_contest,
+    contest_exists,
+    has_any_submittable_problem,
+)
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -22,22 +24,24 @@ def drag_and_drop_processor(request):
 
     def ddzone_generator():
         # show drag and drop zone only for contest with submitting some files
-        if not hasattr(request, 'contest') or \
-                not hasattr(request.contest, 'controller') or \
-                not isinstance(request.contest.controller,
-                               ProgrammingContestController):
+        if (
+            not hasattr(request, 'contest')
+            or not hasattr(request.contest, 'controller')
+            or not isinstance(request.contest.controller, ProgrammingContestController)
+        ):
             return ''
         # do not show drag and drop zone when no available problems
         # (the following require controller in request)
-        if not has_any_submittable_problem(request) \
-                or not contest_exists(request) \
-                or not can_enter_contest(request) \
-                or getattr(request, 'hide_drag_and_drop', False):
+        if (
+            not has_any_submittable_problem(request)
+            or not contest_exists(request)
+            or not can_enter_contest(request)
+            or getattr(request, 'hide_drag_and_drop', False)
+        ):
             return ''
 
         c = {'contest_id': request.contest.id}
         c.update(csrf(request))
         return render_to_string('programs/drag_and_drop.html', c)
 
-    return {'extra_footer_drag_and_drop': lazy(ddzone_generator,
-            six.text_type)()}
+    return {'extra_footer_drag_and_drop': lazy(ddzone_generator, str)()}

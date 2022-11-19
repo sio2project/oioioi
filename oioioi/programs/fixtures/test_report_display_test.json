@@ -1,0 +1,1479 @@
+[
+   {
+      "pk" : "acm",
+      "fields" : {
+         "default_submissions_limit" : 10,
+         "controller_name" : "oioioi.acm.controllers.ACMContestController",
+         "judging_weight" : 1000,
+         "contact_email" : "",
+         "creation_date" : "2020-01-19T00:54:44.477Z",
+         "name" : "ACM",
+         "judging_priority" : 10
+      },
+      "model" : "contests.contest"
+   },
+   {
+      "pk" : "oi",
+      "fields" : {
+         "contact_email" : "",
+         "judging_weight" : 1000,
+         "controller_name" : "oioioi.oi.controllers.OIFinalOnsiteContestController",
+         "default_submissions_limit" : 10,
+         "judging_priority" : 10,
+         "name" : "OI",
+         "creation_date" : "2020-01-19T00:47:26.869Z"
+      },
+      "model" : "contests.contest"
+   },
+   {
+      "model" : "participants.participant",
+      "fields" : {
+         "user" : 1001,
+         "contest" : "oi",
+         "status" : "ACTIVE",
+         "anonymous" : false
+      },
+      "pk" : 1
+   },
+   {
+      "pk" : "pa",
+      "fields" : {
+         "contact_email" : "",
+         "judging_weight" : 1000,
+         "default_submissions_limit" : 10,
+         "controller_name" : "oioioi.pa.controllers.PAContestController",
+         "name" : "pa",
+         "judging_priority" : 10,
+         "creation_date" : "2020-01-19T01:00:05.351Z"
+      },
+      "model" : "contests.contest"
+   },
+   {
+      "fields" : {
+         "start_date" : "2020-01-19T00:47:09Z",
+         "name" : "Runda 1",
+         "results_date" : "2020-01-19T00:47:17Z",
+         "is_trial" : false,
+         "end_date" : null,
+         "contest" : "oi",
+         "public_results_date" : null
+      },
+      "pk" : 1,
+      "model" : "contests.round"
+   },
+   {
+      "pk" : 2,
+      "fields" : {
+         "public_results_date" : null,
+         "contest" : "acm",
+         "end_date" : null,
+         "results_date" : "2020-01-19T00:54:42Z",
+         "is_trial" : false,
+         "name" : "Runda 1",
+         "start_date" : "2020-01-19T00:54:32Z"
+      },
+      "model" : "contests.round"
+   },
+   {
+      "pk" : 3,
+      "fields" : {
+         "end_date" : null,
+         "contest" : "pa",
+         "public_results_date" : null,
+         "start_date" : "2020-01-19T00:59:42Z",
+         "name" : "Runda 1",
+         "is_trial" : false,
+         "results_date" : "2020-01-19T00:59:51Z"
+      },
+      "model" : "contests.round"
+   },
+   {
+      "pk" : 1,
+      "fields" : {
+         "submissions_limit" : 10,
+         "contest" : null,
+         "needs_rejudge" : false,
+         "round" : null,
+         "short_name" : "hel_main",
+         "problem" : 1
+      },
+      "model" : "contests.probleminstance"
+   },
+   {
+      "model" : "contests.probleminstance",
+      "fields" : {
+         "problem" : 1,
+         "short_name" : "hel",
+         "round" : 1,
+         "needs_rejudge" : false,
+         "contest" : "oi",
+         "submissions_limit" : 10
+      },
+      "pk" : 2
+   },
+   {
+      "model" : "contests.probleminstance",
+      "pk" : 3,
+      "fields" : {
+         "short_name" : "hel",
+         "needs_rejudge" : false,
+         "contest" : "acm",
+         "round" : 2,
+         "submissions_limit" : 10,
+         "problem" : 1
+      }
+   },
+   {
+      "model" : "contests.probleminstance",
+      "pk" : 4,
+      "fields" : {
+         "problem" : 1,
+         "short_name" : "hel",
+         "submissions_limit" : 10,
+         "needs_rejudge" : false,
+         "round" : 3,
+         "contest" : "pa"
+      }
+   },
+   {
+      "model" : "contests.submission",
+      "pk" : 7,
+      "fields" : {
+         "user" : 1001,
+         "comment" : "",
+         "kind" : "NORMAL",
+         "date" : "2020-01-19T00:49:03.724Z",
+         "score" : "int:0000000000000000014",
+         "problem_instance" : 2,
+         "status" : "INI_OK"
+      }
+   },
+   {
+      "pk" : 9,
+      "fields" : {
+         "problem_instance" : 3,
+         "status" : "RE",
+         "user" : 1001,
+         "comment" : "",
+         "kind" : "NORMAL",
+         "date" : "2020-01-19T00:56:20.111Z",
+         "score" : "bool:rejected"
+      },
+      "model" : "contests.submission"
+   },
+   {
+      "fields" : {
+         "problem_instance" : 4,
+         "status" : "INI_OK",
+         "comment" : "",
+         "user" : 1001,
+         "score" : "int:0000000000000000001",
+         "date" : "2020-01-19T01:01:09.977Z",
+         "kind" : "NORMAL"
+      },
+      "pk" : 11,
+      "model" : "contests.submission"
+   },
+   {
+      "fields" : {
+         "status" : "ACTIVE",
+         "creation_date" : "2020-01-19T00:49:10.341Z",
+         "kind" : "INITIAL",
+         "submission" : 7
+      },
+      "pk" : 13,
+      "model" : "contests.submissionreport"
+   },
+   {
+      "model" : "contests.submissionreport",
+      "fields" : {
+         "status" : "ACTIVE",
+         "creation_date" : "2020-01-19T00:49:36.152Z",
+         "kind" : "NORMAL",
+         "submission" : 7
+      },
+      "pk" : 14
+   },
+   {
+      "model" : "contests.submissionreport",
+      "fields" : {
+         "creation_date" : "2020-01-19T00:56:51.641Z",
+         "kind" : "FULL",
+         "submission" : 9,
+         "status" : "ACTIVE"
+      },
+      "pk" : 16
+   },
+   {
+      "pk" : 19,
+      "fields" : {
+         "status" : "ACTIVE",
+         "kind" : "INITIAL",
+         "creation_date" : "2020-01-19T01:01:17.118Z",
+         "submission" : 11
+      },
+      "model" : "contests.submissionreport"
+   },
+   {
+      "model" : "contests.submissionreport",
+      "fields" : {
+         "status" : "ACTIVE",
+         "creation_date" : "2020-01-19T01:01:43.847Z",
+         "kind" : "NORMAL",
+         "submission" : 11
+      },
+      "pk" : 20
+   },
+   {
+      "model" : "contests.scorereport",
+      "pk" : 13,
+      "fields" : {
+         "comment" : null,
+         "score" : "int:0000000000000000000",
+         "submission_report" : 13,
+         "status" : "OK",
+         "max_score" : "int:0000000000000000000"
+      }
+   },
+   {
+      "pk" : 14,
+      "fields" : {
+         "score" : "int:0000000000000000014",
+         "comment" : null,
+         "max_score" : "int:0000000000000000100",
+         "status" : "RE",
+         "submission_report" : 14
+      },
+      "model" : "contests.scorereport"
+   },
+   {
+      "fields" : {
+         "max_score" : "bool:accepted",
+         "status" : "RE",
+         "submission_report" : 16,
+         "score" : "bool:rejected",
+         "comment" : null
+      },
+      "pk" : 16,
+      "model" : "contests.scorereport"
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "comment" : null,
+         "submission_report" : 19,
+         "status" : "OK",
+         "max_score" : "int:0000000000000000000"
+      },
+      "pk" : 19,
+      "model" : "contests.scorereport"
+   },
+   {
+      "pk" : 20,
+      "fields" : {
+         "comment" : null,
+         "score" : "int:0000000000000000001",
+         "submission_report" : 20,
+         "status" : "RE",
+         "max_score" : "int:0000000000000000004"
+      },
+      "model" : "contests.scorereport"
+   },
+   {
+      "pk" : 1,
+      "fields" : {
+         "ascii_name" : "hel",
+         "author" : 1,
+         "short_name" : "hel",
+         "main_problem_instance" : 1,
+         "visibility" : "PU",
+         "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
+         "contest" : null,
+         "controller_name" : "oioioi.sinolpack.controllers.SinolProblemController",
+         "legacy_name" : "hel"
+      },
+      "model" : "problems.problem"
+   },
+   {
+      "pk" : 10,
+      "fields" : {
+         "input_file" : "data:problems/1/hel0_2pmiskK.in:MQo=",
+         "memory_limit" : 66000,
+         "is_active" : true,
+         "group" : "0",
+         "kind" : "EXAMPLE",
+         "order" : 0,
+         "output_file" : "data:problems/1/hel0_e0gruEZ.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 0,
+         "problem_instance" : 2,
+         "time_limit" : 10000,
+         "name" : "0"
+      },
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "problem_instance" : 2,
+         "output_file" : "data:problems/1/hel1a_Ieuki71.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "name" : "1a",
+         "time_limit" : 10000,
+         "group" : "1",
+         "input_file" : "data:problems/1/hel1a_DBBR6k1.in:MTAwMAo=",
+         "memory_limit" : 66000,
+         "is_active" : true,
+         "order" : 1,
+         "kind" : "NORMAL"
+      },
+      "pk" : 11
+   },
+   {
+      "pk" : 12,
+      "fields" : {
+         "time_limit" : 10000,
+         "name" : "1b",
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel1b_ry2VfcQ.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 2,
+         "kind" : "NORMAL",
+         "order" : 2,
+         "is_active" : true,
+         "input_file" : "data:problems/1/hel1b_3flxWs8.in:NTIwMAo=",
+         "memory_limit" : 66000,
+         "group" : "1"
+      },
+      "model" : "programs.test"
+   },
+   {
+      "pk" : 13,
+      "fields" : {
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel1c_UZDx3qI.in:NjgwMAo=",
+         "is_active" : true,
+         "group" : "1",
+         "kind" : "NORMAL",
+         "order" : 3,
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel1c_vxJ54bV.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 2,
+         "time_limit" : 10000,
+         "name" : "1c"
+      },
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "name" : "2a",
+         "time_limit" : 10000,
+         "problem_instance" : 2,
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel2a_jljGICD.out:SGVsbG8sIFdvcmxkIQo=",
+         "order" : 4,
+         "kind" : "NORMAL",
+         "group" : "2",
+         "is_active" : true,
+         "input_file" : "data:problems/1/hel2a_rMMeU1t.in:NzUwMAo=",
+         "memory_limit" : 66000
+      },
+      "pk" : 14
+   },
+   {
+      "pk" : 15,
+      "fields" : {
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel2b_8oUoJfl.in:OTAwMAo=",
+         "is_active" : true,
+         "group" : "2",
+         "kind" : "NORMAL",
+         "order" : 5,
+         "output_file" : "data:problems/1/hel2b_DCEkONK.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "problem_instance" : 2,
+         "time_limit" : 10000,
+         "name" : "2b"
+      },
+      "model" : "programs.test"
+   },
+   {
+      "pk" : 16,
+      "fields" : {
+         "group" : "2",
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel2c_GNmwB9t.in:MTAwMDAwCg==",
+         "is_active" : true,
+         "order" : 6,
+         "kind" : "NORMAL",
+         "problem_instance" : 2,
+         "output_file" : "data:problems/1/hel2c_1xSFtEA.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "name" : "2c",
+         "time_limit" : 10000
+      },
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "pk" : 17,
+      "fields" : {
+         "name" : "3",
+         "time_limit" : 10000,
+         "problem_instance" : 2,
+         "output_file" : "data:problems/1/hel3_BUFiYcl.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "order" : 7,
+         "kind" : "NORMAL",
+         "group" : "3",
+         "input_file" : "data:problems/1/hel3_HOipOXE.in:MAo=",
+         "memory_limit" : 66000,
+         "is_active" : true
+      }
+   },
+   {
+      "fields" : {
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel4_Rn50Wp7.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 2,
+         "time_limit" : 10000,
+         "name" : "4",
+         "is_active" : true,
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel4_8cNYKD2.in:LTEK",
+         "group" : "4",
+         "kind" : "NORMAL",
+         "order" : 8
+      },
+      "pk" : 18,
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel0_2pmiskK.in:MQo=",
+         "is_active" : true,
+         "group" : "0",
+         "kind" : "EXAMPLE",
+         "order" : 0,
+         "max_score" : 0,
+         "output_file" : "data:problems/1/hel0_e0gruEZ.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 3,
+         "time_limit" : 10000,
+         "name" : "0"
+      },
+      "pk" : 19
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "problem_instance" : 3,
+         "output_file" : "data:problems/1/hel1a_Ieuki71.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "name" : "1a",
+         "time_limit" : 10000,
+         "group" : "1",
+         "is_active" : true,
+         "input_file" : "data:problems/1/hel1a_DBBR6k1.in:MTAwMAo=",
+         "memory_limit" : 66000,
+         "order" : 1,
+         "kind" : "NORMAL"
+      },
+      "pk" : 20
+   },
+   {
+      "fields" : {
+         "kind" : "NORMAL",
+         "order" : 2,
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel1b_3flxWs8.in:NTIwMAo=",
+         "is_active" : true,
+         "group" : "1",
+         "time_limit" : 10000,
+         "name" : "1b",
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel1b_ry2VfcQ.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 3
+      },
+      "pk" : 21,
+      "model" : "programs.test"
+   },
+   {
+      "fields" : {
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel1c_UZDx3qI.in:NjgwMAo=",
+         "is_active" : true,
+         "group" : "1",
+         "kind" : "NORMAL",
+         "order" : 3,
+         "output_file" : "data:problems/1/hel1c_vxJ54bV.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "problem_instance" : 3,
+         "time_limit" : 10000,
+         "name" : "1c"
+      },
+      "pk" : 22,
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "pk" : 23,
+      "fields" : {
+         "time_limit" : 10000,
+         "name" : "2a",
+         "output_file" : "data:problems/1/hel2a_jljGICD.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "problem_instance" : 3,
+         "kind" : "NORMAL",
+         "order" : 4,
+         "is_active" : true,
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel2a_rMMeU1t.in:NzUwMAo=",
+         "group" : "2"
+      }
+   },
+   {
+      "fields" : {
+         "name" : "2b",
+         "time_limit" : 10000,
+         "problem_instance" : 3,
+         "output_file" : "data:problems/1/hel2b_DCEkONK.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "order" : 5,
+         "kind" : "NORMAL",
+         "group" : "2",
+         "input_file" : "data:problems/1/hel2b_8oUoJfl.in:OTAwMAo=",
+         "memory_limit" : 66000,
+         "is_active" : true
+      },
+      "pk" : 24,
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "order" : 6,
+         "kind" : "NORMAL",
+         "group" : "2",
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel2c_GNmwB9t.in:MTAwMDAwCg==",
+         "is_active" : true,
+         "name" : "2c",
+         "time_limit" : 10000,
+         "problem_instance" : 3,
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel2c_1xSFtEA.out:SGVsbG8sIFdvcmxkIQo="
+      },
+      "pk" : 25
+   },
+   {
+      "fields" : {
+         "name" : "3",
+         "time_limit" : 10000,
+         "problem_instance" : 3,
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel3_BUFiYcl.out:SGVsbG8sIFdvcmxkIQo=",
+         "order" : 7,
+         "kind" : "NORMAL",
+         "group" : "3",
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel3_HOipOXE.in:MAo=",
+         "is_active" : true
+      },
+      "pk" : 26,
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel4_Rn50Wp7.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 3,
+         "time_limit" : 10000,
+         "name" : "4",
+         "is_active" : true,
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel4_8cNYKD2.in:LTEK",
+         "group" : "4",
+         "kind" : "NORMAL",
+         "order" : 8
+      },
+      "pk" : 27
+   },
+   {
+      "fields" : {
+         "kind" : "EXAMPLE",
+         "order" : 0,
+         "is_active" : true,
+         "input_file" : "data:problems/1/hel0_2pmiskK.in:MQo=",
+         "memory_limit" : 66000,
+         "group" : "0",
+         "time_limit" : 10000,
+         "name" : "0",
+         "output_file" : "data:problems/1/hel0_e0gruEZ.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 0,
+         "problem_instance" : 4
+      },
+      "pk" : 28,
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "time_limit" : 10000,
+         "name" : "1a",
+         "output_file" : "data:problems/1/hel1a_Ieuki71.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "problem_instance" : 4,
+         "kind" : "NORMAL",
+         "order" : 1,
+         "input_file" : "data:problems/1/hel1a_DBBR6k1.in:MTAwMAo=",
+         "memory_limit" : 66000,
+         "is_active" : true,
+         "group" : "1"
+      },
+      "pk" : 29
+   },
+   {
+      "pk" : 30,
+      "fields" : {
+         "order" : 2,
+         "kind" : "NORMAL",
+         "group" : "1",
+         "input_file" : "data:problems/1/hel1b_3flxWs8.in:NTIwMAo=",
+         "memory_limit" : 66000,
+         "is_active" : true,
+         "name" : "1b",
+         "time_limit" : 10000,
+         "problem_instance" : 4,
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel1b_ry2VfcQ.out:SGVsbG8sIFdvcmxkIQo="
+      },
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "pk" : 31,
+      "fields" : {
+         "time_limit" : 10000,
+         "name" : "1c",
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel1c_vxJ54bV.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 4,
+         "kind" : "NORMAL",
+         "order" : 3,
+         "input_file" : "data:problems/1/hel1c_UZDx3qI.in:NjgwMAo=",
+         "memory_limit" : 66000,
+         "is_active" : true,
+         "group" : "1"
+      }
+   },
+   {
+      "pk" : 32,
+      "fields" : {
+         "group" : "2",
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel2a_rMMeU1t.in:NzUwMAo=",
+         "is_active" : true,
+         "order" : 4,
+         "kind" : "NORMAL",
+         "problem_instance" : 4,
+         "output_file" : "data:problems/1/hel2a_jljGICD.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "name" : "2a",
+         "time_limit" : 10000
+      },
+      "model" : "programs.test"
+   },
+   {
+      "fields" : {
+         "time_limit" : 10000,
+         "name" : "2b",
+         "output_file" : "data:problems/1/hel2b_DCEkONK.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "problem_instance" : 4,
+         "kind" : "NORMAL",
+         "order" : 5,
+         "is_active" : true,
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel2b_8oUoJfl.in:OTAwMAo=",
+         "group" : "2"
+      },
+      "pk" : 33,
+      "model" : "programs.test"
+   },
+   {
+      "fields" : {
+         "output_file" : "data:problems/1/hel2c_1xSFtEA.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "problem_instance" : 4,
+         "time_limit" : 10000,
+         "name" : "2c",
+         "is_active" : true,
+         "input_file" : "data:problems/1/hel2c_GNmwB9t.in:MTAwMDAwCg==",
+         "memory_limit" : 66000,
+         "group" : "2",
+         "kind" : "NORMAL",
+         "order" : 6
+      },
+      "pk" : 34,
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.test",
+      "fields" : {
+         "group" : "3",
+         "is_active" : true,
+         "memory_limit" : 66000,
+         "input_file" : "data:problems/1/hel3_HOipOXE.in:MAo=",
+         "order" : 7,
+         "kind" : "NORMAL",
+         "problem_instance" : 4,
+         "output_file" : "data:problems/1/hel3_BUFiYcl.out:SGVsbG8sIFdvcmxkIQo=",
+         "max_score" : 25,
+         "name" : "3",
+         "time_limit" : 10000
+      },
+      "pk" : 35
+   },
+   {
+      "pk" : 36,
+      "fields" : {
+         "max_score" : 25,
+         "output_file" : "data:problems/1/hel4_Rn50Wp7.out:SGVsbG8sIFdvcmxkIQo=",
+         "problem_instance" : 4,
+         "time_limit" : 10000,
+         "name" : "4",
+         "is_active" : true,
+         "input_file" : "data:problems/1/hel4_8cNYKD2.in:LTEK",
+         "memory_limit" : 66000,
+         "group" : "4",
+         "kind" : "NORMAL",
+         "order" : 8
+      },
+      "model" : "programs.test"
+   },
+   {
+      "model" : "programs.outputchecker",
+      "pk" : 1,
+      "fields" : {
+         "problem" : 1,
+         "exe_file" : "none"
+      }
+   },
+   {
+      "model" : "programs.programsubmission",
+      "fields" : {
+         "source_length" : 333,
+         "source_file" : "data:submissions/oi/7.cpp:I2luY2x1ZGUgPGJpdHMvc3RkYysrLmg+DQp1c2luZyBuYW1lc3BhY2Ugc3RkOw0KDQppbnQgbWFpbigpIHsNCiAgIGludCBpbnB1dDsgY2luID4+IGlucHV0Ow0KDQogICBpZihpbnB1dCA9PSAtMSkgY291dCA8PCAiTklFIiA8PCBlbmRsOw0KICAgaWYoaW5wdXQgPT0gMCkgdmVjdG9yPGludD4gZHV6eSgxMDAwKjEwMDAqMTAwMCk7DQogICANCiAgIGZvcihsb25nIGxvbmcgaSA9IDA7IGkgPCAxMDAwTEwgKiAxMDAwICogaW5wdXQ7IGkrKykNCiAgICAgaWYoaSA9PSAxMDAwMTApDQogICAgICAgY291dCA8PCAiSGVsbG8sIFdvcmxkISIgPDwgZW5kbDsNCg0KICAgcmV0dXJuIDA7DQp9"
+      },
+      "pk" : 7
+   },
+   {
+      "fields" : {
+         "source_file" : "data:submissions/acm/9.cpp:I2luY2x1ZGUgPGJpdHMvc3RkYysrLmg+DQp1c2luZyBuYW1lc3BhY2Ugc3RkOw0KDQppbnQgbWFpbigpIHsNCiAgIGludCBpbnB1dDsgY2luID4+IGlucHV0Ow0KDQogICBpZihpbnB1dCA9PSAtMSkgY291dCA8PCAiTklFIiA8PCBlbmRsOw0KICAgaWYoaW5wdXQgPT0gMCkgdmVjdG9yPGludD4gZHV6eSgxMDAwKjEwMDAqMTAwMCk7DQogICANCiAgIGZvcihsb25nIGxvbmcgaSA9IDA7IGkgPCAxMDAwTEwgKiAxMDAwICogaW5wdXQ7IGkrKykNCiAgICAgaWYoaSA9PSAxMDAwMTApDQogICAgICAgY291dCA8PCAiSGVsbG8sIFdvcmxkISIgPDwgZW5kbDsNCg0KICAgcmV0dXJuIDA7DQp9",
+         "source_length" : 333
+      },
+      "pk" : 9,
+      "model" : "programs.programsubmission"
+   },
+   {
+      "pk" : 11,
+      "fields" : {
+         "source_length" : 333,
+         "source_file" : "data:submissions/pa/11_rGpPd5x.cpp:I2luY2x1ZGUgPGJpdHMvc3RkYysrLmg+DQp1c2luZyBuYW1lc3BhY2Ugc3RkOw0KDQppbnQgbWFpbigpIHsNCiAgIGludCBpbnB1dDsgY2luID4+IGlucHV0Ow0KDQogICBpZihpbnB1dCA9PSAtMSkgY291dCA8PCAiTklFIiA8PCBlbmRsOw0KICAgaWYoaW5wdXQgPT0gMCkgdmVjdG9yPGludD4gZHV6eSgxMDAwKjEwMDAqMTAwMCk7DQogICANCiAgIGZvcihsb25nIGxvbmcgaSA9IDA7IGkgPCAxMDAwTEwgKiAxMDAwICogaW5wdXQ7IGkrKykNCiAgICAgaWYoaSA9PSAxMDAwMTApDQogICAgICAgY291dCA8PCAiSGVsbG8sIFdvcmxkISIgPDwgZW5kbDsNCg0KICAgcmV0dXJuIDA7DQp9"
+      },
+      "model" : "programs.programsubmission"
+   },
+   {
+      "model" : "programs.compilationreport",
+      "pk" : 13,
+      "fields" : {
+         "compiler_output" : "",
+         "submission_report" : 13,
+         "status" : "OK"
+      }
+   },
+   {
+      "model" : "programs.compilationreport",
+      "fields" : {
+         "compiler_output" : "",
+         "submission_report" : 14,
+         "status" : "OK"
+      },
+      "pk" : 14
+   },
+   {
+      "model" : "programs.compilationreport",
+      "fields" : {
+         "status" : "OK",
+         "submission_report" : 16,
+         "compiler_output" : ""
+      },
+      "pk" : 16
+   },
+   {
+      "model" : "programs.compilationreport",
+      "fields" : {
+         "submission_report" : 19,
+         "compiler_output" : "",
+         "status" : "OK"
+      },
+      "pk" : 19
+   },
+   {
+      "fields" : {
+         "submission_report" : 20,
+         "compiler_output" : "",
+         "status" : "OK"
+      },
+      "pk" : 20,
+      "model" : "programs.compilationreport"
+   },
+   {
+      "pk" : 55,
+      "fields" : {
+         "comment" : "",
+         "score" : "int:0000000000000000000",
+         "time_used" : 3,
+         "test" : 10,
+         "test_group" : "0",
+         "submission_report" : 13,
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000000",
+         "status" : "OK",
+         "test_time_limit" : 10000,
+         "test_name" : "0"
+      },
+      "model" : "programs.testreport"
+   },
+   {
+      "pk" : 56,
+      "fields" : {
+         "comment" : "",
+         "score" : "int:0000000000000000014",
+         "time_used" : 7216,
+         "test" : 13,
+         "test_group" : "1",
+         "submission_report" : 14,
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000025",
+         "status" : "OK",
+         "test_time_limit" : 10000,
+         "test_name" : "1c"
+      },
+      "model" : "programs.testreport"
+   },
+   {
+      "pk" : 57,
+      "fields" : {
+         "test_name" : "1a",
+         "test_time_limit" : 10000,
+         "output_file" : "none",
+         "status" : "OK",
+         "max_score" : "int:0000000000000000025",
+         "submission_report" : 14,
+         "test_group" : "1",
+         "test" : 11,
+         "score" : "int:0000000000000000025",
+         "time_used" : 1238,
+         "comment" : ""
+      },
+      "model" : "programs.testreport"
+   },
+   {
+      "fields" : {
+         "comment" : "program exited due to signal 6",
+         "score" : "int:0000000000000000000",
+         "time_used" : 2,
+         "test_name" : "3",
+         "test_time_limit" : 10000,
+         "test_group" : "3",
+         "test" : 17,
+         "status" : "RE",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000025",
+         "submission_report" : 14
+      },
+      "pk" : 58,
+      "model" : "programs.testreport"
+   },
+   {
+      "pk" : 59,
+      "fields" : {
+         "test_name" : "1b",
+         "test_time_limit" : 10000,
+         "test_group" : "1",
+         "test" : 12,
+         "status" : "OK",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000025",
+         "submission_report" : 14,
+         "comment" : "",
+         "time_used" : 5159,
+         "score" : "int:0000000000000000024"
+      },
+      "model" : "programs.testreport"
+   },
+   {
+      "fields" : {
+         "test_name" : "2a",
+         "test_time_limit" : 10000,
+         "status" : "OK",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000025",
+         "submission_report" : 14,
+         "test_group" : "2",
+         "test" : 14,
+         "time_used" : 8108,
+         "score" : "int:0000000000000000010",
+         "comment" : ""
+      },
+      "pk" : 60,
+      "model" : "programs.testreport"
+   },
+   {
+      "fields" : {
+         "time_used" : 8787,
+         "score" : "int:0000000000000000006",
+         "comment" : "",
+         "status" : "OK",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000025",
+         "submission_report" : 14,
+         "test_group" : "2",
+         "test" : 15,
+         "test_name" : "2b",
+         "test_time_limit" : 10000
+      },
+      "pk" : 61,
+      "model" : "programs.testreport"
+   },
+   {
+      "model" : "programs.testreport",
+      "fields" : {
+         "comment" : "",
+         "time_used" : 9995,
+         "score" : "int:0000000000000000000",
+         "test" : 16,
+         "test_group" : "2",
+         "submission_report" : 14,
+         "max_score" : "int:0000000000000000025",
+         "output_file" : "none",
+         "status" : "TLE",
+         "test_time_limit" : 10000,
+         "test_name" : "2c"
+      },
+      "pk" : 62
+   },
+   {
+      "model" : "programs.testreport",
+      "pk" : 63,
+      "fields" : {
+         "status" : "WA",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000025",
+         "submission_report" : 14,
+         "test_group" : "4",
+         "test" : 18,
+         "test_name" : "4",
+         "test_time_limit" : 10000,
+         "score" : "int:0000000000000000000",
+         "time_used" : 0,
+         "comment" : ""
+      }
+   },
+   {
+      "fields" : {
+         "score" : null,
+         "time_used" : 4,
+         "comment" : "program exited due to signal 6",
+         "output_file" : "none",
+         "status" : "RE",
+         "max_score" : null,
+         "submission_report" : 16,
+         "test_group" : "3",
+         "test" : 26,
+         "test_name" : "3",
+         "test_time_limit" : 10000
+      },
+      "pk" : 73,
+      "model" : "programs.testreport"
+   },
+   {
+      "pk" : 74,
+      "fields" : {
+         "test_group" : "1",
+         "test" : 20,
+         "output_file" : "none",
+         "status" : "OK",
+         "max_score" : null,
+         "submission_report" : 16,
+         "test_name" : "1a",
+         "test_time_limit" : 10000,
+         "comment" : "",
+         "score" : null,
+         "time_used" : 1370
+      },
+      "model" : "programs.testreport"
+   },
+   {
+      "model" : "programs.testreport",
+      "fields" : {
+         "test" : 19,
+         "test_group" : "0",
+         "submission_report" : 16,
+         "max_score" : null,
+         "output_file" : "none",
+         "status" : "OK",
+         "test_time_limit" : 10000,
+         "test_name" : "0",
+         "comment" : "",
+         "time_used" : 3,
+         "score" : null
+      },
+      "pk" : 75
+   },
+   {
+      "fields" : {
+         "submission_report" : 16,
+         "output_file" : "none",
+         "max_score" : null,
+         "status" : "OK",
+         "test" : 22,
+         "test_group" : "1",
+         "test_time_limit" : 10000,
+         "test_name" : "1c",
+         "score" : null,
+         "time_used" : 7202,
+         "comment" : ""
+      },
+      "pk" : 76,
+      "model" : "programs.testreport"
+   },
+   {
+      "fields" : {
+         "max_score" : null,
+         "output_file" : "none",
+         "status" : "OK",
+         "submission_report" : 16,
+         "test_group" : "1",
+         "test" : 21,
+         "test_name" : "1b",
+         "test_time_limit" : 10000,
+         "time_used" : 5182,
+         "score" : null,
+         "comment" : ""
+      },
+      "pk" : 77,
+      "model" : "programs.testreport"
+   },
+   {
+      "fields" : {
+         "comment" : "",
+         "time_used" : 7994,
+         "score" : null,
+         "test_name" : "2a",
+         "test_time_limit" : 10000,
+         "test_group" : "2",
+         "test" : 23,
+         "output_file" : "none",
+         "max_score" : null,
+         "status" : "OK",
+         "submission_report" : 16
+      },
+      "pk" : 78,
+      "model" : "programs.testreport"
+   },
+   {
+      "fields" : {
+         "submission_report" : 16,
+         "output_file" : "none",
+         "max_score" : null,
+         "status" : "OK",
+         "test" : 24,
+         "test_group" : "2",
+         "test_time_limit" : 10000,
+         "test_name" : "2b",
+         "score" : null,
+         "time_used" : 8664,
+         "comment" : ""
+      },
+      "pk" : 79,
+      "model" : "programs.testreport"
+   },
+   {
+      "model" : "programs.testreport",
+      "fields" : {
+         "comment" : "",
+         "time_used" : 9970,
+         "score" : null,
+         "test_time_limit" : 10000,
+         "test_name" : "2c",
+         "test" : 25,
+         "test_group" : "2",
+         "submission_report" : 16,
+         "output_file" : "none",
+         "status" : "TLE",
+         "max_score" : null
+      },
+      "pk" : 80
+   },
+   {
+      "model" : "programs.testreport",
+      "pk" : 81,
+      "fields" : {
+         "submission_report" : 16,
+         "status" : "WA",
+         "output_file" : "none",
+         "max_score" : null,
+         "test" : 27,
+         "test_group" : "4",
+         "test_time_limit" : 10000,
+         "test_name" : "4",
+         "score" : null,
+         "time_used" : 0,
+         "comment" : ""
+      }
+   },
+   {
+      "fields" : {
+         "comment" : "",
+         "time_used" : 2,
+         "score" : "int:0000000000000000000",
+         "test_time_limit" : 10000,
+         "test_name" : "0",
+         "test" : 28,
+         "test_group" : "0",
+         "submission_report" : 19,
+         "status" : "OK",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000000"
+      },
+      "pk" : 91,
+      "model" : "programs.testreport"
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000001",
+         "time_used" : 7291,
+         "comment" : "",
+         "test_time_limit" : 10000,
+         "test_name" : "1c",
+         "submission_report" : 20,
+         "status" : "OK",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000001",
+         "test" : 31,
+         "test_group" : "1"
+      },
+      "pk" : 92,
+      "model" : "programs.testreport"
+   },
+   {
+      "model" : "programs.testreport",
+      "fields" : {
+         "test" : 29,
+         "test_group" : "1",
+         "submission_report" : 20,
+         "output_file" : "none",
+         "status" : "OK",
+         "max_score" : "int:0000000000000000001",
+         "test_time_limit" : 10000,
+         "test_name" : "1a",
+         "comment" : "",
+         "time_used" : 1264,
+         "score" : "int:0000000000000000001"
+      },
+      "pk" : 93
+   },
+   {
+      "fields" : {
+         "test_name" : "3",
+         "test_time_limit" : 10000,
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000001",
+         "status" : "RE",
+         "submission_report" : 20,
+         "test_group" : "3",
+         "test" : 35,
+         "time_used" : 3,
+         "score" : "int:0000000000000000000",
+         "comment" : "program exited due to signal 6"
+      },
+      "pk" : 94,
+      "model" : "programs.testreport"
+   },
+   {
+      "model" : "programs.testreport",
+      "pk" : 95,
+      "fields" : {
+         "max_score" : "int:0000000000000000001",
+         "output_file" : "none",
+         "status" : "OK",
+         "submission_report" : 20,
+         "test_group" : "1",
+         "test" : 30,
+         "test_name" : "1b",
+         "test_time_limit" : 10000,
+         "time_used" : 5358,
+         "score" : "int:0000000000000000001",
+         "comment" : ""
+      }
+   },
+   {
+      "fields" : {
+         "test_time_limit" : 10000,
+         "test_name" : "2a",
+         "test" : 32,
+         "test_group" : "2",
+         "submission_report" : 20,
+         "status" : "OK",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000001",
+         "comment" : "",
+         "time_used" : 8284,
+         "score" : "int:0000000000000000001"
+      },
+      "pk" : 96,
+      "model" : "programs.testreport"
+   },
+   {
+      "model" : "programs.testreport",
+      "fields" : {
+         "time_used" : 9276,
+         "score" : "int:0000000000000000001",
+         "comment" : "",
+         "test_time_limit" : 10000,
+         "test_name" : "2b",
+         "submission_report" : 20,
+         "status" : "OK",
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000001",
+         "test" : 33,
+         "test_group" : "2"
+      },
+      "pk" : 97
+   },
+   {
+      "model" : "programs.testreport",
+      "pk" : 98,
+      "fields" : {
+         "test_name" : "2c",
+         "test_time_limit" : 10000,
+         "test_group" : "2",
+         "test" : 34,
+         "output_file" : "none",
+         "max_score" : "int:0000000000000000001",
+         "status" : "TLE",
+         "submission_report" : 20,
+         "comment" : "",
+         "time_used" : 9996,
+         "score" : "int:0000000000000000000"
+      }
+   },
+   {
+      "fields" : {
+         "test_time_limit" : 10000,
+         "test_name" : "4",
+         "submission_report" : 20,
+         "output_file" : "none",
+         "status" : "WA",
+         "max_score" : "int:0000000000000000001",
+         "test" : 36,
+         "test_group" : "4",
+         "time_used" : 1,
+         "score" : "int:0000000000000000000",
+         "comment" : ""
+      },
+      "pk" : 99,
+      "model" : "programs.testreport"
+   },
+   {
+      "model" : "programs.groupreport",
+      "pk" : 37,
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "status" : "OK",
+         "max_score" : "int:0000000000000000000",
+         "submission_report" : 13,
+         "group" : "0"
+      }
+   },
+   {
+      "pk" : 38,
+      "fields" : {
+         "score" : "int:0000000000000000014",
+         "submission_report" : 14,
+         "status" : "OK",
+         "max_score" : "int:0000000000000000025",
+         "group" : "1"
+      },
+      "model" : "programs.groupreport"
+   },
+   {
+      "fields" : {
+         "group" : "0",
+         "submission_report" : 14,
+         "max_score" : "int:0000000000000000000",
+         "status" : "OK",
+         "score" : "int:0000000000000000000"
+      },
+      "pk" : 39,
+      "model" : "programs.groupreport"
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "group" : "3",
+         "max_score" : "int:0000000000000000025",
+         "status" : "RE",
+         "submission_report" : 14
+      },
+      "pk" : 40,
+      "model" : "programs.groupreport"
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "group" : "2",
+         "submission_report" : 14,
+         "max_score" : "int:0000000000000000025",
+         "status" : "TLE"
+      },
+      "pk" : 41,
+      "model" : "programs.groupreport"
+   },
+   {
+      "pk" : 42,
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "submission_report" : 14,
+         "max_score" : "int:0000000000000000025",
+         "status" : "WA",
+         "group" : "4"
+      },
+      "model" : "programs.groupreport"
+   },
+   {
+      "model" : "programs.groupreport",
+      "pk" : 48,
+      "fields" : {
+         "score" : null,
+         "group" : "1",
+         "status" : "OK",
+         "max_score" : null,
+         "submission_report" : 16
+      }
+   },
+   {
+      "model" : "programs.groupreport",
+      "fields" : {
+         "score" : null,
+         "group" : "0",
+         "status" : "OK",
+         "max_score" : null,
+         "submission_report" : 16
+      },
+      "pk" : 49
+   },
+   {
+      "pk" : 50,
+      "fields" : {
+         "status" : "RE",
+         "max_score" : null,
+         "submission_report" : 16,
+         "group" : "3",
+         "score" : null
+      },
+      "model" : "programs.groupreport"
+   },
+   {
+      "model" : "programs.groupreport",
+      "fields" : {
+         "score" : null,
+         "status" : "TLE",
+         "max_score" : null,
+         "submission_report" : 16,
+         "group" : "2"
+      },
+      "pk" : 51
+   },
+   {
+      "model" : "programs.groupreport",
+      "fields" : {
+         "score" : null,
+         "submission_report" : 16,
+         "max_score" : null,
+         "status" : "WA",
+         "group" : "4"
+      },
+      "pk" : 52
+   },
+   {
+      "model" : "programs.groupreport",
+      "fields" : {
+         "group" : "0",
+         "submission_report" : 19,
+         "status" : "OK",
+         "max_score" : "int:0000000000000000000",
+         "score" : "int:0000000000000000000"
+      },
+      "pk" : 59
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000001",
+         "submission_report" : 20,
+         "status" : "OK",
+         "max_score" : "int:0000000000000000001",
+         "group" : "1"
+      },
+      "pk" : 60,
+      "model" : "programs.groupreport"
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "group" : "0",
+         "max_score" : "int:0000000000000000000",
+         "status" : "OK",
+         "submission_report" : 20
+      },
+      "pk" : 61,
+      "model" : "programs.groupreport"
+   },
+   {
+      "model" : "programs.groupreport",
+      "pk" : 62,
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "status" : "RE",
+         "max_score" : "int:0000000000000000001",
+         "submission_report" : 20,
+         "group" : "3"
+      }
+   },
+   {
+      "model" : "programs.groupreport",
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "submission_report" : 20,
+         "status" : "TLE",
+         "max_score" : "int:0000000000000000001",
+         "group" : "2"
+      },
+      "pk" : 63
+   },
+   {
+      "pk" : 64,
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "group" : "4",
+         "status" : "WA",
+         "max_score" : "int:0000000000000000001",
+         "submission_report" : 20
+      },
+      "model" : "programs.groupreport"
+   }
+]

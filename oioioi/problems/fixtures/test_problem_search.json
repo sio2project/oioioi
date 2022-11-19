@@ -3,7 +3,7 @@
     "pk": 0,
     "model": "problems.problem",
     "fields": {
-      "name": "Prywatne",
+      "legacy_name": "Prywatne",
       "ascii_name": "Prywatne",
       "short_name": "abcdefghijklmnopqrstuvw",
       "visibility": "PR"
@@ -13,7 +13,7 @@
     "pk": 1,
     "model": "problems.problem",
     "fields": {
-      "name": "Zadanko",
+      "legacy_name": "Zadanko",
       "ascii_name": "Zadanko",
       "short_name": "zad1",
       "visibility": "PU"
@@ -23,7 +23,7 @@
     "pk": 2,
     "model": "problems.problem",
     "fields": {
-      "name": "Żółć",
+      "legacy_name": "Żółć",
       "ascii_name": "Zolc",
       "short_name": "zol1",
       "visibility": "PU"
@@ -33,7 +33,7 @@
     "pk": 3,
     "model": "problems.problem",
     "fields": {
-      "name": "Znacznik",
+      "legacy_name": "Znacznik",
       "ascii_name": "Znacznik",
       "short_name": "zna1",
       "visibility": "PU"
@@ -43,7 +43,7 @@
     "pk": 4,
     "model": "problems.problem",
     "fields": {
-      "name": "Algorytm",
+      "legacy_name": "Algorytm",
       "ascii_name": "Algorytm",
       "short_name": "alg",
       "visibility": "PU"
@@ -53,7 +53,7 @@
     "pk": 5,
     "model": "problems.problem",
     "fields": {
-      "name": "Trudność",
+      "legacy_name": "Trudność",
       "ascii_name": "Trudnosc",
       "short_name": "tru",
       "visibility": "PU"
@@ -63,9 +63,29 @@
     "pk": 6,
     "model": "problems.problem",
     "fields": {
-      "name": "Potagowany",
+      "legacy_name": "Potagowany",
       "ascii_name": "Potagowany",
       "short_name": "pot",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.problem",
+    "fields": {
+      "legacy_name": "Bajtocja",
+      "ascii_name": "Bajtocja",
+      "short_name": "baj",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.problem",
+    "fields": {
+      "legacy_name": "Drzewo",
+      "ascii_name": "Drzewo",
+      "short_name": "drzewo",
       "visibility": "PU"
     }
   },
@@ -126,41 +146,53 @@
       "url_key": "6"
     }
   },
-
   {
-    "pk": 1,
-    "model": "problems.tag",
+    "pk": 7,
+    "model": "problems.problemsite",
     "fields": {
-      "name": "tag_t"
+      "problem": 7,
+      "url_key": "7"
     }
   },
   {
-    "pk": 1,
-    "model": "problems.tagthrough",
+    "pk": 8,
+    "model": "problems.problemsite",
     "fields": {
-      "tag": 1,
-      "problem": 3
+      "problem": 8,
+      "url_key": "8"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.problemname",
+    "fields": {
+      "problem": 7,
+      "language": "en",
+      "name": "Byteland"
     }
   },
   {
     "pk": 2,
-    "model": "problems.tagthrough",
+    "model": "problems.problemname",
     "fields": {
-      "tag": 1,
-      "problem": 6
+      "problem": 7,
+      "language": "pl",
+      "name": "Bajtocja"
     }
   },
   {
     "pk": 3,
-    "model": "problems.tagthrough",
+    "model": "problems.problemname",
     "fields": {
-      "tag": 1,
-      "problem": 0
+      "problem": 8,
+      "language": "en",
+      "name": "Tree"
     }
   },
 
   {
-    "pk": 1,
+    "pk": 0,
     "model": "problems.algorithmtag",
     "fields": {
       "name": "tag_a"
@@ -170,7 +202,7 @@
     "pk": 1,
     "model": "problems.algorithmtagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 4
     }
   },
@@ -178,7 +210,7 @@
     "pk": 2,
     "model": "problems.algorithmtagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 6
     }
   },
@@ -186,13 +218,13 @@
     "pk": 3,
     "model": "problems.algorithmtagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 0
     }
   },
 
   {
-    "pk": 1,
+    "pk": 0,
     "model": "problems.difficultytag",
     "fields": {
       "name": "tag_d"
@@ -202,7 +234,7 @@
     "pk": 1,
     "model": "problems.difficultytagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 5
     }
   },
@@ -210,7 +242,7 @@
     "pk": 2,
     "model": "problems.difficultytagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 6
     }
   },
@@ -218,7 +250,7 @@
     "pk": 3,
     "model": "problems.difficultytagthrough",
     "fields": {
-      "tag": 1,
+      "tag": 0,
       "problem": 0
     }
   }

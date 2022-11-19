@@ -25,11 +25,12 @@ class _FileDescriptor(files.FileDescriptor):
         if instance is None:
             raise AttributeError(
                 "The '%s' attribute can only be accessed from %s instances."
-                % (self.field.name, owner.__name__))
+                % (self.field.name, owner.__name__)
+            )
         file = instance.__dict__[self.field.name]
-        if isinstance(file, six.string_types) and file == 'none':
+        if isinstance(file, str) and file == 'none':
             instance.__dict__[self.field.name] = None
-        elif isinstance(file, six.string_types) and file.startswith('data:'):
+        elif isinstance(file, str) and file.startswith('data:'):
             name, content = file.split(':', 2)[1:]
             if content.startswith('raw:'):
                 content = str(content[4:]).encode('ascii')
@@ -52,17 +53,17 @@ class _FileDescriptor(files.FileDescriptor):
 class FileField(files.FileField):
     """A :class:`~django.db.models.FileField` with fixtures support.
 
-       Default value of max_length is increased from 100 to 255.
+    Default value of max_length is increased from 100 to 255.
 
-       Values of ``FileFields`` are serialized as::
+    Values of ``FileFields`` are serialized as::
 
-         data:<filename>:<base64-encoded data>
+      data:<filename>:<base64-encoded data>
 
-       It is also possible to decode a more human-friendly representaion::
+    It is also possible to decode a more human-friendly representaion::
 
-         data:<filename>:raw:<raw data>
+      data:<filename>:raw:<raw data>
 
-       but this works only for ASCII content.
+    but this works only for ASCII content.
     """
 
     descriptor_class = _FileDescriptor
@@ -74,13 +75,14 @@ class FileField(files.FileField):
         super(FileField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
-        if hasattr(value, 'name') \
-                and isinstance(value.name, FiletrackerFilename):
+        if hasattr(value, 'name') and isinstance(value.name, FiletrackerFilename):
             value = value.name.versioned_name
         return super(FileField, self).get_prep_value(value)
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
+        value = self.value_from_object(obj)
         if not value:
             return 'none'
-        return 'data:' + value.name + ':' + base64.b64encode(value.read())
+        return (
+            'data:' + value.name + ':' + six.ensure_text(base64.b64encode(value.read()))
+        )

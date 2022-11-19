@@ -1,8 +1,8 @@
 from django.conf import settings
-from django.template import RequestContext, Library
+from django.template import Library, RequestContext
 
-from oioioi.contests.utils import visible_contests
 from oioioi.contests.processors import recent_contests
+from oioioi.contests.utils import visible_contests
 from oioioi.teachers.models import Teacher
 
 register = Library()
@@ -16,7 +16,7 @@ def contest_selection(context):
     rcontests = recent_contests(request)
     contests = list(visible_contests(request).difference(rcontests))
     contests.sort(key=lambda x: x.creation_date, reverse=True)
-    contests = (rcontests + contests)[:to_show+1]
+    contests = (rcontests + contests)[: to_show + 1]
 
     default_contest = None
     if rcontests:
@@ -29,8 +29,7 @@ def contest_selection(context):
         'default_contest': default_contest,
         'more_contests': len(contests) > to_show,
         'is_teacher': request.user.has_perm('teachers.teacher'),
-        'is_inactive_teacher':
-            request.user.is_authenticated and
-            bool(Teacher.objects.filter(user=request.user, is_active=False))
+        'is_inactive_teacher': request.user.is_authenticated
+        and bool(Teacher.objects.filter(user=request.user, is_active=False)),
     }
     return RequestContext(request, contest_selection_context)

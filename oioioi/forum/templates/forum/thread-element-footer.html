@@ -8,8 +8,34 @@
 {% url 'forum_post_approve' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_approve_url %}
 {% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_report_url %}
 {% url 'forum_post_revoke_approval' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_revoke_approval_url %}
+{% url 'forum_post_toggle_reaction' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_toggle_reaction_url %}
 
-<a href="#forum-anchor-{{ post.id }}">#{{ post.id }}</a>
+{% block links_to_post %}<a href="#forum-anchor-{{ post.id }}">#{{ post.id }}</a>{% endblock %}
+
+{% if category.reactions_enabled %}
+    <span class="post_reactions">|
+        {% if can_interact_with_users %}
+            <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=upvote">
+        {% endif %}
+        <span class="{% if post.user_upvoted %} text-success {% else %} text-muted {% endif %}">
+            <i class="fa-solid fa-plus"></i> {{ post.upvotes_count }}
+        </span>
+        {% if can_interact_with_users %}
+            </a>
+        {% endif %}
+
+        {% if can_interact_with_users %}
+            <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=downvote">
+        {% endif %}
+        <span class="{% if post.user_downvoted %} text-danger {% else %} text-muted {% endif %}">
+            <i class="fa-solid fa-minus"></i> {{ post.downvotes_count }}
+        </span>
+        {% if can_interact_with_users %}
+            </a>
+        {% endif %}
+    </span>
+{% endif %}
+
 | {% full_name post.author %}
 
 {% if is_admin %}
@@ -25,9 +51,7 @@
 | {% trans "Added" %}: {{ post.add_date }}
 
 {% if post.edited %}
-    | {% blocktrans trimmed %}
-        Last edit: {{ post.last_edit_date_url }}
-    {% endblocktrans %}
+    | {% trans "Last edit" %}: {{ post.last_edit_date }}
 {% endif %}
 
 {% if can_interact_with_users and post.author == user or is_admin %}
@@ -36,7 +60,7 @@
       </a>
     {% if forloop.last and post.can_be_removed or is_admin %}
         | <a href="{{ forum_post_delete_url }}">
-            <span class="glyphicon glyphicon-trash"></span>
+            <i class="fa-solid fa-trash"></i>
           </a>
     {% endif %}
 {% endif %}
@@ -52,16 +76,16 @@
         {% endif %}
     {% endif %}
     {% if post.approved %}
-        <span class="text-success">
-            | {% trans "This post was approved." %}
-        </span>
         {% if is_admin %}
+            <span class="text-success">
+                | {% trans "This post was approved." %}
+            </span>
             | <a href="#" data-post-url="{{ forum_post_revoke_approval_url }}">
                 {% trans "revoke approval" %}
              </a>
         {% endif %}
     {% elif can_interact_with_admins and not post.reported %}
-        | <a href="#" data-post-url="{{ forum_post_report_url }}">
+        | <a href="{{ forum_post_report_url }}">
             {% trans "report" %}
           </a>
     {% endif %}
@@ -70,7 +94,8 @@
         <span class="text-danger">
             {% if is_admin and post.reported_by %}
                 {% full_name post.reported_by as reporter_name %}
-                {% blocktrans trimmed %} This post was reported by {{ reporter_name }}.{% endblocktrans %}
+                {% blocktrans trimmed %} This post was reported by {{ reporter_name }}. {% endblocktrans %}
+                <abbr title="{{ post.report_reason }}">{% trans "Reason" %}</abbr>
                 {% if post.is_reporter_banned %}
                     | {% trans "Reporter was banned." %}
                 {% else %}

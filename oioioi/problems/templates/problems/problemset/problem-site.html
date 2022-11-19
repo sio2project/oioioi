@@ -1,6 +1,6 @@
 {% extends "problems/problemset/base.html" %}
 {% load i18n %}
-{% load staticfiles %}
+{% load static %}
 
 {% block title %}{{ problem }} - {% trans "Problemset" %}{% endblock %}
 
@@ -9,29 +9,23 @@
     <div class="problem-title text-center content-row">
         <h1>{{ problem }}</h1>
         {% if show_proposal_form %}
-            <div class="icon-container">
-                <span id="open-form" type="button" class="glyphicon glyphicon-exclamation-sign tagform-icon clickable" data-toggle="modal"
-                      data-target="#tag-form"></span>
-            </div>
+            <i id="open-form" type="button" class="fa-solid fa-circle-exclamation tagform-icon clickable ml-2" data-toggle="modal"
+                  data-target="#tag-form"></i>
         {% endif %}
     </div>
 
     {% include "problems/ingredients/tag-form.html" %}
 
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs mb-3">
         {% for tab in tabs %}
-            {% if tab.obj.key != "secret_key" or problem.visibility != problem.VISIBILITY_PUBLIC %}
-                {% if tab.obj.key != 'settings' or can_admin_problem %}
-                    {% if tab.obj.key != 'add_to_contest' %}
-                        <li {% if tab.obj == current_tab %}class="active"{% endif %}>
-                            <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
-                        </li>
-                    {% elif show_add_button and not can_admin_problem %}
-                        <li {% if tab.obj == current_tab %}class="active"{% endif %}>
-                            <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
-                        </li>
-                    {% endif %}
-                {% endif %}
+            {% if tab.obj.key != 'add_to_contest' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if tab.obj == current_tab %}active{% endif %}" href="{{ tab.link }}">{{ tab.obj.title }}</a>
+                </li>
+            {% elif show_add_button and not can_admin_problem %}
+                <li class="nav-item">
+                    <a class="nav-link {% if tab.obj == current_tab %}active{% endif %}" href="{{ tab.link }}">{{ tab.obj.title }}</a>
+                </li>
             {% endif %}
         {% endfor %}
     </ul>
@@ -39,12 +33,13 @@
         {{ content }}
     </div>
 
-    <form id="add_to_contest" method="post" class="hidden">
+    <form id="add_to_contest" method="post"  class="d-none">
         {% csrf_token %}
         <input id="url_key" name="url_key" type="hidden">
     </form>
 
     <script type="text/javascript" src="{{ STATIC_URL }}problems/problemset/add-to-contest.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}problems/problemset/tag-form.js"></script>
+    <script type="text/javascript">var problemsiteKey = "{{ problemsite_key }}"; </script>
 
 {% endblock %}

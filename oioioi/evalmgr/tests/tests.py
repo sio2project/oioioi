@@ -1,12 +1,10 @@
 import copy
 import os.path
 import uuid
-import six
 
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.test.utils import override_settings
-from six.moves import range
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, Submission
@@ -24,13 +22,11 @@ def delay_environ_wrapper(*args, **kwargs):
     return result
 
 
-hunting = [('Prepare guns',
-                'oioioi.evalmgr.tests.tests.prepare_handler'),
-            ('Hunt',
-                'oioioi.evalmgr.tests.tests.hunting_handler',
-                {'animal': 'hedgehog'}),
-            ('Rest',
-                'oioioi.evalmgr.tests.tests.rest_handler')]
+hunting = [
+    ('Prepare guns', 'oioioi.evalmgr.tests.tests.prepare_handler'),
+    ('Hunt', 'oioioi.evalmgr.tests.tests.hunting_handler', {'animal': 'hedgehog'}),
+    ('Rest', 'oioioi.evalmgr.tests.tests.rest_handler'),
+]
 
 
 class HuntingException(Exception):
@@ -38,8 +34,7 @@ class HuntingException(Exception):
 
 
 def hunting_handler(env, **kwargs):
-    if kwargs['animal'] == 'hedgehog' and env['area'] == 'forest' \
-            and env['prepared']:
+    if kwargs['animal'] == 'hedgehog' and env['area'] == 'forest' and env['prepared']:
         env['result'] = 'Hedgehog hunted.'
     elif kwargs['animal'] == 'hedgehog' and env['area'] == 'elevator':
         raise HuntingException('Its prohibited to kill hedgehogs in elevator.')
@@ -75,11 +70,14 @@ class TestLocalJobs(TestCase):
 
     def test_multiple_jobs(self):
         city_result = delay_environ_wrapper(
-                dict(job_id=42, recipe=hunting, area='city'))
+            dict(job_id=42, recipe=hunting, area='city')
+        )
         forest_result = delay_environ_wrapper(
-                dict(job_id=43, recipe=hunting, area='forest'))
+            dict(job_id=43, recipe=hunting, area='forest')
+        )
         jungle_result = delay_environ_wrapper(
-                dict(job_id=44, recipe=hunting, area='jungle'))
+            dict(job_id=44, recipe=hunting, area='jungle')
+        )
         self.assertEqual('Hedgehog hunted.', forest_result.get()['output'])
         self.assertEqual('Epic fail.', city_result.get()['output'])
         self.assertEqual('Epic fail.', jungle_result.get()['output'])
@@ -92,29 +90,29 @@ def upload_source(env, **kwargs):
 
 
 def compile_source(env, **kwargs):
-    env.update(dict(
-        source_file=env['remote_source_file'],
-        out_file=env['binary_file'],
-        compiler='system-gcc',
-        job_type='compile'))
+    env.update(
+        dict(
+            source_file=env['remote_source_file'],
+            out_file=env['binary_file'],
+            compiler='system-gcc',
+            job_type='compile',
+        )
+    )
     return run_sioworkers_job(env)
 
 
 def upload_inout(env, **kwargs):
     fc = get_client()
-    env.update({
-        'in_file': env['remote_in_file'],
-        'hint_file': env['remote_out_file']})
+    env.update({'in_file': env['remote_in_file'], 'hint_file': env['remote_out_file']})
     fc.put_file(env['remote_in_file'], env['local_in_file'])
     fc.put_file(env['remote_out_file'], env['local_out_file'])
     return env
 
 
 def run(env, **kwargs):
-    env.update(dict(
-        exe_file=env['binary_file'],
-        check_output=True,
-        job_type='unsafe-exec'))
+    env.update(
+        dict(exe_file=env['binary_file'], check_output=True, job_type='unsafe-exec')
+    )
     return run_sioworkers_job(env)
 
 
@@ -141,22 +139,19 @@ class TestRemoteJobs(TestCase):
     local_source_file = os.path.join(base_dir, 'files/solution.c')
     remote_source_file = '/test_worker_manager/' + _uuid() + 'add_solution.c'
     local_wrong_source_file = os.path.join(base_dir, 'files/wrong_solution.c')
-    remote_wrong_source_file = '/test_worker_manager/' + _uuid() + \
-            'wrong_add_solution.c'
+    remote_wrong_source_file = (
+        '/test_worker_manager/' + _uuid() + 'wrong_add_solution.c'
+    )
     binary_file = '/test_worker_manager/' + _uuid() + 'add_solution'
     local_in_file = os.path.join(base_dir, 'files/in')
     remote_in_file = '/test_worker_manager/' + _uuid() + 'in'
     local_out_file = os.path.join(base_dir, 'files/out')
     remote_out_file = '/test_worker_manager/' + _uuid() + 'out'
     evaluation_recipe = [
-        ('upload source',
-        'oioioi.evalmgr.tests.tests.upload_source'),
-        ('compile source',
-        'oioioi.evalmgr.tests.tests.compile_source'),
-        ('upload test',
-        'oioioi.evalmgr.tests.tests.upload_inout'),
-        ('run',
-        'oioioi.evalmgr.tests.tests.run'),
+        ('upload source', 'oioioi.evalmgr.tests.tests.upload_source'),
+        ('compile source', 'oioioi.evalmgr.tests.tests.compile_source'),
+        ('upload test', 'oioioi.evalmgr.tests.tests.upload_inout'),
+        ('run', 'oioioi.evalmgr.tests.tests.run'),
     ]
     evaluation_env = dict(
         job_id=42,
@@ -172,14 +167,17 @@ class TestRemoteJobs(TestCase):
 
     def tearDown(self):
         fc = get_client()
-        for filename in (self.remote_source_file,
-                         self.remote_wrong_source_file,
-                         self.remote_in_file,
-                         self.remote_out_file):
+        for filename in (
+            self.remote_source_file,
+            self.remote_wrong_source_file,
+            self.remote_in_file,
+            self.remote_out_file,
+        ):
             fc.delete_file(filename)
 
     @override_settings(
-            SIOWORKERS_BACKEND='oioioi.evalmgr.tests.tests.SioworkersBackend')
+        SIOWORKERS_BACKEND='oioioi.evalmgr.tests.tests.SioworkersBackend'
+    )
     def _run_with_dummy_sioworkers(self, testfn):
         testfn()
 
@@ -187,8 +185,7 @@ class TestRemoteJobs(TestCase):
         self._run_with_dummy_sioworkers(self.test_full_source_file_evaluation)
 
     def test_multiple_source_file_evaluation_with_dummy_sioworkers(self):
-        self._run_with_dummy_sioworkers(
-            self.test_multiple_source_file_evaluation)
+        self._run_with_dummy_sioworkers(self.test_multiple_source_file_evaluation)
 
     def test_full_source_file_evaluation(self):
         env = self.evaluation_env.copy()
@@ -200,12 +197,13 @@ class TestRemoteJobs(TestCase):
         wrong_env = self.evaluation_env.copy()
         wrong_env.update(
             local_source_file=self.local_wrong_source_file,
-            remote_source_file=self.remote_wrong_source_file
+            remote_source_file=self.remote_wrong_source_file,
         )
         good_result = delay_environ_wrapper(good_env)
         wrong_result = delay_environ_wrapper(wrong_env)
         self.assertEqual('OK', good_result.get()['result_code'])
         self.assertEqual('WA', wrong_result.get()['result_code'])
+
 
 police_files = {}
 
@@ -236,41 +234,56 @@ def set_mood(env, **kwargs):
 
 class TestErrorBehavior(TestCase):
     error_handlers = [
-            ('Call police',
-                'oioioi.evalmgr.tests.tests.police_handler'),
-            ('Be ashamed',
-                'oioioi.evalmgr.tests.tests.set_mood',
-                {'mood': 'ashamed'})]
+        ('Call police', 'oioioi.evalmgr.tests.tests.police_handler'),
+        ('Be ashamed', 'oioioi.evalmgr.tests.tests.set_mood', {'mood': 'ashamed'}),
+    ]
 
-    arrest = [
-            ('Call police',
-                'oioioi.evalmgr.tests.tests.police_handler')]
+    arrest = [('Call police', 'oioioi.evalmgr.tests.tests.police_handler')]
 
     corrupted_error_handler = [
-        ('Call police',
-         'oioioi.evalmgr.tests.tests.corrupted_police_handler')]
+        ('Call police', 'oioioi.evalmgr.tests.tests.corrupted_police_handler')
+    ]
 
     def test_error_behavior(self):
         case = 1
         tests = [  # evaluation error
-                  (dict(recipe=hunting, area='elevator',
-                        error_handlers=self.error_handlers),
-                   HuntingException, 'ARRESTED', 'ashamed'),
-
-                  # job with no recipe
-                  (dict(very_important_task='kill another hedgehog remotely',
-                        error_handlers=self.arrest),
-                   RuntimeError, 'ARRESTED', None),
-
-                  # handler not returning environment
-                  (dict(recipe=hunting, area='blackhole',
-                        error_handlers=self.arrest),
-                   RuntimeError, 'ARRESTED', None),
-
-                  # corrupted error handler
-                  (dict(recipe=hunting, area='elevator',
-                        error_handlers=self.corrupted_error_handler),
-                   HuntingException, None, None)]
+            (
+                dict(
+                    recipe=hunting, area='elevator', error_handlers=self.error_handlers
+                ),
+                HuntingException,
+                'ARRESTED',
+                'ashamed',
+            ),
+            # job with no recipe
+            (
+                dict(
+                    very_important_task='kill another hedgehog remotely',
+                    error_handlers=self.arrest,
+                ),
+                RuntimeError,
+                'ARRESTED',
+                None,
+            ),
+            # handler not returning environment
+            (
+                dict(recipe=hunting, area='blackhole', error_handlers=self.arrest),
+                RuntimeError,
+                'ARRESTED',
+                None,
+            ),
+            # corrupted error handler
+            (
+                dict(
+                    recipe=hunting,
+                    area='elevator',
+                    error_handlers=self.corrupted_error_handler,
+                ),
+                HuntingException,
+                None,
+                None,
+            ),
+        ]
 
         for env, exception, status, mood in tests:
             police_files.clear()
@@ -291,9 +304,9 @@ class TestAsyncJobs(TestCase):
         SavedEnviron.objects.all().delete()
         TestAsyncJobs.transferred_environs = []
         env = create_environ()
-        env.setdefault('recipe', []).append((
-                'transfer',
-                'oioioi.evalmgr.tests.tests._call_transfer'))
+        env.setdefault('recipe', []).append(
+            ('transfer', 'oioioi.evalmgr.tests.tests._call_transfer')
+        )
         env['resumed'] = False
         return env
 
@@ -312,8 +325,7 @@ class TestAsyncJobs(TestCase):
         env = delay_environ_wrapper(env).get()
         res = TestAsyncJobs.transferred_environs.pop()
         self.assertEqual(SavedEnviron.objects.count(), 1)
-        self.assertEqual(
-                SavedEnviron.objects.get().id, res['saved_environ_id'])
+        self.assertEqual(SavedEnviron.objects.get().id, res['saved_environ_id'])
         env = delay_environ_wrapper(res).get()
         self.assertTrue(env['resumed'])
         self.assertEqual(SavedEnviron.objects.count(), 0)
@@ -351,10 +363,11 @@ class TestAsyncJobs(TestCase):
 def _call_transfer(environ):
     environ['magic'] = 1234
     return transfer_job(
-            environ,
-            'oioioi.evalmgr.tests.tests._transfer',
-            'oioioi.evalmgr.tests.tests._resume',
-            transfer_kwargs={'transfer_magic': 42})
+        environ,
+        'oioioi.evalmgr.tests.tests._transfer',
+        'oioioi.evalmgr.tests.tests._resume',
+        transfer_kwargs={'transfer_magic': 42},
+    )
 
 
 def _resume(saved_environ, environ):
@@ -372,8 +385,7 @@ def _transfer(environ, transfer_magic=None):
     assert 'saved_environ_id' in environ
     assert transfer_magic == 42
 
-    saved_environ = \
-            QueuedJob.objects.get(job_id=environ['job_id']).savedenviron
+    saved_environ = QueuedJob.objects.get(job_id=environ['job_id']).savedenviron
     assert saved_environ.load_environ()['job_id'] == environ['job_id']
 
     if environ.get('transfer_successful', True):
@@ -384,20 +396,26 @@ def _transfer(environ, transfer_magic=None):
 
 
 class TestViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     def _get_admin_site(self):
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        show_response = self.client.get(reverse(
-                'oioioiadmin:evalmgr_queuedjob_changelist'))
+        show_response = self.client.get(
+            reverse('oioioiadmin:evalmgr_queuedjob_changelist')
+        )
         self.assertEqual(show_response.status_code, 200)
         return show_response
 
     def assertStateCountEqual(self, state_str, count, show_response=None):
         """Asserts that the number of the submits with given state
-           (``state_str``) that appear on the admin site is ``count``.
+        (``state_str``) that appear on the admin site is ``count``.
         """
         if show_response is None:
             show_response = self._get_admin_site()
@@ -406,7 +424,7 @@ class TestViews(TestCase):
 
     def assertNotPresent(self, state_strs):
         """Asserts that none of the ``state_strs`` is present on the admin
-           page
+        page
         """
         show_response = self._get_admin_site()
         for str in state_strs:
@@ -415,8 +433,7 @@ class TestViews(TestCase):
     def test_admin_view(self):
         """Test if a submit shows on the list properly."""
         submission = Submission.objects.get(pk=1)
-        qs = QueuedJob(submission=submission, state='QUEUED',
-                          celery_task_id='dummy')
+        qs = QueuedJob(submission=submission, state='QUEUED', celery_task_id='dummy')
         qs.save()
         self.assertStateCountEqual('Queued', 1)
 
@@ -436,8 +453,13 @@ class AddHandlersController(ProgrammingContestController):
 
 
 class TestEval(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_submission']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
 
     def test_add_handlers(self):
         """Test if the proper handlers are added to the recipe."""
@@ -447,9 +469,13 @@ class TestEval(TestCase):
         env.setdefault('recipe', []).append(('dummy', 'dummy'))
         controller.finalize_evaluation_environment(env)
 
-        self.assertIn(('remove_queuedjob_on_error',
-                'oioioi.evalmgr.handlers.remove_queuedjob_on_error'),
-                env['error_handlers'])
+        self.assertIn(
+            (
+                'remove_queuedjob_on_error',
+                'oioioi.evalmgr.handlers.remove_queuedjob_on_error',
+            ),
+            env['error_handlers'],
+        )
 
     def test_revoke(self):
         """Test if a submit revokes properly."""
@@ -461,10 +487,11 @@ class TestEval(TestCase):
 
         submission = Submission.objects.get(pk=1)
         qs = QueuedJob(
-                submission=submission,
-                state='CANCELLED',
-                celery_task_id=job_id,
-                job_id=job_id)
+            submission=submission,
+            state='CANCELLED',
+            celery_task_id=job_id,
+            job_id=job_id,
+        )
         qs.save()
 
         self.assertFalse(mark_job_state(env, state='PROGRESS'))

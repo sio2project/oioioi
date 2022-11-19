@@ -6,9 +6,7 @@ from oioioi.contests.current_contest import reverse
 
 
 class AddFriendshipForm(forms.Form):
-    user = UserSelectionField(
-        queryset=User.objects.filter(teacher__isnull=False)
-    )
+    user = UserSelectionField(queryset=User.objects.filter(teacher__isnull=False))
 
     def __init__(self, *args, **kwargs):
         super(AddFriendshipForm, self).__init__(*args, **kwargs)

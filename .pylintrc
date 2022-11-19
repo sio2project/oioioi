@@ -43,13 +43,14 @@ ignore=migrations
 # C0111 = Missing docstring
 # C0302 = Too many lines in module
 # C0330 = Wrong continued indentation
+# C0326 = Exactly one space required before | No space allowed before
 
 # I0011 = Local disables
 # I0013 = Ignoring entire file
 
 # similarities = similar code fragments
 
-disable=F0401, E1002,E1101,E1120,E1121,E1123, W0142,W0212,W0232,W0613,W0622,W0614, R0201,R0901,R0902,R0903,R0904,R0911,R0912,R0913,R0915,R0921,R0922,R1705,C0103,C0111,C0302,C0330, I0011,I0013, similarities
+disable=F0401, E1002,E1101,E1120,E1121,E1123, W0142,W0212,W0232,W0613,W0622,W0614, R0201,R0901,R0902,R0903,R0904,R0911,R0912,R0913,R0915,R0921,R0922,R1705,C0103,C0111,C0302,C0330,C0326, I0011,I0013, similarities
 
 [REPORTS]
 
@@ -85,7 +86,7 @@ notes=FIXME,TODO
 
 [FORMAT]
 
-max-line-length=120
+max-line-length=88
 max-module-lines=1000
 indent-string='    '
 

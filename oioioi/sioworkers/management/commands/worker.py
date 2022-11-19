@@ -2,9 +2,7 @@ import json
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-import six
-from six.moves import map
-from six.moves.xmlrpc_client import Server
+from xmlrpc.client import Server
 
 
 class Command(BaseCommand):
@@ -15,15 +13,10 @@ class Command(BaseCommand):
         self.server = Server(settings.SIOWORKERSD_URL)
 
     def add_arguments(self, parser):
-        parser.add_argument('command',
-                            type=str,
-                            nargs='?',
-                            default=None,
-                            help='Command to be run')
-        parser.add_argument('args',
-                            type=str,
-                            nargs='*',
-                            help='Command\' arguments')
+        parser.add_argument(
+            'command', type=str, nargs='?', default=None, help='Command to be run'
+        )
+        parser.add_argument('args', type=str, nargs='*', help='Command\' arguments')
 
     def cmd_list(self, **kwargs):
         l = self.server.get_workers()
@@ -36,21 +29,35 @@ class Command(BaseCommand):
         if len(args) != 1:
             self.stdout.write("Required exactly one argument - job env.\n")
             return
-        self.stdout.write(self.server.run_group(json.dumps({
-            "workers_jobs": {
-                "worker.py-task": json.loads(args[0]),
-            }
-        })))
+        self.stdout.write(
+            self.server.run_group(
+                json.dumps(
+                    {
+                        "workers_jobs": {
+                            "worker.py-task": json.loads(args[0]),
+                        }
+                    }
+                )
+            )
+        )
 
     def cmd_sync_run(self, *args, **kwargs):
         if len(args) != 1:
             self.stdout.write("Required exactly one argument - job env.\n")
             return
-        self.stdout.write(repr(self.server.sync_run_group(json.dumps({
-            "workers_jobs": {
-                "worker.py-task": json.loads(args[0]),
-            }
-        }))))
+        self.stdout.write(
+            repr(
+                self.server.sync_run_group(
+                    json.dumps(
+                        {
+                            "workers_jobs": {
+                                "worker.py-task": json.loads(args[0]),
+                            }
+                        }
+                    )
+                )
+            )
+        )
 
     def cmd_run_group(self, *args, **kwargs):
         if len(args) != 1:
@@ -69,7 +76,7 @@ class Command(BaseCommand):
         if not q:
             self.stdout.write('Empty queue.\n')
             return
-        self.stdout.write(six.text_type(q).encode('utf-8'))
+        self.stdout.write(str(q).encode('utf-8'))
 
     def handle(self, *args, **options):
         if not options['command']:

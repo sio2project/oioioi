@@ -8,90 +8,139 @@ main component — the web interface.
 Installation
 ------------
 
-Vagrant (for development)
+Easy Installer
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can easily start development and run oioioi out of the box with `vagrant`_.
-Just enter the directory where Vagrantfile and this README are placed, and type::
+You can easily install and run oioioi out of the box with oioioi_easy_installer.
+Just download the oioioi_easy_installer archive, unpack it and run::
 
-  vagrant up
+  ./oioioi.sh install
 
-It will create an instance of virtual machine with web server and judges running.
+to install oioioi. Then you can run::
 
-You can specify configuration in `vagrant.yml` (if you don't have such file,
-create it in the same directory as Vagrantfile).
-Supported configuration options (with example)::
+  ./oioioi.sh start
+  ./oioioi.sh stop
 
-  port: 8001  # run oioioi on port 8001 instead of the default 8000
-  runserver_cmd: runserver_plus  # use manage.py runserver_plus instead of manage.py runserver
+to start and stop oioioi.
 
-.. _vagrant: https://www.vagrantup.com/docs/
+Make sure to change default superuser password. To do that:
+   1. Login to the superuser with default credentials (username:admin, password:admin).
+   2. Click username ("admin") in upper-right corner of the webpage.
+   3. Click "Change password".
+   4. Fill and submit password change form.
 
-Don't forget to create the superuser. In order to do so,
-you should login into virtual machine created by Vagrant (default password is "vagrant")::
+You can also update your oioioi instance by typing::
 
-  ssh 127.0.0.1 -p 2222 -l vagrant
-
-and run::
-
-  cd deployment
-  python manage.py createsuperuser
+  ./oioioi.sh update
 
 Docker (for deployment)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Additionally, there are available docker files to create images containing our services. We do not recommend this method of running OIOIOI. Please inspect Docker files and startup scripts before using in production.
+The easy installer method above uses Docker under the hood. Additionally, you can manually use docker files to create images containing our services.
 
 To run the infrastructure simply::
 
-  docker-compose up
+  "OIOIOI_CONFIGDIR=<config directory>" "OIOIOI_VERSION=<oioioi_version>" docker-compose up
 
-Make sure to change default superuser password. To do that:
-   1. Login to the superuser with default credentials (username:admin, password:admin)
-   2. Click username ("admin") in upper-right corner of the webpage.
-   3. Click "Change password"
-   4. Fill and submit password change form
+Make sure to change default superuser password, same as in the automatic method.
 
 To start additional number of workers::
 
-  docker-compose scale worker=<number>
+  "OIOIOI_CONFIGDIR=<config directory>" "OIOIOI_VERSION=<oioioi_version>" docker-compose up --scale worker=<number>
 
 as described `in Docker docs`_.
 
-.. _in Docker docs: https://docs.docker.com/compose/reference/scale/
+.. _in Docker docs: https://docs.docker.com/compose/reference/up/
 
 Docker (for development)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-It is possible to develop using docker images, but this we do not recommend it.
-Better use Vagrant or install OIOIOI manually, as described in the next section.
+Make sure you installed docker properly. The easiest way to do this::
 
-Working directory should be the repository root.
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
 
-First prepare the image with::
+Start docker service::
 
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml build
+    sudo systemctl start docker
 
-Create config files and logs folder on host::
+Then add yourself to group docker -- to create a group use::
 
-    id=$(docker create oioioi-dev)  #Create oioioi container
-    docker cp $id:/sio2/logs logs  #Copy initial logs folder from oioioi container
-    docker cp $id:/sio2/deployment deployment  #Copy initial deployment config from oioioi contanier
-    docker rm -v $id  #Remove unneeded container
+    sudo groupadd docker
+    gpasswd -a $USER docker
+    newgrp docker
+
+It is possible that you will need to log out and log in. Type docker ps into your terminal to check if everything was installed properly.
+If you skip the step above, you will either have to use sudo every time you use docker or use docker above 19.03 version with
+experimental features enabled.
+
+Prepare the image with::
+
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml build
 
 Then you can start oioioi with::
 
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml up -d
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web python3 manage.py runserver 0.0.0.0:8000
 
-to start the infrastructure in development mode. Current dirrectory with source
-code will be binded to /sio2/oioioi/ inside running container, and logs from
-services will be availible outside of the container in ./logs/.
+to start the infrastructure in the development mode. Current dirrectory with the source code will be bound to /sio2/oioioi/ inside the running container.
 
-In both cases, oioioi web interface will be availible at localhost:8000, and the user
-admin with password admin will be created. If you are using docker installation
-in production encvironment remember to change the password.
+oioioi web interface will be available at localhost:8000, and the user admin with password admin will be created.
 
-Manual installation
+Additionally you can bind config files and logs folder to the host::
+
+    id=$(docker create oioioi-dev)  #Create oioioi container
+    docker cp $id:/sio2/deployment deployment  #Copy initial deployment folder from oioioi contanier
+    docker rm -v $id  #Remove unneeded container
+
+Remember to also uncomment the appropriate volume binding in the web service description in the docker-compose-dev.yml.
+
+Running tests on Docker
+~~~~~~~~~~~~~~~~~~~~~~~
+
+For testing purposes we use test.sh script located in oioioi directory. Note it's not the same directory
+you are connected to after using docker exec -it “web” /bin/bash. The default container id that you should use for running tests is "web"::
+
+    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "web" ../oioioi/test.sh
+    docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
+
+Running static code analysis tools locally (requires Docker)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The static code analysis tools currently in use for python code are black, isort, pep8 and pylint.
+All of them can be run locally using the `run_static.sh` shell script.
+In order for the script to work the `web` container from docker-compose-dev.yml needs to be running.
+The docker image for the project needs to be rebuild if you are migrating from and older Dockerfile version (rebuild the image if you are getting error messages that isort or black are not installed).
+Commands for building the image and starting up the containers are listed in the paragraphs above.
+
+When running all tools at once or when running pep8 and pylint independently only the recently modified files (files modified in the most recent commit or staged changes) will be processed.
+
+To run all tools at once::
+
+    ./run_static.sh
+
+To run one of the tools::
+
+    ./run_static.sh black
+    ./run_static.sh isort
+    ./run_static.sh pylint
+    ./run_static.sh pep8
+
+Script toolbox for Docker (development)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Copy-pasting all Docker commands from GitHub can be tedious. Instead use a set of pre-prepared commands embedded into `easy_toolbox.py`.
+For help run `easy_toolbox.py -h`. Add custom commands by editing `RAW_COMMANDS` in the file. Script can be used with user-friendly
+CLI or by passing commands as arguments.
+Developer environment can be easily set up by running::
+
+    ./easy_toolbox.py build
+    ./easy_toolbox.py up
+    # wait for the scripts to finish migration (up to one minute)
+    ./easy_toolbox.py run
+
+For system requirements check `easy_toolbox.py`.
+
+Manual installation (deprecated)
 ~~~~~~~~~~~~~~~~~~~
 
 See `INSTALL`_ for instructions.
@@ -119,7 +168,7 @@ Documentation for developers:
 * `Developer's Guide`_
 * `Developer's Reference`_
 
-.. _Developer's Guide: https://sio2project.mimuw.edu.pl/display/DOC/SIO2+Developer%27s+Guide
+.. _Developer's Guide: CONTRIBUTING.rst
 .. _Developer's Reference: http://oioioi.readthedocs.io/en/latest/
 
 Testing
@@ -153,9 +202,11 @@ To run a contest, you obviously need some tasks. To add a task to a contest in
 OIOIOI, you need to create an archive, called task package. Here are some
 pointers, how it should look like:
 
+* `tutorial`_,
 * `example task packages`_ used by our tests,
 * `a rudimentary task package format specification`_.
 
+.. _tutorial: https://github.com/sio2project/oioioi/wiki
 .. _example task packages: https://github.com/sio2project/oioioi/tree/master/oioioi/sinolpack/files
 .. _a rudimentary task package format specification: http://sio2project.mimuw.edu.pl/display/DOC/Preparing+Task+Packages
 

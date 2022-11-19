@@ -10,17 +10,21 @@ $list-subheader-bgcolor: #eee !default;
   text-align: right;
 }
 
+.table td, .table th{
+  vertical-align: middle !important;
+}
+
 .list-grid {
     columns: $list-grid-column-min-width $list-grid-column-count;
 }
 
-.table-condensed .padded-collapsing-content {
+.table-sm .padded-collapsing-content {
   > * {
     padding: 0;
   }
 
   .collapsing, .in {
-    padding: $table-condensed-cell-padding;
+    padding: $table-cell-padding-sm;
   }
 }
 

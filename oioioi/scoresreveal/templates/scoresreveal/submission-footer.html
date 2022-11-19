@@ -2,15 +2,29 @@
 
 <div>
     <h4>{% trans "Score revealing" %}</h4>
-    <p>
-        {% blocktrans count counter=scores_reveals_limit trimmed %}
-            You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveal.
-        {% plural %}
-            You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveals.
-        {% endblocktrans %}
-    </p>
+    {% if scores_reveals_limit %}
+        <p>
+            {% blocktrans count counter=scores_reveals_limit trimmed %}
+                You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveal.
+            {% plural %}
+                You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveals.
+            {% endblocktrans %}
+        </p>
+    {% elif score_visible %}
+        <p>
+            {% if scores_reveals_disable_time %}
+                {% blocktrans count counter=scores_reveals_disable_time %}
+                    In this task, you can see the score of every submission, unless it is submitted during the last <strong>minute</strong> of the round.
+                {% plural %}
+                    In this task, you can see the score of every submission, unless it is submitted during the last <strong>{{ counter }}</strong> minutes of the round.
+                {% endblocktrans %}
+            {% else %}
+                {% trans "In this task, you can see the score of every submission." %}
+            {% endif %}
+        </p>
+    {% endif %}
 
-    {% if submission.submission.revealed %}
+    {% if score_visible %}
         <p><strong>{% trans "Score" %}:</strong> {{ submission.submission.get_score_display }}</p>
     {% else %}
         {% if can_reveal %}
@@ -25,16 +39,16 @@
             {% endif %}
 
             <p>
-                <a href="#reveal_confirmation" class="btn btn-default" role="button" data-toggle="modal">
-                    <span class="glyphicon glyphicon-align-left"></span> {% trans "Reveal score" %}
+                <a href="#reveal_confirmation" class="btn btn-outline-secondary" role="button" data-toggle="modal">
+                    <i class="fa-solid fa-align-left"></i> {% trans "Reveal score" %}
                 </a>
             </p>
             <div id="reveal_confirmation" class="modal fade" tabindex="-1" role="dialog">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
+                            <h5 class="modal-title">{% trans "Reveal score" %}</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">{% trans "Reveal score" %}</h4>
                         </div>
                         <div class="modal-body">
                             <p>{% blocktrans %}You are going to reveal your score. <br>Would you like to proceed?{% endblocktrans %}</p>
@@ -42,7 +56,7 @@
                         <div class="modal-footer">
                             <form action="{% url 'submission_score_reveal' submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
                                 {% csrf_token %}
-                                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "No" %}</button>
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{% trans "No" %}</button>
                                 <button type="submit" class="btn btn-primary">{% trans "Yes" %}</button>
                             </form>
                         </div>

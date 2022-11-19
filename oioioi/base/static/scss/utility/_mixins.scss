@@ -1,6 +1,7 @@
-@import "bootstrap/stylesheets/bootstrap/mixins";
 @import "scss/utility/variables";
-@import "bootstrap/stylesheets/bootstrap/variables";
+@import "bootstrap/stylesheets/functions";
+@import "bootstrap/stylesheets/variables";
+@import "bootstrap/stylesheets/mixins";
 
 // Sets position absolute
 @mixin absolute($top: auto, $right: auto, $bottom: auto, $left: auto) {
@@ -40,8 +41,19 @@
 }
 
 @mixin input-block-level {
-  @include box-sizing(border-box); // Makes inputs behave like true block-level elements
+  box-sizing: border-box; // Makes inputs behave like true block-level elements
   display: block;
-  min-height: $input-height-base; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
+  min-height: $input-height; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
   width: 100%;
 }
+
+// Text overflow
+// Requires inline-block or block for proper styling
+@mixin text-overflow() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+

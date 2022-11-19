@@ -3,31 +3,48 @@
 import os.path
 import zipfile
 
+import pytest
+import urllib.parse
+from io import BytesIO
 from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.core.urlresolvers import reverse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.html import escape
 from django.utils.module_loading import import_string
-import pytest
-import six.moves.urllib.parse
-from six import BytesIO
-
 from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.current_contest import ContestMode
-from oioioi.contests.models import (Contest, ProblemInstance, Submission,
-                                    UserResultForContest)
+from oioioi.contests.models import (
+    Contest,
+    ProblemInstance,
+    Submission,
+    UserResultForContest,
+)
 from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
-from oioioi.problems.models import Problem, ProblemPackage, ProblemStatement
+from oioioi.problems.models import (
+    Problem,
+    ProblemName,
+    ProblemPackage,
+    ProblemStatement,
+)
 from oioioi.problems.package import NoBackend, backend_for_package
-from oioioi.programs.models import (ModelSolution, OutputChecker, Test,
-                                    TestReport)
+from oioioi.programs.models import (
+    LanguageOverrideForTest,
+    ModelSolution,
+    OutputChecker,
+    Test,
+    TestReport,
+)
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
-from oioioi.sinolpack.package import (DEFAULT_MEMORY_LIMIT, DEFAULT_TIME_LIMIT,
-                                      SinolPackageBackend)
+from oioioi.sinolpack.package import (
+    DEFAULT_MEMORY_LIMIT,
+    DEFAULT_TIME_LIMIT,
+    SinolPackageBackend,
+)
 
 
 def get_test_filename(name):
@@ -38,8 +55,7 @@ BOTH_CONFIGURATIONS = '%test_both_configurations'
 
 
 def use_makefiles(fn):
-    return override_settings(USE_SINOLPACK_MAKEFILES=True)(
-            (fn))
+    return override_settings(USE_SINOLPACK_MAKEFILES=True)((fn))
 
 
 def no_makefiles(fn):
@@ -90,6 +106,23 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
 
+    def test_title_translations_in_config_yml(self):
+        filename = get_test_filename('test_simple_package_translations.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        problem_names = ProblemName.objects.filter(problem=problem)
+        self.assertEqual(problem_names.count(), 2)
+        self.assertTrue(
+            problem_names.filter(
+                name='Problem with translations', language='en'
+            ).exists()
+        )
+        self.assertTrue(
+            problem_names.filter(
+                name=u'Zadanie z tłumaczeniami', language='pl'
+            ).exists()
+        )
+
     def test_title_from_doc(self):
         filename = get_test_filename('test_simple_package_no_config.zip')
         call_command('addproblem', filename)
@@ -97,17 +130,23 @@ class TestSinolPackage(TestCase):
         self.assertNotEqual(problem.name, 'Not this one')
         self.assertEqual(problem.name, 'Testowe')
 
-    def test_latin2_title(self):
-        filename = get_test_filename('test_simple_package_latin2.zip')
+    def test_latin2_title_from_doc(self):
+        filename = get_test_filename('test_simple_package_latin2_title_from_doc.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, u'Łąka')
 
-    def test_utf8_title(self):
-        filename = get_test_filename('test_simple_package_utf8.zip')
+    def test_utf8_title_from_doc(self):
+        filename = get_test_filename('test_simple_package_utf8_title_from_doc.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, u'Łąka')
+
+    def test_utf8_title_from_config(self):
+        filename = get_test_filename('test_simple_package_utf8_title_from_config.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.name, u'ĄąĆćĘęŁłÓóŚśŻżŹź')
 
     def test_memory_limit_from_doc(self):
         filename = get_test_filename('test_simple_package_no_config.zip')
@@ -128,8 +167,7 @@ class TestSinolPackage(TestCase):
         self.assertEqual(problem.attachments.all().count(), 0)
 
     def test_attachments_empty_directory(self):
-        filename = get_test_filename(
-            'test_simple_package_attachments_empty.zip')
+        filename = get_test_filename('test_simple_package_attachments_empty.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.attachments.all().count(), 0)
@@ -149,8 +187,7 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
 
-        filename = get_test_filename(
-            'test_simple_package_attachments_empty.zip')
+        filename = get_test_filename('test_simple_package_attachments_empty.zip')
         call_command('updateproblem', str(problem.id), filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.attachments.all().count(), 0)
@@ -160,8 +197,7 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
 
-        tests = Test.objects.filter(
-            problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
         self.assertEqual(tests.get(name='1a').max_score, 42)
         self.assertEqual(tests.get(name='1b').max_score, 42)
@@ -173,8 +209,7 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
 
-        tests = Test.objects.filter(
-            problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
         self.assertEqual(tests.get(name='1a').time_limit, 7000)
         self.assertEqual(tests.get(name='1b').time_limit, 7000)
@@ -186,17 +221,16 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
 
-        tests = Test.objects.filter(
-            problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
         self.assertEqual(tests.get(name='1a').time_limit, 2000)
         self.assertEqual(tests.get(name='1b').time_limit, 2000)
         self.assertEqual(tests.get(name='1c').time_limit, 2000)
         self.assertEqual(tests.get(name='2').time_limit, 3000)
 
+    @pytest.mark.xfail(strict=True)
     def test_assign_time_limits_for_groups_nonexistent(self):
-        filename = get_test_filename(
-            'test_time_limits_for_nonexisting_group.zip')
+        filename = get_test_filename('test_time_limits_for_nonexisting_group.zip')
         self.assertRaises(CommandError, call_command, 'addproblem', filename)
         call_command('addproblem', filename, "nothrow")
         self.assertEqual(Problem.objects.count(), 0)
@@ -210,8 +244,7 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
 
-        tests = Test.objects.filter(
-            problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
         self.assertEqual(tests.get(name='1a').time_limit, 3000)
         self.assertEqual(tests.get(name='1b').time_limit, 5000)
@@ -249,13 +282,22 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
 
         # Rudimentary test of package updating
-        url = reverse('add_or_update_problem') + '?' + \
-              six.moves.urllib.parse.urlencode({'problem': problem.id})
+        url = (
+            reverse('add_or_update_problem')
+            + '?'
+            + urllib.parse.urlencode({'problem': problem.id})
+        )
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         url = response.redirect_chain[-1][0]
-        response = self.client.post(url,
-            {'package_file': open(filename, 'rb')}, follow=True)
+        response = self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': Problem.VISIBILITY_PRIVATE,
+            },
+            follow=True,
+        )
         self.assertEqual(response.status_code, 200)
         url = reverse('oioioiadmin:problems_problempackage_changelist')
         self.assertRedirects(response, url)
@@ -263,27 +305,26 @@ class TestSinolPackage(TestCase):
     def _check_no_ingen_package(self, problem, doc=True):
         self.assertEqual(problem.short_name, 'test')
 
-        tests = Test.objects.filter(
-                problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
         t0 = tests.get(name='0')
-        self.assertEqual(t0.input_file.read(), '0 0\n')
-        self.assertEqual(t0.output_file.read(), '0\n')
+        self.assertEqual(t0.input_file.read(), b'0 0\n')
+        self.assertEqual(t0.output_file.read(), b'0\n')
         self.assertEqual(t0.kind, 'EXAMPLE')
         self.assertEqual(t0.group, '0')
         self.assertEqual(t0.max_score, 0)
         self.assertEqual(t0.time_limit, DEFAULT_TIME_LIMIT)
         self.assertEqual(t0.memory_limit, DEFAULT_MEMORY_LIMIT)
         t1a = tests.get(name='1a')
-        self.assertEqual(t1a.input_file.read(), '0 0\n')
-        self.assertEqual(t1a.output_file.read(), '0\n')
+        self.assertEqual(t1a.input_file.read(), b'0 0\n')
+        self.assertEqual(t1a.output_file.read(), b'0\n')
         self.assertEqual(t1a.kind, 'NORMAL')
         self.assertEqual(t1a.group, '1')
         self.assertEqual(t1a.max_score, 100)
         self.assertEqual(t1a.time_limit, DEFAULT_TIME_LIMIT)
         self.assertEqual(t1a.memory_limit, DEFAULT_MEMORY_LIMIT)
         t1b = tests.get(name='1b')
-        self.assertEqual(t1b.input_file.read(), '0 0\n')
-        self.assertEqual(t1b.output_file.read(), '0\n')
+        self.assertEqual(t1b.input_file.read(), b'0 0\n')
+        self.assertEqual(t1b.output_file.read(), b'0\n')
         self.assertEqual(t1b.kind, 'NORMAL')
         self.assertEqual(t1b.group, '1')
         self.assertEqual(t1b.max_score, 100)
@@ -318,16 +359,14 @@ class TestSinolPackage(TestCase):
             if settings.USE_SINOLPACK_MAKEFILES:
                 statements = ProblemStatement.objects.filter(problem=problem)
                 self.assertEqual(statements.count(), 1)
-                self.assertTrue(statements.get().content.read()
-                        .startswith('%PDF'))
+                self.assertTrue(statements.get().content.read().startswith(b'%PDF'))
         else:
             self.assertEqual(problem.name, u'sum')
 
-        tests = Test.objects.filter(
-                problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
         t0 = tests.get(name='0')
-        self.assertEqual(t0.input_file.read(), '1 2\n')
-        self.assertEqual(t0.output_file.read(), '3\n')
+        self.assertEqual(t0.input_file.read(), b'1 2\n')
+        self.assertEqual(t0.output_file.read(), b'3\n')
         self.assertEqual(t0.kind, 'EXAMPLE')
         self.assertEqual(t0.group, '0')
         self.assertEqual(t0.max_score, 0)
@@ -363,8 +402,9 @@ class TestSinolPackage(TestCase):
         self.assertEqual(extra_files.count(), 1)
         self.assertEqual(extra_files.get().name, 'makra.h')
 
-        model_solutions = \
-            ModelSolution.objects.filter(problem=problem).order_by('order_key')
+        model_solutions = ModelSolution.objects.filter(problem=problem).order_by(
+            'order_key'
+        )
         sol = model_solutions.get(name='sum.c')
         self.assertEqual(sol.kind, 'NORMAL')
         sol1 = model_solutions.get(name='sum1.pas')
@@ -376,8 +416,7 @@ class TestSinolPackage(TestCase):
         self.assertEqual(model_solutions.count(), 4)
         self.assertEqual(list(model_solutions), [sol, sol1, sols1, solb0])
 
-        tests = Test.objects.filter(
-                problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
     @pytest.mark.slow
     @both_configurations
@@ -401,29 +440,32 @@ class TestSinolPackage(TestCase):
 
         self.assertEqual(problem.name, u'arc')
 
-        tests = Test.objects.filter(
-            problem_instance=problem.main_problem_instance)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
         t0 = tests.get(name='0')
-        self.assertEqual(t0.input_file.read(), '3\n12\n5\n8\n3\n15\n8\n0\n')
-        self.assertEqual(t0.output_file.read(), '12\n15\n8\n')
+        self.assertEqual(t0.input_file.read(), b'3\n12\n5\n8\n3\n15\n8\n0\n')
+        self.assertEqual(t0.output_file.read(), b'12\n15\n8\n')
         self.assertEqual(t0.kind, 'EXAMPLE')
         self.assertEqual(t0.group, '0')
         self.assertEqual(t0.max_score, 0)
         self.assertEqual(t0.time_limit, DEFAULT_TIME_LIMIT)
         self.assertEqual(t0.memory_limit, 66000)
         t1a = tests.get(name='1a')
-        self.assertEqual(t1a.input_file.read(),
-                '0\n-435634223 1 30 23 130 0 -324556462\n')
-        self.assertEqual(t1a.output_file.read(),
-                """126\n126\n82\n85\n80\n64\n84\n5\n128\n66\n4\n79\n64\n96
-22\n107\n84\n112\n92\n63\n125\n82\n1\n""")
+        self.assertEqual(
+            t1a.input_file.read(), b'0\n-435634223 1 30 23 130 0 -324556462\n'
+        )
+        self.assertEqual(
+            t1a.output_file.read(),
+            b"""126\n126\n82\n85\n80\n64\n84\n5\n128\n66\n4\n79\n64\n96
+22\n107\n84\n112\n92\n63\n125\n82\n1\n""",
+        )
         self.assertEqual(t1a.kind, 'NORMAL')
         self.assertEqual(t1a.group, '1')
         self.assertEqual(t1a.max_score, 50)
         t2a = tests.get(name='2a')
-        self.assertEqual(t2a.input_file.read(),
-                '0\n-435634223 1 14045 547 60000 0 -324556462\n')
+        self.assertEqual(
+            t2a.input_file.read(), b'0\n-435634223 1 14045 547 60000 0 -324556462\n'
+        )
         self.assertEqual(t2a.kind, 'NORMAL')
         self.assertEqual(t2a.group, '2')
         self.assertEqual(t2a.max_score, 50)
@@ -434,8 +476,9 @@ class TestSinolPackage(TestCase):
         extra_files = ExtraFile.objects.filter(problem=problem)
         self.assertEqual(extra_files.count(), 3)
 
-        model_solutions = \
-            ModelSolution.objects.filter(problem=problem).order_by('order_key')
+        model_solutions = ModelSolution.objects.filter(problem=problem).order_by(
+            'order_key'
+        )
         solc = model_solutions.get(name='arc.c')
         self.assertEqual(solc.kind, 'NORMAL')
         solcpp = model_solutions.get(name='arc1.cpp')
@@ -457,6 +500,74 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self._check_interactive_package(problem)
 
+    def _add_problem_with_author(self, filename, author, nothrow=False):
+        try:
+            backend = import_string(backend_for_package(filename))()
+        except NoBackend:
+            raise ValueError("Package format not recognized")
+
+        pp = ProblemPackage(problem=None)
+        pp.package_file.save(filename, File(open(filename, 'rb')))
+        env = {'author': author}
+        pp.problem_name = backend.get_short_name(filename)
+        pp.save()
+
+        env['package_id'] = pp.id
+        problem = None
+        with pp.save_operation_status():
+            backend.unpack(env)
+            problem = Problem.objects.get(id=env['problem_id'])
+            pp.problem = problem
+            pp.save()
+
+        if problem is None and not nothrow:
+            raise ValueError("Error during unpacking the given package")
+
+    def test_restrict_html(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        filename = get_test_filename(
+            'test_simple_package_with_malicious_html_statement.zip'
+        )
+
+        with self.settings(USE_SINOLPACK_MAKEFILES=False):
+            with self.settings(SINOLPACK_RESTRICT_HTML=True):
+                self._add_problem_with_author(filename, 'test_user', True)
+                self.assertEqual(Problem.objects.count(), 0)
+                package = ProblemPackage.objects.get()
+                self.assertEqual(package.status, "ERR")
+                # Check if error message is relevant to the issue
+                self.assertIn("problem statement in HTML", package.info)
+
+                self._add_problem_with_author(filename, 'test_admin')
+
+        self._add_problem_with_author(filename, 'test_user')
+
+        with self.settings(SINOLPACK_RESTRICT_HTML=True):
+            self._add_problem_with_author(filename, 'test_user')
+
+        self.assertEqual(Problem.objects.count(), 3)
+
+    @pytest.mark.xfail(strict=True)
+    @pytest.mark.slow
+    @both_configurations
+    def test_overriden_limits(self):
+        """this test needs a fix, test_limits_overriden_for_cpp.zip contains task tst where sum is expected"""
+        filename = get_test_filename('test_limits_overriden_for_cpp.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self._check_full_package(problem)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
+        overriden_tests = LanguageOverrideForTest.objects.filter(test__in=tests)
+        self.assertTrue(len(overriden_tests) > 0)
+        self.assertTrue(all([t.language == 'cpp' for t in overriden_tests]))
+        # New global time limit
+        self.assertTrue(all([t.time_limit == 1000 for t in overriden_tests]))
+
+        overriden_memory_group = overriden_tests.filter(test__group=1)
+        self.assertTrue(all([t.memory_limit == 6000 for t in overriden_memory_group]))
+        overriden_memory_group2 = overriden_tests.filter(test__group=3)
+        self.assertTrue(all([t.memory_limit == 2000 for t in overriden_memory_group2]))
+
 
 @enable_both_unpack_configurations
 @needs_linux
@@ -474,27 +585,34 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         filename = get_test_filename('test_simple_package.zip')
         self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
-        response = self.client.get(url, {'contest_id': contest.id},
-                follow=True)
+        response = self.client.get(url, {'contest_id': contest.id}, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('problems/add-or-update.html',
-                [getattr(t, 'name', None) for t in response.templates])
-        response = self.client.post(url,
-                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertIn(
+            'problems/add-or-update.html',
+            [getattr(t, 'name', None) for t in response.templates],
+        )
+        response = self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': Problem.VISIBILITY_PRIVATE,
+            },
+            follow=True,
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 2)
-        self.assertEqual(ProblemInstance.objects.get(contest=contest)
-                          .submissions_limit, 123)
+        self.assertEqual(
+            ProblemInstance.objects.get(contest=contest).submissions_limit, 123
+        )
 
         contest.default_submissions_limit = 124
         contest.save()
 
         # Delete tests and check if re-uploading will fix it.
         problem = Problem.objects.get()
-        problem_instance = ProblemInstance.objects \
-            .filter(contest__isnull=False).get()
+        problem_instance = ProblemInstance.objects.filter(contest__isnull=False).get()
         num_tests = problem_instance.test_set.count()
         for test in problem_instance.test_set.all():
             test.delete()
@@ -507,28 +625,39 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
             test.delete()
         problem_instance.save()
 
-        url = reverse('add_or_update_problem',
-                kwargs={'contest_id': contest.id}) + '?' + \
-                        six.moves.urllib.parse.urlencode({
-                                'problem': problem_instance.problem.id})
+        url = (
+            reverse('add_or_update_problem', kwargs={'contest_id': contest.id})
+            + '?'
+            + urllib.parse.urlencode({'problem': problem_instance.problem.id})
+        )
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('problems/add-or-update.html',
-                [getattr(t, 'name', None) for t in response.templates])
-        response = self.client.post(url,
-                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertIn(
+            'problems/add-or-update.html',
+            [getattr(t, 'name', None) for t in response.templates],
+        )
+        response = self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': Problem.VISIBILITY_PRIVATE,
+            },
+            follow=True,
+        )
         self.assertEqual(response.status_code, 200)
-        problem_instance = ProblemInstance.objects \
-            .filter(contest__isnull=False).get()
+        problem_instance = ProblemInstance.objects.filter(contest__isnull=False).get()
         self.assertEqual(problem_instance.test_set.count(), num_tests)
         self.assertEqual(problem_instance.submissions_limit, 123)
         problem_instance = problem.main_problem_instance
         self.assertEqual(problem_instance.test_set.count(), num_tests)
 
         response = self.client.get(
-                reverse('oioioiadmin:problems_problem_download',
-                    args=(problem_instance.problem.id,)))
+            reverse(
+                'oioioiadmin:problems_problem_download',
+                args=(problem_instance.problem.id,),
+            )
+        )
         self.assertStreamingEqual(response, open(filename, 'rb').read())
 
     @both_configurations
@@ -539,39 +668,43 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         filename = get_test_filename('test_inwer_failure.zip')
         self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
-        response = self.client.get(url, {'contest_id': contest.id},
-                follow=True)
+        response = self.client.get(url, {'contest_id': contest.id}, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(url,
-                {'package_file': open(filename, 'rb')}, follow=True)
+        response = self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': Problem.VISIBILITY_PRIVATE,
+            },
+            follow=True,
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 0)
         self.assertEqual(ProblemInstance.objects.count(), 0)
-        problem_package = ProblemPackage.objects.get()
-        self.assertEqual(problem_package.status, 'ERR')
-        if settings.USE_SINOLPACK_MAKEFILES:
-            self.assertIn("Failed to execute command: make inwer",
-                    problem_package.info)
-        else:
-            self.assertIn("Inwer failed", problem_package.info)
+        self.assertEqual(ProblemPackage.objects.count(), 0)
 
 
 class TestSinolPackageCreator(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_full_package',
-            'test_problem_instance_with_no_contest']
+    fixtures = [
+        'test_users',
+        'test_full_package',
+        'test_problem_instance_with_no_contest',
+    ]
 
     def test_sinol_package_creator(self):
         problem = Problem.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(
-                reverse('oioioiadmin:problems_problem_download',
-                    args=(problem.id,)))
+            reverse('oioioiadmin:problems_problem_download', args=(problem.id,))
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/zip')
         stream = BytesIO(self.streamingContent(response))
         zip = zipfile.ZipFile(stream, 'r')
-        self.assertEqual(sorted(zip.namelist()), [
+        self.assertEqual(
+            sorted(zip.namelist()),
+            [
                 'sum/doc/sumzad.pdf',
                 'sum/in/sum0.in',
                 'sum/in/sum1a.in',
@@ -589,12 +722,17 @@ class TestSinolPackageCreator(TestCase, TestStreamingMixin):
                 'sum/prog/sum1.pas',
                 'sum/prog/sumb0.c',
                 'sum/prog/sums1.cpp',
-            ])
+            ],
+        )
 
 
 class TestJudging(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def test_judging(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -604,16 +742,19 @@ class TestJudging(TestCase):
         # Show submission form
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('contests/submit.html',
-                [getattr(t, 'name', None) for t in response.templates])
+        self.assertIn(
+            'contests/submit.html',
+            [getattr(t, 'name', None) for t in response.templates],
+        )
         form = response.context['form']
         self.assertEqual(len(form.fields['problem_instance_id'].choices), 1)
         pi_id = form.fields['problem_instance_id'].choices[0][0]
 
         # Submit
         filename = get_test_filename('sum-various-results.cpp')
-        response = self.client.post(url, {
-            'problem_instance_id': pi_id, 'file': open(filename, 'rb')})
+        response = self.client.post(
+            url, {'problem_instance_id': pi_id, 'file': open(filename, 'rb')}
+        )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Submission.objects.count(), 1)
         self.assertEqual(TestReport.objects.count(), 6)
@@ -639,79 +780,41 @@ class TestLimits(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
-        response = self.client.get(url, {'contest_id': contest.id},
-                follow=True)
+        response = self.client.get(url, {'contest_id': contest.id}, follow=True)
         url = response.redirect_chain[-1][0]
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('problems/add-or-update.html',
-                [getattr(t, 'name', None) for t in response.templates])
-        return self.client.post(url,
-                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertIn(
+            'problems/add-or-update.html',
+            [getattr(t, 'name', None) for t in response.templates],
+        )
+        return self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': Problem.VISIBILITY_PRIVATE,
+            },
+            follow=True,
+        )
 
     @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=2000)
     def test_time_limit(self):
         response = self.upload_package()
-        self.assertContains(response,
-                        "Sum of time limits for all tests is too big. It&#39;s "
-                        "50s, but it shouldn&#39;t exceed 2s.")
+        self.assertContains(
+            response,
+            escape(
+                "Sum of time limits for all tests is too big. It's "
+                "50s, but it shouldn't exceed 2s."
+            ),
+        )
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=10)
     def test_memory_limit(self):
         response = self.upload_package()
-        self.assertContains(response,
-                        "Memory limit mustn&#39;t be greater than %dKiB"
-                        % settings.MAX_MEMORY_LIMIT_FOR_TEST)
-
-
-# TODO: When @needs_linux is fixed move tests from here to TestSinolPackage
-# Related change: https://gerrit.sio2project.mimuw.edu.pl/#/c/3161
-class TestSinolPackUnpack(TestCase):
-    fixtures = ['test_users', 'test_contest']
-
-    def _add_problem_with_author(self, filename, author, nothrow=False):
-        try:
-            backend = \
-                    import_string(backend_for_package(filename))()
-        except NoBackend:
-            raise ValueError("Package format not recognized")
-
-        pp = ProblemPackage(problem=None)
-        pp.package_file.save(filename, File(open(filename, 'rb')))
-        env = {'author': author}
-        pp.problem_name = backend.get_short_name(filename)
-        pp.save()
-
-        env['package_id'] = pp.id
-        problem = None
-        with pp.save_operation_status():
-            backend.unpack(env)
-            problem = Problem.objects.get(id=env['problem_id'])
-            pp.problem = problem
-            pp.save()
-
-        if problem is None and not nothrow:
-            raise ValueError("Error during unpacking the given package")
-
-    def test_restrict_html(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        filename = \
-            get_test_filename('test_simple_package_with_malicious_html_statement.zip')
-
-        with self.settings(USE_SINOLPACK_MAKEFILES=False):
-            with self.settings(SINOLPACK_RESTRICT_HTML=True):
-                self._add_problem_with_author(filename, 'test_user', True)
-                self.assertEqual(Problem.objects.count(), 0)
-                package = ProblemPackage.objects.get()
-                self.assertEqual(package.status, "ERR")
-                  # Check if error message is relevant to the issue
-                self.assertIn("problem statement in HTML", package.info)
-
-                self._add_problem_with_author(filename, 'test_admin')
-
-        self._add_problem_with_author(filename, 'test_user')
-
-        with self.settings(SINOLPACK_RESTRICT_HTML=True):
-            self._add_problem_with_author(filename, 'test_user')
-
-        self.assertEqual(Problem.objects.count(), 3)
+        self.assertContains(
+            response,
+            escape(
+                "Memory limit mustn't be greater than %dKiB"
+                % settings.MAX_MEMORY_LIMIT_FOR_TEST
+            ),
+        )

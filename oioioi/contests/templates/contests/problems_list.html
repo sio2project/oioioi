@@ -7,7 +7,7 @@
 {% block main-content %}
 <h1>{% trans "Problems" %}</h1>
 {% if problem_instances %}
-    <div class="table-responsive">
+    <div class="table-responsive-md">
         {% autopaginate problem_instances problems_on_page %}
         {% paginate %}
         <table class="table table-striped table--narrow">
@@ -25,18 +25,21 @@
                         </th>
                     {% endif %}
                     <th class="text-right">{% trans "Score" %}</th>
+                    {% if show_submit_button %}
+                        <th class="text-right"></th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
-                {% for pi, statement_visible, round_time, result, submissions_left, submissions_limit in problem_instances %}
+                {% for pi, statement_visible, round_time, result, submissions_left, submissions_limit, can_submit in problem_instances %}
 
                     {% if show_rounds %}
                         {% ifchanged pi.round %}
                             <tr class="problemlist-subheader">
-                                <td colspan={% if show_submissions_limit %} "4" {% else %} "3" {% endif %}>
+                                <td colspan={{ table_columns }}>
                                     <strong>{{ pi.round }}</strong>
                                     {% if round_time.get_end %}
-                                        <em>({{ round_time.get_end|date:"j F Y, H:i" }})</em>
+                                        <em>({{ round_time.get_end|date:"j E Y, H:i" }})</em>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -67,15 +70,30 @@
                         {% endif %}
                         <td class="text-right">
                             {% if result %}
-                                {% if result.score == result.submission_report.score_report.max_score %}
-                                    <div class="label label-success"> {{ result.score }}</div>
-                                {% elif result.score > 0 %}
-                                    <div class="label label-warning"> {{ result.score }}</div>
-                                {% else %}
-                                    <div class="label label-danger"> {{ result.score }}</div>
+                                {% if not is_admin %}
+                                {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
+                                <a href="{{ link }}">
+                                {% endif %}
+                                    {% if result.score == result.submission_report.score_report.max_score %}
+                                        <div class="badge badge-success"> {{ result.score }}</div>
+                                    {% elif result.score > 0 %}
+                                        <div class="badge badge-warning"> {{ result.score }}</div>
+                                    {% else %}
+                                        <div class="badge badge-danger"> {{ result.score }}</div>
+                                    {% endif %}
+                                {% if not is_admin %}
+                                </a>
                                 {% endif %}
                             {% endif %}
                         </td>
+                        {% if show_submit_button %}
+                            <td class="text-right">
+                                {% if can_submit %}
+                                    {% url 'submit' problem_instance_id=pi.id as link %}
+                                    <a href="{{ link }}">{% trans "Submit" %}</a>
+                                {% endif %}
+                            </td>
+                        {% endif %}
                     </tr>
 
                 {% endfor %}

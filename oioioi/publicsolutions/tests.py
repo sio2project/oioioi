@@ -3,9 +3,8 @@ import re
 from datetime import datetime  # pylint: disable=E0611
 
 from django.core.cache import cache
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
-from six.moves import range
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import Contest, Submission
@@ -14,10 +13,10 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class TSolutionOIContestController(OIContestController):
-
     def can_see_publicsolutions(self, request, round):
-        r_times = super(TSolutionOIContestController, self) \
-            .get_round_times(request, round)
+        r_times = super(TSolutionOIContestController, self).get_round_times(
+            request, round
+        )
         return r_times.show_results <= request.timestamp
 
     def solutions_must_be_public(self, qs):
@@ -28,10 +27,10 @@ class TSolutionOIContestController(OIContestController):
 
 
 class TSolutionSimpleContestController(ProgrammingContestController):
-
     def can_see_publicsolutions(self, request, round):
-        r_times = super(TSolutionSimpleContestController, self) \
-            .get_round_times(request, round)
+        r_times = super(TSolutionSimpleContestController, self).get_round_times(
+            request, round
+        )
         return r_times.show_results <= request.timestamp
 
     def solutions_must_be_public(self, qs):
@@ -42,13 +41,20 @@ class TSolutionSimpleContestController(ProgrammingContestController):
 
 
 class TestPublicSolutions(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission', 'test_extra_rounds']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_extra_rounds',
+    ]
 
     def setUp(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
+        contest.controller_name = (
             'oioioi.publicsolutions.tests.TSolutionOIContestController'
+        )
         contest.save()
 
     def _href(self, url):
@@ -64,16 +70,17 @@ class TestPublicSolutions(TestCase):
         return datetime(2016, 1, 1, tzinfo=utc)
 
     def assertUserSubmissionHTMLDataCount(self, html, username, count):
-        actual = len(re.findall((r'username.*"' + username + r'"').encode('utf-8'), html))
-        self.assertEqual(actual, count, "Expected %d html data, got %d in %s" %
-                (count, actual, html))
+        actual = len(
+            re.findall((r'username.*"' + username + r'"').encode('utf-8'), html)
+        )
+        self.assertEqual(
+            actual, count, "Expected %d html data, got %d in %s" % (count, actual, html)
+        )
 
     def test_solutions_in_menu(self):
         contest = Contest.objects.get()
-        dashboard_url = reverse('contest_dashboard',
-                            kwargs={'contest_id': contest.id})
-        solutions_url = reverse('list_solutions',
-                            kwargs={'contest_id': contest.id})
+        dashboard_url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
+        solutions_url = reverse('list_solutions', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
 
         with fake_time(self._no_public_rounds()):
@@ -92,16 +99,19 @@ class TestPublicSolutions(TestCase):
 
     def test_public_solutions_list(self):
         contest = Contest.objects.get()
-        solutions_url = reverse('list_solutions',
-                            kwargs={'contest_id': contest.id})
+        solutions_url = reverse('list_solutions', kwargs={'contest_id': contest.id})
 
         def show_source_url(sub_id):
-            return reverse('show_submission_source',
-                    kwargs={'contest_id': contest.id, 'submission_id': sub_id})
+            return reverse(
+                'show_submission_source',
+                kwargs={'contest_id': contest.id, 'submission_id': sub_id},
+            )
 
         def change_publication_url(way, sub_id):
-            return reverse('publish_solution' if way else 'unpublish_solution',
-                    kwargs={'contest_id': contest.id, 'submission_id': sub_id})
+            return reverse(
+                'publish_solution' if way else 'unpublish_solution',
+                kwargs={'contest_id': contest.id, 'submission_id': sub_id},
+            )
 
         def check_categories_forbidden(cats, user):
             self.assertTrue(self.client.login(username=user))
@@ -112,8 +122,7 @@ class TestPublicSolutions(TestCase):
 
         # Checks categories and solutions
         # pylint: disable=dangerous-default-value
-        def check_visibility(good_ids, category='',
-                        users=['test_user', 'test_user2']):
+        def check_visibility(good_ids, category='', users=['test_user', 'test_user2']):
             for user in users:
                 self.assertTrue(self.client.login(username=user))
                 r = self.client.get(solutions_url, {'category': category})
@@ -154,7 +163,7 @@ class TestPublicSolutions(TestCase):
 
         with fake_time(self._rounds_14()):
             check_visibility([1])
-            check_visibility([1], 1, users=['test_user'])
+            check_visibility([1], "1", users=['test_user'])
 
             change_publication(True, 4)
             check_visibility([1, 4])
@@ -170,20 +179,24 @@ class TestPublicSolutions(TestCase):
 
     def test_publish_solutions(self):
         contest = Contest.objects.get()
-        publish_url = reverse('publish_solutions',
-                        kwargs={'contest_id': contest.id})
+        publish_url = reverse('publish_solutions', kwargs={'contest_id': contest.id})
 
         def submission_url(sub_id):
-            return reverse('submission',
-                    kwargs={'contest_id': contest.id, 'submission_id': sub_id})
+            return reverse(
+                'submission', kwargs={'contest_id': contest.id, 'submission_id': sub_id}
+            )
 
         def show_source_url(sub_id):
-            return reverse('show_submission_source',
-                    kwargs={'contest_id': contest.id, 'submission_id': sub_id})
+            return reverse(
+                'show_submission_source',
+                kwargs={'contest_id': contest.id, 'submission_id': sub_id},
+            )
 
         def change_publication_url(way, sub_id):
-            return reverse('publish_solution' if way else 'unpublish_solution',
-                    kwargs={'contest_id': contest.id, 'submission_id': sub_id})
+            return reverse(
+                'publish_solution' if way else 'unpublish_solution',
+                kwargs={'contest_id': contest.id, 'submission_id': sub_id},
+            )
 
         def change_publication(way, sub_id):
             r = self.client.post(change_publication_url(way, sub_id))
@@ -230,13 +243,16 @@ class TestPublicSolutions(TestCase):
 
     def test_ranking(self):
         def change_publication_url(way, sub_id):
-            return reverse('publish_solution' if way else 'unpublish_solution',
-                    kwargs={'contest_id': contest.id, 'submission_id': sub_id})
+            return reverse(
+                'publish_solution' if way else 'unpublish_solution',
+                kwargs={'contest_id': contest.id, 'submission_id': sub_id},
+            )
 
         with fake_timezone_now(self._rounds_14()):
             contest = Contest.objects.get()
-            contest.controller_name = \
+            contest.controller_name = (
                 'oioioi.publicsolutions.tests.TSolutionSimpleContestController'
+            )
             contest.save()
 
             self.assertTrue(self.client.login(username='test_user'))
@@ -244,14 +260,12 @@ class TestPublicSolutions(TestCase):
             url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
             response = self.client.get(url)
-            self.assertUserSubmissionHTMLDataCount(response.content,
-                    'test_user', 2)
+            self.assertUserSubmissionHTMLDataCount(response.content, 'test_user', 2)
 
             self.assertTrue(self.client.login(username='test_user2'))
             cache.clear()
             response = self.client.get(url)
-            self.assertUserSubmissionHTMLDataCount(response.content,
-                    'test_user2', 0)
+            self.assertUserSubmissionHTMLDataCount(response.content, 'test_user2', 0)
 
             self.assertTrue(self.client.login(username='test_user'))
             request = self.client.post(change_publication_url(True, 4))
@@ -259,11 +273,9 @@ class TestPublicSolutions(TestCase):
 
             cache.clear()
             response = self.client.get(url)
-            self.assertUserSubmissionHTMLDataCount(response.content,
-                    'test_user', 2)
+            self.assertUserSubmissionHTMLDataCount(response.content, 'test_user', 2)
 
             self.assertTrue(self.client.login(username='test_user2'))
             cache.clear()
             response = self.client.get(url)
-            self.assertUserSubmissionHTMLDataCount(response.content,
-                    'test_user2', 0)
+            self.assertUserSubmissionHTMLDataCount(response.content, 'test_user2', 0)

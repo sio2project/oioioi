@@ -12,9 +12,9 @@
 
 .table-report {
   // In table-report with table-responsive firefox makes new line for
-  // test-actions used with pull-right on sm display.
+  // test-actions used with float-right on sm display.
   // This is a workaround for this.
-  .fix-pull-right {
+  .fix-float-right {
     white-space: normal !important;
   }
   .group-score {
@@ -28,6 +28,30 @@
 
 .submission-admin {
   display: block;
-  padding: 10px !important;
-  margin: -10px !important;
+  padding: ($spacer * .5);
+  margin: (-$spacer * .5);
+}
+
+.syntax-highlighttable {
+  pre {
+    margin-bottom: 0;
+  }
+
+  .linenodiv, .syntax-highlight {
+    @extend .card;
+    @extend .bg-light;
+    padding: ($spacer * 0.5);
+  }
+}
+
+.diff-highlight {
+  pre {
+    margin-bottom: 0;
+  }
+
+  &.line-numbers, &.code {
+    @extend .card;
+    @extend .bg-light;
+    padding: ($spacer * 0.5);
+  }
 }

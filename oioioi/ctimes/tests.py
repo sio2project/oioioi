@@ -3,7 +3,7 @@ from __future__ import print_function
 from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
@@ -17,18 +17,24 @@ class TestCtimes(TestCase):
         contest1 = Contest.objects.get(id='c1')
         contest2 = Contest.objects.get(id='c2')
         rounds = [
-            Round(name='round1',
-                  contest=contest1,
-                  start_date=datetime(2013, 10, 11, 8, 0, tzinfo=utc),
-                  end_date=datetime(2013, 12, 5, 9, 0, tzinfo=utc)),
-            Round(name='round2',
-                  contest=contest1,
-                  start_date=datetime(2013, 10, 22, 10, 0, tzinfo=utc),
-                  end_date=datetime(2013, 11, 5, 11, 0, tzinfo=utc)),
-            Round(name='round1p',
-                  contest=contest2,
-                  start_date=datetime(2014, 1, 2, 3, 10, tzinfo=utc),
-                  end_date=None),
+            Round(
+                name='round1',
+                contest=contest1,
+                start_date=datetime(2013, 10, 11, 8, 0, tzinfo=utc),
+                end_date=datetime(2013, 12, 5, 9, 0, tzinfo=utc),
+            ),
+            Round(
+                name='round2',
+                contest=contest1,
+                start_date=datetime(2013, 10, 22, 10, 0, tzinfo=utc),
+                end_date=datetime(2013, 11, 5, 11, 0, tzinfo=utc),
+            ),
+            Round(
+                name='round1p',
+                contest=contest2,
+                start_date=datetime(2014, 1, 2, 3, 10, tzinfo=utc),
+                end_date=None,
+            ),
         ]
         self.round1_result = {
             'status': 'OK',
@@ -95,14 +101,17 @@ class TestCtimes(TestCase):
         RoundTimeExtension.objects.create(round=rnd, user=user, extra_time=5)
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
             response = self.client.get(url).json()
-            self.assertEqual(response, {
-                'status': 'OK',
-                'round_name': 'round1',
-                'start': '2013-10-11 08:00:00',
-                'start_sec': 1381478400,
-                'end': '2013-12-05 09:05:00',
-                'end_sec': 1386234300,
-            })
+            self.assertEqual(
+                response,
+                {
+                    'status': 'OK',
+                    'round_name': 'round1',
+                    'start': '2013-10-11 08:00:00',
+                    'start_sec': 1381478400,
+                    'end': '2013-12-05 09:05:00',
+                    'end_sec': 1386234300,
+                },
+            )
 
     def test_ctimes_anonymous(self):
         url = reverse('ctimes', kwargs={'contest_id': 'c2'})

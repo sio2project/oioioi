@@ -14,7 +14,7 @@
     <h6>
         {% trans "Group" %}
         <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-toggle="tooltip" title="{% trans "Edit" %}">
-            <span class="glyphicon glyphicon-edit"></span>
+            <i class="fa-solid fa-pen-to-square"></i>
         </a>
     </h6>
     <div class="similarity-group">
@@ -46,17 +46,17 @@
                 </td>
                 <td>{{ similar_to.user.get_full_name }}</td>
                 <td>
-                    <span class="glyphicon glyphicon-{% if entry.guilty %}warning-sign{% else %}minus{% endif %}"></span>
+                    <i class="fa-solid fa-{% if entry.guilty %}triangle-exclamation{% else %}minus{% endif %}"></i>
                 </td>
                 <td>
                     {% if similar_to.kind != 'IGNORED_HIDDEN' %}
                         {% if entry.guilty %}
                         <a href="#" data-post-url="{{ not_guilty_link }}" data-toggle="tooltip" title="{% trans "Mark not guilty" %}">
-                            <span class="glyphicon glyphicon-thumbs-up"></span>
+                            <i class="fa-solid fa-thumbs-up"></i>
                         </a>
                         {% else %}
                         <a href="#" data-post-url="{{ guilty_link }}" data-toggle="tooltip" title="{% trans "Mark guilty" %}">
-                            <span class="glyphicon glyphicon-thumbs-down"></span>
+                            <i class="fa-solid fa-thumbs-down"></i>
                             </a>
                         {% endif %}
                     {% endif %}
@@ -64,19 +64,19 @@
                         {% for value, description in submission_context.valid_kinds_for_submission %}
                             <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=similar_to.id kind=value %}"
                                 data-toggle="tooltip" title="{% blocktrans %}Change kind: {{ description }} (and mark not guilty){% endblocktrans %}">
-                                <span class="glyphicon glyphicon-tag"></span>
+                                <i class="fa-solid fa-tag"></i>
                             </a>
                         {% endfor %}
                     {% endwith %}
 
                     <a href="{{ diff_link }}" data-toggle="tooltip" title="{% trans "Show diff" %}">
-                        <span class="glyphicon glyphicon-resize-small"></span>
+                        <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
                     </a>
                     <a href="{{ source_link }}" data-toggle="tooltip" title="{% trans "Show code" %}">
-                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <i class="fa-solid fa-eye"></i>
                     </a>
                     <a href="{{ download_link }}" data-toggle="tooltip" title="{% trans "Download" %}">
-                        <span class="glyphicon glyphicon-download-alt"></span>
+                        <i class="fa-solid fa-download"></i>
                     </a>
                 </td>
             </tr>

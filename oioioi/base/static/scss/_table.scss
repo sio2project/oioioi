@@ -1,4 +1,4 @@
-$oioioi-table-narrow-max-width: $screen-sm-min !default;
+$oioioi-table-narrow-max-width: map-get($grid-breakpoints, "md") !default;
 
 .table--borderless > tbody > tr > td,
 .table--borderless > tbody > tr > th,
@@ -17,13 +17,13 @@ $oioioi-table-narrow-max-width: $screen-sm-min !default;
   max-width: $oioioi-table-narrow-max-width;
 }
 
-@media screen and (max-width: $screen-sm-min) {
+@include media-breakpoint-down(sm) {
   .table--narrow {
     max-width: none;
   }
 }
 
-.table-responsive thead th {
+.table-responsive-md thead th {
   white-space: nowrap;
 }
 

@@ -49,14 +49,14 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
+                    <h5 class="modal-title">{% trans "Confirm" %}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
-                    <h4 class="modal-title">{% trans "Confirm" %}</h4>
                 </div>
                 <div class="modal-body schools-similar-list"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "No, go back" %}</button>
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{% trans "No, go back" %}</button>
                     <button type="submit" class="btn btn-primary">{% trans "Yes, I'm sure. Add that school." %}</button>
                 </div>
             </div>

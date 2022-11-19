@@ -2,7 +2,7 @@ import calendar
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.http import http_date
 from django.utils.timezone import timedelta
 
@@ -38,16 +38,18 @@ class TestProcessorsWithoutUploadedFiles(TestCase):
 
     def test_without_defaults(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.contestlogo.tests.ContestControllerWithoutDefaults'
+        contest.controller_name = (
+            'oioioi.contestlogo.tests.ContestControllerWithoutDefaults'
+        )
         contest.save()
         response = self._render_menu()
         self.assertNotIn('class="contesticon"', response)
 
     def test_with_defaults(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.contestlogo.tests.ContestControllerWithDefaults'
+        contest.controller_name = (
+            'oioioi.contestlogo.tests.ContestControllerWithDefaults'
+        )
         contest.save()
         response = self._render_menu()
         self.assertIn('/some/URL/', response)
@@ -66,8 +68,9 @@ class TestProcessorsWithUploadedFiles(TestCase):
 
     def test_with_defauts_and_uploaded_files(self):
         contest = Contest.objects.get()
-        contest.controller_name = \
-                'oioioi.contestlogo.tests.ContestControllerWithDefaults'
+        contest.controller_name = (
+            'oioioi.contestlogo.tests.ContestControllerWithDefaults'
+        )
         contest.save()
         response = self._render_menu()
         self.assertNotIn('/some/URL/', response)

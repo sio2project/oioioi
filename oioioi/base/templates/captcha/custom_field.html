@@ -1,0 +1,22 @@
+{% load i18n %}
+{% spaceless %}
+<div class="d-flex flex-column" style="width: fit-content;">
+    {% if audio %}
+    <audio id="audio" src="{{ audio }}"></audio>
+    {% endif %}
+    <img src="{{ image }}" alt="captcha" class="captcha"/>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            {% if audio %}
+            <button type="button" class="btn btn-outline-secondary js-captcha-play-audio" title="Play audio">
+                <i class="fa-regular fa-circle-play"></i>
+            </button>
+            {% endif %}
+            <button type="button" class="btn btn-outline-secondary js-captcha-refresh" title="Refresh Captcha">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+        </div>
+        {% include "django/forms/widgets/multiwidget.html" %}
+    </div>
+</div>
+{% endspaceless %}

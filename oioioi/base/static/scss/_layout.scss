@@ -1,14 +1,7 @@
 @import "utility";
+@import "bootstrap/stylesheets/grid";
+
 $oioioi-narrow-input-max-width: 300px !default;
-
-.nav-content {
-  padding-top: $padding-large-vertical;
-}
-
-.nav-margin {
-  margin-top: $padding-large-vertical;
-  margin-bottom: $padding-large-vertical;
-}
 
 .empty-space-filler {
   margin-top: $padding-large-vertical;
@@ -30,17 +23,11 @@ $oioioi-narrow-input-max-width: 300px !default;
   overflow-x: auto;
 }
 
-.help-inline {
-  @extend .help-block;
-  display: inline;
-}
-
 .oioioi-narrow-input {
   max-width: $oioioi-narrow-input-max-width;
 }
 
-@media (min-width: $screen-sm-min) {
-  .form-inline .form-group:not(:first-child) {
-    margin-left: 2em;
-  }
+.oioioi-form__container {
+  @extend .container;
+  max-width: $oioioi-form-max-width;
 }

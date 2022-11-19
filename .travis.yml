@@ -1,0 +1,30 @@
+sudo: false
+language: python
+python:
+  - '2.7'
+addons:
+  apt:
+    packages:
+      - build-essential
+      - fp-compiler
+      - texlive-latex-base
+      - texlive-lang-polish
+      - texlive-lang-czechslovak
+      - texlive-lang-european
+      - texlive-lang-german
+      - texlive-latex-extra
+      - texlive-fonts-recommended
+      - tex-gyre
+      - texlive-pstricks
+      - lmodern
+      - libdb-dev
+      - ghostscript
+install: pip install codecov tox-travis
+script:
+  - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then tox; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then tox -- --runslow; fi'
+after_success:
+  - codecov
+notifications:
+  email:
+    - accek@mimuw.edu.pl

@@ -22,23 +22,25 @@
 
     {% block forum-breadcrumbs %}
         <ol class="breadcrumb">
-            <li>
+            <li class="breadcrumb-item">
                 <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
             </li>
             {% if category %}
-                <li>
+                <li class="breadcrumb-item">
                     <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
                 </li>
             {% endif %}
             {% if thread %}
-                <li>
+                <li class="breadcrumb-item">
                     <a href="{% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=thread.id %}">{{ thread.name }}</a>
                 </li>
             {% endif %}
             {% block forum-breadcrumbs-add %}
 
             {% endblock %}
+            <a class="ml-auto" href="{% url 'forum_latest_posts' contest_id=contest.id %}">{% trans "Latest posts" %}</a>
         </ol>
+
     {% endblock %}
 
     {% block forum-contents %}

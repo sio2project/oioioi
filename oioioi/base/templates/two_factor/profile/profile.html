@@ -57,7 +57,7 @@
     <h3>{% trans "Disable Two-Factor Authentication" %}</h3>
     <p>{% blocktrans %}However we strongly discourage you to do so, you can
       also disable two-factor authentication for your account.{% endblocktrans %}</p>
-    <p><a class="btn btn-default" href="{% url 'two_factor:disable' %}">
+    <p><a class="btn btn-outline-secondary" href="{% url 'two_factor:disable' %}">
       {% trans "Disable Two-Factor Authentication" %}</a></p>
   {% else %}
     <p>{% blocktrans %}Two-factor authentication is not enabled for your

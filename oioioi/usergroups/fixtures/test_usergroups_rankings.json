@@ -1,0 +1,20 @@
+[
+  {
+    "pk": 2001,
+    "model": "usergroups.UserGroup",
+    "fields": {
+      "name": "group 1",
+      "owners": [1000],
+      "members": [1001],
+      "contests": ["c"]
+    }
+  },
+  {
+    "pk": 1001,
+    "model": "usergroups.UserGroupRanking",
+    "fields": {
+      "contest": "c",
+      "user_group": 2001
+    }
+  }
+]

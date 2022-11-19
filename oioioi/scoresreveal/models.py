@@ -1,14 +1,16 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-from oioioi.contests.models import Submission
-from oioioi.problems.models import Problem
+from oioioi.contests.models import ProblemInstance, Submission
 
 
 class ScoreReveal(models.Model):
-    submission = models.OneToOneField(Submission, related_name='revealed',
-                                      verbose_name=_("submission"),
-                                      on_delete=models.CASCADE)
+    submission = models.OneToOneField(
+        Submission,
+        related_name='revealed',
+        verbose_name=_("submission"),
+        on_delete=models.CASCADE,
+    )
 
     class Meta(object):
         verbose_name = _("score reveal")
@@ -16,13 +18,21 @@ class ScoreReveal(models.Model):
 
 
 class ScoreRevealConfig(models.Model):
-    problem = models.OneToOneField(Problem,
-                                   verbose_name=_("problem"),
-                                   related_name='scores_reveal_config',
-                                   on_delete=models.CASCADE)
-    reveal_limit = models.IntegerField(verbose_name=_("reveal limit"))
-    disable_time = models.IntegerField(blank=True, null=True,
-        verbose_name=_("disable for last minutes of the round"))
+    problem_instance = models.OneToOneField(
+        ProblemInstance,
+        verbose_name=_("problem instance"),
+        related_name='scores_reveal_config',
+        on_delete=models.CASCADE,
+    )
+    reveal_limit = models.IntegerField(
+        verbose_name=_("reveal limit"),
+        help_text=_("If empty, all submissions are revealed automatically."),
+        blank=True,
+        null=True,
+    )
+    disable_time = models.IntegerField(
+        blank=True, null=True, verbose_name=_("disable for last minutes of the round")
+    )
 
     class Meta(object):
         verbose_name = _("score reveal config")

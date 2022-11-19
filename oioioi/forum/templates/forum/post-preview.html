@@ -1,0 +1,13 @@
+<div class="card">
+    <div class="anchor-jump-fix"></div>
+    {% if post.hidden %}
+    <div class="card-header">
+        {% include "forum/thread-element-heading.html" with post=elem %}
+    </div>
+    {% endif %}
+    {% if not post.hidden or is_admin %}
+    <div class="card-body text-left {% if post.hidden %} collapse {% endif %}">
+        {{ post.content|urlize|linebreaksbr }}
+    </div>
+    {% endif %}
+</div>

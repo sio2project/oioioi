@@ -7,7 +7,7 @@ import dateutil.parser
 from django.conf import settings
 from django.core import signing
 from django.template.loader import render_to_string
-from six.moves import zip_longest
+from itertools import zip_longest
 
 from oioioi.programs.models import ProgramSubmission
 
@@ -29,14 +29,19 @@ def unsign_submission_metadata(data):
 
 def submission_receipt_proof(submission):
     """Returns pair of data and its signed version which may be used by
-       the user to prove that we received his submission someday.
+    the user to prove that we received his submission someday.
 
-       The returned data are not encrypted, just signed.
+    The returned data are not encrypted, just signed.
     """
-    submission_no = ProgramSubmission.objects.filter(
-            user=submission.user, kind=submission.kind,
+    submission_no = (
+        ProgramSubmission.objects.filter(
+            user=submission.user,
+            kind=submission.kind,
             problem_instance=submission.problem_instance,
-            date__lt=submission.date).count() + 1
+            date__lt=submission.date,
+        ).count()
+        + 1
+    )
     source_hash = hashlib.sha256()
     for chunk in submission.source_file.chunks():
         source_hash.update(chunk)
@@ -74,9 +79,9 @@ def format_proof(proof):
 
 def verify_submission_receipt_proof(proof, source):
     """Verifies a signed proof of user's submission and returns proven
-       metadata.
+    metadata.
 
-       :raises :class:`ProofCorrupted` upon failure of any reason.
+    :raises :class:`ProofCorrupted` upon failure of any reason.
     """
     proof = ''.join(proof.split())
     try:
@@ -108,13 +113,16 @@ def send_submission_receipt_confirmation(request, submission):
     }
 
     subject = render_to_string('confirmations/email_subject.txt', context)
-    subject = settings.EMAIL_SUBJECT_PREFIX + \
-              ' '.join(subject.strip().splitlines())
+    subject = settings.EMAIL_SUBJECT_PREFIX + ' '.join(subject.strip().splitlines())
     body = render_to_string('confirmations/email_body.txt', context)
 
-    request.contest.controller.send_email(subject, body,
-                [submission.user.email])
+    request.contest.controller.send_email(subject, body, [submission.user.email])
 
-    logger.info("Proof of receiving sub. #%d@%s@%s (%s) sent to %s",
-            submission.id, context['problem_shortname'], context['contest_id'],
-            proof_data['source_hash'], submission.user)
+    logger.info(
+        "Proof of receiving sub. #%d@%s@%s (%s) sent to %s",
+        submission.id,
+        context['problem_shortname'],
+        context['contest_id'],
+        proof_data['source_hash'],
+        submission.user,
+    )

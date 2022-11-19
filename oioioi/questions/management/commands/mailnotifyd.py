@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from oioioi.questions.models import Message, QuestionSubscription
 from oioioi.questions.views import visible_messages
@@ -17,25 +17,18 @@ logger = logging.getLogger(__name__)
 
 
 def generate_notification(msg, user, mail):
-    show_original = msg.top_reference \
-            and allowed_to_see(msg.top_reference, user)
+    show_original = msg.top_reference and allowed_to_see(msg.top_reference, user)
     link_m_id = msg.top_reference.id if show_original else msg.id
     context = {
         'msg': msg,
         'show_original': show_original,
         'link_m_id': link_m_id,
-        'root': settings.PUBLIC_ROOT_URL
+        'root': settings.PUBLIC_ROOT_URL,
     }
 
-    subject = render_to_string(
-        'questions/reply_notification_subject.txt',
-        context
-    )
+    subject = render_to_string('questions/reply_notification_subject.txt', context)
     subject = ' '.join(subject.strip().splitlines())
-    body = render_to_string(
-        'questions/reply_notification_body.txt',
-        context
-    )
+    body = render_to_string('questions/reply_notification_body.txt', context)
 
     return EmailMessage(subject=subject, body=body, to=[mail])
 
@@ -50,16 +43,11 @@ def mailnotify(instance):
     # hence the first part of the assertion
     assert instance.pub_date is None or instance.pub_date <= timezone.now()
 
-    subscriptions = QuestionSubscription.objects \
-        .filter(contest=instance.contest)
+    subscriptions = QuestionSubscription.objects.filter(contest=instance.contest)
 
     if instance.kind == 'PUBLIC':
         # There may be users without an e-mail, filter them out
-        mails = [
-            (sub.user, sub.user.email)
-            for sub in subscriptions
-            if sub.user.email
-        ]
+        mails = [(sub.user, sub.user.email) for sub in subscriptions if sub.user.email]
 
         # if there are any users with e-mails
         for (user, mail) in mails:
@@ -84,8 +72,9 @@ def try_sending(msg, user, mail):
         # For some reason some message from the past is not
         # visible for a user. We omit this, but make sure to
         # mark this in the logs.
-        logmsg = ("Omitting message {} to {}, since"
-            "they are not allowed to see it").format(msg, user)
+        logmsg = (
+            "Omitting message {} to {}, since they are not allowed to see it"
+        ).format(msg, user)
         logger.info(logmsg)
 
 

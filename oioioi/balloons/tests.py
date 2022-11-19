@@ -2,9 +2,8 @@ from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import utc
-from six.moves import range
 
 from oioioi.balloons.models import BalloonDelivery, BalloonsDeliveryAccessData
 from oioioi.base.tests import TestCase, fake_time
@@ -14,8 +13,12 @@ from oioioi.sinolpack.tests import get_test_filename
 
 
 class TestBalloons(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
 
     def setUp(self):
         self.contest = Contest.objects.get()
@@ -24,45 +27,56 @@ class TestBalloons(TestCase):
 
     def test_balloons_link_and_cookie(self):
         self.assertTrue(self.client.login(username='test_user'))
-        regenerate_url = reverse('balloons_access_regenerate',
-                                 kwargs={'contest_id': self.contest.id})
+        regenerate_url = reverse(
+            'balloons_access_regenerate', kwargs={'contest_id': self.contest.id}
+        )
         response = self.client.post(regenerate_url)
         self.assertEqual(response.status_code, 403)
         self.assertTrue(self.client.login(username='test_admin'))
-        regenerate_url = reverse('balloons_access_regenerate',
-                                 kwargs={'contest_id': self.contest.id})
+        regenerate_url = reverse(
+            'balloons_access_regenerate', kwargs={'contest_id': self.contest.id}
+        )
         response = self.client.post(regenerate_url)
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(response['Location'].endswith(
-            reverse('oioioiadmin:contests_contest_change',
-                    args=[quote(self.contest.id)])
-        ))
+        self.assertTrue(
+            response['Location'].endswith(
+                reverse(
+                    'oioioiadmin:contests_contest_change', args=[quote(self.contest.id)]
+                )
+            )
+        )
 
         self.client.logout()
 
         access_data = BalloonsDeliveryAccessData.objects.get()
-        set_cookie_url = reverse('balloons_access_set_cookie',
-                                 kwargs={'contest_id': self.contest.id,
-                                         'access_key': access_data.access_key})
+        set_cookie_url = reverse(
+            'balloons_access_set_cookie',
+            kwargs={
+                'contest_id': self.contest.id,
+                'access_key': access_data.access_key,
+            },
+        )
         panel_url = reverse('balloons_delivery_panel', kwargs=self.c_kwargs)
         cookie_key = 'balloons_access_' + self.contest.id
         response = self.client.get(set_cookie_url)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response['Location'].endswith(panel_url))
         self.assertTrue(cookie_key in response.cookies)
-        self.assertEqual(response.cookies[cookie_key].value,
-                         access_data.access_key)
+        self.assertEqual(response.cookies[cookie_key].value, access_data.access_key)
 
     def _generate_link_and_set_cookie(self):
         self.assertTrue(self.client.login(username='test_admin'))
-        regenerate_url = reverse('balloons_access_regenerate',
-                                 kwargs=self.c_kwargs)
+        regenerate_url = reverse('balloons_access_regenerate', kwargs=self.c_kwargs)
         self.client.post(regenerate_url)
         self.client.logout()
         access_data = BalloonsDeliveryAccessData.objects.get()
-        set_cookie_url = reverse('balloons_access_set_cookie',
-                                 kwargs={'contest_id': self.contest.id,
-                                         'access_key': access_data.access_key})
+        set_cookie_url = reverse(
+            'balloons_access_set_cookie',
+            kwargs={
+                'contest_id': self.contest.id,
+                'access_key': access_data.access_key,
+            },
+        )
         self.client.get(set_cookie_url)
 
     def test_balloons_access(self):
@@ -89,22 +103,20 @@ class TestBalloons(TestCase):
             'problem_instance_id': self.pi.id,
             'file': open(get_test_filename(source_file), 'rb'),
             'user': user.username,
-            'kind': 'NORMAL'
+            'kind': 'NORMAL',
         }
         return self.client.post(url, data)
 
     def _check_delivery(self, delivery, user, first=False):
         self.assertEqual(delivery.user, user)
-        self.assertEqual(delivery.problem_instance,
-                         ProblemInstance.objects.get())
+        self.assertEqual(delivery.problem_instance, ProblemInstance.objects.get())
         self.assertFalse(delivery.delivered)
         self.assertEqual(delivery.first_accepted_solution, first)
 
     def test_balloon_request_creation(self):
         self.assertTrue(self.client.login(username='test_user'))
         user = User.objects.get(username='test_user')
-        self.contest.controller_name = \
-            'oioioi.acm.controllers.ACMContestController'
+        self.contest.controller_name = 'oioioi.acm.controllers.ACMContestController'
         self.contest.save()
         Participant.objects.create(user=user, contest=self.contest)
 
@@ -146,8 +158,9 @@ class TestBalloons(TestCase):
 
     def test_getting_new_balloon_requests(self):
         users = User.objects.all()
-        requests = [BalloonDelivery(user=user, problem_instance=self.pi)
-                    for user in users]
+        requests = [
+            BalloonDelivery(user=user, problem_instance=self.pi) for user in users
+        ]
         BalloonDelivery.objects.bulk_create(requests)
         url = reverse('balloons_delivery_new', kwargs=self.c_kwargs)
 

@@ -9,7 +9,6 @@
 #quiz_form textarea.vLargeTextField
 {
     height: 4em;
-    width: 40em;
 }
 
 /* this adds a 'handle' indicating that drag and drop works */

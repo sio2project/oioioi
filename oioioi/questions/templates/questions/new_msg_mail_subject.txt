@@ -1,2 +1,2 @@
 {% load i18n %}
-{% trans 'New question in' %} {{ msg.contest }}. {{ msg.problem_instance|default_if_none:_("General") }}: {{ msg.topic|truncatewords:8 }}
+{% trans "New question in" %} {{ msg.contest }}. {{ msg.problem_instance|default_if_none:_("General") }}: {{ msg.topic|truncatewords:8 }}

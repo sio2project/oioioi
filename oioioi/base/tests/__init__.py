@@ -1,20 +1,24 @@
+import sys
 import threading
 from contextlib import contextmanager
-from mock import patch
-import sys
 
-from django.db import connections, DEFAULT_DB_ALIAS
-from django.utils import timezone
+import pytest
+import urllib.parse
+from django.contrib.auth.models import AnonymousUser, User
+from django.core.cache import cache
+from django.core.exceptions import ImproperlyConfigured
+from django.db import DEFAULT_DB_ALIAS, connections
+from django.template.loaders.cached import Loader as CachedLoader
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import CaptureQueriesContext
-from django.core.cache import cache
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User, AnonymousUser
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import ugettext_lazy as _
-from django.template.loaders.cached import Loader as CachedLoader
-import six.moves.urllib.parse
-import pytest
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
+try:
+    from mock import patch
+except ImportError:
+    from unittest.mock import patch
 
 
 # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L30
@@ -25,15 +29,15 @@ class _AssertNumQueriesLessThanContext(CaptureQueriesContext):
         super(_AssertNumQueriesLessThanContext, self).__init__(connection)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        super(_AssertNumQueriesLessThanContext, self). \
-            __exit__(exc_type, exc_value, traceback)
+        super(_AssertNumQueriesLessThanContext, self).__exit__(
+            exc_type, exc_value, traceback
+        )
         if exc_type is not None:
             return
         executed = len(self)
         self.test_case.assertTrue(
             executed < self.num,
-            "%d queries executed, expected less than %d" %
-                (executed, self.num)
+            "%d queries executed, expected less than %d" % (executed, self.num),
         )
 
 
@@ -53,28 +57,23 @@ class TestCase(DjangoTestCase):
             func(*args, **kwargs)
 
     def assertRegex(self, text, regex, msg=None):
-        if six.PY3:
-            super(DjangoTestCase, self).assertRegex(text, regex, msg)
-        else:
-            super(DjangoTestCase, self).assertRegexpMatches(text, regex, msg)
+        super(DjangoTestCase, self).assertRegex(text, regex, msg)
 
     def assertNotRegex(self, text, regex, msg=None):
-        if six.PY3:
-            super(DjangoTestCase, self).assertNotRegex(text, regex, msg)
-        else:
-            super(DjangoTestCase, self).assertNotRegexpMatches(text, regex, msg)
+        super(DjangoTestCase, self).assertNotRegex(text, regex, msg)
 
 
 class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing
-       user.
+    user.
 
-       It's configured in ``test_settings.py`` and available for all tests.
+    It's configured in ``test_settings.py`` and available for all tests.
     """
+
     supports_authentication = True
     description = _("Testing backend")
 
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         if not username:
             return None
         if password:
@@ -82,9 +81,11 @@ class IgnorePasswordAuthBackend(object):
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
-            raise AssertionError('Tried to log in as %r without password, '
-                    'but such a user does not exist. Probably the test '
-                    'forgot to import a database fixture.' % (username,))
+            raise AssertionError(
+                'Tried to log in as %r without password, '
+                'but such a user does not exist. Probably the test '
+                'forgot to import a database fixture.' % (username,)
+            )
 
     def get_user(self, user_id):
         try:
@@ -106,8 +107,9 @@ class FakeTimeMiddleware(object):
 
     def _process_request(self, request):
         if not hasattr(request, 'timestamp'):
-            raise ImproperlyConfigured("FakeTimeMiddleware must go after "
-                    "TimestampingMiddleware")
+            raise ImproperlyConfigured(
+                "FakeTimeMiddleware must go after TimestampingMiddleware"
+            )
         fake_timestamp = getattr(self._fake_timestamp, 'value', None)
         if fake_timestamp:
             request.timestamp = fake_timestamp
@@ -116,7 +118,7 @@ class FakeTimeMiddleware(object):
 @contextmanager
 def fake_time(timestamp):
     """A context manager which causes all requests having the specified
-       timestamp, regardless of the real wall clock time."""
+    timestamp, regardless of the real wall clock time."""
     cache.clear()
     FakeTimeMiddleware._fake_timestamp.value = timestamp
     yield
@@ -138,7 +140,7 @@ def get_url(url_or_viewname, qs, *args, **kwargs):
     else:
         url = reverse(url_or_viewname, *args, **kwargs)
     if qs:
-        url += '?' + six.moves.urllib.parse.urlencode(qs)
+        url += '?' + urllib.parse.urlencode(qs)
     return url
 
 
@@ -163,8 +165,9 @@ def check_is_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
 def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     data = kwargs.pop('data', {})
     url = get_url(url_or_viewname, None, *args, **kwargs)
-    response = testcase.client.get(url, data=data,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+    response = testcase.client.get(
+        url, data=data, HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+    )
     testcase.assertIn(response.status_code, (403, 404))
 
 
@@ -181,7 +184,6 @@ class TestsUtilsMixin(object):
 
 
 def needs_linux(fn):
-    return pytest.mark.skip(sys.platform not in ('linux', 'linux2'),
-            reason="This test needs Linux")(fn)
-
-
+    return pytest.mark.skipif(
+        sys.platform not in ('linux', 'linux2'), reason="This test needs Linux"
+    )(fn)

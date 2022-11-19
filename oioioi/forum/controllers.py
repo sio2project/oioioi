@@ -8,10 +8,12 @@ class ContestControllerWithForum(object):
     to let the participants use your forum. Do not change it here!
     This requires adding 'oioioi.forum' in Installed_apps in your settings.py
     """
+
     create_forum = True
 
     def adjust_contest(self):
         super(ContestControllerWithForum, self).adjust_contest()
         Forum.objects.get_or_create(contest=self.contest)
+
 
 ContestController.mix_in(ContestControllerWithForum)

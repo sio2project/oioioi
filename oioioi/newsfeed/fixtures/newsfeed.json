@@ -8,7 +8,7 @@
     },
     {
         "model": "newsfeed.newslanguageversion",
-        "pk": 2,
+        "pk": 1,
         "fields": {
             "news": 1,
             "language": "en",

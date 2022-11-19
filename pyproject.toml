@@ -1,0 +1,28 @@
+[tool.isort]
+profile = 'black'
+skip_glob = '*/migrations/*.py'
+skip = 'default_settings.py'
+
+[tool.black]
+line-length = 88
+skip-string-normalization = true
+verbose = false
+diff = false
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.eggs
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | migrations
+)/
+'''
+force-exclude = '((.*)?default_settings.py|(.*)migrations(.*))'

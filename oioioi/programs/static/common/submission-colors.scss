@@ -27,7 +27,7 @@ $submission-margin-min-width: 20px !default;
   background: $color;
 
   &.submission__margin {
-    @include gradient-horizontal($color, $color-gradient-to);
+    @include gradient-x($color, $color-gradient-to);
   }
 
   &.submission__status {

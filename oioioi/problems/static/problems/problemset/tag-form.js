@@ -1,5 +1,4 @@
 $(document).ready(function () {
-
     const selectedColor = 'lightgreen';
     const unselectedColor = '#e5e5e5';
 
@@ -9,6 +8,7 @@ $(document).ready(function () {
     const $buttons = $('.btn-option');
     const $formOpen = $('#open-form');
     const $algorithmInput = $('#algorithm-tags');
+    const $addAlgorithm = $('#add-algorithm');
     const $autocomplete = $('#autocomplete');
     const $proposals = $('#tags-container');
     const $inputContainer = $('.tag-input');
@@ -17,13 +17,13 @@ $(document).ready(function () {
     const $invalidForm = $('#invalid-form');
 
     function clearAutocomplete() {
-        var $list = $('.autocomplete-list');
+        const $list = $('.autocomplete-list');
         $list.children().remove();
         $list.remove();
     }
 
     function clearActive() {
-        var $items = $('.autocomplete-active');
+        const $items = $('.autocomplete-active');
         $items.removeClass('autocomplete-active');
     }
 
@@ -44,17 +44,20 @@ $(document).ready(function () {
 
     // allow only one button to be selected
     $buttons.on('click', function () {
+        const prevDataState = $(this).attr('data-state');
         $buttons.css('background-color', unselectedColor);
         $buttons.attr('data-state', '');
-        $(this).css('background-color', selectedColor);
-        $(this).attr('data-state', 'selected');
+        if (prevDataState !== 'selected') {
+            $(this).css('background-color', selectedColor);
+            $(this).attr('data-state', 'selected');
+        }
     });
 
     // add hovering
     $buttons.hover(function () {
         $(this).css('background-color', selectedColor);
     }, function () {
-        if ($(this).attr('data-state') != 'selected') {
+        if ($(this).attr('data-state') !== 'selected') {
             $(this).css('background-color', unselectedColor);
         }
     });
@@ -62,6 +65,7 @@ $(document).ready(function () {
     // clear the form every time it opens
     $formOpen.on('click', function () {
         $algorithmInput.val('');
+        $addAlgorithm.attr('disabled', true);
         $buttons.css('background-color', unselectedColor);
         $buttons.attr('data-state', '');
         $serverError.addClass('hidden');
@@ -71,31 +75,39 @@ $(document).ready(function () {
 
     // autocomplete tags
     $algorithmInput.on('input', function () {
-        var val = $(this).val();
+        const val = $(this).val();
 
         clearAutocomplete();
 
-        if (val != "") {
-
-            var url = $(this).data('hintsUrl');
+        if (val !== "") {
+            const url = $(this).data('hintsUrl');
             $.getJSON(url, {query: val}).done(function (hints) {
-                var possibleTags = hints.filter(function (hint) {
-                    var add = true;
+                const possibleTags = hints.filter(function (hint) {
+                    let add = true;
                     $('.tag-proposal').each(function () {
-                        if ($(this).text() == hint) {
+                        if ($(this).text() === hint) {
                             add = false;
                         }
                     });
+
                     return add;
                 }).map(function (hint) {
-                    return '<li class="autocomplete-item"><strong>' + hint.substring(0, val.length) +
-                        '</strong>' + hint.substring(val.length) + '</li>';
+                    const occurrence = hint.toLowerCase().indexOf(val.toLowerCase());
+                    if (occurrence !== -1) {
+                        const beforeBold = hint.substring(0, occurrence);
+                        const bold = hint.substring(occurrence, occurrence + val.length);
+                        const afterBold = hint.substring(occurrence + val.length);
+                        hint = `${beforeBold}<strong>${bold}</strong>${afterBold}`;
+                    }
+
+                    return `<li class="autocomplete-item">${hint}</li>`;
                 });
 
                 $autocomplete.append('<ul class="autocomplete-list"></ul>');
                 $('.autocomplete-list').append(possibleTags);
             });
-
+        } else {
+             $addAlgorithm.attr('disabled', true);
         }
     });
 
@@ -108,6 +120,7 @@ $(document).ready(function () {
     // autofill when clicked
     $autocomplete.on('click', '.autocomplete-item', function () {
         $algorithmInput.val($(this).text());
+        $addAlgorithm.removeAttr('disabled');
         clearAutocomplete();
     });
 
@@ -116,13 +129,35 @@ $(document).ready(function () {
         clearAutocomplete();
     });
 
+    // function invoked when hitting enter when focus on text input is on
+    // or when clicking "Add" button if enabled
+    function addTagLabel(tagLabelUrl) {
+        const name = $algorithmInput.val();
+        const proposed = $('.tag-proposal').toArray().map(function (proposal) {
+            return proposal.textContent;
+        });
+        $.getJSON(tagLabelUrl, {name: name, proposed: jQuery.inArray(name, proposed)}).done(function (tags) {
+            tags.forEach(function (tag) {
+                $inputContainer.css('margin-bottom', '2rem');
+                const label = $('<span/>', {
+                    'class': 'label tag-label tag-proposal tag-label-algorithm',
+                    text: tag,
+                });
+                $proposals.append(label);
+                $proposals.append('\n');
+                $proposals.removeClass('hidden');
+                $algorithmInput.val('');
+                $addAlgorithm.attr('disabled', true);
+            });
+        });
+    }
+
     // handle keyboard navigation
     $algorithmInput.on('keydown', function (e) {
-        var $items = $('.autocomplete-item');
-        var $active = $('.autocomplete-active');
+        const $items = $('.autocomplete-item');
+        const $active = $('.autocomplete-active');
 
         switch (e.which) {
-
             // down
             case 40:
                 if (!$active.length) {
@@ -132,7 +167,6 @@ $(document).ready(function () {
                     $active.next().addClass('autocomplete-active');
                 }
                 break;
-
             // up
             case 38:
                 if ($active.length) {
@@ -142,32 +176,20 @@ $(document).ready(function () {
                     $items.last().addClass('autocomplete-active');
                 }
                 break;
-
             // enter
             case 13:
                 e.preventDefault();
                 if ($active.length) {
                     $active.click();
                 } else {
-                    var url = $(this).data('taglabelUrl');
-                    var name = $algorithmInput.val();
-                    var proposed = $('.tag-proposal').toArray().map(function (proposal) {
-                        return proposal.textContent;
-                    });
-                    $.getJSON(url, {name: name, proposed: jQuery.inArray(name, proposed)}).done(function (tag) {
-                        $inputContainer.css('margin-bottom', '2rem');
-                        var label = $('<span/>', {
-                            'class': 'label tag-label tag-proposal tag-label-algorithm',
-                            text: tag,
-                        });
-                        $proposals.append(label);
-                        $proposals.append('\n');
-                        $proposals.removeClass('hidden');
-                        $algorithmInput.val('');
-                    });
+                    addTagLabel($(this).data('taglabelUrl'));
                 }
-
         }
+    });
+
+    // adding algorithms using "Add" button
+    $addAlgorithm.on('click', function () {
+        addTagLabel($(this).data('taglabelUrl'));
     });
 
     // deleting proposals
@@ -181,24 +203,24 @@ $(document).ready(function () {
 
     // post data after submit
     $submit.on('click', function () {
-        var tags = $('.tag-proposal').toArray().map(function (proposal) {
+        const tags = $('.tag-proposal').toArray().map(function (proposal) {
             return proposal.textContent;
         });
-        var difficulty = '';
+        let difficulty = '';
         const $selected = $('button[data-state="selected"]');
         if ($selected.length) {
-            difficulty = $selected.toArray()[0].textContent;
+            difficulty = $selected.toArray()[0].textContent.trim();
         }
 
         $serverError.addClass('hidden');
         $invalidForm.addClass('hidden');
 
-        if (!tags.length) {
+        if (!tags.length || difficulty === '') {
             $invalidForm.removeClass('hidden');
             return;
         }
 
-        var proposals = {
+        const proposals = {
             tags: tags,
             difficulty: difficulty,
             problem: $(this).data('problem'),
@@ -221,6 +243,4 @@ $(document).ready(function () {
             }
         });
     });
-
 });
-

@@ -3,7 +3,7 @@
     "pk": 1,
     "model": "problems.problem",
     "fields": {
-      "name": "Task Private",
+      "legacy_name": "Task Private",
       "ascii_name": "Task Private",
       "visibility": "PR"
     }
@@ -12,7 +12,7 @@
     "pk": 2,
     "model": "problems.problem",
     "fields": {
-      "name": "Task User1Private",
+      "legacy_name": "Task User1Private",
       "ascii_name": "Task User1Private",
       "author": 1001,
       "visibility": "PR"
@@ -22,7 +22,7 @@
     "pk": 3,
     "model": "problems.problem",
     "fields": {
-      "name": "Task User1Public",
+      "legacy_name": "Task User1Public",
       "ascii_name": "Task User1Public",
       "author": 1001,
       "visibility": "PU"
@@ -32,7 +32,7 @@
     "pk": 4,
     "model": "problems.problem",
     "fields": {
-      "name": "Task Public",
+      "legacy_name": "Task Public",
       "ascii_name": "Task Public",
       "visibility": "PU"
     }

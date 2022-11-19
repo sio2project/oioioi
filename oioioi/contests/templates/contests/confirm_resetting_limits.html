@@ -1,37 +1,21 @@
-{% extends "base-with-menu.html" %}
+{% extends "contests/base_confirmation_screen.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Confirm resetting limits" %}{% endblock %}
 
-{% block main-content %}
+{% block confirmation_header %}{% trans "Confirm resetting limits" %}{% endblock %}
 
-<h1>{% trans "Confirm resetting limits" %}</h1>
-
-<p>
-    {% url 'problem_site' probleminstance.problem.problemsite.url_key as url %}
-    {% blocktrans %}
-        You are going to reset time and memory limits and point
-        scores of all tests for problem {{ probleminstance }}.
-        <br>
-        Limits and scores for this problem will be replaced by limits setted on
-        <a href="{{ url }}">
-            {{ problem site }}
-        </a>.
-    {% endblocktrans %}
-</p>
-
-<p>{% trans "Are you sure?" %}</p>
-
-<form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="post" value="yes" />
-    <div class="form-group">
-        <button type="submit" class="btn btn-danger">
-            {% trans "Yes, I am sure." %}
-        </button>
-        <button type="button" class="btn btn-default" onclick="history.back()">
-            {% trans "No, go back" %}
-        </button>
-    </div>
-</form>
+{% block confirmation_form_explanation %}
+    <p>
+        {% url 'problem_site' probleminstance.problem.problemsite.url_key as url %}
+        {% blocktrans %}
+            You are going to reset time and memory limits and point
+            scores of all tests for problem {{ probleminstance }}.
+            <br>
+            Limits and scores for this problem will be replaced by limits set on the
+            <a href="{{ url }}">
+                problem site
+            </a>.
+        {% endblocktrans %}
+    </p>
 {% endblock %}

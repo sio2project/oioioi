@@ -1,0 +1,7 @@
+{% load i18n admin_urls %}
+{% block object-tools-items %}
+{% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+<a href="{% add_preserved_filters history_url %}" class="btn btn-sm btn-outline-secondary">{% translate "History" %}</a>
+{% if has_absolute_url %}<a href="{{ absolute_url }}" class="btn btn-sm btn-outline-secondary">{% translate "View on site" %}</a>{% endif %}
+<a class="btn btn-sm btn-outline-danger" href="{% url opts|admin_urlname:'changelist' %}">{% trans "Go back" %}</a>
+{% endblock %}

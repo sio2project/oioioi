@@ -1,16 +1,16 @@
 {% load i18n %}
 
-<div class="panel-heading dashboard-panel-head">
+<div class="card-header dashboard-panel-head">
     <a href="{% url 'noncontest:all_submissions' %}" class="plain_link">
-        <h4>{% trans 'My Submissions' %}</h4>
+        <h4 class="mb-0">{% trans "My Submissions" %}</h4>
     </a>
 </div>
-<div class="panel-body dashboard-panel-body">
+<div class="card-body dashboard-card-body">
     {% if submissions %}
         {% include "submission_panel_table.html" %}
-        <p class="text-center dashboard-panel-footer">
+        <p class="text-center dashboard-card-footer">
             <a href="{% url 'all_submissions' %}">
-                {% trans 'more' %}
+                {% trans "More" %}
             </a>
         </p>
     {% else %}

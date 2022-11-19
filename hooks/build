@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker build --add-host=web:127.0.0.1 -f $DOCKERFILE_PATH -t $IMAGE_NAME .

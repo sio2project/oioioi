@@ -1,14 +1,20 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
-from oioioi.contests.utils import (is_contest_admin, is_contest_basicadmin,
-                                   is_contest_observer)
+from oioioi.contests.utils import (
+    is_contest_admin,
+    is_contest_basicadmin,
+    is_contest_observer,
+)
 from oioioi.programs.models import ModelProgramSubmission, Test
+
 
 class TestUserContestAuthBackend(TestCase):
     fixtures = ['test_users', 'test_usercontest']
@@ -21,10 +27,13 @@ class TestUserContestAuthBackend(TestCase):
         self.assertTrue(user.has_perm('contests.contest_basicadmin', contest))
         self.assertFalse(user.has_perm('contests.contest_observer', contest))
 
-    @override_settings(AUTHENTICATION_BACKENDS=[
-            backend for backend in settings.AUTHENTICATION_BACKENDS \
+    @override_settings(
+        AUTHENTICATION_BACKENDS=[
+            backend
+            for backend in settings.AUTHENTICATION_BACKENDS
             if backend != 'oioioi.usercontests.auth.UserContestAuthBackend'
-        ])
+        ]
+    )
     def test_permissions_off(self):
         user = User.objects.get(pk=1001)
         contest = Contest.objects.get(pk="uc")
@@ -54,10 +63,13 @@ class TestUserContestAuthBackend(TestCase):
         self.assertTrue(is_contest_basicadmin(request))
         self.assertFalse(is_contest_observer(request))
 
-    @override_settings(AUTHENTICATION_BACKENDS=[
-            backend for backend in settings.AUTHENTICATION_BACKENDS \
+    @override_settings(
+        AUTHENTICATION_BACKENDS=[
+            backend
+            for backend in settings.AUTHENTICATION_BACKENDS
             if backend != 'oioioi.usercontests.auth.UserContestAuthBackend'
-        ])
+        ]
+    )
     def test_utils_off(self):
         user = User.objects.get(pk=1001)
         contest = Contest.objects.get(pk="uc")
@@ -87,6 +99,11 @@ class TestUserContestAuthBackend(TestCase):
 class TestUserContestCreationForm(TestCase):
     fixtures = ['test_users']
 
+    def _get_future_date(self):
+        date = '2037-04-19'   # far in the future and in 32bit timestamp range.
+        assert datetime.strptime(date, '%Y-%M-%d') > datetime.now()
+        return date
+
     def test_controller_type_hidden(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('oioioiadmin:contests_contest_add')
@@ -107,7 +124,7 @@ class TestUserContestCreationForm(TestCase):
             'name': 'test usercontest',
             'id': 'test-usercontest',
             'default_submissions_limit': 0,
-            'start_date_0': '2077-04-19',
+            'start_date_0': self._get_future_date(),
             'start_date_1': '00:00:00',
             "round_set-TOTAL_FORMS": 0,
             "round_set-INITIAL_FORMS": 0,
@@ -117,6 +134,10 @@ class TestUserContestCreationForm(TestCase):
             "c_attachments-INITIAL_FORMS": 0,
             "c_attachments-MIN_NUM_FORMS": 0,
             "c_attachments-MAX_NUM_FORMS": 1000,
+            "usergroupranking_set-TOTAL_FORMS": 0,
+            "usergroupranking_set-INITIAL_FORMS": 0,
+            "usergroupranking_set-MIN_NUM_FORMS": 0,
+            "usergroupranking_set-MAX_NUM_FORMS": 1000,
             "contestlink_set-TOTAL_FORMS": 0,
             "contestlink_set-INITIAL_FORMS": 0,
             "contestlink_set-MIN_NUM_FORMS": 0,
@@ -137,8 +158,10 @@ class TestUserContestCreationForm(TestCase):
         self.assertEqual(response.status_code, 200)
 
         contest = Contest.objects.get()
-        self.assertEqual(contest.controller_name,
-                'oioioi.usercontests.controllers.UserContestController')
+        self.assertEqual(
+            contest.controller_name,
+            'oioioi.usercontests.controllers.UserContestController',
+        )
 
     @override_settings(ARCHIVE_USERCONTESTS=True)
     def test_archived(self):

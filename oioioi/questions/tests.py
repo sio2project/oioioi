@@ -1,21 +1,25 @@
 from copy import deepcopy
 from datetime import datetime  # pylint: disable=E0611
 
-import mock
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 from django.contrib.auth.models import User
 from django.core import mail
-from django.core.urlresolvers import reverse
 from django.test import RequestFactory
+from django.urls import reverse
 from django.utils import timezone
-from six.moves import range
 
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.questions.forms import FilterMessageForm
-from oioioi.questions.management.commands.mailnotifyd import (candidate_messages,
-                                                              mailnotify)
+from oioioi.questions.management.commands.mailnotifyd import (
+    candidate_messages,
+    mailnotify,
+)
 from oioioi.questions.models import Message, ReplyTemplate
 from oioioi.questions.utils import unanswered_questions
 
@@ -24,21 +28,31 @@ from .views import visible_messages
 
 class TestContestControllerMixin(object):
     def users_to_receive_public_message_notification(self):
-        return self.registration_controller().filter_participants(User
-                .objects.all())
+        return self.registration_controller().filter_participants(User.objects.all())
+
 
 ProgrammingContestController.mix_in(TestContestControllerMixin)
 
 
 class TestQuestions(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_messages', 'test_templates',
-                'test_subscriptions']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_messages',
+        'test_templates',
+        'test_subscriptions',
+    ]
 
     def test_visibility(self):
         contest = Contest.objects.get()
-        all_messages = ['problem-question', 'contest-question',
-                'public-answer', 'private-answer']
+        all_messages = [
+            'problem-question',
+            'contest-question',
+            'public-answer',
+            'private-answer',
+        ]
         url = reverse('contest_messages', kwargs={'contest_id': contest.id})
 
         def check_visibility(*should_be_visible):
@@ -48,6 +62,7 @@ class TestQuestions(TestCase):
                     self.assertContains(response, m)
                 else:
                     self.assertNotContains(response, m)
+
         self.assertTrue(self.client.login(username='test_user'))
         check_visibility('public-answer', 'private-answer')
         self.assertTrue(self.client.login(username='test_user2'))
@@ -57,9 +72,13 @@ class TestQuestions(TestCase):
 
     def test_pub_date(self):
         contest = Contest.objects.get()
-        all_messages = ['question-visible', 'question-hidden1',
-                'question-hidden2', 'response-hidden',
-                'visible-response-to-hidden']
+        all_messages = [
+            'question-visible-title',
+            'question-hidden1-title',
+            'question-hidden2-title',
+            'response-hidden-title',
+            'visible-response-to-hidden',
+        ]
         url = reverse('contest_messages', kwargs={'contest_id': contest.id})
         timestamp = datetime(2013, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
 
@@ -73,10 +92,13 @@ class TestQuestions(TestCase):
                     self.assertNotContains(response, m)
 
         self.assertTrue(self.client.login(username='test_user'))
-        check_visibility('question-visible')
+        check_visibility('question-visible-title')
         self.assertTrue(self.client.login(username='test_admin'))
-        check_visibility('response-hidden', 'question-hidden1',
-                'visible-response-to-hidden')
+        check_visibility(
+            'response-hidden-title',
+            'question-hidden1-title',
+            'visible-response-to-hidden',
+        )
 
     def test_user_date(self):
         ta = datetime(1970, 1, 1, 12, 30, tzinfo=timezone.utc)
@@ -95,26 +117,33 @@ class TestQuestions(TestCase):
             request.user = User.objects.get(username=username)
             return request
 
-        self.assertListEqual([5, 4, 3, 2, 1],
-                [m.id for m in visible_messages(make_request('test_user'))])
-        self.assertListEqual([5, 4],
-                [m.id for m in visible_messages(make_request('test_user2'))])
-        self.assertListEqual([9, 8, 7, 6, 5, 4, 10, 3, 2, 1],
-                [m.id for m in visible_messages(make_request('test_admin'))])
+        self.assertListEqual(
+            [5, 4, 3, 2, 1], [m.id for m in visible_messages(make_request('test_user'))]
+        )
+        self.assertListEqual(
+            [5, 4], [m.id for m in visible_messages(make_request('test_user2'))]
+        )
+        self.assertListEqual(
+            [9, 8, 7, 6, 5, 4, 10, 3, 2, 1],
+            [m.id for m in visible_messages(make_request('test_admin'))],
+        )
 
     def test_new_labels(self):
         self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
-        list_url = reverse('contest_messages',
-                kwargs={'contest_id': contest.id})
+        list_url = reverse('contest_messages', kwargs={'contest_id': contest.id})
         timestamp = timezone.make_aware(datetime.utcfromtimestamp(1347025200))
         with fake_time(timestamp):
             response = self.client.get(list_url)
         self.assertContains(response, '>NEW<', count=2)
         public_answer = Message.objects.get(topic='public-answer')
         with fake_time(timestamp):
-            response = self.client.get(reverse('message', kwargs={
-                'contest_id': contest.id, 'message_id': public_answer.id}))
+            response = self.client.get(
+                reverse(
+                    'message',
+                    kwargs={'contest_id': contest.id, 'message_id': public_answer.id},
+                )
+            )
         self.assertContains(response, 'public-answer-body')
         self.assertNotContains(response, 'contest-question')
         self.assertNotContains(response, 'problem-question')
@@ -134,10 +163,10 @@ class TestQuestions(TestCase):
         self.assertEqual(len(form.fields['category'].choices) - 1, 2)
 
         post_data = {
-                'category': 'p_%d' % (pi.id,),
-                'topic': 'the-new-question',
-                'content': 'the-new-body',
-            }
+            'category': 'p_%d' % (pi.id,),
+            'topic': 'the-new-question',
+            'content': 'the-new-body',
+        }
         response = self.client.post(url, post_data)
         self.assertEqual(response.status_code, 302)
         new_question = Message.objects.get(topic='the-new-question')
@@ -149,34 +178,35 @@ class TestQuestions(TestCase):
         self.assertEqual(new_question.author.username, 'test_user2')
 
         self.assertTrue(self.client.login(username='test_admin'))
-        list_url = reverse('contest_messages',
-                kwargs={'contest_id': contest.id})
+        list_url = reverse('contest_messages', kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
         self.assertContains(response, 'the-new-question')
 
-        url = reverse('message', kwargs={'contest_id': contest.id,
-            'message_id': new_question.id})
+        url = reverse(
+            'message', kwargs={'contest_id': contest.id, 'message_id': new_question.id}
+        )
         response = self.client.get(url)
         self.assertIn('form', response.context)
 
         post_data = {
-                'kind': 'PUBLIC',
-                'topic': 're-new-question',
-                'content': 're-new-body',
-                'save_template': True,
-            }
+            'kind': 'PUBLIC',
+            'topic': 're-new-question',
+            'content': 're-new-body',
+            'save_template': True,
+        }
         response = self.client.post(url, post_data)
         self.assertEqual(response.status_code, 302)
         post_data = {
-                'kind': 'PUBLIC',
-                'topic': 'another-re-new-question',
-                'content': 'another-re-new-body',
-                'save_template': False,
-            }
+            'kind': 'PUBLIC',
+            'topic': 'another-re-new-question',
+            'content': 'another-re-new-body',
+            'save_template': False,
+        }
         response = self.client.post(url, post_data)
-        self.assertRaises(ReplyTemplate.DoesNotExist,
-                          lambda: ReplyTemplate.objects
-                                  .get(content='another-re-new-body'))
+        self.assertRaises(
+            ReplyTemplate.DoesNotExist,
+            lambda: ReplyTemplate.objects.get(content='another-re-new-body'),
+        )
         self.assertEqual(response.status_code, 302)
         new_reply = Message.objects.get(topic='re-new-question')
         self.assertEqual(new_reply.content, 're-new-body')
@@ -187,11 +217,13 @@ class TestQuestions(TestCase):
         self.assertEqual(new_reply.author.username, 'test_admin')
 
         self.assertTrue(self.client.login(username='test_user'))
-        q_url = reverse('message', kwargs={'contest_id': contest.id,
-            'message_id': new_question.id})
+        q_url = reverse(
+            'message', kwargs={'contest_id': contest.id, 'message_id': new_question.id}
+        )
         check_not_accessible(self, q_url)
-        repl_url = reverse('message', kwargs={'contest_id': contest.id,
-            'message_id': new_reply.id})
+        repl_url = reverse(
+            'message', kwargs={'contest_id': contest.id, 'message_id': new_reply.id}
+        )
         response = self.client.get(repl_url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 're-new-question')
@@ -220,8 +252,13 @@ class TestQuestions(TestCase):
         flags['user_1002_got_notification'] = False
 
         @classmethod
-        def fake_send_notification(cls, user, notification_type,
-                    notification_message, notificaion_message_arguments):
+        def fake_send_notification(
+            cls,
+            user,
+            notification_type,
+            notification_message,
+            notificaion_message_arguments,
+        ):
             if user.pk == 1002:
                 flags['user_1002_got_notification'] = True
             if user.pk == 1001:
@@ -239,32 +276,32 @@ class TestQuestions(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post_data = {
-                'category': 'p_%d' % (pi.id,),
-                'topic': 'the-new-question',
-                'content': 'the-new-body',
-            }
+            'category': 'p_%d' % (pi.id,),
+            'topic': 'the-new-question',
+            'content': 'the-new-body',
+        }
         response = self.client.post(url, post_data)
         self.assertEqual(response.status_code, 302)
         new_question = Message.objects.get(topic='the-new-question')
 
         # Test admin replies his question
         self.assertTrue(self.client.login(username='test_admin'))
-        list_url = reverse('contest_messages',
-                kwargs={'contest_id': contest.id})
+        list_url = reverse('contest_messages', kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
         self.assertContains(response, 'the-new-question')
 
-        url = reverse('message', kwargs={'contest_id': contest.id,
-            'message_id': new_question.id})
+        url = reverse(
+            'message', kwargs={'contest_id': contest.id, 'message_id': new_question.id}
+        )
         response = self.client.get(url)
         self.assertIn('form', response.context)
 
         post_data = {
-                'kind': 'PRIVATE',
-                'topic': 're-new-question',
-                'content': 're-new-body',
-                'save_template': True,
-            }
+            'kind': 'PRIVATE',
+            'topic': 're-new-question',
+            'content': 're-new-body',
+            'save_template': True,
+        }
         response = self.client.post(url, post_data)
         self.assertEqual(response.status_code, 302)
 
@@ -280,8 +317,13 @@ class TestQuestions(TestCase):
         flags['user_1002_got_notification'] = False
 
         @classmethod
-        def fake_send_notification(cls, user, notification_type,
-                    notification_message, notificaion_message_arguments):
+        def fake_send_notification(
+            cls,
+            user,
+            notification_type,
+            notification_message,
+            notificaion_message_arguments,
+        ):
             if user.pk == 1002:
                 flags['user_1002_got_notification'] = True
             if user.pk == 1001:
@@ -300,32 +342,32 @@ class TestQuestions(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post_data = {
-                'category': 'p_%d' % (pi.id,),
-                'topic': 'the-new-question',
-                'content': 'the-new-body',
-            }
+            'category': 'p_%d' % (pi.id,),
+            'topic': 'the-new-question',
+            'content': 'the-new-body',
+        }
         response = self.client.post(url, post_data)
         self.assertEqual(response.status_code, 302)
         new_question = Message.objects.get(topic='the-new-question')
 
         # Test admin replies his question
         self.assertTrue(self.client.login(username='test_admin'))
-        list_url = reverse('contest_messages',
-                kwargs={'contest_id': contest.id})
+        list_url = reverse('contest_messages', kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
         self.assertContains(response, 'the-new-question')
 
-        url = reverse('message', kwargs={'contest_id': contest.id,
-            'message_id': new_question.id})
+        url = reverse(
+            'message', kwargs={'contest_id': contest.id, 'message_id': new_question.id}
+        )
         response = self.client.get(url)
         self.assertIn('form', response.context)
 
         post_data = {
-                'kind': 'PUBLIC',
-                'topic': 're-new-question',
-                'content': 're-new-body',
-                'save_template': True,
-            }
+            'kind': 'PUBLIC',
+            'topic': 're-new-question',
+            'content': 're-new-body',
+            'save_template': True,
+        }
         response = self.client.post(url, post_data)
         self.assertEqual(response.status_code, 302)
 
@@ -382,8 +424,7 @@ class TestQuestions(TestCase):
     def test_authors_list(self):
         self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
-        url = reverse('get_messages_authors',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('get_messages_authors', kwargs={'contest_id': contest.id})
         response = self.client.get(url, {'substr': ''})
         self.assertEqual(404, response.status_code)
         response = self.client.get(url)
@@ -392,8 +433,9 @@ class TestQuestions(TestCase):
         response = self.client.get(url, {'substr': 'te'})
         self.assertEqual(200, response.status_code)
         response = response.json()
-        self.assertListEqual(['test_admin (Test Admin)',
-                              'test_user (Test User)'], response)
+        self.assertListEqual(
+            ['test_admin (Test Admin)', 'test_user (Test User)'], response
+        )
 
         response = self.client.get(url, {'substr': 'test admin'})
         response = response.json()
@@ -410,8 +452,7 @@ class TestQuestions(TestCase):
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         def change_category(msg, cat):
-            url = reverse('oioioiadmin:questions_message_change',
-                          args=(msg.id,))
+            url = reverse('oioioiadmin:questions_message_change', args=(msg.id,))
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
             self.assertIn('form', response.context)
@@ -451,23 +492,23 @@ class TestQuestions(TestCase):
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         msg = Message.objects.filter(author__username='test_admin')[0]
-        url = reverse('oioioiadmin:questions_message_change',
-                      args=(msg.id,))
+        url = reverse('oioioiadmin:questions_message_change', args=(msg.id,))
         check_not_accessible(self, url)
 
     def test_reply_templates(self):
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
-        url1 = reverse('get_reply_templates',
-                       kwargs={'contest_id': contest.id})
+        url1 = reverse('get_reply_templates', kwargs={'contest_id': contest.id})
         response = self.client.get(url1)
         templates = response.json()
         self.assertEqual(templates[0]['name'], "N/A")
         self.assertEqual(templates[0]['content'], "No answer.")
         self.assertEqual(templates[3]['name'], "What contest is this?")
         self.assertEqual(len(templates), 4)
-        url_inc = reverse('increment_template_usage',
-                          kwargs={'contest_id': contest.id, 'template_id': 4})
+        url_inc = reverse(
+            'increment_template_usage',
+            kwargs={'contest_id': contest.id, 'template_id': 4},
+        )
         for _i in range(12):
             response = self.client.get(url_inc)
         response = self.client.get(url1)
@@ -479,8 +520,7 @@ class TestQuestions(TestCase):
 
     def test_check_new_messages(self):
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('check_new_messages',
-                kwargs={'contest_id': 'c', 'topic_id': 2})
+        url = reverse('check_new_messages', kwargs={'contest_id': 'c', 'topic_id': 2})
         resp = self.client.get(url, {'timestamp': 1347000000})
         data = resp.json()['messages']
 
@@ -494,14 +534,16 @@ class TestQuestions(TestCase):
         # so let's test both types of users.
         for username in ['test_user', 'test_admin']:
             self.assertTrue(self.client.login(username=username))
-            response = self.client.get(url,
-                {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
+            response = self.client.get(
+                url, {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES}
+            )
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'private-answer')
             self.assertContains(response, 'public-answer')
 
-            response = self.client.get(url,
-                {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
+            response = self.client.get(
+                url, {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS}
+            )
             self.assertEqual(response.status_code, 200)
             self.assertNotContains(response, 'private-answer')
             self.assertContains(response, 'public-answer')
@@ -522,6 +564,7 @@ class TestQuestions(TestCase):
     def test_mailnotify(self):
         def assertMessageId(id, body):
             self.assertIn("/questions/{}/".format(id), body)
+
         # Notify about a private message
         message = Message.objects.get(pk=3)
         mailnotify(message)
@@ -570,8 +613,7 @@ class TestQuestions(TestCase):
     def test_unseen_mail_notifications(self):
         """Test whether the notifications are correctly *not* sent for messages
         which are not visible to the user"""
-        mock_name = \
-            'oioioi.questions.management.commands.mailnotifyd.visible_messages'
+        mock_name = 'oioioi.questions.management.commands.mailnotifyd.visible_messages'
         with mock.patch(mock_name, return_value=Message.objects.none()):
             message = Message.objects.get(pk=4)
             mailnotify(message)
@@ -579,23 +621,32 @@ class TestQuestions(TestCase):
 
 
 class TestAllMessagesView(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_messages',
-                'test_second_user_messages']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_messages',
+        'test_second_user_messages',
+    ]
 
     def test_visible_messages(self):
         contest = Contest.objects.get()
-        url = reverse('contest_all_messages',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('contest_all_messages', kwargs={'contest_id': contest.id})
 
         visible_to_user = [
-            'general-question', 'problem-question',
-            'question-body', 'private-answer-body', 'public-answer-body',
+            'general-question',
+            'problem-question',
+            'question-body',
+            'private-answer-body',
+            'public-answer-body',
             'user2-public-answer-body',
         ]
         hidden_to_user = [
-            'user2-answered-question', 'user2-unanswered-question',
-            'user2-question-body', 'user2-private-answer-body',
+            'user2-answered-question',
+            'user2-unanswered-question',
+            'user2-question-body',
+            'user2-private-answer-body',
         ]
         # Note: reply topics are not displayed and regular users can not see
         #       questions of another users, so they can see reply as a single
@@ -607,15 +658,18 @@ class TestAllMessagesView(TestCase):
             'user2-private-answer-topic',
         ]
 
-        test_data = [{
-            'username': 'test_user',
-            'visible': visible_to_user + visible_for_non_admins,
-            'hidden': hidden_to_user + hidden_to_all,
-        }, {
-            'username': 'test_admin',
-            'visible': visible_to_user + hidden_to_user,
-            'hidden': visible_for_non_admins + hidden_to_all,
-        }]
+        test_data = [
+            {
+                'username': 'test_user',
+                'visible': visible_to_user + visible_for_non_admins,
+                'hidden': hidden_to_user + hidden_to_all,
+            },
+            {
+                'username': 'test_admin',
+                'visible': visible_to_user + hidden_to_user,
+                'hidden': visible_for_non_admins + hidden_to_all,
+            },
+        ]
 
         for d in test_data:
             self.assertTrue(self.client.login(username=d['username']))
@@ -628,8 +682,7 @@ class TestAllMessagesView(TestCase):
 
     def test_marking_as_read(self):
         contest = Contest.objects.get()
-        url = reverse('contest_all_messages',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('contest_all_messages', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
@@ -642,8 +695,7 @@ class TestAllMessagesView(TestCase):
 
     def test_marking_as_needs_reply(self):
         contest = Contest.objects.get()
-        url = reverse('contest_all_messages',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('contest_all_messages', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
@@ -653,32 +705,40 @@ class TestAllMessagesView(TestCase):
         # We need additional modules like django-webtest or beuatiful soup
         # to gracefully inspect HTML instead of template context
         for entry in response.context['tree_list']:
-            self.assertEqual(entry['needs_reply'],
-                             entry['message'] in unanswered)
+            self.assertEqual(entry['needs_reply'], entry['message'] in unanswered)
 
     def test_messages_ordering(self):
         contest = Contest.objects.get()
-        url = reverse('contest_all_messages',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('contest_all_messages', kwargs={'contest_id': contest.id})
 
-        test_data = [{
-            'username': 'test_user',
-            'sort_key': lambda x: (x['has_new_message'], x['needs_reply'],
-                                   x['timestamp']),
-            'visit_messages': [2, 7],
-        }, {
-            'username': 'test_admin',
-            'sort_key': lambda x: (x['needs_reply'], x['has_new_message'],
-                                   x['timestamp']),
-            'visit_messages': [2, 7],
-        }]
+        test_data = [
+            {
+                'username': 'test_user',
+                'sort_key': lambda x: (
+                    x['has_new_message'],
+                    x['needs_reply'],
+                    x['timestamp'],
+                ),
+                'visit_messages': [2, 7],
+            },
+            {
+                'username': 'test_admin',
+                'sort_key': lambda x: (
+                    x['needs_reply'],
+                    x['has_new_message'],
+                    x['timestamp'],
+                ),
+                'visit_messages': [2, 7],
+            },
+        ]
 
         for d in test_data:
             self.assertTrue(self.client.login(username=d['username']))
             for mid in d['visit_messages']:
-                url_visit = reverse('message_visit',
-                                    kwargs={'contest_id': contest.id,
-                                            'message_id': mid})
+                url_visit = reverse(
+                    'message_visit',
+                    kwargs={'contest_id': contest.id, 'message_id': mid},
+                )
                 response = self.client.get(url_visit)
                 self.assertEqual(response.status_code, 201)
 
@@ -698,35 +758,43 @@ class TestAllMessagesView(TestCase):
         # Note: already tested in TestQuestions. Here, we are only testing
         #       if filter form is supported in this view.
         contest = Contest.objects.get()
-        url = reverse('contest_all_messages',
-                      kwargs={'contest_id': contest.id})
+        url = reverse('contest_all_messages', kwargs={'contest_id': contest.id})
 
         # Admin and regular users have slightly different filter forms,
         # so let's test both types of users.
         for username in ['test_user', 'test_admin']:
             self.assertTrue(self.client.login(username=username))
-            response = self.client.get(url,
-                {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
+            response = self.client.get(
+                url, {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES}
+            )
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'private-answer')
             self.assertContains(response, 'public-answer')
 
-            response = self.client.get(url,
-                {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
+            response = self.client.get(
+                url, {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS}
+            )
             self.assertEqual(response.status_code, 200)
             self.assertNotContains(response, 'private-answer')
             self.assertContains(response, 'public-answer')
 
 
 class TestUserInfo(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_messages', 'test_templates']
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_messages',
+        'test_templates',
+    ]
 
     def test_user_info_page(self):
         contest = Contest.objects.get()
         user = User.objects.get(pk=1001)
-        url = reverse('user_info', kwargs={'contest_id': contest.id,
-                                           'user_id': user.id})
+        url = reverse(
+            'user_info', kwargs={'contest_id': contest.id, 'user_id': user.id}
+        )
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)

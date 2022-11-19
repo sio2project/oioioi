@@ -1,6 +1,5 @@
 import itertools
 import os.path
-import six
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -11,73 +10,95 @@ from django.db.models import Max
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
+
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ungettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.menu import MenuItem, menu_registry
 from oioioi.base.utils import strip_num_or_hash
-from oioioi.base.utils.validators import (validate_db_string_id,
-                                          validate_whitespaces)
+from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField
-from oioioi.contests.problem_instance_controller import \
-    ProblemInstanceController
+from oioioi.contests.problem_instance_controller import ProblemInstanceController
 from oioioi.filetracker.fields import FileField
 
 
 def make_contest_filename(instance, filename):
     if not isinstance(instance, Contest):
-        assert hasattr(instance, 'contest'), 'contest_file_generator used ' \
-                'on object %r which does not have \'contest\' attribute' \
-                % (instance,)
+        assert hasattr(instance, 'contest'), (
+            'contest_file_generator used '
+            'on object %r which does not have \'contest\' attribute' % (instance,)
+        )
         instance = getattr(instance, 'contest')
-    return 'contests/%s/%s' % (instance.id,
-            get_valid_filename(os.path.basename(filename)))
+    return 'contests/%s/%s' % (
+        instance.id,
+        get_valid_filename(os.path.basename(filename)),
+    )
 
 
-@python_2_unicode_compatible
 class Contest(models.Model):
-    id = models.CharField(max_length=32, primary_key=True,
-            verbose_name=_("ID"), validators=[validate_db_string_id])
-    name = models.CharField(max_length=255, verbose_name=_("full name"),
-                            validators=[validate_whitespaces])
+    id = models.CharField(
+        max_length=32,
+        primary_key=True,
+        verbose_name=_("ID"),
+        validators=[validate_db_string_id],
+    )
+    name = models.CharField(
+        max_length=255, verbose_name=_("full name"), validators=[validate_whitespaces]
+    )
     # The controller_name field is deliberately lacking default value. This
     # ensures that the contest type is explicitly set when persisting
     # an object to the database.
     controller_name = DottedNameField(
-            'oioioi.contests.controllers.ContestController',
-            verbose_name=_("type"))
-    creation_date = models.DateTimeField(auto_now_add=True, editable=False,
-            db_index=True, verbose_name=_("creation date"))
+        'oioioi.contests.controllers.ContestController', verbose_name=_("type")
+    )
+    creation_date = models.DateTimeField(
+        auto_now_add=True,
+        editable=False,
+        db_index=True,
+        verbose_name=_("creation date"),
+    )
     default_submissions_limit = models.IntegerField(
-            verbose_name=_("default submissions limit"),
-            help_text=_("Use 0 for unlimited submissions."),
-            default=settings.DEFAULT_SUBMISSIONS_LIMIT, blank=True)
-    contact_email = models.EmailField(blank=True,
-            verbose_name=_("contact email"),
-            help_text=_("Address of contest owners. Sent emails related "
-                "to this contest (i.e. submission confirmations) "
-                "will have the return address set to this value. "
-                "Defaults to system admins address if left empty."))
+        verbose_name=_("default submissions limit"),
+        help_text=_("Use 0 for unlimited submissions."),
+        default=settings.DEFAULT_SUBMISSIONS_LIMIT,
+        blank=True,
+    )
+    contact_email = models.EmailField(
+        blank=True,
+        verbose_name=_("contact email"),
+        help_text=_(
+            "Address of contest owners. Sent emails related "
+            "to this contest (i.e. submission confirmations) "
+            "will have the return address set to this value. "
+            "Defaults to system admins address if left empty."
+        ),
+    )
     judging_priority = models.IntegerField(
-            verbose_name=_("judging priority"),
-            default=settings.DEFAULT_CONTEST_PRIORITY,
-            help_text=_(
-                "Contest with higher judging priority is always judged "
-                "before contest with lower judging priority."))
+        verbose_name=_("judging priority"),
+        default=settings.DEFAULT_CONTEST_PRIORITY,
+        help_text=_(
+            "Contest with higher judging priority is always judged "
+            "before contest with lower judging priority."
+        ),
+    )
     judging_weight = models.IntegerField(
-            verbose_name=_("judging weight"),
-            default=settings.DEFAULT_CONTEST_WEIGHT,
-            validators=[MinValueValidator(1)],
-            help_text=_(
-                "If some contests have the same judging priority, the "
-                "judging resources are allocated proportionally to "
-                "their weights."
-            ))
+        verbose_name=_("judging weight"),
+        default=settings.DEFAULT_CONTEST_WEIGHT,
+        validators=[MinValueValidator(1)],
+        help_text=_(
+            "If some contests have the same judging priority, the "
+            "judging resources are allocated proportionally to "
+            "their weights."
+        ),
+    )
+    enable_editor = models.BooleanField(
+        verbose_name=_("enable editor"),
+        default=False
+    )
 
     @property
     def controller(self):
@@ -93,17 +114,17 @@ class Contest(models.Model):
             ('contest_admin', _("Can administer the contest")),
             ('contest_observer', _("Can observe the contest")),
             ('enter_contest', _("Can enter the contest")),
-            ('personal_data', _("Has access to the private data of users"))
+            ('personal_data', _("Has access to the private data of users")),
         )
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
 
 @receiver(pre_save, sender=Contest)
 def _generate_contest_id(sender, instance, raw, **kwargs):
     """Automatically generate a contest ID if not provided, by trying ``p0``,
-       ``p1``, etc."""
+    ``p1``, etc."""
     if not raw and not instance.id:
         instance_ids = frozenset(Contest.objects.values_list('id', flat=True))
         for i in itertools.count(1):
@@ -119,24 +140,33 @@ def _call_controller_adjust_contest(sender, instance, raw, **kwargs):
         instance.controller.adjust_contest()
 
 
-@python_2_unicode_compatible
 class ContestAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
-       the contest or to the round.
+    the contest or to the round.
 
-       This may be used for additional materials, like rules, documentation
-       etc.
+    This may be used for additional materials, like rules, documentation
+    etc.
     """
-    contest = models.ForeignKey(Contest, related_name='c_attachments',
-            verbose_name=_("contest"), on_delete=models.CASCADE)
-    description = models.CharField(max_length=255,
-            verbose_name=_("description"))
-    content = FileField(upload_to=make_contest_filename,
-            verbose_name=_("content"))
-    round = models.ForeignKey('Round', related_name='r_attachments',
-            blank=True, null=True, verbose_name=_("round"), on_delete=models.CASCADE)
-    pub_date = models.DateTimeField(default=None, blank=True, null=True,
-            verbose_name=_("publication date"))
+
+    contest = models.ForeignKey(
+        Contest,
+        related_name='c_attachments',
+        verbose_name=_("contest"),
+        on_delete=models.CASCADE,
+    )
+    description = models.CharField(max_length=255, verbose_name=_("description"))
+    content = FileField(upload_to=make_contest_filename, verbose_name=_("content"))
+    round = models.ForeignKey(
+        'Round',
+        related_name='r_attachments',
+        blank=True,
+        null=True,
+        verbose_name=_("round"),
+        on_delete=models.CASCADE,
+    )
+    pub_date = models.DateTimeField(
+        default=None, blank=True, null=True, verbose_name=_("publication date")
+    )
 
     @property
     def filename(self):
@@ -147,7 +177,7 @@ class ContestAttachment(models.Model):
         return strip_num_or_hash(self.filename)
 
     def __str__(self):
-        return six.text_type(self.filename)
+        return str(self.filename)
 
     class Meta(object):
         verbose_name = _("attachment")
@@ -155,53 +185,69 @@ class ContestAttachment(models.Model):
 
 
 def _round_end_date_name_generator(obj):
-    max_round_extension = RoundTimeExtension.objects.filter(round=obj). \
-            aggregate(Max('extra_time'))['extra_time__max']
+    max_round_extension = RoundTimeExtension.objects.filter(round=obj).aggregate(
+        Max('extra_time')
+    )['extra_time__max']
     if max_round_extension is not None:
-        return ungettext("End of %(name)s (+ %(ext)d min)",
-                         "End of %(name)s (+ %(ext)d mins)",
-                         max_round_extension) % \
-                         {'name': obj.name, 'ext': max_round_extension}
+        text = ngettext(
+            "End of %(name)s (+ %(ext)d min)",
+            "End of %(name)s (+ %(ext)d mins)",
+            max_round_extension,
+        )
+        text = text % {'name': obj.name, 'ext': max_round_extension}
+        return text
     else:
         return _("End of %s") % obj.name
 
 
-@date_registry.register('start_date',
-                        name_generator=(lambda obj:
-                                        _("Start of %s") % obj.name),
-                        round_chooser=(lambda obj: obj),
-                        order=0)
-@date_registry.register('end_date',
-                        name_generator=_round_end_date_name_generator,
-                        round_chooser=(lambda obj: obj),
-                        order=1)
-@date_registry.register('results_date',
-                        name_generator=(lambda obj:
-                                        _("Results of %s") % obj.name),
-                        round_chooser=(lambda obj: obj),
-                        order=30)
-@date_registry.register('public_results_date',
-                        name_generator=(lambda obj:
-                                        _("Public results of %s") % obj.name),
-                        round_chooser=(lambda obj: obj),
-                        order=31)
-@python_2_unicode_compatible
+@date_registry.register(
+    'start_date',
+    name_generator=(lambda obj: _("Start of %s") % obj.name),
+    round_chooser=(lambda obj: obj),
+    order=0,
+)
+@date_registry.register(
+    'end_date',
+    name_generator=_round_end_date_name_generator,
+    round_chooser=(lambda obj: obj),
+    order=1,
+)
+@date_registry.register(
+    'results_date',
+    name_generator=(lambda obj: _("Results of %s") % obj.name),
+    round_chooser=(lambda obj: obj),
+    order=30,
+)
+@date_registry.register(
+    'public_results_date',
+    name_generator=(lambda obj: _("Public results of %s") % obj.name),
+    round_chooser=(lambda obj: obj),
+    order=31,
+)
 class Round(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
-                                on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, verbose_name=_("name"),
-                            validators=[validate_whitespaces])
-    start_date = models.DateTimeField(default=timezone.now,
-            verbose_name=_("start date"))
-    end_date = models.DateTimeField(blank=True, null=True,
-            verbose_name=_("end date"))
-    results_date = models.DateTimeField(blank=True, null=True,
-            verbose_name=_("results date"))
-    public_results_date = models.DateTimeField(blank=True, null=True,
-            verbose_name=_("public results date"),
-            help_text=_("Participants may learn about others' results, "
-                "what exactly happens depends on the type of the contest "
-                "(eg. rankings, contestants' solutions are published)."))
+    contest = models.ForeignKey(
+        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
+    )
+    name = models.CharField(
+        max_length=255, verbose_name=_("name"), validators=[validate_whitespaces]
+    )
+    start_date = models.DateTimeField(
+        default=timezone.now, verbose_name=_("start date")
+    )
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("end date"))
+    results_date = models.DateTimeField(
+        blank=True, null=True, verbose_name=_("results date")
+    )
+    public_results_date = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name=_("public results date"),
+        help_text=_(
+            "Participants may learn about others' results, "
+            "what exactly happens depends on the type of the contest "
+            "(eg. rankings, contestants' solutions are published)."
+        ),
+    )
     is_trial = models.BooleanField(default=False, verbose_name=_("is trial"))
 
     class Meta(object):
@@ -211,28 +257,36 @@ class Round(models.Model):
         ordering = ('contest', 'start_date')
 
     def __str__(self):
-        return six.text_type(self.name)
+        return str(self.name)
 
     def clean(self):
-        if self.start_date and self.end_date and \
-                self.start_date > self.end_date:
+        if self.start_date and self.end_date and self.start_date > self.end_date:
             raise ValidationError(_("Start date should be before end date."))
         if self.public_results_date:
             if self.results_date is None:
-                raise ValidationError(_("If you specify a public results "
-                    "date, you should enter a results date too."))
+                raise ValidationError(
+                    _(
+                        "If you specify a public results "
+                        "date, you should enter a results date too."
+                    )
+                )
             if self.results_date > self.public_results_date:
-                raise ValidationError(_("Results cannot appear later than "
-                    "public results."))
+                raise ValidationError(
+                    _("Results cannot appear later than public results.")
+                )
 
 
 @receiver(pre_save, sender=Round)
 def _generate_round_id(sender, instance, raw, **kwargs):
     """Automatically generate a round name if not provided."""
     if not raw and not instance.name:
-        num_other_rounds = Round.objects.filter(contest=instance.contest) \
-                .exclude(pk=instance.pk).count()
+        num_other_rounds = (
+            Round.objects.filter(contest=instance.contest)
+            .exclude(pk=instance.pk)
+            .count()
+        )
         instance.name = _("Round %d") % (num_other_rounds + 1,)
+
 
 statements_visibility_options = EnumRegistry()
 statements_visibility_options.register('YES', _("Visible"))
@@ -242,10 +296,15 @@ statements_visibility_options.register('AUTO', _("Auto"))
 
 class ProblemStatementConfig(models.Model):
     contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
-    visible = EnumField(statements_visibility_options, default='AUTO',
-            verbose_name=_("statements visibility"),
-            help_text=_("If set to Auto, the visibility is determined "
-                "according to the type of the contest."))
+    visible = EnumField(
+        statements_visibility_options,
+        default='AUTO',
+        verbose_name=_("statements visibility"),
+        help_text=_(
+            "If set to Auto, the visibility is determined "
+            "according to the type of the contest."
+        ),
+    )
 
     class Meta(object):
         verbose_name = _("problem statement config")
@@ -260,38 +319,49 @@ ranking_visibility_options.register('AUTO', _("Auto"))
 
 class RankingVisibilityConfig(models.Model):
     contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
-    visible = EnumField(ranking_visibility_options, default='AUTO',
-                        verbose_name=_("ranking visibility"),
-                        help_text=_("If set to Auto, the visibility is determined "
-                                    "according to the type of the contest.\n"
-                                    "Ranking is inaccessible to all non-admin "
-                                    "users unless result date is set to a date "
-                                    "in the past"))
+    visible = EnumField(
+        ranking_visibility_options,
+        default='AUTO',
+        verbose_name=_("ranking visibility"),
+        help_text=_(
+            "If set to Auto, the visibility is determined "
+            "according to the type of the contest.\n"
+            "Until the date of publication of the results, "
+            "the ranking is visible only to administrators."
+        ),
+    )
 
     class Meta(object):
         verbose_name = _("ranking visibility config")
         verbose_name_plural = _("ranking visibility configs")
 
 
-@python_2_unicode_compatible
 class ProblemInstance(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
-                                null=True, blank=True, on_delete=models.CASCADE)
-    round = models.ForeignKey(Round, verbose_name=_("round"), null=True,
-                              blank=True, on_delete=models.CASCADE)
-    problem = models.ForeignKey('problems.Problem', verbose_name=_("problem"),
-                                on_delete=models.CASCADE)
-    short_name = models.CharField(max_length=30, verbose_name=_("short name"),
-            validators=[validate_db_string_id])
+    contest = models.ForeignKey(
+        Contest,
+        verbose_name=_("contest"),
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    round = models.ForeignKey(
+        Round, verbose_name=_("round"), null=True, blank=True, on_delete=models.CASCADE
+    )
+    problem = models.ForeignKey(
+        'problems.Problem', verbose_name=_("problem"), on_delete=models.CASCADE
+    )
+    short_name = models.CharField(
+        max_length=30, verbose_name=_("short name"), validators=[validate_db_string_id]
+    )
     submissions_limit = models.IntegerField(
         default=settings.DEFAULT_SUBMISSIONS_LIMIT,
         help_text=_("Use 0 for unlimited submissions."),
-        verbose_name=_("submissions limit"))
+        verbose_name=_("submissions limit"),
+    )
 
     # set on True only when problem_instace's tests were overriden but there
     # are some submissions judged on old tests
-    needs_rejudge = models.BooleanField(default=False,
-                                        verbose_name=_("needs rejudge"))
+    needs_rejudge = models.BooleanField(default=False, verbose_name=_("needs rejudge"))
 
     class Meta(object):
         verbose_name = _("problem instance")
@@ -307,10 +377,7 @@ class ProblemInstance(models.Model):
             return self.short_name
 
     def __str__(self):
-        return u'%(name)s (%(short_name)s)' % {
-            u'short_name': self.get_short_name_display(),
-            u'name': self.problem.name,
-        }
+        return u'{} ({})'.format(self.problem.name, self.get_short_name_display())
 
     @property
     def controller(self):
@@ -323,13 +390,13 @@ def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
         instance.contest = instance.round.contest
     if not raw and not instance.short_name and instance.problem_id:
         if instance.contest:
-            short_names = ProblemInstance.objects \
-                    .filter(contest=instance.contest) \
-                    .values_list('short_name', flat=True)
+            short_names = ProblemInstance.objects.filter(
+                contest=instance.contest
+            ).values_list('short_name', flat=True)
         else:
-            short_names = ProblemInstance.objects \
-                    .filter(contest__isnull=True) \
-                    .values_list('short_name', flat=True)
+            short_names = ProblemInstance.objects.filter(
+                contest__isnull=True
+            ).values_list('short_name', flat=True)
         # SlugField and validate_slug accepts uppercase letters, while we don't
         problem_short_name = instance.problem.short_name.lower()
         if problem_short_name not in short_names:
@@ -340,6 +407,7 @@ def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
                 if candidate not in short_names:
                     instance.short_name = candidate
                     break
+
 
 submission_kinds = EnumRegistry()
 submission_kinds.register('NORMAL', _("Normal"))
@@ -356,22 +424,20 @@ submission_statuses.register('OK', _("OK"))
 submission_statuses.register('ERR', _("Error"))
 
 
-@python_2_unicode_compatible
 class Submission(models.Model):
-    problem_instance = models.ForeignKey(ProblemInstance,
-            verbose_name=_("problem"), on_delete=models.CASCADE)
-    user = models.ForeignKey(User, blank=True, null=True,
-            verbose_name=_("user"), on_delete=models.CASCADE)
-    date = models.DateTimeField(default=timezone.now, blank=True,
-            verbose_name=_("date"), db_index=True)
-    kind = EnumField(submission_kinds, default='NORMAL',
-            verbose_name=_("kind"))
-    score = ScoreField(blank=True, null=True,
-            verbose_name=_("score"))
-    status = EnumField(submission_statuses, default='?',
-            verbose_name=_("status"))
-    comment = models.TextField(blank=True,
-            verbose_name=_("comment"))
+    problem_instance = models.ForeignKey(
+        ProblemInstance, verbose_name=_("problem"), on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User, blank=True, null=True, verbose_name=_("user"), on_delete=models.CASCADE
+    )
+    date = models.DateTimeField(
+        default=timezone.now, blank=True, verbose_name=_("date"), db_index=True
+    )
+    kind = EnumField(submission_kinds, default='NORMAL', verbose_name=_("kind"))
+    score = ScoreField(blank=True, null=True, verbose_name=_("score"))
+    status = EnumField(submission_statuses, default='?', verbose_name=_("status"))
+    comment = models.TextField(blank=True, verbose_name=_("comment"))
 
     @property
     def problem(self):
@@ -385,8 +451,11 @@ class Submission(models.Model):
     def is_scored(self):
         return self.score is not None
 
-    def get_date_display(self):
-        return self.problem_instance.controller.render_submission_date(self)
+    def get_date_display(self, shortened=False):
+        return self.problem_instance.controller.render_submission_date(self, shortened)
+
+    def get_date_display_shortened(self):
+        return self.get_date_display(True)
 
     def get_score_display(self):
         if self.score is None:
@@ -395,13 +464,14 @@ class Submission(models.Model):
 
     def __str__(self):
         return u"Submission(%d, %s, %s, %s, %s, %s)" % (
-                self.id,
-                self.problem_instance.problem.name,
-                self.user.username if self.user else None,
-                self.date,
-                self.kind,
-                self.status
+            self.id,
+            self.problem_instance.problem.name,
+            self.user.username if self.user else None,
+            self.date,
+            self.kind,
+            self.status,
         )
+
 
 submission_report_kinds = EnumRegistry()
 submission_report_kinds.register('FINAL', _("Final report"))
@@ -442,15 +512,16 @@ class ScoreReport(models.Model):
     def get_score_display(self):
         if self.score is None:
             return ''
-        return six.text_type(self.score)
+        return str(self.score)
 
 
 class FailureReport(models.Model):
     """A report generated when evaluation process failed.
 
-       The submission should have its status set to ``FAILED``. Such reports
-       are not shown to users.
+    The submission should have its status set to ``FAILED``. Such reports
+    are not shown to users.
     """
+
     submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
     message = models.TextField()
     json_environ = models.TextField()
@@ -459,16 +530,17 @@ class FailureReport(models.Model):
 class UserResultForProblem(models.Model):
     """User result (score) for the problem.
 
-       Each user can have only one class:`UserResultForProblem` per problem
-       instance.
+    Each user can have only one class:`UserResultForProblem` per problem
+    instance.
     """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    problem_instance = models.ForeignKey(ProblemInstance,
-                                         on_delete=models.CASCADE)
+    problem_instance = models.ForeignKey(ProblemInstance, on_delete=models.CASCADE)
     score = ScoreField(blank=True, null=True)
     status = EnumField(submission_statuses, blank=True, null=True)
-    submission_report = models.ForeignKey(SubmissionReport, blank=True,
-                                          null=True, on_delete=models.CASCADE)
+    submission_report = models.ForeignKey(
+        SubmissionReport, blank=True, null=True, on_delete=models.CASCADE
+    )
 
     class Meta(object):
         unique_together = ('user', 'problem_instance')
@@ -477,8 +549,9 @@ class UserResultForProblem(models.Model):
 class UserResultForRound(models.Model):
     """User result (score) for the round.
 
-       Each user can have only one :class:`UserResultForRound` per round.
+    Each user can have only one :class:`UserResultForRound` per round.
     """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     score = ScoreField(blank=True, null=True)
@@ -490,9 +563,10 @@ class UserResultForRound(models.Model):
 class UserResultForContest(models.Model):
     """Represents the user result (score) for the contest.
 
-       Each user can have only one :class:`UserResultForContest` per contest
-       for given type.
+    Each user can have only one :class:`UserResultForContest` per contest
+    for given type.
     """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     score = ScoreField(blank=True, null=True)
@@ -501,12 +575,12 @@ class UserResultForContest(models.Model):
         unique_together = ('user', 'contest')
 
 
-@python_2_unicode_compatible
 class RoundTimeExtension(models.Model):
     """Represents the time the round has been extended by for a certain user.
 
-       The extra time is given in minutes.
+    The extra time is given in minutes.
     """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     extra_time = models.PositiveIntegerField(_("Extra time (in minutes)"))
@@ -517,7 +591,8 @@ class RoundTimeExtension(models.Model):
         verbose_name_plural = _("round time extensions")
 
     def __str__(self):
-        return six.text_type(self.round) + u': ' + six.text_type(self.user)
+        return str(self.round) + u': ' + str(self.user)
+
 
 contest_permissions = EnumRegistry()
 contest_permissions.register('contests.contest_admin', _("Admin"))
@@ -526,12 +601,14 @@ contest_permissions.register('contests.contest_observer', _("Observer"))
 contest_permissions.register('contests.personal_data', _("Personal Data"))
 
 
-@python_2_unicode_compatible
 class ContestPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
-    permission = EnumField(contest_permissions,
-            default='contests.contest_admin', verbose_name=_("permission"))
+    permission = EnumField(
+        contest_permissions,
+        default='contests.contest_admin',
+        verbose_name=_("permission"),
+    )
 
     class Meta(object):
         unique_together = ('user', 'contest', 'permission')
@@ -542,28 +619,26 @@ class ContestPermission(models.Model):
         return u'%s/%s: %s' % (self.contest, self.permission, self.user)
 
 
-@python_2_unicode_compatible
 class ContestView(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(default=timezone.now,
-                                     verbose_name=_("last view"))
+    timestamp = models.DateTimeField(default=timezone.now, verbose_name=_("last view"))
 
     class Meta(object):
         unique_together = ('user', 'contest')
         index_together = [['user', 'timestamp']]
         get_latest_by = 'timestamp'
-        ordering = ('-timestamp', )
+        ordering = ('-timestamp',)
 
     def __str__(self):
         return u'%s,%s' % (self.user, self.contest)
 
 
 class ContestLink(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
-                                on_delete=models.CASCADE)
-    description = models.CharField(max_length=255,
-                                   verbose_name=_("description"))
+    contest = models.ForeignKey(
+        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
+    )
+    description = models.CharField(max_length=255, verbose_name=_("description"))
     url = models.URLField(verbose_name=_("url"))
     order = models.IntegerField(blank=True, null=True)
 
@@ -585,7 +660,9 @@ def contest_links_generator(request):
             name='contest_link_%d' % link.id,
             text=link.description,
             url_generator=url_generator,
-            order=link.order
+            order=link.order,
         )
         yield item
+
+
 menu_registry.register_generator('contest_links', contest_links_generator)

@@ -1,5 +1,5 @@
 from django import template
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 
@@ -13,4 +13,5 @@ def runtimeformat(value):
         return _("%(seconds).2fs") % dict(seconds=seconds)
     else:
         return _("%(minutes)dm %(seconds).2fs") % dict(
-                minutes=int(seconds // 60), seconds=(seconds % 60))
+            minutes=int(seconds // 60), seconds=(seconds % 60)
+        )
