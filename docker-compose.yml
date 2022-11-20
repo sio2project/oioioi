@@ -3,21 +3,17 @@ services:
   db:
     image: library/postgres:12.2
     env_file: env
-    environment:
-      POSTGRES_USER: "oioioi"
-      POSTGRES_PASSWORD: "password"
-      POSTGRES_DB: "oioioi"
     volumes:
       - postgress-data:/var/lib/postgresql/data
     stop_grace_period: 1m
   web:
     image: $OIOIOI_VERSION
-    command: ["/sio2/oioioi/oioioi_init.sh"]
+    command: ["/sio2/oioioi/oioioi_init_prod.sh"]
     env_file: env
     ports:
       - "8000:8000"
     volumes:
-      - $OIOIOI_CONFIGDIR/basic_settings.py:/sio2/deployment/basic_settings.py
+      - ./basic_settings.py:/sio2/deployment/basic_settings.py
       - filetracker:/sio2/deployment/media
     stop_grace_period: 3m
     depends_on:
@@ -25,10 +21,12 @@ services:
       - broker
   worker:
     image: $OIOIOI_VERSION
-    command: ["/sio2/oioioi/worker_init.sh"]
+    command: ["/sio2/oioioi/worker_init_prod.sh"]
     environment:
       WORKER_CONCURRENCY: 3
     stop_grace_period: 1m
+    security_opt:
+      - 'seccomp:./seccomp.json'
     cap_add:
       - ALL
     depends_on:

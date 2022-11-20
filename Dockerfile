@@ -88,5 +88,5 @@ RUN sed -i -e \
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
-    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes && \
+    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
     ./manage.py supervisor stop all
