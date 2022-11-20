@@ -10,7 +10,7 @@ class Group(models.Model):
     """
     Group of people to use with Supervision.
     """
-    name = models.CharField(max_length=50, verbose_name=_("name"), on_delete=models.CASCADE)
+    name = models.CharField(max_length=50, verbose_name=_("name"))
     members = models.ManyToManyField(
         User,
         through='Membership',
