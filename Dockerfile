@@ -59,6 +59,8 @@ COPY --chown=oioioi:oioioi setup.py requirements.txt ./
 RUN pip install -r requirements.txt --user
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip install -r requirements_static.txt --user
+COPY --chown=oioioi:oioioi requirements_talent.txt ./
+RUN pip install -r requirements_talent.txt --user
 
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 

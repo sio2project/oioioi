@@ -1,0 +1,3 @@
+git+https://github.com/A-dead-pixel/sioworkers/
+
+-e .
