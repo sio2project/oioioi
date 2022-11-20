@@ -79,8 +79,8 @@ RUN sed -i -e \
         s/#RUN_SIOWORKERSD$/RUN_SIOWORKERSD/g;\
         s/#SIOWORKERS_LISTEN_ADDR/SIOWORKERS_LISTEN_ADDR/g;\
         s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
-        s/#?RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
-        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
+        s/RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
+        s/#?USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
         \$afrom basic_settings import *\n" \
         settings.py && \
     cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
@@ -88,5 +88,5 @@ RUN sed -i -e \
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
-    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
+    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 compiler-gcc.4_8_2 compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
     ./manage.py supervisor stop all

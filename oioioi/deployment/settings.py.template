@@ -23,6 +23,8 @@ else:
 # loaders specified.
 TEMPLATES[0]['APP_DIRS'] = False
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
 SITE_NAME = os.environ.get('SITE_NAME', 'OIOIOI')
@@ -232,7 +234,7 @@ AVAILABLE_COMPILERS = {
         'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
     },
     'C++': {
-        'g++4_8_2_cpp11': {'display_name': 'g++:4.8.2 std=c++11'}
+        'g++10_2_1_cpp17': {'display_name': 'g++:10.2.1 std=c++17 -O3'}
     },
     'Pascal': {
         'fpc2_6_2': {'display_name': 'fpc:2.6.2'}
@@ -250,7 +252,7 @@ AVAILABLE_COMPILERS = {
 
 # This setting sets the default compilers used throughout the platform.
 # By uncommenting the below dict you can change all or any one of them.
-DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
+DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++10_2_1_cpp17',
                      'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
                      'Python': 'python', 'Output-only': 'output-only'}
 
@@ -312,8 +314,8 @@ MAX_MEMORY_LIMIT_FOR_TEST = int(os.environ.get('MAX_MEMORY_LIMIT_FOR_TEST_IN_MB'
 # and/or AUTHENTICATION_BACKENDS commented/uncommented.
 
 INSTALLED_APPS = (
-    'oioioi.contestlogo',
-#    'oioioi.teachers',
+#    'oioioi.contestlogo',
+    'oioioi.teachers',
 #    'oioioi.simpleui',
 #    'oioioi.ipdnsauth',
 #    'oioioi.ipauthsync',
@@ -323,14 +325,14 @@ INSTALLED_APPS = (
 #    'oioioi.oisubmit',
 #    'oioioi.zeus',
     'oioioi.testrun',
-    'oioioi.printing',
+#    'oioioi.printing',
     'oioioi.scoresreveal',
 #    'oioioi.oireports',
 #    'oioioi.ontak',
 #    'oioioi.complaints',
     'oioioi.confirmations',
-    'oioioi.acm',
-    'oioioi.forum',
+#    'oioioi.acm',
+#    'oioioi.forum',
 #    'oioioi.disqualification',
 #    'oioioi.sharingcli',
     'oioioi.ctimes',
@@ -338,9 +340,9 @@ INSTALLED_APPS = (
 #    'oioioi.submitservice',
     'oioioi.timeline',
 #    'oioioi.amppz',
-    'oioioi.balloons',
+#    'oioioi.balloons',
     'oioioi.statistics',
-    'oioioi.publicsolutions',
+#    'oioioi.publicsolutions',
     'oioioi.testspackages',
 #    'oioioi.pa',
 #    'oioioi.notifications',
@@ -353,7 +355,6 @@ INSTALLED_APPS = (
 #    'oioioi.usercontests',
     'oioioi.phase',
     'oioioi.supervision',
-#    'oioioi.quiz',
 ) + INSTALLED_APPS
 
 # Set to True to show the link to the problemset with contests on navbar.
@@ -371,13 +372,14 @@ PROBLEMSET_LINK_VISIBLE = True
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
-   'oioioi.base.processors.gravatar',
-   'oioioi.contestlogo.processors.logo_processor',
-   'oioioi.contestlogo.processors.icon_processor',
+#   'oioioi.base.processors.gravatar',
+#   'oioioi.contestlogo.processors.logo_processor', # needed for portals
+#   'oioioi.contestlogo.processors.icon_processor', # needed for portals
 #    'oioioi.notifications.processors.notification_processor',
-   'oioioi.globalmessage.processors.global_message_processor',
-#    'oioioi.portals.processors.portal_processor',
-#    'oioioi.portals.processors.portals_main_page_link_visible',
+   'oioioi.globalmessage.processors.global_message_processor', # needed for portals
+   'oioioi.supervision.processors.under_supervision', # needed for supervision
+#   'oioioi.portals.processors.portal_processor', # needed for portals
+#    'oioioi.portals.processors.portals_main_page_link_visible', # idk
 ]
 
 MIDDLEWARE += (
@@ -387,7 +389,7 @@ MIDDLEWARE += (
 )
 
 AUTHENTICATION_BACKENDS += (
-#    'oioioi.teachers.auth.TeacherAuthBackend',
+    'oioioi.teachers.auth.TeacherAuthBackend',
 #    'oioioi.usercontests.auth.UserContestAuthBackend',
 #    'oioioi.ipdnsauth.backends.IpDnsBackend',
 )
@@ -510,17 +512,6 @@ if SENTRY_DSN:
 # OIOIOI instance.
 #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
 #OIOIOI_INSTANCE_WEIGHT_BONUS = 0
-
-if 'oioioi.supervision' in INSTALLED_APPS:
-    TEMPLATES[0]['OPTIONS']['context_processors'].append('oioioi.supervision.processors.under_supervision')
-
-if 'oioioi.portals' in INSTALLED_APPS:
-    TEMPLATES[0]['OPTIONS']['context_processors'] += [
-        'oioioi.contestlogo.processors.logo_processor',
-        'oioioi.contestlogo.processors.icon_processor',
-        'oioioi.globalmessage.processors.global_message_processor',
-        'oioioi.portals.processors.portal_processor',
-    ]
 
 # If set to True, usercontests will become read-only: it will be impossible to
 # change, delete or submit to existing usercontests, as well as add new ones.

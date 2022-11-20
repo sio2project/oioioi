@@ -1,49 +1,53 @@
-version: '2.4'
+#version: '2.4'
 # https://github.com/docker/cli/issues/1293
 services:
   db:
     image: library/postgres:12.2
-    environment:
-      POSTGRES_USER: "oioioi"
-      POSTGRES_PASSWORD: "password"
-      POSTGRES_DB: "oioioi"
+    env_file: env
     volumes:
       - postgress-data-dev:/var/lib/postgresql/data
     stop_grace_period: 1m
   web:
-    image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/selenium_init.sh"]
+    image: $OIOIOI_VERSION
+    command: ["/sio2/oioioi/oioioi_init_prod.sh"]
+    env_file: env
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - "oioioi_uid=${OIOIOI_UID}"
-      extra_hosts:
-        - "web:127.0.0.1"
+          #      extra_hosts:
+          #- "web:127.0.0.1"
     ports:
       - "8000:8000"
     volumes:
       - .:/sio2/oioioi
+      - filetracker-dev:/sio2/deployment/media
 #      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
     depends_on:
       - db
       - broker
   worker:
-    image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/worker_init.sh"]
+    image: $OIOIOI_VERSION
+    command: ["/sio2/oioioi/worker_init_prod.sh"]
     volumes:
       - .:/sio2/oioioi
     stop_grace_period: 1m
+    security_opt:
+      - 'seccomp:./seccomp.json'
     cap_add:
       - ALL
     depends_on:
       - db
   broker:
     image: library/rabbitmq:3.8
+    volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     environment:
-      RABBITMQ_DEFAULT_USER: oioioi
-      RABBITMQ_DEFAULT_PASS: oioioi
+      RABBITMQ_LOGS:
+      RABBITMQ_SASL_LOGS:
     stop_grace_period: 1m
 volumes:
   postgress-data-dev:
+  filetracker-dev:

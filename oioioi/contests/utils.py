@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpRequest

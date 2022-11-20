@@ -4,7 +4,7 @@ from oioioi.supervision.models import Supervision
 
 
 def is_user_under_supervision(user):
-    if user.is_anonymous() or user.is_superuser:
+    if user.is_anonymous or user.is_superuser:
         return False
 
     return Supervision.objects.filter(
@@ -23,7 +23,7 @@ def is_round_under_supervision(round_):
 
 
 def can_user_enter_round(user, round_):
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
 
     if not (is_user_under_supervision(user) or
