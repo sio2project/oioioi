@@ -242,6 +242,9 @@ AVAILABLE_COMPILERS = {
     },
     'Python': {
         'python': {'display_name': 'python'}
+    },
+    'Output-only': {
+        'output-only': {'display_name': 'output-only'}
     }
 }
 
@@ -249,7 +252,7 @@ AVAILABLE_COMPILERS = {
 # By uncommenting the below dict you can change all or any one of them.
 DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
                      'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
-                     'Python': 'python'}
+                     'Python': 'python', 'Output-only': 'output-only'}
 
 # Comment out the following option to enable the unsafe execution supervisor.
 # USE_UNSAFE_EXEC = True

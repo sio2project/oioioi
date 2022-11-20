@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.permissions import make_request_condition

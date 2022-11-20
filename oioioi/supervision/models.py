@@ -10,7 +10,7 @@ class Group(models.Model):
     """
     Group of people to use with Supervision.
     """
-    name = models.CharField(max_length=50, verbose_name=_("name"))
+    name = models.CharField(max_length=50, verbose_name=_("name"), on_delete=models.CASCADE)
     members = models.ManyToManyField(
         User,
         through='Membership',
@@ -54,8 +54,8 @@ class Supervision(models.Model):
     Store groups and their supervisions. Is valid from start_date to end_date.
     I will have to think about Celery task to clear it.
     """
-    group = models.ForeignKey(Group, verbose_name=_("group"))
-    round = models.ForeignKey(Round, verbose_name=_("round"))
+    group = models.ForeignKey(Group, verbose_name=_("group"), on_delete=models.CASCADE)
+    round = models.ForeignKey(Round, verbose_name=_("round"), on_delete=models.CASCADE)
     start_date = models.DateTimeField(default=timezone.now, verbose_name=_("start date"))
     end_date = models.DateTimeField(default=timezone.now, verbose_name=_("end date"))
 
