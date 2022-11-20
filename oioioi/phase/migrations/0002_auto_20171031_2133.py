@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='phase',
             name='round',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contests.Round', verbose_name='round'),
+            field=models.ForeignKey(on_delete=models.CASCADE, to='contests.Round', verbose_name='round'),
         ),
     ]
