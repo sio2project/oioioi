@@ -16,12 +16,6 @@ Just download the oioioi_easy_installer archive, unpack it and run::
 
   ./oioioi.sh install
 
-to install oioioi. Then you can run::
-
-  ./oioioi.sh start
-  ./oioioi.sh stop
-
-to start and stop oioioi.
 
 Make sure to change default superuser password. To do that:
    1. Login to the superuser with default credentials (username:admin, password:admin).
