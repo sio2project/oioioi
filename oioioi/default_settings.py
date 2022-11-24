@@ -333,12 +333,12 @@ SUBMITTABLE_LANGUAGES = {
     'Pascal': {
         'display_name': 'Pascal'
     },
-    # 'Java': {
-    #     'display_name': 'Java'
-    # },
-    # 'Python': {
-    #     'display_name': 'Python'
-    # }
+    'Java': {
+        'display_name': 'Java'
+    },
+    'Python': {
+        'display_name': 'Python'
+    },
     'Output-only': {
         'type': 'extra',
         'display_name': 'Output-only',

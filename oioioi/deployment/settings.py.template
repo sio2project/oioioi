@@ -256,6 +256,12 @@ DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++10_2_1_cpp17',
                      'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
                      'Python': 'python', 'Output-only': 'output-only'}
 
+# Disable java and python
+SUBMITTABLE_LANGUAGES.pop('Java')
+SUBMITTABLE_LANGUAGES.pop('Python')
+SUBMITTABLE_EXTENSIONS.pop('Java')
+SUBMITTABLE_EXTENSIONS.pop('Python')
+
 # Comment out the following option to enable the unsafe execution supervisor.
 # USE_UNSAFE_EXEC = True
 
@@ -355,6 +361,7 @@ INSTALLED_APPS = (
 #    'oioioi.usercontests',
     'oioioi.phase',
     'oioioi.supervision',
+    'oioioi.talent',
 ) + INSTALLED_APPS
 
 # Set to True to show the link to the problemset with contests on navbar.
