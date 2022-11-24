@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import os.path
 
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -91,6 +92,14 @@ class Command(BaseCommand):
                 raise CommandError("License not accepted")
             break
 
+    def upload_to_filetracker(self, basename, local_file, cached):
+            filetracker = get_client()
+            print("Started " + basename, file=self.stdout)
+            filetracker.put_file('/sandboxes/' + basename, local_file)
+            if not cached:
+                os.unlink(local_file)
+            print("Finished " + basename, file=self.stdout)
+        
     def handle(self, *args, **options):
         print("--- Downloading Manifest ...", file=self.stdout)
         try:
@@ -134,7 +143,6 @@ class Command(BaseCommand):
                 )
             urls.append(urllib.parse.urljoin(manifest_url, basename))
 
-        filetracker = get_client()
 
         download_dir = options['download_dir']
         if not os.path.exists(download_dir):
@@ -160,17 +168,23 @@ class Command(BaseCommand):
             )
 
         print("--- Saving sandboxes to the Filetracker ...", file=self.stdout)
+        th = {}
         for arg in args:
             basename = arg + '.tar.gz'
             if arg in cached_args:
                 local_file = os.path.join(options['cache_dir'], basename)
             else:
                 local_file = os.path.join(download_dir, basename)
-            print(" ", basename, file=self.stdout)
-            filetracker.put_file('/sandboxes/' + basename, local_file)
+            cached = 1
             if arg not in cached_args:
-                os.unlink(local_file)
+                cached = 0
+            th[arg] = threading.Thread(target=self.upload_to_filetracker, 
+                                       args=(basename, local_file, cached))
+            th[arg].start()
 
+        for arg in args:
+            th[arg].join()
+        
         try:
             os.rmdir(download_dir)
         except OSError:
