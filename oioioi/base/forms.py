@@ -13,6 +13,7 @@ from django.contrib.auth.forms import (
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.forms import BooleanField, ChoiceField
+from django.forms import ChoiceField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from registration.forms import RegistrationForm
@@ -192,12 +193,13 @@ class RegistrationFormWithNames(RegistrationForm):
             ('first_name', forms.CharField(label=_("First name"))),
             ('last_name', forms.CharField(label=_("Last name"))),
         ]
-        tmp_fields.append(
-            ('agreement', forms.BooleanField(label=mark_safe(
-                '{} <a data-toggle="modal" href="#termsAndConditionsModal">{}</a>'
-                    .format(_("I accept"), _("Terms and Conditions"))
-            )))
-        )
+        # From original TalentSio (for OIG probably)
+        #tmp_fields.append(
+        #    ('agreement', forms.BooleanField(label=mark_safe(
+        #        '{} <a data-toggle="modal" href="#termsAndConditionsModal">{}</a>'
+        #            .format(_("I accept"), _("Terms and Conditions"))
+        #    )))
+        #)
         self.fields = OrderedDict(tmp_fields)
         self.fields.update(extra)
         self.fields.update(
@@ -209,7 +211,7 @@ class RegistrationFormWithNames(RegistrationForm):
 class UserForm(forms.ModelForm):
     class Meta(object):
         model = User
-        fields = ['username', 'email']
+        fields = ['username', 'first_name', 'last_name', 'email']
 
     def __init__(self, *args, **kwargs):
         self.allow_login_change = kwargs.pop('allow_login_change', False)
