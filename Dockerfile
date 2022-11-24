@@ -87,6 +87,9 @@ RUN sed -i -e \
     mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # Download sandboxes
-RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
-    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 compiler-gcc.4_8_2 compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
+RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi \
+    --nolaunch=rankingsd --nolaunch=mailnotifyd && \
+    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 \
+    compiler-gcc.4_8_2 compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox \
+    proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
     ./manage.py supervisor stop all
