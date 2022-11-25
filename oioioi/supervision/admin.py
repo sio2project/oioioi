@@ -10,7 +10,7 @@ from oioioi.supervision.models import Supervision, Group, Membership
 
 
 class SupervisionAdmin(admin.ModelAdmin):
-    # list_display = ['group', 'start_time', 'end_time']
+    list_display = ['group', 'round', 'start_date', 'end_date']
     def get_queryset(self, request):
         qs = super(SupervisionAdmin, self).get_queryset(request)
         return qs.filter(round__contest=request.contest)
@@ -42,9 +42,8 @@ class MemberAdminInline(admin.StackedInline):
     extra = 0
     raw_id_fields = ('user',)
 
-    User.__unicode__ = lambda self: "{} {} ({})".format(
-        self.first_name,
-        self.last_name,
+    User.__str__ = lambda self: str(self.first_name +
+        self.last_name +
         self.username)
 
 

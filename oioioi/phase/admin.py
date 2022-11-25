@@ -68,4 +68,4 @@ contest_admin_menu_registry.register('phase_change',
         _("Phases"), lambda request:
         reverse('oioioiadmin:phase_phase_changelist'),
         condition=is_phase_contest,
-        order=50)
+        order=44)
