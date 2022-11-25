@@ -51,16 +51,16 @@ USER oioioi
 
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
-RUN pip install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
 
 WORKDIR /sio2/oioioi
 
 COPY --chown=oioioi:oioioi setup.py requirements.txt ./
-RUN pip install -r requirements.txt --user
+RUN pip3 install -r requirements.txt --user
 COPY --chown=oioioi:oioioi requirements_static.txt ./
-RUN pip install -r requirements_static.txt --user
+RUN pip3 install -r requirements_static.txt --user
 COPY --chown=oioioi:oioioi requirements_talent.txt ./
-RUN pip install -r requirements_talent.txt --user
+RUN pip3 install -r requirements_talent.txt --user
 
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 
