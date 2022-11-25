@@ -534,3 +534,44 @@ if SENTRY_DSN:
 # variable, then corresponding setting will be set automatically.
 # CAPTCHA_FLITE_PATH = ''
 # CAPTCHA_SOX_PATH = ''
+
+# Settings for initialiasing OIOIOI at
+# the start of a Stowarzyszenie Talent's camp
+# by the 'talent_camp_init' command in oioioi.talent
+if 'oioioi.talent' in INSTALLED_APPS:
+    from datetime import timedelta
+    
+    TALENT_DEFAULT_SUPERUSERS = ("ztalentariuszy",)
+    TALENT_SCORE1 = 75
+    TALENT_PHASE2_END = timedelta(hours=21, minutes=30)
+    TALENT_SCORE2 = 60
+    # Reversed, so that group A is on top of the contest list
+    TALENT_CONTEST_IDS = ("e", "d", "c", "b", "a",) 
+    # Groups for which to create more than just the contest
+    TALENT_REGULAR_CONTEST_IDS =("a", "b", "c", "d",)
+    TALENT_CONTEST_NAMES = {
+        "a": "Grupa A Mistrzowska",
+        "b": "Grupa B Zaawansowana",
+        "c": "Grupa C Średniozaawansowana",
+        "d": "Grupa D Początkująca",
+        "e": "Grupa E Elementarna",
+    }
+    TALENT_CONTEST_START = {
+            "a": timedelta(hours=9),
+            "b": timedelta(hours=9),
+            "c": timedelta(hours=9),
+            "d": timedelta(hours=9, minutes=30),
+    }
+    TALENT_CONTEST_END = {
+            "a": timedelta(hours=14),
+            "b": timedelta(hours=14),
+            "c": timedelta(hours=12, minutes=30),
+            "d": timedelta(hours=12, minutes=30),
+    }
+    TALENT_CONTEST_RESULTS = {
+            "a": timedelta(hours=14, minutes=5),
+            "b": timedelta(hours=14, minutes=5),
+            "c": timedelta(hours=14, minutes=5),
+            "d": timedelta(hours=14, minutes=5),
+    }
+
