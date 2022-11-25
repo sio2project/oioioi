@@ -16,6 +16,6 @@ export FILETRACKER_URL="http://web:9999"
 exec python3 $(which twistd) --nodaemon --pidfile=/home/oioioi/worker.pid \
         -l /sio2/deployment/logs/worker`hostname`.log worker \
         --can-run-cpu-exec \
-        -n worker`hostname` -c $WORKER_CONRURRENCY web \
+        -n worker`hostname` -c $WORKER_CONCURRENCY web \
         > /sio2/deployment/logs/twistd_worker.out \
-        2> /sio2/deployment/logs/twistd_worker.err
+        #2> /sio2/deployment/logs/twistd_worker.err
