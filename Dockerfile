@@ -23,6 +23,8 @@ RUN dpkg --add-architecture i386 && \
         sudo \
         libstdc++6:i386 \
         zlib1g:i386 \
+        sox \
+        flite \
         locales && \
     apt-get clean
 
