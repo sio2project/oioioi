@@ -3,8 +3,8 @@ function copyCodeToClipboard() {
         const button = document.getElementById("cpy_btn");
         button.classList.remove("btn-outline-secondary");
         button.classList.add("btn-success");
-        button.textContent = "Copied!";
+        button.textContent = gettext("Copied!");
     }, function() {
-        alert("Unable to copy Code");
+        alert(gettext("Unable to copy Code"));
     });
 }
