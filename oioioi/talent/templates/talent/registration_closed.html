@@ -1,0 +1,7 @@
+{% load i18n %}
+<div class="alert alert-danger">
+    {% url 'participants_register' contest_id=contest.id as reg_url %}
+    {% blocktrans %}
+    <strong>The registration is closed.</strong> In order to be able to send solutions and be added to a group (or move to another one), contact an admin.
+    {% endblocktrans %}
+</div>

@@ -18,6 +18,12 @@ if DEBUG:
 else:
     # Cache compiled templates in production environment.
     TEMPLATES[0]['OPTIONS']['loaders'] = CACHED_TEMPLATE_LOADERS
+    INSTALLED_APPS = list(INSTALLED_APPS)
+    INSTALLED_APPS.remove('debug_toolbar')
+    INSTALLED_APPS = tuple(INSTALLED_APPS)
+    MIDDLEWARE=list(MIDDLEWARE)
+    MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
+    MIDDLEWARE=tuple(MIDDLEWARE)
 
 # The APP_DIRS option is allowed only in template engines that have no custom
 # loaders specified.
@@ -141,7 +147,7 @@ SEND_USER_ACTIVATION_EMAIL = not (EMAIL_HOST == 'mail')
 # Some features may depend on this setting, e.g. the "portals" app requires
 # that either the "neutral" or the "contest_if_possible" option is picked.
 from oioioi.contests.current_contest import ContestMode
-CONTEST_MODE = ContestMode.neutral
+CONTEST_MODE = ContestMode.contest_if_possible
 
 # RabbitMQ server URL for distributed workers.
 #
@@ -351,7 +357,7 @@ INSTALLED_APPS = (
 #    'oioioi.publicsolutions',
     'oioioi.testspackages',
 #    'oioioi.pa',
-#    'oioioi.notifications',
+    'oioioi.notifications',
 #    'oioioi.mailsubmit',
 #    'oioioi.portals',
     'oioioi.globalmessage',
@@ -540,13 +546,15 @@ if SENTRY_DSN:
 # by the 'talent_camp_init' command in oioioi.talent
 if 'oioioi.talent' in INSTALLED_APPS:
     from datetime import timedelta
-    
+
     TALENT_DEFAULT_SUPERUSERS = ("ztalentariuszy",)
+
     TALENT_SCORE1 = 75
     TALENT_PHASE2_END = timedelta(hours=21, minutes=30)
     TALENT_SCORE2 = 60
+
     # Reversed, so that group A is on top of the contest list
-    TALENT_CONTEST_IDS = ("e", "d", "c", "b", "a",) 
+    TALENT_CONTEST_IDS = ("e", "d", "c", "b", "a",)
     # Groups for which to create more than just the contest
     TALENT_REGULAR_CONTEST_IDS =("a", "b", "c", "d",)
     TALENT_CONTEST_NAMES = {
@@ -574,4 +582,6 @@ if 'oioioi.talent' in INSTALLED_APPS:
             "c": timedelta(hours=14, minutes=5),
             "d": timedelta(hours=14, minutes=5),
     }
+
+    TALENT_REGISTRATION_CLOSED = False
 

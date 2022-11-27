@@ -27,7 +27,7 @@ class Command(BaseCommand):
         run(["sed", "-i", 
                 "s/^SITE_NAME.*$/SITE_NAME = '" + site_name + "'/",
                 "/sio2/deployment/settings.py"], check=True)
-        run(["/sio2/deployment/manage.py", "supervisor", "restart", "all"], check=True)
+        run(["/sio2/deployment/manage.py", "supervisor", "restart", "all", "--skip-checks"], check=True)
         
         score1 = settings.TALENT_SCORE1
         phase2_end = settings.TALENT_PHASE2_END
