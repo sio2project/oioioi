@@ -328,7 +328,7 @@ MAX_MEMORY_LIMIT_FOR_TEST = int(os.environ.get('MAX_MEMORY_LIMIT_FOR_TEST_IN_MB'
 INSTALLED_APPS = (
 #    'oioioi.contestlogo',
     'oioioi.teachers',
-#    'oioioi.simpleui',
+    'oioioi.simpleui',
 #    'oioioi.ipdnsauth',
 #    'oioioi.ipauthsync',
     'oioioi.participants',
@@ -349,7 +349,7 @@ INSTALLED_APPS = (
 #    'oioioi.sharingcli',
     'oioioi.ctimes',
     'oioioi.suspendjudge',
-#    'oioioi.submitservice',
+    'oioioi.submitservice',
     'oioioi.timeline',
 #    'oioioi.amppz',
 #    'oioioi.balloons',
