@@ -9329,3 +9329,46 @@ msgstr "Liczba węzłów"
 #: zeus/templates/zeus/program-report.html:21
 msgid "Zeus id"
 msgstr "ID Zeusa"
+
+#: SUPERVISION
+msgid "Member"
+msgstr "Członek"
+
+msgid "present"
+msgstr "obecny"
+
+msgid "Supervision"
+msgstr "Kontrola"
+
+msgid "inside"
+msgstr "w"
+
+msgid "is"
+msgstr "jest"
+
+#: PHASE
+msgid "Phase"
+msgstr "Faza"
+
+msgid "phase"
+msgstr "faza"
+
+msgid "Phases"
+msgstr "Fazy"
+
+msgid "phases"
+msgstr "fazy"
+
+msgid "phase multiplier"
+msgstr "mnożnik fazy"
+
+#: TALENT FORMS
+
+msgid "\n    <strong>The registration is closed.</strong> In order to be able to send solutions and be added to a group (or move to another one), contact an admin.\n    "
+msgstr "\n    <strong>Rejestracja została zamknięta.</strong> Aby wysyłać zgłoszenia i zostać dodanym do grupy (albo przenieść się do innej), skontaktuj się z administratorem\n    "
+
+msgid "\n        You have completed the registration. If you want to change your group,\n         <a href=\"%(reg_url)s\">fill in the contest registration form again</a>.\n    "
+msgstr "\n        Jesteś już zarejestrowany. Jeśli chcesz zmienić swoją grupę,\n         <a href=\"%(reg_url)s\">wypełnij formularz rejestracyjny jeszcze raz</a>.\n    "
+
+msgid "\n        <strong>Heads up!</strong> In order to be added to a group and be able to send solutions,\n         <a href=\"%(reg_url)s\">fill in the contest registration form</a>.\n    "
+msgstr "\n        <strong>Uwaga!</strong> Aby zostać dodanym do grupy i móc wysyłać rozwiązania,\n         <a href=\"%(reg_url)s\">wypełnij formularz rejestracyjny</a>.\n    "
