@@ -40,10 +40,10 @@ contest_admin_menu_registry.register(
 class MemberAdminInline(admin.StackedInline):
     model = Membership
     extra = 0
-    raw_id_fields = ('user',)
+    fields = ('user', 'is_present')
 
-    User.__str__ = lambda self: str(self.first_name +
-        self.last_name +
+    User.__str__ = lambda self: "{} {} {}".format(self.first_name,
+        self.last_name,
         self.username)
 
 

@@ -32,13 +32,13 @@ class Membership(models.Model):
 
     class Meta:
         unique_together = ('user', 'group')
-        verbose_name = _("Members")
+        verbose_name = _("Member")
         verbose_name_plural = _("Members")
 
     def __str__(self):
-        present = "present"
-        if not present:
-            present = "not " + present
+        present = _("present")
+        if not is_present:
+            present = _("not ") + present
 
         return str("{} {} {} {} {}".format(
             self.user,
