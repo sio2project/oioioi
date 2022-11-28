@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from oioioi.contests.models import Contest, Round
+from oioioi.dashboard.models import DashboardMessage
 from oioioi.phase.models import Phase
 from oioioi.supervision.models import Supervision, Group
 from django.db import transaction, DatabaseError
@@ -27,7 +28,7 @@ class Command(BaseCommand):
         run(["sed", "-i", 
                 "s/^SITE_NAME.*$/SITE_NAME = '" + site_name + "'/",
                 "/sio2/deployment/settings.py"], check=True)
-        run(["/sio2/deployment/manage.py", "supervisor", "restart", "all", "--skip-checks"], check=True)
+        run(["/sio2/deployment/manage.py", "supervisor", "--skip-checks", "restart", "uwsgi", "mailnotifyd"], check=True)
         
         score1 = settings.TALENT_SCORE1
         phase2_end = settings.TALENT_PHASE2_END
@@ -45,6 +46,8 @@ class Command(BaseCommand):
         
         try:
             with transaction.atomic():
+                Contest.objects.create(id="p", name="Kontest próbny", controller_name='oioioi.talent.controllers.TalentTrialContestController', default_submissions_limit=150)
+                DashboardMessage.objects.create(contest=Contest.objects.get(id="p"), content=settings.TALENT_DASHBOARD_MESSAGE)
                 for i in contest_ids:
                     Contest.objects.create(id=i, name=contest_names[i],
                             controller_name="oioioi.phase.controllers.PhaseContestController",

@@ -37,7 +37,7 @@ class Membership(models.Model):
 
     def __str__(self):
         present = _("present")
-        if not is_present:
+        if not self.is_present:
             present = _("not ") + present
 
         return str("{} {} {} {} {}".format(

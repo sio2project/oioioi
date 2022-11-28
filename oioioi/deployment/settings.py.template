@@ -328,7 +328,7 @@ MAX_MEMORY_LIMIT_FOR_TEST = int(os.environ.get('MAX_MEMORY_LIMIT_FOR_TEST_IN_MB'
 INSTALLED_APPS = (
 #    'oioioi.contestlogo',
     'oioioi.teachers',
-    'oioioi.simpleui',
+#    'oioioi.simpleui',
 #    'oioioi.ipdnsauth',
 #    'oioioi.ipauthsync',
     'oioioi.participants',
@@ -582,6 +582,8 @@ if 'oioioi.talent' in INSTALLED_APPS:
             "c": timedelta(hours=14, minutes=5),
             "d": timedelta(hours=14, minutes=5),
     }
+    
+    TALENT_DASHBOARD_MESSAGE = "Example dashboard message"
 
     TALENT_REGISTRATION_CLOSED = False
 
