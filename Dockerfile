@@ -25,6 +25,8 @@ RUN dpkg --add-architecture i386 && \
         zlib1g:i386 \
         sox \
         flite \
+        nodejs \
+        npm \
         locales && \
     apt-get clean
 
@@ -78,11 +80,11 @@ RUN sed -i -e \
         s/#FILETRACKER_LISTEN_ADDR/FILETRACKER_LISTEN_ADDR/g;\
         s/#FILETRACKER_LISTEN_PORT/FILETRACKER_LISTEN_PORT/g;\
         s|#FILETRACKER_URL = '.*'|FILETRACKER_URL = 'http://web:9999'|g;\
-        s/#RUN_SIOWORKERSD$/RUN_SIOWORKERSD/g;\
+        s/#*RUN_SIOWORKERSD$/RUN_SIOWORKERSD/g;\
         s/#SIOWORKERS_LISTEN_ADDR/SIOWORKERS_LISTEN_ADDR/g;\
         s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
-        s/RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
-        s/#?USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
+        s/#*RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
+        s/#*USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
         \$afrom basic_settings import *\n" \
         settings.py && \
     cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \

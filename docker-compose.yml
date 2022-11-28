@@ -12,6 +12,7 @@ services:
     env_file: env
     ports:
       - "80:8000"
+      - "7887:7887"
     volumes:
       - ./basic_settings.py:/sio2/deployment/basic_settings.py
       - filetracker:/sio2/deployment/media
