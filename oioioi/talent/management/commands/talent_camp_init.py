@@ -46,8 +46,10 @@ class Command(BaseCommand):
         
         try:
             with transaction.atomic():
-                Contest.objects.create(id="p", name="Kontest próbny", controller_name='oioioi.talent.controllers.TalentTrialContestController', default_submissions_limit=150)
+                contest=Contest.objects.create(id="p", name="Kontest próbny", controller_name='oioioi.talent.controllers.TalentTrialContestController', default_submissions_limit=150)
                 DashboardMessage.objects.create(contest=Contest.objects.get(id="p"), content=settings.TALENT_DASHBOARD_MESSAGE)
+                Round.objects.create(contest=contest, name="Runda próbna", start_date=nday, results_date=nday)
+                
                 for i in contest_ids:
                     Contest.objects.create(id=i, name=contest_names[i],
                             controller_name="oioioi.phase.controllers.PhaseContestController",
