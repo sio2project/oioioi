@@ -36,17 +36,23 @@ class Membership(models.Model):
         verbose_name_plural = _("Members")
 
     def __str__(self):
-        present = _("present")
-        if not self.is_present:
-            present = _("not ") + present
-
-        return str("{} {} {} {} {}".format(
+        return str("{} {} {}".format(
             self.user,
-            _("inside"),
-            self.group,
-            _("is"),
-            _(present)
+            _("in"),
+            self.group
         ))
+        
+        #present = _("present")
+        #if not self.is_present:
+        #    present = _("not ") + present
+
+        #return str("{} {} {} {} {}".format(
+        #    self.user,
+        #    _("inside"),
+        #    self.group,
+        #    _("is"),
+        #    _(present)
+        #))
 
 
 class Supervision(models.Model):

@@ -8313,7 +8313,7 @@ msgid "inside"
 msgstr "inside"
 
 msgid "is"
-msgstr "jest"
+msgstr "is"
 
 #: PHASE
 msgid "Phase"

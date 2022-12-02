@@ -6,9 +6,10 @@
   .col-label label {
     @extend .col-form-label;
   }
-
+  
+  
   tr.form-row:not(.empty-form) {
-    display: contents;
+    display: table-row;
   }
 
   .empty-form {

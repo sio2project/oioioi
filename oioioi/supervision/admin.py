@@ -11,9 +11,10 @@ from oioioi.supervision.models import Supervision, Group, Membership
 
 class SupervisionAdmin(admin.ModelAdmin):
     list_display = ['group', 'round', 'start_date', 'end_date']
+    #list_editable = ['round', 'start_date', 'end_date']
     def get_queryset(self, request):
         qs = super(SupervisionAdmin, self).get_queryset(request)
-        return qs.filter(round__contest=request.contest)
+        return qs.filter(round__contest=request.contest).order_by('start_date')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'round':
@@ -37,15 +38,17 @@ contest_admin_menu_registry.register(
 )
 
 
-class MemberAdminInline(admin.StackedInline):
+class MemberAdminInline(admin.TabularInline):
     model = Membership
     extra = 0
     fields = ('user', 'is_present')
-
-    User.__str__ = lambda self: "{} {} {}".format(self.first_name,
+    User.__str__ = lambda self: "{} {} {}".format(self.username,
         self.last_name,
-        self.username)
-
+        self.first_name)
+    
+    def get_queryset(self, request):
+        qs = super(MemberAdminInline, self).get_queryset(request)
+        return qs.order_by('user__username')
 
 class GroupAdmin(admin.ModelAdmin):
     inlines = (MemberAdminInline,)
