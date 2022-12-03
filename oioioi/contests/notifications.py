@@ -1,8 +1,7 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone
 
 from django.test import RequestFactory
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.notification import NotificationHandler
 
@@ -13,7 +12,7 @@ def notification_function_submission_judged(arguments):
     request = RequestFactory().get('/', data={'name': u'test'})
     request.user = arguments.user
     request.contest = pi.contest
-    request.timestamp = datetime.now().replace(tzinfo=utc)
+    request.timestamp = datetime.now().replace(tzinfo=timezone.utc)
 
     # Check if the final report is visible to the user
     if not pi.contest.controller.can_see_submission_score(
