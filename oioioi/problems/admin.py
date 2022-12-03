@@ -83,7 +83,7 @@ class StatementConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(StatementConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [StatementConfigInline]
+        self.inlines = self.inlines + (StatementConfigInline,)
 
 
 ContestAdmin.mix_in(StatementConfigAdminMixin)
@@ -112,7 +112,7 @@ class RankingVisibilityConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(RankingVisibilityConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [RankingVisibilityConfigInline]
+        self.inlines = self.inlines + (RankingVisibilityConfigInline,)
 
 
 ContestAdmin.mix_in(RankingVisibilityConfigAdminMixin)
@@ -373,7 +373,7 @@ admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
 class ProblemAdmin(admin.ModelAdmin):
-    inlines = [
+    inlines = (
         DifficultyTagInline,
         AlgorithmTagInline,
         OriginTagInline,
@@ -383,7 +383,7 @@ class ProblemAdmin(admin.ModelAdmin):
         AttachmentInline,
         ProblemInstanceInline,
         ProblemSiteInline,
-    ]
+    )
     readonly_fields = [
         'author',
         'legacy_name',
