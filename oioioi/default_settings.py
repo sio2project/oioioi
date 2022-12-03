@@ -508,23 +508,21 @@ LOGGING = {
 }
 
 # Celery configuration
-
-CELERY_QUEUES = {}
-CELERY_RESULT_BACKEND = 'amqp'
-CELERY_ACKS_LATE = True
-CELERY_SEND_EVENTS = True
-
-BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
-                                             'celerydb.sqlite')
-
-CELERY_IMPORTS = [
-    'oioioi.evalmgr.tasks',
-    'oioioi.problems.unpackmgr',
-]
-
-CELERY_ROUTES = {
-    'oioioi.evalmgr.tasks.evalmgr_job': dict(queue='evalmgr'),
-    'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
+CELERY = {
+    'broker_url': 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
+                                                   'celerydb.sqlite'),
+    'imports': [
+        'oioioi.evalmgr.tasks',
+        'oioioi.problems.unpackmgr',
+    ],
+    'result_backend': 'rpc',
+    'tasks_acks_late': True,
+    'task_queues': {},
+    'task_routes': {
+        'oioioi.evalmgr.tasks.evalmgr_job': dict(queue='evalmgr'),
+        'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
+    },
+    'worker_send_task_events': True,
 }
 
 # Number of concurrently evaluated submissions
