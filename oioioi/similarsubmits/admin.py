@@ -155,7 +155,7 @@ class SubmisionsSimilarityEntryInline(admin.TabularInline):
 
 class SubmissionsSimilarityGroupAdmin(admin.ModelAdmin):
     list_display = ['id']
-    inlines = [SubmisionsSimilarityEntryInline]
+    inlines = (SubmisionsSimilarityEntryInline,)
     exclude = ['contest']
 
     def has_add_permission(self, request):

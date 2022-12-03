@@ -29,7 +29,7 @@ class ContestLogoAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ContestLogoAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ContestLogoInline]
+        self.inlines = self.inlines + (ContestLogoInline,)
 
 
 ContestAdmin.mix_in(ContestLogoAdminMixin)
@@ -62,7 +62,7 @@ class ContestIconAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ContestIconAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ContestIconInline]
+        self.inlines = self.inlines + (ContestIconInline,)
 
 
 ContestAdmin.mix_in(ContestIconAdminMixin)

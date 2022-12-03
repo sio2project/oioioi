@@ -147,7 +147,7 @@ class MessageNotifierContestAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(MessageNotifierContestAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [MessageNotifierConfigInline]
+        self.inlines = self.inlines + (MessageNotifierConfigInline,)
 
 
 ContestAdmin.mix_in(MessageNotifierContestAdminMixin)
