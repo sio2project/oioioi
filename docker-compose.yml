@@ -24,7 +24,7 @@ services:
     image: $OIOIOI_VERSION
     command: ["/sio2/oioioi/worker_init.sh"]
     environment:
-      WORKER_CONCURRENCY: 3
+      WORKER_CONCURRENCY: ${OIOIOI_CONCURRENCY}
     stop_grace_period: 1m
     security_opt:
       - seccomp:./seccomp.json
