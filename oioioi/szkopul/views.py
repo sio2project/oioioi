@@ -71,7 +71,7 @@ def main_page_view(request):
             request, queryset
         ).order_by('-date')
         submissions = [
-            submission_template_context(request, s) for s in submissions_list
+            submission_template_context(request, s, skip_valid_kinds=True) for s in submissions_list
         ]
         show_scores = any(s['can_see_score'] for s in submissions)
 

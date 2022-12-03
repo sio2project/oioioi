@@ -176,7 +176,7 @@ def contest_dashboard_view(request, round_pk=None):
     )
 
     ss = [
-        submission_template_context(request, s)
+        submission_template_context(request, s, skip_valid_kinds=True)
         for s in queryset[:NUMBER_OF_RECENT_ACTIONS]
     ]
 

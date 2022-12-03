@@ -282,7 +282,7 @@ def my_submissions_view(request):
     controller = request.contest.controller
     queryset = controller.filter_my_visible_submissions(request, queryset)
     header = controller.render_my_submissions_header(request, queryset.all())
-    submissions = [submission_template_context(request, s) for s in queryset]
+    submissions = [submission_template_context(request, s, skip_valid_kinds=True) for s in queryset]
     show_scores = any(s['can_see_score'] for s in submissions)
 
     return TemplateResponse(
@@ -315,7 +315,7 @@ def all_submissions_view(request):
         ).order_by('-date')
         for s in submissions_list:
             request.contest = s.problem_instance.contest
-            submissions.append(submission_template_context(request, s))
+            submissions.append(submission_template_context(request, s, skip_valid_kinds=True))
         request.contest = None
         show_scores = any(s['can_see_score'] for s in submissions)
 

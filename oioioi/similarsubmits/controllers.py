@@ -139,7 +139,7 @@ class SimilarityDisqualificationMixin(object):
         for group in similarities:
             for entry in group.submissions.all():
                 submission_contexts[entry.submission] = submission_template_context(
-                    request, entry.submission
+                    request, entry.submission, skip_valid_kinds=True
                 )
 
         template = (

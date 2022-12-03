@@ -186,7 +186,7 @@ def problem_site_submissions(request, problem):
     else:
         qs = []
 
-    submissions = [submission_template_context(request, s) for s in qs]
+    submissions = [submission_template_context(request, s, skip_valid_kinds=True) for s in qs]
     show_scores = any(s['can_see_score'] for s in submissions)
 
     return TemplateResponse(

@@ -55,7 +55,7 @@ def export_entries(registry, values):
     return result
 
 
-def submission_template_context(request, submission):
+def submission_template_context(request, submission, skip_valid_kinds=False):
     pi = submission.problem_instance
     controller = pi.controller
     can_see_status = controller.can_see_submission_status(request, submission)
@@ -68,10 +68,12 @@ def submission_template_context(request, submission):
             'contest_id': pi.contest.id if pi.contest else None,
         },
     )
-
-    valid_kinds = controller.valid_kinds_for_submission(submission)
-    valid_kinds.remove(submission.kind)
-    valid_kinds_for_submission = export_entries(submission_kinds, valid_kinds)
+    if skip_valid_kinds:
+        valid_kinds_for_submission = []
+    else:
+        valid_kinds = controller.valid_kinds_for_submission(submission)
+        valid_kinds.remove(submission.kind)
+        valid_kinds_for_submission = export_entries(submission_kinds, valid_kinds)
 
     message = submission.get_status_display
 

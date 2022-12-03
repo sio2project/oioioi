@@ -288,7 +288,7 @@ class QuizProblemController(ProblemController):
             request=request,
             context={
                 'submissions': [
-                    submission_template_context(request, s) for s in queryset
+                    submission_template_context(request, s, skip_valid_kinds=True) for s in queryset
                 ],
                 'show_scores': show_scores,
                 'can_admin': can_admin,

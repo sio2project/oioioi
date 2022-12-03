@@ -965,7 +965,7 @@ def get_last_submissions(request):
             'problem_instance__problem',
         )[:5]
     )
-    submissions = [submission_template_context(request, s) for s in queryset]
+    submissions = [submission_template_context(request, s, skip_valid_kinds=True) for s in queryset]
     return TemplateResponse(
         request,
         "contests/my_submissions_table.html",

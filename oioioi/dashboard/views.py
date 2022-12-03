@@ -121,7 +121,7 @@ def submissions_fragment(request):
     submissions = submissions[: getattr(settings, 'NUM_DASHBOARD_SUBMISSIONS', 8)]
     if not submissions:
         return None
-    submissions = [submission_template_context(request, s) for s in submissions]
+    submissions = [submission_template_context(request, s, skip_valid_kinds=True) for s in submissions]
     show_scores = any(s['can_see_score'] for s in submissions)
     context = {'submissions': submissions, 'show_scores': show_scores}
     return render_to_string(
