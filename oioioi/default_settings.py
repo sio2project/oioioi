@@ -650,37 +650,21 @@ LOGGING = {
 # USER_CONTEST_TIMEOUT = datetime(2020, 2, 7, 23, 0, 0, tzinfo=pytz.utc)
 
 # Celery configuration
-
-CELERY_QUEUES = {}
-CELERY_RESULT_BACKEND = 'amqp'
-CELERY_ACKS_LATE = True
-CELERY_SEND_EVENTS = True
-
-BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
-                                              'celerydb.sqlite')
-
-# RabbitMQ connection settings
-host = os.getenv("RABBITMQ_HOST", None)
-port = os.getenv("RABBITMQ_PORT", None)
-user = os.getenv("RABBITMQ_USER", None)
-password = os.getenv("RABBITMQ_PASSWORD", None)
-
-if (
-    host is not None
-    and port is not None
-    and user is not None
-    and password is not None
-):
-    BROKER_URL = f"amqp://{user}:{password}@{host}:{port}"
-
-CELERY_IMPORTS = [
-    'oioioi.evalmgr.tasks',
-    'oioioi.problems.unpackmgr',
-]
-
-CELERY_ROUTES = {
-    'oioioi.evalmgr.tasks.evalmgr_job': dict(queue='evalmgr'),
-    'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
+CELERY = {
+    'broker_url': 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
+                                                   'celerydb.sqlite'),
+    'imports': [
+        'oioioi.evalmgr.tasks',
+        'oioioi.problems.unpackmgr',
+    ],
+    'result_backend': 'rpc',
+    'tasks_acks_late': True,
+    'task_queues': {},
+    'task_routes': {
+        'oioioi.evalmgr.tasks.evalmgr_job': dict(queue='evalmgr'),
+        'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
+    },
+    'worker_send_task_events': True,
 }
 
 # Number of concurrently evaluated submissions
