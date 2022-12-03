@@ -1,5 +1,5 @@
 from copy import deepcopy
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone
 
 try:
     import mock
@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.test import RequestFactory
 from django.urls import reverse
-from django.utils import timezone
 
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time
