@@ -843,7 +843,12 @@ class ProgrammingProblemController(ProblemController):
             .filter(problem_instance=submission.problem_instance)
             .exclude(pk=submission.pk)
             .order_by('-date')
-            .select_related()
+            .select_related(
+                'problem_instance',
+                'problem_instance__contest',
+                'problem_instance__round',
+                'problem_instance__problem',
+            )
         )
         if not submission.problem_instance.contest == request.contest:
             raise SuspiciousOperation

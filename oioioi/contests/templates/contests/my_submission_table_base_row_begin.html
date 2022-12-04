@@ -4,6 +4,7 @@
 {# {% include 'contests/my_submission_table_base_row_end.html' with hide_year=True %} #}
 
 {% load i18n %}
+{% with display_type=record.submission.get_display_type %}
 
 <tr>
     {% if can_admin %}
@@ -12,7 +13,7 @@
         </td>
     {% else %}
         <td id="submission{{ record.submission.id }}-margin" class="{% if record.can_see_status %}submission__margin
-                                                                            submission--{% if record.can_see_score %}{{ record.submission.get_display_type }}{% else %}{{ record.submission.status }}{% endif %}{% endif %}"></td>
+                            submission--{% if record.can_see_score %}{{ display_type }}{% else %}{{ record.submission.status }}{% endif %}{% endif %}"></td>
     {% endif %}
     <td id="submission{{ record.submission.id }}-link"><a onclick="event.cancelBubble = true;" href="{{ record.link }}">
         {% if shortened %}
@@ -30,7 +31,7 @@
         {{ record.submission.get_kind_display }}
     </td>
     <td id="submission{{ record.submission.id }}-status"
-        class="{% if record.can_see_status %}submission--{% if record.can_see_score %}{{ record.submission.get_display_type }}{% else %}{{ record.submission.status }}{% endif %} {% endif %}">
+        class="{% if record.can_see_status %}submission--{% if record.can_see_score %}{{ display_type }}{% else %}{{ record.submission.status }}{% endif %} {% endif %}">
         {% if record.can_see_status %}
             {{ record.message }}
         {% endif %}
@@ -46,3 +47,5 @@
                                                                   href="{{ record.link }}">
         {% trans "Details" %}
     </a></td>
+
+{% endwith %}
