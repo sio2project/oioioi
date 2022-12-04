@@ -77,48 +77,14 @@ def submission_template_context(request, submission, skip_valid_kinds=False):
 
     message = submission.get_status_display
 
-    if can_see_score and (submission.status == 'INI_OK' or submission.status == 'OK'):
-        submission_report = SubmissionReport.objects.filter(
-            submission=submission
-        ).first()
-        score_report = ScoreReport.objects.filter(
-            submission_report=submission_report
-        ).first()
-
-        try:
-            score_percentage = (
-                float(score_report.score.to_int()) / score_report.max_score.to_int()
-            )
-
-            if score_percentage < 0.25:
-                display_type = 'OK0'
-            elif score_percentage < 0.5:
-                display_type = 'OK25'
-            elif score_percentage < 0.75:
-                display_type = 'OK50'
-            elif score_percentage < 1.0:
-                display_type = 'OK75'
-            else:
-                display_type = 'OK100'
-
-        except ZeroDivisionError:
-            message = 'PENDING'
-            display_type = 'IGN'
-
-        # If by any means there is no 'score' or 'max_score' field then
-        # we just treat the submission as without them
-        except AttributeError:
-            display_type = submission.status
-
-    else:
-        display_type = submission.status
-
+    # NOTE: display_type got moved to the templates, as to perform the
+    # somewhat expensive operations only on the submissions
+    # made visible by the paginator
     return {
         'submission': submission,
         'can_see_status': can_see_status,
         'can_see_score': can_see_score,
         'can_see_comment': can_see_comment,
-        'display_type': display_type,
         'message': message,
         'link': link,
         'valid_kinds_for_submission': valid_kinds_for_submission,
