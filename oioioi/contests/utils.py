@@ -139,7 +139,7 @@ def generic_rounds_times(request=None, contest=None):
         elif contest.id in getattr(request, cache_attribute):
             return getattr(request, cache_attribute)[contest.id]
 
-    rounds = [r for r in Round.objects.filter(contest=contest).select_related("contest")]
+    rounds = [r for r in Round.objects.filter(contest=contest).prefetch_related("contest")]
     rids = [r.id for r in rounds]
     if not request or not hasattr(request, "user") or request.user.is_anonymous:
         rtexts = {}
@@ -232,14 +232,18 @@ def has_any_visible_problem_instance(request):
 @request_cached
 def submittable_problem_instances(request):
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round")
+    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round", "contest")
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
 
 @request_cached_complex
 def visible_problem_instances(request, no_admin=False):
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round")
+    queryset = (
+        ProblemInstance.objects.filter(contest=request.contest)
+        .select_related("problem")
+        .prefetch_related("round", "contest", "problem__contest", "problem__author")
+    )
     return [
         pi
         for pi in queryset

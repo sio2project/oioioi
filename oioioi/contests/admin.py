@@ -553,7 +553,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                     default=F("localized_name"),
                 )
             )
+            .select_related("problem__quiz", "problem__problemsite")
         )
+        if "oioioi.suspendjudge" in settings.INSTALLED_APPS:
+            qs = qs.select_related("suspended")
 
         return qs
 

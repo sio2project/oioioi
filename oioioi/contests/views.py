@@ -166,10 +166,26 @@ def problems_list_view(request):
     if request.user.is_authenticated:
         # Bulk fetch UserResultForProblem objects. We only keep those for which
         # the user can see the submission score.
-        user_results_qs = UserResultForProblem.objects.filter(
-            user=request.user,
-            problem_instance__in=problem_instances,
-        ).select_related("submission_report__submission")
+        user_results_qs = (
+            UserResultForProblem.objects.filter(
+                user=request.user,
+                problem_instance__in=problem_instances,
+            )
+            .select_related(
+                "submission_report",
+                "submission_report__submission",
+            )
+            .prefetch_related(
+                "submission_report__submission__problem_instance__problem",
+                "submission_report__submission__problem_instance__round",
+                "submission_report__submission__problem_instance__contest",
+            )
+        )
+        if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
+            user_results_qs = user_results_qs.select_related(
+                "submission_report__submission__revealed",
+            ).prefetch_related("submission_report__submission__problem_instance__scores_reveal_config")
+
         for r in user_results_qs:
             # Some controllers may hide score even if UserResultForProblem exists
             if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission):
@@ -353,6 +369,8 @@ def my_submissions_view(request):
             "problem_instance__problem",
         )
     )
+    if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
+        queryset = queryset.select_related("revealed").prefetch_related("problem_instance__scores_reveal_config")
     controller = request.contest.controller
     queryset = controller.filter_my_visible_submissions(request, queryset)
     header = controller.render_my_submissions_header(request, queryset.all())
