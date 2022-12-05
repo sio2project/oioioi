@@ -2,7 +2,7 @@
 # https://github.com/docker/cli/issues/1293
 services:
   db:
-    image: library/postgres:12.2
+    image: library/postgres:15.1
     env_file: env
     volumes:
       - postgress-data-dev:/var/lib/postgresql/data
