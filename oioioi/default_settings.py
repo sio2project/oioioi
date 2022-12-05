@@ -583,7 +583,10 @@ ZEUS_RETRY_SLEEP = 1  # second
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(tempfile.gettempdir(), 'oioioi-cache')
+        'LOCATION': os.path.join(tempfile.gettempdir(), 'oioioi-cache'),
+        'OPTIONS': {
+            'MAX_ENTRIES': 10000
+        },
     }
 }
 

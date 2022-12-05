@@ -344,7 +344,7 @@ MAX_MEMORY_LIMIT_FOR_TEST = int(os.environ.get('MAX_MEMORY_LIMIT_FOR_TEST_IN_MB'
 
 INSTALLED_APPS = (
 #    'oioioi.contestlogo',
-    'oioioi.teachers',
+#    'oioioi.teachers',
 #    'oioioi.simpleui',
 #    'oioioi.ipdnsauth',
 #    'oioioi.ipauthsync',
@@ -419,7 +419,7 @@ MIDDLEWARE += (
 )
 
 AUTHENTICATION_BACKENDS += (
-    'oioioi.teachers.auth.TeacherAuthBackend',
+#    'oioioi.teachers.auth.TeacherAuthBackend',
 #    'oioioi.usercontests.auth.UserContestAuthBackend',
 #    'oioioi.ipdnsauth.backends.IpDnsBackend',
 )
