@@ -45,5 +45,9 @@ class TalentTrialContestController(ProgrammingContestController):
         if not is_participant(request):
             return False
         return super(TalentTrialContestController, self).can_submit(request, problem_instance, check_round_times)
+    
+    def can_see_test_comments(self, request, submissionreport):
+        return is_contest_admin(request)
+    
     def registration_controller(self):
         return TalentRegistrationController(self.contest)
