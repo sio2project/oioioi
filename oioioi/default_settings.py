@@ -690,3 +690,6 @@ SILENCED_SYSTEM_CHECKS = ['admin.E130']
 
 # Experimental
 USE_ACE_EDITOR = False
+
+# Experimental pypy support
+USE_PYPY = False

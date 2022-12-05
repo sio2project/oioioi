@@ -18,20 +18,6 @@ if DEBUG:
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
     }
-    DEBUG_TOOLBAR_PANELS = [
-        'debug_toolbar.panels.versions.VersionsPanel',
-        'debug_toolbar.panels.timer.TimerPanel',
-        'debug_toolbar.panels.settings.SettingsPanel',
-        'debug_toolbar.panels.headers.HeadersPanel',
-        'debug_toolbar.panels.request.RequestPanel',
-        'debug_toolbar.panels.sql.SQLPanel',
-        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-        'debug_toolbar.panels.templates.TemplatesPanel',
-        'debug_toolbar.panels.cache.CachePanel',
-        'debug_toolbar.panels.signals.SignalsPanel',
-        'debug_toolbar.panels.logging.LoggingPanel',
-        'debug_toolbar.panels.redirects.RedirectsPanel',
-    ]
 else:
     # Cache compiled templates in production environment.
     TEMPLATES[0]['OPTIONS']['loaders'] = CACHED_TEMPLATE_LOADERS
@@ -60,6 +46,9 @@ SITE_ID = 1
 
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [os.environ.get('DOMAIN_NAME', '*')]
+
+# Enable experimental support for pypy
+#USE_PYPY = True
 
 # The server to be run. Options are:
 # 'django' - django's http server
@@ -396,7 +385,7 @@ PROBLEMSET_LINK_VISIBLE = False
 # Enables problem statistics at the cost of some per-submission performance hit.
 # Set to True if you want to see statistics in the Problemset and problem sites.
 # After enabling you should use ./manage.py recalculate_statistics
-#PROBLEM_STATISTICS_AVAILABLE = True
+PROBLEM_STATISTICS_AVAILABLE = True
 
 # Set to True to allow every logged in user to add problems directly to Problemset
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False

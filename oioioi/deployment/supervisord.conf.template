@@ -7,7 +7,7 @@ directory={{ PROJECT_DIR }}
 identifier=oioioi-supervisor
 
 [program:uwsgi]
-command=uwsgi {% if settings.SERVER == 'uwsgi-http' %}--http :8000 --static-map {{ settings.STATIC_URL }}={{ settings.STATIC_ROOT }} {% else %}-s {{ PROJECT_DIR }}/uwsgi.sock {% endif %}--umask=000 {% if settings.UWSGI_USE_GEVENT %}--loop=gevent --async=50 {% endif %}--processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --ignore-sigpipe --ignore-write-errors --disable-write-exception --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+command=uwsgi {% if settings.SERVER == 'uwsgi-http' %}--http :8000 --static-map {{ settings.STATIC_URL }}={{ settings.STATIC_ROOT }} {% else %}-s {{ PROJECT_DIR }}/uwsgi.sock {% endif %}--umask=000 {% if settings.UWSGI_USE_GEVENT %}--loop=gevent --async=50 {% endif %}--processes=10 -M --max-requests=5000 --disable-logging --enable-threads --socket-timeout=30 --ignore-sigpipe --ignore-write-errors --disable-write-exception  {% if settings.USE_PYPY %} --pypy-home /opt/pypy --pypy-lib /opt/pypy/bin/libpypy3-c.so --pypy-setup /sio2/oioioi/uwsgi_pypy_setup.py --pypy-wsgi-file={{ PROJECT_DIR }}/wsgi.py {% else %} --need-app --wsgi-file={{ PROJECT_DIR }}/wsgi.py {% endif %}
 # --ignore-sigpipe --ignore-write-errors --disable-write-exception from original TalentSio
 stopsignal=INT
 startretries=0
