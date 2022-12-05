@@ -198,7 +198,7 @@ class StatisticsMixinForProgrammingContestController(object):
 
     def statistics_available_plot_groups(self, request):
         result = []
-        contest_pis = ProblemInstance.objects.filter(contest=request.contest)
+        contest_pis = ProblemInstance.objects.filter(contest=request.contest).select_related('contest', 'round', 'problem')
 
         can_see_all_problems = True
         for pi in contest_pis:

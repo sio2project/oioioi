@@ -4,8 +4,6 @@ set -x
 
 /sio2/oioioi/wait-for-it.sh -t 60 "db:5432"
 
-sed -i -e "s/DEBUG = True/DEBUG = False/g" settings.py
-
 echo "LOG: Migrating databases"
 ./manage.py migrate
 ./manage.py collectstatic --noinput

@@ -530,7 +530,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(ProblemInstanceAdmin, self).get_queryset(request)
         qs = (
-            qs.filter(contest=request.contest)
+            qs.filter(contest=request.contest).select_related('problem__quiz', 'problem__problemsite')
             .annotate(
                 localized_name=Subquery(
                     ProblemName.objects.filter(
@@ -545,7 +545,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                 )
             )
         )
-
+        if 'oioioi.suspendjudge' in settings.INSTALLED_APPS:
+            qs=qs.select_related('suspended')
+        
         return qs
 
 

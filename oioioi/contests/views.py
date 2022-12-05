@@ -107,6 +107,13 @@ def problems_list_view(request):
     # 6) submissions_limit
     # 7) can_submit
     # Sorted by (start_date, end_date, round name, problem name)
+    user_result_qs = UserResultForProblem.objects.select_related('submission_report',
+                                                                 'submission_report__submission',
+                            'submission_report__submission__problem_instance__problem',
+                            'submission_report__submission__problem_instance__round',
+                            'submission_report__submission__problem_instance__contest')
+    if 'oioioi.scoresreveal' in settings.INSTALLED_APPS:
+        user_result_qs = user_result_qs.select_related('submission_report__submission__revealed', 'submission_report__submission__problem_instance__scores_reveal_config')
     problems_statements = sorted(
         [
             (
@@ -120,7 +127,7 @@ def problems_list_view(request):
                 next(
                     (
                         r
-                        for r in UserResultForProblem.objects.filter(
+                        for r in user_result_qs.filter(
                             user__id=request.user.id, problem_instance=pi
                         )
                         if r
@@ -279,6 +286,8 @@ def my_submissions_view(request):
             'problem_instance__problem',
         )
     )
+    if 'oioioi.scoresreveal' in settings.INSTALLED_APPS:
+        queryset = queryset.select_related('revealed', 'problem_instance__scores_reveal_config')
     controller = request.contest.controller
     queryset = controller.filter_my_visible_submissions(request, queryset)
     header = controller.render_my_submissions_header(request, queryset.all())

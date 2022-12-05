@@ -62,12 +62,12 @@ def can_admin_problem(request, problem):
         return True
     if request.user.has_perm('problems.problem_admin', problem):
         return True
-    if request.user == problem.author:
-        return True
     # If a user is administering a contest where the task was initially added,
     # he is considered to be a co-author of the task, giving him rights to admin it.
-    if problem.contest:
-        return can_admin_contest(request.user, problem.contest)
+    if problem.contest and can_admin_contest(request.user, problem.contest):
+        return True
+    if request.user == problem.author:
+        return True
     return False
 
 
