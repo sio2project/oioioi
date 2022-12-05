@@ -1,5 +1,6 @@
 from django.conf import settings
 from oioioi.participants.controllers import OpenParticipantsController
+from oioioi.participants.utils import is_participant
 from oioioi.programs.controllers import ProgrammingContestController
 from django.utils.translation import gettext_lazy as _
 from oioioi.contests.utils import is_contest_admin
@@ -40,5 +41,9 @@ class TalentTrialContestController(ProgrammingContestController):
         environ['test_scorer'] = \
             'oioioi.programs.utils.threshold_linear_test_scorer'
     
+    def can_submit(self, request, problem_instance, check_round_times=True):
+        if not is_participant(request):
+            return False
+        return super(TalentTrialContestController, self).can_submit(request, problem_instance, check_round_times)
     def registration_controller(self):
         return TalentRegistrationController(self.contest)
