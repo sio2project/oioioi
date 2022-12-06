@@ -243,7 +243,7 @@ DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 # Each compiler must contain a display_name entry.
 AVAILABLE_COMPILERS = {
     'C': {
-        'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
+        'gcc10_2_1_c99': {'display_name': 'gcc:10.2.1 std=gnu99 -O3'}
     },
     'C++': {
         'g++10_2_1_cpp17': {'display_name': 'g++:10.2.1 std=c++17 -O3'}
@@ -264,7 +264,7 @@ AVAILABLE_COMPILERS = {
 
 # This setting sets the default compilers used throughout the platform.
 # By uncommenting the below dict you can change all or any one of them.
-DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++10_2_1_cpp17',
+DEFAULT_COMPILERS = {'C': 'gcc10_2_1_c99', 'C++': 'g++10_2_1_cpp17',
                      'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
                      'Python': 'python', 'Output-only': 'output-only'}
 
@@ -339,7 +339,7 @@ INSTALLED_APPS = (
 #    'oioioi.ipauthsync',
     'oioioi.participants',
     'oioioi.oi',
-    'oioioi.contestexcl',
+#    'oioioi.contestexcl',
 #    'oioioi.oisubmit',
 #    'oioioi.zeus',
     'oioioi.testrun',
@@ -391,6 +391,7 @@ PROBLEM_STATISTICS_AVAILABLE = True
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
+#   'oioioi.contestexcl.processors.register_contest_exclusive',
 #   'oioioi.base.processors.gravatar',
 #   'oioioi.contestlogo.processors.logo_processor', # needed for portals
 #   'oioioi.contestlogo.processors.icon_processor', # needed for portals
@@ -403,7 +404,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 
 MIDDLEWARE += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
-   'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
+#   'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.ipdnsauth.middleware.ForceDnsIpAuthMiddleware',
 )
 

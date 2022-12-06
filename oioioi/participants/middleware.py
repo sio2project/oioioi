@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.template.loader import render_to_string
 
-from oioioi.contestexcl.middleware import ExclusiveContestsMiddleware
 from oioioi.participants.utils import is_contest_with_participants
 
 
@@ -55,4 +55,6 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
         )
 
 
-ExclusiveContestsMiddleware.mix_in(ExclusiveContestsWithParticipantsMiddlewareMixin)
+if 'oioioi.contestexcl' in settings.INSTALLED_APPS:
+    from oioioi.contestexcl.middleware import ExclusiveContestsMiddleware
+    ExclusiveContestsMiddleware.mix_in(ExclusiveContestsWithParticipantsMiddlewareMixin)

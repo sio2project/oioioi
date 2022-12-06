@@ -10,7 +10,6 @@ from oioioi.base.utils.validators import validate_db_string_id
 from oioioi.contests.models import Contest
 from oioioi.participants.fields import OneToOneBothHandsCascadingParticipantField
 
-check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
 
 
 participant_statuses = EnumRegistry()
