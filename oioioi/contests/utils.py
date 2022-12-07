@@ -314,6 +314,14 @@ def administered_contests(request):
 
 @make_request_condition
 @request_cached
+def is_superuser(request):
+    """Checks if the user is a superuser
+    """
+    return request.user.is_superuser
+
+
+@make_request_condition
+@request_cached
 def is_contest_admin(request):
     """Checks if the user is the contest admin of the current contest.
     This permission level allows full access to all contest functionality.
