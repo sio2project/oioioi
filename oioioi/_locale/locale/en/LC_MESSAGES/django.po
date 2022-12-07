@@ -8309,6 +8309,9 @@ msgstr "present"
 msgid "Supervision"
 msgstr "Supervision"
 
+msgid "supervision"
+msgstr "supervision"
+
 msgid "inside"
 msgstr "inside"
 

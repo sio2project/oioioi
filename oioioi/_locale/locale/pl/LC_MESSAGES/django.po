@@ -9340,6 +9340,9 @@ msgstr "obecny"
 msgid "Supervision"
 msgstr "Kontrola"
 
+msgid "supervision"
+msgstr "kontrola"
+
 msgid "inside"
 msgstr "w"
 
