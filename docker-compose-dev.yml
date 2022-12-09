@@ -34,6 +34,7 @@ services:
     command: ["/sio2/oioioi/worker_init.sh"]
     environment:
       WORKER_CONCURRENCY: ${OIOIOI_CONCURRENCY}
+      WORKER_RAM_MB: ${OIOIOI_RAM}
     volumes:
       - .:/sio2/oioioi
     stop_grace_period: 1m

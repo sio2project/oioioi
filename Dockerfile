@@ -5,6 +5,7 @@ ENV PYTHONUNBUFFERED 1
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y \
+        proot \
         git \
         libpq-dev \
         postgresql-client \
