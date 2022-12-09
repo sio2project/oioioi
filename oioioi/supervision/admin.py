@@ -6,7 +6,7 @@ from oioioi.base import admin
 from oioioi.contests.admin import contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Round
-from oioioi.contests.utils import is_superuser
+from oioioi.base.permissions import is_superuser
 from oioioi.supervision.models import Supervision, Group, Membership
 
 

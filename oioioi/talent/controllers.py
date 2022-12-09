@@ -42,6 +42,8 @@ class TalentTrialContestController(ProgrammingContestController):
             'oioioi.programs.utils.threshold_linear_test_scorer'
     
     def can_submit(self, request, problem_instance, check_round_times=True):
+        if is_contest_admin(request):
+            return True
         if not is_participant(request):
             return False
         return super(TalentTrialContestController, self).can_submit(request, problem_instance, check_round_times)
