@@ -11,7 +11,7 @@ class Command(BaseCommand):
     
     def add_arguments(self, parser):
         parser.add_argument('id', type=str, help='Contest id')
-        parser.add_argument('-v', action='store_true', default=False, dest='verbose', help="Print result changes")
+        parser.add_argument('-p', action='store_true', default=False, dest='verbose', help="Print result changes")
 
     def handle(self, *args, **options):
         verbose = options['verbose']

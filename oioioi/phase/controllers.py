@@ -71,7 +71,7 @@ class PhaseOpenContestController(ProgrammingContestController):
             except SubmissionReport.DoesNotExist:
                 report = None
 
-            result.score = IntegerScore(total / 100)
+            result.score = IntegerScore(total // 100)
             result.status = chosen_submission.status
             result.submission_report = report
         except Submission.DoesNotExist:

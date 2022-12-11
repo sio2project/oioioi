@@ -13,3 +13,10 @@ class Phase(models.Model):
         verbose_name = _("phase")
         verbose_name_plural = _("phases")
         ordering = ['start_date']
+    
+    def __str__(self):
+        return str("{} x{} {} {}".format(
+            _("phase"),
+            self.multiplier,
+            _("inside"),
+            self.round))
