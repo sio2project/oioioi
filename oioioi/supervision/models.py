@@ -38,7 +38,7 @@ class Membership(models.Model):
     def __str__(self):
         return str("{} {} {}".format(
             self.user,
-            _("in"),
+            _("inside"),
             self.group
         ))
         
