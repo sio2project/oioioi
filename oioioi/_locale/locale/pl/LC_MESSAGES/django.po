@@ -750,8 +750,8 @@ msgstr "Strona główna"
 #: base/templates/ingredients/footer.html:9
 msgid ""
 "Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>,"
-" from the <a href=\"https://github.com/sio2project\">SIO2 Project</a>."
-msgstr "Działa na bazie <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, części <a href=\"https://github.com/sio2project\">SIO2 Project</a>.    "
+" from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>."
+msgstr "Działa na bazie <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, części <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.    "
 
 #: base/templates/ingredients/form.html:8
 #: base/templates/ingredients/translation-formset.html:12
