@@ -185,7 +185,9 @@ def problem_site_submissions(request, problem):
     else:
         qs = []
 
-    submissions = [submission_template_context(request, s, skip_valid_kinds=True) for s in qs]
+    submissions = [
+        submission_template_context(request, s, skip_valid_kinds=True) for s in qs
+    ]
     show_scores = any(s['can_see_score'] for s in submissions)
 
     return TemplateResponse(
@@ -277,6 +279,7 @@ def problem_site_add_to_contest(request, problem):
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
     if 'oioioi.testspackages' in settings.INSTALLED_APPS:
         from oioioi.testspackages.models import TestsPackage
+
         tests_package = TestsPackage.objects.filter(problem=problem)
         tests_package_visible = any(
             [tp.is_visible(request.timestamp) for tp in tests_package]

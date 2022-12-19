@@ -13,23 +13,48 @@ from django.db import transaction, DatabaseError
 from django.utils import timezone
 from datetime import timedelta
 
+
 def str_to_time(s):
     return map(int, s.split(':'))
 
+
 class Command(BaseCommand):
-    help = _("Create contests, phases and supervisions for Stowarzyszenie Talent's camps")
-    
+    help = _(
+        "Create contests, phases and supervisions for Stowarzyszenie Talent's camps"
+    )
+
     def add_arguments(self, parser):
-        parser.add_argument('-f', action='store_true', default=False,
-                            dest='force', help="Force (Don't quit on DB Errors)")
-    
+        parser.add_argument(
+            '-f',
+            action='store_true',
+            default=False,
+            dest='force',
+            help="Force (Don't quit on DB Errors)",
+        )
+
     def handle(self, *args, **options):
         site_name = input("--- Camp name: ")
-        run(["sed", "-i", 
+        run(
+            [
+                "sed",
+                "-i",
                 "s/^SITE_NAME.*$/SITE_NAME = '" + site_name + "'/",
-                "/sio2/deployment/settings.py"], check=True)
-        run(["/sio2/deployment/manage.py", "supervisor", "--skip-checks", "restart", "uwsgi", "mailnotifyd"], check=True)
-        
+                "/sio2/deployment/settings.py",
+            ],
+            check=True,
+        )
+        run(
+            [
+                "/sio2/deployment/manage.py",
+                "supervisor",
+                "--skip-checks",
+                "restart",
+                "uwsgi",
+                "mailnotifyd",
+            ],
+            check=True,
+        )
+
         score1 = settings.TALENT_SCORE1
         phase2_end = settings.TALENT_PHASE2_END
         score2 = settings.TALENT_SCORE2
@@ -42,20 +67,35 @@ class Command(BaseCommand):
         contest_results = settings.TALENT_CONTEST_RESULTS
         default_superusers = settings.TALENT_DEFAULT_SUPERUSERS
         dashboard_message = settings.TALENT_DASHBOARD_MESSAGE
-        
-        nday=timezone.localtime(timezone=pytz.timezone(settings.TIME_ZONE))
-        nday=nday.replace(microsecond=0, second=0, minute=0, hour=0)
-        
+
+        nday = timezone.localtime(timezone=pytz.timezone(settings.TIME_ZONE))
+        nday = nday.replace(microsecond=0, second=0, minute=0, hour=0)
+
         try:
             with transaction.atomic():
-                contest=Contest.objects.create(id="p", name="Kontest próbny", controller_name='oioioi.phase.controllers.PhaseOpenContestController', default_submissions_limit=150)
-                DashboardMessage.objects.create(contest=Contest.objects.get(id="p"), content=dashboard_message)
-                Round.objects.create(contest=contest, name="Runda próbna", start_date=nday, results_date=nday)
-                
+                contest = Contest.objects.create(
+                    id="p",
+                    name="Kontest próbny",
+                    controller_name='oioioi.phase.controllers.PhaseOpenContestController',
+                    default_submissions_limit=150,
+                )
+                DashboardMessage.objects.create(
+                    contest=Contest.objects.get(id="p"), content=dashboard_message
+                )
+                Round.objects.create(
+                    contest=contest,
+                    name="Runda próbna",
+                    start_date=nday,
+                    results_date=nday,
+                )
+
                 for i in contest_ids:
-                    contest, _ =Contest.objects.get_or_create(id=i, name=contest_names[i],
-                            controller_name="oioioi.phase.controllers.PhaseContestController",
-                            default_submissions_limit=150)
+                    contest, _ = Contest.objects.get_or_create(
+                        id=i,
+                        name=contest_names[i],
+                        controller_name="oioioi.phase.controllers.PhaseContestController",
+                        default_submissions_limit=150,
+                    )
                     if i in supervised_ids:
                         group, _ = Group.objects.get_or_create(name=contest_names[i])
                     roundnum = 1
@@ -65,44 +105,80 @@ class Command(BaseCommand):
                         round_start = cday + contest_start[i]
                         round_end = cday + contest_end[i]
                         round_results = cday + contest_results[i]
-                        round, _ = Round.objects.get_or_create(contest=contest, name=name, 
-                                             start_date=round_start, end_date=round_end, 
-                                                               results_date=round_results)
+                        round, _ = Round.objects.get_or_create(
+                            contest=contest,
+                            name=name,
+                            start_date=round_start,
+                            end_date=round_end,
+                            results_date=round_results,
+                        )
                         if i in phased_ids:
-                            Phase.objects.create(round=round, start_date=round_end, multiplier=score1)
+                            Phase.objects.create(
+                                round=round, start_date=round_end, multiplier=score1
+                            )
                             day_end = cday + phase2_end
-                            Phase.objects.create(round=round, start_date=day_end, multiplier=score2)
+                            Phase.objects.create(
+                                round=round, start_date=day_end, multiplier=score2
+                            )
                         if i in supervised_ids:
-                            Supervision.objects.create(group=group, round=round,
-                                                       start_date=round_start, end_date=round_end)
+                            Supervision.objects.create(
+                                group=group,
+                                round=round,
+                                start_date=round_start,
+                                end_date=round_end,
+                            )
                         roundnum = roundnum + 1
         except DatabaseError:
-            print("--- DB Error when creating contests etc." +
-                  "\n--- You've probably ran this command already")
+            print(
+                "--- DB Error when creating contests etc."
+                + "\n--- You've probably ran this command already"
+            )
             if not options['force']:
                 return "Command failed"
-        
+
         try:
             for user in default_superusers:
                 print("Creating superuser " + user + ":")
-                run(["/sio2/deployment/manage.py", "createsuperuser", 
-                                "--username", user, "--email", "", "--skip-checks"],
-                               capture_output=True)
+                run(
+                    [
+                        "/sio2/deployment/manage.py",
+                        "createsuperuser",
+                        "--username",
+                        user,
+                        "--email",
+                        "",
+                        "--skip-checks",
+                    ],
+                    capture_output=True,
+                )
         except DatabaseError:
-            print("--- DB Error when creating default superusers" +
-                  "\n--- You've probably ran this command already")
+            print(
+                "--- DB Error when creating default superusers"
+                + "\n--- You've probably ran this command already"
+            )
             if not options['force']:
                 return "Command failed"
-        
-        print("--- Enter additional superuser usernames to create\n" +
-              "--- When you're done, press enter at an empty prompt")
+
+        print(
+            "--- Enter additional superuser usernames to create\n"
+            + "--- When you're done, press enter at an empty prompt"
+        )
         user = input(">>> ")
         try:
             while user != "":
                 print("Creating superuser " + user + ":")
-                run(["/sio2/deployment/manage.py", "createsuperuser", 
-                                "--username", user, "--email", "", "--skip-checks"],
-                               capture_output=True)
+                run(
+                    [
+                        "/sio2/deployment/manage.py",
+                        "createsuperuser",
+                        "--username",
+                        user,
+                        "--email",
+                        "",
+                        "--skip-checks",
+                    ],
+                    capture_output=True,
+                )
                 user = input(">>> ")
         except DatabaseError:
             print("--- DB Error when creating additional superusers")

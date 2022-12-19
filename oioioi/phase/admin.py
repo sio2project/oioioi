@@ -17,14 +17,16 @@ class PhaseListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         qs = model_admin.get_queryset(request)
-        return Round.objects.filter(id__in=qs.values_list('round')) \
-                .values_list('id', 'name')
+        return Round.objects.filter(id__in=qs.values_list('round')).values_list(
+            'id', 'name'
+        )
 
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(round=self.value())
         else:
             return queryset
+
 
 class PhaseAdmin(admin.ModelAdmin):
     list_display = ['round', 'start_date', 'multiplier']
@@ -48,8 +50,9 @@ class PhaseAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'round':
             kwargs['queryset'] = Round.objects.filter(contest=request.contest)
-        return super(PhaseAdmin, self) \
-                .formfield_for_foreignkey(db_field, request, **kwargs)
+        return super(PhaseAdmin, self).formfield_for_foreignkey(
+            db_field, request, **kwargs
+        )
 
     # def get_list_select_related(self):
     #     return super(PhaseAdmin, self).get_list_select_related() \
@@ -58,14 +61,16 @@ class PhaseAdmin(admin.ModelAdmin):
 
 @make_request_condition
 def is_phase_contest(request):
-    return hasattr(request.contest, 'controller') \
-           and isinstance(request.contest.controller,
-                          PhaseOpenContestController)
+    return hasattr(request.contest, 'controller') and isinstance(
+        request.contest.controller, PhaseOpenContestController
+    )
 
 
 contest_site.contest_register(Phase, PhaseAdmin)
-contest_admin_menu_registry.register('phase_change',
-        _("Phases"), lambda request:
-        reverse('oioioiadmin:phase_phase_changelist'),
-        condition=is_phase_contest,
-        order=44)
+contest_admin_menu_registry.register(
+    'phase_change',
+    _("Phases"),
+    lambda request: reverse('oioioiadmin:phase_phase_changelist'),
+    condition=is_phase_contest,
+    order=44,
+)

@@ -7,6 +7,4 @@ def under_supervision(request):
             'is_under_supervision': is_user_under_supervision(getattr(request, 'user'))
         }
     else:
-        return {
-            'is_under_supervision': False
-        }
+        return {'is_under_supervision': False}

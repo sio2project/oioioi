@@ -419,7 +419,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def _edit_quiz_href(self, instance):
         if not settings.DISABLE_QUIZZES:
-            return reverse('oioioiadmin:quizzes_quiz_change', args=[instance.problem.pk])
+            return reverse(
+                'oioioiadmin:quizzes_quiz_change', args=[instance.problem.pk]
+            )
         else:
             return Http404
 
@@ -536,7 +538,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         qs = super(ProblemInstanceAdmin, self).get_queryset(request)
         qs = (
-            qs.filter(contest=request.contest).select_related('problem__problemsite')
+            qs.filter(contest=request.contest)
+            .select_related('problem__problemsite')
             .annotate(
                 localized_name=Subquery(
                     ProblemName.objects.filter(
@@ -552,9 +555,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             )
         )
         if 'oioioi.suspendjudge' in settings.INSTALLED_APPS:
-            qs=qs.select_related('suspended')
+            qs = qs.select_related('suspended')
         if not settings.DISABLE_QUIZZES:
-            qs=qs.select_related('problem__quiz')
+            qs = qs.select_related('problem__quiz')
         return qs
 
 
