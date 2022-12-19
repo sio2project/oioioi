@@ -110,7 +110,7 @@
                 {% endif %}
                 <td>{{ submission.submission.get_date_display }}</td>
                 {% if submission.can_see_status %}
-                    <td class="submission submission--{% if submission.submission.can_see_score %}{{ submission.submission.get_display_type }}{% else %}{{ submission.submission.status }}{% endif %}">
+                    <td class="submission submission--{% if submission.can_see_score %}{{ submission.submission.get_display_type }}{% else %}{{ submission.submission.status }}{% endif %}">
                         {{ submission.message }}
                     </td>
                 {% else %}
