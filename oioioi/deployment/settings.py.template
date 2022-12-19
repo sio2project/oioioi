@@ -44,9 +44,6 @@ SITE_ID = 1
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = [os.environ.get('DOMAIN_NAME', '*')]
 
-# Enable experimental support for pypy
-#USE_PYPY = True
-
 # The server to be run. Options are:
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
