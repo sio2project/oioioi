@@ -8334,13 +8334,7 @@ msgstr "phases"
 msgid "phase multiplier"
 msgstr "phase multiplier"
 
-#: TALENT FORMS
+#: TALENT 
 
-msgid "\n    <strong>The registration is closed.</strong> In order to be able to send solutions and be added to a group (or move to another one), contact an admin.\n    "
-msgstr "\n    <strong>The registration is closed.</strong> In order to be able to send solutions and be added to a group (or move to another one), contact an admin.\n    "
-
-msgid "\n        You have completed the registration. If you want to change your group,\n         <a href=\"%(reg_url)s\">fill in the contest registration form again</a>.\n    "
-msgstr "\n        You have completed the registration. If you want to change your group,\n         <a href=\"%(reg_url)s\">fill in the contest registration form again</a>.\n    "
-
-msgid "\n        <strong>Heads up!</strong> In order to be added to a group and be able to send solutions,\n         <a href=\"%(reg_url)s\">fill in the contest registration form</a>.\n    "
-msgstr "\n        <strong>Heads up!</strong> In order to be added to a group and be able to send solutions,\n         <a href=\"%(reg_url)s\">fill in the contest registration form</a>.\n    "
+msgid "Contest group"
+msgstr "Contest group"

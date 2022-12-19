@@ -28,6 +28,7 @@ else:
 # loaders specified.
 TEMPLATES[0]['APP_DIRS'] = False
 
+# This suppresses some warnings
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Site name displayed in the title and used by sioworkersd
@@ -97,6 +98,12 @@ SECRET_KEY = '__SECRET__'
 
 # Uncomment once oisubmit is used.
 #OISUBMIT_MAGICKEY = '__OTHER_SECRET__'
+
+# Mathjax location (a value of "" disables including it)
+# If your contestants don't have internet access, you can
+# disable it, provide it locally and link it here,
+# or whitelist the cloudflare url from default_settings.py on your network
+#MATHJAX_LOCATION = ""
 
 ADMINS = [
     (os.environ.get('ADMIN_NAME', 'Your Name'), os.environ.get('ADMIN_EMAIL', 'youremail@example.com')),
@@ -480,32 +487,6 @@ NOTIFICATIONS_SERVER_PORT = 7887
 #IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'
 
 # Error reporting
-
-# From original TalentSio
-
-SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
-if SENTRY_DSN:
-    import logging
-
-    import sentry_sdk
-
-    from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.logging import LoggingIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
-
-    SENTRY_LOG_LEVEL = logging.INFO
-
-    sentry_logging = LoggingIntegration(
-        level=SENTRY_LOG_LEVEL,  # Capture info and above as breadcrumbs
-        event_level=None,  # Send no events from log messages
-    )
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        integrations=[sentry_logging, DjangoIntegration(), CeleryIntegration()],
-    )
-
-# From upstream
-
 # import sentry_sdk
 # from sentry_sdk.integrations.django import DjangoIntegration
 #
@@ -558,8 +539,10 @@ if 'oioioi.talent' in INSTALLED_APPS:
 
     # Reversed, so that group A is on top of the contest list
     TALENT_CONTEST_IDS = ["e", "d", "c", "b", "a",]
-    # Groups for which to create more than just the contest
-    TALENT_REGULAR_CONTEST_IDS =["a", "b", "c", "d",]
+    # Groups for which to setup supervision
+    TALENT_SUPERVISED_IDS = ("a", "b", "c", "d",)
+    # Groups for which to create phases
+    TALENT_PHASED_IDS = ("a", "b", "c",)
     TALENT_CONTEST_NAMES = {
         "a": "Grupa A Mistrzowska",
         "b": "Grupa B Zaawansowana",
@@ -567,23 +550,30 @@ if 'oioioi.talent' in INSTALLED_APPS:
         "d": "Grupa D Początkująca",
         "e": "Grupa E Elementarna",
     }
+    TALENT_GROUP_FORM_CHOICES = group_choices =  [("", "")] + \
+        list(TALENT_CONTEST_NAMES.items()) + \
+        [("brak", "Brak grupy (Trzeba mieć grupę! Wybieram na własne ryzyko)"),]
+    
     TALENT_CONTEST_START = {
-            "a": timedelta(hours=9),
-            "b": timedelta(hours=9),
-            "c": timedelta(hours=9),
-            "d": timedelta(hours=9, minutes=30),
+        "a": timedelta(hours=9),
+        "b": timedelta(hours=9),
+        "c": timedelta(hours=9),
+        "d": timedelta(hours=9, minutes=30),
+        "e": timedelta(hours=9, minutes=30),
     }
     TALENT_CONTEST_END = {
-            "a": timedelta(hours=14),
-            "b": timedelta(hours=14),
-            "c": timedelta(hours=12, minutes=30),
-            "d": timedelta(hours=12, minutes=30),
+        "a": timedelta(hours=14),
+        "b": timedelta(hours=14),
+        "c": timedelta(hours=12, minutes=30),
+        "d": timedelta(hours=12, minutes=30),
+        "e": timedelta(hours=12, minutes=30),
     }
     TALENT_CONTEST_RESULTS = {
-            "a": timedelta(hours=14, minutes=5),
-            "b": timedelta(hours=14, minutes=5),
-            "c": timedelta(hours=14, minutes=5),
-            "d": timedelta(hours=14, minutes=5),
+        "a": timedelta(hours=14, minutes=5),
+        "b": timedelta(hours=14, minutes=5),
+        "c": timedelta(hours=14, minutes=5),
+        "d": timedelta(hours=14, minutes=5),
+        "e": timedelta(hours=14, minutes=5),
     }
     
     TALENT_DASHBOARD_MESSAGE = "Example dashboard message"

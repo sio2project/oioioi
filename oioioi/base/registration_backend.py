@@ -48,6 +48,21 @@ class RegistrationView(DefaultRegistrationView):
             request.META.get('HTTP_USER_AGENT', '?'),
         )
 
+        if 'oioioi.talent' in settings.INSTALLED_APPS \
+                and not settings.TALENT_REGISTRATION_CLOSED:
+            group = data['group']
+            if not group == "brak":
+                from oioioi.contests.models import Contest
+                from oioioi.supervision.models import Membership, Group
+                from oioioi.participants.models import Participant
+                if group not in settings.TALENT_CONTEST_NAMES:
+                    raise SuspiciousOperation
+                contest=Contest.objects.get(id=group)
+                Participant.objects.get_or_create(contest=contest, user=user)
+                if group in settings.TALENT_SUPERVISED_IDS:
+                    group=Group.objects.get(name=settings.TALENT_CONTEST_NAMES[group])
+                    Membership.objects.get_or_create(user=user, group=group, is_present=True)
+        
         registration_profile = RegistrationProfile.objects.create_profile(user)
         signals.user_registered.send(sender=self.__class__, user=user, request=request)
         PreferencesSaved.send(form, user=user)

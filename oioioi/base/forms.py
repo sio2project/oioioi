@@ -12,6 +12,7 @@ from django.contrib.auth.forms import (
 )
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.conf import settings
 from django.forms import BooleanField, ChoiceField
 from django.forms import ChoiceField
 from django.utils.safestring import mark_safe
@@ -193,6 +194,12 @@ class RegistrationFormWithNames(RegistrationForm):
             ('first_name', forms.CharField(label=_("First name"))),
             ('last_name', forms.CharField(label=_("Last name"))),
         ]
+        if 'oioioi.talent' in settings.INSTALLED_APPS and not settings.TALENT_REGISTRATION_CLOSED:
+            group_field = forms.ChoiceField(
+                choices=settings.TALENT_GROUP_FORM_CHOICES,
+                label=_("Contest group"),
+            )
+            tmp_fields = tmp_fields + [ ('group', group_field), ]
         # From original TalentSio (for OIG probably)
         #tmp_fields.append(
         #    ('agreement', forms.BooleanField(label=mark_safe(
