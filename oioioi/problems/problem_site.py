@@ -42,7 +42,6 @@ from oioioi.problems.utils import (
     query_zip,
 )
 from oioioi.sinolpack.models import OriginalPackage
-from oioioi.testspackages.models import TestsPackage
 
 problem_site_tab_registry = OrderedRegistry()
 logger = logging.getLogger(__name__)
@@ -276,10 +275,14 @@ def problem_site_settings(request, problem):
 def problem_site_add_to_contest(request, problem):
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
-    tests_package = TestsPackage.objects.filter(problem=problem)
-    tests_package_visible = any(
-        [tp.is_visible(request.timestamp) for tp in tests_package]
-    )
+    if 'oioioi.testspackages' in settings.INSTALLED_APPS:
+        from oioioi.testspackages.models import TestsPackage
+        tests_package = TestsPackage.objects.filter(problem=problem)
+        tests_package_visible = any(
+            [tp.is_visible(request.timestamp) for tp in tests_package]
+        )
+    else:
+        tests_package_visible = False
     return TemplateResponse(
         request,
         'problems/add-to-contest.html',

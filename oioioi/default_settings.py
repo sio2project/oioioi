@@ -692,3 +692,6 @@ USE_ACE_EDITOR = False
 
 # Experimental pypy support
 USE_PYPY = False
+
+# Don't disable quizzes which (as of 2022-12-19) don't actually work
+DISABLE_QUIZZES = False

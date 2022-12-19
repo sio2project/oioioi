@@ -364,7 +364,7 @@ INSTALLED_APPS = [
 #    'oioioi.balloons',
     'oioioi.statistics',
 #    'oioioi.publicsolutions',
-    'oioioi.testspackages',
+#    'oioioi.testspackages',
 #    'oioioi.pa',
     'oioioi.notifications',
 #    'oioioi.mailsubmit',
@@ -378,6 +378,9 @@ INSTALLED_APPS = [
     'oioioi.supervision',
     'oioioi.talent',
 ] + INSTALLED_APPS
+
+# Set this to False if you want quizzes, which (as of 2022-12-19) don't work anyway
+DISABLE_QUIZZES = True
 
 # Set to True to show the link to the problemset with contests on navbar.
 PROBLEMSET_LINK_VISIBLE = False
@@ -524,6 +527,14 @@ NOTIFICATIONS_SERVER_PORT = 7887
 # variable, then corresponding setting will be set automatically.
 # CAPTCHA_FLITE_PATH = ''
 # CAPTCHA_SOX_PATH = ''
+
+
+# Additional logic for some options
+
+# Disabling quizzes
+if DISABLE_QUIZZES:
+    INSTALLED_APPS.remove('oioioi.quizzes')
+    PROBLEM_SOURCES.remove('oioioi.quizzes.problem_sources.EmptyQuizSource')
 
 # Settings for initialiasing OIOIOI at
 # the start of a Stowarzyszenie Talent's camp
