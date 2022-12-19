@@ -257,7 +257,7 @@ class TestProblemUpload(TransactionTestCase):
         problem_instances = ProblemInstance.objects.all()
         self.assertEqual(len(problem_instances), 0)
 
-    @override_settings(PROBLEM_SOURCES=('oioioi.problems.tests.DummySource',))
+    @override_settings(PROBLEM_SOURCES=['oioioi.problems.tests.DummySource',])
     def test_handlers(self):
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))

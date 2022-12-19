@@ -418,7 +418,7 @@ class TestParticipantsModelAdmin(TestCase):
 
 @override_settings(
     MIDDLEWARE=MIDDLEWARE
-    + ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
+    + ['oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',],
     ROOT_URLCONF='oioioi.contests.tests.test_urls',
 )
 class TestParticipantsExclusiveContestsMiddlewareMixin(

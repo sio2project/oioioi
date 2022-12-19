@@ -16,14 +16,14 @@ from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE
 
 @override_settings(
     AUTHENTICATION_BACKENDS=AUTHENTICATION_BACKENDS
-    + ('oioioi.ipdnsauth.backends.IpDnsBackend',)
+    + ['oioioi.ipdnsauth.backends.IpDnsBackend',]
 )
 @override_settings(
     MIDDLEWARE=MIDDLEWARE
-    + (
+    + [
         'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
         'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
-    )
+    ]
 )
 class TestAutoAuthorization(TestCase):
     fixtures = ['test_users', 'test_two_empty_contests']

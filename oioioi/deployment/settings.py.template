@@ -21,12 +21,8 @@ if DEBUG:
 else:
     # Cache compiled templates in production environment.
     TEMPLATES[0]['OPTIONS']['loaders'] = CACHED_TEMPLATE_LOADERS
-    INSTALLED_APPS = list(INSTALLED_APPS)
     INSTALLED_APPS.remove('debug_toolbar')
-    INSTALLED_APPS = tuple(INSTALLED_APPS)
-    MIDDLEWARE=list(MIDDLEWARE)
     MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
-    MIDDLEWARE=tuple(MIDDLEWARE)
 
 # The APP_DIRS option is allowed only in template engines that have no custom
 # loaders specified.
@@ -102,9 +98,9 @@ SECRET_KEY = '__SECRET__'
 # Uncomment once oisubmit is used.
 #OISUBMIT_MAGICKEY = '__OTHER_SECRET__'
 
-ADMINS = (
+ADMINS = [
     (os.environ.get('ADMIN_NAME', 'Your Name'), os.environ.get('ADMIN_EMAIL', 'youremail@example.com')),
-)
+]
 
 # Email addresses to send communication from users (for example requests for
 # teacher accounts).
@@ -331,7 +327,7 @@ MAX_MEMORY_LIMIT_FOR_TEST = int(os.environ.get('MAX_MEMORY_LIMIT_FOR_TEST_IN_MB'
 # Some components need also corresponding lines in TEMPLATE_CONTEXT_PROCESSORS
 # and/or AUTHENTICATION_BACKENDS commented/uncommented.
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
 #    'oioioi.contestlogo',
 #    'oioioi.teachers',
 #    'oioioi.simpleui',
@@ -374,7 +370,7 @@ INSTALLED_APPS = (
     'oioioi.phase',
     'oioioi.supervision',
     'oioioi.talent',
-) + INSTALLED_APPS
+] + INSTALLED_APPS
 
 # Set to True to show the link to the problemset with contests on navbar.
 PROBLEMSET_LINK_VISIBLE = False
@@ -402,17 +398,17 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 #    'oioioi.portals.processors.portals_main_page_link_visible', # idk
 ]
 
-MIDDLEWARE += (
+MIDDLEWARE += [
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
 #   'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.ipdnsauth.middleware.ForceDnsIpAuthMiddleware',
-)
+]
 
-AUTHENTICATION_BACKENDS += (
+AUTHENTICATION_BACKENDS += [
 #    'oioioi.teachers.auth.TeacherAuthBackend',
 #    'oioioi.usercontests.auth.UserContestAuthBackend',
 #    'oioioi.ipdnsauth.backends.IpDnsBackend',
-)
+]
 
 # Limits the duration of user contests.
 # Comment out if you don't want to limit the user contests duration.
@@ -426,14 +422,14 @@ EVALMGR_CONCURRENCY = 4
 # Number of concurrently processed problem packages (default is 1).
 UNPACKMGR_CONCURRENCY = 3
 
-PROBLEM_SOURCES += (
+PROBLEM_SOURCES += [
 #    'oioioi.sharingcli.problem_sources.RemoteSource',
 #    'oioioi.zeus.problem_sources.ZeusProblemSource',
-)
+]
 
-SHARING_SERVERS = (
+SHARING_SERVERS = [
 #    ('site_url', 'sharing_url', 'client_id', 'client_secret'),
-)
+]
 
 ZEUS_INSTANCES = {
 #    'zeus_id': ('zeus_url', 'zeus_login', 'zeus_secret'),
@@ -554,16 +550,16 @@ if SENTRY_DSN:
 if 'oioioi.talent' in INSTALLED_APPS:
     from datetime import timedelta
 
-    TALENT_DEFAULT_SUPERUSERS = ("ztalentariuszy",)
+    TALENT_DEFAULT_SUPERUSERS = ["ztalentariuszy",]
 
     TALENT_SCORE1 = 75
     TALENT_PHASE2_END = timedelta(hours=21, minutes=30)
     TALENT_SCORE2 = 60
 
     # Reversed, so that group A is on top of the contest list
-    TALENT_CONTEST_IDS = ("e", "d", "c", "b", "a",)
+    TALENT_CONTEST_IDS = ["e", "d", "c", "b", "a",]
     # Groups for which to create more than just the contest
-    TALENT_REGULAR_CONTEST_IDS =("a", "b", "c", "d",)
+    TALENT_REGULAR_CONTEST_IDS =["a", "b", "c", "d",]
     TALENT_CONTEST_NAMES = {
         "a": "Grupa A Mistrzowska",
         "b": "Grupa B Zaawansowana",

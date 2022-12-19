@@ -154,7 +154,7 @@ TEMPLATES = [
     },
 ]
 
-MIDDLEWARE = (
+MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'oioioi.base.middleware.TimestampingMiddleware',
@@ -176,7 +176,7 @@ MIDDLEWARE = (
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'oioioi.maintenancemode.middleware.MaintenanceModeMiddleware',
-)
+]
 
 COMMON_MEDIA_PREFIX = 'common/'
 
@@ -194,7 +194,7 @@ COMPRESS_PRECOMPILERS = (
 
 LIBSASS_PRECISION = 8
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'debug_toolbar',
     'oioioi.filetracker',
     'oioioi.contests',
@@ -247,7 +247,7 @@ INSTALLED_APPS = (
 
     'captcha',
     'fontawesomefree',
-)
+]
 
 CAPTCHA_FLITE_PATH = find_executable_path('flite')
 CAPTCHA_SOX_PATH = find_executable_path('sox')
@@ -256,11 +256,11 @@ CAPTCHA_IMAGE_SIZE = (250, 100)
 CAPTCHA_FONT_SIZE = 64
 CAPTCHA_LETTER_ROTATION = (-70, 70)
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     # 'oioioi.teachers.auth.TeacherAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
     'oioioi.contests.auth.ContestPermissionsAuthBackend',
-)
+]
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
@@ -290,11 +290,11 @@ NUM_RECENT_IN_MENU = 5
 
 REPLY_TEMPLATE_VISIBLE_NAME_LENGTH = 15
 
-PROBLEM_SOURCES = (
+PROBLEM_SOURCES = [
     'oioioi.problems.problem_sources.UploadedPackageSource',
     'oioioi.problems.problem_sources.ProblemsetSource',
     'oioioi.quizzes.problem_sources.EmptyQuizSource',
-)
+]
 
 PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',
