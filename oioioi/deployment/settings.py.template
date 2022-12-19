@@ -551,9 +551,9 @@ if 'oioioi.talent' in INSTALLED_APPS:
     # Reversed, so that group A is on top of the contest list
     TALENT_CONTEST_IDS = ["e", "d", "c", "b", "a",]
     # Groups for which to setup supervision
-    TALENT_SUPERVISED_IDS = ("a", "b", "c", "d",)
+    TALENT_SUPERVISED_IDS = ["a", "b", "c", "d",]
     # Groups for which to create phases
-    TALENT_PHASED_IDS = ("a", "b", "c",)
+    TALENT_PHASED_IDS = ["a", "b", "c",]
     TALENT_CONTEST_NAMES = {
         "a": "Grupa A Mistrzowska",
         "b": "Grupa B Zaawansowana",

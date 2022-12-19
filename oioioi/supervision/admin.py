@@ -44,9 +44,9 @@ class MemberAdminInline(admin.TabularInline):
     model = Membership
     extra = 0
     fields = ('user', 'is_present')
-    User.__str__ = lambda self: "{} {} {}".format(self.username,
-        self.last_name,
-        self.first_name)
+    User.__str__ = lambda self: "{} {} {}".format(self.last_name,
+        self.first_name,
+        self.username)
     
     def get_queryset(self, request):
         qs = super(MemberAdminInline, self).get_queryset(request)

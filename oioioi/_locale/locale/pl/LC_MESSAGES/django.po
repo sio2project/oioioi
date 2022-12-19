@@ -9349,6 +9349,9 @@ msgstr "w"
 msgid "is"
 msgstr "jest"
 
+msgid "not present"
+msgstr "nieobecny"
+
 #: PHASE
 msgid "Phase"
 msgstr "Faza"

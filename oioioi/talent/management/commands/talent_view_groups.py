@@ -1,69 +1,110 @@
 import six
 from subprocess import run
-import pytz
 
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from oioioi.participants.models import Participant
 from oioioi.contests.models import Contest
-from oioioi.supervision.models import Group, Membership
-from oioioi.talent.models import TalentRegistration
+from oioioi.supervision.models import Membership
 from django.db import transaction
 
 def member_qs(user):
-    return Membership.objects.get(user=user).select_related('group')
+    return Membership.objects.filter(user=user).select_related('group')
 
 def part_qs(user):
     return Participant.objects.filter(contest__controller_name= \
         'oioioi.phase.controllers.PhaseContestController', user=user) \
         .select_related('contest')
 
+def id_from_group(group):
+    for id, name in settings.TALENT_CONTEST_NAMES.items():
+        if name==group.name:
+            return id
+    raise KeyError
+
 class Command(BaseCommand):
     help = _("View users added tp contests and supervision groups at Stowarzyszenie Talent's camps")
     
     def add_arguments(self, parser):
         parser.add_argument('-c', action='store_true', default=False,
-                            dest='commit', help="Commit changes, not just print them")
+                            dest='close', help="Close the registration")
+        parser.add_argument('-o', action='store_true', default=False,
+                            dest='open', help="Open the registration")
     
     def handle(self, *args, **options):
-        run(["sed", "-i", 
-                "s/#*TALENT_REGISTRATION_CLOSED.*$/TALENT_REGISTRATION_CLOSED = True/", "/sio2/deployment/settings.py"], check=True)
-        run(["/sio2/deployment/manage.py", "supervisor", "--skip-checks", "restart", "uwsgi"], check=True)
+        registration_change=None
+        if options['close']:
+            registration_change="True"
+        if options['open']:
+            if registration_change!=None:
+                print("You can't open AND close the registration!")
+                return
+            registration_change="False"
+        if registration_change!=None:
+            run(["sed", "-i", 
+                    "s/#*TALENT_REGISTRATION_CLOSED.*$/TALENT_REGISTRATION_CLOSED = " + registration_change + "/", "/sio2/deployment/settings.py"], check=True)
+            run(["/sio2/deployment/manage.py", "supervisor", "--skip-checks", "restart", "uwsgi"], check=True)
         
-        commit=options['commit']
         users_unassigned = tuple()
         users_wrong = tuple()
-        print("--- Users registered correctly ---\n")
-        print("{: <13}{: <13} {: <13} {: <13}".format("Group", "Username", "First name", "Last name")) 
+        print("\n--- Users registered correctly ---\n")
+        print("{: <15}{: <15} {: <15} {: <15}".format("Group", "Username", "First name", "Last name")) 
         for user in User.objects.filter(is_superuser=False):
-            if not member_qs(user).exists() and not part_qs(user).exists:
+            if not member_qs(user).exists() and not part_qs(user).exists():
                 users_unassigned+=(user,)
-            elif (member_qs(user).count()!=1 and
-                    not (member_qs(user).count()==0 and 
-                    part_qs(user).first().contest.id not in settings.TALENT_SUPERVISED_IDS))
-                  or part_qs(user).count()!=1:
+                continue
+            if part_qs(user).count()!=1:
                 users_wrong+=(user,)
+                continue
+            
+            contestid=part_qs(user).get().contest.id
+            if contestid in settings.TALENT_SUPERVISED_IDS:
+                if member_qs(user).count()!=1 or id_from_group(member_qs(user).get().group)!=contestid or not member_qs(user).get().is_present:
+                    users_wrong+=(user,)
+                    continue
             else:
-                contest=part_qs(user).get().contest
-                print("{: <13}{: <13} {: <13} {: <13}".format(contest.id.upper(),
-                                                              user.username,
-                                                              user.first_name,
-                                                              user.last_name))
-        print("\n--- Superusers ---\n")
+                if member_qs(user).count()!=0:
+                    users_wrong+=(user,)
+                    continue
+                
+            print("{: <15}{: <15} {: <15} {: <15}".format(contestid.upper(),
+                                                          user.username,
+                                                          user.first_name,
+                                                          user.last_name))
+        
+        print("\n\n--- Superusers ---\n")
         for user in User.objects.filter(is_superuser=True):
             print(user.username)
         
         if len(users_unassigned):
-            print("\n--- Unassigned users ---\n")
-            print("{: <13} {: <13} {: <13}".format("Username", "First name", "Last name")) 
+            print("\n\n--- Unassigned users ---\n")
+            print("{: <15} {: <15} {: <15}".format("Username", "First name", "Last name")) 
             for user in users_unassigned:
-                print("{: <13} {: <13} {: <13}".format(user.username, user.first_name, user.last_name))
+                print("{: <15} {: <15} {: <15}".format(user.username, user.first_name, user.last_name))
         
         if len(users_wrong):
-            print("\n--- Misassigned users ---\n")
-            print("{: <13} {: <13} {: <13} {: <13} {: <13}".format("Username", "First name", "Last name", "Groups", "Contests"))
+            print("\n\n--- Misassigned users (lowercase group means not present) ---\n")
+            print("{: <15} {: <15} {: <15} {: <15} {: <15}".format("Username", "First name", "Last name", "Groups", "Contests"))
             for user in users_wrong:
-                groups=[ member.group.name[1] for member in member_qs(user) ]
+                groups=[]
+                for member in member_qs(user):
+                    if member.is_present:
+                        groups+=[id_from_group(member.group).upper(),]
+                    else:
+                        groups+=[id_from_group(member.group),]
                 participants=[ participant.contest.id.upper() for participant in part_qs(user) ]
-                print("{: <13} {: <13} {: <13} {: <13} {: <13}".format(user.username, user.first_name, user.last_name, ','.join(groups), ','.join(participants))
+                print("{: <15} {: <15} {: <15} {: <15} {: <15}".format(user.username, user.first_name, user.last_name, ','.join(groups), ','.join(participants)))
+        
+        if registration_change!=None:
+            if registration_change=="True":
+                status="CLOSED"
+            else:
+                status="OPEN"
+        else:
+            if settings.TALENT_REGISTRATION_CLOSED:
+                status="CLOSED"
+            else:
+                status="OPEN"
+        print("\n\n--- Registration status:", status, "\n");
