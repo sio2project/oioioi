@@ -140,9 +140,11 @@
                 <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard.min.js"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard-setup.js"></script>
             {% endcompress %}
-            <script type="text/javascript" async
-                    src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-            </script>
+            {% if mathjax_location|length > 0 %}
+                <script type="text/javascript" async
+                        src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+                </script>
+            {% endif %}
        {% endblock %}
     </body>
 </html>
