@@ -1,6 +1,5 @@
 import shutil
 import tempfile
-from zipfile import is_zipfile
 
 from django import forms
 from django.conf import settings
@@ -209,6 +208,8 @@ class TestRunContestControllerMixin(object):
         # pylint: disable=maybe-no-member
         submission.source_file.save(submit_file.name, submit_file)
         input_file = form_data['input']
+        # Same method as in validate_zip
+        submission.input_is_zip = input_file.name.upper().endswith(".ZIP")
         submission.input_file.save(input_file.name, input_file)
         if commit:
             submission.save()
@@ -279,7 +280,7 @@ class TestRunContestControllerMixin(object):
             context={
                 'submission': submission_template_context(request, sbm_testrun),
                 'supported_extra_args': self.get_supported_extra_args(submission),
-                'input_is_zip': is_zipfile(sbm_testrun.input_file),
+                'input_is_zip': sbm_testrun.input_is_zip,
             },
         )
 
@@ -294,9 +295,7 @@ class TestRunContestControllerMixin(object):
 
         input_is_zip = False
         if testrun_report:
-            input_is_zip = is_zipfile(
-                testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file
-            )
+            input_is_zip = testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_is_zip
 
         return render_to_string(
             template,
