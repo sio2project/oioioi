@@ -45,6 +45,7 @@ class MemberAdminInline(admin.TabularInline):
     model = Membership
     extra = 0
     fields = ('user', 'is_present')
+    autocomplete_fields = ('user',)
     User.__str__ = lambda self: "{} {} {}".format(
         self.last_name, self.first_name, self.username
     )
@@ -55,6 +56,7 @@ class MemberAdminInline(admin.TabularInline):
 
 
 class GroupAdmin(admin.ModelAdmin):
+    save_on_top = True
     inlines = (MemberAdminInline,)
 
 

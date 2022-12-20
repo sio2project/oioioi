@@ -352,6 +352,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     list_display = ('name_link', 'short_name_link', 'round', 'package', 'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
+    save_on_top = True
 
     def __init__(self, *args, **kwargs):
         # creating a thread local variable to store the request
