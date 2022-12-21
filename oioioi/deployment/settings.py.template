@@ -398,9 +398,9 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 #   'oioioi.base.processors.gravatar',
 #   'oioioi.contestlogo.processors.logo_processor', # needed for portals
 #   'oioioi.contestlogo.processors.icon_processor', # needed for portals
+   'oioioi.supervision.processors.under_supervision', # needed for supervision
     'oioioi.notifications.processors.notification_processor',
    'oioioi.globalmessage.processors.global_message_processor', # needed for portals
-   'oioioi.supervision.processors.under_supervision', # needed for supervision
 #   'oioioi.portals.processors.portal_processor', # needed for portals
 #    'oioioi.portals.processors.portals_main_page_link_visible', # idk
 ]

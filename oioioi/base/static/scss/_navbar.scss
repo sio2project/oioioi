@@ -51,7 +51,7 @@ body {
   color: $oioioi-navbar-color;
   height: $oioioi-navbar-height;
   padding: 0 $padding-base-horizontal;
-  z-index: 1001;
+  z-index: 1000;
 
   // When admin time is set
   &--admin-time {
