@@ -28,7 +28,8 @@ services:
       WORKER_RAM_MB: ${OIOIOI_RAM}
     stop_grace_period: 1m
     security_opt:
-      - seccomp:./seccomp.json
+      - seccomp:./extra/docker/seccomp.json
+      - apparmor:unconfined
     cap_add:
       - ALL
     depends_on:
@@ -36,7 +37,7 @@ services:
   broker:
     image: library/rabbitmq:3.8
     volumes:
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./extra/docker/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     environment:
       RABBITMQ_LOGS:
       RABBITMQ_SASL_LOGS:
