@@ -22,13 +22,13 @@ def is_round_under_supervision(round_):
 
 
 def can_user_enter_round(user, round_):
-    if user.is_anonymous:
-        return False
-
     key = "oioioi.supervision.utils.round." + str(user.id) + "." + str(round_.id)
     ret = cache.get(key)
     if ret == None:
-        if not (is_user_under_supervision(user) or is_round_under_supervision(round_)):
+        user_check = False
+        if not user.is_anonymous:
+            user_check = is_user_under_supervision(user)
+        if not (user_check or is_round_under_supervision(round_)):
             ret = True
         else:
             ret = Supervision.objects.filter(
