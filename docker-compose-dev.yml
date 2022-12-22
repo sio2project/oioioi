@@ -5,11 +5,11 @@ services:
     image: library/postgres:15.1
     env_file: env
     volumes:
-      - postgress-data-dev:/var/lib/postgresql/data
+      - postgress-data:/var/lib/postgresql/data
     stop_grace_period: 1m
   web:
     image: $OIOIOI_VERSION
-    command: ["/sio2/oioioi/oioioi_init_prod.sh"]
+    command: ["/sio2/oioioi/oioioi_init.sh"]
     env_file: env
     build:
       context: .
@@ -19,11 +19,11 @@ services:
           #      extra_hosts:
           #- "web:127.0.0.1"
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
       - "7887:7887"
     volumes:
       - .:/sio2/oioioi
-      - filetracker-dev:/sio2/deployment/media
+      - filetracker:/sio2/deployment/media
 #      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
     depends_on:
@@ -53,5 +53,5 @@ services:
       RABBITMQ_SASL_LOGS:
     stop_grace_period: 1m
 volumes:
-  postgress-data-dev:
-  filetracker-dev:
+  postgress-data:
+  filetracker:

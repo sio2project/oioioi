@@ -5,6 +5,7 @@ ENV PYTHONUNBUFFERED 1
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install -y \
+        nginx \
         proot \
         git \
         libpq-dev \
@@ -90,7 +91,8 @@ RUN sed -i -e \
         \$afrom basic_settings import *\n" \
         settings.py && \
     cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
-    mkdir -p /sio2/deployment/logs/{supervisor,runserver}
+    mkdir -p /sio2/deployment/logs/{supervisor,runserver} && \
+    sudo ln -fs /sio2/deployment/nginx-site.conf /etc/nginx/sites-available/default
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi \

@@ -2,8 +2,12 @@ upstream oioioi {
     server unix://__DIR__/uwsgi.sock;
 }
 
+limit_req_zone $binary_remote_addr zone=static:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=quick:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=slow:10m rate=1r/s;
+
 server {
-    listen 80;
+    listen 8000;
     server_name oioioi.example.com;
     charset utf-8;
 
@@ -12,7 +16,10 @@ server {
 
     client_max_body_size 300M;
 
+    limit_req_status 429;
+    
     location __STATIC_URL__ {
+        limit_req zone=static burst=40 delay=20;
         alias __STATIC_ROOT__/;
         expires 1d;
     }
@@ -21,5 +28,12 @@ server {
         uwsgi_pass oioioi;
         include uwsgi_params;
         uwsgi_read_timeout 1800;
+        limit_req zone=slow burst=20 delay=10;
+    }
+    location ~ ^(/jsi18n/|/c/[a-z0-9_-]+/(admin/|p/[a-z0-9_-]+/$)) {
+        uwsgi_pass oioioi;
+        include uwsgi_params;
+        uwsgi_read_timeout 1800;
+        limit_req zone=quick burst=50 delay=15;
     }
 }
