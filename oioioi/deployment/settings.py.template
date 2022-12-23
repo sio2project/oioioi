@@ -44,7 +44,7 @@ SITE_ID = 1
 #PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com/'
 
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = [os.environ.get('DOMAIN_NAME', '*')]
+ALLOWED_HOSTS = ['*',]
 
 # The server to be run. Options are:
 # 'django' - django's http server
@@ -464,7 +464,7 @@ ZEUS_INSTANCES = {
 # Notifications configuration (client)
 # This one is for JavaScript socket.io client.
 # It should contain actual URL available from remote machines.
-NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
+NOTIFICATIONS_SERVER_URL = os.environ.get('DOMAIN_URL', 'http://localhost:7887/')
 
 # Notifications configuration (server)
 NOTIFICATIONS_SERVER_ENABLED = True

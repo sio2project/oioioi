@@ -2,6 +2,7 @@ upstream oioioi {
     server unix://__DIR__/uwsgi.sock;
 }
 
+limit_req_zone $binary_remote_addr zone=notif:10m rate=50r/s;
 limit_req_zone $binary_remote_addr zone=static:10m rate=10r/s;
 limit_req_zone $binary_remote_addr zone=quick:10m rate=10r/s;
 limit_req_zone $binary_remote_addr zone=slow:10m rate=1r/s;
@@ -18,19 +19,36 @@ server {
 
     limit_req_status 429;
     
+    
+    keepalive_requests 1000;
+    keepalive_timeout 360s 360s;
+    
+    
     location __STATIC_URL__ {
         limit_req zone=static burst=40 delay=20;
         alias __STATIC_ROOT__/;
+        gzip_vary on;
+        gzip_min_length 1024;
+        gzip_proxied expired no-cache no-store private auth;
+        gzip_types text/plain text/css application/javascript text/javascript;
         expires 1d;
     }
 
+    location /socket.io/ {
+        proxy_pass http://127.0.0.1:7887;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        limit_req zone=notif burst=50;
+    }
+    
     location / {
         uwsgi_pass oioioi;
         include uwsgi_params;
         uwsgi_read_timeout 1800;
         limit_req zone=slow burst=20 delay=10;
     }
-    location ~ ^(/jsi18n/|/c/[a-z0-9_-]+/(admin/|p/[a-z0-9_-]+/$)) {
+    location ~ ^/(jsi18n/|c/[a-z0-9_-]+/(status/|admin/|p/[a-z0-9_-]+/$)) {
         uwsgi_pass oioioi;
         include uwsgi_params;
         uwsgi_read_timeout 1800;

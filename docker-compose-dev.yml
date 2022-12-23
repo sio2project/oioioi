@@ -1,5 +1,4 @@
-#version: '2.4'
-# https://github.com/docker/cli/issues/1293
+version: '3.8'
 services:
   db:
     image: library/postgres:15.1
@@ -11,6 +10,8 @@ services:
     image: $OIOIOI_VERSION
     command: ["/sio2/oioioi/oioioi_init.sh"]
     env_file: env
+    environment:
+      - DOMAIN_URL
     build:
       context: .
       dockerfile: Dockerfile
@@ -20,7 +21,7 @@ services:
           #- "web:127.0.0.1"
     ports:
       - "127.0.0.1:8000:8000"
-      - "7887:7887"
+      - "127.0.0.1:7887:7887"
     volumes:
       - .:/sio2/oioioi
       - filetracker:/sio2/deployment/media

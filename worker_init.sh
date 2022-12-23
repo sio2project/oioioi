@@ -9,7 +9,7 @@ sudo apt install -y proot
 
 mkdir -pv /sio2/deployment/logs/database
 
-[ -n "$WORKER_CONCURRENCY" ] || WORKER_CONCURRENCY=2
+[ -n "$WORKER_CONCURRENCY" ] || WORKER_CONCURRENCY=$(nproc)
 [ -n "$WORKER_RAM_MB" ] || WORKER_RAM_MB=1024
 
 echo "LOG: Launching worker at `hostname`"
