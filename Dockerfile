@@ -37,15 +37,13 @@ RUN dpkg --add-architecture i386 && \
 # This is placed here to avoid redownloading package on uid change
 ARG oioioi_uid=1234
 
-#Bash as shell, setup folders, create oioioi user
+#Bash as shell, setup folders, create oioioi user, modify locale
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh && \
     mkdir -pv /sio2/oioioi /sio2/sandboxes && \
     useradd -U oioioi -m -d /home/oioioi/ -u $oioioi_uid && \
     echo "oioioi ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-    chown -R oioioi:oioioi /sio2
-
-# Modify locale
-RUN sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
+    chown -R oioioi:oioioi /sio2 && \
+    sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
     locale-gen
 
 COPY --chmod=+x --chown=oioioi ./entrypoint_checks.sh /entrypoint_checks.sh
@@ -57,16 +55,20 @@ USER oioioi
 
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
-RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi && \
+    pip3 cache purge
 
 WORKDIR /sio2/oioioi
 
 COPY --chown=oioioi:oioioi setup.py requirements.txt ./
-RUN pip3 install -r requirements.txt --user
+RUN pip3 install -r requirements.txt --user && \
+    pip3 cache purge
 COPY --chown=oioioi:oioioi requirements_static.txt ./
-RUN pip3 install -r requirements_static.txt --user
+RUN pip3 install -r requirements_static.txt --user && \
+    pip3 cache purge
 COPY --chown=oioioi:oioioi requirements_talent.txt ./
-RUN pip3 install -r requirements_talent.txt --user
+RUN pip3 install -r requirements_talent.txt --user && \
+    pip3 cache purge
 
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 
@@ -96,8 +98,9 @@ RUN sed -i -e \
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi \
-    --nolaunch=rankingsd --nolaunch=mailnotifyd && \
+        --nolaunch=rankingsd --nolaunch=mailnotifyd && \
     ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 \
-    compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox \
-    proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
-    ./manage.py supervisor stop all
+        compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox \
+        proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
+    ./manage.py supervisor stop all && \
+    rm -rf /sio2/deployment/cache
