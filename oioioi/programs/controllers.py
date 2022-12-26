@@ -534,7 +534,7 @@ class ProgrammingProblemController(ProblemController):
     def _add_langs_to_form(self, request, form, problem_instance):
         controller = problem_instance.controller
 
-        choices = [('', '')]
+        choices = []
         for lang in get_allowed_languages_dict(problem_instance).keys():
             compiler_name = None
             compiler = controller.get_compiler_for_language(problem_instance, lang)

@@ -347,7 +347,7 @@ SUBMITTABLE_LANGUAGES = {
 # This setting is used for associating programming languages with file extensions.
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_LANGUAGES.
-SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
+SUBMITTABLE_EXTENSIONS = {'C++': ['cpp', 'cc'], 'C': ['c'], 'Pascal': ['pas'],
                           'Java': ['java'], 'Python': ['py'], 'Output-only': ['txt', 'out']}
 
 # This setting specifies which compilers are available in sioworkers.
