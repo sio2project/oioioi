@@ -42,6 +42,9 @@ class TabularInline(admin.TabularInline):
     def has_view_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
+    class Media:
+        css = { "all" : ("scss/hide_admin_original.scss",) }
+
 
 class StackedInline(admin.StackedInline):
     # by default we assume that if item is added to specific
@@ -57,6 +60,9 @@ class StackedInline(admin.StackedInline):
 
     def has_view_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
+
+    class Media:
+        css = { "all" : ("scss/hide_admin_original.scss",) }
 
 
 class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):

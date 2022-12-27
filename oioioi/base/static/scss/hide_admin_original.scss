@@ -1,0 +1,5 @@
+/* https://stackoverflow.com/questions/5086537/how-to-omit-object-name-from-djangos-tabularinline-admin-view */
+
+td.original, th.original {
+    display: none
+}

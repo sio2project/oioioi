@@ -44,7 +44,7 @@ contest_admin_menu_registry.register(
 class MemberAdminInline(admin.TabularInline):
     model = Membership
     extra = 0
-    fields = ('user', 'is_present')
+    fields = ('is_present', 'user',)
     autocomplete_fields = ('user',)
     User.__str__ = lambda self: "{} {} {}".format(
         self.last_name, self.first_name, self.username
