@@ -76,7 +76,7 @@ class Command(BaseCommand):
                 contest = Contest.objects.create(
                     id="p",
                     name="Kontest próbny",
-                    controller_name='oioioi.phase.controllers.PhaseOpenContestController',
+                    controller_name='oioioi.talent.controllers.TalentOpenContestController',
                     default_submissions_limit=150,
                 )
                 DashboardMessage.objects.create(
@@ -93,7 +93,7 @@ class Command(BaseCommand):
                     contest, _ = Contest.objects.get_or_create(
                         id=i,
                         name=contest_names[i],
-                        controller_name="oioioi.phase.controllers.PhaseContestController",
+                        controller_name="oioioi.talent.controllers.TalentContestController",
                         default_submissions_limit=150,
                     )
                     if i in supervised_ids:

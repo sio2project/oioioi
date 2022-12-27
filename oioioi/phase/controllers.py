@@ -1,31 +1,13 @@
-from django.utils.translation import ugettext_lazy as _
-
 from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.contests.scores import IntegerScore
-from oioioi.participants.controllers import ParticipantsController
-from oioioi.contests.utils import is_contest_admin
 from oioioi.phase.models import Phase
-from oioioi.programs.controllers import ProgrammingContestController
 
 
 class _FirstPhase:
     multiplier = 100
 
-
-class PhaseOpenContestController(ProgrammingContestController):
-    description = _("Phase open contest")
-
-    def fill_evaluation_environ(self, environ, submission):
-        super(PhaseOpenContestController, self).fill_evaluation_environ(
-            environ, submission
-        )
-
-        environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
-        environ['test_scorer'] = 'oioioi.programs.utils.threshold_linear_test_scorer'
-
-    def can_see_test_comments(self, request, submissionreport):
-        return is_contest_admin(request)
-
+class PhaseMixinForContestController(object):
+    is_phase_contest = True
     def update_user_result_for_problem(self, result):
         try:
             submissions = (
@@ -79,10 +61,3 @@ class PhaseOpenContestController(ProgrammingContestController):
             result.score = None
             result.status = None
             result.submission_report = None
-
-
-class PhaseContestController(PhaseOpenContestController):
-    description = _("Phase contest")
-
-    def registration_controller(self):
-        return ParticipantsController(self.contest)

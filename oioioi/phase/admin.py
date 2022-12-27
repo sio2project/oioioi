@@ -7,7 +7,6 @@ from oioioi.base.permissions import make_request_condition
 from oioioi.contests.admin import contest_site, contest_admin_menu_registry
 from oioioi.contests.models import Round
 from oioioi.contests.utils import is_contest_admin
-from oioioi.phase.controllers import PhaseOpenContestController
 from oioioi.phase.models import Phase
 
 
@@ -61,9 +60,7 @@ class PhaseAdmin(admin.ModelAdmin):
 
 @make_request_condition
 def is_phase_contest(request):
-    return hasattr(request.contest, 'controller') and isinstance(
-        request.contest.controller, PhaseOpenContestController
-    )
+    return hasattr(request.contest, 'controller') and request.contest.controller.is_phase_contest
 
 
 contest_site.contest_register(Phase, PhaseAdmin)
