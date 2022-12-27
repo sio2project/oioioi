@@ -6264,6 +6264,12 @@ msgstr "score reveal config"
 msgid "score reveal configs"
 msgstr "score reveal configs"
 
+msgid "default score reveal config"
+msgstr "default score reveal config"
+
+msgid "default score reveal configs"
+msgstr "default score reveal configs"
+
 #: scoresreveal/templates/scoresreveal/submission-footer.html:4
 msgid "Score revealing"
 msgstr "Score revealing"
@@ -8338,6 +8344,11 @@ msgid "phase multiplier"
 msgstr "phase multiplier"
 
 #: TALENT 
+msgid "Talent open contest"
+msgstr "Talent open contest"
+
+msgid "Talent contest"
+msgstr "Talent contest"
 
 msgid "Contest group"
 msgstr "Contest group"

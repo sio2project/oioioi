@@ -4,9 +4,9 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY
 from oioioi.base.forms import AlwaysChangedModelForm
-from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
+from oioioi.contests.admin import ContestAdmin, ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.utils import is_contest_admin
-from oioioi.scoresreveal.models import ScoreRevealConfig
+from oioioi.scoresreveal.models import ScoreRevealConfig, ScoreRevealContestConfig
 from oioioi.scoresreveal.utils import is_revealed
 
 
@@ -76,3 +76,27 @@ class ScoresRevealSubmissionAdminMixin(object):
 
 
 SubmissionAdmin.mix_in(ScoresRevealSubmissionAdminMixin)
+
+class ScoresRevealContestConfigInline(admin.TabularInline):
+    model = ScoreRevealContestConfig
+    extra = 0
+    form = AlwaysChangedModelForm
+    category = _("Advanced")
+
+    def has_add_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+
+class ScoresRevealContestConfigAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(ScoresRevealContestConfigAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [ScoresRevealContestConfigInline]
+
+
+ContestAdmin.mix_in(ScoresRevealContestConfigAdminMixin)

@@ -107,13 +107,18 @@ def problems_list_view(request):
     # 6) submissions_limit
     # 7) can_submit
     # Sorted by (start_date, end_date, round name, problem name)
-    user_result_qs = UserResultForProblem.objects.select_related('submission_report',
-                                                                 'submission_report__submission',
-                            'submission_report__submission__problem_instance__problem',
-                            'submission_report__submission__problem_instance__round',
-                            'submission_report__submission__problem_instance__contest')
+    user_result_qs = UserResultForProblem.objects.select_related(
+        'submission_report',
+        'submission_report__submission',
+        'submission_report__submission__problem_instance__problem',
+        'submission_report__submission__problem_instance__round',
+        'submission_report__submission__problem_instance__contest')
     if 'oioioi.scoresreveal' in settings.INSTALLED_APPS:
-        user_result_qs = user_result_qs.select_related('submission_report__submission__revealed', 'submission_report__submission__problem_instance__scores_reveal_config')
+        user_result_qs = user_result_qs.select_related(
+                'submission_report__submission__revealed',
+                'submission_report__submission__problem_instance__scores_reveal_config',
+                'submission_report__submission__problem_instance__contest__scores_reveal_config',
+                )
     problems_statements = sorted(
         [
             (

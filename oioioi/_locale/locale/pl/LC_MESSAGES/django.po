@@ -7401,6 +7401,12 @@ msgstr "konfiguracja ujawniania wyników"
 msgid "score reveal configs"
 msgstr "konfiguracje ujawniania wyników"
 
+msgid "default score reveal config"
+msgstr "domyślna konfiguracja ujawniania wyników"
+
+msgid "default score reveal configs"
+msgstr "domyślne konfiguracje ujawniania wyników"
+
 #: scoresreveal/templates/scoresreveal/submission-footer.html:4
 msgid "Score revealing"
 msgstr "Ujawnianie wyniku"
@@ -9369,5 +9375,11 @@ msgid "phase multiplier"
 msgstr "mnożnik fazy"
 
 #: TALENT
+msgid "Talent open contest"
+msgstr "Konkurs Talentu (otwarty)"
+
+msgid "Talent contest"
+msgstr "Konkurs Talentu"
+
 msgid "Contest group"
 msgstr "Grupa kontestowa"

@@ -37,3 +37,24 @@ class ScoreRevealConfig(models.Model):
     class Meta(object):
         verbose_name = _("score reveal config")
         verbose_name_plural = _("score reveal configs")
+
+class ScoreRevealContestConfig(models.Model):
+    contest = models.OneToOneField(
+        'contests.Contest',
+        verbose_name=_("contest"),
+        related_name='scores_reveal_config',
+        on_delete=models.CASCADE,
+    )
+    reveal_limit = models.IntegerField(
+        verbose_name=_("reveal limit"),
+        help_text=_("If empty, all submissions are revealed automatically."),
+        blank=True,
+        null=True,
+    )
+    disable_time = models.IntegerField(
+        blank=True, null=True, verbose_name=_("disable for last minutes of the round")
+    )
+
+    class Meta(object):
+        verbose_name = _("default score reveal config")
+        verbose_name_plural = _("default score reveal configs")

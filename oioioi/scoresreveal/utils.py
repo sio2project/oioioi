@@ -1,11 +1,14 @@
-from oioioi.scoresreveal.models import ScoreReveal, ScoreRevealConfig
+from oioioi.scoresreveal.models import ScoreReveal, ScoreRevealConfig, ScoreRevealContestConfig
 
 
 def has_scores_reveal(problem_instance):
     try:
         return bool(problem_instance.scores_reveal_config)
     except ScoreRevealConfig.DoesNotExist:
-        return False
+        try:
+            return bool(problem_instance.contest.scores_reveal_config)
+        except ScoreRevealContestConfig.DoesNotExist:
+            return False
 
 
 def is_revealed(submission):
