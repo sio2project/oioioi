@@ -60,7 +60,7 @@ class PhaseAdmin(admin.ModelAdmin):
 
 @make_request_condition
 def is_phase_contest(request):
-    return hasattr(request.contest, 'controller') and request.contest.controller.is_phase_contest
+    return hasattr(request.contest, 'controller') and hasattr(request.contest.controller, 'is_phase_contest') and request.contest.controller.is_phase_contest
 
 
 contest_site.contest_register(Phase, PhaseAdmin)
