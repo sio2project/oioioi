@@ -41,7 +41,7 @@ class ContestLogo(models.Model):
 
 def make_icon_filename(instance, filename):
     return 'icons/%s/%s' % (
-        instance.contest.id,
+        instance.contest_id,
         get_valid_filename(os.path.basename(filename)),
     )
 

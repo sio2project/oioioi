@@ -98,7 +98,7 @@ class Command(BaseCommand):
                 users_wrong += (user,)
                 continue
 
-            contestid = part_qs(user).get().contest.id
+            contestid = part_qs(user).get().contest_id
             if contestid in settings.TALENT_SUPERVISED_IDS:
                 if (
                     member_qs(user).count() != 1
@@ -153,7 +153,7 @@ class Command(BaseCommand):
                             id_from_group(member.group),
                         ]
                 participants = [
-                    participant.contest.id.upper() for participant in part_qs(user)
+                    participant.contest_id.upper() for participant in part_qs(user)
                 ]
                 print(
                     "{: <15} {: <15} {: <15} {: <15} {: <15}".format(

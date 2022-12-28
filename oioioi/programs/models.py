@@ -250,7 +250,7 @@ def make_submission_filename(instance, filename):
     if not instance.id:
         instance.save()
     if instance.problem_instance.contest is not None:
-        folder = instance.problem_instance.contest.id
+        folder = instance.problem_instance.contest_id
     else:
         folder = "main_problem_instance"
     return 'submissions/%s/%d%s' % (folder, instance.id, os.path.splitext(filename)[1])
@@ -311,9 +311,9 @@ def make_output_filename(instance, filename):
     # of assigning file from filetracker to a FileField.
     submission = instance.submission_report.submission
     return 'userouts/%s/%d/%d-out' % (
-        submission.problem_instance.contest.id,
+        submission.problem_instance.contest_id,
         submission.id,
-        instance.submission_report.id,
+        instance.submission_report_id,
     )
 
 

@@ -628,7 +628,7 @@ def problem_site_external_statement_view(request, site_key):
 def problem_site_external_attachment_view(request, site_key, attachment_id):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
-    if attachment.problem.id != problem.id:
+    if attachment.problem_id != problem.id:
         raise PermissionDenied
     return stream_file(attachment.content, attachment.download_name)
 
@@ -816,7 +816,7 @@ def _get_results_info(request, problems):
                         'submission_url': reverse(
                             'submission',
                             kwargs={
-                                'submission_id': result.submission_report.submission.id
+                                'submission_id': result.submission_report.submission_id
                             },
                         ),
                     }

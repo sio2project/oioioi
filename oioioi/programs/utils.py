@@ -149,7 +149,7 @@ def get_submission_source_file_or_error(request, submission_id):
     """
     submission = get_object_or_404(ProgramSubmission, id=submission_id)
     pi = submission.problem_instance
-    if pi.contest and (not request.contest or request.contest.id != pi.contest.id):
+    if pi.contest and (not request.contest or request.contest.id != pi.contest_id):
         raise PermissionDenied
 
     if not pi.controller.can_see_source(request, submission):
@@ -197,7 +197,7 @@ def get_problem_link_or_name(request, submission):
     elif pi.contest.controller.can_see_statement(request, pi):
         href = reverse(
             'problem_statement',
-            kwargs={'contest_id': pi.contest.id, 'problem_instance': pi.short_name},
+            kwargs={'contest_id': pi.contest_id, 'problem_instance': pi.short_name},
         )
         return make_html_link(href, pi)
     else:

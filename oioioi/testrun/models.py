@@ -21,7 +21,7 @@ submission_report_kinds.register('TESTRUN', _("Test run report"))
 def make_custom_input_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return 'testruns/%s/%d/in' % (instance.problem_instance.contest.id, instance.id)
+    return 'testruns/%s/%d/in' % (instance.problem_instance.contest_id, instance.id)
 
 
 class TestRunProgramSubmission(ProgramSubmission):
@@ -35,9 +35,9 @@ def make_custom_output_filename(instance, filename):
     # of assigning file from filetracker to a FileField.
     submission = instance.submission_report.submission
     return 'testruns/%s/%d/%d-out' % (
-        submission.problem_instance.contest.id,
+        submission.problem_instance.contest_id,
         submission.id,
-        instance.submission_report.id,
+        instance.submission_report_id,
     )
 
 

@@ -52,7 +52,7 @@ def submission_receipt_proof(submission):
         'size': submission.source_file.size,
         'source_hash': source_hash.hexdigest(),
         'date': submission.date.isoformat(),
-        'contest': submission.problem_instance.contest.id,
+        'contest': submission.problem_instance.contest_id,
         'problem_instance_id': submission.problem_instance_id,
         'problem_name': submission.problem_instance.short_name,
         'user_id': submission.user_id,

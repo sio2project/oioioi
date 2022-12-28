@@ -4,7 +4,7 @@
 <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">
     <div class="settings-item settings-button clickable"><h5 class="text-center">{% trans "Edit problem" %}</h5></div>
 </a>
-<a href="{% url 'oioioiadmin:problems_mainprobleminstance_change' problem.main_problem_instance.id %}">
+<a href="{% url 'oioioiadmin:problems_mainprobleminstance_change' problem.main_problem_instance_id %}">
     <div class="settings-item settings-button clickable"><h5 class="text-center">{% trans "Edit tests" %}</h5></div>
 </a>
 <a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">

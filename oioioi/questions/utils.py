@@ -30,10 +30,10 @@ def get_categories(request):
 
 
 def get_category(message):
-    if message.problem_instance:
-        return 'p_%d' % message.problem_instance.id
-    if message.round:
-        return 'r_%d' % message.round.id
+    if message.problem_instance_id:
+        return 'p_%d' % message.problem_instance_id
+    if message.round_id:
+        return 'r_%d' % message.round_id
     return None
 
 

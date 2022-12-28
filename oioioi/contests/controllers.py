@@ -65,7 +65,7 @@ def submission_template_context(request, submission, skip_valid_kinds=False):
         'submission',
         kwargs={
             'submission_id': submission.id,
-            'contest_id': pi.contest.id if pi.contest else None,
+            'contest_id': pi.contest_id
         },
     )
     if skip_valid_kinds:

@@ -336,7 +336,7 @@ def _testreports_to_generate_outs(request, testreports):
             download_control.visible_for_user = not is_contest_basicadmin(request)
             download_control.save()
 
-        test_ids.append(testreport.test.id)
+        test_ids.append(testreport.test_id)
 
     return test_ids
 
@@ -362,10 +362,10 @@ def generate_user_output_view(request, testreport_id=None, submission_report_id=
 
         if submission_report_id is not None:
             # testreport_id is not related to given submission_report_id
-            if submission_report_id != testreport.submission_report.id:
+            if submission_report_id != testreport.submission_report_id:
                 raise SuspiciousOperation
         else:
-            submission_report_id = testreport.submission_report.id
+            submission_report_id = testreport.submission_report_id
         testreports = [testreport]
     # taking all test reports related to submission report
     elif submission_report_id is not None:
@@ -381,7 +381,7 @@ def generate_user_output_view(request, testreport_id=None, submission_report_id=
     test_ids = _testreports_to_generate_outs(request, testreports)
 
     # creating re-submission with appropriate tests
-    s_id = submission_report.submission.id
+    s_id = submission_report.submission_id
     submission = get_submission_or_error(
         request, s_id, submission_class=ProgramSubmission
     )

@@ -51,9 +51,8 @@ class GetProblemIdView(views.APIView):
         problem_instance = get_object_or_404(
             ProblemInstance, contest=contest, problem__short_name=problem_short_name
         )
-        problem = problem_instance.problem
         response_data = {
-            'problem_id': problem.id,
+            'problem_id': problem_instance.problem_id,
             'problem_instance_id': problem_instance.id,
         }
 

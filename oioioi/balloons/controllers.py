@@ -24,11 +24,11 @@ class BalloonsDeliveryACMControllerMixin(object):
     @transaction.atomic
     def _create_balloon_delivery(self, submission):
         this_problem_instance = Q(problem_instance=submission.problem_instance)
-        if submission.user is None:
+        if submission.user_id is None:
             return
         if BalloonDelivery.objects.filter(this_problem_instance).exists():
             # First solver has been determined, just create a request if OK.
-            user_qs = User.objects.filter(id=submission.user.id)
+            user_qs = User.objects.filter(id=submission.user_id)
             registration_controller = (
                 submission.problem_instance.contest.controller.registration_controller()
             )

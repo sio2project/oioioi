@@ -43,7 +43,7 @@ def _match_text_input(question, user_input, answer, problem_instance):
 def _is_answer_correct(submitted_answer):
     return (
         submitted_answer.is_selected
-        == QuizAnswer.objects.get(pk=submitted_answer.answer.id).is_correct
+        == QuizAnswer.objects.get(pk=submitted_answer.answer_id).is_correct
     )
 
 

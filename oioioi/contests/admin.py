@@ -169,7 +169,7 @@ class AttachmentInline(admin.StackedInline):
             href = reverse(
                 'contest_attachment',
                 kwargs={
-                    'contest_id': str(instance.contest.id),
+                    'contest_id': str(instance.contest_id),
                     'attachment_id': str(instance.id),
                 },
             )
@@ -911,9 +911,9 @@ class SubmissionAdmin(admin.ModelAdmin):
         if request.contest:
             _contest_id = request.contest.id
         if _contest_id is None:
-            contest = Submission.objects.get(pk=object_id).problem_instance.contest
-            if contest:
-                _contest_id = contest.id
+            pi = Submission.objects.get(pk=object_id).problem_instance
+            if pi.contest_id:
+                _contest_id = pi.contest_id
         return redirect(
             'submission', contest_id=_contest_id, submission_id=unquote(object_id)
         )
@@ -984,8 +984,8 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
             reverse(
                 'user_info',
                 kwargs={
-                    'contest_id': instance.round.contest.id,
-                    'user_id': instance.user.id,
+                    'contest_id': instance.round.contest_id,
+                    'user_id': instance.user_id,
                 },
             ),
             instance.user.username,

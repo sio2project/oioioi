@@ -55,7 +55,7 @@ class TestsPackageInline(admin.TabularInline):
                 'test',
                 kwargs={
                     'package_id': instance.id,
-                    'contest_id': instance.problem.contest.id,
+                    'contest_id': instance.problem.contest_id,
                 },
             )
             return make_html_link(href, instance.package.file.name)

@@ -105,7 +105,7 @@ class Message(models.Model):
         link = reverse(
             'message',
             kwargs={
-                'contest_id': self.contest.id,
+                'contest_id': self.contest_id,
                 'message_id': self.top_reference_id
                 if self.top_reference_id is not None
                 else self.id,

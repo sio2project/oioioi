@@ -251,7 +251,7 @@ class ProblemTableWidget(object):
                 row_['score'] = str(result.score.to_int())
                 row_['submission_url'] = reverse(
                     'submission',
-                    kwargs={'submission_id': result.submission_report.submission.id},
+                    kwargs={'submission_id': result.submission_report.submission_id},
                 )
                 return True
 

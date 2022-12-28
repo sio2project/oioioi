@@ -25,7 +25,7 @@ def make_custom_library_filename(instance, filename):
     if not instance.id:
         instance.save()
     return 'testruns/%s/%d/lib%s' % (
-        instance.problem_instance.contest.id,
+        instance.problem_instance.contest_id,
         instance.id,
         os.path.splitext(filename)[1],
     )

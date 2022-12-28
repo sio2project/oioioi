@@ -39,8 +39,8 @@ class Disqualification(models.Model):
 
     def save(self, *args, **kwargs):
         if self.submission:
-            assert self.contest.id == self.submission.problem_instance.contest_id
-            assert self.user.id == self.submission.user_id
+            assert self.contest_id == self.submission.problem_instance.contest_id
+            assert self.user_id == self.submission.user_id
 
         super(Disqualification, self).save(*args, **kwargs)
 

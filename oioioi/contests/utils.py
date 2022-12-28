@@ -373,8 +373,8 @@ def get_submission_or_error(request, submission_id, submission_class=Submission)
     if hasattr(request, 'user') and request.user.is_superuser:
         return submission
     pi = submission.problem_instance
-    if pi.contest:
-        if not request.contest or request.contest.id != pi.contest.id:
+    if pi.contest_id:
+        if not request.contest or request.contest.id != pi.contest_id:
             raise PermissionDenied
         if is_contest_basicadmin(request) or is_contest_observer(request):
             return submission

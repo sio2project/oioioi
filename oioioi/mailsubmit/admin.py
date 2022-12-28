@@ -103,9 +103,9 @@ class MailSubmissionAdmin(admin.ModelAdmin):
         contest = instance.submission.problem_instance.contest
         href = reverse(
             'submission',
-            kwargs={'contest_id': contest.id, 'submission_id': instance.submission.id},
+            kwargs={'contest_id': contest.id, 'submission_id': instance.submission_id},
         )
-        return make_html_link(href, instance.submission.id)
+        return make_html_link(href, instance.submission_id)
 
     related_submission.short_description = _("Related submission")
 

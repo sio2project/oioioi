@@ -120,13 +120,13 @@ class MessageNotifierConfigInline(admin.TabularInline):
             .filter(permission='contests.contest_admin')
             .select_related('user')
         )
-        admin_ids = [p.user.id for p in contest_admin_perm]
+        admin_ids = [p.user_id for p in contest_admin_perm]
 
         if request.user.is_superuser:
             admin_ids += [u.id for u in User.objects.filter(is_superuser=True)]
         elif is_contest_basicadmin(request):
             added = MessageNotifierConfig.objects.filter(contest=request.contest)
-            admin_ids += [request.user.id] + [conf.user.id for conf in added]
+            admin_ids += [request.user.id] + [conf.user_id for conf in added]
         else:
             admin_ids = []
 

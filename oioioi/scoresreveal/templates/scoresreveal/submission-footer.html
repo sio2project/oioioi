@@ -54,7 +54,7 @@
                             <p>{% blocktrans %}You are going to reveal your score. <br>Would you like to proceed?{% endblocktrans %}</p>
                         </div>
                         <div class="modal-footer">
-                            <form action="{% url 'submission_score_reveal' submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
+                            <form action="{% url 'submission_score_reveal' submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest_id %}" method="post">
                                 {% csrf_token %}
                                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{% trans "No" %}</button>
                                 <button type="submit" class="btn btn-primary">{% trans "Yes" %}</button>

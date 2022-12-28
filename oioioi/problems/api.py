@@ -67,8 +67,8 @@ class PackageUploadQueryView(APIView):
 
         response = {'package_status': package.status}
         if response['package_status'] == 'OK':
-            if package.problem is not None:
-                response['problem_id'] = package.problem.id
+            if package.problem_id is not None:
+                response['problem_id'] = package.problem_id
         elif response['package_status'] == 'ERR':
             if package.info is not None:
                 response['info'] = package.info

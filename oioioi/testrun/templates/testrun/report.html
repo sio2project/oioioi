@@ -32,7 +32,7 @@
                         <i class="fa-solid fa-chevron-up"></i>
                     </button>
                     {% endif %}
-                    <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+                    <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission_id %}">
                         <i class="fa-solid fa-download"></i>
                     </a>
                 </td>
@@ -43,11 +43,11 @@
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
                     {% if is_admin %}
-                        <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}">
+                        <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission_id testrun_report_id=testrun_report.id%}">
                             <i class="fa-solid fa-download"></i>
                         </a>
                     {% else %}
-                        <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+                        <a role="button" class="btn btn-xs btn-outline-secondary" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission_id %}">
                             <i class="fa-solid fa-download"></i>
                         </a>
                     {% endif %}
@@ -64,10 +64,10 @@
 
 {% block output_collapse %}
 {% if is_admin %}
-    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id %}">
+    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission_id testrun_report_id=testrun_report.id %}">
     </div>
 {% else %}
-    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission_id %}">
     </div>
 {% endif %}
 {% endblock %}

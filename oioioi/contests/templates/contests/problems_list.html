@@ -71,7 +71,7 @@
                         <td class="text-right">
                             {% if result %}
                                 {% if not is_admin %}
-                                {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
+                                {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission_id as link %}
                                 <a href="{{ link }}">
                                 {% endif %}
                                     {% if result.score == result.submission_report.score_report.max_score %}

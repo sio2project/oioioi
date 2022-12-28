@@ -42,7 +42,7 @@
     {% if post.is_author_banned %}
         | {% trans "This user was banned." %}
     {% else %}
-        | <a href="{% url 'forum_user_ban' contest_id=contest.id user_id=post.author.id %}?next={{ request.path | urlencode }}">
+        | <a href="{% url 'forum_user_ban' contest_id=contest.id user_id=post.author_id %}?next={{ request.path | urlencode }}">
             {% trans "ban author" %}
           </a>
     {% endif %}
@@ -99,7 +99,7 @@
                 {% if post.is_reporter_banned %}
                     | {% trans "Reporter was banned." %}
                 {% else %}
-                    | <a href="{% url 'forum_user_ban' contest_id=contest.id user_id=post.reported_by.id %}?next={{ request.path | urlencode }}">
+                    | <a href="{% url 'forum_user_ban' contest_id=contest.id user_id=post.reported_by_id %}?next={{ request.path | urlencode }}">
                         {% trans "ban reporter" %}
                       </a>
                 {% endif %}

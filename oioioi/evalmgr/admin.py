@@ -105,13 +105,13 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
 
     @_require_contest
     def _get_contest_id(self, instance):
-        return instance.submission.problem_instance.contest.id
+        return instance.submission.problem_instance.contest_id
 
     def has_add_permission(self, request):
         return False
 
     def submit_id(self, instance):
-        res = instance.submission.id
+        res = instance.submission_id
         return self._get_link(
             res,
             'submission',

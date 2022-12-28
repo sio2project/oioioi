@@ -280,8 +280,8 @@ class ProblemAttachment(models.Model):
 
 
 def _make_package_filename(instance, filename):
-    if instance.contest:
-        contest_name = instance.contest.id
+    if instance.contest_id:
+        contest_name = instance.contest_id
     else:
         contest_name = 'no_contest'
     return 'package/%s/%s' % (

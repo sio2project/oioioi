@@ -68,7 +68,7 @@ class ParticipantAdmin(admin.ModelAdmin):
         return make_html_link(
             reverse(
                 'user_info',
-                kwargs={'contest_id': instance.contest.id, 'user_id': instance.user.id},
+                kwargs={'contest_id': instance.contest_id, 'user_id': instance.user_id},
             ),
             instance.user.get_full_name(),
         )

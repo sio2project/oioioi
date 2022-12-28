@@ -48,7 +48,7 @@ class ContestIconInline(admin.TabularInline):
                 'icon_image_view',
                 kwargs={
                     'icon_id': str(instance.id),
-                    'contest_id': str(instance.contest.id),
+                    'contest_id': str(instance.contest_id),
                 },
             )
             return make_html_link(href, instance.filename)
