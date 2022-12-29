@@ -4,15 +4,24 @@ from django.utils import timezone
 from oioioi.supervision.models import Supervision
 
 
-def is_user_under_supervision(user):
-    if user.is_anonymous or user.is_superuser:
-        return False
-
+def related_supervisions(user):
     return Supervision.objects.filter(
         start_date__lte=timezone.now(),
         end_date__gt=timezone.now(),
-        group__membership__user=user,
-    ).exists()
+        group__membership__user_id=user.id,
+        group__membership__is_present=True,
+    )
+
+
+def is_user_under_supervision(user):
+    if user.is_anonymous or user.is_superuser:
+        return False
+    key = "oioioi.supervision.utils.user." + str(user.id)
+    ret = cache.get(key)
+    if ret == None:
+        ret = related_supervisions(user).exists()
+        cache.set(key, ret, 3)
+    return ret
 
 
 def is_round_under_supervision(round_):
@@ -25,19 +34,10 @@ def can_user_enter_round(user, round_):
     key = "oioioi.supervision.utils.round." + str(user.id) + "." + str(round_.id)
     ret = cache.get(key)
     if ret == None:
-        user_check = False
-        if not user.is_anonymous:
-            user_check = is_user_under_supervision(user)
-        if not (user_check or is_round_under_supervision(round_)):
+        if not (is_user_under_supervision(user) or is_round_under_supervision(round_)):
             ret = True
         else:
-            ret = Supervision.objects.filter(
-                start_date__lte=timezone.now(),
-                end_date__gt=timezone.now(),
-                round=round_,
-                group__membership__user=user,
-                group__membership__is_present=True,
-            ).exists()
+            ret = related_supervisions(user).filter(round=round_).exists()
         cache.set(key, ret, 3)
     return ret
 
@@ -47,19 +47,8 @@ def can_user_enter_contest(user, contest):
     if not is_user_under_supervision(user):
         return True
 
-    return Supervision.objects.filter(
-        start_date__lte=timezone.now(),
-        end_date__gt=timezone.now(),
-        round__contest=contest,
-        group__membership__user=user,
-        group__membership__is_present=True,
-    ).exists()
+    return related_supervisions(user).filter(round__contest=contest).exists()
 
 
 def get_user_supervised_contests(user):
-    return Supervision.objects.filter(
-        start_date__lte=timezone.now(),
-        end_date__gt=timezone.now(),
-        group__membership__user=user,
-        group__membership__is_present=True,
-    ).values_list('round__contest', flat=True)
+    return related_supervisions(user).values_list('round__contest', flat=True)

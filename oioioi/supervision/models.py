@@ -29,7 +29,7 @@ class Group(models.Model):
 class Membership(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("user"))
     group = models.ForeignKey(Group, on_delete=models.CASCADE, verbose_name=_("group"))
-    is_present = models.BooleanField(default=False, verbose_name=_("present"))
+    is_present = models.BooleanField(default=True, verbose_name=_("present"))
 
     class Meta:
         unique_together = ('user', 'group')
