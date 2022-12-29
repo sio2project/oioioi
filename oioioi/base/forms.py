@@ -194,12 +194,14 @@ class RegistrationFormWithNames(RegistrationForm):
             ('first_name', forms.CharField(label=_("First name"))),
             ('last_name', forms.CharField(label=_("Last name"))),
         ]
-        if 'oioioi.talent' in settings.INSTALLED_APPS and not settings.TALENT_REGISTRATION_CLOSED:
-            group_field = forms.ChoiceField(
-                choices=settings.TALENT_GROUP_FORM_CHOICES,
-                label=_("Contest group"),
-            )
-            tmp_fields = tmp_fields + [ ('group', group_field), ]
+        if 'oioioi.talent' in settings.INSTALLED_APPS:
+            from oioioi.talent.models import TalentRegistrationSwitch
+            if TalentRegistrationSwitch.objects.filter(status=True).exists():
+                group_field = forms.ChoiceField(
+                    choices=settings.TALENT_GROUP_FORM_CHOICES,
+                    label=_("Contest group"),
+                )
+                tmp_fields = tmp_fields + [ ('group', group_field), ]
         # From original TalentSio (for OIG probably)
         #tmp_fields.append(
         #    ('agreement', forms.BooleanField(label=mark_safe(

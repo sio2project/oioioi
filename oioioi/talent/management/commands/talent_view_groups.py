@@ -1,6 +1,3 @@
-import six
-from subprocess import run
-
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
@@ -8,6 +5,7 @@ from django.conf import settings
 from oioioi.participants.models import Participant
 from oioioi.contests.models import Contest
 from oioioi.supervision.models import Membership
+from oioioi.talent.models import TalentRegistrationSwitch
 from django.db import transaction
 
 
@@ -31,7 +29,7 @@ def id_from_group(group):
 
 class Command(BaseCommand):
     help = _(
-        "View users added tp contests and supervision groups at Stowarzyszenie Talent's camps"
+        "View users added to contests and supervision groups at Stowarzyszenie Talent's camps"
     )
 
     def add_arguments(self, parser):
@@ -51,36 +49,18 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        registration_change = None
+        registration = None
         if options['close']:
-            registration_change = "True"
+            registration = False
         if options['open']:
-            if registration_change != None:
+            if registration != None:
                 print("You can't open AND close the registration!")
                 return
-            registration_change = "False"
-        if registration_change != None:
-            run(
-                [
-                    "sed",
-                    "-i",
-                    "s/#*TALENT_REGISTRATION_CLOSED.*$/TALENT_REGISTRATION_CLOSED = "
-                    + registration_change
-                    + "/",
-                    "/sio2/deployment/settings.py",
-                ],
-                check=True,
-            )
-            run(
-                [
-                    "/sio2/deployment/manage.py",
-                    "supervisor",
-                    "--skip-checks",
-                    "restart",
-                    "uwsgi",
-                ],
-                check=True,
-            )
+            registration = True
+        
+        if registration != None:
+            with transaction.atomic():
+                TalentRegistrationSwitch.objects.update(status=registration)
 
         users_unassigned = tuple()
         users_wrong = tuple()
@@ -165,14 +145,9 @@ class Command(BaseCommand):
                     )
                 )
 
-        if registration_change != None:
-            if registration_change == "True":
-                status = "CLOSED"
-            else:
-                status = "OPEN"
+        # Print registration status
+        if TalentRegistrationSwitch.objects.get().status:
+            status = "OPEN"
         else:
-            if settings.TALENT_REGISTRATION_CLOSED:
-                status = "CLOSED"
-            else:
-                status = "OPEN"
+            status = "CLOSED"
         print("\n\n--- Registration status:", status, "\n")
