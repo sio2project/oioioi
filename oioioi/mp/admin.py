@@ -1,0 +1,35 @@
+from django.utils.translation import gettext_lazy as _
+
+from oioioi.base import admin
+from oioioi.contests.utils import is_contest_admin
+from oioioi.mp.forms import MPRegistrationForm
+from oioioi.mp.models import MPRegistration
+from oioioi.participants.admin import ParticipantAdmin
+
+
+class MPRegistrationInline(admin.StackedInline):
+    model = MPRegistration
+    fk_name = 'participant'
+    form = MPRegistrationForm
+    can_delete = False
+    inline_classes = ('collapse open',)
+    # We don't allow admins to change users' acceptance of contest's terms.
+    exclude = ('terms_accepted',)
+
+
+class MPRegistrationParticipantAdmin(ParticipantAdmin):
+    list_display = ParticipantAdmin.list_display
+    inlines = ParticipantAdmin.inlines + [MPRegistrationInline]
+    readonly_fields = ['user']
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def get_actions(self, request):
+        actions = super(MPRegistrationParticipantAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
