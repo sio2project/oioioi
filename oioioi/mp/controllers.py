@@ -6,10 +6,12 @@ from django import forms
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+
 
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
@@ -136,12 +138,12 @@ class MPRankingController(DefaultRankingController):
 
     description = _("MP style ranking")
 
-    def _render_ranking_page(self, key, data, page):
-        request = self._fake_request(page)
-        data['is_admin'] = self.is_admin_key(key)
-        return render_to_string(
-            'mp/defaut_ranking.html', context=data, request=request
-        )
+    # def _render_ranking_page(self, key, data, page):
+    #     request = self._fake_request(page)
+    #     data['is_admin'] = self.is_admin_key(key)
+    #     return render_to_string(
+    #         'mp/default_ranking.html', context=data, request=request
+    #     )
 
     def _get_csv_header(self, key, data):
         header = [_("No."), _("Login"), _("First name"), _("Last name"), _("Sum")]
