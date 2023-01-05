@@ -43,7 +43,7 @@ class TabularInline(admin.TabularInline):
         return self.has_change_permission(request, obj)
 
     class Media:
-        css = { "all" : ("scss/hide_admin_original.scss",) }
+        css = { "all" : ("admin/css/inlines_hide_original.css",) }
 
 
 class StackedInline(admin.StackedInline):
@@ -62,7 +62,7 @@ class StackedInline(admin.StackedInline):
         return self.has_change_permission(request, obj)
 
     class Media:
-        css = { "all" : ("scss/hide_admin_original.scss",) }
+        css = { "all" : ("admin/css/inlines_hide_original.css",) }
 
 
 class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
