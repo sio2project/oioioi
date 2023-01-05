@@ -46,6 +46,10 @@ TALENT_CONTEST_IDS = ["e", "d", "c", "b", "a",]
 TALENT_SUPERVISED_IDS = ["a", "b", "c", "d",]
 # Groups for which to create phases
 TALENT_PHASED_IDS = ["a", "b", "c",]
+# Default amount of score reveals for contests
+TALENT_DEFAULT_SCOREREVEALS = {
+    "a": 15,
+}
 
 TALENT_CONTEST_NAMES = {
     "a": "Grupa A Mistrzowska",
