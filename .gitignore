@@ -26,6 +26,4 @@
 /.idea/
 /.vscode/
 /.fleet/
-basic_settings.py
-env
-plog
+basic_settings*.py

@@ -1,0 +1,6 @@
+#POSTGRES_DB=oioioi
+#POSTGRES_HOST=db
+POSTGRES_NAME=sio2
+POSTGRES_USER=sio2
+POSTGRES_PASSWORD=ExamplePassword
+POSTGRES_INITDB_ARGS="--auth-host=md5 --auth-local=md5"

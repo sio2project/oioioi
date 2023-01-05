@@ -35,7 +35,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
-SITE_NAME = os.environ.get('SITE_NAME', 'OIOIOI')
+SITE_NAME = 'OIOIOI'
 SITE_ID = 1
 
 # The website address as it will be displayed to users in some places,
@@ -44,7 +44,7 @@ SITE_ID = 1
 #PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com/'
 
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = []
 
 # The server to be run. Options are:
 # 'django' - django's http server
@@ -76,7 +76,7 @@ DATABASES = {
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = os.environ.get('TIME_ZONE', '__TIMEZONE__')
+TIME_ZONE = '__TIMEZONE__'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -104,33 +104,29 @@ SECRET_KEY = '__SECRET__'
 # or whitelist the cloudflare url from default_settings.py on your network
 #MATHJAX_LOCATION = ""
 
-ADMINS = [
-    (os.environ.get('ADMIN_NAME', 'Your Name'), os.environ.get('ADMIN_EMAIL', 'youremail@example.com')),
-]
+ADMINS = []
 
 # Email addresses to send communication from users (for example requests for
 # teacher accounts).
 MANAGERS = ADMINS
 
 # SMTP server parameters for sending emails.
-EMAIL_SUBJECT_PREFIX = '[{}] '.format(SITE_NAME)
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'False').lower() == 'true'
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'mail')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-REGISTRATION_EMAIL_HTML = False  # Use custom message template
+EMAIL_USE_TLS = False
+EMAIL_HOST = 'mail'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_SUBJECT_PREFIX = '[OIOIOI] '
 
 # Sender email address for messages sent by OIOIOI to users.
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-DEFAULT_FROM_ADDRESS = DEFAULT_FROM_EMAIL
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
 
 # Sender email address for error messages sent to admins.
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Comment to send user activation emails. Needs an SMTP server to be
 # configured above.
-SEND_USER_ACTIVATION_EMAIL = not (EMAIL_HOST == 'mail')
+SEND_USER_ACTIVATION_EMAIL = False
 
 # Contest mode - automatic activation of contests.
 #
@@ -227,7 +223,7 @@ LOGGING['loggers']['oioioi.zeus'] = {
 #SIOWORKERS_LISTEN_URL = None
 
 # Comment this out to disable workers running on the server machine.
-RUN_LOCAL_WORKERS = False
+RUN_LOCAL_WORKERS = True
 
 # Comment out the following options after you have downloaded the sandboxes
 # with
@@ -276,8 +272,8 @@ SUBMITTABLE_LANGUAGES.pop('Python')
 SUBMITTABLE_EXTENSIONS.pop('Java')
 SUBMITTABLE_EXTENSIONS.pop('Python')
 
-# Comment out the following option to enable the unsafe execution supervisor.
-# USE_UNSAFE_EXEC = True
+# Comment out the following option to enable the safe execution supervisor.
+USE_UNSAFE_EXEC = True
 
 # Default safe execution tool
 # You can change the safe execution tool. Current options are:
@@ -319,7 +315,7 @@ SINOLPACK_RESTRICT_HTML = False
 
 #Upper bounds for tests' time [ms] and memory [KiB] limits.
 MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
-MAX_MEMORY_LIMIT_FOR_TEST = 1050 * 1024
+MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
 
 # EXTRA MODULES
 #
@@ -426,10 +422,10 @@ AUTHENTICATION_BACKENDS += [
 #USER_CONTEST_TIMEOUT = datetime(2020, 2, 7, 23, 0, 0, tzinfo=pytz.utc)
 
 # Number of concurrently evaluated submissions (default is 1).
-EVALMGR_CONCURRENCY = 4
+#EVALMGR_CONCURRENCY = 30
 
 # Number of concurrently processed problem packages (default is 1).
-UNPACKMGR_CONCURRENCY = 3
+#UNPACKMGR_CONCURRENCY = 1
 
 PROBLEM_SOURCES += [
 #    'oioioi.sharingcli.problem_sources.RemoteSource',
@@ -464,7 +460,7 @@ ZEUS_INSTANCES = {
 # Notifications configuration (client)
 # This one is for JavaScript socket.io client.
 # It should contain actual URL available from remote machines.
-NOTIFICATIONS_SERVER_URL = os.environ.get('DOMAIN_URL', 'http://localhost:7887/')
+NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
 # Notifications configuration (server)
 NOTIFICATIONS_SERVER_ENABLED = True

@@ -1,6 +1,37 @@
-# Settings for initialiasing OIOIOI at
-# the start of a Stowarzyszenie Talent's camp
-# by the 'talent_camp_init' command in oioioi.talent
+#SITE_NAME = 'OIOIOI'
+#ALLOWED_HOSTS = []
+#TIME_ZONE = '__TIMEZONE__'
+
+#MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30 # [ms]
+#MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024 # [KiB]
+
+# The URL available from remote machines for notifications socket.io client,
+#NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
+
+#EVALMGR_CONCURRENCY = 1
+#UNPACKMGR_CONCURRENCY = 1
+
+#MATHJAX_LOCATION = "" # URL; "" disabled including it
+
+#ADMINS = [('Your Name', 'youremail@example.com'),]
+#MANAGERS = ADMINS
+
+#EMAIL_SUBJECT_PREFIX = '[{}] '.format(SITE_NAME)
+#EMAIL_USE_TLS = False
+#EMAIL_HOST = 'mail'
+#EMAIL_PORT = 25
+#EMAIL_HOST_USER = ''
+#EMAIL_HOST_PASSWORD = ''
+#SEND_USER_ACTIVATION_EMAIL = False
+
+# Sender email address for messages sent by OIOIOI to users.
+#DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+
+# Sender email address for error messages sent to admins.
+#SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# Settings for initialiasing OIOIOI at the start of a Stowarzyszenie Talent's
+# camp by the 'talent_camp_init' command in oioioi.talent
 from datetime import timedelta
 
 TALENT_DEFAULT_SUPERUSERS = ["ztalentariuszy",]
@@ -28,14 +59,13 @@ TALENT_GROUP_FORM_CHOICES = group_choices =  [("", "")] + \
     list(TALENT_CONTEST_NAMES.items()) + \
     [("brak", "Brak grupy (Trzeba mieć grupę! Wybieram na własne ryzyko)"),]
 
-# Key=number of round  value=number of days from the start of the camp
+# (number of round, number of days from the start of the camp)
 TALENT_CONTEST_DAYS = (
     (1, 1),
     (2, 2),
     (3, 3),
     (4, 4),
 )
-
 TALENT_CONTEST_START = {
     "a": timedelta(hours=9),
     "b": timedelta(hours=9),
@@ -57,7 +87,4 @@ TALENT_CONTEST_RESULTS = {
     "d": timedelta(hours=14, minutes=5),
     "e": timedelta(hours=14, minutes=5),
 }
-
 TALENT_DASHBOARD_MESSAGE = "Example dashboard message"
-
-

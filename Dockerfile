@@ -87,9 +87,8 @@ RUN sed -i -e \
         s/#*RUN_SIOWORKERSD$/RUN_SIOWORKERSD/g;\
         s/#SIOWORKERS_LISTEN_ADDR/SIOWORKERS_LISTEN_ADDR/g;\
         s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
-        s/#*RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
-        s/#*USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
-        s/^#MATHJAX_LOCATION/MATHJAX_LOCATION/g;\
+        s/RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
+        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
         \$afrom basic_settings import *\n" \
         settings.py && \
     cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \

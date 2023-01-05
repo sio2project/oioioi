@@ -24,6 +24,7 @@
 /deployment/
 /venv*/
 /.idea/
+basic_settings*.py
 
 # docker specific
 
@@ -38,10 +39,3 @@
 !/test_report.css
 /*.rst
 /rst/
-
-# Talentsio specific
-
-/seccomp.json
-/rebbitmq.conf
-/env
-/plog

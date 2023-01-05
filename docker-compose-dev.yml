@@ -23,6 +23,7 @@ services:
       - "127.0.0.1:8000:8000"
       - "127.0.0.1:7887:7887"
     volumes:
+      - ./basic_settings_dev.py:/sio2/deployment/basic_settings.py
       - .:/sio2/oioioi
       - filetracker:/sio2/deployment/media
 #      - ./deployment:/sio2/deployment
