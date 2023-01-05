@@ -123,8 +123,6 @@ class MPContestController(ProgrammingContestController):
                     contest=submission.problem_instance.contest,
                 )
                 
-                if submission.score is None:
-                    continue
                 score = FloatScore(submission.score.value)
                 rtimes = self.get_round_times(None, submission.problem_instance.round)
                 if rtimes.is_active(submission.date):
@@ -138,9 +136,6 @@ class MPContestController(ProgrammingContestController):
 
             result.score = best_submission[1]
             result.status = best_submission[0].status
-        else:
-            result.score = None
-            result.status = None
 
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Contest admin can always submit
