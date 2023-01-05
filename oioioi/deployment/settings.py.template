@@ -346,7 +346,6 @@ INSTALLED_APPS = (
 #    'oioioi.problemsharing',
 #    'oioioi.usergroups',
 #    'oioioi.usercontests',
-    'oioioi.mp',
 ) + INSTALLED_APPS
 
 # Set to True to show the link to the problemset with contests on navbar.

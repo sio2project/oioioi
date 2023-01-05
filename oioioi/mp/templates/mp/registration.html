@@ -1,0 +1,40 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block styles %}
+    {{ block.super }}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
+
+{% block title %}{% trans "Register to the contest" %}{{ contest_name }}{% endblock %}
+
+{% block main-content %}
+<h2>{% trans "Register to the contest" %} {{ contest_name }}</h2>
+
+{% if not participant %}
+    <p>
+        {% trans "To enter this contest, you need to fill the following form." %}
+    </p>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Register" %}
+        </button>
+        {% if can_unregister %}
+            <a role="button" class="btn btn-danger float-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
+                {% trans "Deregister" %}
+            </a>
+        {% endif %}
+    </div>
+</form>
+
+{% endblock %}

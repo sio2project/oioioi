@@ -1,100 +1,34 @@
-# import re
-# from datetime import datetime  # pylint: disable=E0611
+import re
+from datetime import datetime  # pylint: disable=E0611
 
-# import urllib.parse
+import urllib.parse
 
-# from django.contrib.admin.utils import quote
-# from django.contrib.auth.models import User
-# from django.core.files.base import ContentFile
-# from django.test import RequestFactory
-# from django.test.utils import override_settings
-# from django.urls import reverse
-# from django.utils.timezone import utc
-# from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
-# from oioioi.contests.models import (
-#     Contest,
-#     ProblemInstance,
-#     Submission,
-#     UserResultForProblem,
-# )
-# from oioioi.contests.scores import IntegerScore
-# from oioioi.pa.controllers import A_PLUS_B_RANKING_KEY, B_RANKING_KEY
-# from oioioi.pa.models import PAProblemInstanceData, PARegistration
-# from oioioi.pa.score import PAScore, ScoreDistribution
-# from oioioi.participants.models import Participant, TermsAcceptedPhrase
-# from oioioi.problems.models import Problem
+from django.contrib.admin.utils import quote
+from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+from django.test import RequestFactory
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.timezone import utc
+from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
+from oioioi.contests.models import (
+    Contest,
+    ProblemInstance,
+    Submission,
+    UserResultForProblem,
+)
+from oioioi.mp.score import FloatScore
+from oioioi.participants.models import Participant, TermsAcceptedPhrase
+from oioioi.problems.models import Problem
 
 
-# class TestPAScore(TestCase):
-#     def test_score_distribution(self):
-#         dist1 = ScoreDistribution([1] + [0] * 9)
-#         dist2 = ScoreDistribution([0] + [10] * 9)
-#         dist_null = ScoreDistribution([0] * 10)
-
-#         self.assertLess(dist2, dist1)
-#         self.assertLess(dist1, dist1 + dist2)
-#         self.assertLess(dist2 + dist2, dist1)
-#         self.assertLess(dist_null, dist1)
-#         self.assertLess(dist_null, dist2)
-
-#         self.assertEqual(dist_null, ScoreDistribution())
-#         self.assertEqual(dist_null + dist_null, dist_null)
-#         self.assertEqual(dist1 + dist_null, dist1)
-
-#         self.assertEqual(
-#             dist1._to_repr(),
-#             '00001:00000:00000:00000:00000:00000:00000:00000:00000:00000',
-#         )
-#         self.assertEqual(
-#             dist2._to_repr(),
-#             '00000:00010:00010:00010:00010:00010:00010:00010:00010:00010',
-#         )
-#         self.assertEqual(
-#             (dist1 + dist2)._to_repr(),
-#             '00001:00010:00010:00010:00010:00010:00010:00010:00010:00010',
-#         )
-
-#         self.assertEqual(dist1, ScoreDistribution._from_repr(dist1._to_repr()))
-#         self.assertEqual(dist2, ScoreDistribution._from_repr(dist2._to_repr()))
-
-#         self.assertEqual(
-#             repr(dist1),
-#             'ScoreDistribution(10: 1, 9: 0, 8: 0, 7: 0, 6: 0, 5: 0, 4: 0, '
-#             '3: 0, 2: 0, 1: 0)',
-#         )
-
-#     def test_pa_score(self):
-#         score = [PAScore(IntegerScore(x)) for x in range(0, 11)]
-
-#         self.assertLess(score[0], score[5])
-#         self.assertLess(score[5], score[10])
-#         self.assertLess(score[5] + score[5], score[10])
-#         self.assertLess(score[5] + score[5], score[2] + score[2] + score[6])
-#         self.assertLess(score[10], score[2] + score[4] + score[5])
-#         self.assertLess(score[2] + score[2] + score[6], score[1] + score[3] + score[6])
-
-#         dist1 = ScoreDistribution([0] * 8 + [2, 4])
-#         dist2 = ScoreDistribution([0] * 8 + [1, 6])
-#         score1 = PAScore(IntegerScore(8), dist1)
-#         score2 = PAScore(IntegerScore(8), dist2)
-#         self.assertLess(score2, score1)
-
-#         score3 = (
-#             score[10] + score[10] + score[10] + score[4] + score[2] + score1 + score2
-#         )
-
-#         self.assertEqual(score3, (3 * 10 + 4 + 2 + 2 * 8))
-#         self.assertEqual(
-#             repr(score3),
-#             'PAScore(IntegerScore(52), ScoreDistribution(10: 3, 9: 0, 8: '
-#             '0, 7: 0, 6: 0, 5: 0, 4: 1, 3: 0, 2: 4, 1: 10))',
-#         )
-#         self.assertEqual(
-#             score3._to_repr(),
-#             '0000000000000000052;00003:00000:'
-#             '00000:00000:00000:00000:00001:00000:00004:00010',
-#         )
-#         self.assertEqual(score3, PAScore._from_repr(score3._to_repr()))
+class TestFloatScore(TestCase):
+    def test_float_score(self):
+        self.assertEqual(FloatScore(100) * 0.5, FloatScore(50))
+        self.assertEqual(FloatScore(50) + FloatScore(50), FloatScore(100))
+        self.assertLess(FloatScore(50), FloatScore(50.5))
+        self.assertLess(FloatScore(99) * 0.5, FloatScore(50))
+        self.assertEqual(FloatScore(45) * 0.6, 0.6 * FloatScore(45))
 
 
 # class TestPARoundTimes(TestCase):
@@ -161,71 +95,56 @@
 #             check_round_state(date, exp)
 
 
-# class TestPARanking(TestCase):
-#     fixtures = ['test_users', 'test_pa_contest']
+class TestMPRanking(TestCase):
+    fixtures = ['test_mp_users', 'test_mp_contest']
 
-#     def _ranking_url(self, key):
-#         contest = Contest.objects.get()
-#         return reverse('ranking', kwargs={'contest_id': contest.id, 'key': key})
+    def _ranking_url(self, key='c'):
+        contest = Contest.objects.get()
+        return reverse('ranking', kwargs={'contest_id': contest.id, 'key': key})
 
-#     def test_divisions(self):
-#         def check_visibility(good_keys, response):
-#             division_for_pi = {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'NONE'}
-#             for key, div in division_for_pi.items():
-#                 p = ProblemInstance.objects.get(pk=key)
-#                 if div in good_keys:
-#                     self.assertContains(response, p.short_name)
-#                 else:
-#                     self.assertNotContains(response, p.short_name)
+    # def test_divisions(self):
+    #     def check_visibility(good_keys, response):
+    #         division_for_pi = {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'NONE'}
+    #         for key, div in division_for_pi.items():
+    #             p = ProblemInstance.objects.get(pk=key)
+    #             if div in good_keys:
+    #                 self.assertContains(response, p.short_name)
+    #             else:
+    #                 self.assertNotContains(response, p.short_name)
 
-#         self.assertTrue(self.client.login(username='test_user'))
+    #     self.assertTrue(self.client.login(username='test_user'))
 
-#         with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
-#             response = self.client.get(self._ranking_url(B_RANKING_KEY))
-#             check_visibility(['B'], response)
-#             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
-#             check_visibility(['A', 'B'], response)
-#             # Round 3 is trial
-#             response = self.client.get(self._ranking_url(3))
-#             check_visibility(['NONE'], response)
+    #     with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+    #         response = self.client.get(self._ranking_url())
+    #         check_visibility(['B'], response)
+    #         response = self.client.get(self._ranking_url())
+    #         check_visibility(['A', 'B'], response)
+    #         # Round 3 is trial
+    #         response = self.client.get(self._ranking_url(3))
+    #         check_visibility(['NONE'], response)
 
-#     def test_no_zero_scores_in_ranking(self):
-#         self.assertTrue(self.client.login(username='test_user'))
-#         with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
-#             response = self.client.get(self._ranking_url(3))
-#             # Test User should be present in the ranking.
-#             self.assertTrue(re.search(b'<td[^>]*>Test User</td>', response.content))
-#             # Test User 2 scored 0 points for the only task in the round.
-#             self.assertFalse(re.search(b'<td[^>]*>Test User 2</td>', response.content))
+    def test_no_zero_scores_in_ranking(self):
+        # self.assertTrue(self.client.login(username='test_user1'))
+        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+            response = self.client.get(self._ranking_url())
+            # Test User1 should be present in the ranking.
+            print(response.content)
+            self.assertTrue(re.search(b'<td[^>]*>Test User1</td>', response.content))
+            # Test User4 scored 0 points.
+            self.assertIsNone(re.search(b'<td[^>]*>Test User4</td>', response.content))
 
-#     def test_ranking_ordering(self):
-#         def check_order(response, expected):
-#             prev_pos = 0
-#             for user in expected:
-#                 pattern = b'<td[^>]*>%s</td>' % (user,)
-#                 pattern_match = re.search(pattern, response.content)
-
-#                 self.assertTrue(pattern_match)
-#                 self.assertContains(response, user)
-
-#                 pos = pattern_match.start()
-#                 self.assertGreater(
-#                     pos, prev_pos, msg=('User %s has incorrect ' 'position' % (user,))
-#                 )
-#                 prev_pos = pos
-
-#         self.assertTrue(self.client.login(username='test_user'))
-
-#         with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
-#             # 28 (10, 8, 6, 4), 28 (9, 9, 7, 3), 10 (10)
-#             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
-#             check_order(response, [b'Test User', b'Test User 2', b'Test User 3'])
-#             self.assertContains(response, b'28</td>')
-
-#             # 10 (10), 10 (7, 3), 10 (6, 4)
-#             response = self.client.get(self._ranking_url(B_RANKING_KEY))
-#             check_order(response, [b'Test User 3', b'Test User 2', b'Test User'])
-#             self.assertNotContains(response, b'28</td>')
+    def test_SubmissionScoreMultiplier_and_round_ordering(self):
+        # self.assertTrue(self.client.login(username='test_user1'))
+        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+            response = self.client.get(self._ranking_url())
+            # Test User1 scored 100.0 in both tasks.
+            self.assertTrue(re.search(
+                b'''<td[^>]*>Test User1</td>
+                    <td[^>]*>200.0</td>
+                    <td[^>]*><span[^>]*>100.0</span></td>
+                    <td[^>]*><span[^>]*>100.0</span></td>''',
+                response.content)
+            )
 
 
 # class TestPARegistration(TestCase):
