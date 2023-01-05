@@ -109,6 +109,8 @@ class MPContestController(ProgrammingContestController):
         return MPRankingController(self.contest)
 
     def update_user_result_for_problem(self, result):
+        """
+        """
         submissions = Submission.objects.filter(
             problem_instance=result.problem_instance,
             user=result.user,
@@ -138,8 +140,11 @@ class MPContestController(ProgrammingContestController):
             result.status = best_submission[0].status
 
     def can_submit(self, request, problem_instance, check_round_times=True):
-        """Contest admin can always submit
- 
+        """Contest admin can always submit.
+        Participant can submit if:
+        a. round is active
+        OR
+        b. SubmissionScoreMultiplier exists and it's end_time is ahead 
         """
         if request.user.is_anonymous:
             return False
@@ -153,7 +158,7 @@ class MPContestController(ProgrammingContestController):
             rtimes.is_past(request.timestamp) and
             SubmissionScoreMultiplier.objects.filter(
                 contest=problem_instance.contest,
-                end_date__gt=request.timestamp,
+                end_date__gte=request.timestamp,
             )
         )
         return super(MPContestController, self).can_submit(
