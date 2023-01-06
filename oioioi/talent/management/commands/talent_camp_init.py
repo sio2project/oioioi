@@ -1,8 +1,10 @@
 from datetime import timedelta
+from getpass import getpass
 import pytz
 from subprocess import run
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
@@ -14,38 +16,33 @@ from oioioi.scoresreveal.models import ScoreRevealContestConfig
 from oioioi.supervision.models import Supervision, Group
 from oioioi.talent.models import TalentRegistrationSwitch
 
+User = get_user_model();
+def createsuperuser(username, password=""):
+    if User.objects.filter(username=username).exists():
+        print("User {} already exists!".format(username))
+        return
+    if len(password)<1:
+        password = getpass("Password for {}: ".format(username))
+        password2 = getpass("Password for {} (again): ".format(username))
+        while password!=password2 or len(password)<1:
+            print("The passwords don't match! Try again.")
+            password = getpass("Password for {}: ".format(username))
+            password2 = getpass("Password for {} (again): ".format(username))
+    User.objects.create_superuser(username, '', password)
+
 
 class Command(BaseCommand):
     help = _(
-        "Create contests, phases and supervisions for Stowarzyszenie Talent's camps"
+        "Create contests, rounds, etc. for Stowarzyszenie Talent's camps"
     )
 
     def handle(self, *args, **options):
-        
         today = timezone.localtime(timezone=pytz.timezone(settings.TIME_ZONE))
         today = today.replace(microsecond=0, second=0, minute=0, hour=0)
-
         contest_names = settings.TALENT_CONTEST_NAMES
-        
+
+        print("--- Creating contests, rounds, etc.")
         with transaction.atomic():
-            # Enable talent registration (automatic assigning to groups)
-            TalentRegistrationSwitch.objects.get_or_create(status=True)
-            # Trial contest & round
-            contest, _ = Contest.objects.get_or_create(
-                id="p",
-                name="Kontest próbny",
-                controller_name='oioioi.talent.controllers.TalentOpenContestController',
-                default_submissions_limit=150,
-            )
-            DashboardMessage.objects.get_or_create(
-                contest=Contest.objects.get(id="p"), content=settings.TALENT_DASHBOARD_MESSAGE
-            )
-            Round.objects.get_or_create(
-                contest=contest,
-                name="Runda próbna",
-                start_date=today,
-                results_date=today,
-            )
             # Contests
             for i in settings.TALENT_CONTEST_IDS:
                 contest, _ = Contest.objects.get_or_create(
@@ -99,41 +96,39 @@ class Command(BaseCommand):
                     contest=Contest.objects.get(id=id),
                     reveal_limit=limit,
                 )
-
-        for user in settings.TALENT_DEFAULT_SUPERUSERS:
-            print("Creating superuser " + user + ":")
-            run(
-                [
-                    "/sio2/deployment/manage.py",
-                    "createsuperuser",
-                    "--username",
-                    user,
-                    "--email",
-                    "",
-                    "--skip-checks",
-                ],
-                capture_output=True,
+            # Trial contest & round (it's last to become the default contest)
+            contest, _ = Contest.objects.get_or_create(
+                id="p",
+                name="Kontest próbny",
+                controller_name='oioioi.talent.controllers.TalentOpenContestController',
+                default_submissions_limit=150,
             )
+            Round.objects.get_or_create(
+                contest=contest,
+                name="Runda próbna",
+                start_date=today,
+                results_date=today,
+            )
+            DashboardMessage.objects.get_or_create(
+                contest=Contest.objects.get(id="p"), content=settings.TALENT_DASHBOARD_MESSAGE
+            )
+            # Enable talent registration (automatic assigning to groups)
+            TalentRegistrationSwitch.objects.get_or_create(status=True)
+
+        print("--- Creating default superusers")
+        for user, password in settings.TALENT_DEFAULT_SUPERUSERS:
+            createsuperuser(user, password)
 
         print(
             "--- Enter additional superuser usernames to create\n"
             + "--- When you're done, press enter at an empty prompt"
         )
         user = input(">>> ")
-        while user != "":
-            print("Creating superuser " + user + ":")
-            run(
-                [
-                    "/sio2/deployment/manage.py",
-                    "createsuperuser",
-                    "--username",
-                    user,
-                    "--email",
-                    "",
-                    "--skip-checks",
-                ],
-                capture_output=True,
-            )
-            user = input(">>> ")
-        
-        print("Success!")
+        try:
+            while user != "":
+                createsuperuser(user, "")
+                user = input(">>> ")
+        except EOFError:
+            pass
+
+        print("\n--- Finished!")

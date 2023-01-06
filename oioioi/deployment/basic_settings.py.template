@@ -34,7 +34,10 @@
 # camp by the 'talent_camp_init' command in oioioi.talent
 from datetime import timedelta
 
-TALENT_DEFAULT_SUPERUSERS = ["ztalentariuszy",]
+# (username, password); password "" prompts the user
+TALENT_DEFAULT_SUPERUSERS = [
+    ("ztalentariuszy", ""),
+]
 
 TALENT_SCORE1 = 75
 TALENT_PHASE2_END = timedelta(hours=21, minutes=30)
