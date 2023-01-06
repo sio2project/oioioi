@@ -238,6 +238,14 @@ msgstr "Kompilator"
 msgid "Failed to fetch available compilers</font>"
 msgstr "Nie udało się pobrać dostępnych kompilatorów </font>"
 
+#: programs/static/common/clipboard.js:6
+msgid "Copied!"
+msgstr "Skopiowano!"
+
+#: programs/static/common/clipboard.js:8
+msgid "Unable to copy Code"
+msgstr "Nie udało się skopiować kodu"
+
 #: programs/static/common/filedrag.js:85
 msgid "Drop file here"
 msgstr "Upuść plik tutaj"

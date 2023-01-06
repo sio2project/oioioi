@@ -164,6 +164,14 @@ msgstr "Tag exists."
 msgid "Type tag name."
 msgstr "Type tag name."
 
+#: programs/static/common/clipboard.js:6
+msgid "Copied!"
+msgstr "Copied!"
+
+#: programs/static/common/clipboard.js:8
+msgid "Unable to copy Code"
+msgstr "Unable to copy Code"
+
 #: programs/static/common/filedrag.js:57
 msgid "Drop file here"
 msgstr "Drop file here"
