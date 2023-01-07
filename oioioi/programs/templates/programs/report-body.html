@@ -24,17 +24,17 @@
                         <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}">
                             {{ test.test_name }}
                             <span class="test-actions float-right">
-                                {% if test.test %}
+                                {% if test.test_id %}
                                     <small>
                                         {% if is_admin %}
                                             {% if test.test.output_file %}
                                                 <a title='{% trans "Download output for this test" %}'
-                                                href="{% url 'download_output_file' test_id=test.test.id %}">
+                                                href="{% url 'download_output_file' test_id=test.test_id %}">
                                                     out
                                                 </a>
                                             {% endif %}
                                             <a title='{% trans "Download input for this test" %}'
-                                               href="{% url 'download_input_file' test_id=test.test.id %}">
+                                               href="{% url 'download_input_file' test_id=test.test_id %}">
                                                 in
                                             </a>
                                         {% endif %}

@@ -361,8 +361,7 @@ def my_submissions_view(request):
     queryset = (
         Submission.objects.filter(problem_instance__contest=request.contest)
         .order_by("-date")
-        .select_related(
-            "user",
+        .prefetch_related(
             "problem_instance",
             "problem_instance__contest",
             "problem_instance__round",
