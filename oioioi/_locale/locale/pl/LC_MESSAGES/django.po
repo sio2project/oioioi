@@ -8596,7 +8596,7 @@ msgstr "Masz pytania lub uwagi? Coś jest nie tak? Skorzystaj z przycisku %(send
 
 #: szkopul/templates/ingredients/main-page-bottom.html:15
 msgid "We are supported by"
-msgstr "Wspiera nas"
+msgstr "Wspierają nas"
 
 #: szkopul/templates/ingredients/submissions-panel.html:5
 #| msgid "My submissions"

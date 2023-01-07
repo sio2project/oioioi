@@ -92,15 +92,7 @@
   width: 50%;
   height: auto;
 }
-
-@media screen and (max-width: 540px) {
-  #supporters {
-    flex-direction: column;
-  }
-  #projekt-map {
-    width: 80%;
-  }
-}
+@media screen  and (max-with
 
 @media screen and (min-width: 720px){
   #jane-street-logo {
