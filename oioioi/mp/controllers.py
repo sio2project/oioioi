@@ -109,7 +109,9 @@ class MPContestController(ProgrammingContestController):
         return MPRankingController(self.contest)
 
     def update_user_result_for_problem(self, result):
-        """
+        """Submission that was sent while round was active - scored normally
+        Sent while round was over but SubmissionScoreMultiplier was active
+         - scored with given multiplier
         """
         submissions = Submission.objects.filter(
             problem_instance=result.problem_instance,

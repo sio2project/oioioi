@@ -4,7 +4,7 @@ import re
 from django.urls import reverse
 from django.utils.timezone import utc
 
-from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, UserResultForProblem
 from oioioi.mp.score import FloatScore
 

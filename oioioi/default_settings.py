@@ -217,7 +217,6 @@ INSTALLED_APPS = (
     'oioioi.workers',
     'oioioi.quizzes',
     'oioioi._locale',
-    'oioioi.mp',
 
     'djsupervisor',
     'registration',

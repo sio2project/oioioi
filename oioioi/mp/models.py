@@ -8,6 +8,7 @@ from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
+check_django_app_dependencies(__name__, ['oioioi.contests'])
 
 
 class MPRegistration(RegistrationModel):
