@@ -107,7 +107,7 @@ ZEUS_INSTANCES = {
     'dummy': ('__use_object__', 'oioioi.zeus.tests.ZeusDummyServer', ('', '', '')),
 }
 
-CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
 
 CONFIG_VERSION = INSTALLATION_CONFIG_VERSION
 

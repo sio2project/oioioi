@@ -18,7 +18,7 @@ from django.utils.translation import ngettext
 
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.menu import MenuItem, menu_registry
-from oioioi.base.utils import strip_num_or_hash
+from oioioi.base.utils import request_cached, strip_num_or_hash
 from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField

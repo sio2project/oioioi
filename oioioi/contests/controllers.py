@@ -541,6 +541,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return True
         return self.can_see_round(request_or_context, problem_instance.round)
 
+
     def can_see_statement(self, request_or_context, problem_instance):
         """Determines if the current user is allowed to see the statement for
         the given problem.

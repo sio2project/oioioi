@@ -114,8 +114,14 @@ def submissions_fragment(request):
     submissions = (
         Submission.objects.filter(problem_instance__contest=request.contest)
         .order_by('-date')
-        .select_related()
+        .select_related('problem_instance', 'problem_instance__contest', 'problem_instance__round', 'problem_instance__problem')
     )
+    if 'oioioi.scoresreveal' in settings.INSTALLED_APPS:
+        submissions = submissions.select_related(
+                'revealed',
+                'problem_instance__scores_reveal_config',
+                'problem_instance__contest__scores_reveal_config',
+        )
     cc = request.contest.controller
     submissions = cc.filter_my_visible_submissions(request, submissions)
     submissions = submissions[: getattr(settings, 'NUM_DASHBOARD_SUBMISSIONS', 8)]

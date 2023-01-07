@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, make_request_condition
+from oioioi.base.utils import request_cached
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import (
@@ -21,6 +22,7 @@ from oioioi.rankings.models import Ranking
 
 
 @make_request_condition
+@request_cached
 def has_any_ranking_visible(request):
     ccontroller = request.contest.controller
     rcontroller = ccontroller.ranking_controller()

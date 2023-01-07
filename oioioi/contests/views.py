@@ -284,7 +284,6 @@ def my_submissions_view(request):
         Submission.objects.filter(problem_instance__contest=request.contest)
         .order_by('-date')
         .select_related(
-            'user',
             'problem_instance',
             'problem_instance__contest',
             'problem_instance__round',
@@ -292,7 +291,11 @@ def my_submissions_view(request):
         )
     )
     if 'oioioi.scoresreveal' in settings.INSTALLED_APPS:
-        queryset = queryset.select_related('revealed', 'problem_instance__scores_reveal_config')
+        queryset = queryset.select_related(
+                'revealed',
+                'problem_instance__scores_reveal_config',
+                'problem_instance__contest__scores_reveal_config',
+            )
     controller = request.contest.controller
     queryset = controller.filter_my_visible_submissions(request, queryset)
     header = controller.render_my_submissions_header(request, queryset.all())

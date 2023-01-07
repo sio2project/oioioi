@@ -403,7 +403,7 @@ class ProgramSubmissionAdminMixin(object):
             LanguageListFilter
         ]
 
-    def language_display(self, instance):
+    def language_display(self, instance): # TODO: cache/store this
         return instance.programsubmission.get_language_display()
 
     language_display.short_description = _("Language")

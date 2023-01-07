@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import ngettext
 
-from oioioi.base.utils import make_navbar_badge
+from oioioi.base.utils import make_navbar_badge, request_cached
 from oioioi.contests.utils import can_enter_contest, is_contest_basicadmin
 from oioioi.questions.utils import unanswered_questions
 from oioioi.questions.views import new_messages, visible_messages
@@ -29,6 +29,7 @@ def get_messages(request, response):
     return response
 
 
+@request_cached
 def navbar_messages_generator(request):
     if request.contest is None:
         return {}
