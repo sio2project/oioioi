@@ -39,3 +39,4 @@ basic_settings*.py
 !/test_report.css
 /*.rst
 /rst/
+/env
