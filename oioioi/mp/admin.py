@@ -47,13 +47,13 @@ class SubmissionScoreMultiplierAdminMixin(object):
     when contest controller is MPContestController.
     """
 
-    def __init__(self, *args, **kwargs):
-        super(SubmissionScoreMultiplierAdminMixin, self).__init__(*args, **kwargs)
-
-    def get_inlines(self, request, obj=None):
-        if hasattr(obj, 'controller') and isinstance(obj.controller, MPContestController):
-            self.inlines = self.inlines + [SubmissionScoreMultiplierInline]
-        return self.inlines
+    def get_inlines(self, request, obj):
+        inlines = super().get_inlines(request, obj)
+        if hasattr(obj, 'controller') and isinstance(
+            obj.controller, MPContestController
+        ):
+            return inlines + [SubmissionScoreMultiplierInline]
+        return inlines
 
 
 ContestAdmin.mix_in(SubmissionScoreMultiplierAdminMixin)

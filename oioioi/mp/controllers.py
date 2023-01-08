@@ -3,7 +3,6 @@ from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
 
-
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import Submission
@@ -79,7 +78,7 @@ class MPRegistrationController(ParticipantsController):
             'form': form,
             'participant': participant,
             'can_unregister': can_unregister,
-            'contest_name': self.contest.name
+            'contest_name': self.contest.name,
         }
         return TemplateResponse(request, self.registration_template, context)
 
@@ -126,7 +125,7 @@ class MPContestController(ProgrammingContestController):
                 ssm = SubmissionScoreMultiplier.objects.filter(
                     contest=submission.problem_instance.contest,
                 )
-                
+
                 score = FloatScore(submission.score.value)
                 rtimes = self.get_round_times(None, submission.problem_instance.round)
                 if rtimes.is_active(submission.date):
@@ -135,7 +134,9 @@ class MPContestController(ProgrammingContestController):
                     score = score * ssm[0].multiplier
                 else:
                     score = None
-                if not best_submission or (score is not None and best_submission[1] < score):
+                if not best_submission or (
+                    score is not None and best_submission[1] < score
+                ):
                     best_submission = [submission, score]
 
             result.score = best_submission[1]
@@ -146,7 +147,7 @@ class MPContestController(ProgrammingContestController):
         Participant can submit if:
         a. round is active
         OR
-        b. SubmissionScoreMultiplier exists and it's end_time is ahead 
+        b. SubmissionScoreMultiplier exists and it's end_time is ahead
         """
         if request.user.is_anonymous:
             return False
@@ -156,16 +157,18 @@ class MPContestController(ProgrammingContestController):
             return False
 
         rtimes = self.get_round_times(None, problem_instance.round)
-        round_over_contest_running = (
-            rtimes.is_past(request.timestamp) and
-            SubmissionScoreMultiplier.objects.filter(
-                contest=problem_instance.contest,
-                end_date__gte=request.timestamp,
-            )
+        round_over_contest_running = rtimes.is_past(
+            request.timestamp
+        ) and SubmissionScoreMultiplier.objects.filter(
+            contest=problem_instance.contest,
+            end_date__gte=request.timestamp,
         )
-        return super(MPContestController, self).can_submit(
-            request, problem_instance, check_round_times
-        ) or round_over_contest_running
+        return (
+            super(MPContestController, self).can_submit(
+                request, problem_instance, check_round_times
+            )
+            or round_over_contest_running
+        )
 
 
 class MPRankingController(DefaultRankingController):
@@ -192,9 +195,7 @@ class MPRankingController(DefaultRankingController):
     def _render_ranking_page(self, key, data, page):
         request = self._fake_request(page)
         data['is_admin'] = self.is_admin_key(key)
-        return render_to_string(
-            'mp/ranking.html', context=data, request=request
-        )
+        return render_to_string('mp/ranking.html', context=data, request=request)
 
     def _allow_zero_score(self):
         return False
