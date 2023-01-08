@@ -49,7 +49,6 @@ class Command(BaseCommand):
                     id=i,
                     name=contest_names[i],
                     controller_name="oioioi.talent.controllers.TalentContestController",
-                    default_submissions_limit=150,
                 )
                 # Rounds
                 for roundnum, daynum in settings.TALENT_CONTEST_DAYS:
@@ -101,7 +100,6 @@ class Command(BaseCommand):
                 id="p",
                 name="Kontest próbny",
                 controller_name='oioioi.talent.controllers.TalentOpenContestController',
-                default_submissions_limit=150,
             )
             Round.objects.get_or_create(
                 contest=contest,

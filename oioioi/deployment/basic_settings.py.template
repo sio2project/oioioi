@@ -5,6 +5,8 @@
 #MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30 # [ms]
 #MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024 # [KiB]
 
+#DEFAULT_SUBMISSIONS_LIMIT = 10
+
 # The URL available from remote machines for notifications socket.io client,
 #NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
