@@ -97,7 +97,7 @@ class MPRegistrationController(ParticipantsController):
 
 
 class MPContestController(ProgrammingContestController):
-    description = _("Mistrz Programowania")
+    description = _("Master of Programming")
     create_forum = False
 
     show_email_in_participants_data = True
@@ -109,9 +109,9 @@ class MPContestController(ProgrammingContestController):
         return MPRankingController(self.contest)
 
     def update_user_result_for_problem(self, result):
-        """Submission that was sent while round was active - scored normally
-        Sent while round was over but SubmissionScoreMultiplier was active
-         - scored with given multiplier
+        """Submissions sent during the round are scored as normal.
+        Submissions sent while the round was over but SubmissionScoreMultiplier was active
+        are scored with given multiplier.
         """
         submissions = Submission.objects.filter(
             problem_instance=result.problem_instance,

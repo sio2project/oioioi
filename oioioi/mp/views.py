@@ -1,7 +1,5 @@
-from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
-from oioioi.base.utils import allow_cross_origin, jsonify
 from oioioi.contests.utils import is_contest_admin
 from oioioi.dashboard.registry import dashboard_headers_registry
 from oioioi.mp.controllers import MPRegistrationController
