@@ -1,0 +1,75 @@
+[
+    {
+      "pk": 2,
+      "model": "auth.user",
+      "fields": {
+        "username": "test_user1",
+        "first_name": "Test",
+        "last_name": "User1",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2012-07-31T20:27:58.768Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "",
+        "email": "test_user@example.com",
+        "date_joined": "2012-07-31T20:27:58.768Z"
+      }
+    },
+    {
+      "pk": 3,
+      "model": "auth.user",
+      "fields": {
+        "username": "test_user2",
+        "first_name": "Test",
+        "last_name": "User2",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2012-07-31T20:27:58.768Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "",
+        "email": "test_user2@example.com",
+        "date_joined": "2012-07-31T20:27:58.768Z"
+      }
+    },
+    {
+      "pk": 4,
+      "model": "auth.user",
+      "fields": {
+        "username": "test_user3",
+        "first_name": "Test",
+        "last_name": "User3",
+        "is_active": true,
+        "is_superuser": false,
+        "is_staff": false,
+        "last_login": "2013-07-31T20:27:58.768Z",
+        "groups": [],
+        "user_permissions": [],
+        "password": "",
+        "email": "test_user3@example.com",
+        "date_joined": "2012-08-31T20:27:58.768Z"
+      }
+    },
+    {
+        "pk": 5,
+        "model": "auth.user",
+        "fields": {
+          "username": "test_user4",
+          "first_name": "Test",
+          "last_name": "User4",
+          "is_active": true,
+          "is_superuser": false,
+          "is_staff": false,
+          "last_login": "2013-07-31T20:27:58.768Z",
+          "groups": [],
+          "user_permissions": [],
+          "password": "",
+          "email": "test_user4@example.com",
+          "date_joined": "2012-08-31T20:27:58.768Z"
+        }
+      }
+  ]
+  
