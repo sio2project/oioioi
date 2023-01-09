@@ -13,6 +13,8 @@ from oioioi.base.utils import make_html_link
 from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.scores import IntegerScore, ScoreValue
+from oioioi.sinolpack.models import ExtraConfig
+from oioioi.problems.models import Problem
 from oioioi.evalmgr.tasks import transfer_job
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import (
@@ -219,6 +221,9 @@ def collect_tests(env, **kwargs):
 
     for test in tests_to_judge:
         env['tests'][test]['to_judge'] = True
+
+    env['execCycle']=ExtraConfig.objects.get(problem=Problem.objects.get(id=env['problem_id'])).parsed_config.get('execCycle',1)
+
     return env
 
 
@@ -287,6 +292,7 @@ def run_tests(env, kind=None, **kwargs):
         job['exe_file'] = env['compiled_file']
         job['exec_info'] = env['exec_info']
         job['check_output'] = env.get('check_outputs', True)
+        job['execCycle'] = env['execCycle']
         if env.get('checker'):
             job['chk_file'] = env['checker']
         if env.get('save_outputs'):
