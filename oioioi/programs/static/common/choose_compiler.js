@@ -4,7 +4,7 @@ $(function() {
     const to_add = gettext("Here you can override default compilers for problems in this contest");
     const new_id = "id_contestcompiler_additionalinfo";
 
-    $("#id_contestcompiler_set-TOTAL_FORMS").before($("<div></div>", {id: new_id, text: to_add}));
+    $("#id_contestcompiler_set-TOTAL_FORMS").before($("<div></div>", {id: new_id}));
 
     $("fieldset").on("input", "select", function() {
         if ($(this).attr("id")) {
