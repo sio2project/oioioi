@@ -222,8 +222,10 @@ def collect_tests(env, **kwargs):
     for test in tests_to_judge:
         env['tests'][test]['to_judge'] = True
 
-    env['execCycle']=ExtraConfig.objects.get(problem=Problem.objects.get(id=env['problem_id'])).parsed_config.get('execCycle',1)
-
+    env['execCycle']=ExtraConfig.objects.get(problem=Problem.objects.get(
+        id=env['problem_id'])).parsed_config.get('execCycle',1)
+    env['advanced_checher_control']=ExtraConfig.objects.get(problem=Problem.objects.get(
+        id=env['problem_id'])).parsed_config.get('advanced_checher_control',False)
     return env
 
 
@@ -293,6 +295,7 @@ def run_tests(env, kind=None, **kwargs):
         job['exec_info'] = env['exec_info']
         job['check_output'] = env.get('check_outputs', True)
         job['execCycle'] = env['execCycle']
+        job['advanced_checher_control'] = env['advanced_checher_control']
         if env.get('checker'):
             job['chk_file'] = env['checker']
         if env.get('save_outputs'):
