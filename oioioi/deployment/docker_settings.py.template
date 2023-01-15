@@ -1,0 +1,66 @@
+import os
+from typing import Optional
+
+def _parse_bool(value: str) -> bool:
+    return value == "True"
+
+
+DEBUG = _parse_bool(os.getenv("DEBUG", "False"))
+
+SERVER = "django" if DEBUG else "uwsgi-http"
+
+if DEBUG:
+    try:
+        from settings import ALLOWED_HOSTS as BASE_ALLOWED_HOSTS
+    except ImportError:
+        BASE_ALLOWED_HOSTS = []
+
+    ALLOWED_HOSTS = BASE_ALLOWED_HOSTS + ['oioioi', '127.0.0.1', 'localhost', 'web']
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DATABASE_NAME"),
+        "USER": os.getenv("DATABASE_USER"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD"),
+        "HOST": os.getenv("DATABASE_HOST"),
+        "PORT": os.getenv("DATABASE_PORT"),
+        "ATOMIC_REQUESTS": True,
+    }
+}
+
+# RabbitMQ connection settings
+host = os.getenv("RABBITMQ_HOST", None)
+port = os.getenv("RABBITMQ_PORT", None)
+user = os.getenv("RABBITMQ_USER", None)
+password = os.getenv("RABBITMQ_PASSWORD", None)
+
+if (
+    host is not None
+    and port is not None
+    and user is not None
+    and password is not None
+):
+    BROKER_URL = f"amqp://{user}:{password}@{host}:{port}"
+
+del host, port, user, password
+
+FILETRACKER_URL = os.getenv("FILETRACKER_URL")
+
+SIOWORKERS_LISTEN_ADDR = "0.0.0.0"
+SIOWORKERS_LISTEN_PORT = 7890
+SIOWORKERS_LISTEN_URL = os.getenv("SIOWORKERS_LISTEN_URL")
+
+RUN_LOCAL_WORKERS = False
+
+if not _parse_bool(os.getenv("ENABLE_SANDBOXED_COMPILERS", "False")):
+    from oioioi.default_settings import SYSTEM_COMPILERS, SYSTEM_DEFAULT_COMPILERS
+
+    AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+    DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
+
+USE_UNSAFE_EXEC = False
+
+DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
+
+USE_UNSAFE_CHECKER = os.getenv("USE_UNSAFE_CHECKER", DEBUG)

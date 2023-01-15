@@ -1,7 +1,5 @@
-version: '2.4'
-# https://github.com/docker/cli/issues/1293
+version: '3.8'
 services:
   web:
     volumes:
       - ./extra/sample-configs/basic_settings_noserver.py:/sio2/deployment/basic_settings.py
-

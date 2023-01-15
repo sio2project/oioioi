@@ -62,3 +62,8 @@ LOGGING['loggers']['django.db.backends.schema'] = {
     'handlers': ['console'],
     'level': 'INFO',
 }
+
+try:
+    from docker_settings import *
+except ImportError:
+    pass

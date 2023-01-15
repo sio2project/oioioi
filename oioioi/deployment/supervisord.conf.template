@@ -91,7 +91,7 @@ stderr_logfile={{ PROJECT_DIR }}/logs/receive_from_workers-err.log
 {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' %}exclude=true{% endif %}
 
 [program:sioworkersd]
-command={{ PYTHON }} /home/oioioi/.local/bin//twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid sioworkersd --database={{ PROJECT_DIR }}/sioworkersd.db
+command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid sioworkersd --database={{ PROJECT_DIR }}/sioworkersd.db
 startretries=0
 redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log

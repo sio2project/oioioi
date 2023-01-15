@@ -3,7 +3,7 @@
 # pip requirements:
 #   python ^3.6
 #   inquirer     (only for GUI)
-# 
+#
 # system:
 #   docker
 #   docker-compose
@@ -27,19 +27,20 @@ RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop all SIO2 containers", "down", True),
-    ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
+    ("run", "Run server", "{exec} web ./manage.py runserver 0.0.0.0:8000"),
+    ("download-sandboxes", "Download sandboxes", "{exec} web ./manage.py download_sandboxes"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),
+    ("flush-db", "Clear database.", "{exec} web ./manage.py flush --noinput", True),
     ("add-superuser", "Create admin_admin.",
-     "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
-    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh"),
-    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow"),
+     "{exec} web ./manage.py loaddata ../oioioi/oioioi/admin_admin_fixture.json"),
+    ("test", "Run unit tests.", "run web ../oioioi/test.sh"),
+    ("test-slow", "Run unit tests. (--runslow)", "run web ../oioioi/test.sh --runslow"),
     ("test-abc", "Run specific test file. (edit the toolbox)",
-     "{exec} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
+     "run web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
     ("test-coverage", "Run coverage tests.",
-     "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
+     "run 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
      "{exec} web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
 ]

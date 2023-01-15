@@ -52,7 +52,7 @@ def generate_from_template(dir, filename, context, mode=None):
         os.chmod(dest, mode)
 
 
-def generate_all(dir, verbose):
+def generate_all(dir, verbose, docker=False):
     generate_from_template(dir, 'basic_settings.py', {})
 
     generate_from_template(
@@ -82,6 +82,9 @@ def generate_all(dir, verbose):
 
     virtual_env = os.environ.get('VIRTUAL_ENV', '')
     user = pwd.getpwuid(os.getuid())[0]
+
+    if docker:
+        generate_from_template(dir, 'docker_settings.py', {})
 
     manage_py = os.path.join(dir, 'manage.py')
     generate_from_template(
@@ -158,6 +161,12 @@ def main():
     usage = "%(prog)s [options] dir"
     parser = ArgumentParser(usage=usage)
     parser.add_argument('-v', '--verbose', action='store_true', dest='verbose')
+    parser.add_argument(
+        '--docker',
+        action='store_true',
+        dest='docker',
+        help='generate docker container configuration'
+    )
     parser.add_argument("dir", help="deployment folder to create")
     args = parser.parse_args()
 
@@ -169,7 +178,7 @@ def main():
     os.makedirs(absolute_dir)
 
     try:
-        generate_all(absolute_dir, args.verbose)
+        generate_all(absolute_dir, args.verbose, args.docker)
     except BaseException:
         shutil.rmtree(absolute_dir)
         raise

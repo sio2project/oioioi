@@ -146,7 +146,8 @@ case "$1" in
     echot "Downloading images..."
     docker_compose_fun pull
     echot "Initializing the database..."
-    docker_compose_fun run --rm -e CREATE_SUPERUSER=1 web /sio2/oioioi/db_init.sh
+    docker_compose_fun run --rm web ./manage.py migrate
+    docker_compose_fun run --rm web ./manage.py loaddata /sio2/oioioi/oioioi/admin_admin_fixture.json
     docker_compose_fun stop
     echot "Your admin password is \"admin\". Don't forget to change it!"
   ;;
@@ -206,7 +207,7 @@ case "$1" in
     echot "Redownloading images..."
     docker_compose_fun pull
     echot "Reinitializing the database..."
-    docker_compose_fun run --rm web /sio2/oioioi/db_init.sh
+    docker_compose_fun run --rm web ./manage.py migrate
     docker_compose_fun stop
     echot "Updated from $OIOIOI_OLD_VERSION to $OIOIOI_VERSION."
   ;;
@@ -215,4 +216,3 @@ case "$1" in
     echot "Invalid command!"
   ;;
 esac
-

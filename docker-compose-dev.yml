@@ -1,5 +1,4 @@
-version: '2.4'
-# https://github.com/docker/cli/issues/1293
+version: '3.8'
 services:
   db:
     image: library/postgres:12.2
@@ -12,31 +11,43 @@ services:
     stop_grace_period: 1m
   web:
     image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/selenium_init.sh"]
+    command: ["/sio2/oioioi/scripts/oioioi-init.sh"]
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
       args:
-        - "oioioi_uid=${OIOIOI_UID}"
-      extra_hosts:
-        - "web:127.0.0.1"
+        - "OIOIOI_UID=${OIOIOI_UID}"
+    environment:
+      DEBUG: "True"
+      DATABASE_HOST: "db"
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: "oioioi"
+      DATABASE_USER: "oioioi"
+      DATABASE_PASSWORD: "password"
+      RABBITMQ_HOST: "broker"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USER: "oioioi"
+      RABBITMQ_PASSWORD: "oioioi"
+      FILETRACKER_URL: "http://web:9999"
+      SIOWORKERS_LISTEN_URL: "http://web:7890"
+      ENABLE_SANDBOXED_COMPILERS: "True"
+      USE_UNSAFE_CHECKER: "True"
     ports:
       - "8000:8000"
     volumes:
       - .:/sio2/oioioi
-#      - ./deployment:/sio2/deployment
+      - oioioi-media-dev:/sio2/deployment/media
     stop_grace_period: 3m
     depends_on:
       - db
       - broker
   worker:
-    image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/worker_init.sh"]
-    volumes:
-      - .:/sio2/oioioi
+    image: sio2project/sioworkers
     stop_grace_period: 1m
     cap_add:
       - ALL
+    privileged: true
     depends_on:
       - db
   broker:
@@ -47,3 +58,4 @@ services:
     stop_grace_period: 1m
 volumes:
   postgress-data-dev:
+  oioioi-media-dev:

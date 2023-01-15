@@ -26,15 +26,15 @@ newgrp docker
 ```
 
 All the commands below are being run in `oioioi` directory (main directory of the repository).
-In order to use `easy_toolbox.py` alternative method, check python package requirements in `easy_toolbox.py`. 
+In order to use `easy_toolbox.py` alternative method, check python package requirements in `easy_toolbox.py`.
 
-To build OIOIOI image run 
+To build OIOIOI image run
 ```bash
 OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml build
 ```
 or
 ```bash
-./easy_toolbox.py build  
+./easy_toolbox.py build
 ```
 
 Set your containers up and running
@@ -50,7 +50,7 @@ Wait some time for the migration to finish (no more than a few minutes).
 
 Run your web service
 ```bash
-OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web python3 manage.py runserver 0.0.0.0:8000
+OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web ./manage.py runserver 0.0.0.0:8000
 ```
 or
 ```bash
@@ -58,6 +58,23 @@ or
 ```
 
 Now visit `localhost:8000` and start exploring OIOIOI.
+
+### Download sandboxes
+
+To properly judge submissions in an isolated environment, you need to download the execution sandboxes.
+This is necessary if you're going to work on any part of the judging process.
+To download them, run:
+
+```bash
+./easy_toolbox.py download-sandboxes
+```
+or
+```bash
+OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web ./manage.py download_sandboxes
+```
+and follow the prompts.
+
+This needs to be done only one time, unless you remove the filetracker database that stores them.
 
 ## Run unit tests
 In order to run unit tests Docker installation is required.
@@ -75,9 +92,10 @@ In order to run Cypress tests a few more steps are required.
 - Clear the database
 - Create superuser (admin, admin)
 - Run the service
+- Ensure that task execution sandboxes are downloaded (it is recommended to do this beforehand, see section [**Download sandboxes**](#download-sandboxes) above)
 - Run the tests
 
-All of these steps can be done by running
+All of these steps (aside from downloading sandboxes) can be done by running
 ```bash
 ./easy_toolbox.py flush-db && ./easy_toolbox.py add-superuser && ./easy_toolbox.py cypress-apply-settings && ./easy_toolbox.py run
 ```
@@ -103,12 +121,12 @@ As mentioned above GitHub Actions replaced most of the Hudson jobs. Right now th
 - Transifex translations uploader
 
 ## Deployment
-No changes can be seen on `szkopul.edu.pl` without deployment. 
+No changes can be seen on `szkopul.edu.pl` without deployment.
 @twalen is responsible for conducting the deployments, and they are usually done during
 maintenance window (see `szkopul.edu.pl` main page for details).
 
-During deployment translation files are being uploaded and downloaded. The translation manager is 
-[Transifex](https://www.transifex.com/sio2project/sio2project/dashboard/). When you add localized text 
+During deployment translation files are being uploaded and downloaded. The translation manager is
+[Transifex](https://www.transifex.com/sio2project/sio2project/dashboard/). When you add localized text
 to OIOIOI it is uploaded to Transifex with GitHub Action and later, when translated, downloaded,
 compiled and saved to the codebase. (Both of these jobs need to be run manually).
 
@@ -119,20 +137,20 @@ Ticketing was moved to GitHub Issues.
 ## FAQ
 
 ### When to use `./easy_toolbox.py build`?
-Essentially, it is not easy to answer. 
+Essentially, it is not easy to answer.
 Firstly, let's understand what each of the commands does.
-As you may already know, SIO2 development environment works in containerized infrastructure. 
-We have four containers up and running, required for SIO2 to work properly. 
-Database (`db`), RabbitMQ (`broker`), Worker (`worker`) and OIOIOI (`web`). 
-Postgres and RabbitMQ already have existing docker images on Docker Hub. 
-We only need to build (here comes the magic word) SIO dependent images. 
-`Dockerfile` defines what steps are to be done in order to create the environment. 
-Once you built the image, you can set the container up. 
-Remember - things like dependencies (`requirements[_static].txt`, `setup.py`) are downloaded during the built, 
-so if you changed something in those places you either need to build the image again, 
-or apply these changes by hand (e.g. do `pip install`). 
-If you have good internet connection and adequate CPU, it shouldn't be hard to build the image again, 
-especially that it is more stable approach. 
+As you may already know, SIO2 development environment works in containerized infrastructure.
+We have four containers up and running, required for SIO2 to work properly.
+Database (`db`), RabbitMQ (`broker`), Worker (`worker`) and OIOIOI (`web`).
+Postgres and RabbitMQ already have existing docker images on Docker Hub.
+We only need to build (here comes the magic word) SIO dependent images.
+`Dockerfile` defines what steps are to be done in order to create the environment.
+Once you built the image, you can set the container up.
+Remember - things like dependencies (`requirements[_static].txt`, `setup.py`) are downloaded during the built,
+so if you changed something in those places you either need to build the image again,
+or apply these changes by hand (e.g. do `pip install`).
+If you have good internet connection and adequate CPU, it shouldn't be hard to build the image again,
+especially that it is more stable approach.
 
 ### When to use `./easy_toolbox.py up`?
 Whenever you don't have the containers up.
@@ -151,8 +169,8 @@ If not, check the output of `docker ps -a` and `docker logs <container_name>`.
 ### When to use `./easy_toolbox.py run`?
 Whenever you want the Django web service to be running.
 In development environment we use dev server, so it should catch all changes in the code.
-You can have the server running all the time - just make sure, 
-that Django discovered your changes 
+You can have the server running all the time - just make sure,
+that Django discovered your changes
 (the server will restart with appropriate message like "detected changes in file `xyz.py`").
 
 ### What to do when I get permission denied error?
