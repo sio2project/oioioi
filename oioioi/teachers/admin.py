@@ -16,8 +16,10 @@ from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ['user', 'school', 'is_active']
-    list_editable = ['is_active']
+    list_display = ['teacher_login', 'teacher_email', 'teacher_first_name', 'teacher_last_name', 'school', 'is_active']
+    list_editable = ['is_active']   
+
+    search_fields = ['school', 'user__username', 'user__first_name', 'user__last_name', 'user__email']
 
     def has_add_permission(self, request):
         return request.user.is_superuser
@@ -37,6 +39,31 @@ class TeacherAdmin(admin.ModelAdmin):
 
     def get_custom_list_select_related(self):
         return super(TeacherAdmin, self).get_custom_list_select_related() + ['user']
+
+    def teacher_first_name(self, instance):
+        if not instance.user:
+            return ''
+        return instance.user.first_name
+
+    def teacher_last_name(self, instance):
+        if not instance.user:
+            return ''
+        return instance.user.last_name
+
+    def teacher_email(self, instance):
+        if not instance.user:
+            return ''
+        return instance.user.email
+
+    def teacher_login(self, instance):
+        if not instance.user:
+            return ''
+        return instance.user.get_username()
+
+    teacher_first_name.short_description = _("First name")
+    teacher_last_name.short_description = _("Last name")
+    teacher_email.short_description = _("Email address")
+    teacher_login.short_description = _("Userame")
 
 
 admin.site.register(Teacher, TeacherAdmin)
