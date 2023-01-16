@@ -124,10 +124,11 @@ body {
     display: none;
   }
 
-
   > .oioioi-navbar__countdown {
     color: $oioioi-navbar-highlighted-color;
-    padding: 0 $oioioi-navbar-padding-base-horizontal;
+    flex-shrink: 1;
+    overflow: hidden;
+    padding: 0 60px;
   }
 
   > .oioioi-navbar__extra,
@@ -181,6 +182,7 @@ body {
 // * Navbar links collapse to a dropdown menu
 // * Contest picker max width decreases
 // * Username and badges gets hidden (only icons)
+// * Countdown text padding gets reduced to 0
 @include media-breakpoint-down(md) {
   .oioioi-navbar {
     > .oioioi-navbar__menu {
@@ -216,6 +218,10 @@ body {
 
     .badge-short {
       display: inline;
+    }
+
+    > .oioioi-navbar__countdown {
+      padding: 0;
     }
   }
 }
