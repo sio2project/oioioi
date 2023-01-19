@@ -64,7 +64,7 @@ def testrun_submit_view(request):
 
     # Testrun memory limits in MB.
     memory_limits = {
-        pi.id: pi.controller.get_test_run_memory_limit(pi) / 1024
+        pi.id: pi.controller.get_test_run_memory_limit(pi) // 1024
         for pi in problem_instances
     }
 
