@@ -3,10 +3,10 @@
 
 {% block contest-top-menu %}
     <div class="inline-menu">
+        {{ block.super }}
+        |
         <a href="{% url 'show_members' member_type='pupil' %}">{% trans "Pupils" %}</a>
         |
         <a href="{% url 'show_members' member_type='teacher' %}">{% trans "Teachers" %}</a>
-        |
-        {{ block.super }}
     </div>
 {% endblock %}
