@@ -29,13 +29,14 @@
     <div class="contest">
         <header class="contest__header">
             <h1 class="inline-menu__name contest__name">{{ contest }}</h1>
-            <div class="inline-menu">
+            <nav class="inline-menu nav d-inline-flex">
                 {% block contest-top-menu %}
-                    <a href="{% url 'default_ranking' %}">{% trans "Ranking" %}</a>
-                    |
-                    <a href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
+                    <a class="nav-link" href="{% url 'problems_list' %}">{% trans "Problems" %}</a>
+                    <a class="nav-link" href="{% url 'dashboard_message_edit' %}">{% trans "Edit dashboard message" %}</a>
+                    <a class="nav-link" href="{% url 'default_ranking' %}">{% trans "Ranking" %}</a>
+                    <a class="nav-link" href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
                 {% endblock %}
-            </div>
+            </nav>
         </header>
 
         <section class="contest__rounds">
@@ -51,6 +52,8 @@
                     <p>{% trans "There are no rounds in this contest." %}</p>
                 {% endif %}
             </section>
+
+            <a href="{% url 'admin:contests_probleminstance_changelist' %}">{% trans "All problem settings" %}</a>
         </section>
 
         <section class="contest__submissions">
@@ -60,7 +63,7 @@
             </div>
             <div class="table-responsive-md">
                 {% include "simpleui/contest/ingredients/submissions.html" %}
-            </div>
+            </d>
         </section>
 
         <section class="contest__questions">

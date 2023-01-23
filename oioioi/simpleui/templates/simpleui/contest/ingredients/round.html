@@ -11,11 +11,10 @@
             {% endfor %}
         </div>
     </div>
-    <div class="round__menu">
-        <a href="{% url 'oioioiadmin:problems_problem_add' %}">{% trans "Add a problem" %}</a>
-        |
-        <a href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
-    </div>
+    <nav class="nav round__menu d-inline-flex">
+        <a class="nav-link" href="{% url 'oioioiadmin:problems_problem_add' %}">{% trans "Add a problem" %}</a>
+        <a class="nav-link" href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
+    </nav>
 </div>
 
 <div class="round__problems">
