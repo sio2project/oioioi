@@ -288,15 +288,6 @@ def visible_contests(request):
     
     contests = Contest.objects.filter(visible_query).distinct()
 
-    if 'oioioi.supervision' in settings.INSTALLED_APPS:
-        from oioioi.supervision.utils import is_user_under_supervision, \
-            get_user_supervised_contests
-        if hasattr(request, 'user') and \
-                not request.user.is_superuser and \
-                is_user_under_supervision(request.user):
-            own_contests = get_user_supervised_contests(request.user)
-            contests = contests.filter(id__in=own_contests)
-
     return set(contests)
 
 
@@ -357,12 +348,6 @@ def can_see_personal_data(request):
 @make_request_condition
 @request_cached
 def can_enter_contest(request):
-    if 'oioioi.supervision' in settings.INSTALLED_APPS:
-        from oioioi.supervision.utils import can_user_enter_contest
-        if hasattr(request, 'user') and\
-                not can_user_enter_contest(request.user, request.contest):
-            return False
-
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.can_enter_contest(request)
 

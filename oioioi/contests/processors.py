@@ -37,13 +37,6 @@ def recent_contests(request):
             'contest'
         )
         
-        if 'oioioi.supervision' in settings.INSTALLED_APPS:
-            from oioioi.supervision.utils import is_user_under_supervision, \
-                get_user_supervised_contests
-            if not request.user.is_superuser and is_user_under_supervision(request.user):
-                contests = get_user_supervised_contests(request.user)
-                c_views = c_views.filter(contest__in=contests)
-        
         c_views = c_views[: getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
         return [cv.contest for cv in c_views if cv.contest in visible_contests(request)]
 

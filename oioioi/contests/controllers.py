@@ -247,16 +247,20 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
 
-    # Redundant because of filter_visible_contests, but saves a db query
-    def can_enter_contest(self, request):
-        return True
+    ####Redundant because of filter_visible_contests, but saves a db query
+    # This can't be done this way, as not to break supervision
+    #def can_enter_contest(self, request):
+    #    return True
 
     @classmethod
     def anonymous_can_enter_contest(cls):
         return True
 
-    def visible_contests_query(self, request):
-        return Q_always_true()
+    # Same as above. user_contests_query should be used for ORing
+    # the enter'able contests. There will be a small performance impact,
+    # which should be mostly mitigated by a select_related
+    #def visible_contests_query(self, request):
+    #    return Q_always_true()
 
     def user_contests_query(self, request):
         return Q_always_true()
@@ -489,13 +493,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         context = self.make_context(request_or_context)
         if context.is_admin:
             return True
-
-        if 'oioioi.supervision' in settings.INSTALLED_APPS:
-            from oioioi.supervision.utils import can_user_enter_round
-            if hasattr(request_or_context, 'user') and \
-                    not can_user_enter_round(request_or_context.user, round):
-                return False
-
         rtimes = self.get_round_times(request_or_context, round)
         return not rtimes.is_future(context.timestamp)
 
@@ -578,13 +575,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if is_contest_basicadmin(request):
             return True
-
-        if 'oioioi.supervision' in settings.INSTALLED_APPS:
-            from oioioi.supervision.utils import can_user_enter_round
-            if hasattr(request, 'user') and \
-                    not can_user_enter_round(request.user, problem_instance.round):
-                return False
-
         if check_round_times:
             rtimes = self.get_round_times(request, problem_instance.round)
             return rtimes.is_active(request.timestamp)

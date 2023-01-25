@@ -1,3 +1,11 @@
+@import "scss/utility";
+$oioioi-navbar-supervision-background: darken(theme-color("success"), 20) !default;
+
+
 #supervision-badge{
     vertical-align: -1em;
+}
+
+.oioioi-navbar--supervision {
+    background: $oioioi-navbar-supervision-background !important;
 }

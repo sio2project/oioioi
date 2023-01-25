@@ -396,7 +396,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 #   'oioioi.base.processors.gravatar',
 #   'oioioi.contestlogo.processors.logo_processor', # needed for portals
 #   'oioioi.contestlogo.processors.icon_processor', # needed for portals
-   'oioioi.supervision.processors.under_supervision', # needed for supervision
+   'oioioi.supervision.processors.supervision_processor', # needed for supervision
     'oioioi.notifications.processors.notification_processor',
    'oioioi.globalmessage.processors.global_message_processor', # needed for portals
 #   'oioioi.portals.processors.portal_processor', # needed for portals
@@ -404,6 +404,8 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 ]
 
 MIDDLEWARE += [
+    'oioioi.supervision.middleware.supervision_middleware', # needed for supervision
+    'oioioi.contests.middleware.CurrentContestMiddleware', # mandatory !!!
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
 #   'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.ipdnsauth.middleware.ForceDnsIpAuthMiddleware',
