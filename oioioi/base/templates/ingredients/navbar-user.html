@@ -41,8 +41,7 @@ function setFocusToLoginInput(){
     <div class="dropdown">
         <a href="#" id="navbar-username" class="dropdown-toggle {% if avatar %}has-avatar{% endif %}"
            data-toggle="dropdown" role="button" aria-expanded="false">
-            {% is_maintenance_enabled as enabled %}
-            {% if user.is_superuser and enabled %}
+            {% if user.is_superuser and is_maintenance_enabled %}
                 <span id="maintenance-label" class="badge badge-warning"
                         data-toggle="tooltip" data-placement="bottom" title="{% trans "Maintenance Mode is ON" %}">
                     <i class="badge-short fa-solid fa-gear"></i>

@@ -686,6 +686,7 @@ class ContestLink(models.Model):
         verbose_name_plural = _("contest menu links")
 
 
+@request_cached
 def contest_links_generator(request):
     if not hasattr(request, 'contest'):
         return
