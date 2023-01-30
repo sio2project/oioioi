@@ -16,10 +16,10 @@ from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ['teacher_login', 'teacher_email', 'teacher_first_name', 'teacher_last_name', 'school', 'is_active']
+    list_display = ['teacher_login', 'teacher_email', 'teacher_first_name', 'teacher_last_name', 'school', 'is_active', 'join_date']
     list_editable = ['is_active']   
 
-    search_fields = ['school', 'user__username', 'user__first_name', 'user__last_name', 'user__email']
+    search_fields = ['school', 'user__username', 'user__first_name', 'user__last_name', 'user__email', 'join_date']
 
     def has_add_permission(self, request):
         return request.user.is_superuser

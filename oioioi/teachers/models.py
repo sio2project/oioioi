@@ -24,6 +24,7 @@ class Teacher(models.Model):
     )
     is_active = models.BooleanField(default=False, verbose_name=_("active"))
     school = models.CharField(max_length=255, verbose_name=_("school"))
+    join_date = models.DateField(auto_now_add=True)
 
     class Meta(object):
         permissions = (('teacher', _("Is a teacher")),)
