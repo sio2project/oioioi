@@ -296,6 +296,28 @@ def my_submissions_view(request):
         },
     )
 
+@status_registry.register
+def get_submissions_status(request, response):
+    if request.contest is None:
+        return {}
+
+    queryset = (
+        Submission.objects.filter(problem_instance__contest=request.contest)
+        .order_by('-date')
+        .select_related(
+            'user',
+            'problem_instance',
+            'problem_instance__contest',
+            'problem_instance__round',
+            'problem_instance__problem',
+        )
+    )
+    controller = request.contest.controller
+    queryset = controller.filter_my_visible_submissions(request, queryset)
+    queryset = [submission_template_context(request, s) for s in queryset]
+    queryset = [{'id': s['submission'].id, 'status': s['message']() if s['can_see_status'] else "Hidden"} for s in queryset]
+    response['contest_submissions'] = queryset
+    return response
 
 @enforce_condition(not_anonymous)
 def all_submissions_view(request):
