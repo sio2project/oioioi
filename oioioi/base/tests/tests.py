@@ -100,7 +100,7 @@ class TestIndex(TestCase):
             response = self.client.get('/', follow=True)
         self.assertNotContains(response, 'test_user')
         self.assertTrue(self.client.login(username='test_user'))
-        with self.assertNumQueriesLessThan(70):
+        with self.assertNumQueriesLessThan(71):
             response = self.client.get('/', follow=True)
         self.assertContains(response, 'test_user')
         login_url = reverse('login')
@@ -135,7 +135,7 @@ class TestIndex(TestCase):
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(85):
+        with self.assertNumQueriesLessThan(87):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')

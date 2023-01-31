@@ -299,7 +299,7 @@ def my_submissions_view(request):
 @status_registry.register
 def get_submissions_status(request, response):
     if request.contest is None:
-        return {}
+        return response
 
     queryset = (
         Submission.objects.filter(problem_instance__contest=request.contest)
