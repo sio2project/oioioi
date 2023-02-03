@@ -40,7 +40,10 @@ AUTHENTICATION_BACKENDS += [
     'oioioi.teachers.auth.TeacherAuthBackend',
 ]
 
-MIDDLEWARE += ['oioioi.base.tests.FakeTimeMiddleware',]
+MIDDLEWARE += [
+    'oioioi.contests.CurrentContestMiddleware',
+    'oioioi.base.tests.FakeTimeMiddleware',
+]
 
 TESTS = True
 MOCK_RANKINGSD = True

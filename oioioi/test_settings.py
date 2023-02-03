@@ -73,7 +73,10 @@ AUTHENTICATION_BACKENDS += [
     'oioioi.usercontests.auth.UserContestAuthBackend',
 ]
 
-MIDDLEWARE += ['oioioi.base.tests.FakeTimeMiddleware',]
+MIDDLEWARE += [
+    'oioioi.contests.middleware.CurrentContestMiddleware',
+    'oioioi.base.tests.FakeTimeMiddleware',
+]
 
 TESTS = True
 MOCK_RANKINGSD = True
