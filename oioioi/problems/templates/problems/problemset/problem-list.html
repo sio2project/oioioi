@@ -134,7 +134,8 @@
                             <td/>
                         {% endif %}
                     {% endif %}
-
+                    
+                    {% if show_add_button or administered_recent_contests %}
                         <td class="text-center">
                             <div class="btn-group">
                                 <button class="btn btn-outline-secondary dropdown-toggle add-to-contest-button pl-1 pr-2" type="button"
@@ -161,6 +162,7 @@
                                 </div>
                             </div>
                         </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>

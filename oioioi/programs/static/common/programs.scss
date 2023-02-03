@@ -33,6 +33,37 @@
 }
 
 .syntax-highlighttable {
+  // Collapse the border between line numbers and code.
+  // (...) (...) -> (...|...)
+  td.linenos {
+    & > .linenodiv {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: none;
+    }
+    padding-right: 0;
+  }
+  td.code {
+    & > .syntax-highlight {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+    padding-left: 0
+  }
+
+  // Disallow selecting line numbers. We disable pointer events so that a mouse
+  // drag starting over this element will still select other elements
+  // (especially the code).
+  .linenos {
+    user-select: none;
+    pointer-events: none;
+  }
+
+  // Slightly grayer text.
+  .linenos pre {
+    color: $text-muted;
+  }
+
   pre {
     margin-bottom: 0;
   }
