@@ -155,14 +155,14 @@ class SinolPackage(object):
         Otherwise None is returned.
         """
 
-        files = list(map(os.path.normcase, self.archive.filenames()))
-        files = list(map(os.path.normpath, files))
-        toplevel_dirs = set(f.split(os.sep)[0] for f in files)
+        dirs = list(map(os.path.normcase, self.archive.dirnames()))
+        dirs = list(map(os.path.normpath, dirs))
+        toplevel_dirs = set(f.split(os.sep)[0] for f in dirs)
         toplevel_dirs = list(filter(slug_re.match, toplevel_dirs))
         problem_dirs = []
         for dir in toplevel_dirs:
             for required_subdir in ('in', 'out'):
-                if all(f.split(os.sep)[:2] != [dir, required_subdir] for f in files):
+                if all(f.split(os.sep)[:2] != [dir, required_subdir] for f in dirs):
                     break
             else:
                 problem_dirs.append(dir)
@@ -988,7 +988,7 @@ class SinolPackage(object):
         jobs = {}
         for outname, test in outs_to_make:
             job = env.copy()
-            job['job_type'] = 'exec' if self.use_sandboxes else 'unsafe-exec'
+            job['job_type'] = 'sio2jail-exec' if self.use_sandboxes else 'unsafe-exec'
             job['task_priority'] = TASK_PRIORITY
             job['exe_file'] = env['compiled_file']
             job['upload_out'] = True
