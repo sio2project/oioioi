@@ -271,10 +271,10 @@ def run_tests(env, kind=None, **kwargs):
 
         If the dictionary already exists, new test results are appended.
     """
-    env['execCycle']=ExtraConfig.objects.get(problem=Problem.objects.get(
-        id=env['problem_id'])).parsed_config.get('execCycle',1)
-    env['advanced_checher_control']=ExtraConfig.objects.get(problem=Problem.objects.get(
-        id=env['problem_id'])).parsed_config.get('advanced_checher_control',False)
+    parsed_config=ExtraConfig.objects.get(problem=Problem.objects.get(
+        id=env['problem_id'])).parsed_config
+    env['execCycle']=parsed_config.get('execCycle',1)
+    env['advanced_checher_control']=parsed_config.get('advanced_checher_control',False)
     jobs = dict()
     not_to_judge = []
     for test_name, test_env in env['tests'].items():
