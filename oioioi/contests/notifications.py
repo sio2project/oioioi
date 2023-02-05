@@ -16,27 +16,41 @@ def notification_function_submission_judged(arguments):
     request.timestamp = datetime.now().replace(tzinfo=utc)
 
     # Check if the final report is visible to the user
-    if not pi.contest.controller.can_see_submission_score(
+    if pi.contest != None and not pi.contest.controller.can_see_submission_score(
         request, arguments.submission
     ):
         return
 
-    url = reverse(
-        'submission',
-        kwargs={'contest_id': pi.contest.pk, 'submission_id': arguments.submission.pk},
-    )
+    if pi.contest:
+        url = reverse(
+            'submission',
+            kwargs={
+                'contest_id': pi.contest.pk,
+                'submission_id': arguments.submission.pk,
+            },
+        )
+    elif pi.problem.problemsite:
+        url = (
+            reverse('problem_site', kwargs={'site_key': pi.problem.problemsite.url_key})
+            + '?key=submissions'
+        )
+    else:
+        url = ''
 
-    message = pi.contest.controller.get_notification_message_submission_judged(
+    message = pi.controller.get_notification_message_submission_judged(
         arguments.submission
     )
 
     message_arguments = {
         'short_name': pi.short_name,
-        'contest_name': pi.contest.name,
         'task_name': str(pi),
         'score': str(arguments.submission.score),
         'address': url,
+        'submission_id': arguments.submission.pk,
     }
+    if pi.contest:
+        message_arguments['contest_name'] = pi.contest.name
+        
     NotificationHandler.send_notification(
         arguments.user, 'submission_judged', message, message_arguments
     )

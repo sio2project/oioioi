@@ -5,18 +5,44 @@
 {% for record in submissions %}
     $(document).ready(function() {
         $("#report{{ record.submission.id }}").hide();
-        var elements = $("[id^=submission{{ record.submission.id }}]");
-
-        elements.addClass("clickable");
-
-        elements.click(function() {
+        function reloadContent() {
             {% url 'get_report_HTML' submission_id=record.submission.id as link %}
             $("#report{{ record.submission.id }}div").load("{{ link }}");
             $("#report{{ record.submission.id }}div").addClass("col-xl-6");
-            $("#report{{ record.submission.id }}").toggle("fast");
+        }
+        function setRowClickable() {
+            var elements = $("[id^=submission{{ record.submission.id }}]");
+            elements.addClass("clickable");
+            elements.click(()=>{
+                reloadContent();
+                $("#report{{ record.submission.id }}").toggle("fast");
+            });
+        }
+        setRowClickable();
+
+        $(window).on('submissionUpdated', (event, data) => {
+            if(data.submissionId == {{ record.submission.id }}) {
+                {% url 'get_report_row_begin_HTML' submission_id=record.submission.id as link_row %}
+                $.post(
+                    "{{ link_row }}", 
+                    {
+                        show_scores: "{{ show_scores }}",
+                        shortened: "{{ shortened }}",
+                        inside_problem_view: "{{ inside_problem_view }}",
+                        can_admin: "{{ can_admin }}",
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    (data) => {
+                        $("#report{{ record.submission.id }}row").replaceWith(data + 
+                            `{% block more-columns-after-updated %}{% endblock %}` +
+                            `{% include 'contests/my_submission_table_base_row_end.html' %}`);
+                        setRowClickable();
+                });
+                reloadContent();
+            }
         });
     });
-    {% endfor %}
+{% endfor %}
 </script>
 {% endif %}
 <div class="table-responsive-md">

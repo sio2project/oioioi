@@ -37,7 +37,7 @@ def notification_function_initial_results(arguments):
         url = ''
 
     message = gettext_noop("Initial result for task %(short_name)s is ready")
-    message_arguments = {'short_name': pi.short_name, 'address': url}
+    message_arguments = {'short_name': pi.short_name, 'address': url, 'submission_id': arguments.submission.pk}
 
     NotificationHandler.send_notification(
         arguments.user, 'initial_results', message, message_arguments

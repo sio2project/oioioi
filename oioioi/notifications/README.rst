@@ -20,3 +20,13 @@ How to notify users manually:
 - invoke: ./manage.py notify [options]
 
 To see options, use: ./manage.py notify --help
+
+For development purposes, you can use the following settings with docker-compose-dev setup:
+
+NOTIFICATIONS_SERVER_ENABLED = True
+NOTIFICATIONS_RABBITMQ_URL = 'amqp://oioioi:oioioi@broker'
+NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
+
+Additionally, you need to expose port 7887 for web container in docker-compose-dev.yml
+It is recommended to install npm and nodejs inside web container.
+RabbitMq is already installed in broker container.

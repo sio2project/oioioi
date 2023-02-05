@@ -11,7 +11,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext_noop
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.models import (
     FailureReport,
@@ -706,3 +706,20 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         opening the problem redirects to submit solution page.
         """
         return True
+
+
+    def get_notification_message_submission_judged(self, submission):
+        """Returns a message to show in a notification when a submission has
+        been judged. It doesn't validate any permissions.
+        """
+        if submission.problem_instance.contest:
+            message = gettext_noop(
+                "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
+            )
+        else:
+            message = gettext_noop("%(task_name)s: Your submission was judged.\n")
+
+        if submission.score is not None:
+            message += gettext_noop("The score is %(score)s.")
+
+        return message
