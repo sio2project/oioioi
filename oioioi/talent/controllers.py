@@ -17,9 +17,6 @@ class TalentOpenContestController(ProgrammingContestController):
         environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
         environ['test_scorer'] = 'oioioi.programs.utils.threshold_linear_test_scorer'
 
-    def can_see_test_comments(self, request, submissionreport):
-        return is_contest_admin(request)
-
 TalentOpenContestController.mix_in(PhaseMixinForContestController)
 
 class TalentContestController(TalentOpenContestController):
