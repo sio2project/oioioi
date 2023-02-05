@@ -15,7 +15,7 @@ server {
     access_log __DIR__/logs/nginx-access.log;
     error_log __DIR__/logs/nginx-error.log;
 
-    client_max_body_size 300M;
+    client_max_body_size 1g;
 
     limit_req_status 429;
     
