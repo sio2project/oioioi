@@ -119,15 +119,11 @@ class Problem(models.Model):
 
     @property
     def name(self):
-        key="oioioi.problems.models.name." + str(self.id) + "." + get_language()
-        ret = cache.get(key)
-        if ret == None:
-            problem_name = ProblemName.objects.filter(
-                problem=self, language=get_language()
-            ).first()
-            ret = problem_name.name if problem_name else self.legacy_name
-            cache.set(key, ret, 300) # 5 minutes should be adequate
-        return ret
+        problem_name = ProblemName.objects.filter(
+            problem=self, language=get_language()
+        ).first()
+        return problem_name.name if problem_name else self.legacy_name
+
     @property
     def controller(self):
         return import_string(self.controller_name)(self)

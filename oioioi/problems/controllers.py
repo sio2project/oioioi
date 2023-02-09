@@ -3,6 +3,7 @@ import logging
 import pprint
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Max, Q
@@ -404,9 +405,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     @staticmethod
     @receiver(post_delete, sender=Submission)
     def recalculate_statistics_on_submission_deleted(instance, **kwargs):
-        if instance.user:
+        user=User.objects.filter(id=instance.user_id).first()
+        if user!=None:
             instance.problem_instance.problem.controller.recalculate_statistics_for_user(
-                instance.user
+                user
             )
 
     def _activate_newest_report(self, submission, queryset, kind=None):

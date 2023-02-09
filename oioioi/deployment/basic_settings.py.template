@@ -48,7 +48,7 @@ TALENT_SCORE2 = 60
 # Reversed, so that group A is on top of the contest list
 TALENT_CONTEST_IDS = ["e", "d", "c", "b", "a",]
 # Groups for which to setup supervision
-TALENT_SUPERVISED_IDS = ["a", "b", "c", "d",]
+TALENT_SUPERVISED_IDS = ["a", "b", "c",]
 # Groups for which to create phases
 TALENT_PHASED_IDS = ["a", "b", "c",]
 # Default amount of score reveals for contests

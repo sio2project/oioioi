@@ -31,7 +31,7 @@ class SupervisionMixinForRegistrationControllers(object):
                 SupervisionMixinForRegistrationControllers,
                 self,
                 ).visible_contests_query(request)
-        if request.is_under_supervision and not request.user.is_superuser:
+        if hasattr(request, 'is_under_supervision') and request.is_under_supervision and not request.user.is_superuser:
             filt &= Q(id__in=request.supervised_contests)
         return filt
 

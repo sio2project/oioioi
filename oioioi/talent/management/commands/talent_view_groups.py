@@ -15,7 +15,7 @@ def member_qs(user):
 
 def part_qs(user):
     return Participant.objects.filter(
-        contest__controller_name='oioioi.phase.controllers.PhaseContestController',
+        contest__controller_name='oioioi.talent.controllers.TalentContestController',
         user=user,
     ).select_related('contest')
 
