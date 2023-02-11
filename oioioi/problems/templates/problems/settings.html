@@ -80,7 +80,7 @@
             {% if model_solutions.submissions %}
                 <div class="lower-button row">
                     <a role="button" class="btn btn-sm btn-outline-secondary"
-                       href="{% url 'model_solutions_rejudge' model_solutions.problem_instance_id %}">
+                        href="{% url 'model_solutions_rejudge' model_solutions.problem_instance.id %}">
                         <i class="fa-solid fa-rotate-right"></i>
                         {% trans "Rejudge" %}
                     </a>

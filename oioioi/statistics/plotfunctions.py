@@ -155,7 +155,9 @@ def submissions_histogram_contest(request, contest):
 
 def points_to_source_length_problem(request, problem):
     submissions = ProgramSubmission.objects.filter(
-        problem_instance=problem, submissionreport__userresultforproblem__isnull=False
+        problem_instance=problem,
+        submissionreport__userresultforproblem__isnull=False,
+        source_length__isnull=False,
     )
 
     contest = request.contest
@@ -181,7 +183,7 @@ def points_to_source_length_problem(request, problem):
 
         data.append(record)
 
-    data = sorted(data, key=lambda d: int(d['x']))
+    data = sorted(data)
 
     # Assumes that max_score is exactly the same for each submission
     max_score = None
@@ -216,7 +218,8 @@ def test_scores(request, problem):
     #       aggregation/#interaction-with-default-ordering-or-order-by
     agg = (
         TestReport.objects.filter(
-            submission_report__userresultforproblem__problem_instance=problem
+            submission_report__userresultforproblem__problem_instance=problem,
+            test__isnull=False,
         )
         .values('test', 'test__order', 'test_name', 'status')
         .annotate(status_count=Count('status'))
