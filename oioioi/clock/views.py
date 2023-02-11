@@ -94,7 +94,7 @@ def admin_time(request, next_page=None):
             if 'admin_time' in request.session:
                 del request.session['admin_time']
             return safe_redirect(request, next_page)
-        if is_real_superuser(request):
+        elif is_real_superuser(request):
             current_admin_time = re.findall(r'\d+', request.POST['admin-time'])
             current_admin_time = list(map(int, current_admin_time))
             try:
