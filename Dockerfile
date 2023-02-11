@@ -97,7 +97,9 @@ RUN sed -i -e \
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi \
-        --nolaunch=rankingsd --nolaunch=mailnotifyd && \
+        --nolaunch=rankingsd --nolaunch=mailnotifyd --nolaunch=evalmgr \
+        --nolaunch=unpackmgr --nolaunch=sioworkersd \
+        --nolaunch=receive_from_workers --nolaunch=notifications-server && \
     ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 \
         compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox \
         proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \

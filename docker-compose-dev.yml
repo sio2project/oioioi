@@ -38,6 +38,8 @@ services:
       WORKER_CONCURRENCY: ${OIOIOI_CONCURRENCY}
       WORKER_RAM_MB: ${OIOIOI_RAM}
     stop_grace_period: 1m
+    #volumes:
+    #  - /src/sioworkers/sio:/home/oioioi/.local/lib/python3.7/site-packages/sio
     security_opt:
       - seccomp:./extra/docker/seccomp.json
       - apparmor:unconfined
