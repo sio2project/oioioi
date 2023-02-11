@@ -17,7 +17,6 @@
 {% block content %}
     {% if not user.is_authenticated %}
         <h1>{% trans "Registration" %}</h1>
-        {% include "ingredients/terms-and-conditions.html" %}
     {% else %}
         <h1>{% trans "Edit your profile" %}</h1>
     {% endif %}

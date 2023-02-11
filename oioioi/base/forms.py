@@ -15,7 +15,6 @@ from django.core.validators import RegexValidator
 from django.conf import settings
 from django.forms import BooleanField, ChoiceField
 from django.forms import ChoiceField
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from registration.forms import RegistrationForm
 
@@ -23,7 +22,6 @@ from oioioi.base.models import Consents, PreferencesSaved
 from oioioi.base.preferences import PreferencesFactory, ensure_preferences_exist_for_user
 from oioioi.base.utils.user import UNICODE_CATEGORY_LIST, USERNAME_REGEX
 from oioioi.base.utils.validators import UnicodeValidator, ValidationError
-
 
 
 def adjust_username_field(form):
@@ -202,13 +200,6 @@ class RegistrationFormWithNames(RegistrationForm):
                     label=_("Contest group"),
                 )
                 tmp_fields = tmp_fields + [ ('group', group_field), ]
-        # From original TalentSio (for OIG probably)
-        #tmp_fields.append(
-        #    ('agreement', forms.BooleanField(label=mark_safe(
-        #        '{} <a data-toggle="modal" href="#termsAndConditionsModal">{}</a>'
-        #            .format(_("I accept"), _("Terms and Conditions"))
-        #    )))
-        #)
         self.fields = OrderedDict(tmp_fields)
         self.fields.update(extra)
         self.fields.update(

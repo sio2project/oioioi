@@ -5,7 +5,6 @@ from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib.admin.utils import NestedObjects, model_ngettext, unquote
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.db import router
 from django.http import Http404, HttpResponseRedirect
@@ -445,12 +444,6 @@ class MixinsAdmin(InstanceDependentAdmin):
         raise NotImplementedError
 
 
-# From original TalentSio
-#class SiteAdmin(admin.ModelAdmin):
-#    pass
-#
-#
-#site.register(Site, SiteAdmin)
 class ConsentsInline(StackedInline):
     model = Consents
     extra = 0
