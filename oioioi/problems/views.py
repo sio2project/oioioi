@@ -453,8 +453,8 @@ def problemset_generate_view(request, page_title, problems, view_type):
     )
     col_proportions = {
         'id': 1,
-        'name': 2,
-        'tags': 5,
+        'name': 4,
+        'tags': 3,
         'statistics1': 1,
         'statistics2': 1,
         'statistics3': 1,
