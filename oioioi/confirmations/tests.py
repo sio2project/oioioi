@@ -79,6 +79,9 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
 
         email = mail.outbox[0].message().as_string()
         del mail.outbox[0]
+        self.assertIn("OIOIOI login: test_user", email)
+        self.assertIn(f"Contest id: {contest.id}", email)
+        self.assertIn(f"Problem: {problem_instance.short_name}", email)
         self.assertIn("Submissions to this task: 2", email)
         self.assertIn("1337 bytes", email)
         proof = re.search(
