@@ -688,6 +688,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         pass
 
+    def submission_judged(self, submission, rejudged=False):
+        pass
+
     def _activate_newest_report(self, submission, queryset, kind=None):
         problem = submission.problem_instance.problem
         problem.controller._activate_newest_report(submission, queryset, kind)
