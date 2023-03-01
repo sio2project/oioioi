@@ -279,7 +279,7 @@ class TestRunContestControllerMixin(object):
             context={
                 'submission': submission_template_context(request, sbm_testrun),
                 'supported_extra_args': self.get_supported_extra_args(submission),
-                'input_is_zip': is_zipfile(sbm_testrun.input_file),
+                'input_is_zip': is_zipfile(sbm_testrun.input_file.read_using_cache()),
             },
         )
 
@@ -295,7 +295,7 @@ class TestRunContestControllerMixin(object):
         input_is_zip = False
         if testrun_report:
             input_is_zip = is_zipfile(
-                testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file
+                testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file.read_using_cache()
             )
 
         return render_to_string(
