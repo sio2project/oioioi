@@ -5,6 +5,7 @@ import tempfile
 from functools import wraps
 from itertools import groupby
 from operator import attrgetter
+import json
 
 import urllib.parse
 
@@ -696,11 +697,11 @@ def get_report_row_begin_HTML_view(request, submission_id):
         'contests/my_submission_table_base_row_begin.html',
         { 
             'record': submission_template_context(request, submission),
-            'show_scores': request.POST.get('show_scores', False),
+            'show_scores': json.loads(request.POST.get('show_scores', "false")),
             'can_admin': can_admin_problem_instance(request, submission.problem_instance) and
-                         request.POST.get('can_admin', False),
-            'shortened': request.POST.get('shortened', False),
-            'inside_problem_view': request.POST.get('inside_problem_view', False),
+                         json.loads(request.POST.get('can_admin', "false")),
+            'shortened': json.loads(request.POST.get('shortened', "false")),
+            'inside_problem_view': json.loads(request.POST.get('inside_problem_view', "false")),
         }
     )
 

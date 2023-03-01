@@ -26,10 +26,10 @@
                 $.post(
                     "{{ link_row }}", 
                     {
-                        show_scores: "{{ show_scores }}",
-                        shortened: "{{ shortened }}",
-                        inside_problem_view: "{{ inside_problem_view }}",
-                        can_admin: "{{ can_admin }}",
+                        show_scores: "{{ show_scores }}" == "True",
+                        shortened: "{{ shortened }}" == "True",
+                        inside_problem_view: "{{ inside_problem_view }}" == "True",
+                        can_admin: "{{ can_admin }}" == "True",
                         csrfmiddlewaretoken: '{{ csrf_token }}'
                     },
                     (data) => {
