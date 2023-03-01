@@ -14,13 +14,14 @@ How to use:
 - stop and start again the containers (easy_toolbox.py stop; easy_toolbox.py start)
 
 
-How to run the Notifications Server:
-Invoke: ./manage.py notifications_server
-(when launched first time, dependencies will be installed and application will
-exit - just relaunch it after it's done)
+
+How to run the Notifications Server manually(inside container):
+- install and run rabbitmq_server
+- Invoke: ./manage.py notifications_server
 
 If required, modify appropriate settings in settings.py file - their names begin
 with "NOTIFICATIONS_" prefix.
+
 
 How to run tests:
 - in ./server directory, invoke: npm test
