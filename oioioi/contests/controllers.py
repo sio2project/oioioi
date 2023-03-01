@@ -688,23 +688,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         pass
 
-    def submission_judged(self, submission, rejudged=False):
-        if submission.user is not None and not rejudged:
-            logger.info(
-                "Submission %(submission_id)d by user %(username)s"
-                " for problem %(short_name)s was judged",
-                {
-                    'submission_id': submission.pk,
-                    'username': submission.user.username,
-                    'short_name': submission.problem_instance.short_name,
-                },
-                extra={
-                    'notification': 'submission_judged',
-                    'user': submission.user,
-                    'submission': submission,
-                },
-            )
-
     def _activate_newest_report(self, submission, queryset, kind=None):
         problem = submission.problem_instance.problem
         problem.controller._activate_newest_report(submission, queryset, kind)
