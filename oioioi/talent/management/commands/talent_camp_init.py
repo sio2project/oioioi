@@ -45,10 +45,14 @@ class Command(BaseCommand):
         with transaction.atomic():
             # Contests
             for i in settings.TALENT_CONTEST_IDS:
+                if i in settings.TALENT_SUPERVISED_IDS:
+                    controller="oioioi.talent.controllers.TalentOpenContestController"
+                else:
+                    controller="oioioi.talent.controllers.TalentContestController"
                 contest, _ = Contest.objects.get_or_create(
                     id=i,
                     name=contest_names[i],
-                    controller_name="oioioi.talent.controllers.TalentContestController",
+                    controller_name=controller,
                 )
                 # Rounds
                 for roundnum, daynum in settings.TALENT_CONTEST_DAYS:

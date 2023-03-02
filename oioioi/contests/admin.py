@@ -324,6 +324,7 @@ class ContestAdmin(admin.ModelAdmin):
 
 class BaseContestAdmin(admin.MixinsAdmin):
     default_model_admin = ContestAdmin
+    search_fields = ['id', 'name']
 
     def _mixins_for_instance(self, request, instance=None):
         if instance:

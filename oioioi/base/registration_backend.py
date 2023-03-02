@@ -49,21 +49,21 @@ class RegistrationView(DefaultRegistrationView):
         )
 
         if 'oioioi.talent' in settings.INSTALLED_APPS:
-            from oioioi.talent.models import TalentRegistrationSwitch
+            from oioioi.talent.models import TalentRegistrationSwitch, TalentRegistration
             if TalentRegistrationSwitch.objects.filter(status=True).exists():
                 group = data['group']
                 if not group == "brak":
-                    from oioioi.contests.models import Contest
-                    from oioioi.supervision.models import Membership, Group
-                    from oioioi.participants.models import Participant
                     if group not in settings.TALENT_CONTEST_NAMES:
                         raise SuspiciousOperation
-                    contest=Contest.objects.get(id=group)
-                    Participant.objects.get_or_create(contest=contest, user=user)
+                    TalentRegistration.objects.create(user=user, contest_id=group)
                     if group in settings.TALENT_SUPERVISED_IDS:
+                        from oioioi.supervision.models import Membership, Group
                         group=Group.objects.get(name=settings.TALENT_CONTEST_NAMES[group])
-                        Membership.objects.get_or_create(user=user, group=group, is_present=True)
-        
+                        Membership.objects.get_or_create(user=user, group=group)
+                    else:
+                        from oioioi.participants.models import Participant
+                        Participant.objects.get_or_create(contest_id=group, user=user)
+                        
         registration_profile = RegistrationProfile.objects.create_profile(user)
         signals.user_registered.send(sender=self.__class__, user=user, request=request)
         PreferencesSaved.send(form, user=user)

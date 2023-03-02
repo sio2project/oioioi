@@ -9383,3 +9383,12 @@ msgstr "Konkurs Talentu"
 
 msgid "Contest group"
 msgstr "Grupa kontestowa"
+
+msgid "Talent participants"
+msgstr "Uczestnicy Talent"
+
+msgid "Talent registration"
+msgstr "rejestracja Talent"
+
+msgid "Talent registrations"
+msgstr "rejestracje Talent"

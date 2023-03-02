@@ -651,7 +651,7 @@ system_admin_menu_registry.register(
     'problempackage_change',
     _("Problem packages"),
     lambda request: reverse('oioioiadmin:problems_problempackage_changelist'),
-    condition=pending_packages,
+#    condition=pending_packages,
     order=70,
 )
 

@@ -8352,3 +8352,12 @@ msgstr "Talent contest"
 
 msgid "Contest group"
 msgstr "Contest group"
+
+msgid "Talent participants"
+msgstr "Talent participants"
+
+msgid "Talent registration"
+msgstr "Talent registration"
+
+msgid "Talent registrations"
+msgstr "Talent registrations"
