@@ -3,6 +3,7 @@
 This is a confirmation that we have received your submission
 to the {{ contest }} contest:
 
+OIOIOI login: {{ user_login }}
 Contest id: {{ contest_id }}
 Problem: {{ problem_shortname }}
 Submission id: {{ submission_id }}
