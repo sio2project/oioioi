@@ -27,7 +27,6 @@ def make_custom_input_filename(instance, filename):
 class TestRunProgramSubmission(ProgramSubmission):
     __test__ = False
     input_file = FileField(upload_to=make_custom_input_filename)
-    input_is_zip = models.BooleanField(default=False)
 
 
 def make_custom_output_filename(instance, filename):

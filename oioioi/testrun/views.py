@@ -127,10 +127,7 @@ def download_input_file_view(request, submission_id):
     submission = get_submission_or_error(
         request, submission_id, TestRunProgramSubmission
     )
-    name='input.in'
-    if submission.input_is_zip:
-        name+='.zip'
-    return stream_file(submission.input_file, name=name)
+    return stream_file(submission.input_file, name='input.in')
 
 
 @enforce_condition(contest_exists & can_enter_contest)
