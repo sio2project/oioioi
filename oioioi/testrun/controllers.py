@@ -123,9 +123,12 @@ class TestRunContestControllerMixin(object):
         if form.kind != 'TESTRUN':
             return
 
+        # We need to check using is_zipfile, as sioworkers do the same.
+        # Otherwise one could bypass checks and limits for example by
+        # uploading a zipfile without the '.zip' extension.
         def validate_file_size(file):
             if (
-                file.name.upper().endswith(".ZIP")
+                is_zipfile(file)
                 and file.size > self.get_testrun_zipped_input_limit()
             ):
                 raise ValidationError(_("Zipped input file size limit exceeded."))
@@ -133,7 +136,7 @@ class TestRunContestControllerMixin(object):
                 raise ValidationError(_("Input file size limit exceeded."))
 
         def validate_zip(file):
-            if file.name.upper().endswith(".ZIP"):
+            if is_zipfile(file):
                 archive = Archive(file, '.zip')
                 if len(archive.filenames()) != 1:
                     raise ValidationError(_("Archive should have only 1 file inside."))
@@ -279,7 +282,7 @@ class TestRunContestControllerMixin(object):
             context={
                 'submission': submission_template_context(request, sbm_testrun),
                 'supported_extra_args': self.get_supported_extra_args(submission),
-                'input_is_zip': is_zipfile(sbm_testrun.input_file),
+                'input_is_zip': is_zipfile(sbm_testrun.input_file.read_using_cache()),
             },
         )
 
@@ -295,7 +298,7 @@ class TestRunContestControllerMixin(object):
         input_is_zip = False
         if testrun_report:
             input_is_zip = is_zipfile(
-                testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file
+                testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file.read_using_cache()
             )
 
         return render_to_string(

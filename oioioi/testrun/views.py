@@ -1,3 +1,5 @@
+from zipfile import is_zipfile
+
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -127,7 +129,10 @@ def download_input_file_view(request, submission_id):
     submission = get_submission_or_error(
         request, submission_id, TestRunProgramSubmission
     )
-    return stream_file(submission.input_file, name='input.in')
+    filename = 'input.in'
+    if is_zipfile(submission.input_file.read_using_cache()):
+        filename = 'input.zip'
+    return stream_file(submission.input_file, name=filename)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
