@@ -63,7 +63,7 @@ class TeacherAdmin(admin.ModelAdmin):
     teacher_first_name.short_description = _("First name")
     teacher_last_name.short_description = _("Last name")
     teacher_email.short_description = _("Email address")
-    teacher_login.short_description = _("Userame")
+    teacher_login.short_description = _("Username")
 
 
 admin.site.register(Teacher, TeacherAdmin)
