@@ -143,10 +143,26 @@ def call_submission_judged(env, submission, **kwargs):
 
     if contest is None:
         assert 'contest_id' not in env
-        return env
+    else:
+        assert contest.id == env['contest_id']
+        contest.controller.submission_judged(submission, rejudged=env['is_rejudge'])
 
-    assert contest.id == env['contest_id']
-    contest.controller.submission_judged(submission, rejudged=env['is_rejudge'])
+        
+    if submission.user is not None and not env['is_rejudge']:
+        logger.info(
+            "Submission %(submission_id)d by user %(username)s"
+            " for problem %(short_name)s was judged",
+            {
+                'submission_id': submission.pk,
+                'username': submission.user.username,
+                'short_name': submission.problem_instance.short_name,
+            },
+            extra={
+                'notification': 'submission_judged',
+                'user': submission.user,
+                'submission': submission,
+            },
+        )
     return env
 
 
