@@ -232,6 +232,9 @@ NotificationsClient.prototype.onMessageReceived = function(message) {
         if (message.popup && !this.DROPDOWN_PANEL.hasClass('open')) {
             $(this.DROPDOWN).dropdown('toggle');
         }
+        $(window).trigger('submissionUpdated', {
+            submissionId: message.arguments.submission_id,
+        });
     }
 
     this.askPermission().then(() => {
