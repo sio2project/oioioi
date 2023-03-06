@@ -17,27 +17,21 @@
 <div class="contest">
     <header class="contest__header">
         <h1 class="inline-menu__name contest__name">{% block dashboard-name %}{% trans "User dashboard" %}{% endblock %}</h1>
-        {% block dashboard-top-menu %}
-            {% if can_create_contest %}
-                <div class="inline-menu">
-                    <a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create contest" %}</a>
-                    |
-                </div>
-            {% endif %}
-            {% if has_portal %}
-                <div class="inline-menu">
-                    <a href="{% url 'global_portal' link_name='default' portal_path=portal_path %}">
+	    <nav class="inline-menu nav d-inline-flex">
+            {% block dashboard-top-menu %}
+                {% if can_create_contest %}
+                    <a class="nav-link" href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create contest" %}</a>
+                {% endif %}
+                {% if has_portal %}
+                    <a class="nav-link" href="{% url 'global_portal' link_name='default' portal_path=portal_path %}">
                         {% trans "Homepage" %}
                     </a>
-                </div>
-            {% endif %}
-            <div class="inline-menu">
-                |
-                <a href="{% url 'problemset_main' %}">
-                    {% trans "Problemset" %}
-                </a>
-            </div>
-        {% endblock %}
+                {% endif %}
+                    <a class="nav-link" href="{% url 'problemset_main' %}">
+                        {% trans "Problemset" %}
+                    </a>
+            {% endblock %}
+	    </nav>
     </header>
     <script type="text/javascript" src="{% static 'js/highcharts.js' %}"></script>
     {% if contests|length == 0 %}
