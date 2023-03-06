@@ -98,6 +98,11 @@ urlpatterns = [
         views.get_report_HTML_view,
         name='get_report_HTML',
     ),
+    re_path(
+        r'^get_report_row_begin_HTML/(?P<submission_id>\d+)/$',
+        views.get_report_row_begin_HTML_view,
+        name='get_report_row_begin_HTML',
+    ),
     re_path(r'^task_archive/$', views.task_archive_view, name='task_archive'),
     re_path(
         r'^task_archive/(?P<origin_tag>[0-9a-z-]+)/',
@@ -132,7 +137,8 @@ urlpatterns = [
         views.get_algorithm_tag_label_view,
         name='get_algorithm_tag_label',
     ),
-    re_path(r'^save_proposals/', views.save_proposals_view, name='save_proposals'),
+    re_path(r'^save_proposals/', views.save_proposals_view,
+            name='save_proposals'),
 ]
 
 noncontest_patterns = [
