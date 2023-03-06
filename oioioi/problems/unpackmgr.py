@@ -1,13 +1,13 @@
 import logging
 
-from celery.task import task
+from celery import shared_task
 from django.utils.module_loading import import_string
 from oioioi.problems.models import Problem, ProblemPackage
 
 logger = logging.getLogger(__name__)
 
 
-@task
+@shared_task
 def unpackmgr_job(env):
     """Creates (or modifies) a :class:`~oioioi.problems.models.Problem`
     instance using a package file represented by a

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -11,7 +13,7 @@ class TestVisible(TestCase):
         self.now = timezone.now()
 
     def test_visibility_dates(self):
-        day = timezone.timedelta(days=1)
+        day = timedelta(days=1)
 
         tomorrow = self.now + day
         yesterday = self.now - day

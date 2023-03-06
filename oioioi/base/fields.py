@@ -2,7 +2,7 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH, exceptions
 from django.forms import ValidationError
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 
@@ -64,13 +64,13 @@ class DottedNameField(models.CharField):
             lst = [
                 (
                     getattr(x, self.remote_field.get_related_field().attname),
-                    smart_text(x),
+                    smart_str(x),
                 )
                 for x in rel_model._default_manager.complex_filter(limit_choices_to)
             ]
         else:
             lst = [
-                (x._get_pk_val(), smart_text(x))
+                (x._get_pk_val(), smart_str(x))
                 for x in rel_model._default_manager.complex_filter(limit_choices_to)
             ]
         return first_choice + lst

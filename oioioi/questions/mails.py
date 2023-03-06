@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from oioioi.questions.models import MessageNotifierConfig
 
-new_question_signal = Signal(providing_args=['request', 'instance'])
+new_question_signal = Signal()
 
 
 @receiver(new_question_signal)

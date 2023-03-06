@@ -1,10 +1,9 @@
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone
 
 from django.contrib.auth.models import User
 from django.test import RequestFactory
 from django.urls import reverse
-from pytz import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, Submission
@@ -37,7 +36,7 @@ class TestContestController(TestCase):
             fake_request = RequestFactory().request()
             fake_request.user = user
             fake_request.contest = contest
-            fake_request.timestamp = datetime(2013, 1, 1, tzinfo=utc)
+            fake_request.timestamp = datetime(2013, 1, 1, tzinfo=timezone.utc)
             return fake_request
 
         return wrapped
@@ -145,7 +144,7 @@ class TestViewsMixin(object):
         self.assertTrue(self.client.login(username="test_user"))
         submission = Submission.objects.get(id=submission_id)
 
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = self.client.get(
                 reverse(
                     "submission",
@@ -207,7 +206,7 @@ class TestViewsProgramSubmissions(TestCase, TestViewsMixin):
         self.contest_kwargs = {"contest_id": Contest.objects.get().id}
 
     def _assert_disqualification_box(self, response_callback):
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = response_callback()
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
@@ -216,7 +215,7 @@ class TestViewsProgramSubmissions(TestCase, TestViewsMixin):
             self.assertIn(">42<", self.remove_whitespaces(response))
 
         _disqualify_contestwide()
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = response_callback()
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "I cannot tell")
@@ -226,7 +225,7 @@ class TestViewsProgramSubmissions(TestCase, TestViewsMixin):
             self.assertIn(">42<", self.remove_whitespaces(response))
 
         Disqualification.objects.filter(submission__isnull=False).delete()
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = response_callback()
             self.assertNotContains(response, "Ni in code")
             self.assertContains(response, "I cannot tell")
@@ -238,13 +237,13 @@ class TestViewsProgramSubmissions(TestCase, TestViewsMixin):
         url = reverse("default_ranking", kwargs={"contest_id": contest.id})
 
         self.assertTrue(self.client.login(username="test_admin"))
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, "Test User")
             self.assertContains(response, "disqualified")
 
         self.assertTrue(self.client.login(username="test_user"))
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertNotContains(response, "Test User")
 
@@ -253,7 +252,7 @@ class TestViewsProgramSubmissions(TestCase, TestViewsMixin):
         url = reverse("ranking_csv", kwargs={"contest_id": contest.id, "key": "c"})
 
         self.assertTrue(self.client.login(username="test_admin"))
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, "Test")
             self.assertContains(response, "Disqualified")
@@ -279,7 +278,7 @@ class TestViewsQuizSubmission(TestCase, TestViewsMixin):
         self.contest_kwargs = {"contest_id": Contest.objects.get().id}
 
     def _assert_disqualification_box(self, response_callback):
-        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 1, 1, tzinfo=timezone.utc)):
             response = response_callback()
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")

@@ -193,7 +193,7 @@ class ContestLinkInline(admin.TabularInline):
 
 
 class ContestAdmin(admin.ModelAdmin):
-    inlines = [RoundInline, AttachmentInline, ContestLinkInline]
+    inlines = (RoundInline, AttachmentInline, ContestLinkInline)
     readonly_fields = ['creation_date']
     prepopulated_fields = {'id': ('name',)}
     list_display = ['name', 'id', 'creation_date']

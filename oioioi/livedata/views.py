@@ -7,7 +7,6 @@ from django.db.models import F, OuterRef, Q, Subquery
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import dateformat
-from django.utils.timezone import utc
 from django.utils.translation import get_language
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import allow_cross_origin, jsonify
@@ -115,7 +114,7 @@ def livedata_events_view(request, round_id):
         # Only admin/observer is allowed to specify 'from' parameter.
         start_time = datetime.datetime.utcfromtimestamp(
             int(request.GET['from'])
-        ).replace(tzinfo=utc)
+        ).replace(tzinfo=datetime.timezone.utc)
         reports = reports.filter(creation_date__gte=start_time)
 
     round = get_object_or_404(request.contest.round_set.all(), pk=round_id)

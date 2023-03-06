@@ -1,10 +1,10 @@
 import calendar
+from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.utils.http import http_date
-from django.utils.timezone import timedelta
 
 from oioioi.base.tests import TestCase
 from oioioi.contestlogo.models import ContestIcon, ContestLogo

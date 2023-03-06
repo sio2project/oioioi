@@ -39,18 +39,6 @@ class ProgramsConfigInline(admin.TabularInline):
     can_delete = False
     category = _("Advanced")
 
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_view_permission(self, request, obj=None):
-        return self.has_change_permission(request, obj)
-
 
 class ValidationFormset(BaseInlineFormSet):
     def get_time_limit_sum(self):
@@ -269,7 +257,7 @@ class ProgramsContestAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ProgramsContestAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ProgramsConfigInline, ContestCompilerInline]
+        self.inlines = self.inlines + (ProgramsConfigInline, ContestCompilerInline)
 
 
 ContestAdmin.mix_in(ProgramsContestAdminMixin)
@@ -282,7 +270,7 @@ class LibraryProblemDataAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(LibraryProblemDataAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [LibraryProblemDataInline]
+        self.inlines = self.inlines + (LibraryProblemDataInline,)
 
 
 class ProgrammingProblemAdminMixin(object):
@@ -295,13 +283,13 @@ class ProgrammingProblemAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [
+        self.inlines = self.inlines + (
             ReportActionsConfigInline,
             OutputCheckerInline,
             LibraryProblemDataInline,
             ProblemCompilerInline,
             ProblemAllowedLanguageInline,
-        ]
+        )
 
 
 class ProgrammingProblemInstanceAdminMixin(object):
@@ -309,7 +297,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestInline]
+        self.inlines = self.inlines + (TestInline,)
 
 
 ProblemInstanceAdmin.mix_in(ProgrammingProblemInstanceAdminMixin)
@@ -320,7 +308,7 @@ class ProgrammingMainProblemInstanceAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ProgrammingMainProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestInline]
+        self.inlines = self.inlines + (TestInline,)
 
 
 MainProblemInstanceAdmin.mix_in(ProgrammingMainProblemInstanceAdminMixin)

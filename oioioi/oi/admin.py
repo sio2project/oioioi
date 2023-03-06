@@ -146,9 +146,9 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
         'school_city',
         'school_province',
     ]
-    inlines = ParticipantAdmin.inlines + [
+    inlines = ParticipantAdmin.inlines + (
         OIRegistrationInline,
-    ]
+    )
     readonly_fields = ['user']
     search_fields = ParticipantAdmin.search_fields + [
         'oi_oiregistration__school__name',

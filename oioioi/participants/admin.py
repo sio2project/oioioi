@@ -328,7 +328,7 @@ class RegionFilter(RelatedFieldListFilter):
 
 class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display + ['number', 'region', 'local_number']
-    inlines = ParticipantAdmin.inlines + [OnsiteRegistrationInline]
+    inlines = ParticipantAdmin.inlines + (OnsiteRegistrationInline,)
     list_filter = ParticipantAdmin.list_filter + [
         ('participants_onsiteregistration__region', RegionFilter)
     ]
@@ -404,7 +404,7 @@ class UserWithParticipantsAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(UserWithParticipantsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ParticipantInline]
+        self.inlines = self.inlines + (ParticipantInline,)
 
 
 admin.OioioiUserAdmin.mix_in(UserWithParticipantsAdminMixin)
@@ -475,4 +475,4 @@ class TermsAcceptedPhraseAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(TermsAcceptedPhraseAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TermsAcceptedPhraseInline]
+        self.inlines = self.inlines + (TermsAcceptedPhraseInline,)

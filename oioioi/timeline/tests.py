@@ -1,7 +1,6 @@
 import datetime
 
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, check_not_accessible
 from oioioi.contests.date_registration import date_registry
@@ -149,7 +148,7 @@ class TestChangingDates(TestCase):
 
         obj = Round.objects.get(pk=2)
         self.assertEqual(
-            obj.end_date, datetime.datetime(2021, 10, 10, 10, 10, tzinfo=utc)
+            obj.end_date, datetime.datetime(2021, 10, 10, 10, 10, tzinfo=datetime.timezone.utc)
         )
 
     def test_invalid_date_change(self):

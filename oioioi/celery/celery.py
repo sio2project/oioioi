@@ -7,11 +7,14 @@ from celery import Celery
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'oioioi.default_settings')
 
-from django.conf import settings  # noqa
-
 app = Celery('oioioi')
+
+from django.conf import settings
+
+CELERY_CONFIG = settings.CELERY or {}
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
-app.config_from_object('django.conf:settings')
+app.config_from_object('oioioi.celery.celery:CELERY_CONFIG')
+
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

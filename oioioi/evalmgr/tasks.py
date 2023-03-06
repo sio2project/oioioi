@@ -4,8 +4,8 @@ import sys
 from uuid import uuid4
 
 import six
+from celery import shared_task
 from celery.exceptions import Ignore
-from celery.task import task
 from django.db import transaction
 from django.utils.module_loading import import_string
 
@@ -270,7 +270,7 @@ def delay_environ(environ, **evalmgr_extra_args):
     return async_result
 
 
-@task
+@shared_task
 def evalmgr_job(env):
     r"""Takes environment and evaluates it according to its recipe.
 

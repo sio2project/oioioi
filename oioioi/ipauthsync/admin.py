@@ -25,4 +25,4 @@ class ContestAdminWithIpAuthSyncInlineMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ContestAdminWithIpAuthSyncInlineMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [IpAuthSyncConfigInline]
+        self.inlines = self.inlines + (IpAuthSyncConfigInline,)

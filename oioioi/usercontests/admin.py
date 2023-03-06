@@ -133,7 +133,7 @@ class UserContestAdminMixin(object):
             else:
                 modified_inlines.append(inline)
 
-        return modified_inlines
+        return tuple(modified_inlines)
 
 
 ContestAdmin.mix_in(UserContestAdminMixin)

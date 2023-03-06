@@ -7,119 +7,117 @@ from django.template.loader import render_to_string
 from django.urls import resolve, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
+from mistune import BlockParser, InlineParser, HTMLRenderer, Markdown
+from mistune.plugins import PLUGINS
 
 from oioioi.contests.models import UserResultForProblem
 from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
 
-REGISTERED_WIDGETS = []
+REGISTERED_WIDGETS = set()
 _block_spoiler_leading_pattern = re.compile(r'^ *>! ?', flags=re.M)
 
 
-class PortalInlineGrammar(InlineGrammar):
-    pass
+def plugin_portal(md: Markdown, request):
+    BLOCK_SPOILER_MAX_DEPTH = 6
 
+    def parse_block_center(block, m, state):
+        return {
+            'type': 'block_center',
+            'text': m.group(1),
+        }
 
-class PortalRenderer(Renderer):
-    def block_center(self, text):
+    def parse_block_spoiler(block: BlockParser, m, state):
+        block._blockspoiler_depth += 1
+
+        if block._blockspoiler_depth > BLOCK_SPOILER_MAX_DEPTH:
+            return block.parse_text(m, state)
+        else:
+            content = _block_spoiler_leading_pattern.sub('', m.group(2))
+            content_parsed = block.parse(content, state)
+            content_parsed.insert(0, {'type': 'block_spoiler', 'summary': m.group(1)})
+            content_parsed.append({'type': 'block_spoiler_end'})
+            block._blockspoiler_depth -= 1
+            return {
+                'type': 'block_spoiler',
+                'children': content_parsed,
+                'params': (m.group(1),)
+            }
+
+    def render_block_center(text):
         return render_to_string(
             'portals/widgets/block-center.html', {'content': mark_safe(text)}
         )
 
-    def block_spoiler(self, summary, body):
+    def render_block_spoiler(text, summary):
         return render_to_string(
             'portals/widgets/block-spoiler.html',
-            {'summary': summary, 'body': mark_safe(body)},
+            {'summary': summary, 'body': mark_safe(text)},
         )
 
-    def table(self, header, body):
+    # Ugly hack incoming: next 3 methods
+    # Although ugly, it is correct
+    def render_table(self, content):
         """Rendering table element. Wrap header and body in it.
 
         :param header: header part of the table.
         :param body: body part of the table.
         """
+        header, body = content
         return render_to_string(
             'portals/widgets/table.html',
             {'header': mark_safe(header), 'body': mark_safe(body)},
         )
 
+    def render_table_body(text):
+        return (text,)
 
-class PortalInlineLexer(InlineLexer):
-    default_rules = InlineLexer.default_rules[:]
+    def render_table_head(text):
+        return (text,)
 
-    def __init__(self, request, renderer, rules=None, **kwargs):
-        self.request = request
-        if rules is None:
-            rules = PortalInlineGrammar()
-        super(PortalInlineLexer, self).__init__(renderer, rules, **kwargs)
+    md.block.register_rule(
+        'block_center',
+        r'^ *->(.*?)<-',
+        parse_block_center
+    )
+    md.block.rules.insert(
+        md.block.rules.index('block_code'),
+        'block_center'
+    )
+    md.block.register_rule(
+        'block_spoiler'
+        r'^ *>!\[([^\n]*)\] *((?:\n *>![^\n]*)+)',
+        parse_block_spoiler
+    )
+    md.block.rules.insert(0, 'block_spoiler')
 
+    renderer: HTMLRenderer = md.renderer
+    renderer.register('block_center', render_block_center)
+    renderer.register('block_spoiler', render_block_spoiler)
+    # Override table rendering
+    renderer.register('table', render_table)
+    renderer.register('table_body', render_table_body)
+    renderer.register('table_head', render_table_head)
 
-class PortalBlockLexer(BlockLexer):
-    default_rules = BlockLexer.default_rules[:]
+    for widget in REGISTERED_WIDGETS:
+        def parse_func(inline: InlineParser, m, state):
+            return 'block_text', widget.render(request, m)
 
-    def __init__(self, *args, **kwargs):
-        super(PortalBlockLexer, self).__init__(*args, **kwargs)
-        self._blockspoiler_depth = 0
+        md.inline.register_rule(widget.name, widget.compiled_tag_regex.pattern,
+                                parse_func)
 
-        self.rules.block_spoiler = re.compile(
-            r'^ *>!\[([^\n]*)\] *((?:\n *>![^\n]*)+)',
-            flags=re.DOTALL | re.M,
-        )
-        self.rules.block_center = re.compile(r'^ *->(.*?)<-', re.DOTALL)
-        # Insert before 'block_code'
-        if 'block_center' not in self.default_rules:
-            self.default_rules.insert(
-                self.default_rules.index('block_code'), 'block_center'
-            )
-        if 'block_spoiler' not in self.default_rules:
-            self.default_rules.insert(0, 'block_spoiler')
-
-    def parse_block_center(self, m):
-        self.tokens.append(
-            {
-                'type': 'block_center',
-                'text': m.group(1),
-            }
-        )
-
-    def parse_block_spoiler(self, m):
-        self._blockspoiler_depth += 1
-
-        if self._blockspoiler_depth > self._max_recursive_depth:
-            self.parse_text(m)
-        else:
-            self.tokens.append({'type': 'block_spoiler', 'summary': m.group(1)})
-            # Clean leading >!
-            content = _block_spoiler_leading_pattern.sub("", m.group(2))
-            self.parse(content)
-            self.tokens.append({'type': 'block_spoiler_end'})
-
-        self._blockspoiler_depth -= 1
-
-
-class PortalMarkdown(Markdown):
-    def __init__(self, request):
-        renderer = PortalRenderer(escape=True)
-        inline_lexer = PortalInlineLexer(request, renderer)
-        block_lexer = PortalBlockLexer()
-        super(PortalMarkdown, self).__init__(
-            renderer, inline=inline_lexer, block=block_lexer
-        )
-
-    def output_block_center(self):
-        return self.renderer.block_center(self.inline(self.token['text']))
-
-    def output_block_spoiler(self):
-        spoiler_summary = self.token['summary']
-        body = self.renderer.placeholder()
-        while self.pop()['type'] != 'block_spoiler_end':
-            body += self.tok()
-        return self.renderer.block_spoiler(spoiler_summary, body)
 
 
 def render_panel(request, panel):
-    return PortalMarkdown(request).render(panel)
+    return Markdown(HTMLRenderer(), plugins=[
+        # Standard plugins
+        PLUGINS['strikethrough'],
+        PLUGINS['footnotes'],
+        PLUGINS['table'],
+
+        # Custom plugins
+        lambda md: plugin_portal(md, request),
+    ]).render(panel)
 
 
 def register_widget(widget):
@@ -135,20 +133,13 @@ def register_widget(widget):
             corresponding :class:`re.MatchObject` instance as the only
             parameter (named 'm').  Should return a string (rendered widget).
     """
-    if hasattr(PortalInlineGrammar, widget.name):
+    if widget in REGISTERED_WIDGETS:
         raise ValueError(
             'Inline tag for widget named %s has already been '
             'registered.' % widget.name
         )
-    PortalInlineLexer.default_rules.insert(0, widget.name)
-    setattr(PortalInlineGrammar, widget.name, widget.compiled_tag_regex)
 
-    def func(self, m):
-        return widget.render(self.request, m)
-
-    setattr(PortalInlineLexer, 'output_' + widget.name, func)
-
-    REGISTERED_WIDGETS.append(widget)
+    REGISTERED_WIDGETS.add(widget)
 
 
 class YouTubeWidget(object):

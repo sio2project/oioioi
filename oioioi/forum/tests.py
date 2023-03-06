@@ -1,5 +1,5 @@
 import re
-from datetime import timedelta  # pylint: disable=E0611
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User

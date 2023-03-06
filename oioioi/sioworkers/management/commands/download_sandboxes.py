@@ -15,7 +15,7 @@ from oioioi.filetracker.client import get_client
 DEFAULT_SANDBOXES_MANIFEST = getattr(
     settings,
     'SANDBOXES_MANIFEST',
-    'https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest',
+    'http://localhost:8001/Manifest',
 )
 
 
@@ -122,7 +122,7 @@ class Command(BaseCommand):
         urls = []
         cached_args = []
         for arg in args:
-            basename = arg + '.tar.gz'
+            basename = arg + '.tar.zst'
             if options['cache_dir']:
                 path = os.path.join(options['cache_dir'], basename)
                 if os.path.isfile(path):
@@ -161,7 +161,7 @@ class Command(BaseCommand):
 
         print("--- Saving sandboxes to the Filetracker ...", file=self.stdout)
         for arg in args:
-            basename = arg + '.tar.gz'
+            basename = arg + '.tar.zst'
             if arg in cached_args:
                 local_file = os.path.join(options['cache_dir'], basename)
             else:
