@@ -2,16 +2,26 @@ An optional module for transmitting instant notifications to users.
 It consists of a Django app and a Node.js server passing notifications.
 
 How to use:
-- install Node.js
-- install and run rabbitmq-server
+- expose port 7887 for web container in docker-compose-dev.yml
+- open container bash (easy_toolbox.py bash)
+- install Node.js (sudo apt install nodejs npm)
+- uncomment notifications from INSTALLED_APPS in settings.py
+- uncomment notifications from context_processors in settings.py
+- set following settings in settings.py:
+    NOTIFICATIONS_SERVER_ENABLED = True
+    NOTIFICATIONS_RABBITMQ_URL = 'amqp://oioioi:oioioi@broker'
+    NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
+- stop and start again the containers (easy_toolbox.py stop; easy_toolbox.py start)
 
-How to run the Notifications Server:
-Invoke: ./manage.py notifications_server
-(when launched first time, dependencies will be installed and application will
-exit - just relaunch it after it's done)
+
+
+How to run the Notifications Server manually(inside container):
+- install and run rabbitmq_server
+- Invoke: ./manage.py notifications_server
 
 If required, modify appropriate settings in settings.py file - their names begin
 with "NOTIFICATIONS_" prefix.
+
 
 How to run tests:
 - in ./server directory, invoke: npm test

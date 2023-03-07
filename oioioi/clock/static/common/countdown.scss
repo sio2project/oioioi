@@ -8,10 +8,7 @@ $countdown-fill-success: theme-color("success") !default;
 $countdown-fill-warning: theme-color("warning") !default;
 $countdown-fill-danger: theme-color("danger") !default;
 
-$countdown-time-full-width: 550px !default;
-
 .countdown-time {
-  max-width: $countdown-time-full-width;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

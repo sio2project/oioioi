@@ -11,3 +11,10 @@
         </a>
     </td>
 {% endblock %}
+{% block more-columns-after-updated %}
+    <td>
+        <a href="{% url 'source_diff' contest_id=contest.id submission1_id=record.submission.id submission2_id=main_submission_id %}">
+            {% trans "Diff submissions" %}
+        </a>
+    </td>
+{% endblock %}

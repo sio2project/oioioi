@@ -5,6 +5,7 @@ import tempfile
 from functools import wraps
 from itertools import groupby
 from operator import attrgetter
+import json
 
 import urllib.parse
 
@@ -35,6 +36,7 @@ from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_http_methods
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.archive import Archive
@@ -453,8 +455,8 @@ def problemset_generate_view(request, page_title, problems, view_type):
     )
     col_proportions = {
         'id': 1,
-        'name': 2,
-        'tags': 5,
+        'name': 4,
+        'tags': 3,
         'statistics1': 1,
         'statistics2': 1,
         'statistics3': 1,
@@ -681,6 +683,27 @@ def get_report_HTML_view(request, submission_id):
         reports = mark_safe(u'<center>' + force_str(reports) + u'</center>')
     return HttpResponse(reports)
 
+
+@require_http_methods(["POST"])
+def get_report_row_begin_HTML_view(request, submission_id):
+    submission = get_object_or_404(Submission, id=submission_id)
+    controller = submission.problem_instance.controller
+    if not controller.filter_my_visible_submissions(
+        request, Submission.objects.filter(id=submission_id)
+    ).exists():
+        raise Http404
+    return TemplateResponse(
+        request,
+        'contests/my_submission_table_base_row_begin.html',
+        { 
+            'record': submission_template_context(request, submission),
+            'show_scores': json.loads(request.POST.get('show_scores', "false")),
+            'can_admin': can_admin_problem_instance(request, submission.problem_instance) and
+                         json.loads(request.POST.get('can_admin', "false")),
+            'shortened': json.loads(request.POST.get('shortened', "false")),
+            'inside_problem_view': json.loads(request.POST.get('inside_problem_view', "false")),
+        }
+    )
 
 @transaction.non_atomic_requests
 def problemset_add_or_update_problem_view(request):
@@ -969,7 +992,7 @@ def get_last_submissions(request):
     return TemplateResponse(
         request,
         "contests/my_submissions_table.html",
-        {'submissions': submissions, 'show_scores': True, 'hide_reports': True},
+        {'submissions': submissions, 'show_scores': True, 'hide_reports': True, 'status': True},
     )
 
 
