@@ -5,7 +5,8 @@
         "fields": {
             "user": 1001,
             "is_active": true,
-            "school": "School"
+            "school": "School",
+            "join_date": "1983-01-01"
         }
     },
     {
@@ -14,7 +15,8 @@
         "fields": {
             "user": 1002,
             "is_active": false,
-            "school": "School"
+            "school": "School",
+            "join_date": "1983-01-01"
         }
     }
 ]
