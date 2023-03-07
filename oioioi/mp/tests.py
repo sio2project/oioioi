@@ -66,6 +66,23 @@ class TestMPRanking(TestCase):
             self.assertFalse(re.search(b'<td[^>]*>Test User4', response.content))
 
 
+class TestNoRoundProblem(TestCase):
+    fixtures = ['test_mp_users', 'test_mp_contest']
+
+    def test_no_round_problem(self):
+        self.assertTrue(self.client.login(username='test_user1'))
+        contest = Contest.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2023, 1, 5, 12, 10, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('form', response.context)
+            form = response.context['form']
+            # there are 3 problems, one of them doesn't have round
+            # +1 because of blank field
+            self.assertEqual(len(form.fields['problem_instance_id'].choices), 3)
+
+
 class TestSubmissionScoreMultiplier(TestCase):
     def _create_result(user, pi):
         res = UserResultForProblem()

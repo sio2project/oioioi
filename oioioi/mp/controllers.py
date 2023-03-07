@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.models import Submission
+from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.mp.models import MPRegistration, SubmissionScoreMultiplier
 from oioioi.mp.score import FloatScore
 from oioioi.participants.controllers import ParticipantsController
@@ -139,8 +139,20 @@ class MPContestController(ProgrammingContestController):
                 ):
                     best_submission = [submission, score]
 
+            try:
+                report = SubmissionReport.objects.get(
+                    submission=best_submission[0], status='ACTIVE', kind='NORMAL'
+                )
+            except SubmissionReport.DoesNotExist:
+                report = None
+
             result.score = best_submission[1]
             result.status = best_submission[0].status
+            result.submission_report = report
+        else:
+            result.score = None
+            result.status = None
+            result.submission_report = None
 
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Contest admin can always submit.
@@ -154,6 +166,8 @@ class MPContestController(ProgrammingContestController):
         if request.user.has_perm('contests.contest_admin', self.contest):
             return True
         if not is_participant(request):
+            return False
+        if problem_instance.round is None:
             return False
 
         rtimes = self.get_round_times(None, problem_instance.round)
