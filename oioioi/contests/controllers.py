@@ -392,8 +392,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if the former is not available.
         """
         return get_user_display_name(user)
+    
+    def get_round_times_in_bulk(self, request):
+        if request is not None:
+            return rounds_times(request, self.contest)
+        else:
+            return generic_rounds_times(None, self.contest)
 
-    def get_round_times(self, request, round):
+    def get_round_times(self, request, round, preprocessed=None):
         """Determines the times of the round for the user doing the request.
 
         The default implementation returns an instance of
@@ -403,11 +409,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         Request is optional (round extensions won't be included if omitted).
 
         :returns: an instance of :class:`RoundTimes`
+        
+        :param preprocessed: if one already called get_round_times_in_bulk,
+          then one should pass them here.
         """
-        if request is not None:
-            return rounds_times(request, self.contest)[round]
-        else:
-            return generic_rounds_times(None, self.contest)[round]
+        if preprocessed != None:
+            return preprocessed[round]
+        return self.get_round_times_in_bulk(request)[round]
 
     def separate_public_results(self):
         """Determines if there should be two separate dates for personal
