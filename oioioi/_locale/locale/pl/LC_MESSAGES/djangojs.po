@@ -25,16 +25,16 @@
 # Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
 # teqwve <mrtaddewicz@gmail.com>, 2017
-# Aleksander Tudruj <aleksanderwt@gmail.com>, 2022
+# Alek Tudruj <aleksanderwt@gmail.com>, 2022
 # Wojciech Dubiel <wd371280@students.mimuw.edu.pl>, 2021
 # Zuzanna Opała <opala.zuzanna@gmail.com>, 2018-2019
 msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-16 10:55+0000\n"
+"POT-Creation-Date: 2023-03-07 14:58+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
-"Last-Translator: Aleksander Tudruj <aleksanderwt@gmail.com>, 2022\n"
+"Last-Translator: Alek Tudruj <aleksanderwt@gmail.com>, 2022\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -73,6 +73,34 @@ msgstr "Brak połączenia z serwerem"
 #: balloons/static/balloons/delivery-panel.js:80
 msgid "Corrupt data"
 msgstr "Uszkodzone dane"
+
+#: base/static/admin/js/actions.js:69
+msgid "%(sel)s of %(cnt)s selected"
+msgid_plural "%(sel)s of %(cnt)s selected"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: base/static/admin/js/actions.js:163
+msgid ""
+"You have unsaved changes on individual editable fields. If you run an "
+"action, your unsaved changes will be lost."
+msgstr ""
+
+#: base/static/admin/js/actions.js:176
+msgid ""
+"You have selected an action, but you haven’t saved your changes to "
+"individual fields yet. Please click OK to save. You’ll need to re-run the "
+"action."
+msgstr ""
+
+#: base/static/admin/js/actions.js:177
+msgid ""
+"You have selected an action, and you haven’t made any changes on individual "
+"fields. You’re probably looking for the Go button rather than the Save "
+"button."
+msgstr ""
 
 #: base/static/common/clipboard-setup.js:4
 msgid "copied!"
@@ -212,29 +240,25 @@ msgstr "Nie masz żadnych zgłoszeń."
 msgid "A network error occured. Recent submissions list could not be loaded"
 msgstr "Wystąpił bład sieci. Nie udało się pobrać listy ostatnich zgłoszeń."
 
-#: notifications/static/common/notifications.js:172
+#: notifications/static/common/notifications.js:174
 msgid ""
 "Would you like to enable desktop notifications (for submission results and "
 "more)?"
 msgstr "Czy chcesz właczyć powiadomienia systemowe (o wynikach zgłoszeń i nie tylko)?"
 
-#: notifications/static/common/notifications.js:175
+#: notifications/static/common/notifications.js:177
 msgid "Yes, please!"
 msgstr "Tak, poproszę!"
 
-#: notifications/static/common/notifications.js:191
+#: notifications/static/common/notifications.js:193
 msgid "Never ask again on this computer"
 msgstr "Nigdy już nie pytaj na tym komputerze"
 
-#: programs/static/common/choose_compiler.js:4
-msgid "Here you can override default compilers for problems in this contest"
-msgstr "Tutaj możesz nadpisać domyślne kompilatory dla zadań w tym konkursie."
-
-#: programs/static/common/choose_compiler.js:31
+#: programs/static/common/choose_compiler.js:27
 msgid "Compiler"
 msgstr "Kompilator"
 
-#: programs/static/common/choose_compiler.js:31
+#: programs/static/common/choose_compiler.js:27
 msgid "Failed to fetch available compilers</font>"
 msgstr "Nie udało się pobrać dostępnych kompilatorów </font>"
 
@@ -311,20 +335,20 @@ msgstr "Limit czasu: <b>%(timeLimit)s</b>s<br>Limit pamięci: <b>%(memoryLimit)s
 #| " date in a datebox by clicking the corresponding <span class=\"icon-"
 #| "ar\"></span> button. You can also use the keyboard: <br> <ul>     "
 #| "trong>TAB</strong> - go to the next datebox</li>     trong>ENTER</strong> - "
-#| "confirm date</li>     <li><strong>ESC, L/strong> - reset date</li> </ul> "
+#| "confirm date</li>     <li><strong>ESC, </strong> - reset date</li> </ul> "
 #| "<hr> You can filter events by cking thertical bar representing a round. <hr>"
 #| " If you want to split ate group, ck the corresponding <span class=\"icon-"
-#| "resize-vertical/span> button."
+#| "resize-tical\"></span> button."
 msgid ""
-"Change date in a datebox by clicking the corresponding <span "
-"class=\"glyphicon glyphicon-calendar\"></span> button. You can also use the "
-"keyboard: <br> <ul>     <li><strong>TAB</strong> - go to the next "
-"datebox</li>     <li><strong>ENTER</strong> - confirm date</li>     "
-"<li><strong>ESC, CTRL+Z</strong> - reset date</li> </ul> <hr> You can filter"
-" events by clicking the vertical bar representing a round. <hr> If you want "
-"to split a date group, click the corresponding <span class=\"glyphicon "
-"glyphicon-resize-vertical\"></span> button."
-msgstr "Zmień datę w polu daty klikając przycisk <span class=\"glyphicon glyphicon-calendar\"></span>. Możesz też użyć klawiatury: <br> <ul>     <li><strong>TAB</strong> - idź do następnego pola daty</li>     <li><strong>ENTER</strong> - potwierdź datę</li>     <li><strong>ESC, CTRL+Z</strong> - zresetuj datę</li> </ul> <hr> Możesz filtrować wydarzenia klikając pionowe paski reprezentujące rundy. <hr> Jeśli chcesz podzielić grupę dat, kliknij na odpowiedni przycisk <span class=\"glyphicon glyphicon-resize-vertical\"></span>."
+"Change date in a datebox by clicking the corresponding <span class=\"fa-"
+"solid fa-calendar\"></span> button. You can also use the keyboard: <br> <ul>"
+"     <li><strong>TAB</strong> - go to the next datebox</li>     "
+"<li><strong>ENTER</strong> - confirm date</li>     <li><strong>ESC, "
+"CTRL+Z</strong> - reset date</li> </ul> <hr> You can filter events by "
+"clicking the vertical bar representing a round. <hr> If you want to split a "
+"date group, click the corresponding <span class=\"fa-solid fa-arrows-up-"
+"down\"></span> button."
+msgstr ""
 
 #: timeline/static/timeline/timeline.js:56
 msgid "now"

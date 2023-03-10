@@ -29,6 +29,7 @@ from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
+from oioioi.contests.handlers import call_submission_judged
 from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
@@ -49,6 +50,7 @@ from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
 from oioioi.programs.utils import form_field_id_for_langs
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
+from oioioi.evalmgr.tasks import create_environ
 
 
 def extract_code(show_response):
@@ -539,9 +541,16 @@ class TestSubmission(TestCase, SubmitFileMixin):
         NotificationHandler.send_notification = fake_send_notification
 
         submission = Submission.objects.get(pk=1)
-        controller = submission.problem_instance.contest.controller
-        controller.submission_judged(submission)
-        controller.submission_judged(submission, rejudged=True)
+        
+        environ = create_environ()
+        environ['extra_args'] = {}
+        environ['is_rejudge'] = False
+        environ['submission_id'] = submission.pk
+        environ['contest_id'] = submission.problem_instance.contest.id
+        call_submission_judged(environ)
+
+        environ['is_rejudge'] = True
+        call_submission_judged(environ)
 
         # Check if a notification for user 1001 was send
         # And user 1002 doesn't received a notification

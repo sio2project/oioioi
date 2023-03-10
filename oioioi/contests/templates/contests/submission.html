@@ -7,18 +7,23 @@
 
 {% block scripts %}
     {{ block.super }}
-    {% if can_admin %}
-        <script type="text/javascript">
-            $(document).ready(function () {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            {% if can_admin %}
                 $('[data-parent-toggle]').on('click', function () {
                     var $t = $($(this).data('target')),
                         $report_row = $t.parent();
                     $report_row.toggle('fast');
                     $t.collapse('reset');
                 });
+            {% endif %}
+            $(window).on('submissionUpdated', (event, data) => {
+                if(data.submissionId == {{ submission.id }}) {
+                    location.reload();
+                }
             });
-        </script>
-    {% endif %}
+        });
+    </script>
 {% endblock %}
 
 {% block main-content %}

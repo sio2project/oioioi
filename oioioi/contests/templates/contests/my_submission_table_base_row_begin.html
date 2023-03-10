@@ -6,7 +6,7 @@
 {% load i18n %}
 {% with display_type=record.submission.get_display_type %}
 
-<tr>
+<tr id="report{{ record.submission.id }}row{% if status %}-status{% endif %}">
     {% if can_admin %}
         <td id="submission{{ record.submission.id }}-icon">
             <i class="fa-solid fa-chevron-down"></i>
