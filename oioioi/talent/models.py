@@ -14,7 +14,7 @@ class TalentRegistrationSwitch(models.Model):
     status = models.BooleanField(default=True, verbose_name=_("status"))
 
 class TalentRegistration(models.Model):
-    user = models.ForeignKey(User, verbose_name=_("user"), on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_("user"), on_delete=models.CASCADE, unique=True)
     contest = models.ForeignKey(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
     
     class Meta(object):
