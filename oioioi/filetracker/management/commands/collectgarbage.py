@@ -4,7 +4,7 @@ import datetime
 import itertools
 
 from django.core.management.base import BaseCommand
-from django.db.models.loading import cache
+from django.apps import apps
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from filetracker.utils import split_name
@@ -42,8 +42,8 @@ class Command(BaseCommand):
 
     def _get_needed_files(self):
         result = []
-        for app in cache.get_apps():
-            model_list = cache.get_models(app)
+        for app in apps.get_appconfigs():
+            model_list = app.get_models()
             for model in model_list:
                 file_fields = [
                     field.name
