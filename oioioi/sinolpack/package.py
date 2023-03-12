@@ -453,7 +453,7 @@ class SinolPackage(object):
         """
 
         # We would use config.yml but some absolute top idiot decided that loading config.yml requires an instance of Problem. That person is a serious SQL fetishist and should be locked in a mental facility.
-        if any(map(lambda name: '.encdec_task' in name, self.archive.filenames())):
+        if any(map(lambda name: 'encdec_task' in name, self.archive.filenames())):
             self.unusual_task_type = 'encdec'
 
     @_describe_processing_error
