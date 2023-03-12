@@ -10,6 +10,8 @@ $submission-yellow: #ffd894 !default;
 $submission-yellow-gradient-to: #fff !default;
 $submission-grey: #e0eee0 !default;
 $submission-grey-gradient-to: #fff !default;
+$submission-pink: #f3a5f3 !default;
+$submission-pink-gradient-to: #fff !default;
 $submission-OK0: #eaffbb !default;
 $submission-OK0-gradient-to: #fff !default;
 $submission-OK25: #ddffbb !default;
@@ -86,5 +88,9 @@ $submission-margin-min-width: 20px !default;
 
   &--OK100 {
     @include submission($submission-OK100, $submission-OK100-gradient-to);
+  }
+
+  &--SKIP {
+    @include submission($submission-pink, $submission-pink-gradient-to);
   }
 }

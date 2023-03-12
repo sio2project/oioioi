@@ -800,21 +800,26 @@ class ProgrammingProblemController(ProblemController):
 
     def _out_generate_status(self, request, testreport):
         problem = testreport.test.problem_instance.problem
+
         try:
+            userout_status = testreport.userout_status
+        except:
+            userout_status = None
+
+        if userout_status:
             if (
                 can_admin_problem(request, problem)
                 or testreport.userout_status.visible_for_user
             ):
                 # making sure, that output really exists or is processing
                 if (
-                    bool(testreport.output_file)
+                    testreport.has_all_outputs
                     or testreport.userout_status.status == '?'
                 ):
                     return testreport.userout_status.status
 
-        except UserOutGenStatus.DoesNotExist:
-            if testreport.output_file:
-                return 'OK'
+        if testreport.has_all_outputs:
+            return 'OK'
 
         return None
 
@@ -1067,20 +1072,24 @@ class ProgrammingContestController(ContestController):
 
     def _out_generate_status(self, request, testreport):
         try:
+            userout_status = testreport.userout_status
+        except:
+            userout_status = None
+
+        if userout_status:
             if (
                 is_contest_basicadmin(request)
                 or testreport.userout_status.visible_for_user
             ):
                 # making sure, that output really exists or is processing
                 if (
-                    bool(testreport.output_file)
+                    testreport.has_all_outputs
                     or testreport.userout_status.status == '?'
                 ):
                     return testreport.userout_status.status
 
-        except UserOutGenStatus.DoesNotExist:
-            if testreport.output_file:
-                return 'OK'
+        if testreport.has_all_outputs:
+            return 'OK'
 
         return None
 

@@ -47,6 +47,12 @@ from oioioi.programs.models import (
     OutputChecker,
     Test,
 )
+from oioioi.encdec.models import (
+    EncdecChecker,
+    EncdecChannel,
+    EncdecTest,
+    LanguageOverrideForEncdecTest
+)
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.sinolpack.utils import add_extra_files
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
@@ -111,7 +117,6 @@ def _remove_from_zip(zipfname, *filenames):
 
 
 class SinolPackage(object):
-    controller_name = 'oioioi.sinolpack.controllers.SinolProblemController'
     package_backend_name = 'oioioi.sinolpack.package.SinolPackageBackend'
 
     def __init__(self, path, original_filename=None):
@@ -142,6 +147,7 @@ class SinolPackage(object):
         self.restrict_html = (
             settings.SINOLPACK_RESTRICT_HTML and not settings.USE_SINOLPACK_MAKEFILES
         )
+        self.unusual_task_type = None
 
     def identify(self):
         return self._find_main_dir() is not None
@@ -308,6 +314,7 @@ class SinolPackage(object):
         self.env = env
         self.package = package
 
+        self._detect_unusual_task_type()
         self._create_problem_or_reuse_if_exists(self.package.problem)
         return self._extract_and_process_package()
 
@@ -346,7 +353,7 @@ class SinolPackage(object):
         return Problem.create(
             legacy_name=self.short_name,
             short_name=self.short_name,
-            controller_name=self.controller_name,
+            controller_name=self._get_controller_name(),
             contest=self.package.contest,
             visibility=(
                 Problem.VISIBILITY_PUBLIC
@@ -355,6 +362,14 @@ class SinolPackage(object):
             ),
             author=author,
         )
+
+    def _get_controller_name(self):
+        if self.unusual_task_type:
+            return {
+                'encdec': 'oioioi.sinolpack.controllers.SinolEncdecProblemController'
+            }[self.unusual_task_type]
+        else:
+            return 'oioioi.sinolpack.controllers.SinolProblemController'
 
     def _extract_and_process_package(self):
         tmpdir = tempfile.mkdtemp()
@@ -385,7 +400,6 @@ class SinolPackage(object):
             except Exception:
                 # Reraising as a custom exception allows us to attach extra
                 # information about the raising operation to the exception
-
                 error = PackageProcessingError(
                     func.__name__, func.__doc__.split("\n\n")[0]
                 )
@@ -406,7 +420,12 @@ class SinolPackage(object):
             self._save_prog_dir()
         self._process_statements()
         self._generate_tests()
-        self._process_checkers()
+
+        if self.unusual_task_type == 'encdec':
+            self._process_encdec_checkers()
+        else:
+            self._process_checkers()
+
         self._process_model_solutions()
         self._process_attachments()
         self._save_original_package()
@@ -426,6 +445,16 @@ class SinolPackage(object):
             instance.config = ''
         instance.save()
         self.config = instance.parsed_config
+
+    @_describe_processing_error
+    def _detect_unusual_task_type(self):
+        """Checks if the package is of an unusual type. Currently only ``encdec``
+        type is supported.
+        """
+
+        # We would use config.yml but some absolute top idiot decided that loading config.yml requires an instance of Problem. That person is a serious SQL fetishist and should be locked in a mental facility.
+        if any(map(lambda name: '.encdec_task' in name, self.archive.filenames())):
+            self.unusual_task_type = 'encdec'
 
     @_describe_processing_error
     def _detect_full_name(self):
@@ -679,15 +708,23 @@ class SinolPackage(object):
         self.memory_limits = _stringify_keys(self.config.get('memory_limits', {}))
         self.statement_memory_limit = self._detect_statement_memory_limit()
 
-        created_tests, outs_to_make, scored_groups = self._create_instances_for_tests()
+        if self.unusual_task_type == 'encdec':
+            created_tests, outs_to_make, scored_groups = self._create_instances_for_encdec_tests()
+        else:
+            created_tests, outs_to_make, scored_groups = self._create_instances_for_tests()
+
         sum_of_time_limits = 0
         for test in created_tests:
-            sum_of_time_limits += test.time_limit
+            sum_of_time_limits += test.total_time_limit
         self._verify_time_limits(sum_of_time_limits)
-
         self._verify_inputs(created_tests)
-        self._generate_test_outputs(created_tests, outs_to_make)
-        self._validate_tests(created_tests)
+
+        if self.unusual_task_type == 'encdec':
+            self._validate_encdec_tests(created_tests)
+        else:
+            self._generate_test_outputs(created_tests, outs_to_make)
+            self._validate_tests(created_tests)
+
         self._delete_non_existing_tests(created_tests)
 
         self._assign_scores(scored_groups, total_score_if_auto)
@@ -751,6 +788,47 @@ class SinolPackage(object):
                 created_tests.append(instance)
 
         return created_tests, outs_to_make, scored_groups
+
+    def _create_instances_for_encdec_tests(self):
+        """Iterate through available tests inputs.
+        :return: Triple (created tests instances,
+                         outs that have to be generated,
+                         score groups (determined by test names))
+        """
+        indir = os.path.join(self.rootdir, 'in')
+        outdir = os.path.join(self.rootdir, 'out')
+
+        re_string = r'^(%s(([0-9]+)([a-z]?[a-z0-9]*))).(?:in|hint)$' % (
+            re.escape(self.short_name)
+        )
+        names_re = re.compile(re_string)
+
+        collected_ins = self._make_ins(re_string)
+        all_items = list(set(os.listdir(indir)) | set(collected_ins.keys()))
+
+        created_tests = []
+        outs_to_make = []
+        scored_groups = set()
+
+        if self.use_make:
+            self._find_and_compile('', command='outgen')
+
+        for order, test in enumerate(sorted(all_items, key=naturalsort_key)):
+            instance = self._process_encdec_test(
+                test,
+                order,
+                names_re,
+                indir,
+                outdir,
+                collected_ins,
+                scored_groups,
+                outs_to_make,
+            )
+            if instance:
+                created_tests.append(instance)
+
+        return created_tests, outs_to_make, scored_groups
+
 
     @_describe_processing_error
     def _verify_time_limits(self, time_limit_sum):
@@ -829,6 +907,21 @@ class SinolPackage(object):
                 instance.full_clean()
             except ValidationError as e:
                 raise ProblemPackageError(e.messages[0])
+
+    @_describe_processing_error
+    def _validate_encdec_tests(self, created_tests):
+        """Checks if all tests have both output files and that
+        all tests have been successfully created.
+
+        :raises: :class:`~oioioi.problem.package.ProblemPackageError`
+        """
+        for instance in created_tests:
+            try:
+                instance.full_clean()
+            except ValidationError as e:
+                #raise ProblemPackageError(e.messages[0])
+                raise ProblemPackageError(e)
+
 
     def _delete_non_existing_tests(self, created_tests):
         for test in Test.objects.filter(
@@ -924,6 +1017,89 @@ class SinolPackage(object):
         return instance
 
     @_describe_processing_error
+    def _process_encdec_test(
+        self,
+        test,
+        order,
+        names_re,
+        indir,
+        outdir,
+        collected_ins,
+        scored_groups,
+        outs_to_make,
+    ):
+        """Responsible for saving test in and out files,
+        setting test limits, assigning test kinds and groups.
+
+        :param test: Test name.
+        :param order: Test number.
+        :param names_re: Compiled regex to match test details from name.
+               Should extract basename, test name,
+               group number and test type.
+        :param indir: Directory with tests inputs.
+        :param outdir: Directory with tests outputs.
+        :param collected_ins: List of inputs that were generated,
+               not taken from archive as a file.
+        :param scored_groups: Accumulator for score groups.
+        :param outs_to_make: Accumulator for name of output files to
+               be generated by model solution.
+        :return: Test instance or None if name couldn't be matched.
+        """
+        match = names_re.match(test)
+        if not match:
+            if test.endswith('.in'):
+                raise ProblemPackageError(_("Unrecognized test: %s") % (test))
+            return None
+
+        # Examples for odl0ocen.in1:
+        basename = match.group(1)  # odl0ocen
+        name = match.group(2)  # 0ocen
+        group = match.group(3)  # 0
+        suffix = match.group(4)  # ocen
+
+        instance, created = EncdecTest.objects.get_or_create(
+            problem_instance=self.main_problem_instance, name = name
+        )
+
+        inname_base = basename + '.in'
+        inname = os.path.join(indir, inname_base)
+
+        hintname_base = basename + '.hint'
+        hintname = os.path.join(indir, hintname_base)
+
+        if not os.path.isfile(hintname):
+            raise ProblemPackageError(_("No hint file for test: %s") % (test,))
+
+        if test in collected_ins:
+            self._save_to_field(instance.input_file, collected_ins[test])
+        else:
+            instance.input_file.save(inname_base, File(open(inname, 'rb')))
+            instance.hint_file.save(hintname_base, File(open(hintname, 'rb')))
+
+        if group == '0' or 'ocen' in suffix:
+            # Example tests
+            instance.kind = 'EXAMPLE'
+            instance.group = name
+        else:
+            instance.kind = 'NORMAL'
+            instance.group = group
+            scored_groups.add(group)
+
+        time_limit = self._get_time_limit(created, name, group)
+        if time_limit:
+            # TODO allow specifying separately
+            instance.encoder_time_limit = instance.decoder_time_limit = time_limit
+
+        memory_limit = self._get_memory_limit(created, name, group)
+        if memory_limit:
+            # TODO allow specifying separately
+            instance.encoder_memory_limit = instance.decoder_memory_limit = memory_limit
+
+        instance.order = order
+        instance.save()
+        return instance
+
+    @_describe_processing_error
     def _get_memory_limit(self, created, name, group):
         """If we find the memory limit specified anywhere in the package:
         either in the ``config.yml`` or in the problem statement
@@ -1001,6 +1177,7 @@ class SinolPackage(object):
         jobs = run_sioworkers_jobs(jobs)
         get_client().delete_file(env['compiled_file'])
         return jobs
+
 
     @_describe_processing_error
     def _check_scores_from_config(self, scored_groups, config_scores):
@@ -1085,9 +1262,15 @@ class SinolPackage(object):
         Test.objects.filter(problem_instance=self.main_problem_instance).update(
             max_score=0
         )
+        EncdecTest.objects.filter(problem_instance=self.main_problem_instance).update(
+            max_score=0
+        )
 
         for group, score in scores.items():
             Test.objects.filter(
+                problem_instance=self.main_problem_instance, group=group
+            ).update(max_score=score)
+            EncdecTest.objects.filter(
                 problem_instance=self.main_problem_instance, group=group
             ).update(max_score=score)
 
@@ -1116,6 +1299,16 @@ class SinolPackage(object):
             LanguageOverrideForTest.objects.create(
                 time_limit=test.time_limit,
                 memory_limit=test.memory_limit,
+                test=test,
+                language=lang,
+            )
+        encdec_tests = EncdecTest.objects.filter(problem_instance=self.main_problem_instance)
+        for test in encdec_tests:
+            LanguageOverrideForEncdecTest.objects.create(
+                encoder_time_limit=test.encoder_time_limit,
+                decoder_time_limit=test.decoder_time_limit,
+                encoder_memory_limit=test.encoder_memory_limit,
+                decoder_decoder_memory_limit=test.memory_limit,
                 test=test,
                 language=lang,
             )
@@ -1178,6 +1371,43 @@ class SinolPackage(object):
             instance.exe_file = self._find_checker_exec()
             instance.save()
 
+    @_describe_processing_error
+    def _process_encdec_checkers(self):
+        """Compiles an encdec output checkers and saves their binaries. Used convention:
+        checker for encoder output is called ``channel`` and checker for decoder
+        output is called as usual (``checker``). """
+        channel_name = '%schn.e' % (self.short_name)
+        out_name = _make_filename_in_job_dir(self.env, channel_name)
+        instance = EncdecChannel.objects.get_or_create(problem=self.problem)[0]
+        env = self._find_and_compile(
+            'chn',
+            command=channel_name,
+            cwd=os.path.join(self.rootdir, 'prog'),
+            log_on_failure=False,
+            out_name=out_name,
+        )
+        if not self.use_make and env:
+            self._save_to_field(instance.exe_file, env['compiled_file'])
+        else:
+            instance.exe_file = self._find_channel_exec()
+            instance.save()
+
+        checker_name = '%schk.e' % (self.short_name)
+        out_name = _make_filename_in_job_dir(self.env, checker_name)
+        instance = EncdecChecker.objects.get_or_create(problem=self.problem)[0]
+        env = self._find_and_compile(
+            'chk',
+            command=checker_name,
+            cwd=os.path.join(self.rootdir, 'prog'),
+            log_on_failure=False,
+            out_name=out_name,
+        )
+        if not self.use_make and env:
+            self._save_to_field(instance.exe_file, env['compiled_file'])
+        else:
+            instance.exe_file = self._find_checker_exec()
+            instance.save()
+
     def _find_checker_exec(self):
         checker_prefix = os.path.join(self.rootdir, 'prog', self.short_name + 'chk')
         exe_candidates = [checker_prefix + '.e', checker_prefix + '.sh']
@@ -1186,6 +1416,13 @@ class SinolPackage(object):
                 return File(open(exe, 'rb'))
 
         return None
+
+    def _find_channel_exec(self):
+        channel_prefix = os.path.join(self.rootdir, 'prog', self.short_name + 'chn')
+        exe_candidates = [channel_prefix + '.e', channel_prefix + '.sh']
+        for exe in exe_candidates:
+            if os.path.isfile(exe):
+                return File(open(exe, 'rb'))
 
     def _process_model_solutions(self):
         """Saves model solutions to the database."""
@@ -1360,6 +1597,21 @@ class SinolPackageCreator(object):
             self._pack_django_file(
                 test.output_file,
                 os.path.join(self.short_name, 'out', basename + '.out'),
+            )
+        for test in EncdecTest.objects.filter(
+            problem_instance=self.problem.main_problem_instance
+        ):
+            basename = '%s%s' % (self.short_name, test.name)
+            self._pack_django_file(
+                test.input_file, os.path.join(self.short_name, 'in', basename + '.in')
+            )
+            self._pack_django_file(
+                test.encoder_output_file,
+                os.path.join(self.short_name, 'out', basename + '.out_enc'),
+            )
+            self._pack_django_file(
+                test.decoder_output_file,
+                os.path.join(self.short_name, 'out', basename + '.out_dec'),
             )
 
     def _pack_model_solutions(self):

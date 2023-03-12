@@ -105,7 +105,7 @@ def discrete_test_scorer(test, result):
 
 def threshold_linear_test_scorer(test, result):
     """Full score if took less than half of limit and then decreasing to 1"""
-    limit = test.get('exec_time_limit', 0)
+    limit = result.get('exec_time_limit', 0)
     used = result.get('time_used', 0)
     status = result['result_code']
     percentage = result.get('result_percentage', 100)

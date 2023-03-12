@@ -1,0 +1,98 @@
+{% load i18n %}
+{% load runtimeformat %}
+
+
+<div class="table-responsive-md">
+    <table class="table table-sm table-bordered table-report submission">
+        <thead>
+            <tr>
+                <th class="submission__margin submission--{{ test.status }}"></th>
+                <th>{% trans "Test" %}</th>
+                <th>{% trans "Result" %}</th>
+                <th>{% trans "Time" %}</th>
+                {% if show_scores %}
+                    <th>{% trans "Score" %}</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+                {% for record in group.tests %}
+                {% with test=record.test %}
+                    <tr class="test-row-{{ group.report.id }}">
+                        <td class="submission__margin submission--{{ record.display_type }}" rowspan="2"></td>
+                        <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}" rowspan="2">
+                            {{ test.test_name }}
+                            <span class="test-actions float-right">
+                                {% if test.test %}
+                                    <small>
+                                        {% if is_admin %}
+                                            <a title='{% trans "Download encoder output for this test" %}'
+                                               href="{% url 'download_output_file' test_id=test.test.id %}">
+                                                out
+                                            </a>
+                                            <a title='{% trans "Download encoder input for this test" %}'
+                                               href="{% url 'download_input_file' test_id=test.test.id %}">
+                                                in
+                                            </a>
+                                            <a title='{% trans "Download decoder output for this test" %}'
+                                               href="{% url 'download_output_file' test_id=test.test.id %}">
+                                                out
+                                            </a>
+                                            <a title='{% trans "Download decoder input for this test" %}'
+                                               href="{% url 'download_input_file' test_id=test.test.id %}">
+                                                in
+                                            </a>
+					{% endif %}
+                                        {% if allow_download_out and test.generate_status == 'OK' %}
+                                            <a title='{% trans "Download user output for this test" %}'
+                                               href="{% url 'download_user_output' testreport_id=test.id %}">
+                                                usr-out
+                                            </a>
+					{% endif %}
+                                        {% if allow_download_out and test.generate_status == 'OK' %}
+                                            <a title='{% trans "Download user output for this test" %}'
+                                               href="{% url 'download_user_output' testreport_id=test.id %}">
+                                                usr-out
+                                            </a>
+					{% endif %}
+                                    </small>
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td class="submission--{{ record.encoder_display_type }}">
+			    {{ test.get_encoder_status_display }}
+                        </td>
+                        <td>
+                            {% if is_admin or test.status != 'TLE' %}
+                                {{ test.encoder_time_used|runtimeformat }}
+                            {% else %}-.--s
+                            {% endif %}/ {{ test.test_encoder_time_limit|runtimeformat }}
+                        </td>
+                        {% if show_scores and forloop.first %}
+			    {% with test_count=group.tests|length %}
+			    <td class="group-score text-right" rowspan="{% widthratio 2 1 test_count %}">
+                                {% if group.report.score %}
+                                    {{ group.report.score }} / {{ group.report.max_score }}
+                                {% endif %}
+                            </td>
+			    {% endwith %}
+                        {% endif %}
+                    </tr>
+                    <tr class="test-row-{{ group.report.id }}">
+                        <td class="submission--{{ record.decoder_display_type }}">	
+			    {{ test.get_decoder_status_display }}
+                        </td>
+                        <td>
+                            {% if is_admin or test.status != 'TLE' %}
+                                {{ test.decoder_time_used|runtimeformat }}
+                            {% else %}-.--s
+                            {% endif %}/ {{ test.test_decoder_time_limit|runtimeformat }}
+                        </td>
+		    </tr>
+                {% endwith %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
