@@ -1,21 +1,21 @@
 [
     {
-      "pk": 2005,
-      "model": "auth.user",
-      "fields": {
-        "username": "teacher2005",
-        "first_name": "Test",
-        "last_name": "Teacher 2005",
-        "is_active": true,
-        "is_superuser": false,
-        "is_staff": false,
-        "last_login": "2012-07-31T20:27:58.768Z",
-        "groups": [],
-        "user_permissions": [],
-        "password": "",
-        "email": "test_admin2@example.com",
-        "date_joined": "2012-07-31T20:27:58.768Z"
-      }
+        "pk": 2005,
+        "model": "auth.user",
+        "fields": {
+            "username": "teacher2005",
+            "first_name": "Test",
+            "last_name": "Teacher 2005",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "test_admin2@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
     },
     {
         "pk": 2005,
@@ -23,7 +23,8 @@
         "fields": {
             "user": 2005,
             "is_active": true,
-            "school": "School"
+            "school": "School",
+            "join_date": "1983-01-01"
         }
     },
     {
@@ -31,8 +32,13 @@
         "model": "usergroups.UserGroup",
         "fields": {
             "name": "group 1",
-            "owners": [1000],
-            "members": [1001, 1002],
+            "owners": [
+                1000
+            ],
+            "members": [
+                1001,
+                1002
+            ],
             "addition_config": 1000
         }
     },
@@ -41,7 +47,9 @@
         "model": "usergroups.UserGroup",
         "fields": {
             "name": "empty default group",
-            "owners": [1000],
+            "owners": [
+                1000
+            ],
             "members": []
         }
     },
@@ -50,8 +58,13 @@
         "model": "usergroups.UserGroup",
         "fields": {
             "name": "teacher group",
-            "owners": [1001],
-            "members": [1001, 1003],
+            "owners": [
+                1001
+            ],
+            "members": [
+                1001,
+                1003
+            ],
             "addition_config": 1002,
             "sharing_config": 1003
         }
@@ -61,8 +74,15 @@
         "model": "usergroups.UserGroup",
         "fields": {
             "name": "teacher and admin group",
-            "owners": [1001, 1000, 1002],
-            "members": [1003, 1002],
+            "owners": [
+                1001,
+                1000,
+                1002
+            ],
+            "members": [
+                1003,
+                1002
+            ],
             "addition_config": 1002
         }
     },
@@ -71,8 +91,15 @@
         "model": "usergroups.UserGroup",
         "fields": {
             "name": "addition false group",
-            "owners": [1001, 1002],
-            "members": [1003, 1002, 1001],
+            "owners": [
+                1001,
+                1002
+            ],
+            "members": [
+                1003,
+                1002,
+                1001
+            ],
             "addition_config": 1001,
             "sharing_config": 1004
         }
