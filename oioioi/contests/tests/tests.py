@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timedelta  # pylint: disable=E0611
 from functools import partial
 
 import pytest
@@ -19,6 +19,7 @@ from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
+from django.utils import timezone
 from django.utils.timezone import utc
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
 from oioioi.contests.current_contest import ContestMode
@@ -32,6 +33,7 @@ from oioioi.contests.models import (
     ProblemInstance,
     ProblemStatementConfig,
     RankingVisibilityConfig,
+    RegistrationAvailabilityConfig,
     Round,
     RoundTimeExtension,
     Submission,
@@ -3224,7 +3226,7 @@ class TestManyRoundsNoEnd(TestCase):
 
 # checks ranking visibility without RankingVisibilityConfig,
 # with it set to default and with it set to 'YES'
-def check_ranking_visibility(self, contest, url, rvc):
+def check_ranking_visibility(self, url, rvc):
 
     # test without RankingVisibilityConfig
     response = self.client.get(url)
@@ -3261,7 +3263,7 @@ class TestRankingVisibility(TestCase):
 
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        check_ranking_visibility(self, contest, url, rvc)
+        check_ranking_visibility(self, url, rvc)
 
         rvc.visible = 'NO'
         rvc.save()
@@ -3279,7 +3281,7 @@ class TestRankingVisibility(TestCase):
 
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        check_ranking_visibility(self, contest, url, rvc)
+        check_ranking_visibility(self, url, rvc)
 
         rvc.visible = 'NO'
         rvc.save()
@@ -3306,3 +3308,56 @@ class TestContestChangeForm(TestCase):
         self.assertContains(response, 'Advanced </button>')
         self.assertContains(response, '<h5 class="mb-0">Rounds</h5>')
         self.assertNotContains(response, 'None </button>')
+
+
+def set_registration_availability(rvc, enabled, available_from=None, available_to=None):
+    rvc.enabled = enabled
+    rvc.registration_available_from = available_from
+    rvc.registration_available_to = available_to
+    rvc.save()
+
+
+def check_registration(self, expected_status_code, availability, available_from=None, available_to=None):
+    contest = Contest.objects.get()
+    contest.controller_name = 'oioioi.oi.controllers.OIContestController'
+    contest.save()
+
+    url = reverse('participants_register', kwargs={'contest_id': contest.id})
+    self.assertTrue(self.client.login(username='test_user'))
+
+    rvc = RegistrationAvailabilityConfig(contest=contest)
+
+    set_registration_availability(rvc, availability, available_from, available_to)
+    response = self.client.get(url)
+    self.assertEqual(expected_status_code, response.status_code)
+
+
+class TestOpenRegistration(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest'
+    ]
+
+    def test_open_registration(self):
+        check_registration(self, 200, 'YES')
+
+    def test_closed_registration(self):
+        check_registration(self, 403, 'NO')
+
+    def test_configured_registration_opened(self):
+        now = timezone.now()
+        available_from = now - timedelta(days=1)
+        available_to = now + timedelta(days=1)
+        check_registration(self, 200, 'CONFIG', available_from, available_to)
+
+    def test_configured_registration_closed_before(self):
+        now = timezone.now()
+        available_from = now + timedelta(hours=1)
+        available_to = now + timedelta(days=1)
+        check_registration(self, 403, 'CONFIG', available_from, available_to)
+
+    def test_configured_registration_closed_after(self):
+        now = timezone.now()
+        available_from = now - timedelta(hours=1)
+        available_to = now - timedelta(minutes=5)
+        check_registration(self, 403, 'CONFIG', available_from, available_to)

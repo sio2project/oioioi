@@ -47,7 +47,7 @@ class MPRegistrationController(ParticipantsController):
         return Q_always_true()
 
     def can_register(self, request):
-        return True
+        return super().is_registration_open(request)
 
     def registration_view(self, request):
         participant = self._get_participant_for_form(request)

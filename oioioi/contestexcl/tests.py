@@ -180,6 +180,7 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
             ('teamsconfig', 0, 0, 0, 1),
             ('problemstatementconfig', 0, 0, 0, 1),
             ('rankingvisibilityconfig', 0, 0, 0, 1),
+            ('registrationavailabilityconfig', 0, 0, 0, 1),
             ('balloonsdeliveryaccessdata', 0, 0, 0, 1),
             ('statistics_config', 0, 0, 0, 1),
             ('exclusivenessconfig_set', len(excl_start_date_forms), 0, 0, 1000),

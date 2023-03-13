@@ -336,6 +336,68 @@ class RankingVisibilityConfig(models.Model):
         verbose_name_plural = _("ranking visibility configs")
 
 
+registration_availability_options = EnumRegistry()
+registration_availability_options.register('YES', _("Open"))
+registration_availability_options.register('NO', _("Closed"))
+registration_availability_options.register('CONFIG', _("Configuration"))
+
+
+@date_registry.register(
+    'registration_available_from', name_generator=(lambda obj: _("Make registration available"))
+)
+@date_registry.register(
+    'registration_available_to', name_generator=(lambda obj: _("Make registration unavailable"))
+)
+class RegistrationAvailabilityConfig(models.Model):
+    contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
+    enabled = EnumField(
+        registration_availability_options,
+        default='YES',
+        verbose_name=_("Registration vailability"),
+        help_text=_(
+            "If set to Open, the registration will be opened always."
+            "If set to Closed, the registration will be closed always."
+            "If set to Configuration, the registration will be opened "
+            "according to the following settings."
+        ),
+    )
+    registration_available_from = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name=_("available from"),
+        help_text=_(
+            "If set, the registration will be opened automatically at the specified date."
+        ),
+    )
+    registration_available_to = models.DateTimeField(
+        blank=True,
+        null=True,
+        verbose_name=_("available to"),
+        help_text=_(
+            "If set, the registration will be closed automatically at the specified date."
+        ),
+    )
+
+    class Meta(object):
+        verbose_name = _("Registration availability config")
+        verbose_name_plural = _("open registration configs")
+
+    def is_registration_open(self, timestamp):
+        if self.enabled == 'YES':
+            return True
+        if self.enabled == 'CONFIG':
+            return self.registration_available_from <= timestamp <= self.registration_available_to
+        return False
+
+    def clean(self):
+        if self.enabled == 'CONFIG':
+            if self.registration_available_from is None or self.registration_available_to is None:
+                raise ValidationError(_("If registration availability is set to Configuration, then "
+                                        "'Available from' and 'Available to' must be set."))
+            if self.available_from > self.registration_available_to:
+                raise ValidationError(_("'Available from' must be before 'available to'."))
+
+
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(
         Contest,
