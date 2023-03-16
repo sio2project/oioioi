@@ -183,8 +183,6 @@ def points_to_source_length_problem(request, problem):
 
         data.append(record)
 
-    data = sorted(data)
-
     # Assumes that max_score is exactly the same for each submission
     max_score = None
     if submissions:
