@@ -1,5 +1,5 @@
 upstream oioioi {
-    server unix://__DIR__/uwsgi.sock;
+    server unix://__DIR__/sockets/uwsgi.sock;
 }
 
 #limit_req_zone $binary_remote_addr zone=notif:10m rate=50r/s;
