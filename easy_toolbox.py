@@ -20,8 +20,7 @@ import os
 
 
 BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
-                      " -f docker-compose-dev.yml" + \
-                      " -f extra/docker/docker-compose-dev-noserver.yml"
+                      " -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),

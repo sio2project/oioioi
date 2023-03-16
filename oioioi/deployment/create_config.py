@@ -53,8 +53,6 @@ def generate_from_template(dir, filename, context, mode=None):
 
 
 def generate_all(dir, verbose):
-    generate_from_template(dir, 'basic_settings.py', {})
-
     generate_from_template(
         dir,
         'settings.py',

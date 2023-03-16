@@ -68,8 +68,7 @@ RUN oioioi-create-config /sio2/deployment
 WORKDIR /sio2/deployment
 
 RUN sed -i -e \
-       "s/SERVER = 'django'/SERVER = 'uwsgi-http'/g;\
-        s/DEBUG = True/DEBUG = False/g;\
+       "s/SERVER = 'django'/SERVER = None/g;\
         s/django.db.backends./django.db.backends.postgresql/g;\
         s/'NAME': ''/'NAME': 'oioioi'/g;\
         s/'USER': ''/'USER': 'oioioi'/g;\
@@ -88,7 +87,7 @@ RUN sed -i -e \
         s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = True/g;\
         s/#DEFAULT_SAFE_EXECUTION_MODE/#DEFAULT_SAFE_EXECUTION_MODE/g;\
         s/#USE_UNSAFE_CHECKER = True/#USE_UNSAFE_CHECKER = False/g;\
-        \$afrom basic_settings import *\nALLOWED_HOSTS = ALLOWED_HOSTS + \\['oioioi', '127.0.0.1', 'localhost', 'web'\\]" \
+        \$aALLOWED_HOSTS = ALLOWED_HOSTS + \\['oioioi', '127.0.0.1', 'localhost', 'web'\\]" \
         settings.py && \
     cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
     mkdir -p /sio2/deployment/logs/{supervisor,runserver}
