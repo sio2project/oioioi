@@ -29,7 +29,6 @@ class ScoresRevealConfigInline(admin.TabularInline):
     model = ScoreRevealConfig
     can_delete = True
     extra = 0
-    form = AlwaysChangedModelForm
 
 
 class ScoresRevealProblemInstanceAdminMixin(object):
