@@ -12,7 +12,7 @@ from oioioi.talent.models import TalentRegistration
 class TalentRegistrationAdmin(admin.ModelAdmin):
     list_display = ['user']
     ordering = ['user__last_name']
-    autocomplete_fields = ['user', 'contest']
+    #autocomplete_fields = ['user', 'contest']
 
     User.__str__ = lambda self: "{} {}".format(self.first_name, self.last_name)
     
