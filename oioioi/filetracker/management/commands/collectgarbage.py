@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
     def _get_needed_files(self):
         result = []
-        for app in apps.get_appconfigs():
+        for app in apps.get_app_configs():
             model_list = app.get_models()
             for model in model_list:
                 file_fields = [
@@ -64,11 +64,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         needed_files = self._get_needed_files()
-        all_files = get_client().list_local_files()
+        all_files = get_client().list_remote_files()
+        all_files = [f for f in all_files if not f[0].startswith("sandboxes")]
         max_date_to_delete = datetime.datetime.now() - datetime.timedelta(
             days=options['days']
         )
-
         diff = set([f[0] for f in all_files]) - set(needed_files)
         to_delete = [
             f[0]
