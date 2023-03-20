@@ -618,12 +618,14 @@ class ProgrammingProblemController(ProblemController):
 
         code_widget = None
         if use_editor:
-            ensure_preferences_exist_for_user(request.user)
-            default_state = request.user.userpreferences.enable_editor
-            reciept_types = ((False, "no editor"), (True, "editor"), )
+            default_state = False
+            if not request.user.is_anonymous:
+                ensure_preferences_exist_for_user(request.user)
+                default_state = request.user.userpreferences.enable_editor
+            receipt_types = ((False, "no editor"), (True, "editor"), )
             form.fields["toggle_editor"] = forms.ChoiceField(
                 required=False,
-                choices=reciept_types,
+                choices=receipt_types,
                 widget=forms.CheckboxInput(),
                 initial=True if default_state else False,
             )

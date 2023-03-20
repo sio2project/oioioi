@@ -267,7 +267,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         'test_users',
         'test_contest',
         'test_full_package',
-        'test_problem_instance',
+        'test_problem_instance_with_no_contest',
         'test_submission',
         'test_problem_site',
         'test_algorithm_tags',
@@ -335,6 +335,15 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         response = self.client.get(url)
         self.assertContains(response, '<tr', count=3)
+
+    def test_submit_tab(self):
+        url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=submit'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.client.login(username='test_user'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
     @override_settings(LANGUAGE_CODE='en')
     def test_settings_tab(self):
