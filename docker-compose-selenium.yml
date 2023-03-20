@@ -1,45 +1,13 @@
-version: '2.4'
-# https://github.com/docker/cli/issues/1293
+version: '3.8'
 services:
   db:
-    image: library/postgres:12.2
-    environment:
-      POSTGRES_USER: "oioioi"
-      POSTGRES_PASSWORD: "password"
-      POSTGRES_DB: "oioioi"
-    stop_grace_period: 1m
+    volumes: []
   web:
-    image: sio2project/oioioi-selenium
-    command: ["/sio2/oioioi/selenium_init.sh"]
-    build:
-      context: .
-      dockerfile: Dockerfile
-      extra_hosts:
-        - "web:127.0.0.1"
     ports:
       - "8001:8000"
     environment:
       DJANGO_SETTINGS_MODULE: "selenium_settings"
-    stop_grace_period: 3m
-    depends_on:
-      - db
-      - broker
-  worker:
-    image: sio2project/oioioi-selenium
-    command: ["/sio2/oioioi/worker_init.sh"]
-    cap_add:
-      - ALL
-    environment:
-      DJANGO_SETTINGS_MODULE: "selenium_settings"
-    stop_grace_period: 1m
-    depends_on:
-      - db
-  broker:
-    image: library/rabbitmq:3.8
-    environment:
-      RABBITMQ_DEFAULT_USER: oioioi
-      RABBITMQ_DEFAULT_PASS: oioioi
-    stop_grace_period: 1m
+    volumes: []
   selenium-hub:
     image: selenium/hub:3.141.59-20200409
     ports:

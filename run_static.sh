@@ -6,11 +6,11 @@ cmd="$1"
 export OIOIOI_UID=$(id -u)
 
 # the image has to be rebuilt for file changes to be visible
-docker_run_built="docker run --rm --entrypoint=/entrypoint_checks.sh -t sio2project/oioioi-dev "
+docker_run_built="docker run --rm -t sio2project/oioioi-dev /sio2/oioioi/scripts/static-checks.sh"
 
 # can be used without rebuilding the image
 docker_compose_alias="docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml "
-docker_compose_exec="${docker_compose_alias} exec web /sio2/oioioi/entrypoint_checks.sh "
+docker_compose_exec="${docker_compose_alias} run web /sio2/oioioi/scripts/static-checks.sh "
 
 # choose the way of running static on docker
 docker_run="$docker_compose_exec"

@@ -12,8 +12,8 @@ USELEFUL TIPS AND TRICKS
 1. Do not run tests straight by invoking `test_selenium.sh` script.
    Instead build docker images without the -d flag in another terminal
    (just copy and paste the command from the script and remove -d)
-   [`docker-compose -f docker-compose-selenium.yml up`]. Why?
-   You can easily navigate through the logs there real-time
+   [`docker-compose -f docker-compose-dev.yml -f docker-compose-selenium.yml up`].
+   Why? You can easily navigate through the logs there real-time
    (instance is visible at 8001 port).
 2. Run the docker images and test from a different terminal
    (using pytest). There is one problem with this, though.

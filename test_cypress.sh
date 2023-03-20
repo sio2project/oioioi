@@ -4,15 +4,15 @@
 set -e
 
 # Run this script with -g to run CyPress with GUI
-#   or without to run tests in terminal mode. 
+#   or without to run tests in terminal mode.
 # cy:run    runs tests in terminal mode
 # cy:open   opens interactive gui
 
-echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-echo -e "     Remember to flush the database      "
-echo -e "    and create superuser admin, admin.   "
-echo -e "Some tests may relay on an empty database"
-echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+echo -e "      Remember to flush the database      "
+echo -e "    and create superuser admin, admin.    "
+echo -e " Some tests may rely on an empty database "
+echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 gui='run'
 

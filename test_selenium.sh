@@ -1,7 +1,7 @@
 #!/bin/bash
 
 docker_compose_fun() {
-  docker-compose -p oioioi-selenium -f docker-compose-selenium.yml "$@"
+  OIOIOI_UID=$(id -u) docker-compose -p oioioi-selenium -f docker-compose-dev.yml -f docker-compose-selenium.yml "$@"
 }
 
 cd "`dirname "$0"`"
