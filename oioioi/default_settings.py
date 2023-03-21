@@ -147,7 +147,7 @@ CACHED_TEMPLATE_LOADERS = (
 # Set to True to show the link to the problemset with contests on navbar.
 PROBLEMSET_LINK_VISIBLE = True
 
-# Comment out to show tags on the list of problems
+# Set to true to show tags on the list of problems
 PROBLEM_TAGS_VISIBLE = False
 
 # Enables problem statistics at the cost of some per-submission performance hit.
@@ -621,6 +621,12 @@ LOGGING = {
     }
 }
 
+# Limits the duration of user contests.
+# Comment out if you don't want to limit the user contests duration.
+# import pytz
+# from datetime import datetime
+# USER_CONTEST_TIMEOUT = datetime(2020, 2, 7, 23, 0, 0, tzinfo=pytz.utc)
+
 # Celery configuration
 
 CELERY_QUEUES = {}
@@ -676,6 +682,10 @@ MAIL_ADMINS_ON_GRADING_ERROR = True
 # Message shortcut length in notification shown when an admin is editing
 # a reply in a thread in which a new message was posted in the meantime.
 MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH = 50
+
+SHARING_SERVERS = (
+   # ('site_url', 'sharing_url', 'client_id', 'client_secret'),
+)
 
 # Zeus configuration
 ZEUS_INSTANCES = {
