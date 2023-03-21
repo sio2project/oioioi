@@ -12,6 +12,11 @@ CONFIG_VERSION = __CONFIG_VERSION__
 # SET DEBUG = False FOR PRODUCTION DEPLOYMENT.
 DEBUG = True
 
+# Site name displayed in the title and used by sioworkersd
+# to distinguish OIOIOI instances.
+# SITE_NAME = 'OIOIOI'
+# SITE_ID = 1
+
 if DEBUG:
     TEMPLATES[0]['OPTIONS']['loaders'] = UNCACHED_TEMPLATE_LOADERS
 else:
@@ -58,6 +63,15 @@ DATABASES = {
 # system time zone.
 TIME_ZONE = '__TIMEZONE__'
 
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+# LANGUAGE_CODE = 'en'
+# LANGUAGE_COOKIE_NAME = 'lang'
+
+# URL prefix for static files.
+# Example: "http://media.lawrence.com/static/"
+# STATIC_URL = '/static/'
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = '__DIR__/media'
@@ -83,17 +97,39 @@ SECRET_KEY = '__SECRET__'
 # teacher accounts).
 # MANAGERS = ADMINS
 
+# SMTP server parameters for sending emails.
+# EMAIL_USE_TLS = False
+# EMAIL_HOST = 'mail'
+# EMAIL_PORT = 25
+# EMAIL_HOST_USER = ''
+# EMAIL_HOST_PASSWORD = ''
+# EMAIL_SUBJECT_PREFIX = '[OIOIOI] '
+
+# Sender email address for messages sent by OIOIOI to users.
+# DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+
+# Sender email address for error messages sent to admins.
+# SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 # Set to true to send user activation emails. Needs an SMTP server to be
 # configured above.
-SEND_USER_ACTIVATION_EMAIL = True
+# SEND_USER_ACTIVATION_EMAIL = True
 
-# Comment out to show tags on the list of problems
-# PROBLEM_TAGS_VISIBLE = True
+# Set to True to show the link to the problemset with contests on navbar.
+# PROBLEMSET_LINK_VISIBLE = True
+
+# Set to true to show tags on the list of problems
+# PROBLEM_TAGS_VISIBLE = False
 
 # Enables problem statistics at the cost of some per-submission performance hit.
 # Set to True if you want to see statistics in the Problemset and problem sites.
 # After enabling you should use ./manage.py recalculate_statistics
-# PROBLEM_STATISTICS_AVAILABLE = True
+# PROBLEM_STATISTICS_AVAILABLE = False
+
+# Set to True to allow every logged in user to add problems directly to Problemset
+# EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
+
+# DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE = True
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
    'oioioi.base.processors.gravatar',
@@ -174,12 +210,23 @@ INSTALLED_APPS = (
 # variable, then corresponding setting will be set automatically.
 # CAPTCHA_FLITE_PATH = ''
 # CAPTCHA_SOX_PATH = ''
+# CAPTCHA_BACKGROUND_COLOR = '#daedf4'
+# CAPTCHA_IMAGE_SIZE = (250, 100)
+# CAPTCHA_FONT_SIZE = 64
+# CAPTCHA_LETTER_ROTATION = (-70, 70)
 
 AUTHENTICATION_BACKENDS += (
     # 'oioioi.teachers.auth.TeacherAuthBackend',
     # 'oioioi.usercontests.auth.UserContestAuthBackend',
     # 'oioioi.ipdnsauth.backends.IpDnsBackend',
 )
+
+# ACCOUNT_ACTIVATION_DAYS = 7
+
+# FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
+# DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
+
+# FILETRACKER_SERVER_ENABLED = True
 
 # Uncomment the following lines to enable remote access to Filetracker. This is
 # needed if you install separate judging machines. Beware -- there is no
@@ -191,6 +238,11 @@ AUTHENTICATION_BACKENDS += (
 
 # Uncomment and change this to run filetracker on non-default port.
 # FILETRACKER_LISTEN_PORT = 9999
+
+# When using distributed workers set this to url on which workers will be
+# able to access filetracker server. When 'remote_storage_factory' is used,
+# this also defines the filetracker server oioioi should connect to.
+FILETRACKER_URL = 'http://127.0.0.1:9999'
 
 # When using a remote_storage_factory (it's the default storage factory)
 # it's necessary to specify a cache directory
@@ -208,6 +260,27 @@ FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 # FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL = '1h'
 # FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
 # FILETRACKER_CACHE_SIZE = '8G'
+
+# For dj_pagination
+# PAGINATION_DEFAULT_WINDOW = 4
+# PAGINATION_DEFAULT_MARGIN = 1
+# FILES_ON_PAGE = 100
+# PROBLEMS_ON_PAGE = 100
+# QUESTIONS_ON_PAGE = 30
+# SUBMISSIONS_ON_PAGE = 100
+# PARTICIPANTS_ON_PAGE = 100
+# TESTS_ON_PAGE = 100
+
+# NUM_PANEL_SUBMISSIONS = 7
+
+# NUM_DASHBOARD_SUBMISSIONS = 8
+# NUM_DASHBOARD_MESSAGES = 8
+
+# NUM_HINTS = 10
+# NUM_RECENT_CONTESTS = 7
+# NUM_RECENT_IN_MENU = 5
+
+# REPLY_TEMPLATE_VISIBLE_NAME_LENGTH = 15
 
 PROBLEM_SOURCES += (
    # 'oioioi.sharingcli.problem_sources.RemoteSource',
@@ -258,6 +331,13 @@ USE_UNSAFE_EXEC = True
 # - "cpu" - ptrace (measures real time)
 # DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 
+# WARNING: setting this to False is experimental until we make sure that
+# checkers do work well in sandbox
+#
+# Setting this to False will run checkers in sandbox. This option is
+# independent to USE_UNSAFE_EXEC.
+# USE_UNSAFE_CHECKER = True
+
 # When USE_SINOLPACK_MAKEFILES equals True, the sinolpack upload workflow uses
 # standard sinolpack makefiles, whose behaviour may be modified by a custom
 # makefile.user file from a package. The makefiles' execution is not sandboxed,
@@ -282,6 +362,13 @@ USE_SINOLPACK_MAKEFILES = False
 #     'oioioi.programs.utils.min_group_scorer'
 # DEFAULT_SCORE_AGGREGATOR = \
 #     'oioioi.programs.utils.sum_score_aggregator'
+
+# Upper bounds for tests' time [ms] and memory [KiB] limits.
+# MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
+# MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
+
+# DEFAULT_CONTEST = None
+# ONLY_DEFAULT_CONTEST = False
 
 # Contest mode - automatic activation of contests.
 #
@@ -341,13 +428,58 @@ LOGGING['loggers']['oioioi.zeus'] = {
 # Number of concurrently processed problem packages (default is 1).
 # UNPACKMGR_CONCURRENCY = 1
 
+# Email address for "Send Feedback" message.
+# SZKOPUL_SUPPORT_EMAIL = None
+
+# Google Analytics
+# GOOGLE_ANALYTICS_TRACKING_ID = None
+
+# Consent texts
+# REGISTRATION_RULES_CONSENT = _("terms accepted")
+# REGISTRATION_MARKETING_CONSENT = None
+# REGISTRATION_PARTNER_CONSENT = None
+
+# PRINTING_FONT_SIZE = 8  # in pt
+# PRINTING_MAX_FILE_SIZE = 1024 * 100  # in kB
+# PRINTING_MAX_FILE_PAGES = 10
+# PRINTING_COMMAND = ['lp', '-o landscape', '-o sides=two-sided-short-edge']
+
+# To get unlimited submissions count set to 0.
+# DEFAULT_SUBMISSIONS_LIMIT = 10
+# WARN_ABOUT_REPEATED_SUBMISSION = True
+
+# Only used if 'testrun' app is enabled.
+# To get unlimited test runs set to 0.
+# DEFAULT_TEST_RUNS_LIMIT = 10
+
+# MAIL_ADMINS_ON_GRADING_ERROR = True
+
+# Message shortcut length in notification shown when an admin is editing
+# a reply in a thread in which a new message was posted in the meantime.
+# MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH = 50
+
 SHARING_SERVERS = (
    # ('site_url', 'sharing_url', 'client_id', 'client_secret'),
 )
 
+# Zeus configuration
 ZEUS_INSTANCES = {
    # 'zeus_id': ('zeus_url', 'zeus_login', 'zeus_secret'),
 }
+
+# URL prefix (protocol, hostname and port)
+# hit by the Zeus callback after a submission is judged
+# ZEUS_PUSH_GRADE_CALLBACK_URL = 'https://sio2.dasie.mimuw.edu.pl'
+
+# Delay between consecutive http requests for results.
+# ZEUS_RESULTS_FETCH_DELAY = 3  # seconds
+# ZEUS_CONNECTION_TIMEOUT = 10  # seconds
+# ZEUS_SEND_RETRIES = 3
+# ZEUS_RETRY_SLEEP = 1  # second
+
+# Complaints
+# COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
+# COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 # Cache
 # To use the more efficient memcached, install it and uncomment the following:
@@ -357,6 +489,12 @@ ZEUS_INSTANCES = {
 #        'LOCATION': '127.0.0.1:11211',
 #    }
 # }
+
+# Ranking
+# RANKINGSD_POLLING_INTERVAL = 0.5  # seconds
+# RANKING_COOLDOWN_FACTOR = 2  # seconds
+# RANKING_MIN_COOLDOWN = 5  # seconds
+# RANKING_MAX_COOLDOWN = 100  # seconds
 
 # Notifications configuration (client)
 # This one is for JavaScript socket.io client.
@@ -375,11 +513,28 @@ ZEUS_INSTANCES = {
 # Extra arguments for pika ConnectionParameters, see
 # https://pika.readthedocs.io/en/stable/modules/parameters.html
 # NOTIFICATIONS_RABBITMQ_EXTRA_PARAMS = {
-#    'heartbeat': 8
+    # 'heartbeat': 8
 # }
 
 # Port that the Notifications Server listens on
 # NOTIFICATIONS_SERVER_PORT = 7887
+
+# Cache timeout (in seconds) for livedata stream (used in some onsite
+# competitions to show results online). Does not influence the data for
+# admins or observers.
+# LIVEDATA_CACHE_TIMEOUT = 30
+
+# Submissions by (snail) mail
+# MAILSUBMIT_CONFIRMATION_HASH_LENGTH = 5
+
+# Maintenance mode settings
+# CONTEST_PREFIX_RE = '^(/c/[a-z0-9_-]+)?'
+# MAINTENANCE_MODE_REDIRECT_URL = '/maintenance/'
+# MAINTENANCE_MODE_IGNORE_URLS = [
+    # CONTEST_PREFIX_RE + MAINTENANCE_MODE_REDIRECT_URL + '$',
+    # CONTEST_PREFIX_RE + '/login/$',
+    # CONTEST_PREFIX_RE + '/logout/$',
+# ]
 
 # Domain to use for serving IP to hostname mappings
 # using ./manage.py ipauth-dnsserver
@@ -406,12 +561,32 @@ ZEUS_INSTANCES = {
 
 # Bonus to judging priority ang judging weight for each contest on this
 # OIOIOI instance.
+# DEFAULT_CONTEST_PRIORITY = 10
+# DEFAULT_CONTEST_WEIGHT = 1000
 # OIOIOI_INSTANCE_PRIORITY_BONUS = 0
 # OIOIOI_INSTANCE_WEIGHT_BONUS = 0
+# NON_CONTEST_PRIORITY = 0
+# NON_CONTEST_WEIGHT = 1000
+
+# Interval [in seconds] for mailnotifyd to wait before scanning the database
+# for new messages to notify about
+# MAILNOTIFYD_INTERVAL = 60
+
+# If your contest has no access to the internet and you need MathJax typesetting,
+# either whitelist this link or download your own copy of MathJax and link it here.
+# MATHJAX_LOCATION = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/"
 
 # If set to True, usercontests will become read-only: it will be impossible to
 # change, delete or submit to existing usercontests, as well as add new ones.
 # This operation is fully reversible.
 # ARCHIVE_USERCONTESTS = True
+
+# FORUM_PAGE_SIZE = 15
+
+# Check seems to be broken. https://stackoverflow.com/a/65578574
+# SILENCED_SYSTEM_CHECKS = ['admin.E130']
+
+# Experimental
+# USE_ACE_EDITOR = False
 
 
