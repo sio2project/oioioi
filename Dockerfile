@@ -63,17 +63,19 @@ RUN pip3 install -r requirements_static.txt --user
 
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 
+
+ENV OIOIOI_DB_ENGINE 'django.db.backends.postgresql'
+ENV OIOIOI_DB_NAME 'oioioi'
+ENV OIOIOI_DB_USER 'oioioi'
+ENV OIOIOI_DB_HOST 'db'
+ENV OIOIOI_DB_PASSWORD 'password'
+
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
 
 RUN sed -i -e \
        "s/SERVER = 'django'/SERVER = None/g;\
-        s/django.db.backends./django.db.backends.postgresql/g;\
-        s/'NAME': ''/'NAME': 'oioioi'/g;\
-        s/'USER': ''/'USER': 'oioioi'/g;\
-        s/'HOST': '',/'HOST': 'db',/g;\
-        s/'PASSWORD': ''/'PASSWORD': 'password'/g;\
         s/#BROKER_URL/BROKER_URL/g;\
         s/#FILETRACKER_LISTEN_ADDR/FILETRACKER_LISTEN_ADDR/g;\
         s/#FILETRACKER_LISTEN_PORT/FILETRACKER_LISTEN_PORT/g;\
