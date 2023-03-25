@@ -69,29 +69,19 @@ ENV OIOIOI_DB_NAME 'oioioi'
 ENV OIOIOI_DB_USER 'oioioi'
 ENV OIOIOI_DB_HOST 'db'
 ENV OIOIOI_DB_PASSWORD 'password'
+ENV RABBITMQ_HOST 'broker'
+ENV RABBITMQ_PORT '5672'
+ENV RABBITMQ_USER 'oioioi'
+ENV RABBITMQ_PASSWORD 'oioioi'
+ENV FILETRACKER_LISTEN_ADDR '0.0.0.0'
+ENV FILETRACKER_LISTEN_PORT '9999'
+ENV FILETRACKER_URL 'http://web:9999'
 
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
 
-RUN sed -i -e \
-       "s/SERVER = 'django'/SERVER = None/g;\
-        s/#BROKER_URL/BROKER_URL/g;\
-        s/#FILETRACKER_LISTEN_ADDR/FILETRACKER_LISTEN_ADDR/g;\
-        s/#FILETRACKER_LISTEN_PORT/FILETRACKER_LISTEN_PORT/g;\
-        s|#FILETRACKER_URL = '.*'|FILETRACKER_URL = 'http://web:9999'|g;\
-        s/#RUN_SIOWORKERSD$/RUN_SIOWORKERSD/g;\
-        s/#SIOWORKERS_LISTEN_ADDR/SIOWORKERS_LISTEN_ADDR/g;\
-        s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
-        s/RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
-        s/AVAILABLE_COMPILERS = SYSTEM_COMPILERS/#AVAILABLE_COMPILERS = SYSTEM_COMPILERS/g;\
-        s/DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/#DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/g;\
-        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = True/g;\
-        s/#DEFAULT_SAFE_EXECUTION_MODE/#DEFAULT_SAFE_EXECUTION_MODE/g;\
-        s/#USE_UNSAFE_CHECKER = True/#USE_UNSAFE_CHECKER = False/g;\
-        \$aALLOWED_HOSTS = ALLOWED_HOSTS + \\['oioioi', '127.0.0.1', 'localhost', 'web'\\]" \
-        settings.py && \
-    cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
+RUN cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
     mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # Download sandboxes

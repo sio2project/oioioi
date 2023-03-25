@@ -33,14 +33,14 @@ TEMPLATES[0]['APP_DIRS'] = False
 # PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com/'
 
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 
 # The server to be run. Options are:
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
 # None - nothing will be run
-SERVER = 'django'
+SERVER = os.getenv('OIOIOI_SERVER_MODE', None)
 
 # DATABASES = {
 #     'default': {
@@ -241,7 +241,7 @@ AUTHENTICATION_BACKENDS += (
 # When using distributed workers set this to url on which workers will be
 # able to access filetracker server. When 'remote_storage_factory' is used,
 # this also defines the filetracker server oioioi should connect to.
-FILETRACKER_URL = 'http://127.0.0.1:9999'
+# FILETRACKER_URL = 'http://127.0.0.1:9999'
 
 # When using a remote_storage_factory (it's the default storage factory)
 # it's necessary to specify a cache directory
@@ -301,7 +301,7 @@ PROBLEM_SOURCES += (
 # SIOWORKERS_LISTEN_URL = None
 
 # Set to false to disable workers running on the server machine.
-RUN_LOCAL_WORKERS = True
+# RUN_LOCAL_WORKERS = True
 
 # Comment out the following options after you have downloaded the sandboxes
 # with
@@ -309,8 +309,8 @@ RUN_LOCAL_WORKERS = True
 #   manage.py download_sandboxes
 #
 # Before this only system compilers can be used.
-AVAILABLE_COMPILERS = SYSTEM_COMPILERS
-DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
+# AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+# DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same

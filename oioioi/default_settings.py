@@ -39,12 +39,12 @@ SERVER = None
 
 DATABASES = {
     'default': {
-        'ENGINE': os.environ.get('OIOIOI_DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.environ.get('OIOIOI_DB_NAME'),           # Or path to database file if using sqlite3.
-        'USER': os.environ.get('OIOIOI_DB_USER'),           # Not used with sqlite3.
-        'PASSWORD': os.environ.get('OIOIOI_DB_PASSWORD'),   # Not used with sqlite3.
-        'HOST': os.environ.get('OIOIOI_DB_HOST'),           # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': os.environ.get('OIOIOI_DB_PORT'),           # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': os.getenv('OIOIOI_DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('OIOIOI_DB_NAME'),           # Or path to database file if using sqlite3.
+        'USER': os.getenv('OIOIOI_DB_USER'),           # Not used with sqlite3.
+        'PASSWORD': os.getenv('OIOIOI_DB_PASSWORD'),   # Not used with sqlite3.
+        'HOST': os.getenv('OIOIOI_DB_HOST'),           # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': os.getenv('OIOIOI_DB_PORT'),           # Set to empty string for default. Not used with sqlite3.
         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
     }
 }
@@ -343,13 +343,13 @@ FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
 DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
 
 FILETRACKER_SERVER_ENABLED = True
-FILETRACKER_LISTEN_ADDR = '127.0.0.1'
-FILETRACKER_LISTEN_PORT = 9999
+FILETRACKER_LISTEN_ADDR = os.getenv('FILETRACKER_LISTEN_ADDR', '127.0.0.1')
+FILETRACKER_LISTEN_PORT = os.getenv('FILETRACKER_LISTEN_PORT', 9999)
 
 # When using distributed workers set this to url on which workers will be
 # able to access filetracker server. When 'remote_storage_factory' is used,
 # this also defines the filetracker server oioioi should connect to.
-FILETRACKER_URL = 'http://127.0.0.1:9999'
+FILETRACKER_URL = os.getenv('FILETRACKER_URL', 'http://127.0.0.1:9999')
 
 # When using a remote storage it's recommended to enable a cache cleaner deamon
 # which will periodically scan cache directory and remove files what aren't
@@ -648,6 +648,20 @@ CELERY_SEND_EVENTS = True
 
 BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
                                               'celerydb.sqlite')
+
+# RabbitMQ connection settings
+host = os.getenv("RABBITMQ_HOST", None)
+port = os.getenv("RABBITMQ_PORT", None)
+user = os.getenv("RABBITMQ_USER", None)
+password = os.getenv("RABBITMQ_PASSWORD", None)
+
+if (
+    host is not None
+    and port is not None
+    and user is not None
+    and password is not None
+):
+    BROKER_URL = f"amqp://{user}:{password}@{host}:{port}"
 
 CELERY_IMPORTS = [
     'oioioi.evalmgr.tasks',
