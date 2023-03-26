@@ -14,6 +14,7 @@ from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
     Contest,
     ProblemInstance,
+    ProblemStatementConfig,
     Round,
     RoundTimeExtension,
     Submission,
@@ -214,6 +215,13 @@ def has_any_submittable_problem(request):
 def has_any_visible_problem_instance(request):
     return bool(visible_problem_instances(request))
 
+
+@request_cached
+def get_contest_problem_statement_config(request):
+    if not hasattr(request, 'contest') or request.contest == None:
+        return None
+    return ProblemStatementConfig.objects.filter(contest=request.contest).first()
+    
 
 @request_cached
 def submittable_problem_instances(request):

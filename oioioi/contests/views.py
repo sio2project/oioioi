@@ -101,7 +101,13 @@ def problems_list_view(request):
     # while attaining superb performance
     problem_instances = ProblemInstance.objects.filter(
             id__in=[pi.id for pi in problem_instances],
-            ).annotate(sb_count=controller.get_submissions_count_expr(request))
+        ).annotate(sb_count=controller.get_submissions_count_expr(request)
+        ).select_related('problem',
+                         'contest',
+                         'problem__contest',
+                         'problem__author',
+                         'contest__problemstatementconfig',
+        ).prefetch_related('round')
 
     # Problem statements in order
     # 1) problem instance
@@ -126,6 +132,17 @@ def problems_list_view(request):
                 'submission_report__submission__problem_instance__scores_reveal_config',
                 'submission_report__submission__problem_instance__contest__scores_reveal_config',
                 )
+    user_results = dict()
+    for pi in problem_instances:
+        user_results[str(pi.id)] = []
+        
+    for r in user_result_qs.filter(
+        user_id=request.user.id,
+        problem_instance_id__in=[pi.id for pi in problem_instances],
+        ):
+        id = str(r.problem_instance_id)
+        user_results[id].append(r)
+    
     problems_statements = sorted(
         [
             (
@@ -139,9 +156,7 @@ def problems_list_view(request):
                 next(
                     (
                         r
-                        for r in user_result_qs.filter(
-                            user__id=request.user.id, problem_instance=pi
-                        )
+                        for r in user_results[str(pi.id)]
                         if r
                         and r.submission_report
                         and controller.can_see_submission_score(
@@ -276,7 +291,8 @@ def submit_view(request, problem_instance_id=None):
     pis = ProblemInstance.objects.filter(
             id__in=[pi.id for pi in pis],
         ).annotate(
-            sb_count=request.contest.controller.get_submissions_count_expr(request))
+            sb_count=request.contest.controller.get_submissions_count_expr(request)
+        ).select_related('problem', 'contest', 'problem__contest', 'round')
     submissions_left = {
         pi.id: pi.controller.get_submissions_left(request, pi, count=pi.sb_count) for pi in pis
     }

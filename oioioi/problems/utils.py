@@ -66,7 +66,7 @@ def can_admin_problem(request, problem):
     # he is considered to be a co-author of the task, giving him rights to admin it.
     if problem.contest and can_admin_contest(request.user, problem.contest):
         return True
-    if request.user == problem.author:
+    if problem.author_id != None and request.user.id == problem.author_id:
         return True
     return False
 

@@ -22,7 +22,6 @@ from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.contests.models import (
     Contest,
     ProblemInstance,
-    ProblemStatementConfig,
     RankingVisibilityConfig,
     Round,
     RoundTimeExtension,
@@ -36,6 +35,7 @@ from oioioi.contests.models import (
 )
 from oioioi.contests.utils import (
     generic_rounds_times,
+    get_contest_problem_statement_config,
     has_any_active_round,
     is_contest_basicadmin,
     is_contest_observer,
@@ -561,8 +561,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         context = self.make_context(request_or_context)
         if context.is_admin:
             return True
-        psc = ProblemStatementConfig.objects.filter(contest=context.contest)
-        if psc.exists() and psc[0].visible != 'AUTO':
+        psc = get_contest_problem_statement_config(request_or_context)
+        if psc != None and psc[0].visible != 'AUTO':
             return psc[0].visible == 'YES'
         else:
             return self.default_can_see_statement(request_or_context, problem_instance)

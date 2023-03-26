@@ -119,10 +119,11 @@ class Problem(models.Model):
 
     @property
     def name(self):
-        problem_name = ProblemName.objects.filter(
-            problem=self, language=get_language()
-        ).first()
-        return problem_name.name if problem_name else self.legacy_name
+        return self.legacy_name
+        #problem_name = ProblemName.objects.filter(
+        #    problem=self, language=get_language()
+        #).first()
+        #return problem_name.name if problem_name else self.legacy_name
 
     @property
     def controller(self):
