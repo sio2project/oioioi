@@ -798,9 +798,10 @@ class SinolPackage(object):
 
             for test_name, job in jobs.items():
                 if job['result_code'] != 'OK':
+                    output = [str(line, 'utf-8') for line in job['stdout']]
                     raise ProblemPackageError(
-                        _("Inwer failed on test %(test)s. Inwer output %(output)s")
-                        % {'test': test_name, 'output': '\n'.join(job['stdout'])}
+                        _("Inwer failed on test %(test)s. Inwer output: %(output)s")
+                        % {'test': test_name, 'output': '\n'.join(output)}
                     )
 
             logger.info("%s: inwer success", self.filename)

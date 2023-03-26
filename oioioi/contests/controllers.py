@@ -562,8 +562,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if context.is_admin:
             return True
         psc = get_contest_problem_statement_config(request_or_context)
-        if psc != None and psc[0].visible != 'AUTO':
-            return psc[0].visible == 'YES'
+        if psc != None and psc.visible != 'AUTO':
+            return psc.visible == 'YES'
         else:
             return self.default_can_see_statement(request_or_context, problem_instance)
 
@@ -604,7 +604,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     def get_submissions_count_expr(self, request, kind=None):
         if kind is None:
             kind = self.get_default_submission_kind(request)
-        return Count('submission', filter=Q(submission__user_id=request.user.id, submission__kind='NORMAL'))
+        return Count('submission', filter=Q(submission__user_id=request.user.id, submission__kind=kind))
 
     def get_submissions_limit(self, request, problem_instance, kind='NORMAL'):
         if is_contest_basicadmin(request):
@@ -614,11 +614,16 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         )
 
     def get_submissions_left(self, request, problem_instance, kind=None, count=None):
+        if kind is None:
+            kind = self.get_default_submission_kind(request)
+        limit = self.get_submissions_limit(request, problem_instance, kind)
+        if not limit or request.user.is_anonymous:
+            return None
         if count is None:
             count = ProblemInstance.objects.filter(id=problem_instance.id).annotate(
                     cnt=self.get_submissions_count_expr(request, kind),
                 ).first().cnt
-        return max(self.get_submissions_limit(request, problem_instance, kind) - count, 0)
+        return max(limit - count, 0)
 
     def is_submissions_limit_exceeded(self, request, problem_instance, kind=None, count=None):
         if kind is None:
