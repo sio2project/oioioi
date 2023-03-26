@@ -23,7 +23,6 @@ from oioioi.contests.models import (
     Contest,
     LimitsVisibilityConfig,
     ProblemInstance,
-    ProblemStatementConfig,
     RankingVisibilityConfig,
     Round,
     RoundStartDelay,
@@ -37,6 +36,7 @@ from oioioi.contests.models import (
 )
 from oioioi.contests.utils import (
     generic_rounds_times,
+    get_contest_problem_statement_config,
     has_any_active_round,
     is_contest_basicadmin,
     is_contest_observer,
@@ -580,9 +580,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         context = self.make_context(request_or_context)
         if context.is_admin:
             return True
-        psc = ProblemStatementConfig.objects.filter(contest=context.contest)
-        if psc.exists() and psc[0].visible != "AUTO":
-            return psc[0].visible == "YES"
+        psc = get_contest_problem_statement_config(request_or_context)
+        if psc is not None and psc.visible != "AUTO":
+            return psc.visible == "YES"
         else:
             return self.default_can_see_statement(request_or_context, problem_instance)
 

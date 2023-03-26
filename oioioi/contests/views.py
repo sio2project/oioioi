@@ -176,6 +176,7 @@ def problems_list_view(request):
                 "submission_report__submission",
             )
             .prefetch_related(
+                "submission_report__scorereport_set",
                 "submission_report__submission__problem_instance__problem",
                 "submission_report__submission__problem_instance__round",
                 "submission_report__submission__problem_instance__contest",
@@ -202,6 +203,7 @@ def problems_list_view(request):
             .order_by("-date")
             .values("id")[:1]
         )
+
         last_submission_map = {
             s.problem_instance_id: s
             for s in Submission.objects.filter(
@@ -211,6 +213,15 @@ def problems_list_view(request):
                 id=Subquery(latest_sub_id_sq),
             )
         }
+
+    def get_submission_template_context(pi):
+        submission = last_submission_map.get(pi.id, None)
+        if not submission:
+            return None
+        # This is a substitute for doing a large select_related/prefetch_related
+        # for the last_submission_map. visible_problem_instances already does it for us.
+        submission.problem_instance = pi
+        return submission_template_context(request, submission)
 
     problems_statements = sorted(
         [
@@ -223,7 +234,7 @@ def problems_list_view(request):
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
                 controller.can_submit(request, pi) and not is_contest_archived(request),
-                submission_template_context(request, last_submission_map[pi.id]) if pi.id in last_submission_map else None,
+                get_submission_template_context(pi),
             )
             for pi in problem_instances
         ],

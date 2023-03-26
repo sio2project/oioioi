@@ -16,6 +16,7 @@ from oioioi.contests.models import (
     Contest,
     FilesMessage,
     ProblemInstance,
+    ProblemStatementConfig,
     Round,
     RoundStartDelay,
     RoundTimeExtension,
@@ -232,6 +233,14 @@ def has_any_visible_problem_instance(request):
 
 
 @request_cached
+def get_contest_problem_statement_config(request_or_context):
+    contest = getattr(request_or_context, "contest", None)
+    if not contest:
+        return None
+    return ProblemStatementConfig.objects.filter(contest=contest).first()
+
+
+@request_cached
 def submittable_problem_instances(request):
     controller = request.contest.controller
     return [pi for pi in visible_problem_instances(request) if controller.can_submit(request, pi)]
@@ -243,7 +252,7 @@ def visible_problem_instances(request, no_admin=False):
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
         .select_related("problem")
-        .prefetch_related("round", "contest", "problem__contest", "problem__author")
+        .prefetch_related("round", "contest", "problem__contest", "problem__author", "problem__names__name")
     )
     return [
         pi
