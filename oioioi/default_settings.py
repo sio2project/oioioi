@@ -35,7 +35,7 @@ PUBLIC_ROOT_URL = 'http://localhost'
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
 # None - nothing will be run
-SERVER = None
+SERVER = os.getenv('OIOIOI_SERVER_MODE', None)
 
 DATABASES = {
     'default': {
@@ -76,7 +76,7 @@ STATEMENT_LANGUAGES = (
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = None
+TIME_ZONE = os.getenv('OIOIOI_TIMEZONE', None)
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -114,7 +114,7 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 # Secret key can't be empty, it is overridden later.
-SECRET_KEY = 'eca76a75-2b9f-4e09-8f88-86671acbed8b'
+SECRET_KEY = os.getenv('OIOIOI_SECRET', 'eca76a75-2b9f-4e09-8f88-86671acbed8b')
 
 # Uncomment once oisubmit is used.
 # OISUBMIT_MAGICKEY = '__OTHER_SECRET__'
