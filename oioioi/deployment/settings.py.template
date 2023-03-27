@@ -40,7 +40,7 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
 # None - nothing will be run
-SERVER = os.getenv('OIOIOI_SERVER_MODE', None)
+# SERVER = None
 
 # DATABASES = {
 #     'default': {
