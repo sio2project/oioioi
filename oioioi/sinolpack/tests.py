@@ -682,7 +682,8 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 0)
         self.assertEqual(ProblemInstance.objects.count(), 0)
-        self.assertEqual(ProblemPackage.objects.count(), 0)
+        # Bad packages NEED to be left over for the error messages!
+        self.assertEqual(ProblemPackage.objects.count(), 1)
 
 
 class TestSinolPackageCreator(TestCase, TestStreamingMixin):
