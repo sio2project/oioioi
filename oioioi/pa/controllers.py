@@ -251,6 +251,19 @@ class PARankingController(DefaultRankingController):
                 rankings.append((str(round.id), round.name))
         return rankings
 
+    def partial_keys_for_probleminstance(self, pi):
+        partial_keys = []
+        division = pi.paprobleminstancedata.division
+        if division == "NONE":
+            if pi.round is not None and pi.round.is_trial:
+                partial_keys.append(str(pi.round_id))
+        else:
+            # This logic works for PADivCRankingController too.
+            partial_keys.append(A_PLUS_B_RANKING_KEY)
+            if division != "A":
+                partial_keys.append(B_RANKING_KEY)
+        return partial_keys
+
     def _filter_pis_for_ranking(self, partial_key, queryset):
         if partial_key == A_PLUS_B_RANKING_KEY:
             return queryset.filter(paprobleminstancedata__division__in=["A", "B"])

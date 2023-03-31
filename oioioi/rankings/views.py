@@ -129,9 +129,9 @@ def ranking_csv_view(request, key):
 @require_POST
 def ranking_invalidate_view(request, key):
     rcontroller = request.contest.controller.ranking_controller()
-    full_key = rcontroller.get_full_key(request, key)
-    ranking = Ranking.objects.filter(key=full_key)
-    Ranking.invalidate_queryset(ranking)
+    full_keys = rcontroller.construct_all_full_keys([key])
+    rankings = Ranking.objects.filter(key__in=full_keys, contest=request.contest)
+    Ranking.invalidate_queryset(rankings)
     return redirect("ranking", key=key)
 
 
