@@ -25,6 +25,7 @@ from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import CONTEST_RANKING_KEY, DefaultRankingController
+from oioioi.rankings.models import Ranking
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
@@ -249,6 +250,12 @@ class PARankingController(DefaultRankingController):
             if round.is_trial:
                 rankings.append((str(round.id), round.name))
         return rankings
+
+    def keys_for_pi(self, pi):
+        raise NotImplementedError
+
+    def invalidate_pi(self, pi):
+        Ranking.invalidate_contest(pi.contest)
 
     def _filter_pis_for_ranking(self, partial_key, queryset):
         if partial_key == A_PLUS_B_RANKING_KEY:

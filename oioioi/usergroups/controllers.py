@@ -6,6 +6,7 @@ from oioioi.teachers.controllers import TeacherRegistrationController
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
 from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
 from oioioi.rankings.controllers import DefaultRankingController
+from oioioi.rankings.models import Ranking
 
 USER_GROUP_RANKING_PREFIX = 'g'
 
@@ -66,6 +67,12 @@ class UserGroupsDefaultRankingControllerMixin(object):
         for user_group in self._user_groups_for_ranking(request):
             rankings.append((user_group_ranking_id(user_group.id), user_group.name))
         return rankings
+
+    def keys_for_pi(self, pi):
+        raise NotImplementedError
+
+    def invalidate_pi(self, pi):
+        Ranking.invalidate_contest(pi.contest)
 
     def filter_users_for_ranking(self, key, queryset):
         queryset = super(

@@ -37,7 +37,9 @@ class RankingMixinForContestController(object):
         super(RankingMixinForContestController, self).update_user_results(
             user, problem_instance, *args, **kwargs
         )
-        Ranking.invalidate_contest(problem_instance.round.contest)
+        self.ranking_controller().invalidate_pi(
+            problem_instance
+        )
 
 
 ContestController.mix_in(RankingMixinForContestController)
@@ -59,6 +61,7 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
 
     modules_with_subclasses = ['controllers']
     abstract = True
+    PERMISSION_LEVELS = ['admin', 'observer', 'regular',]
     PERMISSION_CHECKERS = [
         lambda request: 'admin' if is_contest_basicadmin(request) else None,
         lambda request: 'observer' if is_contest_observer(request) else None,
@@ -79,6 +82,16 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
             res = checker(request)
             if res is not None:
                 return res + '#' + partial_key
+
+    def construct_full_key(self, perm_level, partial_key):
+        return perm_level + '#' + partial_key
+
+    def construct_all_full_keys(self, partial_keys):
+        fulls = []
+        for perm in self.PERMISSION_LEVELS:
+            for partial in partial_keys:
+                fulls.append(self.construct_full_key(perm, partial))
+        return fulls
 
     def _key_permission(self, key):
         """Returns a permission level associated with given full key"""
@@ -232,6 +245,16 @@ class DefaultRankingController(RankingController):
             # Only a single round => call this "contest ranking".
             return rankings[:1]
         return rankings
+
+    def keys_for_pi(self, pi):
+        partial_keys = [CONTEST_RANKING_KEY, str(pi.round_id)]
+        return self.construct_all_full_keys(partial_keys)
+
+    def invalidate_pi(self, pi):
+        Ranking.invalidate_queryset(Ranking.objects.filter(
+            contest_id=pi.round.contest_id,
+            key__in=self.keys_for_pi(pi),
+        ))
 
     def can_search_for_users(self):
         return True
