@@ -21,7 +21,7 @@ class ParticipantForm(forms.ModelForm):
         if Participant.objects.filter(
             contest=self.request_contest, user=self.cleaned_data['user']
         ).exists() and (
-            self.instance is None or self.instance.user != self.cleaned_data['user']
+            self.instance is None or self.instance.user_id == None or self.instance.user != self.cleaned_data['user']
         ):
             raise ValidationError(
                 _("%s is already a participant of this contest.")
