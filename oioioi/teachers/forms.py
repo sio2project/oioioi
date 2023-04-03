@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.forms import SimpleContestForm
 from oioioi.teachers.models import Teacher
+from oioioi.base.utils.user_selection import UserSelectionField
+
 
 
 class TeacherContestForm(SimpleContestForm):
@@ -14,7 +16,15 @@ class TeacherContestForm(SimpleContestForm):
 class AddTeacherForm(forms.ModelForm):
     class Meta(object):
         model = Teacher
-        fields = ['school']
+        fields = ['user', 'school']
+
+    user = UserSelectionField(label=_("Username"))
+
+    #pozostało:
+    #przedefiniować init i w tej funckji ustawić wartość user.hints_url
+    #a w teachers urls trzeba zrobić własny url obsługujący wyszukiwanie
+    #i w teachers views dodać jakieś def do tego
+    #coś takiego jest w questions, i może gdzieś jeszcze, jakby co.
 
     school = forms.CharField(
         label=_("School"),
