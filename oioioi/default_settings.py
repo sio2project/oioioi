@@ -40,11 +40,11 @@ SERVER = os.getenv('OIOIOI_SERVER_MODE', None)
 DATABASES = {
     'default': {
         'ENGINE': os.getenv('OIOIOI_DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.getenv('OIOIOI_DB_NAME'),           # Or path to database file if using sqlite3.
-        'USER': os.getenv('OIOIOI_DB_USER'),           # Not used with sqlite3.
-        'PASSWORD': os.getenv('OIOIOI_DB_PASSWORD'),   # Not used with sqlite3.
-        'HOST': os.getenv('OIOIOI_DB_HOST'),           # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': os.getenv('OIOIOI_DB_PORT'),           # Set to empty string for default. Not used with sqlite3.
+        'NAME': os.getenv('OIOIOI_DB_NAME', 'oioioi'),              # Or path to database file if using sqlite3.
+        'USER': os.getenv('OIOIOI_DB_USER', 'oioioi'),              # Not used with sqlite3.
+        'PASSWORD': os.getenv('OIOIOI_DB_PASSWORD', 'password'),    # Not used with sqlite3.
+        'HOST': os.getenv('OIOIOI_DB_HOST', 'db'),                  # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': os.getenv('OIOIOI_DB_PORT', ''),                    # Set to empty string for default. Not used with sqlite3.
         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
     }
 }
