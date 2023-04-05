@@ -65,10 +65,6 @@ COPY --chown=oioioi:oioioi . /sio2/oioioi
 
 
 ENV OIOIOI_DB_ENGINE 'django.db.backends.postgresql'
-ENV OIOIOI_DB_NAME 'oioioi'
-ENV OIOIOI_DB_USER 'oioioi'
-ENV OIOIOI_DB_HOST 'db'
-ENV OIOIOI_DB_PASSWORD 'password'
 ENV RABBITMQ_HOST 'broker'
 ENV RABBITMQ_PORT '5672'
 ENV RABBITMQ_USER 'oioioi'
@@ -81,8 +77,7 @@ RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
 
-RUN cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
-    mkdir -p /sio2/deployment/logs/{supervisor,runserver}
+RUN mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
