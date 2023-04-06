@@ -92,6 +92,7 @@ class TestTextInput(TestCase, SubmitQuizMixin):
         score_report = ScoreReport.objects.get(submission_report=report)
         submission.status = score_report.status
         submission.score = score_report.score
+        submission.max_score = score_report.max_score
 
     def test_second_possible_answer(self):
         contest = Contest.objects.get()

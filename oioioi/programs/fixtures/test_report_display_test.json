@@ -144,6 +144,7 @@
          "kind" : "NORMAL",
          "date" : "2020-01-19T00:49:03.724Z",
          "score" : "int:0000000000000000014",
+         "max_score" : "int:0000000000000000100",
          "problem_instance" : 2,
          "status" : "INI_OK"
       }
@@ -157,7 +158,8 @@
          "comment" : "",
          "kind" : "NORMAL",
          "date" : "2020-01-19T00:56:20.111Z",
-         "score" : "bool:rejected"
+         "score" : "bool:rejected",
+         "max_score" : "bool:accepted"
       },
       "model" : "contests.submission"
    },
@@ -168,6 +170,7 @@
          "comment" : "",
          "user" : 1001,
          "score" : "int:0000000000000000001",
+         "max_score" : "int:0000000000000000004",
          "date" : "2020-01-19T01:01:09.977Z",
          "kind" : "NORMAL"
       },

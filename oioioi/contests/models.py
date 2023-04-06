@@ -436,6 +436,7 @@ class Submission(models.Model):
     )
     kind = EnumField(submission_kinds, default='NORMAL', verbose_name=_("kind"))
     score = ScoreField(blank=True, null=True, verbose_name=_("score"))
+    max_score = ScoreField(blank=True, null=True, verbose_name=_("max score"))
     status = EnumField(submission_statuses, default='?', verbose_name=_("status"))
     comment = models.TextField(blank=True, verbose_name=_("comment"))
 
@@ -461,18 +462,12 @@ class Submission(models.Model):
         if self.score is None:
             return None
         return self.problem_instance.controller.render_submission_score(self)
+
     def get_display_type(self):    
         if self.status == 'INI_OK' or self.status == 'OK':
-            submission_report = SubmissionReport.objects.filter(
-                submission=self
-            ).first()
-            score_report = ScoreReport.objects.filter(
-                submission_report=submission_report
-            ).first()
-
             try:
                 score_percentage = (
-                    float(score_report.score.to_int()) / score_report.max_score.to_int()
+                    float(self.score.to_int()) / self.max_score.to_int()
                 )
 
                 if score_percentage < 0.25:

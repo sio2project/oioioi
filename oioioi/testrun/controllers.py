@@ -231,6 +231,7 @@ class TestRunContestControllerMixin(object):
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.status = score_report.status
             submission.score = score_report.score  # Should be None
+            submission.max_score = score_report.max_score  # Should be None
         except ObjectDoesNotExist:
             if SubmissionReport.objects.filter(
                 submission=submission, status='ACTIVE', kind='FAILURE'

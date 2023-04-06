@@ -73,6 +73,7 @@ class ACMContestController(ProgrammingContestController):
                 submission=submission, status='ACTIVE', kind='FULL'
             )
             score_report = report.score_report
+            submission.max_score = score_report.max_score
             if score_report.status in IGNORED_STATUSES:
                 submission.score = None
             else:
@@ -80,6 +81,7 @@ class ACMContestController(ProgrammingContestController):
             submission.status = score_report.status
         except SubmissionReport.DoesNotExist:
             submission.score = None
+            submission.max_score = None
             if SubmissionReport.objects.filter(
                 submission=submission, status='ACTIVE', kind='FAILURE'
             ):
