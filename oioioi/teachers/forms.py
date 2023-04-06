@@ -1,4 +1,5 @@
 from django import forms
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -21,10 +22,14 @@ class AddTeacherForm(forms.ModelForm):
     user = UserSelectionField(label=_("Username"))
 
     #pozostało:
-    #przedefiniować init i w tej funckji ustawić wartość user.hints_url
+    #przedefiniować init i w tej funkcji ustawić wartość user.hints_url
     #a w teachers urls trzeba zrobić własny url obsługujący wyszukiwanie
     #i w teachers views dodać jakieś def do tego
     #coś takiego jest w questions, i może gdzieś jeszcze, jakby co.
+
+    def __init__(self, *args, **kwargs):
+        super(AddTeacherForm, self).__init__(*args, **kwargs)
+        self.fields['user'].hints_url = reverse('user_search')
 
     school = forms.CharField(
         label=_("School"),

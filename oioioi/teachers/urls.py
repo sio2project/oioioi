@@ -51,6 +51,8 @@ urlpatterns = [
         views.accept_teacher_view,
         name='accept_teacher',
     ),
+    #tu muszę dodać nowy path do searcha, ale czy to ma być path, re_path, czy co jeszcze?
+    re_path(r'^user-search/$', views.get_usernames, name='user_search'),
 ]
 
 if 'oioioi.simpleui' in settings.INSTALLED_APPS:
