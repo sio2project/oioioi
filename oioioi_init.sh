@@ -4,9 +4,6 @@ set -x
 
 /sio2/oioioi/wait-for-it.sh -t 60 "db:5432"
 
-mkdir sockets >/dev/null 2>/dev/null
-
-
 sed -i "s/^SERVER.*$/SERVER = 'uwsgi-http'/;s/^COMPRESS_OFFLINE.*$/COMPRESS_OFFLINE = False/" /sio2/deployment/settings.py
 
 ./manage.py migrate &

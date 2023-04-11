@@ -9,9 +9,8 @@ sed -i "s/^SERVER.*$/SERVER = 'uwsgi'/;s/^COMPRESS_OFFLINE.*$/COMPRESS_OFFLINE =
 ./manage.py migrate &
 ./manage.py compilejsi18n &
 (./manage.py collectstatic --noinput && ./manage.py compress > /dev/null) &
+sudo /etc/init.d/nginx start &
 
 wait
-
-sudo /etc/init.d/nginx start
 
 exec ./manage.py supervisor --logfile=/sio2/deployment/logs/supervisor.log
