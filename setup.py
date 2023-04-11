@@ -33,6 +33,7 @@ requirements = [
     "coreapi>=2.3.0,<2.4",
     "dj-pagination==2.5",
     "django-compressor==2.4.1",  # latest version
+    "django-statici18n<2.4",
     "pygments<2.6",
     "django-libsass>=0.7,<=0.8",
     "django-debug-toolbar>=3.0,<=3.3",

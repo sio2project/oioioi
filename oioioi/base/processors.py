@@ -33,6 +33,10 @@ def mathjax_location(request):
     return {'mathjax_location': settings.MATHJAX_LOCATION}
 
 
+def compress_offline(request):
+    return {'compress_offline': settings.COMPRESS_OFFLINE}
+
+
 def gravatar(request):
     if request.user.is_authenticated:
 

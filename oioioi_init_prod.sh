@@ -7,6 +7,7 @@ set -x
 sed -i "s/^SERVER.*$/SERVER = 'uwsgi'/;s/^COMPRESS_OFFLINE.*$/COMPRESS_OFFLINE = True/" /sio2/deployment/settings.py
 
 ./manage.py migrate &
+./manage.py compilejsi18n &
 (./manage.py collectstatic --noinput && ./manage.py compress > /dev/null) &
 
 wait

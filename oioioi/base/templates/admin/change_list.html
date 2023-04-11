@@ -3,9 +3,6 @@
 
 {% block extrastyle %}
   {{ block.super }}
-  {% if cl.formset or action_form %}
-    <script src="{% url 'admin:jsi18n' %}"></script>
-  {% endif %}
   {{ media.css }}
 {% endblock %}
 
