@@ -6,7 +6,7 @@
 {% block main-content %}
 <div class="clearfix">
     {% if submissions %}
-        <div class="float-right">
+        <div class="float-end">
             <a role="button" class="btn btn-sm btn-outline-secondary"
                href="{% url 'model_solutions_rejudge' problem_instance.id %}">
                 <i class="fa-solid fa-rotate-right"></i>
@@ -14,7 +14,7 @@
             </a>
         </div>
     {% endif %}
-    <h1 class="float-left">{% trans "Model solutions" %}</h1>
+    <h1 class="float-start">{% trans "Model solutions" %}</h1>
 </div>
 
 {% if not submissions %}

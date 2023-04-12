@@ -2,7 +2,7 @@
 
 {% for error in all_errors %}
     <div class="alert alert-danger" role="alert">
-        <span class="sr-only">{% trans "Error" %}:</span>
+        <span class="visually-hidden">{% trans "Error" %}:</span>
         {{ error | escape }}
     </div>
 {% endfor %}

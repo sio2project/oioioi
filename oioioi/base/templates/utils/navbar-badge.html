@@ -1,5 +1,5 @@
 <a href="{{ link | default_if_none:'#'  }}" {% if id %}id="{{ id }}"{% endif %}>
-    <span class="badge badge-danger"
+    <span class="badge bg-danger"
             data-toggle="tooltip" data-placement="bottom" title="{{ text | default_if_none:'' }}">
         {{ text | default_if_none:'' }}
     </span>

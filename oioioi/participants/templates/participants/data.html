@@ -6,7 +6,7 @@
 {% block main-content %}
 <div class="clearfix">
     {% if not no_participants %}
-        <div class="float-right">
+        <div class="float-end">
             <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'participants_data_csv' contest_id=contest.id %}">
                 <i class="fa-solid fa-download"></i>
@@ -14,7 +14,7 @@
             </a>
         </div>
     {% endif %}
-    <h1 class="float-left">{% trans "Participants' data" %}</h1>
+    <h1 class="float-start">{% trans "Participants' data" %}</h1>
 </div>
 
 {% if no_participants %}

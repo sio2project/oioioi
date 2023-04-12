@@ -8,7 +8,7 @@
         <div class="form-group">
             {% for error in formset.non_form_errors %}
                 <div class="alert alert-danger" role="alert">
-                    <span class="sr-only">{% trans "Error" %}:</span>
+                    <span class="visually-hidden">{% trans "Error" %}:</span>
                     {{ error }}
                 </div>
             {% endfor %}

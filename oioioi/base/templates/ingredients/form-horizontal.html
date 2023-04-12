@@ -4,7 +4,7 @@
     <div class="form-group">
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger" role="alert">
-                <span class="sr-only">{% trans "Error" %}:</span>
+                <span class="visually-hiddeny-hidden">{% trans "Error" %}:</span>
                 {{ error }}
             </div>
         {% endfor %}
@@ -17,7 +17,7 @@
 
 {% for field in form.visible_fields %}
     <div class="form-group row">
-        <div class="col-md-3 text-right">
+        <div class="col-md-3 text-end">
             <label for="{{ field.id_for_label }}" class="col-form-label {% if field.errors %}text-danger{% endif %}">
                 {{ field.label }}
             </label>

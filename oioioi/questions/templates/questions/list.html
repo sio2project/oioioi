@@ -82,7 +82,7 @@
     });
     </script>
     <div class="clearfix">
-        <div class="float-right">
+        <div class="float-end">
             {% if user.is_authenticated %}
                 {% if not onsite %}
                     <button class="btn btn-sm btn-outline-secondary" id="sub-btn"
@@ -119,7 +119,7 @@
                 {% trans "Show all messages" %}
             </a>
         </div>
-        <h1 class="float-left">{% trans "Questions and news" %}</h1>
+        <h1 class="float-start">{% trans "Questions and news" %}</h1>
     </div>
     <div id="sub-alert-success" class="alert alert-success collapse">
         <strong></strong> <span></span>

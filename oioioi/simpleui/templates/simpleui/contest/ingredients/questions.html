@@ -26,7 +26,7 @@
             <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
             <td>
                 {% if not record.read and not is_admin %}
-                    <span class="badge badge-info" id="new-msg-label">
+                    <span class="badge bg-info" id="new-msg-label">
                         {% trans "NEW" %}
                     </span>
                 {% endif %}
@@ -34,7 +34,7 @@
             </td>
             {% if is_admin %}
                 <td>
-                    <span class="badge {% if record.needs_reply %}badge-danger{% else %}badge-secondary{% endif %}">
+                    <span class="badge {% if record.needs_reply %}bg-danger{% else %}bg-secondary{% endif %}">
                         {{ msg.kind }}
                     </span>
                 </td>

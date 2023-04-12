@@ -8,7 +8,7 @@
 {% block forum-head %}
 <div class="clearfix">
     {% if user.is_authenticated and can_interact_with_users %}
-        <div class="float-right">
+        <div class="float-end">
             <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}">
                 <i class="fa-solid fa-message"></i>
@@ -16,7 +16,7 @@
             </a>
         </div>
     {% endif %}
-    <h1 class="float-left">{% trans "Category" %}: {{ category.name }}</h1>
+    <h1 class="float-start">{% trans "Category" %}: {{ category.name }}</h1>
 </div>
 {% endblock %}
 
@@ -52,7 +52,7 @@
                             </a>
                         </td>
                         <td>
-                            <div class="{% if t.count_reported > 0 %}badge badge-danger{% endif %}">
+                            <div class="{% if t.count_reported > 0 %}badge bg-danger{% endif %}">
                                 {{ t.count_reported }}
                             </div>
                         </td>

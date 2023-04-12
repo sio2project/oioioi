@@ -18,8 +18,8 @@ $oioioi-navbar-highlighted-color: #fff !default;
 $oioioi-navbar-avatar-size: 25px !default;
 
 // Special case navbar colors
-$oioioi-navbar-time-changed-background: darken(theme-color("primary"), 20) !default;
-$oioioi-navbar-user-changed-background: darken(theme-color("danger"), 20) !default;
+$oioioi-navbar-time-changed-background: darken($primary, 20) !default;
+$oioioi-navbar-user-changed-background: darken($danger, 20) !default;
 
 // Breakpoint at which admin badges get shrunk to save some space
 $oioioi-navbar-badge-lg-width: 80px !default;
@@ -166,7 +166,7 @@ body {
 
 // Large screens
 // * Badges get shrunk
-@include media-breakpoint-down(lg) {
+@include media-breakpoint-down(xl) {
   .oioioi-navbar,
   .oioioi-navbar > .oioioi-navbar__extra,
   .oioioi-navbar__menu-uncollapsed {
@@ -183,7 +183,7 @@ body {
 // * Contest picker max width decreases
 // * Username and badges gets hidden (only icons)
 // * Countdown text padding gets reduced to 0
-@include media-breakpoint-down(md) {
+@include media-breakpoint-down(lg) {
   .oioioi-navbar {
     > .oioioi-navbar__menu {
       display: block;
@@ -229,7 +229,7 @@ body {
 // Small screens
 // * Navbar extras gets hidden
 // * Dropdown menus gets 100% width
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
   .oioioi-navbar {
      > .oioioi-navbar__extra {
       display: none;
@@ -269,7 +269,7 @@ body {
 // Extra-small screens
 // * Username/login text gets hidden (only icon)
 // * Navbar padding gets removed
-@include media-breakpoint-down(xs) {
+@include media-breakpoint-down(sm) {
   .oioioi-navbar {
     padding: 0;
     > .oioioi-navbar__user .username {

@@ -2,7 +2,7 @@
 
 <div>
     {% if real_user.is_superuser and is_under_su %}
-        <span id="su-label" class="badge badge-danger"
+        <span id="su-label" class="badge bg-danger"
                 data-toggle="tooltip" data-placement="bottom" title="{% trans "Switched user" %}">
             <i class="fa-solid fa-shuffle"></i>
             <span class="badge-full">{% trans "Switched user" %}</span>

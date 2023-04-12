@@ -6,7 +6,7 @@
 
 {% block main-content %}
     <div class="clearfix">
-        <div class="float-right">
+        <div class="float-end">
             <a role="button"
                class="btn btn-sm btn-outline-secondary"
                href="{% url 'submit' contest_id=contest.id %}">
@@ -14,7 +14,7 @@
                 {% trans "Submit" %}
             </a>
         </div>
-        <h1 class="float-left">{% trans "My submissions" %}</h1>
+        <h1 class="float-start">{% trans "My submissions" %}</h1>
     </div>
 
     {{ header }}

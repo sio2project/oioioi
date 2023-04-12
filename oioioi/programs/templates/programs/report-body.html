@@ -21,9 +21,9 @@
                 {% with test=record.test %}
                     <tr class="test-row-{{ group.report.id }}">
                         <td class="submission__margin submission--{{ record.display_type }}"></td>
-                        <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}">
+                        <td class="test-actions-toggler {% if is_admin %}fix-float-end{% endif %}">
                             {{ test.test_name }}
-                            <span class="test-actions float-right">
+                            <span class="test-actions float-end">
                                 {% if test.test %}
                                     <small>
                                         {% if is_admin %}
@@ -56,7 +56,7 @@
                             {% endif %}/ {{ test.test_time_limit|runtimeformat }}
                         </td>
                         {% if show_scores and forloop.first %}
-                            <td class="group-score text-right" rowspan="{{ group.tests|length }}">
+                            <td class="group-score text-end" rowspan="{{ group.tests|length }}">
                                 {% if group.report.score %}
                                     {{ group.report.score }} / {{ group.report.max_score }}
                                 {% endif %}

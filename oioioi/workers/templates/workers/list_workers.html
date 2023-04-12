@@ -44,7 +44,7 @@
                                 <th>
                                     <label for="work-{{ w.name }}">{{ w.name }}</label>
                                     <input id="work-{{ w.name }}" type="checkbox"
-                                        name="work-{{ w.name }}" class="mt-1 float-right"
+                                        name="work-{{ w.name }}" class="mt-1 float-end"
                                         {% if readonly %} onclick="return false"{% endif %}
                                         {% if w.select %} checked{% endif %}>
                                 </th>

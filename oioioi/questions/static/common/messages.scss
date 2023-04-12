@@ -10,7 +10,7 @@
   }
 
   &__info {
-    border-bottom: 1px solid theme-color("info");
+    border-bottom: 1px solid $info;
     padding: 0 $padding-large-vertical $padding-base-vertical;
   }
 
@@ -36,6 +36,6 @@
   }
 
   &--reply &__info {
-    border-color: theme-color("warning");
+    border-color: $warning;
   }
 }

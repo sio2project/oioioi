@@ -6,7 +6,7 @@
     </div>
     {% endif %}
     {% if not post.hidden or is_admin %}
-    <div class="card-body text-left {% if post.hidden %} collapse {% endif %}">
+    <div class="card-body text-start {% if post.hidden %} collapse {% endif %}">
         {{ post.content|urlize|linebreaksbr }}
     </div>
     {% endif %}

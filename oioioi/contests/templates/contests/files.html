@@ -9,7 +9,7 @@
     <div class="clearfix">
         {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
         {% if is_admin %}
-            <div class="float-right">
+            <div class="float-end">
                 <a role="button" class="btn btn-sm btn-outline-secondary"
                     href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
                     <i class="fa-regular fa-circle-up"></i>
@@ -17,7 +17,7 @@
                 </a>
             </div>
         {% endif %}
-        <h1 class="float-left">{% trans "Downloads" %}</h1>
+        <h1 class="float-start">{% trans "Downloads" %}</h1>
     </div>
 
     {% include "problems/files.html" %}

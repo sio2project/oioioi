@@ -5,14 +5,14 @@
 
 {% block main-content %}
     <div class="clearfix">
-        <div class="float-right">
+        <div class="float-end">
             <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'oioioiadmin:similarsubmits_submissionssimilaritygroup_add' %}">
                 <i class="fa-solid fa-plus"></i>
                 {% trans "Add by selecting" %}
             </a>
         </div>
-        <h1 class="float-left">{% trans "Bulk add similar submits" %}</h1>
+        <h1 class="float-start">{% trans "Bulk add similar submits" %}</h1>
     </div>
 
     <form method="post">
