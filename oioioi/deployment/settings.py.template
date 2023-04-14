@@ -327,7 +327,6 @@ INSTALLED_APPS = (
     'oioioi.acm',
     'oioioi.forum',
 #    'oioioi.disqualification',
-#    'oioioi.sharingcli',
     'oioioi.ctimes',
     'oioioi.suspendjudge',
 #    'oioioi.submitservice',
@@ -397,12 +396,7 @@ AUTHENTICATION_BACKENDS += (
 #UNPACKMGR_CONCURRENCY = 1
 
 PROBLEM_SOURCES += (
-#    'oioioi.sharingcli.problem_sources.RemoteSource',
 #    'oioioi.zeus.problem_sources.ZeusProblemSource',
-)
-
-SHARING_SERVERS = (
-#    ('site_url', 'sharing_url', 'client_id', 'client_secret'),
 )
 
 ZEUS_INSTANCES = {
