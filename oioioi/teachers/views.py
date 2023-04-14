@@ -54,16 +54,8 @@ def is_not_teacher(request):
 
 #nowa rzecz, do autocomplete wyszukiwania, czy to przejdzie?
 def get_usernames(request):
-    search = request.GET.get('search')
-    payload = []
-    if search:
-        objs = User.objects.filter(__name__startswith = search)
-        for obj in objs:
-            payload.append({
-                'name' : obj.username
-            })
-    return payload
-
+    queryset = User.objects.filter(teacher__isnull=True)
+    return get_user_hints_view(request, 'substr', queryset)
 
 def send_request_email(request, teacher, message):
     context = {

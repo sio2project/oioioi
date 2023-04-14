@@ -21,12 +21,6 @@ class AddTeacherForm(forms.ModelForm):
 
     user = UserSelectionField(label=_("Username"))
 
-    #pozostało:
-    #przedefiniować init i w tej funkcji ustawić wartość user.hints_url
-    #a w teachers urls trzeba zrobić własny url obsługujący wyszukiwanie
-    #i w teachers views dodać jakieś def do tego
-    #coś takiego jest w questions, i może gdzieś jeszcze, jakby co.
-
     def __init__(self, *args, **kwargs):
         super(AddTeacherForm, self).__init__(*args, **kwargs)
         self.fields['user'].hints_url = reverse('user_search')
