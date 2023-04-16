@@ -405,11 +405,13 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     @staticmethod
     @receiver(post_delete, sender=Submission)
     def recalculate_statistics_on_submission_deleted(instance, **kwargs):
-        user=User.objects.filter(id=instance.user_id).first()
-        if user!=None:
-            instance.problem_instance.problem.controller.recalculate_statistics_for_user(
-                user
-            )
+        # We might have gotten deleted because of models.CASCADE
+        try:
+            user = instance.user
+            problem = instance.problem_instance.problem
+        except AttributeError:
+            return
+        problem.controller.recalculate_statistics_for_user(user)
 
     def _activate_newest_report(self, submission, queryset, kind=None):
         """Activates the newest report.
