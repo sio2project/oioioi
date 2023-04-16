@@ -99,7 +99,8 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,))
 
-        self.client.post(url, {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 0)
 
     def _test_problem_permissions(self):
