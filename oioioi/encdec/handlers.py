@@ -2,6 +2,7 @@ import functools
 import logging
 from collections import defaultdict
 
+import six
 from django.conf import settings
 from django.db import transaction
 from django.urls import reverse
@@ -57,15 +58,15 @@ def _override_tests_limits(language, tests):
 
     for test in tests:
         new_limits[test.pk] = {
-            'encoder_memory_limit': test.encoder_memory_limit,
-            'decoder_memory_limit': test.decoder_memory_limit,
+            'encoder_mem_limit': test.encoder_memory_limit,
+            'decoder_mem_limit': test.decoder_memory_limit,
             'encoder_time_limit': test.encoder_time_limit,
             'decoder_time_limit': test.decoder_time_limit,
         }
 
     for new_rule in overriding_tests:
-        new_limits[new_rule.test.pk]['encoder_memory_limit'] = new_rule.encoder_memory_limit
-        new_limits[new_rule.test.pk]['decoder_memory_limit'] = new_rule.decoder_memory_limit
+        new_limits[new_rule.test.pk]['encoder_mem_limit'] = new_rule.encoder_memory_limit
+        new_limits[new_rule.test.pk]['decoder_mem_limit'] = new_rule.decoder_memory_limit
         new_limits[new_rule.test.pk]['encoder_time_limit'] = new_rule.encoder_time_limit
         new_limits[new_rule.test.pk]['decoder_time_limit'] = new_rule.decoder_time_limit
 
@@ -132,7 +133,7 @@ def collect_tests(env, **kwargs):
         test_env = {}
         test_env['id'] = test.id
         test_env['name'] = test.name
-        test_env['input_file'] = django_to_filetracker_path(test.input_file)
+        test_env['in_file'] = django_to_filetracker_path(test.input_file)
         test_env['hint_file'] = django_to_filetracker_path(test.hint_file)
         test_env['kind'] = test.kind
         test_env['group'] = test.group or test.name
@@ -143,9 +144,9 @@ def collect_tests(env, **kwargs):
         if test.decoder_time_limit:
             test_env['decoder_time_limit'] = new_limits[test.pk]['decoder_time_limit']
         if test.encoder_memory_limit:
-            test_env['encoder_memory_limit'] = new_limits[test.pk]['encoder_memory_limit']
+            test_env['encoder_mem_limit'] = new_limits[test.pk]['encoder_mem_limit']
         if test.decoder_memory_limit:
-            test_env['decoder_memory_limit'] = new_limits[test.pk]['decoder_memory_limit']
+            test_env['decoder_mem_limit'] = new_limits[test.pk]['decoder_mem_limit']
         test_env['to_judge'] = False
         env['tests'][test.name] = test_env
 
@@ -154,65 +155,62 @@ def collect_tests(env, **kwargs):
     return env
 
 
-
 @_skip_on_compilation_error
-def run_encoder(env, kind=None, **kwargs):
+def run_tests(env, kind=None, **kwargs):
     """Runs tests and saves their results into the environment
 
-    If ``kind`` is specified, only tests with the given kind will be run.
+       If ``kind`` is specified, only tests with the given kind will be run.
 
-    Used ``environ`` keys:
-      * ``tests``: this should be a dictionary, mapping test name into
-        the environment to pass to the ``exec`` job
-      * ``unsafe_exec``: set to ``True`` if we want to use only
-        ``ulimit()`` to limit the executable file resources, ``False``
-        otherwise (see the documentation for ``unsafe-exec`` job for
-        more information),
-      * ``compiled_file``: the compiled file which will be tested,
-      * ``exec_info``: information how to execute ``compiled_file``
-      * ``check_outputs``: set to ``True`` if the output should be verified
-      * ``checker``: if present, it should be the filetracker path
-        of the binary used as the output checker,
-      * ``save_outputs``: set to ``True`` if and only if each of
-        test results should have its output file attached.
-      * ``sioworkers_extra_args``: dict mappting kinds to additional
-        arguments passed to
-        :fun:`oioioi.sioworkers.jobs.run_sioworkers_jobs`
-        (kwargs).
+       Used ``environ`` keys:
+         * ``tests``: this should be a dictionary, mapping test name into
+           the environment to pass to the ``exec`` job
+         * ``unsafe_exec``: set to ``True`` if we want to use only
+           ``ulimit()`` to limit the executable file resources, ``False``
+           otherwise (see the documentation for ``unsafe-exec`` job for
+           more information),
+         * ``compiled_file``: the compiled file which will be tested,
+         * ``exec_info``: information how to execute ``compiled_file``
+         * ``check_outputs``: set to ``True`` if the output should be verified
+         * ``checker``: if present, it should be the filetracker path
+           of the binary used as the output checker,
+         * ``save_outputs``: set to ``True`` if and only if each of
+           test results should have its output file attached.
+         * ``sioworkers_extra_args``: dict mappting kinds to additional
+           arguments passed to
+           :fun:`oioioi.sioworkers.jobs.run_sioworkers_jobs`
+           (kwargs).
 
-    Produced ``environ`` keys:
-      * ``encoder_results``: a dictionary, mapping test names into
-        dictionaries with the following keys:
+       Produced ``environ`` keys:
+         * ``test_results``: a dictionary, mapping test names into
+           dictionaries with the following keys:
 
-          ``result_code``
-            test status: OK, WA, RE, ...
-          ``result_string``
-            detailed supervisor information (for example, where the
-            required and returned outputs differ)
-          ``time_used``
-            total time used, in miliseconds
-          ``mem_used``
-            memory usage, in KiB
-          ``num_syscalls``
-            number of syscalls performed
-          ``out_file``
-            filetracker path to the output file (only if
-            ``env['save_outputs']`` was set)
+             ``result_code``
+               test status: OK, WA, RE, ...
+             ``result_string``
+               detailed supervisor information (for example, where the
+               required and returned outputs differ)
+             ``time_used``
+               total time used, in miliseconds
+             ``mem_used``
+               memory usage, in KiB
+             ``num_syscalls``
+               number of syscalls performed
+             ``out_file``
+               filetracker path to the output file (only if
+               ``env['save_outputs']`` was set)
 
-        If the dictionary already exists, new test results are appended.
+           If the dictionary already exists, new test results are appended.
     """
     jobs = dict()
     not_to_judge = []
-    for test_name, test_env in env['tests'].items():
+    for test_name, test_env in six.iteritems(env['tests']):
         if kind and test_env['kind'] != kind:
             continue
         if not test_env['to_judge']:
             not_to_judge.append(test_name)
             continue
-        job = {}
-        job['job_type'] = (env.get('exec_mode', '') + '-encdec-encoder-exec').lstrip('-')
-        job['in_file'] = test_env['input_file']
-        job['hint_file'] = test_env['hint_file']
+        job = test_env.copy()
+        job['job_type'] = (env.get('exec_mode', '') + '-encdec-exec').lstrip('-')
         if kind == 'INITIAL' or kind == 'EXAMPLE':
             job['task_priority'] = EXAMPLE_TEST_TASK_PRIORITY
         elif env['submission_kind'] == 'TESTRUN':
@@ -221,251 +219,107 @@ def run_encoder(env, kind=None, **kwargs):
             job['task_priority'] = DEFAULT_TEST_TASK_PRIORITY
         job['exe_file'] = env['compiled_file']
         job['exec_info'] = env['exec_info']
-        if 'encoder_memory_limit' in test_env:
-            job['exec_memory_limit'] = test_env['encoder_memory_limit']
-        if 'encoder_time_limit' in test_env:
-            job['exec_time_limit'] = test_env['encoder_time_limit']
         job['chn_file'] = env['channel']
-        job['out_file'] = _make_filename(env, test_name + '.enc')
-        test_env['encoder_output'] = job['out_file']
-        test_env['input_for_decoder'] = job['input_for_decoder'] \
-                = _make_filename(env, test_name + '.dec_in')
-        test_env['input_for_checker'] = job['input_for_checker'] \
-                = _make_filename(env, test_name + '.chk_in')
-        job['upload_out'] = True
-        job['untrusted_checker'] = env['untrusted_checker']
-        job['max_score'] = test_env['max_score']
-        jobs[test_name] = job
-    extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})
-    env['workers_jobs'] = jobs
-    env['workers_jobs.extra_args'] = extra_args
-    env['workers_jobs.not_to_judge'] = not_to_judge
-    return transfer_job(
-        env,
-        'oioioi.sioworkers.handlers.transfer_job',
-        'oioioi.sioworkers.handlers.restore_job',
-    )
-
-
-@_skip_on_compilation_error
-def run_decoder(env, kind=None, **kwargs):
-    """Runs tests and saves their results into the environment
-
-    If ``kind`` is specified, only tests with the given kind will be run.
-
-    Used ``environ`` keys:
-      * ``tests``: this should be a dictionary, mapping test name into
-        the environment to pass to the ``exec`` job
-      * ``unsafe_exec``: set to ``True`` if we want to use only
-        ``ulimit()`` to limit the executable file resources, ``False``
-        otherwise (see the documentation for ``unsafe-exec`` job for
-        more information),
-      * ``compiled_file``: the compiled file which will be tested,
-      * ``exec_info``: information how to execute ``compiled_file``
-      * ``check_outputs``: set to ``True`` if the output should be verified
-      * ``checker``: if present, it should be the filetracker path
-        of the binary used as the output checker,
-      * ``save_outputs``: set to ``True`` if and only if each of
-        test results should have its output file attached.
-      * ``sioworkers_extra_args``: dict mappting kinds to additional
-        arguments passed to
-        :fun:`oioioi.sioworkers.jobs.run_sioworkers_jobs`
-        (kwargs).
-
-    Produced ``environ`` keys:
-      * ``decoder_results``: a dictionary, mapping test names into
-        dictionaries with the following keys:
-
-          ``result_code``
-            test status: OK, WA, RE, ...
-          ``result_string``
-            detailed supervisor information (for example, where the
-            required and returned outputs differ)
-          ``time_used``
-            total time used, in miliseconds
-          ``mem_used``
-            memory usage, in KiB
-          ``num_syscalls``
-            number of syscalls performed
-          ``out_file``
-            filetracker path to the output file (only if
-            ``env['save_outputs']`` was set)
-
-        If the dictionary already exists, new test results are appended.
-    """
-    jobs = dict()
-    not_to_judge = []
-    encoder_failed = []
-    for test_name, test_env in env['tests'].items():
-        if kind and test_env['kind'] != kind:
-            continue
-        if not test_env['to_judge']:
-            not_to_judge.append(test_name)
-            continue
-        if env['encoder_results'][test_name]['result_code'] != 'OK':
-            encoder_failed.append(test_name)
-            continue
-        job = {}
-        job['job_type'] = (env.get('exec_mode', '') + '-encdec-decoder-exec').lstrip('-')
-        job['original_input_file'] = test_env['input_file']
-        job['in_file'] = test_env['input_for_decoder']
-        job['hint_file'] = test_env['hint_file']
-        job['channel_output_file'] = test_env['input_for_checker']
-        if kind == 'INITIAL' or kind == 'EXAMPLE':
-            job['task_priority'] = EXAMPLE_TEST_TASK_PRIORITY
-        elif env['submission_kind'] == 'TESTRUN':
-            job['task_priority'] = TESTRUN_TEST_TASK_PRIORITY
-        else:
-            job['task_priority'] = DEFAULT_TEST_TASK_PRIORITY
-        job['exe_file'] = env['compiled_file']
-        job['exec_info'] = env['exec_info']
-        if 'decoder_memory_limit' in test_env:
-            job['exec_memory_limit'] = test_env['decoder_memory_limit']
-        if 'decoder_time_limit' in test_env:
-            job['exec_time_limit'] = test_env['decoder_time_limit']
         job['chk_file'] = env['checker']
-        job['out_file'] = _make_filename(env, test_name + '.out')
-        if env.get('save_outputs'):
-            job['upload_out'] = True
-        job['untrusted_checker'] = env['untrusted_checker']
-        job['max_score'] = test_env['max_score']
+        job['untrusted_channel'] = job['untrusted_checker'] = env['untrusted_checker']
         jobs[test_name] = job
     extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})
     env['workers_jobs'] = jobs
     env['workers_jobs.extra_args'] = extra_args
     env['workers_jobs.not_to_judge'] = not_to_judge
-    env['workers_jobs.encoder_failed'] = encoder_failed
-    return transfer_job(
-        env,
-        'oioioi.sioworkers.handlers.transfer_job',
-        'oioioi.sioworkers.handlers.restore_job',
-    )
+    return transfer_job(env,
+            'oioioi.sioworkers.handlers.transfer_job',
+            'oioioi.sioworkers.handlers.restore_job')
 
 
 @_skip_on_compilation_error
-def run_encoder_end(env, **kwargs):
-    del env['workers_jobs']
+def run_tests_end(env, **kwargs):
     not_to_judge = env['workers_jobs.not_to_judge']
     del env['workers_jobs.not_to_judge']
     jobs = env['workers_jobs.results']
-    del env['workers_jobs.results']
-    env.setdefault('encoder_results', {})
-    for test_name, result in jobs.items():
-        env['encoder_results'].setdefault(test_name, {}).update(result)
+    env.setdefault('test_results', {})
+    for test_name, result in six.iteritems(jobs):
+        env['test_results'].setdefault(test_name, {}).update(result)
     for test_name in not_to_judge:
-        env['encoder_results'].setdefault(test_name, {}).update({})
+        env['test_results'].setdefault(test_name, {}) \
+                .update(env['tests'][test_name])
     return env
 
 
-@_skip_on_compilation_error
-def run_decoder_end(env, **kwargs):
-    del env['workers_jobs']
-    not_to_judge = env['workers_jobs.not_to_judge']
-    del env['workers_jobs.not_to_judge']
-    encoder_failed = env['workers_jobs.encoder_failed']
-    del env['workers_jobs.encoder_failed']
-    jobs = env['workers_jobs.results']
-    del env['workers_jobs.results']
-    env.setdefault('decoder_results', {})
-    for test_name, result in jobs.items():
-        env['decoder_results'].setdefault(test_name, {}).update(result)
-    for test_name in not_to_judge:
-        env['decoder_results'].setdefault(test_name, {}).update({})
-    for test_name in encoder_failed:
-        env['decoder_results'].setdefault(test_name, {}).update({
-            'skipped': True,
-            'score': None,
-            'max_score': None,
-            'result_code': 'SKIP'
-        })
-    return env
+def _convert_test_result(test_result):
+    result = {}
+    if 'failed_step' not in test_result:
+        result['exec_time_limit'] = test_result['decoder_time_limit']
+        result['time_used'] = max (
+            test_result['decoder_time_used'],
+            (test_result['encoder_time_used'] * test_result['decoder_time_limit']) / test_result['encoder_time_limit']
+        )
+        result['result_code'] = 'OK'
+        result['result_percentage'] = test_result['checker_result_percentage']
+    elif test_result['failed_step'] == 'checker':
+        result['exec_time_limit'] = test_result['decoder_time_limit']
+        result['time_used'] = test_result['decoder_time_used']
+        result['result_code'] = test_result['checker_result_code']
+    elif test_result['failed_step'] == 'decoder':
+        result['exec_time_limit'] = test_result['decoder_time_limit']
+        result['time_used'] = test_result['decoder_time_used']
+        result['result_code'] = test_result['decoder_result_code']
+    elif test_result['failed_step'] == 'channel':
+        result['exec_time_limit'] = test_result['encoder_time_limit']
+        result['time_used'] = test_result['encoder_time_used']
+        result['result_code'] = test_result['channel_result_code']
+    elif test_result['failed_step'] == 'encoder':
+        result['exec_time_limit'] = test_result['encoder_time_limit']
+        result['time_used'] = test_result['encoder_time_used']
+        result['result_code'] = test_result['encoder_result_code']
+    return result
 
 
 @_skip_on_compilation_error
-def grade_encoder(env, **kwargs):
+def grade_tests(env, **kwargs):
     """Grades tests using a scoring function.
 
-    The ``env['test_scorer']``, which is used by this ``Handler``,
-    should be a path to a function which gets test definition (e.g.  a
-    ``env['tests'][test_name]`` dict) and test run result (e.g.  a
-    ``env['encoder_results'][test_name]`` dict) and returns a score
-    (instance of some subclass of
-    :class:`~oioioi.contests.scores.ScoreValue`) and a status.
+       The ``env['test_scorer']``, which is used by this ``Handler``,
+       should be a path to a function which gets test definition (e.g.  a
+       ``env['tests'][test_name]`` dict) and test run result (e.g.  a
+       ``env['test_results'][test_name]`` dict) and returns a score
+       (instance of some subclass of
+       :class:`~oioioi.contests.scores.ScoreValue`) and a status.
 
-    Used ``environ`` keys:
-      * ``tests``
-      * ``encoder_results``
-      * ``test_scorer``
+       Used ``environ`` keys:
+         * ``tests``
+         * ``test_results``
+         * ``test_scorer``
 
-    Produced ``environ`` keys:
-      * `score`, `max_score` and `status` keys in ``env['test_result']``
+       Produced ``environ`` keys:
+         * `score`, `max_score` and `status` keys in ``env['test_result']``
     """
 
+    fun = import_string(env.get('test_scorer')
+            or settings.DEFAULT_TEST_SCORER)
     tests = env['tests']
-    for test_name, test_result in env['encoder_results'].items():
-        if not tests[test_name]['to_judge']:
-            report = EncdecTestReport.objects.get(
-                submission_report__submission__id=env['submission_id'],
-                submission_report__status='ACTIVE',
-                test_name=test_name,
-            )
-            test_result['status'] = report.encoder_status
-            test_result['time_used'] = report.encoder_time_used
-    return env
-
-
-@_skip_on_compilation_error
-def grade_decoder(env, **kwargs):
-    """Grades tests using a scoring function.
-
-    The ``env['test_scorer']``, which is used by this ``Handler``,
-    should be a path to a function which gets test definition (e.g.  a
-    ``env['tests'][test_name]`` dict) and test run result (e.g.  a
-    ``env['decoder_results'][test_name]`` dict) and returns a score
-    (instance of some subclass of
-    :class:`~oioioi.contests.scores.ScoreValue`) and a status.
-
-    Used ``environ`` keys:
-      * ``tests``
-      * ``decoder_results``
-      * ``test_scorer``
-
-    Produced ``environ`` keys:
-      * `score`, `max_score` and `status` keys in ``env['test_result']``
-    """
-
-    test_scorer = import_string(env.get('test_scorer') or settings.DEFAULT_TEST_SCORER)
-    print(repr(test_scorer))
-    tests = env['tests']
-    encoder_results = env['encoder_results']
-    for test_name, decoder_result in env['decoder_results'].items():
+    for test_name, test_result in six.iteritems(env['test_results']):
         if tests[test_name]['to_judge']:
-            used_result = decoder_result
-            if decoder_result.get('skipped', False):
-                # Must have failed, so will not succeed
-                used_result = encoder_results[test_name]
-            # TODO: combine the two
-            print('UR', used_result)
-            score, max_score, status = test_scorer(tests[test_name], used_result)
+            score, max_score, status = fun(tests[test_name], _convert_test_result(test_result))
             assert isinstance(score, (type(None), ScoreValue))
             assert isinstance(max_score, (type(None), ScoreValue))
-            decoder_result['score'] = score and score.serialize()
-            decoder_result['max_score'] = max_score and max_score.serialize()
-            decoder_result['status'] = status
+            test_result['score'] = score and score.serialize()
+            test_result['max_score'] = max_score and max_score.serialize()
+            test_result['status'] = status
         else:
-            report = EncdecTestReport.objects.get(
+            report = TestReport.objects.get(
                 submission_report__submission__id=env['submission_id'],
                 submission_report__status='ACTIVE',
-                test_name=test_name,
-            )
+                test_name=test_name)
             score = report.score
-            max_score = report.max_score
-            status = report.decoder_status
-            time_used = report.decoder_time_used
-            decoder_result['score'] = score and score.serialize()
-            decoder_result['max_score'] = max_score and max_score.serialize()
-            decoder_result['status'] = status
-            decoder_result['time_used'] = time_used
+            max_score = IntegerScore(report.test_max_score)
+            status = report.status
+            time_used = report.time_used
+            test_result['score'] = score and score.serialize()
+            test_result['max_score'] = max_score and max_score.serialize()
+            test_result['status'] = status
+            test_result['time_used'] = time_used
+            env['test_results'][test_name] = test_result
     return env
 
 
@@ -488,7 +342,7 @@ def grade_groups(env, **kwargs):
     """
 
     test_results = defaultdict(dict)
-    for test_name, test_result in env['decoder_results'].items():
+    for test_name, test_result in env['test_results'].items():
         test = env['tests'][test_name]
         group_name = test['group']
         test_results[group_name][test_name] = {
@@ -649,36 +503,46 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         return env
     tests = env['tests']
 
-    encoder_results = env.get('encoder_results', {})
-    decoder_results = env.get('decoder_results', {})
-    for test_name, decoder_result in decoder_results.items():
-        encoder_result = encoder_results[test_name]
+    test_results = env.get('test_results', {})
+    for test_name, test_result in test_results.items():
         test = tests[test_name]
-        if 'report_id' in decoder_result:
+        if 'report_id' in test_result:
             continue
+        failed_step = test_result.get('failed_step', None)
         test_report = EncdecTestReport(submission_report=submission_report)
         test_report.test_id = test.get('id')
         test_report.test_name = test_name
         test_report.test_group = test['group']
         test_report.test_encoder_time_limit = test['encoder_time_limit']
         test_report.test_decoder_time_limit = test['decoder_time_limit']
-        test_report.max_score = decoder_result['max_score']
-        test_report.score = decoder_result['score'] if save_scores else None
-        test_report.encoder_status = encoder_result['result_code']
-        test_report.decoder_status = decoder_result['result_code']
-        test_report.encoder_time_used = encoder_result['time_used']
-        test_report.decoder_time_used = decoder_result.get('time_used', 0)
+        test_report.max_score = test_result['max_score']
+        test_report.score = test_result['score'] if save_scores else None
+        if failed_step == 'encoder':
+            test_report.encoder_status = test_result['encoder_result_code']
+            test_report.decoder_status = 'SKIP'
+            comment = test_result.get('encoder_result_string', '')
+        elif failed_step == 'channel':
+            test_report.encoder_status = test_result['channel_result_code']
+            test_report.decoder_status = 'SKIP'
+            comment = test_result.get('channel_result_string', '')
+        elif failed_step == 'decoder':
+            test_report.encoder_status = test_result['channel_result_code']
+            test_report.decoder_status = test_result['decoder_result_code']
+            comment = test_result.get('decoder_result_string', '')
+        else:
+            test_report.encoder_status = test_result['channel_result_code']
+            test_report.decoder_status = test_result['checker_result_code']
+            comment = test_result.get('checker_result_string', '')
+        test_report.encoder_time_used = test_result['encoder_time_used']
+        test_report.decoder_time_used = test_result.get('decoder_time_used', 0)
 
-        comment = decoder_result.get('result_string', '')
         if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
             comment = ''
         test_report.comment = Truncator(comment).chars(
             EncdecTestReport._meta.get_field('comment').max_length
         )
-        if env.get('save_outputs', False):
-            test_report.output_file = filetracker_to_django_file(decoder_result['out_file'])
         test_report.save()
-        decoder_result['report_id'] = test_report.id
+        test_result['report_id'] = test_report.id
 
     group_results = env.get('group_results', {})
     for group_name, group_result in group_results.items():

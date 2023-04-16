@@ -114,19 +114,12 @@ class EncdecProblemController(ProgrammingProblemController):
             recipe_body.extend(
                 [
                     (
-                        'initial_run_encoder',
-                        'oioioi.encdec.handlers.run_encoder',
+                        'initial_run_tests',
+                        'oioioi.encdec.handlers.run_tests',
                         dict(kind='EXAMPLE'),
                     ),
-                    ('initial_run_encoder_end', 'oioioi.encdec.handlers.run_encoder_end'),
-                    ('initial_grade_encoder', 'oioioi.encdec.handlers.grade_encoder'),
-                    (
-                        'initial_run_decoder',
-                        'oioioi.encdec.handlers.run_decoder',
-                        dict(kind='EXAMPLE'),
-                    ),
-                    ('initial_run_decoder_end', 'oioioi.encdec.handlers.run_decoder_end'),
-                    ('initial_grade_decoder', 'oioioi.encdec.handlers.grade_decoder'),
+                    ('initial_run_tests_end', 'oioioi.encdec.handlers.run_tests_end'),
+                    ('initial_grade_tests', 'oioioi.encdec.handlers.grade_tests'),
                     ('initial_grade_groups', 'oioioi.encdec.handlers.grade_groups'),
                     (
                         'initial_grade_submission',
@@ -142,39 +135,6 @@ class EncdecProblemController(ProgrammingProblemController):
                 ]
             )
 
-        if 'USER_OUTS' in kinds:
-            recipe_body.extend(
-                [
-                    (
-                        'userout_run_tests',
-                        'oioioi.encdec.handlers.run_tests',
-                        dict(kind=None),
-                    ),
-                    ('userout_run_tests', 'oioioi.encdec.handlers.run_tests_end'),
-                    ('userout_grade_tests', 'oioioi.encdec.handlers.grade_tests'),
-                    ('userout_grade_groups', 'oioioi.encdec.handlers.grade_groups'),
-                    (
-                        'userout_grade_submission',
-                        'oioioi.encdec.handlers.grade_submission',
-                        dict(kind=None),
-                    ),
-                    (
-                        'userout_make_report',
-                        'oioioi.encdec.handlers.make_report',
-                        dict(kind='USER_OUTS', save_scores=False),
-                    ),
-                    (
-                        'userout_fill_outfile_in_existing_test_reports',
-                        'oioioi.encdec.handlers.'
-                        'fill_outfile_in_existing_test_reports',
-                    ),
-                    (
-                        'userout_insert_existing_submission_link',
-                        'oioioi.encdec.handlers.' 'insert_existing_submission_link',
-                    ),
-                ]
-            )
-
         if 'NORMAL' in kinds or 'HIDDEN' in kinds or 'FULL' in kinds:
             recipe_body.append(recipe_placeholder('before_final_tests'))
 
@@ -182,19 +142,12 @@ class EncdecProblemController(ProgrammingProblemController):
             recipe_body.extend(
                 [
                     (
-                        'final_run_encoder',
-                        'oioioi.encdec.handlers.run_encoder',
+                        'final_run_tests',
+                        'oioioi.encdec.handlers.run_tests',
                         dict(kind='NORMAL'),
                     ),
-                    ('final_run_encoder_end', 'oioioi.encdec.handlers.run_encoder_end'),
-                    ('final_grade_encoder', 'oioioi.encdec.handlers.grade_encoder'),
-                    (
-                        'final_run_decoder',
-                        'oioioi.encdec.handlers.run_decoder',
-                        dict(kind='NORMAL'),
-                    ),
-                    ('final_run_decoder_end', 'oioioi.encdec.handlers.run_decoder_end'),
-                    ('final_grade_decoder', 'oioioi.encdec.handlers.grade_decoder'),
+                    ('final_run_tests_end', 'oioioi.encdec.handlers.run_tests_end'),
+                    ('final_grade_tests', 'oioioi.encdec.handlers.grade_tests'),
                     ('final_grade_groups', 'oioioi.encdec.handlers.grade_groups'),
                     (
                         'final_grade_submission',
@@ -208,12 +161,9 @@ class EncdecProblemController(ProgrammingProblemController):
         if 'HIDDEN' in kinds:
             recipe_body.extend(
                 [
-                    ('hidden_run_encoder', 'oioioi.encdec.handlers.run_encoder'),
-                    ('hidden_run_encoder_end', 'oioioi.encdec.handlers.run_encoder_end'),
-                    ('hidden_grade_encoder', 'oioioi.encdec.handlers.grade_encoder'),
-                    ('hidden_run_decoder', 'oioioi.encdec.handlers.run_decoder'),
-                    ('hidden_run_decoder_end', 'oioioi.encdec.handlers.run_decoder_end'),
-                    ('hidden_grade_decoder', 'oioioi.encdec.handlers.grade_decoder'),
+                    ('hidden_run_tests', 'oioioi.encdec.handlers.run_tests'),
+                    ('hidden_run_tests_end', 'oioioi.encdec.handlers.run_tests_end'),
+                    ('hidden_grade_tests', 'oioioi.encdec.handlers.grade_tests'),
                     ('hidden_grade_groups', 'oioioi.encdec.handlers.grade_groups'),
                     (
                         'hidden_grade_submission',
@@ -232,12 +182,9 @@ class EncdecProblemController(ProgrammingProblemController):
         if 'FULL' in kinds:
             recipe_body.extend(
                 [
-                    ('full_run_encoder', 'oioioi.encdec.handlers.run_encoder'),
-                    ('full_run_encoder', 'oioioi.encdec.handlers.run_encoder_end'),
-                    ('full_grade_encoder', 'oioioi.encdec.handlers.grade_encoder'),
-                    ('full_run_decoder', 'oioioi.encdec.handlers.run_decoder'),
-                    ('full_run_decoder', 'oioioi.encdec.handlers.run_decoder_end'),
-                    ('full_grade_decoder', 'oioioi.encdec.handlers.grade_decoder'),
+                    ('full_run_tests', 'oioioi.encdec.handlers.run_tests'),
+                    ('full_run_tests', 'oioioi.encdec.handlers.run_tests_end'),
+                    ('full_grade_tests', 'oioioi.encdec.handlers.grade_tests'),
                     ('full_grade_groups', 'oioioi.encdec.handlers.grade_groups'),
                     (
                         'full_grade_submission',

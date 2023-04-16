@@ -53,6 +53,12 @@ from oioioi.encdec.models import (
     EncdecTest,
     LanguageOverrideForEncdecTest
 )
+from oioioi.encdec.models import (
+    EncdecChecker,
+    EncdecChannel,
+    EncdecTest,
+    LanguageOverrideForEncdecTest
+)
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.sinolpack.utils import add_extra_files
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
@@ -810,7 +816,7 @@ class SinolPackage(object):
         outs_to_make = []
         scored_groups = set()
 
-        if self.use_make:
+        if self.use_make and not self.config.get('no_outgen', False):
             self._find_and_compile('', command='outgen')
 
         for order, test in enumerate(sorted(all_items, key=naturalsort_key)):
@@ -828,7 +834,6 @@ class SinolPackage(object):
                 created_tests.append(instance)
 
         return created_tests, outs_to_make, scored_groups
-
 
     @_describe_processing_error
     def _verify_time_limits(self, time_limit_sum):
@@ -919,9 +924,7 @@ class SinolPackage(object):
             try:
                 instance.full_clean()
             except ValidationError as e:
-                #raise ProblemPackageError(e.messages[0])
                 raise ProblemPackageError(e)
-
 
     def _delete_non_existing_tests(self, created_tests):
         for test in Test.objects.filter(
@@ -1257,6 +1260,16 @@ class SinolPackage(object):
         else:
             scores = self._compute_scores_automatically(
                 scored_groups, total_score_if_auto
+            )
+        encdec_tests = EncdecTest.objects.filter(problem_instance=self.main_problem_instance)
+        for test in encdec_tests:
+            LanguageOverrideForEncdecTest.objects.create(
+                encoder_time_limit=test.encoder_time_limit,
+                decoder_time_limit=test.decoder_time_limit,
+                encoder_memory_limit=test.encoder_memory_limit,
+                decoder_decoder_memory_limit=test.memory_limit,
+                test=test,
+                language=lang,
             )
 
         Test.objects.filter(problem_instance=self.main_problem_instance).update(
@@ -1606,12 +1619,7 @@ class SinolPackageCreator(object):
                 test.input_file, os.path.join(self.short_name, 'in', basename + '.in')
             )
             self._pack_django_file(
-                test.encoder_output_file,
-                os.path.join(self.short_name, 'out', basename + '.out_enc'),
-            )
-            self._pack_django_file(
-                test.decoder_output_file,
-                os.path.join(self.short_name, 'out', basename + '.out_dec'),
+                test.input_file, os.path.join(self.short_name, 'in', basename + '.hint')
             )
 
     def _pack_model_solutions(self):
