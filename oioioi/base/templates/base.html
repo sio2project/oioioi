@@ -22,6 +22,15 @@
             {% common_scripts %}
         {% endcompress %}
 
+        {% comment %}
+        This needs to be loaded at least before admin js files.
+        {% endcomment %}
+        {% if compress_offline %}
+            <script src="{% statici18n LANGUAGE_CODE %}"></script>
+        {% else %}
+            <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
+        {% endif %}
+
         {% block styles %}
             {% compress css %}
                 <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}scss/style.scss">
@@ -114,11 +123,6 @@
         </div>
         {% block scripts %}
             <script type="text/javascript">const oioioi_base_url = "{{ base_url|escapejs }}";</script>
-            {% if compress_offline %}
-                <script src="{% statici18n LANGUAGE_CODE %}"></script>
-            {% else %}
-                <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
-            {% endif %}
             {% compress js %}
                 <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.bundle.min.js"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-typeahead.js"></script>
