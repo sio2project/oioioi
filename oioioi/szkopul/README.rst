@@ -1,0 +1,1 @@
+Custom functionality for the `Szkopuł <https://szkopul.edu.pl>`_ platform.

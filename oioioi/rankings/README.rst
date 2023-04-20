@@ -1,1 +1,1 @@
-A module implementing html and cvs ranking views.
+HTML and CSV ranking views.

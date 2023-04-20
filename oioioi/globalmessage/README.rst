@@ -1,4 +1,4 @@
-An optional module for showing alert for all users on every page, for example
+An optional module. Shows alerts for all users on every page, for example
 to announce planned downtime or current system issues.
 
 There can be one message at most.

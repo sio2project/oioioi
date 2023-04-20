@@ -1,1 +1,1 @@
-A module implementing authentication based on user IP or DNS hostname.
+Authentication based on user IP or DNS hostname.
