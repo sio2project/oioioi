@@ -75,10 +75,31 @@
   z-index: 999;
 }
 
+#supporters {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
 #jane-street-logo {
   margin-top: 1rem;
   margin-left: 1rem;
   margin-bottom: 3rem;
+}
+
+#projekt-map {
+  width: 50%;
+  height: auto;
+}
+
+@media screen and (max-width: 540px) {
+  #supporters {
+    flex-direction: column;
+  }
+  #projekt-map {
+    width: 80%;
+  }
 }
 
 @media screen and (min-width: 720px){
