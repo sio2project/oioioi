@@ -683,6 +683,13 @@ REST_FRAMEWORK = {
 
 ARCHIVE_USERCONTESTS = False
 
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# If set to True, usercontests will behave like teachercontests
+# and will not be listed on the main page.
+# Changing this setting is reversible.
+HIDE_USERCONTESTS = False
+
 FORUM_PAGE_SIZE = 15
 
 # Check seems to be broken. https://stackoverflow.com/a/65578574
