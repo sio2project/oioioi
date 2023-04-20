@@ -22,6 +22,7 @@ services:
         - "web:127.0.0.1"
     ports:
       - "8000:8000"
+#      - "7887:7887"
     volumes:
       - .:/sio2/oioioi
 #      - ./deployment:/sio2/deployment
