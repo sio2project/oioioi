@@ -14,7 +14,7 @@ describe('Authentication Module', function() {
         poster.withArgs(sinon.match.any,
             sinon.match({form:{nsid: 'TEST_USER_SID'}}))
             .yields(null, {statusCode: 200}, '{"status": "OK", "user": "test_user"}');
-        queuemanager.init('amqp://localhost', done);
+        queuemanager.init('amqp://oioioi:oioioi@broker', done);
     });
 
 
