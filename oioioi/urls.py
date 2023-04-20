@@ -44,8 +44,7 @@ for app in settings.INSTALLED_APPS:
             urls_module = import_module(app + '.urls')
             if hasattr(urls_module, 'urlpatterns'):
                 urlpatterns += getattr(urls_module, 'urlpatterns')
-        except ImportError as e:
-            print(app, e)
+        except ImportError:
             pass
 
 urlpatterns.extend(

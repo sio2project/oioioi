@@ -52,8 +52,8 @@ def is_teacher(request):
 def is_not_teacher(request):
     return not_anonymous(request) and not request.user.has_perm('teachers.teacher')
 
-#nowa rzecz, do autocomplete wyszukiwania, czy to przejdzie?
-def get_usernames(request):
+@enforce_condition(is_superuser)
+def get_non_teacher_names(request):
     queryset = User.objects.filter(teacher__isnull=True)
     return get_user_hints_view(request, 'substr', queryset)
 
