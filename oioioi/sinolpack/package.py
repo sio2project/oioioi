@@ -291,6 +291,10 @@ class SinolPackage(object):
             env['exe_file'] = env['compiled_file']
             env['re_string'] = re_string
             env['use_sandboxes'] = self.use_sandboxes
+            try:
+                env['ingen_mem_limit'] = settings.INGEN_MEMORY_LIMIT
+            except Exception:
+                pass
             env['collected_files_path'] = _make_filename_in_job_dir(self.env, 'in')
 
             renv = run_sioworkers_job(env)

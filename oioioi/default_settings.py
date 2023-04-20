@@ -445,6 +445,11 @@ DEFAULT_SCORE_AGGREGATOR = \
 MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
 MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
 
+# Memory limit for input generator job.
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# INGEN_MEMORY_LIMIT = 512 * 1024
+
 FILETRACKER_SERVER_ENABLED = True
 FILETRACKER_LISTEN_ADDR = '127.0.0.1'
 FILETRACKER_LISTEN_PORT = 9999
