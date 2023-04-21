@@ -32,7 +32,7 @@ services:
       - db
       - broker
   worker:
-    image: sio2project/sioworkers
+    image: ghcr.io/sio2project/sioworkers:latest
     stop_grace_period: 1m
     cap_add:
       - ALL
