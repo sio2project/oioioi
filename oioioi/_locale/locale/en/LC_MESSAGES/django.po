@@ -3808,7 +3808,7 @@ msgstr "class"
 
 #: oi/models.py:113 pa/models.py:41 participants/models.py:93
 msgid "terms accepted"
-msgstr "terms accepted"
+msgstr "I hereby consent to my personal data being processed by Stowarzyszenie Talent."
 
 #: oi/models.py:116
 #, python-format

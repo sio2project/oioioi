@@ -624,7 +624,7 @@ msgstr "Kliknij <a href='%(link)s'>tutaj</a> aby je zmienić. To zajmie tylko ch
 #: base/models.py:45 default_settings.py:543 mp/models.py:15 oi/forms.py:100
 #: oi/models.py:149 pa/models.py:49 participants/models.py:101
 msgid "terms accepted"
-msgstr "Znam i akceptuję regulamin"
+msgstr "Wyrażam zgodę na przetwarzanie moich danych osobowych przez Stowarzyszenie Talent."
 
 #: base/models.py:47
 msgid "first-party marketing consent"
