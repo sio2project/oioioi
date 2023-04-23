@@ -48,11 +48,6 @@ SITE_NAME = 'SZKOpuł'
 # Defaults to 'http://localhost'.
 PUBLIC_ROOT_URL = 'https://szkopul.edu.pl/'
 
-# Email addresses to send error message reports.
-ADMINS = (
-    ('Wojciech Dubiel', 'wd371280@students.mimuw.edu.pl')
-)
-
 # Sender email address for messages sent by OIOIOI to users.
 DEFAULT_FROM_EMAIL = 'sio2@sio2project.mimuw.edu.pl'
 DEFAULT_FROM_ADDRESS = DEFAULT_FROM_EMAIL
