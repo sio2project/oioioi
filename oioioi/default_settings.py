@@ -410,6 +410,11 @@ SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
                      'Pascal': 'system-fpc', 'Java': 'system-java',
                      'Python': 'system-python', 'Output-only': 'output-only'}
 
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# Languages added here will use DEFAULT_COMPILERS for non-makefile sinol packages.
+OVERRIDE_COMPILER_LANGS = []
+
 USE_UNSAFE_EXEC = False
 DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 

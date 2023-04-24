@@ -239,6 +239,24 @@ class SinolPackage(object):
         new_env['compiled_file'] = new_env['out_file']
         return new_env
 
+    # This is a hack for szkopul backwards compatibility.
+    # See settings.OVERRIDE_COMPILER_LANGS for more info.
+    # Should be removed when szkopul removes older compilers.
+    def _override_compiler(self, prefix, lang, compilation_job):
+        if prefix != 'default':
+            return
+
+        name_map = {
+            'c': 'C',
+            'cpp': 'C++',
+            'pas': 'Pascal',
+            'java': 'Java',
+            'py': 'Python'
+        }
+
+        if lang in name_map and lang in settings.OVERRIDE_COMPILER_LANGS:
+            compilation_job['compiler'] = settings.DEFAULT_COMPILERS[name_map[lang]]
+
     def _run_compilation_job(self, ext, ft_source_name, out_name):
         compilation_job = self.env.copy()
         compilation_job['job_type'] = 'compile'
@@ -252,6 +270,8 @@ class SinolPackage(object):
         else:
             prefix = 'system'
         compilation_job['compiler'] = prefix + '-' + lang
+        self._override_compiler(prefix, lang, compilation_job)
+       
         if not self.use_make and self.prog_archive:
             compilation_job['additional_archive'] = self.prog_archive
         add_extra_files(
