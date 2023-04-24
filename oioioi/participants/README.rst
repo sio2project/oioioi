@@ -1,1 +1,1 @@
-This module is responsible for contest's participants registration.
+Contest's participants registration.

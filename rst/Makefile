@@ -36,7 +36,7 @@ clean:
 	-rm -rf $(BUILDDIR)/*
 
 autogen:
-	python gendoc.py
+	python3 gendoc.py
 
 html: autogen
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
