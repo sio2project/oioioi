@@ -432,7 +432,7 @@ ZEUS_INSTANCES = {
 #NOTIFICATIONS_OIOIOI_URL = 'http://localhost:8000/'
 
 # URL connection string for RabbitMQ instance used by Notifications Server
-#NOTIFICATIONS_RABBITMQ_URL = 'amqp://localhost'
+# NOTIFICATIONS_RABBITMQ_URL = 'amqp://oioioi:oioioi@broker'
 
 # Extra arguments for pika ConnectionParameters, see
 # https://pika.readthedocs.io/en/stable/modules/parameters.html
