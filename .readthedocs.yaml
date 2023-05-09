@@ -22,7 +22,5 @@ sphinx:
 python:
    install:
    - requirements: rst/requirements.txt
-   - method: pip
-     - path: "setuptools<58.0.0"
    - requirements: requirements.txt
    system_packages: true
