@@ -73,10 +73,7 @@ requirements = [
     # https://stackoverflow.com/questions/73929564/entrypoints-object-has-no-attribute-get-digital-ocean
     "importlib-metadata<5.0",
     "supervisor<4.3",  # previously http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
-    "django-supervisor",  # previously http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
-]
-dependency_links = [
-      "git+https://github.com/sio2project/django-supervisor#egg=django-supervisor",
+    "django-supervisor@git+https://github.com/sio2project/django-supervisor#egg=django-supervisor",  # previously http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
 ]
 
 setup(
@@ -87,7 +84,6 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=requirements,
-    dependency_links=dependency_links,
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='oioioi.runtests.runtests',
