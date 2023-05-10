@@ -1,9 +1,6 @@
 # These dependencies need to be installed from external sources,
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
-setuptools<58.0.0 # due to issues with supervisor & djsupervisor
-git+https://github.com/Supervisor/supervisor.git@4.0.0#egg=supervisor
-http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
 http://github.com/sio2project/sioworkers/archive/refs/tags/v1.4.1.tar.gz
 
 -e .
