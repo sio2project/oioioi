@@ -335,7 +335,6 @@ INSTALLED_APPS = (
     #    'oioioi.acm',
     #    'oioioi.forum',
     #    'oioioi.disqualification',
-    'oioioi.sharingcli',
     #    'oioioi.ctimes',
     #    'oioioi.suspendjudge',
     #    'oioioi.submitsqueue',
