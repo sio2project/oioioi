@@ -407,14 +407,12 @@ class TestSinolPackage(TestCase):
         )
         sol = model_solutions.get(name='sum.c')
         self.assertEqual(sol.kind, 'NORMAL')
-        sol1 = model_solutions.get(name='sum1.pas')
-        self.assertEqual(sol1.kind, 'NORMAL')
-        sols1 = model_solutions.get(name='sums1.cpp')
-        self.assertEqual(sols1.kind, 'SLOW')
+        sol1 = model_solutions.get(name='sums1.cpp')
+        self.assertEqual(sol1.kind, 'SLOW')
         solb0 = model_solutions.get(name='sumb0.c')
         self.assertEqual(solb0.kind, 'INCORRECT')
-        self.assertEqual(model_solutions.count(), 4)
-        self.assertEqual(list(model_solutions), [sol, sol1, sols1, solb0])
+        self.assertEqual(model_solutions.count(), 3)
+        self.assertEqual(list(model_solutions), [sol, sol1, solb0])
 
         tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
 
@@ -436,7 +434,7 @@ class TestSinolPackage(TestCase):
 
         config = ExtraConfig.objects.get(problem=problem)
         assert len(config.parsed_config['extra_compilation_args']) == 2
-        assert len(config.parsed_config['extra_compilation_files']) == 3
+        assert len(config.parsed_config['extra_compilation_files']) == 2
 
         self.assertEqual(problem.name, u'arc')
 
@@ -474,7 +472,7 @@ class TestSinolPackage(TestCase):
         self.assertIsNotNone(checker.exe_file)
 
         extra_files = ExtraFile.objects.filter(problem=problem)
-        self.assertEqual(extra_files.count(), 3)
+        self.assertEqual(extra_files.count(), 2)
 
         model_solutions = ModelSolution.objects.filter(problem=problem).order_by(
             'order_key'
@@ -483,9 +481,7 @@ class TestSinolPackage(TestCase):
         self.assertEqual(solc.kind, 'NORMAL')
         solcpp = model_solutions.get(name='arc1.cpp')
         self.assertEqual(solcpp.kind, 'NORMAL')
-        solpas = model_solutions.get(name='arc2.pas')
-        self.assertEqual(solpas.kind, 'NORMAL')
-        self.assertEqual(list(model_solutions), [solc, solcpp, solpas])
+        self.assertEqual(list(model_solutions), [solc, solcpp])
 
         submissions = Submission.objects.all()
         for s in submissions:
@@ -547,15 +543,12 @@ class TestSinolPackage(TestCase):
 
         self.assertEqual(Problem.objects.count(), 3)
 
-    @pytest.mark.xfail(strict=True)
     @pytest.mark.slow
     @both_configurations
     def test_overriden_limits(self):
-        """this test needs a fix, test_limits_overriden_for_cpp.zip contains task tst where sum is expected"""
         filename = get_test_filename('test_limits_overriden_for_cpp.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
-        self._check_full_package(problem)
         tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
         overriden_tests = LanguageOverrideForTest.objects.filter(test__in=tests)
         self.assertTrue(len(overriden_tests) > 0)
@@ -565,7 +558,7 @@ class TestSinolPackage(TestCase):
 
         overriden_memory_group = overriden_tests.filter(test__group=1)
         self.assertTrue(all([t.memory_limit == 6000 for t in overriden_memory_group]))
-        overriden_memory_group2 = overriden_tests.filter(test__group=3)
+        overriden_memory_group2 = overriden_tests.filter(test__group=2)
         self.assertTrue(all([t.memory_limit == 2000 for t in overriden_memory_group2]))
 
 
@@ -719,7 +712,6 @@ class TestSinolPackageCreator(TestCase, TestStreamingMixin):
                 'sum/out/sum2.out',
                 'sum/out/sum3.out',
                 'sum/prog/sum.c',
-                'sum/prog/sum1.pas',
                 'sum/prog/sumb0.c',
                 'sum/prog/sums1.cpp',
             ],
