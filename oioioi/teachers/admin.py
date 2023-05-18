@@ -11,7 +11,7 @@ from oioioi.base import admin
 from oioioi.base.menu import personal_menu_registry
 from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin
-from oioioi.teachers.forms import TeacherContestForm
+from oioioi.teachers.forms import TeacherContestForm, AddTeacherForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 
@@ -20,6 +20,8 @@ class TeacherAdmin(admin.ModelAdmin):
     list_editable = ['is_active']   
 
     search_fields = ['school', 'user__username', 'user__first_name', 'user__last_name', 'user__email', 'join_date']
+
+    form = AddTeacherForm
 
     def has_add_permission(self, request):
         return request.user.is_superuser

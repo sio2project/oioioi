@@ -1,1 +1,1 @@
-This module is responsible for a contest forum.
+Adds contest forums.

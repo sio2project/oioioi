@@ -31,11 +31,11 @@ function ns_main() {
       .version('0.0.1')
       .option('-p, --port <n>', 'Server port (defaults to 7887)', parseInt)
       .option('-u, --url <s>', 'OIOIOI instance url (defaults to http://localhost:8000/)')
-      .option('-a, --amqp <s>', 'RabbitMQ server url (defaults to amqp://localhost/)')
+      .option('-a, --amqp <s>', 'RabbitMQ server url (defaults to amqp://oioioi:oioioi@broker)')
       .parse(process.argv);
 
     var config = {};
-    config.amqp = program.amqp ? program.amqp : 'amqp://localhost';
+    config.amqp = program.amqp ? program.amqp : 'amqp://oioioi:oioioi@broker';
     config.port = program.port ? program.port : 7887;
     config['oioioi-url'] = program.url ? program.url : 'http://localhost:8000/';
 

@@ -25,6 +25,7 @@ class TestStatisticsPlotFunctions(TestCase):
         'test_full_package',
         'test_problem_instance',
         'test_submission',
+        'test_submission_another_user_for_statistics',
         'test_extra_rounds',
         'test_extra_problem',
     ]
@@ -77,7 +78,7 @@ class TestStatisticsPlotFunctions(TestCase):
         pi = ProblemInstance.objects.get(short_name='zad1')
         plot = points_to_source_length_problem(self.request, pi)
         self.assertEqual(len(plot['series']), 1)
-        self.assertSizes(plot['data'], [1, 1, 3])
+        self.assertSizes(plot['data'], [1, 2, 3])
 
     def test_test_scores(self):
         pi = ProblemInstance.objects.get(short_name='zad1')

@@ -15,12 +15,16 @@ import oioioi
 
 INSTALLATION_CONFIG_VERSION = 49
 
+# Enable debugging features.
+#
+# SET DEBUG = False FOR PRODUCTION DEPLOYMENT.
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
 
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
 SITE_NAME = 'OIOIOI'
+SITE_ID = 1
 
 # The website address as it will be displayed to users in some places,
 # including but not limited to the mail notifications.
@@ -31,14 +35,29 @@ PUBLIC_ROOT_URL = 'http://localhost'
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
 # None - nothing will be run
-SERVER = None
+SERVER = os.getenv('OIOIOI_SERVER_MODE', None)
 
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('OIOIOI_DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('OIOIOI_DB_NAME', 'oioioi'),              # Or path to database file if using sqlite3.
+        'USER': os.getenv('OIOIOI_DB_USER', 'oioioi'),              # Not used with sqlite3.
+        'PASSWORD': os.getenv('OIOIOI_DB_PASSWORD', 'password'),    # Not used with sqlite3.
+        'HOST': os.getenv('OIOIOI_DB_HOST', 'db'),                  # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': os.getenv('OIOIOI_DB_PORT', ''),                    # Set to empty string for default. Not used with sqlite3.
+        'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
+    }
+}
+
+# Controls if uwsgi in default configuration shall use gevent loop.
+# To use it, you have to install gevent - please consult
+# https://github.com/surfly/gevent
+# This is recommended for heavy load, but you may still need to tune uwsgi
+# options in deployment/supervisord.conf
 UWSGI_USE_GEVENT = False
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'wsgi.application'
-
-SEND_USER_ACTIVATION_EMAIL = True
 
 LANGUAGES = (
     ('en', 'English'),
@@ -57,7 +76,7 @@ STATEMENT_LANGUAGES = (
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = None
+TIME_ZONE = os.getenv('OIOIOI_TIMEZONE', None)
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -95,7 +114,37 @@ STATICFILES_FINDERS = (
 
 # Make this unique, and don't share it with anybody.
 # Secret key can't be empty, it is overridden later.
-SECRET_KEY = 'eca76a75-2b9f-4e09-8f88-86671acbed8b'
+SECRET_KEY = os.getenv('OIOIOI_SECRET', 'eca76a75-2b9f-4e09-8f88-86671acbed8b')
+
+# Uncomment once oisubmit is used.
+# OISUBMIT_MAGICKEY = '__OTHER_SECRET__'
+
+# Email addresses to send error message reports.
+ADMINS = (
+    ('Your Name', 'youremail@example.com'),
+)
+
+# Email addresses to send communication from users (for example requests for
+# teacher accounts).
+MANAGERS = ADMINS
+
+# SMTP server parameters for sending emails.
+EMAIL_USE_TLS = False
+EMAIL_HOST = 'mail'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_SUBJECT_PREFIX = '[OIOIOI] '
+
+# Sender email address for messages sent by OIOIOI to users.
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+
+# Sender email address for error messages sent to admins.
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+# Set to true to send user activation emails. Needs an SMTP server to be
+# configured above.
+SEND_USER_ACTIVATION_EMAIL = True
 
 # List of callables that know how to import templates from various sources.
 UNCACHED_TEMPLATE_LOADERS = (
@@ -107,12 +156,18 @@ CACHED_TEMPLATE_LOADERS = (
     ('django.template.loaders.cached.Loader', UNCACHED_TEMPLATE_LOADERS),
 )
 
+# Set to True to show the link to the problemset with contests on navbar.
 PROBLEMSET_LINK_VISIBLE = True
 
+# Set to true to show tags on the list of problems
 PROBLEM_TAGS_VISIBLE = False
 
+# Enables problem statistics at the cost of some per-submission performance hit.
+# Set to True if you want to see statistics in the Problemset and problem sites.
+# After enabling you should use ./manage.py recalculate_statistics
 PROBLEM_STATISTICS_AVAILABLE = False
 
+# Set to True to allow every logged in user to add problems directly to Problemset
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
 
 DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE = True
@@ -195,6 +250,18 @@ COMPRESS_PRECOMPILERS = (
 
 LIBSASS_PRECISION = 8
 
+# EXTRA MODULES
+#
+# Comment/uncomment components to disable/enable them.
+#
+# Additional components usually have to be prepended to the list in
+# INSTALLED_APPS, because they may want to override some templates. But this is
+# not always the case. Please consult the documentation of particular extension
+# you're configuring.
+#
+# Some components need also corresponding lines in TEMPLATE_CONTEXT_PROCESSORS
+# and/or AUTHENTICATION_BACKENDS commented/uncommented.
+
 INSTALLED_APPS = (
     'debug_toolbar',
     'oioioi.filetracker',
@@ -250,6 +317,13 @@ INSTALLED_APPS = (
     'fontawesomefree',
 )
 
+# If set to locations of flite and sox executables, enables audio playback
+# of captcha. Audio output generated by flite (CAPTCHA_FLITE_PATH) is identical
+# across multiple generations. To prevent potential security risk,
+# CAPTCHA_SOX_PATH should be set as well, in order to inject random noise into
+# audio files  generated by flite.
+# If either sox or flite is installed and its location recognised by PATH
+# variable, then corresponding setting will be set automatically.
 CAPTCHA_FLITE_PATH = find_executable_path('flite')
 CAPTCHA_SOX_PATH = find_executable_path('sox')
 CAPTCHA_BACKGROUND_COLOR = '#daedf4'
@@ -267,6 +341,27 @@ ACCOUNT_ACTIVATION_DAYS = 7
 
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
 DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
+
+FILETRACKER_SERVER_ENABLED = True
+FILETRACKER_LISTEN_ADDR = os.getenv('FILETRACKER_LISTEN_ADDR', '127.0.0.1')
+FILETRACKER_LISTEN_PORT = os.getenv('FILETRACKER_LISTEN_PORT', 9999)
+
+# When using distributed workers set this to url on which workers will be
+# able to access filetracker server. When 'remote_storage_factory' is used,
+# this also defines the filetracker server oioioi should connect to.
+FILETRACKER_URL = os.getenv('FILETRACKER_URL', 'http://127.0.0.1:9999')
+
+# When using a remote storage it's recommended to enable a cache cleaner deamon
+# which will periodically scan cache directory and remove files what aren't
+# used. For a detailed description of each option, please read a cache cleaner
+# configuration section in the sioworkersd documentation. Please note that
+# the cache cleaner can delete *any* file found under FILETRACKER_CACHE_ROOT
+# directory, so don't store other files there (unless you want them to be
+# periodically deleted).
+# FILETRACKER_CACHE_CLEANER_ENABLED = True
+# FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL = '1h'
+# FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
+# FILETRACKER_CACHE_SIZE = '8G'
 
 SUPERVISOR_AUTORELOAD_PATTERNS = [".py", ".pyc", ".pyo"]
 
@@ -303,9 +398,14 @@ PROBLEM_PACKAGE_BACKENDS = (
 
 SIOWORKERSD_URL = 'http://localhost:7889/'
 SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'
+
+# Set this to false if you don't need sioworkersd instance (e. g.
+# because you use instance started by another instance of OIOIOI)
 RUN_SIOWORKERSD = True
 
-# On which interface should the sioworkers receiver listen
+# On which interface should the sioworkers receiver listen. You should
+# set the address to 0.0.0.0 if you want remote workers to access
+# your server.
 SIOWORKERS_LISTEN_ADDR = '127.0.0.1'
 SIOWORKERS_LISTEN_PORT = 7890
 
@@ -314,6 +414,7 @@ SIOWORKERS_LISTEN_PORT = 7890
 # http://$SIOWORKERS_LISTEN_ADDR:$SIOWORKERS_LISTEN_PORT
 SIOWORKERS_LISTEN_URL = None
 
+# Set to false to disable workers running on the server machine.
 RUN_LOCAL_WORKERS = False
 
 # This setting specifies which languages are available on the platform.
@@ -407,13 +508,28 @@ DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
                      'Python': 'python', 'Output-only': 'output-only'}
 
 SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
-                     'Pascal': 'system-fpc', 'Java': 'system-java',
-                     'Python': 'system-python', 'Output-only': 'output-only'}
+                            'Pascal': 'system-fpc', 'Java': 'system-java',
+                            'Python': 'system-python', 'Output-only': 'output-only'}
 
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# Languages added here will use DEFAULT_COMPILERS for non-makefile sinol packages.
+OVERRIDE_COMPILER_LANGS = []
+
+# Set the following option to false to enable the safe execution supervisor.
 USE_UNSAFE_EXEC = False
+
+# Default safe execution tool
+# You can change the safe execution tool. Current options are:
+# - "sio2jail" - (default) SIO2Jail
+# - "cpu" - ptrace (measures real time)
 DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 
-# WARNING: experimental, see settings template
+# WARNING: setting this to False is experimental until we make sure that
+# checkers do work well in sandbox
+#
+# Setting this to False will run checkers in sandbox. This option is
+# independent to USE_UNSAFE_EXEC.
 USE_UNSAFE_CHECKER = True
 
 # When USE_SINOLPACK_MAKEFILES equals True, the sinolpack upload workflow uses
@@ -445,17 +561,37 @@ DEFAULT_SCORE_AGGREGATOR = \
 MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
 MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
 
-FILETRACKER_SERVER_ENABLED = True
-FILETRACKER_LISTEN_ADDR = '127.0.0.1'
-FILETRACKER_LISTEN_PORT = 9999
-
-FILETRACKER_URL = 'http://127.0.0.1:9999'
+# Memory limit for input generator job.
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# INGEN_MEMORY_LIMIT = 512 * 1024
 
 DEFAULT_CONTEST = None
 ONLY_DEFAULT_CONTEST = False
 
+# Contest mode - automatic activation of contests.
+#
+# Available choices are:
+#   ContestMode.neutral - no contest is activated automatically,
+# users have to explicitly enter into a contest specific page if they want
+# to participate. They can visit both contest specific as well as non-contest
+# specific pages.
+#   ContestMode.contest_if_possible - if there exists a contest, users
+# are automatically redirected to one when visiting a page which
+# has a contest specific version, e.g. visiting index ('/') could redirect
+# to "c" contest's dashboard page ('/c/c/dashboard') if there existed
+# a contest "c". The contest picking algorithm is described in detail
+# in oioioi.contests.middleware module.
+# If a page requires that no contest is active (e.g. user's portal page
+# from the "portals" app), it can still be visited and no redirection
+# will be made.
+#   ContestMode.contest_only - this setting is similar to the previous one
+# except that pages requiring no contest to be active can only be visited
+# by superusers (other users get "403 - Permission Denied").
+#
+# Some features may depend on this setting, e.g. the "portals" app requires
+# that either the "neutral" or the "contest_if_possible" option is picked.
 from oioioi.contests.current_contest import ContestMode
-
 CONTEST_MODE = ContestMode.contest_if_possible
 
 # A sample logging configuration. The only tangible logging
@@ -472,10 +608,10 @@ LOGGING = {
         }
     },
     'formatters': {
-            'date_and_level': {
-                'format': '[%(asctime)s %(levelname)s %(process)d:%(thread)d]'
-                          ' %(message)s',
-            },
+        'date_and_level': {
+            'format': '[%(asctime)s %(levelname)s %(process)d:%(thread)d]'
+                      ' %(message)s',
+        },
     },
     'handlers': {
         'console': {
@@ -507,6 +643,12 @@ LOGGING = {
     }
 }
 
+# Limits the duration of user contests.
+# Comment out if you don't want to limit the user contests duration.
+# import pytz
+# from datetime import datetime
+# USER_CONTEST_TIMEOUT = datetime(2020, 2, 7, 23, 0, 0, tzinfo=pytz.utc)
+
 # Celery configuration
 
 CELERY_QUEUES = {}
@@ -515,7 +657,21 @@ CELERY_ACKS_LATE = True
 CELERY_SEND_EVENTS = True
 
 BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
-                                             'celerydb.sqlite')
+                                              'celerydb.sqlite')
+
+# RabbitMQ connection settings
+host = os.getenv("RABBITMQ_HOST", None)
+port = os.getenv("RABBITMQ_PORT", None)
+user = os.getenv("RABBITMQ_USER", None)
+password = os.getenv("RABBITMQ_PASSWORD", None)
+
+if (
+    host is not None
+    and port is not None
+    and user is not None
+    and password is not None
+):
+    BROKER_URL = f"amqp://{user}:{password}@{host}:{port}"
 
 CELERY_IMPORTS = [
     'oioioi.evalmgr.tasks',
@@ -563,6 +719,10 @@ MAIL_ADMINS_ON_GRADING_ERROR = True
 # a reply in a thread in which a new message was posted in the meantime.
 MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH = 50
 
+SHARING_SERVERS = (
+   # ('site_url', 'sharing_url', 'client_id', 'client_secret'),
+)
+
 # Zeus configuration
 ZEUS_INSTANCES = {
 }
@@ -576,6 +736,10 @@ ZEUS_RESULTS_FETCH_DELAY = 3  # seconds
 ZEUS_CONNECTION_TIMEOUT = 10  # seconds
 ZEUS_SEND_RETRIES = 3
 ZEUS_RETRY_SLEEP = 1  # second
+
+# Complaints
+# COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
+# COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 # Cache
 CACHES = {
@@ -676,7 +840,17 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
+# If set to True, usercontests will become read-only: it will be impossible to
+# change, delete or submit to existing usercontests, as well as add new ones.
+# This operation is fully reversible.
 ARCHIVE_USERCONTESTS = False
+
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# If set to True, usercontests will behave like teachercontests
+# and will not be listed on the main page.
+# Changing this setting is reversible.
+HIDE_USERCONTESTS = False
 
 FORUM_PAGE_SIZE = 15
 
