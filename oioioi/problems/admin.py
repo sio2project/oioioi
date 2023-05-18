@@ -442,7 +442,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def redirect_to_list(self, request, problem):
         if problem.contest:
-            return redirect('oioioiadmin:contests_probleminstance_changelist')
+            return redirect('oioioiadmin:contests_probleminstance_changelist', contest_id=problem.contest.id)
         else:
             return redirect('oioioiadmin:problems_problem_changelist')
 

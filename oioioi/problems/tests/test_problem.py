@@ -38,6 +38,16 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         'test_permissions',
     ]
 
+    def post_package_file(self, url, filename, visibility=Problem.VISIBILITY_PRIVATE):
+        return self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': visibility,
+            },
+            follow=True,
+        )
+
     def test_problem_statement_view(self):
         # superuser
         self.assertTrue(self.client.login(username='test_admin'))
@@ -95,11 +105,27 @@ class TestProblemViews(TestCase, TestStreamingMixin):
 
     def test_admin_delete_view(self):
         self.assertTrue(self.client.login(username='test_admin'))
-        problem = Problem.objects.get()
+        ProblemInstance.objects.all().delete()
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_full_package.tgz')
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,))
+        url = reverse('admin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id}, follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            'problems/add-or-update.html',
+            [getattr(t, 'name', None) for t in response.templates],
+        )
+        response = self.post_package_file(url, filename)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        problem = Problem.objects.get()
 
-        response = self.client.post(url, {'post': 'yes'})
+        url = reverse('problemset_all_problems')
+        response = self.client.get(url)
+        url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,),)
+        response = self.client.post(url, {'post': 'yes'}, follow=True,)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 0)
 
