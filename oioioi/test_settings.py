@@ -102,6 +102,9 @@ COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 WARN_ABOUT_REPEATED_SUBMISSION = False
 
+# Experimental according to default_settings.py
+USE_ACE_EDITOR = True
+
 PROBLEM_SOURCES += ('oioioi.zeus.problem_sources.ZeusProblemSource',)
 
 ZEUS_INSTANCES = {

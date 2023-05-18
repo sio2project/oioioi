@@ -74,7 +74,7 @@ class TeamsMixinForContestController(object):
         )
         try:
             tm = TeamMembership.objects.get(
-                user=request.user, team__contest=request.contest
+                user_id=request.user.id, team__contest=request.contest
             )
             if not is_contest_admin(request):
                 form.fields['user'] = UserSelectionField(

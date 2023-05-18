@@ -1,0 +1,73 @@
+[
+  {
+    "pk": 5,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000024",
+      "user": 1002,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "INITIAL",
+      "submission": 5,
+      "creation_date": "2012-08-03T22:07:29.547Z"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 5,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "score": "int:0000000000000000024",
+      "user": 1002,
+      "submission_report": 10
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.userresultforround",
+    "fields": {
+      "score": "int:0000000000000000024",
+      "user": 1002,
+      "round": 1
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.userresultforcontest",
+    "fields": {
+      "score": "int:0000000000000000024",
+      "user": 1002,
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "programs.programsubmission",
+    "fields": {
+      "problem_instance": 1,
+      "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K",
+      "source_length": 320
+    }
+  }
+]

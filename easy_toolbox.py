@@ -20,14 +20,14 @@ import os
 
 
 BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
-                      " -f docker-compose-dev.yml" + \
-                      " -f extra/docker/docker-compose-dev-noserver.yml"
+                      " -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
-    ("down", "Stop all SIO2 containers", "down", True),
+    ("down", "Stop and remove all SIO2 containers", "down", True),
     ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
+    ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.

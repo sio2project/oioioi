@@ -1,2 +1,2 @@
-This module enables every regular user to create and admin their own contests.
-It is an experimental feature - use at your own risk!
+Enables every regular user to create and administer their own contests.
+It is an experimental feature -- use at your own risk!

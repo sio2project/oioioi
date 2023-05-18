@@ -1,3 +1,2 @@
-setuptools<58.0.0
 sphinx==4.2.0
 furo==2021.9.22  # sphinx theme https://github.com/pradyunsg/furo

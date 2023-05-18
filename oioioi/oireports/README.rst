@@ -1,1 +1,1 @@
-A module implementing the HTML, PDF and XML report logic.
+HTML, PDF and XML reports.

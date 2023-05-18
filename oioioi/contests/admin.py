@@ -633,9 +633,9 @@ class SystemErrorListFilter(SimpleListFilter):
             submissionreport__status='ACTIVE', submissionreport__testreport__status='SE'
         )
         if self.value() == 'yes':
-            return queryset.filter(q).distinct()
+            return queryset.filter(q)
         elif self.value() == 'no':
-            return queryset.exclude(q).distinct()
+            return queryset.exclude(q)
         else:
             return queryset
 

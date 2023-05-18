@@ -254,6 +254,7 @@ class TestOpenParticipantsRegistration(TestCase):
         url = reverse('participants_register', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
         self.assertContains(response, 'Terms accepted')
 
         user.first_name = 'Sir Lancelot'

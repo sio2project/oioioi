@@ -1,2 +1,2 @@
-This module provides questions and answers system for
+Questions and answers system for
 contestants during a contest.

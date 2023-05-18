@@ -51,6 +51,7 @@ urlpatterns = [
         views.accept_teacher_view,
         name='accept_teacher',
     ),
+    re_path(r'^user-search/$', views.get_non_teacher_names, name='user_search'),
 ]
 
 if 'oioioi.simpleui' in settings.INSTALLED_APPS:

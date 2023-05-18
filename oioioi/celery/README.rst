@@ -1,2 +1,2 @@
-This module takes care of proper initialization of Celery -
-Distributed Task Queue for judging submissions.
+Proper initialization of Celery --
+the Distributed Task Queue for judging submissions.
