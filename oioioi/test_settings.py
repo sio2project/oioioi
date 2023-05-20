@@ -1,6 +1,5 @@
 # pylint: disable=wildcard-import
 from oioioi.default_settings import *
-from settings import CELERY
 
 TIME_ZONE = 'UTC'
 
