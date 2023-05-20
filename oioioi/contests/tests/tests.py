@@ -19,7 +19,6 @@ from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
-from django.utils.timezone import utc
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
