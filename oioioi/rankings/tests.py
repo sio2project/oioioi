@@ -307,7 +307,7 @@ class TestRankingViews(TestCase):
             self.assertTrue(ranking.is_up_to_date())
             recalc = choose_for_recalculation()
             self.assertIsNone(recalc)
-            response = self.client.post(url, key='key')
+            self.client.post(url, key='key')
             ranking.refresh_from_db()
             self.assertFalse(ranking.is_up_to_date())
             recalc = choose_for_recalculation()

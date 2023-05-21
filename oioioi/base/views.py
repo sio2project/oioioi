@@ -1,5 +1,4 @@
 import traceback
-from django.conf import settings
 
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.views import LogoutView as AuthLogoutView
@@ -20,7 +19,10 @@ import oioioi.base.forms
 from oioioi.base.forms import handle_new_preference_fields
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.base.preferences import PreferencesFactory, ensure_preferences_exist_for_user
+from oioioi.base.preferences import (
+    PreferencesFactory,
+    ensure_preferences_exist_for_user,
+)
 from oioioi.base.processors import site_name
 from oioioi.base.utils import generate_key, is_ajax, jsonify
 from oioioi.base.utils.redirect import safe_redirect

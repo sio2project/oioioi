@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import Submission
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.contests.utils import is_contest_admin
 from oioioi.disqualification.models import Disqualification, DisqualificationsConfig
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController

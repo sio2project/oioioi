@@ -1,6 +1,5 @@
 import re
 
-import django
 from django import forms
 from django.core.validators import RegexValidator
 from django.db import models

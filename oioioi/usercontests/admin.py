@@ -9,8 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base.menu import personal_menu_registry
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.admin import ContestAdmin, RoundInline
-from oioioi.contests.permissions import can_create_contest
-from oioioi.contests.utils import has_any_contest
 from oioioi.usercontests.forms import UserContestForm
 from oioioi.usercontests.models import UserContest
 
@@ -50,7 +48,6 @@ else:
 
 class UserRoundInlineFormset(RoundInline.formset):
     def clean(self):
-
         super(UserRoundInlineFormset, self).clean()
 
         if not hasattr(settings, 'USER_CONTEST_TIMEOUT'):

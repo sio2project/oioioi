@@ -4,11 +4,10 @@ from contextlib import contextmanager
 
 import pytest
 import urllib.parse
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.template.loaders.cached import Loader as CachedLoader
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -42,7 +41,6 @@ class _AssertNumQueriesLessThanContext(CaptureQueriesContext):
 
 
 class TestCase(DjangoTestCase):
-
     # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L236
     def assertNumQueriesLessThan(self, num, *args, **kwargs):
         func = kwargs.pop('func', None)

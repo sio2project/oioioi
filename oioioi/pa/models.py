@@ -6,8 +6,8 @@ from oioioi.base.fields import EnumField, EnumRegistry, PostalCodeField
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import ProblemInstance
 
-# pylint: disable=unused-import
-from oioioi.pa.score import PAScore  # Registers the PA score type
+# Registers the PA score type
+from oioioi.pa.score import PAScore  # noqa: F401
 from oioioi.participants.models import RegistrationModel
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])

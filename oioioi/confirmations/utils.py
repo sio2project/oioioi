@@ -1,5 +1,4 @@
 import hashlib
-import itertools
 import logging
 import sys
 
@@ -110,7 +109,7 @@ def send_submission_receipt_confirmation(request, submission):
         'problem_shortname': proof_data['problem_name'],
         'size': proof_data['size'],
         'full_name': submission.user.get_full_name(),
-        'user_login': submission.user.username
+        'user_login': submission.user.username,
     }
 
     subject = render_to_string('confirmations/email_subject.txt', context)

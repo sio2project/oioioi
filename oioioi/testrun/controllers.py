@@ -14,7 +14,7 @@ from django.utils.translation import gettext_noop
 from oioioi.base.utils import is_ajax
 from oioioi.base.utils.archive import Archive
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.models import ScoreReport, Submission, SubmissionReport
+from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.evalmgr.tasks import extend_after_placeholder
 from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.controllers import (
@@ -127,10 +127,7 @@ class TestRunContestControllerMixin(object):
         # Otherwise one could bypass checks and limits for example by
         # uploading a zipfile without the '.zip' extension.
         def validate_file_size(file):
-            if (
-                is_zipfile(file)
-                and file.size > self.get_testrun_zipped_input_limit()
-            ):
+            if is_zipfile(file) and file.size > self.get_testrun_zipped_input_limit():
                 raise ValidationError(_("Zipped input file size limit exceeded."))
             elif file.size > self.get_testrun_input_limit():
                 raise ValidationError(_("Input file size limit exceeded."))

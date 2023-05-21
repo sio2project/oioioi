@@ -7,7 +7,6 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.core.files.base import ContentFile
-from django.forms.widgets import Media
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -63,6 +62,7 @@ from oioioi.programs.widgets import CancellableFileInput
 
 logger = logging.getLogger(__name__)
 
+
 def get_report_display_type(request, test_report):
     if test_report.status == 'INI_OK' or test_report.status == 'OK':
         try:
@@ -97,6 +97,7 @@ def get_report_display_type(request, test_report):
         display_type = test_report.status
 
     return display_type
+
 
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
@@ -179,7 +180,6 @@ class ProgrammingProblemController(ProblemController):
         )
 
     def generate_base_environ(self, environ, submission, **kwargs):
-        contest = submission.problem_instance.contest
         self.generate_initial_evaluation_environ(environ, submission)
         environ.setdefault('recipe', []).extend(
             [
@@ -582,7 +582,7 @@ class ProgrammingProblemController(ProblemController):
         def parse_problem(problem):
             available_problems = form.fields['problem_instance_id'].choices
             problem_id = None
-            for (id, name) in available_problems:
+            for id, name in available_problems:
                 if name.find(problem) != -1:
                     if problem_id is None:
                         problem_id = id
@@ -622,7 +622,10 @@ class ProgrammingProblemController(ProblemController):
             if not request.user.is_anonymous:
                 ensure_preferences_exist_for_user(request.user)
                 default_state = request.user.userpreferences.enable_editor
-            receipt_types = ((False, "no editor"), (True, "editor"), )
+            receipt_types = (
+                (False, "no editor"),
+                (True, "editor"),
+            )
             form.fields["toggle_editor"] = forms.ChoiceField(
                 required=False,
                 choices=receipt_types,
@@ -642,7 +645,7 @@ class ProgrammingProblemController(ProblemController):
             required=False,
             label=_("Code"),
             validators=[validate_code_length],
-            widget=code_widget
+            widget=code_widget,
         )
 
         self._add_langs_to_form(request, form, problem_instance)

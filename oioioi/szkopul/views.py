@@ -1,4 +1,3 @@
-import django
 from django.conf import settings
 from django.template.response import TemplateResponse
 from django.urls import reverse

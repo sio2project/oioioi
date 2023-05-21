@@ -7,18 +7,19 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
     PasswordResetForm,
-    UserChangeForm,
     UserCreationForm,
 )
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.forms import BooleanField, ChoiceField
-from django.forms import ChoiceField
 from django.utils.translation import gettext_lazy as _
 from registration.forms import RegistrationForm
 
 from oioioi.base.models import Consents, PreferencesSaved
-from oioioi.base.preferences import PreferencesFactory, ensure_preferences_exist_for_user
+from oioioi.base.preferences import (
+    PreferencesFactory,
+    ensure_preferences_exist_for_user,
+)
 from oioioi.base.utils.user import UNICODE_CATEGORY_LIST, USERNAME_REGEX
 from oioioi.base.utils.validators import UnicodeValidator, ValidationError
 
@@ -68,6 +69,7 @@ def _maybe_add_field(label, *args, **kwargs):
         kwargs.setdefault('label', label)
         PreferencesFactory.add_field(*args, **kwargs)
 
+
 def adjust_preferences_factory_fields():
     choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
     choices = [(k, _(v)) for k, v in choices_not_translated]
@@ -84,7 +86,7 @@ def adjust_preferences_factory_fields():
         lambda name, user: handle_preferred_language(user),
         label=_("Preferred language"),
         choices=choices,
-        required=False
+        required=False,
     )
 
     def handle_enable_editor(user):
@@ -100,8 +102,9 @@ def adjust_preferences_factory_fields():
             lambda name, user: handle_enable_editor(user),
             label=_("Enable editor"),
             order=0,
-            required=False
+            required=False,
         )
+
 
 def handle_new_preference_fields(request, user):
     changed = False
@@ -126,6 +129,7 @@ def handle_new_preference_fields(request, user):
 
     if changed:
         user.userpreferences.save()
+
 
 _maybe_add_field(
     settings.REGISTRATION_RULES_CONSENT,
@@ -152,6 +156,7 @@ _maybe_add_field(
 )
 
 adjust_preferences_factory_fields()
+
 
 def save_consents(sender, user, **kwargs):
     form = sender
@@ -232,14 +237,14 @@ class UserForm(forms.ModelForm):
         PreferencesSaved.send(self, user=instance)
         return instance
 
+
 class UserChangeForm(UserForm):
     confirm_password = forms.CharField(widget=forms.PasswordInput(), required=False)
 
     class Media(object):
         js = ('js/email-change.js',)
 
-    def __init__(self,  *args, **kwargs):
-
+    def __init__(self, *args, **kwargs):
         super(UserChangeForm, self).__init__(*args, **kwargs)
         self.user = kwargs.pop('instance', None)
 
@@ -253,7 +258,10 @@ class UserChangeForm(UserForm):
             return confirm_password
 
         if not self.user.check_password(confirm_password):
-            raise forms.ValidationError(_("Password incorrect."), code='password_incorrect', )
+            raise forms.ValidationError(
+                _("Password incorrect."),
+                code='password_incorrect',
+            )
         return confirm_password
 
 

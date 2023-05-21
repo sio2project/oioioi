@@ -1,10 +1,9 @@
 import logging
 
-import registration.backends.default.urls
-import registration.views
+import registration.backends.default.urls as default_urls
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
+from django.contrib.auth.views import PasswordResetView
 from django.contrib.sites.requests import RequestSite
 from django.urls import re_path, reverse_lazy
 from django.views.generic import TemplateView
@@ -89,4 +88,4 @@ urlpatterns += [
     ),
 ]
 
-urlpatterns += registration.backends.default.urls.urlpatterns
+urlpatterns += default_urls.urlpatterns

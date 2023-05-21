@@ -14,8 +14,6 @@ import six
 import urllib.parse
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.template import Template
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.encoding import force_str
@@ -438,9 +436,7 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
             raise Http404
         qs = request.GET.dict()
         qs['key'] = next(iter(tabs)).key
-        return HttpResponseRedirect(
-            request.path + '?' + urllib.parse.urlencode(qs)
-        )
+        return HttpResponseRedirect(request.path + '?' + urllib.parse.urlencode(qs))
     key = request.GET['key']
     for tab in tabs:
         if tab.key == key:

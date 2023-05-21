@@ -2,7 +2,6 @@ from operator import itemgetter  # pylint: disable=E0611
 
 import six
 
-import django
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -196,7 +195,6 @@ def problem_statement_view(request, problem_instance):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_statement_zip_index_view(request, problem_instance, statement_id):
-
     response = problem_statement_zip_view(
         request, problem_instance, statement_id, 'index.html'
     )

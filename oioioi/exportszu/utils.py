@@ -31,6 +31,10 @@ class SubmissionData(object):
     source_file = None
 
 
+class InvalidValue(Exception):
+    pass
+
+
 class SubmissionsWithUserDataCollector(object):
     """
     Collects submissions with some associated data in specific contest with
@@ -63,7 +67,6 @@ class SubmissionsWithUserDataCollector(object):
         return self.contest.id
 
     def collect_list(self):
-        ccontroller = self.contest.controller
         q_expressions = Q(user__isnull=False)
 
         if self.round:

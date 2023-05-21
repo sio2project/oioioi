@@ -65,7 +65,7 @@ class SubmitSolutionView(views.APIView):
     parser_classes = (MultiPartParser,)
 
     def get_problem_instance(self, **kwargs):
-        raise NotImplemented
+        raise NotImplementedError
 
     def post(self, request, **kwargs):
         """This endpoint allows you to submit solution for selected problem."""

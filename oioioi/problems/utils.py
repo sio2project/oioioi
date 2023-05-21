@@ -3,7 +3,6 @@ import sys
 import zipfile
 from collections import defaultdict
 
-import django
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.http import Http404, HttpResponse
@@ -296,7 +295,7 @@ def generate_model_solutions_context(request, problem_instance):
                     percentage_statuses[s.id] = '25'
                 elif time_ratio <= 0.50:
                     percentage_statuses[s.id] = '50'
-                    if submissions_percentage_statuses[s.id] is not '100':
+                    if submissions_percentage_statuses[s.id] != '100':
                         submissions_percentage_statuses[s.id] = '50'
                 else:
                     percentage_statuses[s.id] = '100'

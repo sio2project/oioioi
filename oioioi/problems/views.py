@@ -77,10 +77,7 @@ from oioioi.problems.models import (
 # in problem_site.py. We placed the view in problem_site.py
 # instead of views.py to avoid circular imports. We still import
 # it here to use it in urls.py.
-from oioioi.problems.problem_site import (
-    problem_site_statement_zip_view,
-    problem_site_tab_registry,
-)
+from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.utils import (
     can_add_to_problemset,
@@ -695,15 +692,20 @@ def get_report_row_begin_HTML_view(request, submission_id):
     return TemplateResponse(
         request,
         'contests/my_submission_table_base_row_begin.html',
-        { 
+        {
             'record': submission_template_context(request, submission),
             'show_scores': json.loads(request.POST.get('show_scores', "false")),
-            'can_admin': can_admin_problem_instance(request, submission.problem_instance) and
-                         json.loads(request.POST.get('can_admin', "false")),
+            'can_admin': can_admin_problem_instance(
+                request, submission.problem_instance
+            )
+            and json.loads(request.POST.get('can_admin', "false")),
             'shortened': json.loads(request.POST.get('shortened', "false")),
-            'inside_problem_view': json.loads(request.POST.get('inside_problem_view', "false")),
-        }
+            'inside_problem_view': json.loads(
+                request.POST.get('inside_problem_view', "false")
+            ),
+        },
     )
+
 
 @transaction.non_atomic_requests
 def problemset_add_or_update_problem_view(request):
@@ -992,7 +994,12 @@ def get_last_submissions(request):
     return TemplateResponse(
         request,
         "contests/my_submissions_table.html",
-        {'submissions': submissions, 'show_scores': True, 'hide_reports': True, 'status': True},
+        {
+            'submissions': submissions,
+            'show_scores': True,
+            'hide_reports': True,
+            'status': True,
+        },
     )
 
 

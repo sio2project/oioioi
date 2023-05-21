@@ -1,7 +1,6 @@
 import re
 
 import urllib.parse
-from django.conf import settings
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.urls import resolve, reverse

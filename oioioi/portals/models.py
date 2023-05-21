@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
-from django.dispatch import Signal
 
 from django.utils.translation import get_language, get_language_from_request
 from django.utils.translation import gettext_lazy as _
@@ -19,7 +18,6 @@ if (
         "you have to add oioioi.portals.processors.portal_processor "
         "to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py"
     )
-
 
 
 class Node(MPTTModel):

@@ -6,7 +6,7 @@ from django.conf import settings
 
 # pylint: disable=unused-import
 # Important. This import is to register signal handlers. Do not remove it.
-import oioioi.base.signal_handlers
+import oioioi.base.signal_handlers  # noqa: F401
 from oioioi.base.captcha_check import captcha_check
 from oioioi.base.setup_check import setup_check
 
@@ -60,7 +60,7 @@ class UserPreferences(models.Model):
         _("preferred_language"),
         max_length=2,
         choices=list(settings.LANGUAGES) + [("", _("None"))],
-        default=""
+        default="",
     )
 
     enable_editor = models.BooleanField(

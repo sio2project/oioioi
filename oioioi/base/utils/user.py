@@ -1,5 +1,4 @@
 import re
-from unicodedata import category
 
 from django.core.exceptions import ValidationError
 

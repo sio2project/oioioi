@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base.utils import make_html_link
 from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.contests.models import ScoreReport, SubmissionReport
-from oioioi.contests.scores import IntegerScore, ScoreValue
+from oioioi.contests.scores import ScoreValue
 from oioioi.evalmgr.tasks import transfer_job
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import (
@@ -118,7 +118,7 @@ def compile_end(env, **kwargs):
 
 
 def _override_tests_limits(language, tests):
-    """ Given language and list of Test objects, returns
+    """Given language and list of Test objects, returns
     the dictionary of memory and time limits.
     The key is test's pk.
     In case language overriding is defined in the database,
@@ -411,8 +411,7 @@ def grade_groups(env, **kwargs):
         group_result['status'] = status
         one_of_tests = env['tests'][next(iter(results.keys()))]
         if not all(
-            env['tests'][key]['kind'] == one_of_tests['kind']
-            for key in results.keys()
+            env['tests'][key]['kind'] == one_of_tests['kind'] for key in results.keys()
         ):
             raise ValueError(
                 "Tests in group '%s' have different kinds. "

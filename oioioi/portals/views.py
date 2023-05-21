@@ -1,7 +1,6 @@
 import json
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.db import IntegrityError
 from django.db.models import Q
@@ -15,8 +14,7 @@ from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from mptt.exceptions import InvalidMove
 
-# pylint: disable=W0611
-import oioioi.portals.handlers
+import oioioi.portals.handlers  # noqa: F401
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, is_superuser, not_anonymous

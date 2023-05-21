@@ -1,4 +1,3 @@
-import json
 from operator import itemgetter  # pylint: disable=E0611
 
 import xmlrpc.client

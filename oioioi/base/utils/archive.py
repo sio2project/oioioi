@@ -22,7 +22,6 @@
 # THE SOFTWARE.
 
 import os
-import sys
 import tarfile
 import tempfile
 import zipfile
@@ -77,11 +76,7 @@ class Archive(object):
 
     @staticmethod
     def _resolve_streamed_files(file, ext):
-        if (
-            isinstance(file, str)
-            or hasattr(file, 'seek')
-            or hasattr(file, 'tell')
-        ):
+        if isinstance(file, str) or hasattr(file, 'seek') or hasattr(file, 'tell'):
             return file, False
         lookup_filename = file.name + ext
         base, tail_ext = os.path.splitext(lookup_filename.lower())

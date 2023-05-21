@@ -11,7 +11,6 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.base.utils.validators import validate_whitespaces
-from oioioi.contests.models import Contest
 from oioioi.participants.models import RegistrationModel
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
@@ -59,7 +58,6 @@ CLASS_TYPES = [
     ('7SP', "siódma szkoły podstawowej"),
     ('8SP', "ósma szkoły podstawowej"),
 ]
-
 
 
 class School(models.Model):
@@ -111,7 +109,6 @@ class School(models.Model):
             None, self.address.lower(), instance.address.lower()
         ).ratio()
         return ratio > 0.75
-
 
 
 class OIRegistration(RegistrationModel):

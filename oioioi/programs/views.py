@@ -205,7 +205,7 @@ def download_output_file_view(request, test_id):
 
 def download_checker_exe_view(request, checker_id):
     checker = get_object_or_404(OutputChecker, id=checker_id)
-    if not test.problem_instance.controller.can_see_checker_exe(request, test):
+    if not checker.problem_instance.controller.can_see_checker_exe(request, checker):
         raise PermissionDenied
     if not checker.exe_file:
         raise Http404

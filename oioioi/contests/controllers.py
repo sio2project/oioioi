@@ -6,7 +6,6 @@ from django.contrib import auth
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Q
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe

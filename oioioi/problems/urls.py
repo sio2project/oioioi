@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.urls import include, re_path
 from oioioi.problems import api, views
+from oioioi.problems.problem_site import problem_site_statement_zip_view
 
 app_name = 'problems'
 
@@ -8,7 +9,7 @@ problem_site_patterns = [
     re_path(r'^site/$', views.problem_site_view, name='problem_site'),
     re_path(
         r'^site/(?P<path>.+)$',
-        views.problem_site_statement_zip_view,
+        problem_site_statement_zip_view,
         name='problem_site_statement_zip',
     ),
     re_path(
@@ -137,8 +138,7 @@ urlpatterns = [
         views.get_algorithm_tag_label_view,
         name='get_algorithm_tag_label',
     ),
-    re_path(r'^save_proposals/', views.save_proposals_view,
-            name='save_proposals'),
+    re_path(r'^save_proposals/', views.save_proposals_view, name='save_proposals'),
 ]
 
 noncontest_patterns = [
