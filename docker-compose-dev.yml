@@ -29,25 +29,6 @@ services:
     depends_on:
       - db
       - broker
-  web2:
-    image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/selenium_init.sh"]
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - "oioioi_uid=${OIOIOI_UID}"
-      extra_hosts:
-        - "web:127.0.0.1"
-    ports:
-      - "8009:8009"
-    volumes:
-      - ../oioioi-backup:/sio2/oioioi
-#      - ./deployment:/sio2/deployment
-    stop_grace_period: 3m
-    depends_on:
-      - db
-      - broker
   worker:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/worker_init.sh"]
