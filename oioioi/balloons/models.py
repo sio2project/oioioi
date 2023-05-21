@@ -11,7 +11,6 @@ from oioioi.contests.models import Contest, ProblemInstance
 check_django_app_dependencies(__name__, ['oioioi.participants', 'oioioi.acm'])
 
 
-
 class ProblemBalloonsConfig(models.Model):
     problem_instance = models.OneToOneField(
         ProblemInstance,
@@ -27,13 +26,7 @@ class ProblemBalloonsConfig(models.Model):
         verbose_name_plural = _("balloons colors")
 
     def __str__(self):
-        return (
-            str(self.problem_instance)
-            + u' ('
-            + str(self.color)
-            + u')'
-        )
-
+        return str(self.problem_instance) + u' (' + str(self.color) + u')'
 
 
 class BalloonsDisplay(models.Model):
@@ -53,7 +46,6 @@ class BalloonsDisplay(models.Model):
 
     def __str__(self):
         return str(self.ip_addr)
-
 
 
 class BalloonDelivery(models.Model):

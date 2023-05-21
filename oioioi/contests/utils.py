@@ -408,17 +408,13 @@ def best_round_to_display(request, allow_past_rounds=False):
             (round, contest.controller.get_round_times(request, round))
             for round in Round.objects.filter(contest=contest)
         )
-        next_rtimes = [
-            (r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)
-        ]
+        next_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [
             (r, rt) for r, rt in rtimes if rt.is_active(timestamp) and rt.get_end()
         ]
         current_rtimes.sort(key=lambda r_rt1: r_rt1[1].get_end())
-        past_rtimes = [
-            (r, rt) for r, rt in rtimes.items() if rt.is_past(timestamp)
-        ]
+        past_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_past(timestamp)]
         past_rtimes.sort(key=lambda r_rt2: r_rt2[1].get_end())
 
     if current_rtimes:

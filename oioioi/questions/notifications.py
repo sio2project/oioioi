@@ -36,9 +36,9 @@ NotificationHandler.register_notification(
 
 
 def notification_function_public(arguments):
-    assert hasattr(arguments, 'contest') and hasattr(arguments, 'message_instance'), (
-        "The log doesn't have contest or message_instance value in the extra map"
-    )
+    assert hasattr(arguments, 'contest') and hasattr(
+        arguments, 'message_instance'
+    ), "The log doesn't have contest or message_instance value in the extra map"
 
     message_details = (
         arguments.message_instance.topic + ': ' + arguments.message_instance.content

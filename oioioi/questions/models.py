@@ -30,7 +30,6 @@ message_kind_labels.register('PUBLIC', _("PUBLIC"))
 logger = logging.getLogger('oioioi')
 
 
-
 class Message(models.Model):
     contest = models.ForeignKey(
         Contest, null=True, blank=True, on_delete=models.CASCADE
@@ -114,12 +113,11 @@ class Message(models.Model):
         return link
 
     def get_user_date(self):
-        """ returns date visible by a user """
+        """returns date visible by a user"""
         return self.pub_date if self.pub_date is not None else self.date
 
     def get_kind_label(self):
         return message_kind_labels[self.kind]
-
 
 
 class ReplyTemplate(models.Model):

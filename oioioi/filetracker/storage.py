@@ -154,9 +154,7 @@ class FiletrackerStorage(Storage):
         return reverse('raw_file', kwargs={'filename': name})
 
     def path(self, name):
-        raise NotImplementedError(
-            "File is in Filetracker, cannot get its local path"
-        )
+        raise NotImplementedError("File is in Filetracker, cannot get its local path")
 
     def listdir(self, path):
         raise NotImplementedError("Filetracker doesn't provide path listing")

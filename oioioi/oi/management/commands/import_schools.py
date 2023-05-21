@@ -117,6 +117,4 @@ class Command(BaseCommand):
                     % {'all_count': all_count, 'new_count': created_count}
                 )
             else:
-                raise CommandError(
-                    _("There were some errors. Database not changed\n")
-                )
+                raise CommandError(_("There were some errors. Database not changed\n"))

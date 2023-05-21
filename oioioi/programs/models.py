@@ -70,7 +70,6 @@ def validate_memory_limit(value):
         )
 
 
-
 class Test(models.Model):
     __test__ = False
     problem_instance = models.ForeignKey(ProblemInstance, on_delete=models.CASCADE)

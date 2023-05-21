@@ -13,7 +13,6 @@ class CaptchaAudioWarning(Warning):
 
 
 def _check_executable(setting_name, path, expected_code=0):
-
     if not os.path.isfile(path):
         raise ImproperlyConfigured(
             '{}: {} is not a valid path.'.format(setting_name, path)

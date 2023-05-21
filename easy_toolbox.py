@@ -3,7 +3,7 @@
 # pip requirements:
 #   python ^3.6
 #   inquirer     (only for GUI)
-# 
+#
 # system:
 #   docker
 #   docker-compose
@@ -19,8 +19,9 @@ import sys
 import os
 
 
-BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
-                      " -f docker-compose-dev.yml"
+BASE_DOCKER_COMMAND = (
+    "OIOIOI_UID=$(id -u) docker-compose" + " -f docker-compose-dev.yml"
+)
 
 RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),
@@ -31,17 +32,38 @@ RAW_COMMANDS = [
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),
-    ("add-superuser", "Create admin_admin.",
-     "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
+    (
+        "flush-db",
+        "Clear database.",
+        "{exec} web python manage.py flush --noinput",
+        True,
+    ),
+    (
+        "add-superuser",
+        "Create admin_admin.",
+        "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json",
+    ),
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh"),
-    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow"),
-    ("test-abc", "Run specific test file. (edit the toolbox)",
-     "{exec} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
-    ("test-coverage", "Run coverage tests.",
-     "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
-    ("cypress-apply-settings", "Apply settings for CyPress.",
-     "{exec} web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\""),
+    (
+        "test-slow",
+        "Run unit tests. (--runslow)",
+        "{exec} web ../oioioi/test.sh --runslow",
+    ),
+    (
+        "test-abc",
+        "Run specific test file. (edit the toolbox)",
+        "{exec} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py",
+    ),
+    (
+        "test-coverage",
+        "Run coverage tests.",
+        "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi",
+    ),
+    (
+        "cypress-apply-settings",
+        "Apply settings for CyPress.",
+        "{exec} web bash -c \"echo CAPTCHA_TEST_MODE=True >> settings.py\"",
+    ),
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
@@ -63,7 +85,9 @@ class Option:
         self.command = self.command.format(exec="exec -T" if disable else "exec")
 
     def long_str(self) -> str:
-        return f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
+        return (
+            f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
+        )
 
     def __str__(self) -> str:
         spaces = longest_command_arg - len(self.arg)
@@ -75,7 +99,9 @@ COMMANDS = [Option(*x) for x in RAW_COMMANDS]
 
 def check_commands() -> None:
     if len(set([opt.arg for opt in COMMANDS])) != len(COMMANDS):
-        raise Exception("Error in COMMANDS. Same name was declared for more then one command.")
+        raise Exception(
+            "Error in COMMANDS. Same name was declared for more then one command."
+        )
 
 
 NO_INPUT = False
@@ -110,12 +136,9 @@ def get_action_from_args() -> Option:
 
 def get_action_from_gui() -> Option:
     import inquirer
+
     questions = [
-        inquirer.List(
-            "action",
-            message="Select OIOIOI action",
-            choices=COMMANDS
-        )
+        inquirer.List("action", message="Select OIOIOI action", choices=COMMANDS)
     ]
     answers = inquirer.prompt(questions)
     return answers["action"]
@@ -130,7 +153,9 @@ def run_command(command) -> None:
 
 
 def warn_user(action: Option) -> bool:
-    print(f"You are going to execute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]")
+    print(
+        f"You are going to execute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]"
+    )
     while True:
         choice = input().lower()
         if not choice or "no".startswith(choice):
@@ -152,10 +177,19 @@ def run() -> None:
 
 
 def print_help() -> None:
-    print("OIOIOI helper toolbox", "", "This script allows to control OIOIOI with Docker commands.",
-          f"Commands are always being run with '{BASE_DOCKER_COMMAND}' prefix.",
-          f"Aveliable commands are: ", "",
-          *COMMANDS, "", "Example `build`:", f"{sys.argv[0]} build", sep="\n")
+    print(
+        "OIOIOI helper toolbox",
+        "",
+        "This script allows to control OIOIOI with Docker commands.",
+        f"Commands are always being run with '{BASE_DOCKER_COMMAND}' prefix.",
+        f"Aveliable commands are: ",
+        "",
+        *COMMANDS,
+        "",
+        "Example `build`:",
+        f"{sys.argv[0]} build",
+        sep="\n",
+    )
 
 
 def main() -> None:

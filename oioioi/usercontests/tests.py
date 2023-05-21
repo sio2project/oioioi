@@ -100,7 +100,7 @@ class TestUserContestCreationForm(TestCase):
     fixtures = ['test_users']
 
     def _get_future_date(self):
-        date = '2037-04-19'   # far in the future and in 32bit timestamp range.
+        date = '2037-04-19'  # far in the future and in 32bit timestamp range.
         assert datetime.strptime(date, '%Y-%M-%d') > datetime.now()
         return date
 

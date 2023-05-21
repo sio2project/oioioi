@@ -17,7 +17,6 @@ if 'oioioi.teachers.auth.TeacherAuthBackend' not in settings.AUTHENTICATION_BACK
     )
 
 
-
 class Teacher(models.Model):
     user = models.OneToOneField(
         User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE
@@ -31,7 +30,6 @@ class Teacher(models.Model):
 
     def __str__(self):
         return str(self.user)
-
 
 
 class ContestTeacher(models.Model):

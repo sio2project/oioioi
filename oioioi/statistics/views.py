@@ -23,7 +23,7 @@ def links(request):
     links_list = []
     plot_groups = controller.statistics_available_plot_groups(request)
 
-    for (category, object_name, description) in plot_groups:
+    for category, object_name, description in plot_groups:
         category_name, link = statistics_categories[category]
         links_list.append(
             {
@@ -62,7 +62,7 @@ def statistics_view(
     controller = request.contest.controller
 
     category_key = ''
-    for (key, desc) in statistics_categories:
+    for key, desc in statistics_categories:
         if desc[1] == category:
             category_key = key
     category = category_key

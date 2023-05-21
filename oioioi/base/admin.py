@@ -62,10 +62,7 @@ class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
     pass
 
 
-class ModelAdmin(
-    admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta
-):
-
+class ModelAdmin(admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
     # This is handled by AdminSite._reinit_model_admins
     allow_too_late_mixins = True
 
@@ -332,11 +329,7 @@ class AdminSite(DjangoAdminSite):
 
     def login(self, request, extra_context=None):
         next_url = request.GET.get('next', None)
-        suffix = (
-            '?' + urllib.parse.urlencode({'next': next_url})
-            if next_url
-            else ''
-        )
+        suffix = '?' + urllib.parse.urlencode({'next': next_url}) if next_url else ''
         return HttpResponseRedirect(reverse('auth_login') + suffix)
 
 

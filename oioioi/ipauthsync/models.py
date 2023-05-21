@@ -26,7 +26,6 @@ class IpAuthSyncConfigManager(models.Manager):
 @date_registry.register(
     'end_date', name_generator=(lambda obj: _("Disable IP authentication sync"))
 )
-
 class IpAuthSyncConfig(models.Model):
     contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))

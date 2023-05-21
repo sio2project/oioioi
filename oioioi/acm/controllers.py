@@ -58,8 +58,9 @@ class ACMContestController(ProgrammingContestController):
 
     def update_report_statuses(self, submission, queryset):
         if submission.kind == 'TESTRUN':
-            self._activate_newest_report(submission, queryset,
-                    kind=['TESTRUN', 'FAILURE'])
+            self._activate_newest_report(
+                submission, queryset, kind=['TESTRUN', 'FAILURE']
+            )
             return
 
         self._activate_newest_report(submission, queryset, kind=['FULL', 'FAILURE'])

@@ -35,9 +35,7 @@ class Command(BaseCommand):
             action='store_true',
             dest='pretend',
             default=False,
-            help=_(
-                "If set, the orphaned files will only be displayed, not deleted."
-            ),
+            help=_("If set, the orphaned files will only be displayed, not deleted."),
         )
 
     def _get_needed_files(self):

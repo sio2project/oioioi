@@ -59,7 +59,6 @@ class MenuItem(object):
     def __init__(
         self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize
     ):
-
         if condition is None:
             condition = Condition(lambda request: True)
 

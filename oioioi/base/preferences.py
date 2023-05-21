@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from oioioi.base.models import UserPreferences
 
+
 # Huge thanks to: http://jacobian.org/writing/dynamic-form-generation/
 class PreferencesFactory(object):
     """Since each app might want to add new options for the user to edit in his

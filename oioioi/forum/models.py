@@ -18,7 +18,6 @@ from oioioi.contests.models import Contest
 @date_registry.register(
     'unlock_date', name_generator=(lambda obj: _("Unlock the forum"))
 )
-
 class Forum(models.Model):
     """Forum is connected with contest"""
 
@@ -57,9 +56,8 @@ class Forum(models.Model):
         return bool(self.is_autolocked(now) and not self.is_autounlocked(now))
 
 
-
 class Category(models.Model):
-    """Category model """
+    """Category model"""
 
     forum = models.ForeignKey(Forum, verbose_name=_("forum"), on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("category"))
@@ -114,7 +112,6 @@ class Category(models.Model):
         super(Category, self).save(**kwargs)
 
 
-
 class Thread(models.Model):
     """Thread model - topic in a category"""
 
@@ -157,9 +154,8 @@ class Thread(models.Model):
         return reverse('oioioiadmin:forum_thread_change', args=(self.id,))
 
 
-
 class Post(models.Model):
-    """Post - the basic part of the forum """
+    """Post - the basic part of the forum"""
 
     thread = models.ForeignKey(
         Thread, verbose_name=_("thread"), on_delete=models.CASCADE
@@ -272,7 +268,6 @@ class PostReaction(models.Model):
     )
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     type_of_reaction = EnumField(post_reaction_types)
-
 
 
 class Ban(models.Model):

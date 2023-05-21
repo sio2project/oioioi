@@ -8,7 +8,6 @@ from oioioi.base.utils.deps import check_django_app_dependencies
 check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
 
 
-
 class IpToUser(models.Model):
     """Represents mapping for automatic authorization based on IP address."""
 
@@ -23,7 +22,6 @@ class IpToUser(models.Model):
 
     def __str__(self):
         return str(self.ip_addr)
-
 
 
 class DnsToUser(models.Model):

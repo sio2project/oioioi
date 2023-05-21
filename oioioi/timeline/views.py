@@ -90,7 +90,6 @@ def timeline_view(request):
             if obj_str in tosave:
                 setattr(tosave[obj_str], item['date_field'], parsed_date)
             else:
-
                 setattr(obj, item['date_field'], parsed_date)
                 tosave[obj_str] = obj
 

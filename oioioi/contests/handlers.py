@@ -147,7 +147,6 @@ def call_submission_judged(env, submission, **kwargs):
         assert contest.id == env['contest_id']
         contest.controller.submission_judged(submission, rejudged=env['is_rejudge'])
 
-        
     if submission.user is not None and not env['is_rejudge']:
         logger.info(
             "Submission %(submission_id)d by user %(username)s"

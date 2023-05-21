@@ -95,9 +95,7 @@ class Command(BaseCommand):
         print("--- Downloading Manifest ...", file=self.stdout)
         try:
             manifest_url = options['manifest_url']
-            manifest = (
-                urllib.request.urlopen(manifest_url).read().decode('utf-8')
-            )
+            manifest = urllib.request.urlopen(manifest_url).read().decode('utf-8')
             manifest = manifest.strip().splitlines()
         except Exception as e:
             raise CommandError("Error downloading manifest: %s" % (e,))
@@ -105,9 +103,7 @@ class Command(BaseCommand):
         print("--- Looking for license ...", file=self.stdout)
         try:
             license_url = urllib.parse.urljoin(manifest_url, 'LICENSE')
-            license = (
-                urllib.request.urlopen(license_url).read().decode('utf-8')
-            )
+            license = urllib.request.urlopen(license_url).read().decode('utf-8')
             if not options['license_agreement']:
                 self.display_license(license)
         except urllib.error.HTTPError as e:
@@ -153,7 +149,8 @@ class Command(BaseCommand):
 
             quiet_flag = ['-nv'] if options['quiet'] else []
             execute(
-                [options['wget'], '-N', '--no-check-certificate', '-i', '-'] + quiet_flag,
+                [options['wget'], '-N', '--no-check-certificate', '-i', '-']
+                + quiet_flag,
                 stdin='\n'.join(urls).encode('utf-8'),
                 capture_output=False,
                 cwd=download_dir,

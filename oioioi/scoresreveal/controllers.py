@@ -170,9 +170,7 @@ class ScoresRevealContestControllerMixin(object):
                 'scoresreveal/submission-footer.html',
                 request=request,
                 context={
-                    'submission': submission_template_context(
-                        request, submission
-                    ),
+                    'submission': submission_template_context(request, submission),
                     'scores_reveals': scores_reveals,
                     'scores_reveals_limit': scores_reveals_limit,
                     'scores_reveals_disable_time': scores_reveals_disable_time,

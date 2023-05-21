@@ -9,6 +9,7 @@ from oioioi.oi.models import School
 
 COLUMNS = ['id'] + COLUMNS
 
+
 class Command(BaseCommand):
     help = _("Exports schools list to a CSV file")
 
@@ -19,6 +20,5 @@ class Command(BaseCommand):
         writer.writerow(COLUMNS)
         schools = School.objects.filter(is_approved=True, is_active=True)
         for school in schools.order_by('postal_code'):
-            row = [str(getattr(school, column)).encode('utf-8')
-                    for column in COLUMNS]
+            row = [str(getattr(school, column)).encode('utf-8') for column in COLUMNS]
             writer.writerow(row)

@@ -19,7 +19,6 @@ participant_statuses.register('BANNED', _("Banned"))
 participant_statuses.register('DELETED', _("Account deleted"))
 
 
-
 class Participant(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -60,7 +59,6 @@ class Participant(models.Model):
         self.status = 'DELETED'
         self.anonymous = True
         self.save()
-
 
 
 class Region(models.Model):
@@ -110,7 +108,6 @@ class OpenRegistration(RegistrationModel):
     def erase_data(self):
         self.terms_accepted = False
         self.save()
-
 
 
 class OnsiteRegistration(RegistrationModel):

@@ -195,7 +195,6 @@ class TestSubmissionListOrder(TestCase):
 
     @pytest.mark.skip(reason="TODO: Repair the ordering platform-wide.")
     def test_score_order(self):
-
         # 7 is the number of score column.
         # Order by score ascending, null score should be below OK.
         response = self.client.get(self.url + "?o=-7")
@@ -266,14 +265,17 @@ class TestSubmissionListFilters(TestCase):
         )
 
     def test_all_filters(self):
-        response = self.client.get(self.url, {
-            'has_active_system_error': 'yes',
-            'kind': 'NORMAL',
-            'status__exact': 'INI_OK',
-            'revealed': '1',
-            'round': 'Round 1',
-            'lang': 'Pascal',
-        })
+        response = self.client.get(
+            self.url,
+            {
+                'has_active_system_error': 'yes',
+                'kind': 'NORMAL',
+                'status__exact': 'INI_OK',
+                'revealed': '1',
+                'round': 'Round 1',
+                'lang': 'Pascal',
+            },
+        )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, '0 submissions')
 
@@ -1528,7 +1530,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
                     self.assertNotContains(response, name)
 
         def check_accessibility(should_be_accesible, should_not_be_accesible):
-            for (id, content) in should_be_accesible:
+            for id, content in should_be_accesible:
                 response = self.client.get(
                     reverse(
                         'contest_attachment',
@@ -1893,7 +1895,6 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
         self.client.get('/c/c/')
         for pi in ProblemInstance.objects.all():
-
             url = reverse(
                 'oioioiadmin:contests_probleminstance_change',
                 kwargs={'contest_id': 'c'},
@@ -3137,7 +3138,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
             'api_contest_submit',
             {'contest_name': contest.id, 'problem_short_name': pi.short_name},
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def test_simple_submission(self):
@@ -3258,7 +3259,6 @@ class TestManyRoundsNoEnd(TestCase):
 # checks ranking visibility without RankingVisibilityConfig,
 # with it set to default and with it set to 'YES'
 def check_ranking_visibility(self, url, rvc):
-
     # test without RankingVisibilityConfig
     response = self.client.get(url)
     self.assertContains(response, 'Test User')
@@ -3348,7 +3348,9 @@ def set_registration_availability(rvc, enabled, available_from=None, available_t
     rvc.save()
 
 
-def check_registration(self, expected_status_code, availability, available_from=None, available_to=None):
+def check_registration(
+    self, expected_status_code, availability, available_from=None, available_to=None
+):
     contest = Contest.objects.get()
     contest.controller_name = 'oioioi.oi.controllers.OIContestController'
     contest.save()
@@ -3364,10 +3366,7 @@ def check_registration(self, expected_status_code, availability, available_from=
 
 
 class TestOpenRegistration(TestCase):
-    fixtures = [
-        'test_users',
-        'test_contest'
-    ]
+    fixtures = ['test_users', 'test_contest']
 
     def test_open_registration(self):
         check_registration(self, 200, 'YES')

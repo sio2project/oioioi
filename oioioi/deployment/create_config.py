@@ -66,9 +66,7 @@ def generate_all(dir, verbose):
 
     settings = {}
     settings_py = os.path.join(dir, 'settings.py')
-    exec(
-        compile(open(settings_py).read(), settings_py, 'exec'), globals(), settings
-    )
+    exec(compile(open(settings_py).read(), settings_py, 'exec'), globals(), settings)
     media_root = settings['MEDIA_ROOT']
     os.mkdir(media_root)
 

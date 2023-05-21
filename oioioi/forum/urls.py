@@ -8,7 +8,9 @@ forum_patterns = [
     re_path(r'^$', views.forum_view, name='forum'),
     re_path(r'^lock/$', views.lock_forum_view, name='forum_lock'),
     re_path(r'^unlock/$', views.unlock_forum_view, name='forum_unlock'),
-    re_path(r'^latest_posts/$', views.latest_posts_forum_view, name='forum_latest_posts'),
+    re_path(
+        r'^latest_posts/$', views.latest_posts_forum_view, name='forum_latest_posts'
+    ),
     re_path(r'^(?P<category_id>\d+)/$', views.category_view, name='forum_category'),
     re_path(
         r'^(?P<category_id>\d+)/delete/$',
@@ -86,7 +88,9 @@ forum_patterns = [
         views.post_toggle_reaction,
         name='forum_post_toggle_reaction',
     ),
-    re_path(r'^user/(?P<user_id>\d+)/ban/$', views.ban_user_view, name='forum_user_ban'),
+    re_path(
+        r'^user/(?P<user_id>\d+)/ban/$', views.ban_user_view, name='forum_user_ban'
+    ),
 ]
 
 contest_patterns = [

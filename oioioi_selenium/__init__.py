@@ -96,9 +96,7 @@ class WrapTestsWithScreenshots(type):
         return type.__new__(mcs, class_name, class_parents, new_attrs)
 
 
-class OIOIOISeleniumTestCaseBase(
-    unittest.TestCase, metaclass=WrapTestsWithScreenshots
-):
+class OIOIOISeleniumTestCaseBase(unittest.TestCase, metaclass=WrapTestsWithScreenshots):
     def setUp(self):
         self.driver = WebDriver()
 

@@ -14,7 +14,6 @@ from oioioi.contests.models import Contest
 check_django_app_dependencies(__name__, ['oioioi.teachers'])
 
 
-
 class UserGroup(models.Model):
     """Group of user which can be moved around contests by teachers"""
 

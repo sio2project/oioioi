@@ -398,9 +398,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return (
             reverse('problemset_add_or_update')
             + '?'
-            + urllib.parse.urlencode(
-                {'problem': instance.problem_id, 'key': 'upload'}
-            )
+            + urllib.parse.urlencode({'problem': instance.problem_id, 'key': 'upload'})
         )
 
     def _replace_statement_href(self, instance):

@@ -185,8 +185,9 @@ class UserPreferencesMiddleware(object):
 
     def _process_request(self, request):
         # checking data set by set_first_view_after_logging_flag signal handler:
-        just_logged_in = ('first_view_after_logging' in request.session) and \
-                            request.session['first_view_after_logging'] is True
+        just_logged_in = (
+            'first_view_after_logging' in request.session
+        ) and request.session['first_view_after_logging'] is True
 
         ensure_preferences_exist_for_user(request.user)
 
@@ -196,8 +197,9 @@ class UserPreferencesMiddleware(object):
         if just_logged_in and pref_lang != "":
             self.lang = pref_lang
 
-        if ((not just_logged_in) or pref_lang == "") and \
-           settings.LANGUAGE_COOKIE_NAME in request.COOKIES.keys():
+        if (
+            (not just_logged_in) or pref_lang == ""
+        ) and settings.LANGUAGE_COOKIE_NAME in request.COOKIES.keys():
             self.lang = request.COOKIES[settings.LANGUAGE_COOKIE_NAME]
 
         translation.activate(self.lang)
@@ -205,8 +207,13 @@ class UserPreferencesMiddleware(object):
 
     def _process_response(self, request, response):
         if settings.LANGUAGE_COOKIE_NAME in request.COOKIES:
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME,
-                                request.COOKIES[settings.LANGUAGE_COOKIE_NAME], samesite='lax')
+            response.set_cookie(
+                settings.LANGUAGE_COOKIE_NAME,
+                request.COOKIES[settings.LANGUAGE_COOKIE_NAME],
+                samesite='lax',
+            )
         else:
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, self.lang, samesite='lax')
+            response.set_cookie(
+                settings.LANGUAGE_COOKIE_NAME, self.lang, samesite='lax'
+            )
         return response

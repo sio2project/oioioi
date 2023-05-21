@@ -3,7 +3,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-
 class GlobalMessage(models.Model):
     message = models.TextField(verbose_name=_("message"))
     enabled = models.BooleanField(default=False, verbose_name=_("enabled"))

@@ -176,9 +176,7 @@ def save_recalc_results(recalc, date_before, date_after, serialized, pages_list)
         r = Ranking.objects.filter(recalc_in_progress=recalc).select_for_update().get()
     except Ranking.DoesNotExist:
         return
-    r.serialized_data = pickle.dumps(
-        serialized
-    )
+    r.serialized_data = pickle.dumps(serialized)
     save_pages(r, pages_list)
     r.last_recalculation_date = date_before
     r.last_recalculation_duration = date_after - date_before

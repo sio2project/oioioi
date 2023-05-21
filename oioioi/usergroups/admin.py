@@ -65,9 +65,7 @@ class UserGroupRankingInline(admin.StackedInline):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'user_group':
-            kwargs['queryset'] = UserGroup.objects.filter(
-                contests=request.contest
-            )
+            kwargs['queryset'] = UserGroup.objects.filter(contests=request.contest)
         return super(UserGroupRankingInline, self).formfield_for_foreignkey(
             db_field, request, **kwargs
         )

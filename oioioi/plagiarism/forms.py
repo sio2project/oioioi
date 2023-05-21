@@ -28,7 +28,7 @@ class MossSubmitForm(forms.Form):
         label=_("MOSS user ID"),
         required=True,
         min_value=0,
-        max_value=2 ** 32,
+        max_value=2**32,
     )
 
     def __init__(self, problem_instances, *args, **kwargs):

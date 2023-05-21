@@ -45,7 +45,6 @@ class ExclusivenessConfigManager(models.Manager):
 @date_registry.register(
     'end_date', name_generator=(lambda obj: _("Disable exclusiveness"))
 )
-
 class ExclusivenessConfig(models.Model):
     """Represents an exclusiveness config for a contest.
 

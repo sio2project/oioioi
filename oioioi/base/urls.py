@@ -37,7 +37,9 @@ noncontest_patterns = []
 if settings.USE_API:
     urlpatterns += [
         re_path(r'^api/token', api.api_token, name='api_token'),
-        re_path(r'^api/regenerate_token', api.regenerate_token, name='api_regenerate_key'),
+        re_path(
+            r'^api/regenerate_token', api.regenerate_token, name='api_regenerate_key'
+        ),
     ]
     noncontest_patterns += [
         # the c prefix doesn't make sense for non contest related endpoints as

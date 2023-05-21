@@ -67,6 +67,7 @@ def no_makefiles(fn):
 # both_configurations will be run twice. Once in safe and once in unsafe unpack
 # mode.
 
+
 # Unfortunately, you won't be able run such a decorated method as a single
 # test, that is:
 # ./test.sh oioioi.sinolpack.tests:TestSinolPackage.test_huge_unpack_update

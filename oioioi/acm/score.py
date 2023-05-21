@@ -163,7 +163,7 @@ class ACMScore(ScoreValue):
 
            ``penalties_count`` is number of unsuccessful submissions.
         """
-        ordering = 10 ** 10 * (self.problems_solved + 1) - self.total_time
+        ordering = 10**10 * (self.problems_solved + 1) - self.total_time
         return '%020d:%010d:%010d:%010d' % (
             ordering,
             self.problems_solved,

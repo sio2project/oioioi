@@ -85,10 +85,7 @@ class TestNewsfeedOptions(TestCase):
 
     def _assert_redirect_to_newsfeed(self, response):
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            resolve(response.redirect_chain[-1][0]).view_name,
-            'newsfeed'
-        )
+        self.assertEqual(resolve(response.redirect_chain[-1][0]).view_name, 'newsfeed')
 
     def test_news_add(self):
         url_newsfeed = reverse('newsfeed')

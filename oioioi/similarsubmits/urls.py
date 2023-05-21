@@ -13,5 +13,7 @@ contest_patterns = [
         views.mark_not_guilty_view,
         name='mark_not_guilty',
     ),
-    re_path(r'^bulk_add/$', views.bulk_add_similarities_view, name='bulk_add_similarities'),
+    re_path(
+        r'^bulk_add/$', views.bulk_add_similarities_view, name='bulk_add_similarities'
+    ),
 ]

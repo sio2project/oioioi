@@ -2,7 +2,14 @@
 from datetime import datetime
 import pytz
 from django.utils.safestring import mark_safe
-from oioioi.default_settings import *
+from oioioi.default_settings import (
+    TEMPLATES,
+    UNCACHED_TEMPLATE_LOADERS,
+    CACHED_TEMPLATE_LOADERS,
+    INSTALLED_APPS,
+    AUTHENTICATION_BACKENDS,
+    PROBLEM_SOURCES
+)
 from oioioi.contests.current_contest import ContestMode
 
 # This should match INSTALLATION_CONFIG_VERSION in
@@ -57,9 +64,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Email addresses to send communication from users (for example requests for
 # teacher accounts).
-MANAGERS = (
-    ('Szkopul Admin', 'sio2@sio2project.mimuw.edu.pl'),
-)
+MANAGERS = (('Szkopul Admin', 'sio2@sio2project.mimuw.edu.pl'),)
 
 # Registration checkbox descriptions
 
@@ -70,11 +75,19 @@ REGISTRATION_RULES_CONSENT = mark_safe(
     " zgodę na przetwarzanie moich ww. danych osobowych</a>"
     " oraz oświadczam,"
     " że zapoznałam/zapoznałem się z "
-    "<a target=\"_blank\" href=\"/rodo/\">klauzulą informacyjną</a>")
+    "<a target=\"_blank\" href=\"/rodo/\">klauzulą informacyjną</a>"
+)
 
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['szkopul.edu.pl', 'szk.oioioi.edu.pl',
-                 'snag.dasie.mimuw.edu.pl', 'snag', 'szkopul', 'szkopul2', 'localhost']
+ALLOWED_HOSTS = [
+    'szkopul.edu.pl',
+    'szk.oioioi.edu.pl',
+    'snag.dasie.mimuw.edu.pl',
+    'snag',
+    'szkopul',
+    'szkopul2',
+    'localhost',
+]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -175,21 +188,13 @@ SIOWORKERS_LISTEN_URL = 'http://snag:7890/'
 RUN_SIOWORKERSD = False
 
 SUBMITTABLE_LANGUAGES = {
-    'C': {
-        'display_name': 'C'
-    },
-    'C++': {
-        'display_name': 'C++'
-    },
-    'Pascal': {
-        'display_name': 'Pascal'
-    },
+    'C': {'display_name': 'C'},
+    'C++': {'display_name': 'C++'},
+    'Pascal': {'display_name': 'Pascal'},
     # 'Java': {
     #    'display_name': 'Java'
     # },
-    'Python': {
-        'display_name': 'Python'
-    },
+    'Python': {'display_name': 'Python'},
 }
 
 SUBMITTABLE_EXTENSIONS = {
@@ -204,25 +209,21 @@ SUBMITTABLE_EXTENSIONS = {
 # By default that means ones defined here:
 # https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
 AVAILABLE_COMPILERS = {
-    'C': {
-        'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
-    },
+    'C': {'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}},
     'C++': {
         'g++4_8_2_cpp11': {'display_name': 'g++:4.8.2 std=c++11'},
         'g++8_3_cpp17': {'display_name': 'g++:8.3 std=c++17'},
         'g++8_3_cpp17_amd64': {'display_name': 'g++:8.3 std=c++17 x64'},
-        'g++10_2_cpp17_amd64': {'display_name': 'g++:10.2 std=c++17 x64'}
+        'g++10_2_cpp17_amd64': {'display_name': 'g++:10.2 std=c++17 x64'},
     },
-    'Pascal': {
-        'fpc2_6_2': {'display_name': 'fpc:2.6.2'}
-    },
+    'Pascal': {'fpc2_6_2': {'display_name': 'fpc:2.6.2'}},
     # 'Java': {
     #    'java1_8': {'display_name': 'java:1.8'}
     # },
     'Python': {
         'python_3_4_numpy': {'display_name': 'python:3.4 + numpy'},
         'python_3_7_numpy': {'display_name': 'python:3.7 + numpy'},
-        'python_3_9_numpy': {'display_name': 'python:3.9 + numpy'}
+        'python_3_9_numpy': {'display_name': 'python:3.9 + numpy'},
     },
 }
 
@@ -362,7 +363,7 @@ INSTALLED_APPS = (
     'oioioi.problemsharing',
     'oioioi.usergroups',
     'oioioi.usercontests',
-    'oioioi.plagiarism'
+    'oioioi.plagiarism',
 ) + INSTALLED_APPS
 
 PROBLEM_TAGS_VISIBLE = True
@@ -385,13 +386,21 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 ]
 
 # VERY STUPID WORKAROUND FOR SZKOPUL-FK
-if 'oioioi.problems.processors.dangling_problems_processor' in TEMPLATES[0]['OPTIONS']['context_processors']:
+if (
+    'oioioi.problems.processors.dangling_problems_processor'
+    in TEMPLATES[0]['OPTIONS']['context_processors']
+):
     TEMPLATES[0]['OPTIONS']['context_processors'].remove(
-        'oioioi.problems.processors.dangling_problems_processor')
+        'oioioi.problems.processors.dangling_problems_processor'
+    )
 # AND FOR SZKOPUL-FJ
-if 'oioioi.problems.processors.problems_need_rejudge_processor' in TEMPLATES[0]['OPTIONS']['context_processors']:
+if (
+    'oioioi.problems.processors.problems_need_rejudge_processor'
+    in TEMPLATES[0]['OPTIONS']['context_processors']
+):
     TEMPLATES[0]['OPTIONS']['context_processors'].remove(
-        'oioioi.problems.processors.problems_need_rejudge_processor')
+        'oioioi.problems.processors.problems_need_rejudge_processor'
+    )
 
 AUTHENTICATION_BACKENDS += (
     'oioioi.teachers.auth.TeacherAuthBackend',
@@ -459,9 +468,7 @@ LOGGING = {
         'handlers': ['console'],
     },
     'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        },
+        'require_debug_false': {'()': 'django.utils.log.RequireDebugFalse'},
     },
     'formatters': {
         'date_and_level': {
@@ -483,17 +490,17 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
         },
         'audit': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'formatter': 'date_and_level',
-            'filename': '/sio2/deployment/logs/audit.log'
+            'filename': '/sio2/deployment/logs/audit.log',
         },
         'emit_notification': {
             'level': 'DEBUG',
-            'class': 'oioioi.base.notification.NotificationHandler'
+            'class': 'oioioi.base.notification.NotificationHandler',
         },
     },
     'loggers': {
@@ -510,7 +517,7 @@ LOGGING = {
         'django.security': {
             'handlers': ['console'],
             'level': 'ERROR',
-            'propagate': False
+            'propagate': False,
         },
         'oioioi': {
             'handlers': ['console', 'emit_notification'],
@@ -532,7 +539,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-    }
+    },
 }
 
 # If set to True, usercontests will become read-only: it will be impossible to

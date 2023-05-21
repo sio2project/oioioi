@@ -63,9 +63,7 @@ def email_template_context(request, message):
         'submissions_link': request.build_absolute_uri(
             reverse('oioioiadmin:contests_submission_changelist')
             + '?'
-            + urllib.parse.urlencode(
-                {'user__username': request.user.username}
-            )
+            + urllib.parse.urlencode({'user__username': request.user.username})
         ),
     }
 

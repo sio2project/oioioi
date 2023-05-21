@@ -541,7 +541,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         NotificationHandler.send_notification = fake_send_notification
 
         submission = Submission.objects.get(pk=1)
-        
+
         environ = create_environ()
         environ['extra_args'] = {}
         environ['is_rejudge'] = False
@@ -1027,7 +1027,7 @@ class TestScorers(TestCase):
         results = list(
             map(
                 utils.discrete_test_scorer,
-                *list(zip(*self.t_results_unequal_max_scores))
+                *list(zip(*self.t_results_unequal_max_scores)),
             )
         )
         self.assertEqual(self.t_expected_unequal_max_scores, results)
@@ -1069,7 +1069,7 @@ class TestScorers(TestCase):
         results = list(
             map(
                 utils.threshold_linear_test_scorer,
-                *list(zip(*self.t_results_unequal_max_scores))
+                *list(zip(*self.t_results_unequal_max_scores)),
             )
         )
         self.assertEqual(self.t_expected_unequal_max_scores, results)
@@ -1108,7 +1108,7 @@ class TestScorers(TestCase):
         results = list(
             map(
                 utils.threshold_linear_test_scorer,
-                *list(zip(*self.t_results_unequal_max_scores))
+                *list(zip(*self.t_results_unequal_max_scores)),
             )
         )
         dicts = list(self.g_results_wrong.values())

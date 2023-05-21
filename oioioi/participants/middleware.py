@@ -19,7 +19,6 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
     """
 
     def process_view(self, request, view_func, view_args, view_kwargs, selector=None):
-
         if not self._check_requirements(request):
             return
 

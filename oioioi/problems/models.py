@@ -43,7 +43,6 @@ def make_problem_filename(instance, filename):
     )
 
 
-
 class Problem(models.Model):
     """Represents a problem in the problems database.
 
@@ -248,7 +247,6 @@ class ProblemStatement(models.Model):
         return u'%s / %s' % (self.problem.name, self.filename)
 
 
-
 class ProblemAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
     a problem.
@@ -299,7 +297,7 @@ TRACEBACK_STACK_LIMIT = 100
 
 
 def truncate_unicode(string, length, encoding='utf-8'):
-    """ Truncates string to be `length` bytes long. """
+    """Truncates string to be `length` bytes long."""
     encoded = string.encode(encoding)[:length]
     return encoded.decode(encoding, 'ignore')
 
@@ -453,7 +451,6 @@ class ProblemPackage(models.Model):
         return manager()
 
 
-
 class ProblemSite(models.Model):
     """Represents a global problem site.
 
@@ -547,7 +544,6 @@ def _localized(*localized_fields):
 
 
 @_localized('short_name', 'full_name', 'description')
-
 class OriginTag(models.Model):
     """OriginTags are used along with OriginInfoCategories and OriginInfoValue
     to give information about the problem's origin. OriginTags themselves
@@ -585,7 +581,6 @@ class OriginTag(models.Model):
 
     def __str__(self):
         return str(self.name)
-
 
 
 class OriginTagLocalization(models.Model):
@@ -628,7 +623,6 @@ class OriginTagLocalization(models.Model):
 
 
 @_localized('full_name')
-
 class OriginInfoCategory(models.Model):
     """This class represents a category of information, which further specifies
     what its parent_tag is already telling about the origin. It doesn't do
@@ -683,7 +677,6 @@ class OriginInfoCategory(models.Model):
         return str("{}_{}".format(self.parent_tag, self.name))
 
 
-
 class OriginInfoCategoryLocalization(models.Model):
     origin_info_category = models.ForeignKey(
         OriginInfoCategory, related_name='localizations', on_delete=models.CASCADE
@@ -707,7 +700,6 @@ class OriginInfoCategoryLocalization(models.Model):
 
 
 @_localized('full_value')
-
 class OriginInfoValue(models.Model):
     """This class represents additional information, further specifying
     what its parent_tag is already telling about the origin. Each
@@ -777,9 +769,7 @@ class OriginInfoValue(models.Model):
 
     @property
     def full_name(self):
-        return str(
-            u'{} {}'.format(self.parent_tag.full_name, self.full_value)
-        )
+        return str(u'{} {}'.format(self.parent_tag.full_name, self.full_value))
 
     class Meta(object):
         unique_together = ('parent_tag', 'value')
@@ -788,7 +778,6 @@ class OriginInfoValue(models.Model):
 
     def __str__(self):
         return str(self.name)
-
 
 
 class OriginInfoValueLocalization(models.Model):
@@ -814,7 +803,6 @@ class OriginInfoValueLocalization(models.Model):
 
 
 @_localized('full_name')
-
 class DifficultyTag(models.Model):
     name = models.CharField(
         max_length=20,
@@ -838,7 +826,6 @@ class DifficultyTag(models.Model):
         return str(self.name)
 
 
-
 class DifficultyTagThrough(models.Model):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE)
@@ -846,7 +833,6 @@ class DifficultyTagThrough(models.Model):
     # This string will be visible in an admin form.
     def __str__(self):
         return str(self.tag.name)
-
 
 
 class DifficultyTagLocalization(models.Model):
@@ -871,7 +857,6 @@ class DifficultyTagLocalization(models.Model):
         return str("{} - {}".format(self.difficulty_tag, self.language))
 
 
-
 class DifficultyTagProposal(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE, null=True)
@@ -886,7 +871,6 @@ class DifficultyTagProposal(models.Model):
 
 
 @_localized('full_name')
-
 class AlgorithmTag(models.Model):
     name = models.CharField(
         max_length=20,
@@ -910,7 +894,6 @@ class AlgorithmTag(models.Model):
         return str(self.name)
 
 
-
 class AlgorithmTagThrough(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
@@ -921,7 +904,6 @@ class AlgorithmTagThrough(models.Model):
 
     class Meta(object):
         unique_together = ('problem', 'tag')
-
 
 
 class AlgorithmTagLocalization(models.Model):
@@ -944,7 +926,6 @@ class AlgorithmTagLocalization(models.Model):
 
     def __str__(self):
         return str("{} - {}".format(self.algorithm_tag, self.language))
-
 
 
 class AlgorithmTagProposal(models.Model):

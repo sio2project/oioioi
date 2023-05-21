@@ -25,6 +25,7 @@ from oioioi.participants.models import (
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
+
 class ParticipantsController(RegistrationController):
     registration_template = 'participants/registration.html'
 
@@ -79,9 +80,7 @@ class ParticipantsController(RegistrationController):
             url = (
                 reverse('participants_register', kwargs={'contest_id': self.contest.id})
                 + '?'
-                + urllib.parse.urlencode(
-                    {'next': request.build_absolute_uri()}
-                )
+                + urllib.parse.urlencode({'next': request.build_absolute_uri()})
             )
             return HttpResponseRedirect(url)
         return super(ParticipantsController, self).no_entry_view(request)
@@ -202,7 +201,10 @@ class ParticipantsController(RegistrationController):
             rvc = RegistrationAvailabilityConfig.objects.get(contest=request.contest)
             return rvc.is_registration_open(request.timestamp)
         except RegistrationAvailabilityConfig.DoesNotExist:
-            auditLogger.warning("RegistrationAvailabilityConfig does not exist for contest %s", request.contest)
+            auditLogger.warning(
+                "RegistrationAvailabilityConfig does not exist for contest %s",
+                request.contest,
+            )
             return True
 
 

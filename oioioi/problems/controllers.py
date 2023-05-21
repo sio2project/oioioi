@@ -707,7 +707,6 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return True
 
-
     def get_notification_message_submission_judged(self, submission):
         """Returns a message to show in a notification when a submission has
         been judged. It doesn't validate any permissions.

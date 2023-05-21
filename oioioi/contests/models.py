@@ -95,17 +95,16 @@ class Contest(models.Model):
             "their weights."
         ),
     )
-    enable_editor = models.BooleanField(
-        verbose_name=_("enable editor"),
-        default=False
-    )
+    enable_editor = models.BooleanField(verbose_name=_("enable editor"), default=False)
 
     # Part of szkopul backporting.
-    # This is a hack for situation where contest controller is empty, 
+    # This is a hack for situation where contest controller is empty,
     # which is very uncommon in normal usage.
     def save(self, *args, **kwargs):
         if not self.controller_name:
-            self.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
+            self.controller_name = (
+                'oioioi.teachers.controllers.TeacherContestController'
+            )
         super(Contest, self).save(*args, **kwargs)
 
     @property
@@ -351,10 +350,12 @@ registration_availability_options.register('CONFIG', _("Configuration"))
 
 
 @date_registry.register(
-    'registration_available_from', name_generator=(lambda obj: _("Make registration available"))
+    'registration_available_from',
+    name_generator=(lambda obj: _("Make registration available")),
 )
 @date_registry.register(
-    'registration_available_to', name_generator=(lambda obj: _("Make registration unavailable"))
+    'registration_available_to',
+    name_generator=(lambda obj: _("Make registration unavailable")),
 )
 class RegistrationAvailabilityConfig(models.Model):
     contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
@@ -394,16 +395,29 @@ class RegistrationAvailabilityConfig(models.Model):
         if self.enabled == 'YES':
             return True
         if self.enabled == 'CONFIG':
-            return self.registration_available_from <= timestamp <= self.registration_available_to
+            return (
+                self.registration_available_from
+                <= timestamp
+                <= self.registration_available_to
+            )
         return False
 
     def clean(self):
         if self.enabled == 'CONFIG':
-            if self.registration_available_from is None or self.registration_available_to is None:
-                raise ValidationError(_("If registration availability is set to Configuration, then "
-                                        "'Available from' and 'Available to' must be set."))
+            if (
+                self.registration_available_from is None
+                or self.registration_available_to is None
+            ):
+                raise ValidationError(
+                    _(
+                        "If registration availability is set to Configuration, then "
+                        "'Available from' and 'Available to' must be set."
+                    )
+                )
             if self.available_from > self.registration_available_to:
-                raise ValidationError(_("'Available from' must be before 'available to'."))
+                raise ValidationError(
+                    _("'Available from' must be before 'available to'.")
+                )
 
 
 class ProblemInstance(models.Model):

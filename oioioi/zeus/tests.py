@@ -111,7 +111,7 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
             'metadata': metadata,
             'runtime': 100,
             'time_limit_ms': 1000,
-            'memory_limit_byte': 2 ** 24,
+            'memory_limit_byte': 2**24,
         }
 
     def _assert_dict_contains_subset(self, subset, dictionary):
@@ -182,7 +182,7 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
                 'group': '1',
                 'max_score': 2,
                 'exec_time_limit': 1000,
-                'exec_memory_limit': 2 ** 14,
+                'exec_memory_limit': 2**14,
                 'zeus_metadata': '1a,1,2',
             },
             tests['1a'],

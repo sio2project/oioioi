@@ -37,7 +37,11 @@ def notification_function_initial_results(arguments):
         url = ''
 
     message = gettext_noop("Initial result for task %(short_name)s is ready")
-    message_arguments = {'short_name': pi.short_name, 'address': url, 'submission_id': arguments.submission.pk}
+    message_arguments = {
+        'short_name': pi.short_name,
+        'address': url,
+        'submission_id': arguments.submission.pk,
+    }
 
     NotificationHandler.send_notification(
         arguments.user, 'initial_results', message, message_arguments
@@ -58,9 +62,7 @@ def notification_function_submission_judged(arguments):
     request.timestamp = datetime.now().replace(tzinfo=utc)
 
     # Check if the final report is visible to the user
-    if not pi.controller.can_see_submission_score(
-        request, arguments.submission
-    ):
+    if not pi.controller.can_see_submission_score(request, arguments.submission):
         return
 
     if pi.contest:
@@ -92,7 +94,7 @@ def notification_function_submission_judged(arguments):
     }
     if pi.contest:
         message_arguments['contest_name'] = pi.contest.name
-        
+
     NotificationHandler.send_notification(
         arguments.user, 'submission_judged', message, message_arguments
     )

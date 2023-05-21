@@ -8,7 +8,6 @@ from oioioi.teachers.models import Teacher
 from oioioi.base.utils.user_selection import UserSelectionField
 
 
-
 class TeacherContestForm(SimpleContestForm):
     class Meta(SimpleContestForm.Meta):
         fields = ['name', 'id']

@@ -251,7 +251,7 @@ class SinolPackage(object):
             'cpp': 'C++',
             'pas': 'Pascal',
             'java': 'Java',
-            'py': 'Python'
+            'py': 'Python',
         }
 
         if lang in name_map and lang in settings.OVERRIDE_COMPILER_LANGS:
@@ -271,7 +271,7 @@ class SinolPackage(object):
             prefix = 'system'
         compilation_job['compiler'] = prefix + '-' + lang
         self._override_compiler(prefix, lang, compilation_job)
-       
+
         if not self.use_make and self.prog_archive:
             compilation_job['additional_archive'] = self.prog_archive
         add_extra_files(
@@ -320,7 +320,7 @@ class SinolPackage(object):
             renv = run_sioworkers_job(env)
 
             if renv['return_code'] != 0:
-               raise ProblemPackageError(_("Ingen failed: %r") % renv)
+                raise ProblemPackageError(_("Ingen failed: %r") % renv)
 
             get_client().delete_file(env['compiled_file'])
             return renv['collected_files']
@@ -618,7 +618,6 @@ class SinolPackage(object):
         with zipfile.ZipFile(htmlzipfile, 'r') as archive, archive.open(
             'index.html'
         ) as index:
-
             data = index.read()
             # First, we check if index.html is utf-8 encoded.
             # If it is - nothing to do.
