@@ -8,7 +8,7 @@
 <h1>{% trans "Maintenance mode" %}</h1>
 <form method="post">
     {% csrf_token %}
-    <div class="form-group">
+    <div class="mb-3">
         <label for="maintenance_message">{% trans "Maintenance mode message" %}</label>
         <textarea type="text" rows="5" class="form-control"
                   placeholder='{% trans "Tell users why the site is off..." %}'

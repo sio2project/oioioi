@@ -44,7 +44,7 @@
 
 {% if form %}
     {% if is_admin %}
-        <form class="form-inline nav-content">
+        <form class="d-flex flex-row align-items-center flex-wrap nav-content">
             {% include "ingredients/form.html" with inline=True %}
             <button class="btn btn-outline-secondary mb-2" type="submit">
                 {% trans "Find" %}

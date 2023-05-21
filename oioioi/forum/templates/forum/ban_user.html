@@ -22,11 +22,11 @@
     <form method="post">
         {% csrf_token %}
         {% include "ingredients/form.html" %}
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary btn-block btn-lg">
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary w-100 btn-lg">
                 {% trans "Confirm" %}
             </button>
-            <a href="{{ next }}" class="btn btn-block">
+            <a href="{{ next }}" class="btn w-100">
                 {% trans "Cancel" %}
             </a>
         </div>

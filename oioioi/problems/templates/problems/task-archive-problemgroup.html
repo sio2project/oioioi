@@ -3,14 +3,14 @@
 <div class="problemgroup-heading">
     {% if parent_id %}
     <a class="collapse-toggle{% if collapse %} collapsed{% endif %}"
-        data-toggle="collapse"
-        data-parent="#{{parent_id}}"
+        data-bs-toggle="collapse"
+        data-bs-parent="#{{parent_id}}"
         href="#{{id}}">
         <span class="text-muted"><i class="fa-solid fa-chevron-down"></i></span>
         {{ value.full_value }}
     </a>
     <i class="fa-solid fa-link link-getter" data-link="#{{id}}" aria-hidden="true"
-          data-toggle="tooltip" data-placement="right" title="Copy link to clipboard!"></i>
+          data-bs-toggle="tooltip" data-bs-placement="right" title="Copy link to clipboard!"></i>
     {% endif %}
         {% if parent_id == "problemgroups" and problems.attempted %}
         <span class="percentage-info" >

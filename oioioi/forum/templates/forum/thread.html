@@ -35,7 +35,7 @@
         <form method="post">
             {% csrf_token %}
             {% include "ingredients/form.html" with focus=False display_labels=False %}
-            <div class="form-group">
+            <div class="mb-3">
                 <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
             </div>
         </form>

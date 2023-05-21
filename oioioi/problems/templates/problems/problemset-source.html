@@ -12,7 +12,7 @@
 <form id="secret-key-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <div class="form-group {% if form.url_key.errors %}has-error{% endif %}">
+    <div class="mb-3 {% if form.url_key.errors %}has-error{% endif %}">
         <label for="{{ form.url_key.auto_id }}">{{ form.url_key.label }}</label>
        {{ form.url_key|add_class:"form-control"}}
 

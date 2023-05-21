@@ -30,28 +30,28 @@
                     {% if show_statistics %}
                         <th class="col-sm-{{ col_proportions.statistics1 }} text-center">
                             <a href="{% ordered_col request.GET "submitted" True %}"
-                               data-toggle="tooltip"
+                               data-bs-toggle="tooltip"
                                title="{% trans "How many users submitted a solution for this task" %}">
                                 {% trans "Submitters" %}
                             </a>
                         </th>
                         <th class="col-sm-{{ col_proportions.statistics2 }} text-center">
                             <a href="{% ordered_col request.GET "solved_pc" True %}"
-                               data-toggle="tooltip"
+                               data-bs-toggle="tooltip"
                                title="{% trans "Percentage of users who submitted that also solved this task" %}">
                                 {% trans "% Correct" %}
                             </a>
                         </th>
                         <th class="col-sm-{{ col_proportions.statistics3 }} text-center">
                             <a href="{% ordered_col request.GET "avg_best_score" True %}"
-                               data-toggle="tooltip"
+                               data-bs-toggle="tooltip"
                                title="{% trans "Average score result for this task" %}">
                                 {% trans "Average" %}
                             </a>
                         </th>
                         <script type="text/javascript">
 -                            $(document).ready(function(){
--                                $('[data-toggle="tooltip"]').tooltip();
+-                                $('[data-bs-toggle="tooltip"]').tooltip();
 -                            });
 -                        </script>
                     {% endif %}
@@ -59,7 +59,7 @@
                     {% if show_user_statistics %}
                         <th class="col-sm-{{ col_proportions.user_score }} text-center">
                             <a href="{% ordered_col request.GET "user_score" True %}"
-                               data-toggle="tooltip"
+                               data-bs-toggle="tooltip"
                                title="{% trans "Your score for this problem" %}">
                                 {% trans "Your score" %}
                             </a>
@@ -139,7 +139,7 @@
                         <td class="text-center">
                             <div class="btn-group">
                                 <button class="btn btn-outline-secondary dropdown-toggle add-to-contest-button ps-1 pe-2" type="button"
-                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span class="caret add-contest-caret"></span>
                                     <span class="d-none loading-spinner job-active"><i class="fa-solid fa-rotate-right spinner"></i></span>
                                 </button>

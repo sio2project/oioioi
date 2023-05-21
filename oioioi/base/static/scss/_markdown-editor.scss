@@ -2,7 +2,7 @@ $markdown-editor-padding: 10px !default;
 
 // Fixes markdown editor styles
 
-.form-group .md-editor > textarea,
+.mb-3 .md-editor > textarea,
 .md-preview {
   padding: $markdown-editor-padding;
 }

@@ -9,10 +9,10 @@
             <div class="card">
                 <div class="card-header" role="tab" id="menu-heading-{{ forloop.counter }}">
                     <h5 class="card-title mb-0">
-                        <a class="text-dark text-decoration-none collapsed" role="button" data-toggle="collapse"
+                        <a class="text-dark text-decoration-none collapsed" role="button" data-bs-toggle="collapse"
                             href="#menu-{{ forloop.counter }}" aria-controls="menu-{{ forloop.counter }}"
                             aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}"
-                            data-target="#menu-{{ forloop.counter }}">
+                            data-bs-target="#menu-{{ forloop.counter }}">
                             {{ registry.text }}
                         </a>
                     </h5>
@@ -20,7 +20,7 @@
                 <div id="menu-{{ forloop.counter }}" class="card-collapse collapse {% if forloop.last %}show{% endif %}"
                      role="tabpanel" aria-labelledby="menu-heading-{{ forloop.counter }}"
                      aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}"
-                     data-parent="#menu-accordion">
+                     data-bs-parent="#menu-accordion">
                     <div class="list-group list-group-flush border-top">
                     {% for item in menu %}
                         <a href="{{ item.url }}" class="list-group-item list-group-item-action {% active_url item.url %}" {{ item.attrs }}>

@@ -45,7 +45,7 @@
           <p>
             {% for other in other_devices %}
             <button name="challenge_device" value="{{ other.persistent_id }}"
-                    class="btn btn-outline-secondary btn-block" type="submit">
+                    class="btn btn-outline-secondary w-100" type="submit">
               {{ other|device_action }}
             </button>
           {% endfor %}</p>
@@ -54,12 +54,12 @@
           <p>{% trans "As a last resort, you can use a backup token:" %}</p>
           <p>
             <button name="wizard_goto_step" type="submit" value="backup"
-                    class="btn btn-outline-secondary btn-block">{% trans "Use Backup Token" %}</button>
+                    class="btn btn-outline-secondary w-100">{% trans "Use Backup Token" %}</button>
           </p>
         {% endif %}
 
         {% if wizard.steps.current == 'auth' %}
-          <div class="form-group">
+          <div class="mb-3">
             <p><a href="{% url 'auth_password_reset' %}">{% trans "Forgot password?" %}</a></p>
             <p><a href="{% url 'registration_register' %}">{% trans "Want to create an account?" %}</a></p>
           </div>

@@ -8,14 +8,14 @@
 <form method="post">
     {% csrf_token %}
     {% for field in form.control_fields %}
-        <div class="form-group">
+        <div class="mb-3">
             <label for="{{ field.auto_id }}" class="control-label">
                 {{ field.label }}
             </label>
             {{ field | add_class:"form-control" }}
         </div>
     {% endfor %}
-    <div id="single_report_controller" class="form-group {% if form.single_report_user.errors %}has-error{% endif %}">
+    <div id="single_report_controller" class="mb-3 {% if form.single_report_user.errors %}has-error{% endif %}">
         <div class="checkbox">
             <label>
                 {{ form.is_single_report }}
@@ -35,7 +35,7 @@
                 <div class="well well-sm round_{{ field.field.round }}">
                     <div class="checkbox">
                         <label>
-                            <input type="checkbox" class="control_checkbox" data-selector="{{ field.html_name }}"/>
+                            <input type="checkbox" class="control_checkbox" data-bs-selector="{{ field.html_name }}"/>
                             {{ field.label }}
                         </label>
                     </div>
@@ -44,7 +44,7 @@
             </li>
         {% endfor %}
     </ul>
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" class="btn btn-primary">{% trans "Generate report" %}</button>
     </div>
 </form>
@@ -61,7 +61,7 @@
             }
         });
         $('.control_checkbox').click(function() {
-            var task_selector = $(this).data('selector');
+            var task_selector = $(this).data('bs-selector');
             task_selector = 'input[id*="' + task_selector + '"]'
             $(task_selector).prop('checked', $(this).is(':checked'));
         });

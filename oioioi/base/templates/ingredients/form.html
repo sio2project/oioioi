@@ -1,7 +1,7 @@
 {% load i18n simple_filters %}
 
 {% if form.non_field_errors %}
-    <div class="form-group">
+    <div class="mb-3">
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger" role="alert">
                 <span class="visually-hidden">{% trans "Error" %}:</span>
@@ -16,7 +16,7 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    {% if not inline %}<div class="form-group">{% endif %}
+    {% if not inline %}<div class="mb-3">{% endif %}
     {% if field|is_checkbox %}
         <div class="form-check {% if inline %}me-sm-2 mb-2{% endif %}">
             {% if field.errors %}

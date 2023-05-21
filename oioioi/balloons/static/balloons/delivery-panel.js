@@ -9,12 +9,12 @@ $(function() {
         '</tr>';
     var deliveredButtonTemplate =
         '<button class="btn btn-primary btn-sm" ' +
-            'data-loading-text="' + gettext("Delivering...") + '">' +
+            'data-bs-loading-text="' + gettext("Delivering...") + '">' +
             gettext("Delivered") +
         '</button>';
     var notDeliveredButtonTemplate =
         '<button class="btn btn-danger btn-sm"' +
-            ' data-loading-text="' + gettext("Taking back...") + '">' +
+            ' data-bs-loading-text="' + gettext("Taking back...") + '">' +
             gettext("Not delivered") + '</button>';
     var firstAcceptedTemplate =
             '<i class="fa-solid fa-star"></i> ' +

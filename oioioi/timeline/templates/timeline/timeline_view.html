@@ -52,14 +52,14 @@
 
 {% if registry %}
 <form id="timeline-form" method="post">
-    <div class="form-group clearfix">
+    <div class="mb-3 clearfix">
         <div class="float-end">
             <button type="button" class="btn btn-outline-secondary btn-hint">?</button>
             <button type="button" class="btn btn-outline-secondary btn-reset">{% trans "Reset" %}</button>
             <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
         </div>
     </div>
-    <div class="h-scrollable form-group oioioi-timeline__wrapper">
+    <div class="h-scrollable mb-3 oioioi-timeline__wrapper">
         <div class="oioioi-timeline">
             {% csrf_token %}
             {% for round, events in registry %}
@@ -83,7 +83,7 @@
             {% endfor %}
         </div>
     </div>
-    <div class="form-group clearfix">
+    <div class="mb-3 clearfix">
         <div class="float-end">
             <button type="button" class="btn btn-outline-secondary btn-reset">{% trans "Reset" %}</button>
             <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>

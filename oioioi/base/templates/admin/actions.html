@@ -1,5 +1,5 @@
 {% load i18n simple_filters %}
-<div id="changelist-actions" class="actions form-inline">
+<div id="changelist-actions" class="actions d-flex flex-row align-items-center flex-wrap">
     {% block actions %}
       {% block actions-form %}
       {% for field in action_form %}{% if field.label %}<label class="control-label me-sm-2 mb-2">{{ field.label }}</label> {% endif %}{{ field | add_class:"form-control" | add_form:"changelist-form" | add_class:"me-sm-2" | add_class:"mb-2" }}{% endfor %}

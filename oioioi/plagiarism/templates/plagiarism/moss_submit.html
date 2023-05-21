@@ -34,7 +34,7 @@ You have to be a registered user of the MOSS system in order to provide your use
 <form action="{% url 'moss_submit' %}" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" class="btn btn-primary" role="button">
             {% trans "Submit" %}
         </button>

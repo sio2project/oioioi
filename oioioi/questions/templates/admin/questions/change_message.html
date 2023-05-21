@@ -18,30 +18,30 @@
     {% endif %}
     <form enctype="multipart/form-data" method="post">
         {% csrf_token %}
-        <div class="form-group">
+        <div class="mb-3">
             <label for="id_author" class="control-label">{% trans "Author" %}</label>
             <div id="id_author">
                 {{ message.author.username }}{% if message.author.get_full_name %} ({{ message.author.get_full_name }}){% endif %}
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <label for="message_date" class="control-label">{% trans "Date" %}</label>
             <div id="message_date">{{ message.date }}</div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <label for="message_contest" class="control-label">{% trans "Contest" %}</label>
             <div id="message_contest">{{ message.contest.name }}</div>
         </div>
         {% include "ingredients/form.html" with focus="#id_content" %}
         {% if message.top_reference %}
-            <div class="form-group">
+            <div class="mb-3">
                 <button type="button" class="btn btn-outline-secondary btn-sm" tabindex="-1" id="respond_inline" onclick="add_question_content();">
                     <i class="fa-solid fa-pencil"></i>
                     {% blocktrans %}Add question content{% endblocktrans %}
                 </button>
             </div>
         {% endif %}
-        <div class="form-group">
+        <div class="mb-3">
             <button type="submit" class="btn btn-primary">
                 {% trans "Save" %}
             </button>

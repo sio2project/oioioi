@@ -39,7 +39,7 @@
             {% endif %}
 
             <p>
-                <a href="#reveal_confirmation" class="btn btn-outline-secondary" role="button" data-toggle="modal">
+                <a href="#reveal_confirmation" class="btn btn-outline-secondary" role="button" data-bs-toggle="modal">
                     <i class="fa-solid fa-align-left"></i> {% trans "Reveal score" %}
                 </a>
             </p>
@@ -48,7 +48,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">{% trans "Reveal score" %}</h5>
-                            <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <p>{% blocktrans %}You are going to reveal your score. <br>Would you like to proceed?{% endblocktrans %}</p>
@@ -56,7 +56,7 @@
                         <div class="modal-footer">
                             <form action="{% url 'submission_score_reveal' submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
                                 {% csrf_token %}
-                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{% trans "No" %}</button>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "No" %}</button>
                                 <button type="submit" class="btn btn-primary">{% trans "Yes" %}</button>
                             </form>
                         </div>

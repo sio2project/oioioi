@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="well text-center">
-    <form method="post" class="form-inline">
+    <form method="post" class="d-flex flex-row align-items-center flex-wrap">
         {% csrf_token %}
         {% include "ingredients/flash.html" %}
         {% if form.non_field_errors %}
-            <div class="form-group">
+            <div class="mb-3">
                 {% for error in form.non_field_errors %}
                     <div class="alert alert-danger" role="alert">
                         <span class="visually-hidden">{% trans "Error" %}:</span>
@@ -27,7 +27,7 @@
         {% endfor %}
 
         <p>{% blocktrans %}Please enter postal submission confirmation code to accept.{% endblocktrans %}</p>
-        <div class="form-group">
+        <div class="mb-3">
             <input id="id_mailsubmission_id" name="mailsubmission_id" type="text" value="{{ form.mailsubmission_id.value }}" class="form-control input-sm"> /
             <input id="id_submission_hash" name="submission_hash" type="text" value="{{ form.submission_hash.value }}" maxlength="{{ HASH_LENGTH }}" class="form-control input-sm">
         </div>

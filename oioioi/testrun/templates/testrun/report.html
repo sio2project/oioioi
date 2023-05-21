@@ -28,7 +28,7 @@
                 <td class="submission__margin submission--{{ testrun_report.status }}"></td>
                 <td>
                     {% if not input_is_zip %}
-                    <button type="button" class="btn btn-xs btn-outline-secondary" data-async-toggle="collapse" data-target="#input_data">
+                    <button type="button" class="btn btn-xs btn-outline-secondary" data-async-toggle="collapse" data-bs-target="#input_data">
                         <i class="fa-solid fa-chevron-up"></i>
                     </button>
                     {% endif %}
@@ -39,7 +39,7 @@
                 <td class="submission__status submission--{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>
                 <td>{{ testrun_report.time_used|runtimeformat }}/{{ testrun_report.test_time_limit|runtimeformat }}</td>
                 <td>
-                    <button type="button" class="btn btn-xs btn-outline-secondary" data-async-toggle="collapse" data-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}">
+                    <button type="button" class="btn btn-xs btn-outline-secondary" data-async-toggle="collapse" data-bs-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}">
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
                     {% if is_admin %}

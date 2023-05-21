@@ -16,7 +16,7 @@
                     {{ problem_instance.problem_instance.problem.name|truncatechars:15 }}
                 </a>
             </h4>
-            <div class="problem__solved problem__solved--{{ problem_instance.solved }}" data-toggle="tooltip" title="{% trans "Solved / tried solving" %}">
+            <div class="problem__solved problem__solved--{{ problem_instance.solved }}" data-bs-toggle="tooltip" title="{% trans "Solved / tried solving" %}">
                 {{ problem_instance.solved_count }} / {{ problem_instance.tried_solving_count }}
             </div>
         </div>

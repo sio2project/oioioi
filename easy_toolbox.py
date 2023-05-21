@@ -28,8 +28,10 @@ RAW_COMMANDS = [
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop and remove all SIO2 containers", "down", True),
     ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
+    ("run2", "Run server", "{exec} web2 python3 manage.py runserver 0.0.0.0:8009 --insecure"),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
+    ("bash2", "Open command prompt on web container.", "{exec} web2 bash"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
     ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),

@@ -15,24 +15,24 @@ function setFocusToLoginInput(){
 </script>
 
     <div class="dropdown">
-        <a href="#" id="navbar-username" class="dropdown-toggle" data-toggle="dropdown" role="button" onclick="setFocusToLoginInput()"
+        <a href="#" id="navbar-username" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="setFocusToLoginInput()"
            aria-expanded="false">
             <i class="fa-solid fa-user"></i>
             <span class="username"> {% trans "Log in" %}</span>
         </a>
-        <div class="dropdown-menu dropdown-menu-right">
+        <div class="dropdown-menu dropdown-menu-right grid">
             <form id="navbar-login" class="navbar-login p-3" action="{% url 'login' %}" method="post">
                 {% csrf_token %}
                 <input name="login_view-current_step" type="hidden" value="auth">
-                <div class="form-group">
+                <div class="mb-3">
                     <input id="navbar-login-input" type="text" name="auth-username" class="form-control" placeholder="{% trans "Login" %}" tabindex="-1">
                 </div>
-                <div class="form-group">
+                <div class="mb-3">
                     <input type="password" name="auth-password" class="form-control" placeholder="{% trans "Password" %}">
                 </div>
-                <div class="form-row">
-                    <div class="col"><button type="submit" class="btn btn-primary btn-block">{% trans "Log in" %}</button></div>
-                    <div class="col"><a role="button" class="btn btn-outline-secondary btn-block" href="{% url 'registration_register' %}">{% trans "Register" %}</a></div>
+                <div class="row g-2">
+                    <div class="col"><button type="submit" class="btn btn-primary w-100">{% trans "Log in" %}</button></div>
+                    <div class="col"><a role="button" class="btn btn-outline-secondary w-100" href="{% url 'registration_register' %}">{% trans "Register" %}</a></div>
                 </div>
             </form>
         </div>
@@ -40,11 +40,11 @@ function setFocusToLoginInput(){
 {% else %}
     <div class="dropdown">
         <a href="#" id="navbar-username" class="dropdown-toggle {% if avatar %}has-avatar{% endif %}"
-           data-toggle="dropdown" role="button" aria-expanded="false">
+           data-bs-toggle="dropdown" role="button" aria-expanded="false">
             {% is_maintenance_enabled as enabled %}
             {% if user.is_superuser and enabled %}
                 <span id="maintenance-label" class="badge bg-warning"
-                        data-toggle="tooltip" data-placement="bottom" title="{% trans "Maintenance Mode is ON" %}">
+                        data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans "Maintenance Mode is ON" %}">
                     <i class="badge-short fa-solid fa-gear"></i>
                     <span class="badge-full">{% trans "Maintenance Mode is ON" %}</span>
                 </span>

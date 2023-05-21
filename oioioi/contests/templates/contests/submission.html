@@ -11,7 +11,7 @@
         $(document).ready(function () {
             {% if can_admin %}
                 $('[data-parent-toggle]').on('click', function () {
-                    var $t = $($(this).data('target')),
+                    var $t = $($(this).data('bs-target')),
                         $report_row = $t.parent();
                     $report_row.toggle('fast');
                     $t.collapse('reset');
@@ -39,7 +39,7 @@
     {% if can_admin %}
         <h4>
             <button type="button" class="btn btn-outline-secondary btn-sm"
-                    data-toggle="collapse" data-target="#hidden-reports">
+                    data-bs-toggle="collapse" data-bs-target="#hidden-reports">
                 <i class="fa-solid fa-chevron-down"></i>
             </button>
             <span>{% trans "Hidden reports" %}</span>
@@ -62,7 +62,7 @@
                             <td>
                                 <button type="button" class="btn btn-outline-secondary btn-sm"
                                         data-async-toggle="collapse"
-                                        data-target="#hidden-report-{{ report.id }}">
+                                        data-bs-targetget="#hidden-report-{{ report.id }}">
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </button>
                             </td>

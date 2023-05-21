@@ -9,7 +9,7 @@
     {% csrf_token %}
     {% include "ingredients/form.html" %}
     <input type="hidden" name="action" value="extend_round" />
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" name="submit" class="btn btn-primary">
             {% trans "Extend" %}
         </button>
