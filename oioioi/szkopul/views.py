@@ -9,35 +9,14 @@ from oioioi.contests.models import Submission
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import visible_contests
 from oioioi.problems.utils import filter_my_all_visible_submissions
-from oioioi.szkopul.menu import navbar_links_registry
+from oioioi.base.menu import navbar_links_registry
 
-navbar_links_registry.register(
-    name='contests_list',
-    text=_("Contests"),
-    url_generator=lambda request: reverse('select_contest'),
-    order=100,
-)
-
-navbar_links_registry.register(
-    name='problemset',
-    text=_("Problemset"),
-    url_generator=lambda request: reverse('problemset_main'),
-    order=200,
-)
-
-navbar_links_registry.register(
-    name='task_archive',
-    text=_("Task archive"),
-    url_generator=lambda request: reverse('task_archive'),
-    order=300,
-)
-
-navbar_links_registry.register(
-    name='courses',
-    text=_("Kursy"),
-    url_generator=lambda request: 'https://kursy.szkopul.edu.pl',
-    order=400,
-)
+# navbar_links_registry.register(
+#     name='courses',
+#     text=_("Kursy"),
+#     url_generator=lambda request: 'https://kursy.szkopul.edu.pl',
+#     order=400,
+# )
 
 # TODO Add Portals main page to the menu:
 # navbar_links_registry.register(

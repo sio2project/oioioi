@@ -59,7 +59,7 @@ from oioioi.problems.utils import (
     update_tests_from_main_pi,
 )
 from oioioi.status.registry import status_registry
-from oioioi.szkopul.menu import navbar_links_registry
+from oioioi.base.menu import navbar_links_registry
 
 
 @register_main_page_view(order=900)
@@ -72,8 +72,13 @@ def main_page_view(request):
 def select_contest_view(request):
     contests = visible_contests(request)
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
+    navbar_links = navbar_links_registry.template_context(request)
+    context = {
+        'navbar_links': navbar_links,
+        'contests': contests,
+    }
     return TemplateResponse(
-        request, 'contests/select_contest.html', {'contests': contests}
+        request, 'contests/select_contest.html', context
     )
 
 

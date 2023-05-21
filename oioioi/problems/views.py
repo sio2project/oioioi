@@ -52,7 +52,7 @@ from oioioi.contests.models import (
 from oioioi.contests.utils import administered_contests, is_contest_basicadmin
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
-from oioioi.problems.menu import navbar_links_registry
+from oioioi.base.menu import navbar_links_registry
 from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagLocalization,
@@ -95,28 +95,6 @@ from oioioi.problems.utils import (
 )
 from oioioi.programs.models import ModelSolution
 from unidecode import unidecode
-
-if settings.CONTEST_MODE == ContestMode.neutral:
-    navbar_links_registry.register(
-        name='contests_list',
-        text=_("Contests"),
-        url_generator=lambda request: reverse('select_contest'),
-        order=100,
-    )
-
-navbar_links_registry.register(
-    name='problemset',
-    text=_("Problemset"),
-    url_generator=lambda request: reverse('problemset_main'),
-    order=200,
-)
-
-navbar_links_registry.register(
-    name='task_archive',
-    text=_("Task archive"),
-    url_generator=lambda request: reverse('task_archive'),
-    order=300,
-)
 
 
 def show_statement_view(request, statement_id):
