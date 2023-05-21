@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import dateformat
 from django.utils.timezone import utc
 from django.utils.translation import get_language
+
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import allow_cross_origin, jsonify
 from oioioi.contests.models import SubmissionReport

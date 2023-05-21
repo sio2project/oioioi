@@ -14,7 +14,6 @@ from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ContestAdmin, ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_admin
-from oioioi.programs.utils import get_submittable_languages
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
 from oioioi.programs.forms import (
     CompilerInlineForm,
@@ -32,6 +31,7 @@ from oioioi.programs.models import (
     ReportActionsConfig,
     Test,
 )
+from oioioi.programs.utils import get_submittable_languages
 
 
 class ProgramsConfigInline(admin.TabularInline):

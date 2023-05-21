@@ -1,4 +1,5 @@
 # coding: utf-8
+import logging
 from importlib import import_module
 
 import django.dispatch
@@ -14,8 +15,6 @@ from django.utils.translation import gettext_lazy as _
 import oioioi.base.signal_handlers  # noqa: F401
 from oioioi.base.captcha_check import captcha_check
 from oioioi.base.setup_check import setup_check
-
-import logging
 
 # Check if deployment and installation config versions match.
 # Check if database settings are correct.

@@ -1,15 +1,15 @@
 from __future__ import print_function
 
 import base64
+import http.client
 import json
 import logging
 import pprint
 import time
-
-import http.client
 import urllib.error
 import urllib.parse
 import urllib.request
+
 from django.conf import settings
 from django.utils.module_loading import import_string
 

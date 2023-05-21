@@ -1,5 +1,4 @@
 import logging
-
 import urllib.parse
 
 from django.contrib import messages
@@ -12,6 +11,7 @@ from django.shortcuts import redirect
 from django.urls import re_path, reverse
 from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, system_admin_menu_registry
 from oioioi.base.permissions import is_superuser, make_request_condition

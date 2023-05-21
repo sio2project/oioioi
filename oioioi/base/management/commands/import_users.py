@@ -1,7 +1,7 @@
 import csv
 import os
-
 import urllib.request
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError

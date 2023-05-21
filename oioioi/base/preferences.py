@@ -1,4 +1,5 @@
 from collections import OrderedDict
+
 from oioioi.base.models import UserPreferences
 
 

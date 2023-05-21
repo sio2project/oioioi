@@ -1,9 +1,9 @@
 import cgi
+import http.server
 import json
 import logging
-
-import http.server
 import socketserver
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction

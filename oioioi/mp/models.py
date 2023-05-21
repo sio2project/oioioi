@@ -3,9 +3,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
-
-from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
+from oioioi.participants.models import RegistrationModel
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
 check_django_app_dependencies(__name__, ['oioioi.contests'])

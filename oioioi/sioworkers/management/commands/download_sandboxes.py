@@ -2,10 +2,10 @@ from __future__ import print_function
 
 import os
 import os.path
-
 import urllib.error
 import urllib.parse
 import urllib.request
+
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 

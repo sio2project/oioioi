@@ -5,11 +5,11 @@ import json
 # this assumption, even a single call to LocalClient.build would break that
 # code.
 from threading import Lock
+from xmlrpc.client import Server
 
 import sio.workers.runner
 from django.conf import settings
 from django.db import transaction
-from xmlrpc.client import Server
 
 from oioioi.evalmgr.tasks import delay_environ
 

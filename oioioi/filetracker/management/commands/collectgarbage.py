@@ -7,8 +7,8 @@ from django.core.management.base import BaseCommand
 from django.db.models.loading import cache
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
-from filetracker.utils import split_name
 
+from filetracker.utils import split_name
 from oioioi.filetracker.client import get_client
 
 

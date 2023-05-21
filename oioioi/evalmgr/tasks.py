@@ -4,11 +4,11 @@ import sys
 from uuid import uuid4
 
 import six
-from celery.exceptions import Ignore
-from celery.task import task
 from django.db import transaction
 from django.utils.module_loading import import_string
 
+from celery.exceptions import Ignore
+from celery.task import task
 from oioioi.base.utils.db import require_transaction
 from oioioi.base.utils.loaders import load_modules
 from oioioi.evalmgr import logger

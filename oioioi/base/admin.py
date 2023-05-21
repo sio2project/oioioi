@@ -1,4 +1,5 @@
 import urllib.parse
+
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite

@@ -11,7 +11,7 @@ from oioioi.base import admin
 from oioioi.base.menu import personal_menu_registry
 from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin
-from oioioi.teachers.forms import TeacherContestForm, AddTeacherForm
+from oioioi.teachers.forms import AddTeacherForm, TeacherContestForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 

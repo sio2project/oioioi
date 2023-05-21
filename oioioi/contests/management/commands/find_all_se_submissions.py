@@ -1,13 +1,14 @@
 from __future__ import print_function
 
 import time
+from datetime import datetime, timedelta
 
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from django.db.models import Q
 from django.utils.translation import ugettext as _
-from django.db import transaction
+
 from oioioi.contests.models import Submission, SubmissionReport
-from datetime import datetime, timedelta
 
 
 class Command(BaseCommand):

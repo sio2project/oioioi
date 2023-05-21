@@ -1,6 +1,6 @@
+import xmlrpc.client
 from operator import itemgetter  # pylint: disable=E0611
 
-import xmlrpc.client
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render

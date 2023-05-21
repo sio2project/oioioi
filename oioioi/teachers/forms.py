@@ -3,9 +3,9 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.forms import SimpleContestForm
 from oioioi.teachers.models import Teacher
-from oioioi.base.utils.user_selection import UserSelectionField
 
 
 class TeacherContestForm(SimpleContestForm):

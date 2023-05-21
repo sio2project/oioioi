@@ -53,12 +53,11 @@ from oioioi.programs.utils import (
     form_field_id_for_langs,
     get_extension,
     get_problem_link_or_name,
+    get_submittable_languages,
     has_report_actions_config,
     is_model_submission,
-    get_submittable_languages,
 )
 from oioioi.programs.widgets import CancellableFileInput
-
 
 logger = logging.getLogger(__name__)
 

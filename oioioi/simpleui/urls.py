@@ -1,4 +1,5 @@
 from django.urls import re_path
+
 from oioioi.simpleui import views
 
 app_name = 'simpleui'

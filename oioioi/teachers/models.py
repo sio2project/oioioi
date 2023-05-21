@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import generate_key

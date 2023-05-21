@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.urls import include, re_path
-from oioioi.base import admin, api, views
-from oioioi.base.main_page import main_page_view
 from rest_framework.documentation import include_docs_urls
 from two_factor.urls import urlpatterns as tf_urls
+
+from oioioi.base import admin, api, views
+from oioioi.base.main_page import main_page_view
 
 app_name = 'base'
 

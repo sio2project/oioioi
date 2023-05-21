@@ -8,8 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.menu import personal_menu_registry
 from oioioi.base.permissions import is_superuser
+from oioioi.contests.admin import NO_CATEGORY, ContestAdmin
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
-from oioioi.contests.admin import ContestAdmin, NO_CATEGORY
 
 
 def get_user_name_and_login_bounded(self, user):

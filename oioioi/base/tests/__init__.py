@@ -1,9 +1,9 @@
 import sys
 import threading
+import urllib.parse
 from contextlib import contextmanager
 
 import pytest
-import urllib.parse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured

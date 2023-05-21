@@ -1,7 +1,7 @@
 import urllib
+import urllib.parse
 from uuid import uuid4
 
-import urllib.parse
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.mail import EmailMessage

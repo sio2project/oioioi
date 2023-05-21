@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.http import Http404, HttpResponse
 from django.utils import translation
+
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.contests.processors import recent_contests
@@ -25,9 +26,9 @@ from oioioi.problems.models import (
 )
 from oioioi.programs.models import (
     GroupReport,
+    LanguageOverrideForTest,
     ModelProgramSubmission,
     TestReport,
-    LanguageOverrideForTest,
 )
 
 

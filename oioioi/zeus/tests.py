@@ -1,7 +1,7 @@
 import json
+import urllib.parse
 
 import pytest
-import urllib.parse
 from django.urls import reverse
 
 from oioioi.base.tests import TestCase, TestsUtilsMixin

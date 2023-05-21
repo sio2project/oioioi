@@ -1,8 +1,8 @@
 import json
+from xmlrpc.client import Server
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from xmlrpc.client import Server
 
 
 class Command(BaseCommand):

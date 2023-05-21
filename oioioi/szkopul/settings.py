@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 import pytz
 from django.utils.safestring import mark_safe
+
+from oioioi.contests.current_contest import ContestMode
 from oioioi.default_settings import (
-    TEMPLATES,
-    UNCACHED_TEMPLATE_LOADERS,
+    AUTHENTICATION_BACKENDS,
     CACHED_TEMPLATE_LOADERS,
     INSTALLED_APPS,
-    AUTHENTICATION_BACKENDS,
-    PROBLEM_SOURCES
+    PROBLEM_SOURCES,
+    TEMPLATES,
+    UNCACHED_TEMPLATE_LOADERS,
 )
-from oioioi.contests.current_contest import ContestMode
 
 # This should match INSTALLATION_CONFIG_VERSION in
 # "oioioi/default_settings.py".

@@ -18,12 +18,13 @@ from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
 from django.utils.translation import gettext_lazy as _
+from unidecode import unidecode
+
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.utils import split_extension, strip_num_or_hash
 from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.validators import validate_origintag
-from unidecode import unidecode
 
 logger = logging.getLogger(__name__)
 

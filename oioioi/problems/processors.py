@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.functional import lazy
 from django.utils.translation import ngettext
+
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_basicadmin

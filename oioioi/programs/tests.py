@@ -1,12 +1,11 @@
 import os
 import re
+import urllib
 from collections import defaultdict
 from datetime import datetime  # pylint: disable=E0611
 
 import pytest
 import six
-import urllib
-
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
@@ -18,6 +17,7 @@ from django.urls import reverse
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
+
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import (
     TestCase,
@@ -27,22 +27,23 @@ from oioioi.base.tests import (
 )
 from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
+from oioioi.contests.handlers import call_submission_judged
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
-from oioioi.contests.handlers import call_submission_judged
 from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
+from oioioi.evalmgr.tasks import create_environ
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import make_report, collect_tests
+from oioioi.programs.handlers import collect_tests, make_report
 from oioioi.programs.models import (
+    LanguageOverrideForTest,
     ModelSolution,
     ProblemAllowedLanguage,
     ProgramSubmission,
     ReportActionsConfig,
     Test,
-    LanguageOverrideForTest,
     TestReport,
     check_compilers_config,
 )
@@ -50,7 +51,6 @@ from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
 from oioioi.programs.utils import form_field_id_for_langs
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
-from oioioi.evalmgr.tasks import create_environ
 
 
 def extract_code(show_response):

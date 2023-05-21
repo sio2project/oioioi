@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base.menu import OrderedRegistry
 from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.archive import Archive

@@ -11,12 +11,11 @@ import mimetypes
 import random
 import string
 import sys
+import urllib.parse
+import urllib.request
 import webbrowser
 from argparse import ArgumentParser
 from os.path import expanduser, splitext
-
-import urllib.parse
-import urllib.request
 
 
 class MultiPartForm(object):

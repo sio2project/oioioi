@@ -5,6 +5,7 @@ import urllib.parse
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
+
 from oioioi.base.tests import TestCase
 from oioioi.problems.models import (
     AlgorithmTag,

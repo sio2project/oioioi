@@ -39,11 +39,10 @@ from oioioi.portals.forms import (
     PortalShortDescForm,
     PortalsSearchForm,
 )
+from oioioi.portals.handlers import update_task_information_cache
 from oioioi.portals.models import Node, NodeLanguageVersion, Portal
 from oioioi.portals.utils import resolve_path
 from oioioi.portals.widgets import render_panel
-from oioioi.portals.handlers import update_task_information_cache
-
 from oioioi.problems.problem_site import problem_site_tab
 
 

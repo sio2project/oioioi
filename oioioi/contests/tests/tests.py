@@ -7,7 +7,6 @@ from functools import partial
 
 import pytest
 import pytz
-
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import AnonymousUser, User
@@ -21,6 +20,8 @@ from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.timezone import utc
+from rest_framework.test import APITestCase
+
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
@@ -69,7 +70,6 @@ from oioioi.simpleui.views import (
 from oioioi.teachers.views import (
     contest_dashboard_redirect as teachers_contest_dashboard,
 )
-from rest_framework.test import APITestCase
 
 
 class TestModels(TestCase):

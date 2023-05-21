@@ -7,11 +7,11 @@ import re
 import shutil
 import sys
 import tempfile
+import urllib.parse
 from contextlib import contextmanager
 from importlib import import_module
 
 import six
-import urllib.parse
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string

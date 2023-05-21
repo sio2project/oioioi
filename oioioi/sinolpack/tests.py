@@ -1,11 +1,11 @@
 # coding: utf-8
 
 import os.path
+import urllib.parse
 import zipfile
+from io import BytesIO
 
 import pytest
-import urllib.parse
-from io import BytesIO
 from django.conf import settings
 from django.core.files import File
 from django.core.management import call_command
@@ -15,6 +15,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.module_loading import import_string
+
 from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (

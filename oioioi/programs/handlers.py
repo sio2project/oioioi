@@ -22,10 +22,10 @@ from oioioi.filetracker.utils import (
 from oioioi.programs.models import (
     CompilationReport,
     GroupReport,
+    LanguageOverrideForTest,
     Test,
     TestReport,
     UserOutGenStatus,
-    LanguageOverrideForTest,
 )
 
 logger = logging.getLogger(__name__)

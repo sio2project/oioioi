@@ -1,9 +1,8 @@
 import threading
-from functools import partial
-from django.conf import settings
-
 import urllib.parse
+from functools import partial
 
+from django.conf import settings
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
@@ -16,9 +15,9 @@ from django.shortcuts import redirect, render
 from django.urls import re_path, reverse
 from django.utils.encoding import force_str
 from django.utils.html import format_html
-from django.utils.translation import get_language
+from django.utils.translation import get_language, ngettext_lazy
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext_lazy
+
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
 from oioioi.base.utils import make_html_link, make_html_links

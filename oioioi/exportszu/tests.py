@@ -2,9 +2,9 @@ import os.path
 import shutil
 import tarfile
 import tempfile
+from io import BytesIO
 
 from django.core.management import call_command
-from io import BytesIO
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, Round

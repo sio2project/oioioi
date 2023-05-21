@@ -1,4 +1,5 @@
 from django.template import Library
+
 from oioioi.portals.utils import join_paths
 
 register = Library()

@@ -1,17 +1,16 @@
 # coding: utf-8
+import json
 import os
 import shutil
 import tempfile
+import urllib.parse
 from functools import wraps
 from itertools import groupby
 from operator import attrgetter
-import json
 
-import urllib.parse
-
-from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.files.base import File
@@ -37,6 +36,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from unidecode import unidecode
+
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.archive import Archive
@@ -91,7 +92,6 @@ from oioioi.problems.utils import (
     show_proposal_form,
 )
 from oioioi.programs.models import ModelSolution
-from unidecode import unidecode
 
 if settings.CONTEST_MODE == ContestMode.neutral:
     navbar_links_registry.register(

@@ -13,8 +13,7 @@ from registration.backends.default.views import (
 )
 from registration.models import RegistrationProfile
 
-from oioioi.base.forms import OioioiPasswordResetForm, RegistrationFormWithNames
-from oioioi.base.forms import handle_new_preference_fields
+from oioioi.base.forms import OioioiPasswordResetForm, RegistrationFormWithNames, handle_new_preference_fields
 from oioioi.base.models import PreferencesSaved
 from oioioi.base.preferences import PreferencesFactory
 

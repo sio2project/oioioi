@@ -1,19 +1,18 @@
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.test import RequestFactory
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
-from django.test.utils import override_settings
-from django.core.management import call_command
-
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.participants.models import Participant
+from oioioi.rankings.models import Ranking
 from oioioi.teachers.tests import change_contest_type
 from oioioi.usergroups import utils
 from oioioi.usergroups.models import ActionConfig, UserGroup
-from oioioi.rankings.models import Ranking
 
 
 class TestAdmin(TestCase):

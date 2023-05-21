@@ -1,8 +1,8 @@
 # ~*~ coding: utf-8 ~*~
 import os
 import string
-
 import urllib.request
+
 import unicodecsv
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
