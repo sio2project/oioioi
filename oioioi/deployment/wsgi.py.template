@@ -30,6 +30,39 @@ init_env('__DIR__')
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
 
+# Logic for discarding django's lazy-loading.
+# This is to not slow down the first requests.
+import io
+input = io.StringIO()
+errors = io.StringIO()
+
+def noop(status, hh, exc_info=None):
+    pass
+
+application({
+'CONTENT_LENGTH': '0',
+'CONTENT_TYPE': ' ',
+'DOCUMENT_ROOT': ' ',
+'HTTP_HOST': ' ',
+'PATH_INFO': '/api/ping',
+'REMOTE_ADDR': '127.0.0.1',
+'REMOTE_PORT': '60420',
+'REQUEST_METHOD': 'GET',
+'REQUEST_URI': '/api/ping',
+'SERVER_NAME': ' ',
+'SERVER_PORT': '80',
+'SERVER_PROTOCOL': 'HTTP/1.0',
+'uwsgi.node': ' ',
+'uwsgi.version': ' ',
+'wsgi.multiprocess': True,
+'wsgi.multithread': True,
+'wsgi.run_once': False,
+'wsgi.url_scheme': 'http',
+'wsgi.version': (1, 0),
+'wsgi.input': input,
+'wsgi.errors': errors,
+}, noop)
+
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
 # application = HelloWorldApplication(application)
