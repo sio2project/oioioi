@@ -12,6 +12,7 @@ from django.contrib.messages import constants as messages
 from django.utils.translation import gettext_lazy as _
 
 import oioioi
+from oioioi.contests.current_contest import ContestMode
 
 INSTALLATION_CONFIG_VERSION = 49
 
@@ -43,8 +44,8 @@ DATABASES = {
         'NAME': os.getenv('OIOIOI_DB_NAME', 'oioioi'),              # Or path to database file if using sqlite3.
         'USER': os.getenv('OIOIOI_DB_USER', 'oioioi'),              # Not used with sqlite3.
         'PASSWORD': os.getenv('OIOIOI_DB_PASSWORD', 'password'),    # Not used with sqlite3.
-        'HOST': os.getenv('OIOIOI_DB_HOST', 'db'),                  # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': os.getenv('OIOIOI_DB_PORT', ''),                    # Set to empty string for default. Not used with sqlite3.
+        'HOST': os.getenv('OIOIOI_DB_HOST', 'db'),           # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': os.getenv('OIOIOI_DB_PORT', ''),             # Set to empty string for default. Not used with sqlite3.
         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
     }
 }
@@ -591,7 +592,6 @@ ONLY_DEFAULT_CONTEST = False
 #
 # Some features may depend on this setting, e.g. the "portals" app requires
 # that either the "neutral" or the "contest_if_possible" option is picked.
-from oioioi.contests.current_contest import ContestMode
 CONTEST_MODE = ContestMode.contest_if_possible
 
 # A sample logging configuration. The only tangible logging

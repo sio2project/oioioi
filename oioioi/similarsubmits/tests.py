@@ -7,6 +7,10 @@ from oioioi.similarsubmits.forms import BulkAddSubmissionsSimilarityForm
 from oioioi.similarsubmits.models import SubmissionsSimilarityGroup
 
 
+def none_returner():
+    return None
+
+
 class TestSimilarSubmitViews(TestCase):
     fixtures = [
         'test_users',
@@ -48,7 +52,7 @@ class TestSimilarSubmitViews(TestCase):
 
     def test_invalid_bulk_form(self):
         invalid_bulks = ['1:user:test.cpp', '1:usertestcpp 1:user:test.cpp']
-        mock_request = lambda: None
+        mock_request = none_returner
         mock_request.contest = None
         for bulk in invalid_bulks:
             form_data = {'similar_groups': bulk}

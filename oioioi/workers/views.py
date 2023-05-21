@@ -21,8 +21,8 @@ def get_all_names():
     return [i['name'] for i in get_info_about_workers()]
 
 
-def del_worker(l):
-    for i in l:
+def del_worker(workers):
+    for i in workers:
         server.forget_worker(i)
 
 

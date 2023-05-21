@@ -79,7 +79,7 @@ def statistics_view(
     else:
         raise Http404
 
-    if not (category, object_name) in set(
+    if (category, object_name) not in set(
         (c, o) for (c, o, d) in controller.statistics_available_plot_groups(request)
     ):
         raise PermissionDenied(_("You have no access to those charts"))

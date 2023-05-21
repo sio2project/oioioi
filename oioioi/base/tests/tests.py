@@ -1210,23 +1210,23 @@ class TestLoginChange(TestCase):
         self.url_edit_profile = reverse('edit_profile')
 
     def test_message(self):
-        for l in self.invalid_logins:
-            self.user.username = l
+        for valid_login in self.invalid_logins:
+            self.user.username = valid_login
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
             self.assertContains(response, 'contains forbidden characters')
 
-        for l in self.valid_logins:
-            self.user.username = l
+        for valid_login in self.valid_logins:
+            self.user.username = valid_login
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
             self.assertNotContains(response, 'contains forbidden characters')
 
     def test_can_change_login_from_invalid(self):
-        for l in self.invalid_logins:
-            self.user.username = l
+        for invalid_login in self.invalid_logins:
+            self.user.username = invalid_login
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
@@ -1235,7 +1235,7 @@ class TestLoginChange(TestCase):
                 response,
                 '<input type="text" id="id_username" name="username" '
                 'value="%s" class="form-control" '
-                'maxlength="150" required />' % l,
+                'maxlength="150" required />' % invalid_login,
                 html=True,
             )
 
@@ -1248,7 +1248,7 @@ class TestLoginChange(TestCase):
                 },
                 follow=True,
             )
-            self.assertEqual(self.user.username, l)
+            self.assertEqual(self.user.username, invalid_login)
 
             response = self.client.post(self.url_index, follow=True)
             self.assertNotContains(response, 'contains not allowed characters')
@@ -1263,8 +1263,8 @@ class TestLoginChange(TestCase):
             )
 
     def test_login_cannot_change_from_valid(self):
-        for l in self.valid_logins:
-            self.user.username = l
+        for valid_login in self.valid_logins:
+            self.user.username = valid_login
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
@@ -1272,7 +1272,7 @@ class TestLoginChange(TestCase):
                 response,
                 '<input type="text" id="id_username" name="username" '
                 'value="%s" class="form-control" '
-                'maxlength="150" readonly required />' % l,
+                'maxlength="150" readonly required />' % valid_login,
                 html=True,
             )
 
@@ -1281,7 +1281,7 @@ class TestLoginChange(TestCase):
                 {'username': 'valid_user', 'terms_accepted': True},
                 follow=True,
             )
-            self.assertEqual(self.user.username, l)
+            self.assertEqual(self.user.username, valid_login)
             self.assertContains(response, 'You cannot change your username.')
 
             response = self.client.get(self.url_index, follow=True)
@@ -1296,9 +1296,9 @@ class TestLoginChange(TestCase):
         self.user.username = self.invalid_logins[0]
         self.user.save()
 
-        for l in self.invalid_logins:
+        for invalid_login in self.invalid_logins:
             self.client.post(
-                url_edit_profile, {'username': l, 'terms_accepted': True}, follow=True
+                url_edit_profile, {'username': invalid_login, 'terms_accepted': True}, follow=True
             )
             self.assertEqual(self.user.username, self.invalid_logins[0])
 

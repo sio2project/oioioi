@@ -35,12 +35,15 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
                 return rcontroller.filter_participants(qs).exists()
             return True
 
+        def _extended_selector(user, contest):
+            return _participants_selector(
+                user, contest
+            ) and selector(user, contest)
+
         if selector is None:
             final_selector = _participants_selector
         else:
-            final_selector = lambda user, contest: _participants_selector(
-                user, contest
-            ) and selector(user, contest)
+            final_selector = _extended_selector
 
         return super(
             ExclusiveContestsWithParticipantsMiddlewareMixin, self

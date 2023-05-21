@@ -95,7 +95,8 @@ class MenuRegistry(object):
     def __init__(self, text=None, condition=None, show_icons=False):
         self.text = text
         if condition is None:
-            condition = lambda request: True
+            def condition(request):
+                return True
         self.condition = condition
         self.show_icons = show_icons
         self._registry = []

@@ -739,7 +739,7 @@ def contest_links_generator(request):
     for link in links:
         # pylint: disable=cell-var-from-loop
         # http://docs.python-guide.org/en/latest/writing/gotchas/#late-binding-closures
-        url_generator = lambda request, url=link.url: url
+        url_generator = lambda request, url=link.url: url  # noqa: E731
         item = MenuItem(
             name='contest_link_%d' % link.id,
             text=link.description,

@@ -124,7 +124,7 @@ def query_statement(problem_id):
         return None
 
     lang_prefs = (
-        [translation.get_language()] + ['', None] + [l[0] for l in settings.LANGUAGES]
+        [translation.get_language()] + ['', None] + [lang[0] for lang in settings.LANGUAGES]
     )
     ext_prefs = ['.zip', '.pdf', '.ps', '.html', '.txt']
 

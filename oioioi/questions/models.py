@@ -98,7 +98,7 @@ class Message(models.Model):
     @property
     def to_quote(self):
         lines = self.content.strip().split('\n')
-        return ''.join('> ' + l for l in lines)
+        return ''.join('> ' + line for line in lines)
 
     def get_absolute_url(self):
         link = reverse(

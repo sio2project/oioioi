@@ -123,7 +123,8 @@ class FiletrackerStorage(Storage):
 
     def modified_time(self, name):
         warnings.warn(
-            """The old, non-timezone-aware methods accessed_time(), created_time(), and modified_time() are deprecated in favor of the new get_*_time() methods.
+            """The old, non-timezone-aware methods accessed_time(), created_time(), and modified_time() 
+                are deprecated in favor of the new get_*_time() methods.
                 https://docs.djangoproject.com/en/1.10/releases/1.10/#non-timezone-aware-storage-api""",
             category=DeprecationWarning,
             stacklevel=2,

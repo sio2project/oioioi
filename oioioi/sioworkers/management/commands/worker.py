@@ -19,9 +19,9 @@ class Command(BaseCommand):
         parser.add_argument('args', type=str, nargs='*', help='Command\' arguments')
 
     def cmd_list(self, **kwargs):
-        l = self.server.get_workers()
-        if l:
-            self.stdout.write('\n'.join(map(str, l)))
+        workers = self.server.get_workers()
+        if workers:
+            self.stdout.write('\n'.join(map(str, workers)))
         else:
             self.stdout.write('No workers connected.\n')
 

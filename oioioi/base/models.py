@@ -3,12 +3,19 @@ from importlib import import_module
 
 import django.dispatch
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
 
 # pylint: disable=unused-import
 # Important. This import is to register signal handlers. Do not remove it.
 import oioioi.base.signal_handlers  # noqa: F401
 from oioioi.base.captcha_check import captcha_check
 from oioioi.base.setup_check import setup_check
+
+import logging
 
 # Check if deployment and installation config versions match.
 # Check if database settings are correct.
@@ -23,14 +30,6 @@ for app in settings.INSTALLED_APPS:
             import_module(app + '.controllers')
         except ImportError:
             pass
-
-import logging
-
-from django.contrib.auth.models import User
-from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils.translation import gettext_lazy as _
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 

@@ -574,7 +574,7 @@ class SinolPackage(object):
         # pylint: disable=maybe-no-member
         self.problem.statements.all().delete()
 
-        lang_prefs = [''] + ['-' + l[0] for l in settings.STATEMENT_LANGUAGES]
+        lang_prefs = [''] + ['-' + lang[0] for lang in settings.STATEMENT_LANGUAGES]
 
         if self.use_make:
             self._compile_latex_docs(docdir)

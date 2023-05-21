@@ -53,7 +53,7 @@ class UserRoundInlineFormset(RoundInline.formset):
         if not hasattr(settings, 'USER_CONTEST_TIMEOUT'):
             return
         for form in self.forms:
-            if not 'end_date' in form.cleaned_data.keys():
+            if 'end_date' not in form.cleaned_data.keys():
                 continue
             if form.cleaned_data['end_date'] is None:
                 raise forms.ValidationError(

@@ -53,21 +53,24 @@ class DateRegistry(object):
             )
             return original_class
 
+        def none_returner(obj):
+            return None
+
+        def default_name_generator(obj):
+            return str(model._meta.verbose_name) + " " + str(model._meta.get_field(date_field).verbose_name)
+
         if model is None:
             return decorator
 
         if name_generator is None:
-            name_generator = (
-                lambda obj: str(model._meta.verbose_name)
-                + " "
-                + str(model._meta.get_field(date_field).verbose_name)
-            )
+            name_generator = default_name_generator
 
         if round_chooser is None:
-            round_chooser = lambda obj: None
+            round_chooser = none_returner
 
         if qs_filter is None:
-            qs_filter = lambda qs, contest_id: qs.filter(contest=contest_id)
+            def qs_filter(qs, contest_id):
+                return qs.filter(contest=contest_id)
 
         date_item = self.DateItem(
             date_field, name_generator, round_chooser, qs_filter, model

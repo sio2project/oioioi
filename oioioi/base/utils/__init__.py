@@ -506,7 +506,8 @@ def strip_num_or_hash(filename):
 
 
 def naturalsort_key(key):
-    convert = lambda text: int(text) if text.isdigit() else text
+    def convert(text):
+        return int(text) if text.isdigit() else text
     return [convert(c) for c in re.split('([0-9]+)', key)]
 
 

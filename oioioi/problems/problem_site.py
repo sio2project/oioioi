@@ -64,10 +64,13 @@ def problem_site_tab(title, key, order=sys.maxsize, condition=None):
         if the tab should be accessible for this request
     """
 
+    def default_condition(request, problem):
+        return True
+
     Tab = namedtuple('Tab', ['view', 'title', 'key', 'condition'])
 
     if condition is None:
-        condition = lambda request, problem: True
+        condition = default_condition
 
     def decorator(func):
         problem_site_tab_registry.register(Tab(func, title, key, condition), order)
