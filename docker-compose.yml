@@ -14,8 +14,6 @@ services:
     command: ["/sio2/oioioi/oioioi_init.sh"]
     ports:
       - "8000:8000"
-    volumes:
-      - $OIOIOI_CONFIGDIR/basic_settings.py:/sio2/deployment/basic_settings.py
     stop_grace_period: 3m
     depends_on:
       - db

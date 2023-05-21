@@ -21,7 +21,10 @@ services:
       extra_hosts:
         - "web:127.0.0.1"
     ports:
+    # web server
       - "8000:8000"
+    # notifications server
+    # - "7887:7887"
     volumes:
       - .:/sio2/oioioi
 #      - ./deployment:/sio2/deployment

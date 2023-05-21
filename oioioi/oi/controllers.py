@@ -57,7 +57,7 @@ class OIRegistrationController(ParticipantsController):
         return Q_always_true()
 
     def can_register(self, request):
-        return True
+        return super().is_registration_open(request)
 
     def can_unregister(self, request, participant):
         return False
