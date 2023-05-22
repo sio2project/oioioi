@@ -3,3 +3,4 @@ isort==5.6.4
 ruff==0.0.269
 elastic-apm
 python-memcached
+pre-commit==3.3.2
