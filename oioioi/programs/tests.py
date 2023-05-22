@@ -250,14 +250,14 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         response = self.client.get(url)
 
         no_whitespaces_content = re.sub(r"\s*", "", response.content.decode('utf-8'))
-        for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<', '>0<']:
+        for element in ['>sum<', '>sumb0<', '>sums1<', '>100<', '>0<']:
             self.assertIn(element, no_whitespaces_content)
 
         self.assertNotContains(response, 'submission--INI_OK')
         self.assertContains(response, 'submission--INI_ERR', count=1)
         self.assertContains(response, 'submission--OK25', count=8)
         self.assertContains(response, 'submission--WA', count=5)
-        self.assertContains(response, 'submission--CE', count=2)
+        self.assertContains(response, 'submission--CE', count=1)
 
         self.assertNotContains(response, 'submission--WA25')
         self.assertNotContains(response, 'submission--WA50')

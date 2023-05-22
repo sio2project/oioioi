@@ -9,7 +9,6 @@ RUN dpkg --add-architecture i386 && \
         libpq-dev \
         postgresql-client \
         libdb-dev \
-        fp-compiler fp-units-base fp-units-math \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
