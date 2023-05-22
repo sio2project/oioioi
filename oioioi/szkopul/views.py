@@ -9,7 +9,8 @@ from oioioi.contests.models import Submission
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import visible_contests
 from oioioi.problems.utils import filter_my_all_visible_submissions
-from oioioi.base.menu import navbar_links_registry
+
+# from oioioi.base.navbar_links import navbar_links_registry
 
 # navbar_links_registry.register(
 #     name='courses',
@@ -28,7 +29,6 @@ from oioioi.base.menu import navbar_links_registry
 
 @register_main_page_view(order=100)
 def main_page_view(request):
-    navbar_links = navbar_links_registry.template_context(request)
 
     to_show = getattr(settings, 'NUM_RECENT_CONTESTS', 7)
     rcontests = recent_contests(request)
@@ -62,7 +62,6 @@ def main_page_view(request):
         show_scores = any(s['can_see_score'] for s in submissions)
 
     context = {
-        'navbar_links': navbar_links,
         'contests': contests,
         'submissions': submissions,
         'show_scores': show_scores,

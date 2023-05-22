@@ -9,11 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.permissions import Condition
 
-from django.conf import settings
-from oioioi.contests.current_contest import ContestMode
-from django.urls import reverse
-
-
 class OrderedRegistry(object):
     """Maintains a collection of values ordered by a separate key."""
 
@@ -237,24 +232,3 @@ side_pane_menus_registry.register(personal_menu_registry, order=50)
 #: The registry for uncollapsed menu in the upper navigation bar.
 navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
 
-if settings.CONTEST_MODE == ContestMode.neutral:
-    navbar_links_registry.register(
-        name='contests_list',
-        text=_("Contests"),
-        url_generator=lambda request: reverse('select_contest'),
-        order=100,
-    )
-
-navbar_links_registry.register(
-    name='problemset',
-    text=_("Problemset"),
-    url_generator=lambda request: reverse('problemset_main'),
-    order=200,
-)
-
-navbar_links_registry.register(
-    name='task_archive',
-    text=_("Task archive"),
-    url_generator=lambda request: reverse('task_archive'),
-    order=300,
-)
