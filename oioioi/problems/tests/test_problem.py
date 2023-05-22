@@ -103,7 +103,18 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         for element in elements_to_find:
             self.assertContains(response, element)
 
-    def test_admin_delete_view(self):
+    def test_admin_delete_view_basic(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        problem = Problem.objects.get()
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,))
+
+
+        response = self.client.post(url, {'post': 'yes'}, follow=True)
+        self.assertEqual(Problem.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_add_in_contest_delete_in_problemset(self):
         self.assertTrue(self.client.login(username='test_admin'))
         ProblemInstance.objects.all().delete()
         contest = Contest.objects.get()
@@ -122,12 +133,23 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self.assertEqual(Problem.objects.count(), 1)
         problem = Problem.objects.get()
 
-        url = reverse('problemset_all_problems')
-        response = self.client.get(url)
         url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,),)
         response = self.client.post(url, {'post': 'yes'}, follow=True,)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 0)
+
+    def test_admin_add_to_contest_delete_in_problemset(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('problemset_add_to_contest', kwargs={'site_key': '123'})
+        url += '?problem_name=sum'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        problem = Problem.objects.get()
+        self.assertEqual(Problem.objects.count(), 1)
+        url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,),)
+        response = self.client.post(url, {'post': 'yes'}, follow=True,)
+        self.assertEqual(Problem.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
 
     def _test_problem_permissions(self):
         problem = Problem.objects.get()

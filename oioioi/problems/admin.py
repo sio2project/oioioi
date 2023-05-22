@@ -444,7 +444,7 @@ class ProblemAdmin(admin.ModelAdmin):
         if problem.contest:
             return redirect('oioioiadmin:contests_probleminstance_changelist', contest_id=problem.contest.id)
         else:
-            return redirect('oioioiadmin:problems_problem_changelist')
+            return redirect('problemset_all_problems')
 
     def response_change(self, request, obj):
         if '_continue' not in request.POST and obj.problemsite:
