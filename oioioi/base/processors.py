@@ -31,13 +31,18 @@ def side_menus(request):
 
 def navbar_links(request):
     current_time = timezone.now()
-    current_contest = request.contest
-    running_rounds = Round.objects.filter(contest=current_contest, start_date__lte=current_time, end_date__gt=current_time)
-    if running_rounds.exists():
-        empty_navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
-        links = empty_navbar_links_registry.template_context(request)
-    else:
-        links = navbar_links_registry.template_context(request)
+
+    if request.contest:
+        running_rounds = Round.objects.filter(contest=request.contest, start_date__lte=current_time, end_date__gt=current_time)
+
+        if running_rounds.exists():
+            empty_navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
+            no_links = empty_navbar_links_registry.template_context(request)
+
+            return {'navbar_links': no_links}
+
+    links = navbar_links_registry.template_context(request)
+
     return {'navbar_links': links}
 
 
