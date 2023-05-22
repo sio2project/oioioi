@@ -1,4 +1,3 @@
-This module adds newsfeed feature. Additionaly, it adds
-single news and newsfeed widgets to portals.
+Adds the newsfeed, single news, and newsfeed widgets to portals.
 
-It requires portals app to be enabled.
+The portals app must be enabled.

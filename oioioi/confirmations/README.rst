@@ -1,2 +1,2 @@
-This module is responsible for sending e-mail confirmations
+Sending e-mail confirmations
 after participant's submission during a contest.

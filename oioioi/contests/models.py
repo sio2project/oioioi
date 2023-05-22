@@ -100,6 +100,14 @@ class Contest(models.Model):
         default=False
     )
 
+    # Part of szkopul backporting.
+    # This is a hack for situation where contest controller is empty, 
+    # which is very uncommon in normal usage.
+    def save(self, *args, **kwargs):
+        if not self.controller_name:
+            self.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
+        super(Contest, self).save(*args, **kwargs)
+
     @property
     def controller(self):
         if not self.controller_name:

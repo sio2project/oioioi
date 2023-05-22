@@ -15,13 +15,9 @@ class Migration(migrations.Migration):
     dependencies = [
         ('contests', '0005_auto_20150531_2248'),
         ('participants', '0003_openregistration'),
-        ('oi', '0002_auto_20160412_1720'),
     ]
 
-    database_operations = [
-    ]
-
-    state_operations = [
+    operations = [
         migrations.CreateModel(
             name='OnsiteRegistration',
             fields=[
@@ -49,10 +45,4 @@ class Migration(migrations.Migration):
             name='onsiteregistration',
             unique_together=set([('region', 'local_number')]),
         ),
-    ]
-
-    operations = [
-        migrations.SeparateDatabaseAndState(
-            database_operations=database_operations,
-            state_operations=state_operations)
     ]

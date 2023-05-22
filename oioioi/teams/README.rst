@@ -1,1 +1,1 @@
-A module providing features for team-based contests.
+Features for team-based contests.

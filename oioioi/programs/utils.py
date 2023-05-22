@@ -98,9 +98,10 @@ def min_group_scorer(test_results):
 
 def discrete_test_scorer(test, result):
     status = result['result_code']
-    max_score = test['max_score']
+    percentage = result.get('result_percentage', 100)
+    max_score = int(ceil(percentage * test['max_score'] / 100.))
     score = max_score if status == 'OK' else 0
-    return IntegerScore(score), IntegerScore(max_score), status
+    return IntegerScore(score), IntegerScore(test['max_score']), status
 
 
 def threshold_linear_test_scorer(test, result):

@@ -16,10 +16,6 @@ class Migration(migrations.Migration):
             name='region',
             field=models.IntegerField(verbose_name='region', null=True),
         ),
-        migrations.AlterModelTable('oionsiteregistration',
-            'participants_onsiteregistration'),
-        migrations.AlterModelTable('region',
-            'participants_region'),
     ]
 
     state_operations = [

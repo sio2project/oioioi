@@ -245,6 +245,37 @@ class TestSubmissionListOrder(TestCase):
         self.assertTrue(test_first_index < test_second_index, error_msg)
 
 
+# TODO: expand this TestCase
+class TestSubmissionListFilters(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_another_submission',
+        'test_submissions_CE',
+    ]
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.url = reverse(
+            'oioioiadmin:contests_submission_changelist', kwargs={'contest_id': 'c'}
+        )
+
+    def test_all_filters(self):
+        response = self.client.get(self.url, {
+            'has_active_system_error': 'yes',
+            'kind': 'NORMAL',
+            'status__exact': 'INI_OK',
+            'revealed': '1',
+            'round': 'Round 1',
+            'lang': 'Pascal',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '0 submissions')
+
+
 @override_settings(
     CONTEST_MODE=ContestMode.neutral, ROOT_URLCONF='oioioi.contests.tests.test_urls'
 )

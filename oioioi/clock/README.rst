@@ -1,1 +1,1 @@
-A module with current time and countdown clock implementation.
+Display current time and countdown in the navbar.

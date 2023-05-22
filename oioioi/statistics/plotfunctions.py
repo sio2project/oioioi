@@ -214,6 +214,8 @@ def test_scores(request, problem):
     # Why .order_by()? Just in case. More in the following link:
     # https://docs.djangoproject.com/en/dev/topics/db/
     #       aggregation/#interaction-with-default-ordering-or-order-by
+    # Testreports for deleted tests remain in the database, 
+    # we can't show them here.
     agg = (
         TestReport.objects.filter(
             submission_report__userresultforproblem__problem_instance=problem,

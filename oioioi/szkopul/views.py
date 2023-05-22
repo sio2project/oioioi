@@ -32,6 +32,13 @@ navbar_links_registry.register(
     order=300,
 )
 
+navbar_links_registry.register(
+    name='courses',
+    text=_("Kursy"),
+    url_generator=lambda request: 'https://kursy.szkopul.edu.pl',
+    order=400,
+)
+
 # TODO Add Portals main page to the menu:
 # navbar_links_registry.register(
 #     name='portals',

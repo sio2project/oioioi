@@ -410,6 +410,11 @@ SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
                      'Pascal': 'system-fpc', 'Java': 'system-java',
                      'Python': 'system-python', 'Output-only': 'output-only'}
 
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# Languages added here will use DEFAULT_COMPILERS for non-makefile sinol packages.
+OVERRIDE_COMPILER_LANGS = []
+
 USE_UNSAFE_EXEC = False
 DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 
@@ -447,6 +452,11 @@ MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
 
 # Default is 1000 - too low for forms with lots of tests
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
+
+# Memory limit for input generator job.
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# INGEN_MEMORY_LIMIT = 512 * 1024
 
 FILETRACKER_SERVER_ENABLED = True
 FILETRACKER_LISTEN_ADDR = '127.0.0.1'
@@ -685,6 +695,13 @@ REST_FRAMEWORK = {
 }
 
 ARCHIVE_USERCONTESTS = False
+
+# This is a legacy option for szkopul backwards compatibility.
+# Shouldn't be changed unless you know what you are doing.
+# If set to True, usercontests will behave like teachercontests
+# and will not be listed on the main page.
+# Changing this setting is reversible.
+HIDE_USERCONTESTS = False
 
 FORUM_PAGE_SIZE = 15
 
