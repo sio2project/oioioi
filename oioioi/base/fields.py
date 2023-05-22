@@ -178,7 +178,7 @@ class EnumRegistry(object):
         return self.entries.__iter__()
 
     def __getitem__(self, key):
-        for (val, desc) in self:
+        for val, desc in self:
             if val == key:
                 return desc
         raise KeyError(key)
@@ -194,7 +194,7 @@ class EnumRegistry(object):
     def get(self, value, fallback):
         """Return description for a given value, or fallback if value not in
         registry"""
-        for (val, desc) in self:
+        for val, desc in self:
             if val == value:
                 return desc
         return fallback

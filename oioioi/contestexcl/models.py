@@ -3,7 +3,6 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.date_registration import date_registry
@@ -45,7 +44,6 @@ class ExclusivenessConfigManager(models.Manager):
 @date_registry.register(
     'end_date', name_generator=(lambda obj: _("Disable exclusiveness"))
 )
-
 class ExclusivenessConfig(models.Model):
     """Represents an exclusiveness config for a contest.
 

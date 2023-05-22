@@ -2,6 +2,13 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.schemas import AutoSchema
+from rest_framework.views import APIView
+
 from oioioi.base.utils.api import make_path_coreapi_schema
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import can_admin_contest
@@ -13,12 +20,6 @@ from oioioi.problems.serializers import (
     PackageUploadSerializer,
 )
 from oioioi.problems.utils import can_admin_problem
-from rest_framework import status
-from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.schemas import AutoSchema
-from rest_framework.views import APIView
 
 
 def _check_permissions(request, contest=None, existing_problem=None):

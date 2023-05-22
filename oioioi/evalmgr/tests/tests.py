@@ -134,7 +134,6 @@ def _uuid():
 
 
 class TestRemoteJobs(TestCase):
-
     base_dir = os.path.dirname(__file__)
     local_source_file = os.path.join(base_dir, 'files/solution.c')
     remote_source_file = '/test_worker_manager/' + _uuid() + 'add_solution.c'

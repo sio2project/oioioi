@@ -3,6 +3,7 @@ from django.apps import apps
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 
+
 class TestCaseMigrations(test.TestCase):
     """TestCase for Django Migrations
 

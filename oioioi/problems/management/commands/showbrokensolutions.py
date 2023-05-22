@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db.models import F
 from django.utils.translation import gettext as _
+
 from oioioi.problems.models import Problem
 from oioioi.programs.models import ModelProgramSubmission
 

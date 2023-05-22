@@ -1,5 +1,4 @@
 import logging
-
 import urllib.parse
 
 from django.contrib import messages
@@ -12,6 +11,7 @@ from django.shortcuts import redirect
 from django.urls import re_path, reverse
 from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, system_admin_menu_registry
 from oioioi.base.permissions import is_superuser, make_request_condition
@@ -21,7 +21,8 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import (
     ProblemInstance,
     ProblemStatementConfig,
-    RankingVisibilityConfig, RegistrationAvailabilityConfig,
+    RankingVisibilityConfig,
+    RegistrationAvailabilityConfig,
 )
 from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin
 from oioioi.problems.forms import (
@@ -34,7 +35,8 @@ from oioioi.problems.forms import (
     ProblemNameInlineFormSet,
     ProblemSiteForm,
     ProblemStatementConfigForm,
-    RankingVisibilityConfigForm, RegistrationAvailabilityConfigForm,
+    RankingVisibilityConfigForm,
+    RegistrationAvailabilityConfigForm,
 )
 from oioioi.problems.models import (
     AlgorithmTag,

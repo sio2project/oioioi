@@ -1,12 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 
 check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
-
 
 
 class IpToUser(models.Model):
@@ -23,7 +21,6 @@ class IpToUser(models.Model):
 
     def __str__(self):
         return str(self.ip_addr)
-
 
 
 class DnsToUser(models.Model):

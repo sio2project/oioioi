@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -17,7 +16,6 @@ participant_statuses = EnumRegistry()
 participant_statuses.register('ACTIVE', _("Active"))
 participant_statuses.register('BANNED', _("Banned"))
 participant_statuses.register('DELETED', _("Account deleted"))
-
 
 
 class Participant(models.Model):
@@ -60,7 +58,6 @@ class Participant(models.Model):
         self.status = 'DELETED'
         self.anonymous = True
         self.save()
-
 
 
 class Region(models.Model):
@@ -110,7 +107,6 @@ class OpenRegistration(RegistrationModel):
     def erase_data(self):
         self.terms_accepted = False
         self.save()
-
 
 
 class OnsiteRegistration(RegistrationModel):

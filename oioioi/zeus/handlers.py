@@ -239,9 +239,7 @@ def update_problem_tests_set(env, kind, **kwargs):
     problem = data.problem
 
     env_tests = {
-        key: value
-        for key, value in env['tests'].items()
-        if value['kind'] == kind
+        key: value for key, value in env['tests'].items() if value['kind'] == kind
     }
     test_names = list(env_tests.keys())
 

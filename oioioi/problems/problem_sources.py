@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,6 +11,7 @@ from django.utils.encoding import smart_str
 from django.utils.http import urlencode
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import is_contest_basicadmin

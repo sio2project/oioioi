@@ -26,3 +26,17 @@ exclude = '''
 )/
 '''
 force-exclude = '((.*)?default_settings.py|(.*)migrations(.*))'
+
+# Linter
+ruff = "^0.265.0"
+[tool.ruff]
+line-length = 120
+select = [
+  "E",  # pycodestyle
+  "F",  # pyflakes
+  "I"   # isort
+]
+src = ["oioioi"]
+exclude = [
+  "migrations"
+]

@@ -11,7 +11,9 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext_noop
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
+
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.models import (
     FailureReport,
@@ -706,7 +708,6 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         opening the problem redirects to submit solution page.
         """
         return True
-
 
     def get_notification_message_submission_judged(self, submission):
         """Returns a message to show in a notification when a submission has

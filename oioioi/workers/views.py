@@ -1,7 +1,6 @@
-import json
+import xmlrpc.client
 from operator import itemgetter  # pylint: disable=E0611
 
-import xmlrpc.client
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -22,8 +21,8 @@ def get_all_names():
     return [i['name'] for i in get_info_about_workers()]
 
 
-def del_worker(l):
-    for i in l:
+def del_worker(workers):
+    for i in workers:
         server.forget_worker(i)
 
 

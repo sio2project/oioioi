@@ -13,8 +13,8 @@ from oioioi.contests.models import (
     RoundTimeExtension,
     Submission,
 )
-from oioioi.scoresreveal.models import ScoreRevealConfig
 from oioioi.quizzes.models import QuizSubmission
+from oioioi.scoresreveal.models import ScoreRevealConfig
 
 
 class TestScoresManualReveal(TestCase):

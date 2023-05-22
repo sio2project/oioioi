@@ -14,7 +14,6 @@ from oioioi.problems.models import Problem
 
 
 class TestMainPageView(TestCase):
-
     fixtures = [
         'test_users',
         'test_contest',

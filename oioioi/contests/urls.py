@@ -59,8 +59,8 @@ def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
     # namespaced with 'contest' or 'noncontest', we have to extract
     # and add them to our patterns so they are taken into account.
     def glob_namespaced_patterns(namespace):
-        pattern_lists = [l for l in globs if getattr(l, 'namespace', None) == namespace]
-        return [pattern for l in pattern_lists for pattern in l.url_patterns]
+        pattern_lists = [glob for glob in globs if getattr(glob, 'namespace', None) == namespace]
+        return [pattern for pattern_list in pattern_lists for pattern in pattern_list.url_patterns]
 
     neutrals = neutrals or []
     contests = (contests or []) + neutrals + glob_namespaced_patterns('contest')

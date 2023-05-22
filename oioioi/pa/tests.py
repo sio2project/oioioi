@@ -1,7 +1,6 @@
 import re
-from datetime import datetime  # pylint: disable=E0611
-
 import urllib.parse
+from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
@@ -10,6 +9,7 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import utc
+
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import (
     Contest,

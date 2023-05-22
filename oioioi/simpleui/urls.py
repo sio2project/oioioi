@@ -1,10 +1,13 @@
 from django.urls import re_path
+
 from oioioi.simpleui import views
 
 app_name = 'simpleui'
 
 noncontest_patterns = [
-    re_path(r'^user-dashboard/$', views.user_dashboard_view, name='simpleui_user_dashboard')
+    re_path(
+        r'^user-dashboard/$', views.user_dashboard_view, name='simpleui_user_dashboard'
+    )
 ]
 
 contest_patterns = [

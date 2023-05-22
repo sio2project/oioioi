@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 from oioioi.base.utils import make_html_link
-from oioioi.contests.models import Submission
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.utils import aggregate_statuses
 from oioioi.programs.models import (
@@ -24,21 +23,17 @@ def sum_score_aggregator(group_results):
         return None, None, 'OK'
 
     scores = [
-        ScoreValue.deserialize(result['score'])
-        for result in group_results.values()
+        ScoreValue.deserialize(result['score']) for result in group_results.values()
     ]
     max_scores = [
-        ScoreValue.deserialize(result['max_score'])
-        for result in group_results.values()
+        ScoreValue.deserialize(result['max_score']) for result in group_results.values()
     ]
 
     # the sum below needs a start value of an appropriate type,
     # the default zero is not suitable
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
-    status = aggregate_statuses(
-        [result['status'] for result in group_results.values()]
-    )
+    status = aggregate_statuses([result['status'] for result in group_results.values()])
 
     return score, max_score, status
 
@@ -50,19 +45,15 @@ def sum_group_scorer(test_results):
         return None, None, 'OK'
 
     scores = [
-        ScoreValue.deserialize(result['score'])
-        for result in test_results.values()
+        ScoreValue.deserialize(result['score']) for result in test_results.values()
     ]
     max_scores = [
-        ScoreValue.deserialize(result['max_score'])
-        for result in test_results.values()
+        ScoreValue.deserialize(result['max_score']) for result in test_results.values()
     ]
 
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
-    status = aggregate_statuses(
-        [result['status'] for result in test_results.values()]
-    )
+    status = aggregate_statuses([result['status'] for result in test_results.values()])
 
     return score, max_score, status
 
@@ -75,20 +66,16 @@ def min_group_scorer(test_results):
     """Gets minimal result of all tests inside a test group."""
 
     scores = [
-        ScoreValue.deserialize(result['score'])
-        for result in test_results.values()
+        ScoreValue.deserialize(result['score']) for result in test_results.values()
     ]
     max_scores = [
-        ScoreValue.deserialize(result['max_score'])
-        for result in test_results.values()
+        ScoreValue.deserialize(result['max_score']) for result in test_results.values()
     ]
 
     score = min(scores)
     max_score = min(max_scores)
     if max_score != max(max_scores):
-        raise UnequalMaxScores(
-            "Tests in one group cannot have different max scores."
-        )
+        raise UnequalMaxScores("Tests in one group cannot have different max scores.")
 
     sorted_results = sorted(list(test_results.values()), key=itemgetter('order'))
     status = aggregate_statuses([result['status'] for result in sorted_results])
@@ -99,7 +86,7 @@ def min_group_scorer(test_results):
 def discrete_test_scorer(test, result):
     status = result['result_code']
     percentage = result.get('result_percentage', 100)
-    max_score = int(ceil(percentage * test['max_score'] / 100.))
+    max_score = int(ceil(percentage * test['max_score'] / 100.0))
     score = max_score if status == 'OK' else 0
     return IntegerScore(score), IntegerScore(test['max_score']), status
 

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AnonymousUser
 from django.test.utils import override_settings
 from django.urls import reverse
+
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.actions import portal_url
@@ -51,12 +52,18 @@ class TestPortalModels(TestCase):
     def test_get_siblings(self):
         node = get_portal().root
         self.assertQuerysetEqual(node.get_siblings(), [], transform=repr)
-        self.assertQuerysetEqual(node.get_siblings(include_self=True), ['<Node: Root>'], transform=repr)
+        self.assertQuerysetEqual(
+            node.get_siblings(include_self=True), ['<Node: Root>'], transform=repr
+        )
 
         node = node.children.get(short_name='child1')
-        self.assertQuerysetEqual(node.get_siblings(), ['<Node: Child 2>'], transform=repr)
         self.assertQuerysetEqual(
-            node.get_siblings(include_self=True), ['<Node: Child 1>', '<Node: Child 2>'], transform=repr
+            node.get_siblings(), ['<Node: Child 2>'], transform=repr
+        )
+        self.assertQuerysetEqual(
+            node.get_siblings(include_self=True),
+            ['<Node: Child 1>', '<Node: Child 2>'],
+            transform=repr,
         )
 
     def test_get_path(self):
@@ -336,7 +343,9 @@ class TestPortalViews(TestCase):
         self.assertRedirects(response, portal_url(portal=get_portal()))
 
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
+        self.assertQuerysetEqual(
+            node.get_children(), ['<Node: Child 2>'], transform=repr
+        )
 
     def test_portal_tree_json_view(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -403,11 +412,17 @@ class TestPortalViews(TestCase):
 
         assertMoveStatus('test_user', 2, 3, 'inside', 200)
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
+        self.assertQuerysetEqual(
+            node.get_children(), ['<Node: Child 2>'], transform=repr
+        )
         node = node.children.get()
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 1>'], transform=repr)
+        self.assertQuerysetEqual(
+            node.get_children(), ['<Node: Child 1>'], transform=repr
+        )
         node = node.children.get()
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Grandchild 1>'], transform=repr)
+        self.assertQuerysetEqual(
+            node.get_children(), ['<Node: Grandchild 1>'], transform=repr
+        )
 
     def test_delete_portal_view(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -569,7 +584,9 @@ class TestMarkdown(TestCase):
         )
 
         self.assertIn("<details>", rendered_markdown)
-        self.assertIn('<summary class="btn btn-link">spoiler text</summary>', rendered_markdown)
+        self.assertIn(
+            '<summary class="btn btn-link">spoiler text</summary>', rendered_markdown
+        )
         self.assertIn("<p>spoiler body</p>", rendered_markdown)
         self.assertIn("</details>", rendered_markdown)
 
@@ -586,15 +603,23 @@ class TestMarkdown(TestCase):
         rendered_markdown = render_panel(
             self.request, '>![first]\n>!>![nested]\n>!>!nested text\n>!first text\n'
         )
-        self.assertIn('<summary class="btn btn-link">first</summary>', rendered_markdown)
-        self.assertIn('<summary class="btn btn-link">nested</summary>', rendered_markdown)
+        self.assertIn(
+            '<summary class="btn btn-link">first</summary>', rendered_markdown
+        )
+        self.assertIn(
+            '<summary class="btn btn-link">nested</summary>', rendered_markdown
+        )
 
     def test_block_spoiler_in_sequence(self):
         rendered_markdown = render_panel(
             self.request, '>![first]\n>!first text\n\n>![second]\n>!second text\n'
         )
-        self.assertIn('<summary class="btn btn-link">first</summary>', rendered_markdown)
-        self.assertIn('<summary class="btn btn-link">second</summary>', rendered_markdown)
+        self.assertIn(
+            '<summary class="btn btn-link">first</summary>', rendered_markdown
+        )
+        self.assertIn(
+            '<summary class="btn btn-link">second</summary>', rendered_markdown
+        )
 
     def test_table_element(self):
         rendered_markdown = render_panel(self.request, '|a|b|\n|-|-|\n|1|2|\n')

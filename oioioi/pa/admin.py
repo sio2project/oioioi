@@ -1,5 +1,3 @@
-from django.utils.translation import gettext_lazy as _
-
 from oioioi.base import admin
 from oioioi.contests.admin import ProblemInstanceAdmin
 from oioioi.contests.utils import is_contest_admin

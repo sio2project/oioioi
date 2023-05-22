@@ -10,7 +10,7 @@ from django.utils import timezone
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest
 from oioioi.forum.forms import PostForm
-from oioioi.forum.models import Ban, Category, Post, PostReaction, Thread
+from oioioi.forum.models import Ban, Category, Post, Thread
 from oioioi.participants.models import Participant
 
 

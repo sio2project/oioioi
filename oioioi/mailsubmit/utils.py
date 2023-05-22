@@ -13,7 +13,6 @@ from oioioi.mailsubmit.models import MailSubmissionConfig
 @make_request_condition
 def is_mailsubmit_used(request):
     try:
-
         _msc = request.contest.mail_submission_config
         return True
     except MailSubmissionConfig.DoesNotExist:
@@ -87,7 +86,7 @@ def mail_submission_hashes(mailsubmission):
     submission_hash = hmac.new(
         settings.SECRET_KEY.encode('utf-8'),
         msg,
-        'sha256'  # Name of the hashing algorithm is required from Python3.8.
+        'sha256',  # Name of the hashing algorithm is required from Python3.8.
     ).hexdigest()[:MAILSUBMIT_CONFIRMATION_HASH_LENGTH]
 
     return source_hash, submission_hash

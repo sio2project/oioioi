@@ -63,21 +63,25 @@ class QuizProblemController(ProblemController):
         return cleaned_data
 
     def render_pictures(self, pictures):
-        return format_html(
-            u'''<div class="quiz_pictures_container">
+        return (
+            format_html(
+                u'''<div class="quiz_pictures_container">
             <table>
                 <tr>{}</tr>
             </table>
         </div>''',
-            format_html_join(
-                u'\n',
-                u'''<td class="text-center">
+                format_html_join(
+                    u'\n',
+                    u'''<td class="text-center">
                 <img src="{}" class="quiz_picture" /><br>
                 <span class="quiz_caption"> {}</span>
             </td>''',
-                ((p.get_absolute_url(), p.caption) for p in pictures),
-            ),
-        ) if pictures else u''
+                    ((p.get_absolute_url(), p.caption) for p in pictures),
+                ),
+            )
+            if pictures
+            else u''
+        )
 
     def render_question(self, request, question):
         pictures = question.quizquestionpicture_set.all()
@@ -173,7 +177,6 @@ class QuizProblemController(ProblemController):
         return submission
 
     def _submit_answers(self, selected_answers, question, submission):
-
         if question.is_text_input:
             sub = QuizSubmissionTextAnswer.objects.create(
                 quiz_submission=submission,

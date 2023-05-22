@@ -723,7 +723,7 @@ class TestRegistration(TestCase):
         self.assertIn('last_name', form.fields)
 
     def _register_user(self, terms_accepted=True, pass_captcha=True):
-        response = self.client.get(reverse('registration_register'))
+        self.client.get(reverse('registration_register'))
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 1)
         captcha = CaptchaStore.objects.all()[0]
@@ -776,7 +776,6 @@ class TestRegistration(TestCase):
     def test_registration_captcha_not_passed(self):
         self._register_user(pass_captcha=False)
         self.assertEqual(User.objects.filter(username='test_foo').count(), 0)
-
 
 
 class TestArchive(TestCase):
@@ -884,7 +883,7 @@ class TestBaseViews(TestCase):
         self.assertEqual(user.last_name, 'ln')
 
     def test_edit_email(self):
-        #Trying to use incorrect email.
+        # Trying to use incorrect email.
         self.data['email'] = 'a@a'
         self.data['first_name'] = 'fn_new'
         self.data['last_name'] = 'ln_new'
@@ -904,7 +903,6 @@ class TestBaseViews(TestCase):
         self.assertEqual(self.user.email, self.email)
         self.assertEqual(self.user.first_name, self.first_name)
         self.assertEqual(self.user.last_name, self.last_name)
-
 
         # Trying to change email with wrong password.
         self.data['confirm_password'] = 'not-the-password'
@@ -939,7 +937,6 @@ class TestBaseViews(TestCase):
         self.assertTrue(self.user.consents.terms_accepted)
         # and that the user sees an error
         self.assertContains(response, 'field is required')
-
 
         self.data.pop('terms_accepted')
         response = self.client.post(self.url_edit_profile, self.data, follow=True)
@@ -978,8 +975,8 @@ class TestBaseViews(TestCase):
         self.assertEqual(self.user.last_name, self.last_name)
 
     def test_names_with_valid_spaces(self):
-        self.data['first_name'] =  u'Jan Maria',
-        self.data['last_name'] = u'Le Guien',
+        self.data['first_name'] = (u'Jan Maria',)
+        self.data['last_name'] = (u'Le Guien',)
         response = self.client.post(self.url_edit_profile, self.data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.user.refresh_from_db()
@@ -1032,12 +1029,14 @@ class TestBaseViews(TestCase):
             for text in ['Doggy', 'Andrzej', '72', 'The answer to everything']:
                 self.assertContains(response, text)
 
-            self.data.update({
-                'first_name': 'fn',
-                'last_name': 'ln',
-                'dog': 'Janusz',
-                'answer': '42',
-            })
+            self.data.update(
+                {
+                    'first_name': 'fn',
+                    'last_name': 'ln',
+                    'dog': 'Janusz',
+                    'answer': '42',
+                }
+            )
 
             self.client.post(self.url_edit_profile, self.data, follow=True)
             # callback_func should be called already
@@ -1211,23 +1210,23 @@ class TestLoginChange(TestCase):
         self.url_edit_profile = reverse('edit_profile')
 
     def test_message(self):
-        for l in self.invalid_logins:
-            self.user.username = l
+        for valid_login in self.invalid_logins:
+            self.user.username = valid_login
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
             self.assertContains(response, 'contains forbidden characters')
 
-        for l in self.valid_logins:
-            self.user.username = l
+        for valid_login in self.valid_logins:
+            self.user.username = valid_login
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
             self.assertNotContains(response, 'contains forbidden characters')
 
     def test_can_change_login_from_invalid(self):
-        for l in self.invalid_logins:
-            self.user.username = l
+        for invalid_login in self.invalid_logins:
+            self.user.username = invalid_login
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
@@ -1236,16 +1235,20 @@ class TestLoginChange(TestCase):
                 response,
                 '<input type="text" id="id_username" name="username" '
                 'value="%s" class="form-control" '
-                'maxlength="150" required />' % l,
+                'maxlength="150" required />' % invalid_login,
                 html=True,
             )
 
             self.client.post(
                 self.url_edit_profile,
-                {'username': 'valid_user', 'terms_accepted': True, 'email': "test_user@example.com"},
+                {
+                    'username': 'valid_user',
+                    'terms_accepted': True,
+                    'email': "test_user@example.com",
+                },
                 follow=True,
             )
-            self.assertEqual(self.user.username, l)
+            self.assertEqual(self.user.username, invalid_login)
 
             response = self.client.post(self.url_index, follow=True)
             self.assertNotContains(response, 'contains not allowed characters')
@@ -1260,8 +1263,8 @@ class TestLoginChange(TestCase):
             )
 
     def test_login_cannot_change_from_valid(self):
-        for l in self.valid_logins:
-            self.user.username = l
+        for valid_login in self.valid_logins:
+            self.user.username = valid_login
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
@@ -1269,7 +1272,7 @@ class TestLoginChange(TestCase):
                 response,
                 '<input type="text" id="id_username" name="username" '
                 'value="%s" class="form-control" '
-                'maxlength="150" readonly required />' % l,
+                'maxlength="150" readonly required />' % valid_login,
                 html=True,
             )
 
@@ -1278,7 +1281,7 @@ class TestLoginChange(TestCase):
                 {'username': 'valid_user', 'terms_accepted': True},
                 follow=True,
             )
-            self.assertEqual(self.user.username, l)
+            self.assertEqual(self.user.username, valid_login)
             self.assertContains(response, 'You cannot change your username.')
 
             response = self.client.get(self.url_index, follow=True)
@@ -1293,9 +1296,9 @@ class TestLoginChange(TestCase):
         self.user.username = self.invalid_logins[0]
         self.user.save()
 
-        for l in self.invalid_logins:
+        for invalid_login in self.invalid_logins:
             self.client.post(
-                url_edit_profile, {'username': l, 'terms_accepted': True}, follow=True
+                url_edit_profile, {'username': invalid_login, 'terms_accepted': True}, follow=True
             )
             self.assertEqual(self.user.username, self.invalid_logins[0])
 
@@ -1395,7 +1398,7 @@ class TestFileUtils(TestCase):
             'a_1_2.pdf': 'a_1.pdf',
         }
 
-        for (before, after) in cases.items():
+        for before, after in cases.items():
             self.assertEqual(strip_num_or_hash(before), after)
 
 
@@ -1461,7 +1464,6 @@ class TestObtainingAPIToken(TestCase):
 
 
 class TestDocsEndpoints(APITestCase):
-
     def test_docs(self):
         response = self.client.get('/api/docs', follow=True)
         self.assertContains(response, "OIOIOI API")
@@ -1508,15 +1510,16 @@ class TestPasswordReset(TestCase):
     fixtures = ['test_users']
 
     def setUp(self):
-        self.user = User.objects.create_user('test_email_user', 'test@test.com', 'test1234')
+        self.user = User.objects.create_user(
+            'test_email_user', 'test@test.com', 'test1234'
+        )
 
     def test_reset_password_email_send_existing(self):
-        response = self.client.post(reverse('auth_password_reset'), data={'email': self.user.email})
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertRedirects(
-            response,
-            reverse('auth_password_reset_done')
+        response = self.client.post(
+            reverse('auth_password_reset'), data={'email': self.user.email}
         )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertRedirects(response, reverse('auth_password_reset_done'))
 
 
 class TestAccountDeletion(TestCase):
@@ -1551,7 +1554,6 @@ class TestAccountDeletion(TestCase):
 
 
 class TestJsCatalog(TestCase):
-
     def test_javascript_catalog(self):
         response = self.client.get(reverse('javascript_catalog'))
         self.assertContains(response, 'jsi18n_initialized')

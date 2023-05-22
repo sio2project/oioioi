@@ -1,10 +1,9 @@
 import logging
 
-import registration.backends.default.urls
-import registration.views
+import registration.backends.default.urls as default_urls
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
+from django.contrib.auth.views import PasswordResetView
 from django.contrib.sites.requests import RequestSite
 from django.urls import re_path, reverse_lazy
 from django.views.generic import TemplateView
@@ -14,8 +13,7 @@ from registration.backends.default.views import (
 )
 from registration.models import RegistrationProfile
 
-from oioioi.base.forms import OioioiPasswordResetForm, RegistrationFormWithNames
-from oioioi.base.forms import handle_new_preference_fields
+from oioioi.base.forms import OioioiPasswordResetForm, RegistrationFormWithNames, handle_new_preference_fields
 from oioioi.base.models import PreferencesSaved
 from oioioi.base.preferences import PreferencesFactory
 
@@ -89,4 +87,4 @@ urlpatterns += [
     ),
 ]
 
-urlpatterns += registration.backends.default.urls.urlpatterns
+urlpatterns += default_urls.urlpatterns

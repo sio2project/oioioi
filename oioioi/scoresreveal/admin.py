@@ -2,10 +2,8 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
-from oioioi.base.admin import NO_CATEGORY
 from oioioi.base.forms import AlwaysChangedModelForm
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
-from oioioi.contests.utils import is_contest_admin
 from oioioi.scoresreveal.models import ScoreRevealConfig
 from oioioi.scoresreveal.utils import is_revealed
 

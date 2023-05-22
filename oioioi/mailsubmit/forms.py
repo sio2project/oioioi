@@ -3,7 +3,6 @@ from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.forms import SubmissionForm
-from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import visible_problem_instances
 from oioioi.default_settings import MAILSUBMIT_CONFIRMATION_HASH_LENGTH
 from oioioi.mailsubmit.models import MailSubmission
@@ -64,8 +63,7 @@ class AcceptMailSubmissionForm(forms.Form):
             mailsubmission = MailSubmission.objects.get(id=mailsubmission_id)
         except MailSubmission.DoesNotExist:
             raise ValidationError(
-                _("Postal submission number %s does not exist")
-                % (mailsubmission_id,)
+                _("Postal submission number %s does not exist") % (mailsubmission_id,)
             )
 
         if mailsubmission.problem_instance.contest != self.request.contest:

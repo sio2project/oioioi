@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import generate_key
@@ -15,7 +14,6 @@ if 'oioioi.teachers.auth.TeacherAuthBackend' not in settings.AUTHENTICATION_BACK
     raise ImproperlyConfigured(
         "When using teacher module you have to activate TeacherAuthBackend"
     )
-
 
 
 class Teacher(models.Model):
@@ -31,7 +29,6 @@ class Teacher(models.Model):
 
     def __str__(self):
         return str(self.user)
-
 
 
 class ContestTeacher(models.Model):

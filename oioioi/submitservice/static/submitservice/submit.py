@@ -11,12 +11,11 @@ import mimetypes
 import random
 import string
 import sys
+import urllib.parse
+import urllib.request
 import webbrowser
 from argparse import ArgumentParser
 from os.path import expanduser, splitext
-
-import urllib.parse
-import urllib.request
 
 
 class MultiPartForm(object):
@@ -204,9 +203,7 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
             form.add_field('task', task_name)
             form.add_file('file', solution_file.name, filehandle=solution_file)
             body = str(form)
-            request = urllib.request.Request(
-                '%ssubmitservice/submit/' % contest_url
-            )
+            request = urllib.request.Request('%ssubmitservice/submit/' % contest_url)
             request.add_header('Content-Type', form.get_content_type())
             request.add_header('Content-Length', str(len(body)))
             request.add_data(body)

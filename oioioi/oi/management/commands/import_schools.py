@@ -1,8 +1,8 @@
 # ~*~ coding: utf-8 ~*~
 import os
 import string
-
 import urllib.request
+
 import unicodecsv
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
@@ -117,6 +117,4 @@ class Command(BaseCommand):
                     % {'all_count': all_count, 'new_count': created_count}
                 )
             else:
-                raise CommandError(
-                    _("There were some errors. Database not changed\n")
-                )
+                raise CommandError(_("There were some errors. Database not changed\n"))

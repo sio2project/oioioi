@@ -1,9 +1,9 @@
 import os
 
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.http import Http404
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import request_cached
@@ -11,13 +11,13 @@ from oioioi.contests.attachment_registration import (
     attachment_registry,
     attachment_registry_problemset,
 )
+from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
     is_contest_admin,
     visible_problem_instances,
 )
-from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem
 from oioioi.testspackages.models import TestsPackage

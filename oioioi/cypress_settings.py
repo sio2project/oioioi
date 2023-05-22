@@ -1,4 +1,4 @@
-# pylint: disable=wildcard-import
+# ruff: noqa
 from settings import *
 
 # Enable optional modules.

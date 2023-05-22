@@ -117,7 +117,9 @@ class SubmissionForm(forms.Form):
 
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
-    _js = ['common/submit.js',]
+    _js = [
+        'common/submit.js',
+    ]
 
     @property
     def media(self):
@@ -289,8 +291,7 @@ class SubmissionForm(forms.Form):
             self.request, pi, kind
         ):
             raise ValidationError(
-                _("Submission limit for the problem '%s' exceeded.")
-                % pi.problem.name
+                _("Submission limit for the problem '%s' exceeded.") % pi.problem.name
             )
 
         decision = pi.controller.can_submit(self.request, pi, check_round_times)

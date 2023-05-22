@@ -3,6 +3,7 @@ from django.db import transaction
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base.utils import generate_key
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import ProblemInstance

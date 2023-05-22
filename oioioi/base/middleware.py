@@ -1,15 +1,14 @@
 from dateutil.parser import parse as parse_date
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseNotAllowed
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from django.utils import translation
 
 from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.utils.middleware import was_response_generated_by_exception
@@ -185,8 +184,9 @@ class UserPreferencesMiddleware(object):
 
     def _process_request(self, request):
         # checking data set by set_first_view_after_logging_flag signal handler:
-        just_logged_in = ('first_view_after_logging' in request.session) and \
-                            request.session['first_view_after_logging'] is True
+        just_logged_in = (
+            'first_view_after_logging' in request.session
+        ) and request.session['first_view_after_logging'] is True
 
         ensure_preferences_exist_for_user(request.user)
 
@@ -196,8 +196,9 @@ class UserPreferencesMiddleware(object):
         if just_logged_in and pref_lang != "":
             self.lang = pref_lang
 
-        if ((not just_logged_in) or pref_lang == "") and \
-           settings.LANGUAGE_COOKIE_NAME in request.COOKIES.keys():
+        if (
+            (not just_logged_in) or pref_lang == ""
+        ) and settings.LANGUAGE_COOKIE_NAME in request.COOKIES.keys():
             self.lang = request.COOKIES[settings.LANGUAGE_COOKIE_NAME]
 
         translation.activate(self.lang)
@@ -205,8 +206,13 @@ class UserPreferencesMiddleware(object):
 
     def _process_response(self, request, response):
         if settings.LANGUAGE_COOKIE_NAME in request.COOKIES:
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME,
-                                request.COOKIES[settings.LANGUAGE_COOKIE_NAME], samesite='lax')
+            response.set_cookie(
+                settings.LANGUAGE_COOKIE_NAME,
+                request.COOKIES[settings.LANGUAGE_COOKIE_NAME],
+                samesite='lax',
+            )
         else:
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, self.lang, samesite='lax')
+            response.set_cookie(
+                settings.LANGUAGE_COOKIE_NAME, self.lang, samesite='lax'
+            )
         return response

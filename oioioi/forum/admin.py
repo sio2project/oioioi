@@ -12,9 +12,11 @@ from oioioi.contests.admin import contest_site
 from oioioi.contests.utils import is_contest_admin
 from oioioi.forum.models import Ban, Category, Forum, Post, Thread
 
+
 def string_concat(*strings):
     """https://docs.djangoproject.com/en/3.2/releases/1.11/#deprecated-features-1-11"""
     return format_lazy('{}' * len(strings), *strings)
+
 
 def make_list_elem(elem, text=None):
     if not text:

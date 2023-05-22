@@ -1,7 +1,6 @@
 import logging
 
 from django.conf import settings
-from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse

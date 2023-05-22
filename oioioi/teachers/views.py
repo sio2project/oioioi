@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.core.mail import EmailMessage
 from django.http import Http404
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
@@ -52,10 +51,12 @@ def is_teacher(request):
 def is_not_teacher(request):
     return not_anonymous(request) and not request.user.has_perm('teachers.teacher')
 
+
 @enforce_condition(is_superuser)
 def get_non_teacher_names(request):
     queryset = User.objects.filter(teacher__isnull=True)
     return get_user_hints_view(request, 'substr', queryset)
+
 
 def send_request_email(request, teacher, message):
     context = {

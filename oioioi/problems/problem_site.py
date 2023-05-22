@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base.menu import OrderedRegistry
 from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.archive import Archive
@@ -64,10 +65,13 @@ def problem_site_tab(title, key, order=sys.maxsize, condition=None):
         if the tab should be accessible for this request
     """
 
+    def default_condition(request, problem):
+        return True
+
     Tab = namedtuple('Tab', ['view', 'title', 'key', 'condition'])
 
     if condition is None:
-        condition = lambda request, problem: True
+        condition = default_condition
 
     def decorator(func):
         problem_site_tab_registry.register(Tab(func, title, key, condition), order)
@@ -97,8 +101,10 @@ def problem_site_statement(request, problem):
     if not statement:
         statement_html = render_to_string(
             'problems/no-problem-statement.html',
-            {'problem': problem,
-            'can_admin_problem': can_admin_problem(request, problem)}
+            {
+                'problem': problem,
+                'can_admin_problem': can_admin_problem(request, problem),
+            },
         )
     elif statement.extension == '.zip':
         response = problem_site_statement_zip_view(
@@ -106,9 +112,11 @@ def problem_site_statement(request, problem):
         )
         statement_html = render_to_string(
             'problems/from-zip-statement.html',
-            {'problem': problem,
-            'statement': mark_safe(response.content.decode(errors="replace")),
-            'can_admin_problem': can_admin_problem(request, problem)}
+            {
+                'problem': problem,
+                'statement': mark_safe(response.content.decode(errors="replace")),
+                'can_admin_problem': can_admin_problem(request, problem),
+            },
         )
     else:
         statement_url = reverse(
@@ -117,9 +125,11 @@ def problem_site_statement(request, problem):
         )
         statement_html = render_to_string(
             'problems/external-statement.html',
-            {'problem': problem,
-            'statement_url': statement_url,
-            'can_admin_problem': can_admin_problem(request, problem)},
+            {
+                'problem': problem,
+                'statement_url': statement_url,
+                'can_admin_problem': can_admin_problem(request, problem),
+            },
         )
 
     return statement_html

@@ -1,10 +1,10 @@
 from __future__ import print_function
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
+
 from oioioi.contests.models import Submission
 from oioioi.problems.models import Problem, ProblemStatistics, UserStatistics
 

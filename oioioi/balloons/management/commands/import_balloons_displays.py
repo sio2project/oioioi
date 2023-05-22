@@ -1,7 +1,7 @@
 import csv
 import os
-
 import urllib.request
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
@@ -111,6 +111,4 @@ class Command(BaseCommand):
             if ok:
                 self.stdout.write(_("Processed %d entries") % (all_count))
             else:
-                raise CommandError(
-                    _("There were some errors. Database not changed.\n")
-                )
+                raise CommandError(_("There were some errors. Database not changed.\n"))

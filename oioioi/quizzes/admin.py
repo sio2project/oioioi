@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-
 from nested_admin import nested
 from nested_admin.formsets import NestedInlineFormSet
 

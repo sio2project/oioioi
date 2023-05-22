@@ -216,6 +216,13 @@ def all_messages_view(request):
             'needs_reply': m in unanswered,
         }
 
+    def sort_key_basicadmin(entry):
+        return entry['needs_reply'], entry['has_new_message'], entry['timestamp']
+
+
+    def sort_key_default(entry):
+        return entry['has_new_message'], entry['needs_reply'], entry['timestamp']
+
     vmsg_kwargs, template_kwargs = process_filter_form(request)
     vmessages = visible_messages(request, **vmsg_kwargs)
     new_msgs = frozenset(new_messages(request, vmessages))
@@ -237,9 +244,9 @@ def all_messages_view(request):
             tree[m.id] = entry
 
     if is_contest_basicadmin(request):
-        sort_key = lambda x: (x['needs_reply'], x['has_new_message'], x['timestamp'])
+        sort_key = sort_key_basicadmin
     else:
-        sort_key = lambda x: (x['has_new_message'], x['needs_reply'], x['timestamp'])
+        sort_key = sort_key_default
     tree_list = sorted(list(tree.values()), key=sort_key, reverse=True)
     for entry in tree_list:
         entry['replies'].sort(key=sort_key, reverse=True)

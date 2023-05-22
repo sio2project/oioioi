@@ -1,11 +1,10 @@
 from django.db.models import Q
 from django.utils import timezone
 
-from oioioi.rankings.controllers import CONTEST_RANKING_KEY
+from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
+from oioioi.rankings.controllers import CONTEST_RANKING_KEY, DefaultRankingController
 from oioioi.teachers.controllers import TeacherRegistrationController
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
-from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
-from oioioi.rankings.controllers import DefaultRankingController
 
 USER_GROUP_RANKING_PREFIX = 'g'
 

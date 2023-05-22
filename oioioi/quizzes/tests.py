@@ -443,7 +443,7 @@ class TestQuizProblemView(TestCase):
         url = reverse('problem_site', kwargs={'site_key': quiz.problemsite.url_key})
         response = self.client.get(url, follow=True)
 
-        for (allowed_tab, disabled_tab) in zip(
+        for allowed_tab, disabled_tab in zip(
             self.allowed_quiz_tabs, self.disabled_quiz_tabs
         ):
             self.assertContains(response, allowed_tab)

@@ -59,7 +59,6 @@ class MenuItem(object):
     def __init__(
         self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize
     ):
-
         if condition is None:
             condition = Condition(lambda request: True)
 
@@ -96,7 +95,8 @@ class MenuRegistry(object):
     def __init__(self, text=None, condition=None, show_icons=False):
         self.text = text
         if condition is None:
-            condition = lambda request: True
+            def condition(request):
+                return True
         self.condition = condition
         self.show_icons = show_icons
         self._registry = []

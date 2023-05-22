@@ -1,5 +1,6 @@
-from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 from rest_framework import serializers
+
+from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 
 
 class PackageSerializer(serializers.Serializer):

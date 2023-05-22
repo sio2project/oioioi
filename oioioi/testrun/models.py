@@ -10,7 +10,7 @@ from oioioi.contests.models import (
     submission_statuses,
 )
 from oioioi.filetracker.fields import FileField
-from oioioi.problems.models import Problem, ProblemInstance
+from oioioi.problems.models import ProblemInstance
 from oioioi.programs.models import ProgramSubmission
 
 submission_statuses.register('TESTRUN_OK', _("No error"))

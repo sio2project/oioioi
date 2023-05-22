@@ -9,6 +9,7 @@ from django.core.files import File
 from django.core.files.storage import Storage
 from django.urls import reverse
 from django.utils import timezone
+
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.filename import FiletrackerFilename
 from oioioi.filetracker.utils import FileInFiletracker
@@ -123,7 +124,8 @@ class FiletrackerStorage(Storage):
 
     def modified_time(self, name):
         warnings.warn(
-            """The old, non-timezone-aware methods accessed_time(), created_time(), and modified_time() are deprecated in favor of the new get_*_time() methods.
+            """The old, non-timezone-aware methods accessed_time(), created_time(), and modified_time() 
+                are deprecated in favor of the new get_*_time() methods.
                 https://docs.djangoproject.com/en/1.10/releases/1.10/#non-timezone-aware-storage-api""",
             category=DeprecationWarning,
             stacklevel=2,
@@ -154,9 +156,7 @@ class FiletrackerStorage(Storage):
         return reverse('raw_file', kwargs={'filename': name})
 
     def path(self, name):
-        raise NotImplementedError(
-            "File is in Filetracker, cannot get its local path"
-        )
+        raise NotImplementedError("File is in Filetracker, cannot get its local path")
 
     def listdir(self, path):
         raise NotImplementedError("Filetracker doesn't provide path listing")

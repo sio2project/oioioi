@@ -12,14 +12,14 @@ from oioioi.base.permissions import enforce_condition, not_anonymous
 
 @api_view()
 def ping(request):
-    """ Test endpoint for unauthorized user. """
+    """Test endpoint for unauthorized user."""
     return Response("pong")
 
 
 @api_view()
 @enforce_condition(not_anonymous, login_redirect=False)
 def auth_ping(request):
-    """ Test endpoint for authorized user. """
+    """Test endpoint for authorized user."""
     return Response("pong " + str(request.user))
 
 

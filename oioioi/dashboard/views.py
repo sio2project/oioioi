@@ -1,5 +1,3 @@
-import itertools
-
 from django.conf import settings
 from django.shortcuts import redirect
 from django.template.loader import render_to_string

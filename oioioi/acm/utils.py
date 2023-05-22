@@ -8,16 +8,12 @@ def acm_test_scorer(test, result):
 
 
 def acm_group_scorer(test_results):
-    status = aggregate_statuses(
-        [result['status'] for result in test_results.values()]
-    )
+    status = aggregate_statuses([result['status'] for result in test_results.values()])
     return None, None, status
 
 
 def acm_score_aggregator(group_results):
     if not group_results:
         return None, None, 'OK'
-    status = aggregate_statuses(
-        [result['status'] for result in group_results.values()]
-    )
+    status = aggregate_statuses([result['status'] for result in group_results.values()])
     return BinaryScore(status == 'OK'), BinaryScore(True), status

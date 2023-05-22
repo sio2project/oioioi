@@ -34,9 +34,7 @@ class PrintForm(forms.Form):
         try:
             cleaned_data['file'] = generator(
                 source=orig.expandtabs(4),
-                header=str(
-                    '%s (%s)' % (self.user.get_full_name(), self.user)
-                ),
+                header=str('%s (%s)' % (self.user.get_full_name(), self.user)),
             )
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))

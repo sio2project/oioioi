@@ -16,8 +16,5 @@ class Command(BaseCommand):
         writer = csv.writer(self.stdout)
         writer.writerow(COLUMNS)
         for school in School.objects.order_by('postal_code'):
-            row = [
-                str(getattr(school, column)).encode('utf-8')
-                for column in COLUMNS
-            ]
+            row = [str(getattr(school, column)).encode('utf-8') for column in COLUMNS]
             writer.writerow(row)

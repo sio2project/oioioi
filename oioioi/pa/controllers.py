@@ -2,7 +2,6 @@ import datetime
 import logging
 
 from django import forms
-from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
@@ -266,8 +265,10 @@ class PADivCRankingController(PARankingController):
     description = _("PA style ranking (with division C)")
 
     def available_rankings(self, request):
-        rankings = [(A_PLUS_B_RANKING_KEY, _("Division A + B + C")),
-                (B_RANKING_KEY, _("Division B + C"))]
+        rankings = [
+            (A_PLUS_B_RANKING_KEY, _("Division A + B + C")),
+            (B_RANKING_KEY, _("Division B + C")),
+        ]
         for round in self._rounds_for_ranking(request):
             if round.is_trial:
                 rankings.append((str(round.id), round.name))
@@ -275,8 +276,7 @@ class PADivCRankingController(PARankingController):
 
     def _filter_pis_for_ranking(self, partial_key, queryset):
         if partial_key == A_PLUS_B_RANKING_KEY:
-            return queryset.filter(
-                    paprobleminstancedata__division__in=['A', 'B', 'C'])
+            return queryset.filter(paprobleminstancedata__division__in=['A', 'B', 'C'])
         elif partial_key == B_RANKING_KEY:
             return queryset.filter(paprobleminstancedata__division__in=['B', 'C'])
         else:
@@ -316,6 +316,7 @@ class PAFinalsContestController(ACMContestController):
 
 
 PAFinalsContestController.mix_in(OnsiteContestControllerMixin)
+
 
 class PADivCContestController(PAContestController):
     description = _("Algorithmic Engagements with Division C")

@@ -9,7 +9,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
@@ -28,7 +27,6 @@ message_kind_labels.register('PRIVATE', _("PRIVATE"))
 message_kind_labels.register('PUBLIC', _("PUBLIC"))
 
 logger = logging.getLogger('oioioi')
-
 
 
 class Message(models.Model):
@@ -99,7 +97,7 @@ class Message(models.Model):
     @property
     def to_quote(self):
         lines = self.content.strip().split('\n')
-        return ''.join('> ' + l for l in lines)
+        return ''.join('> ' + line for line in lines)
 
     def get_absolute_url(self):
         link = reverse(
@@ -114,12 +112,11 @@ class Message(models.Model):
         return link
 
     def get_user_date(self):
-        """ returns date visible by a user """
+        """returns date visible by a user"""
         return self.pub_date if self.pub_date is not None else self.date
 
     def get_kind_label(self):
         return message_kind_labels[self.kind]
-
 
 
 class ReplyTemplate(models.Model):

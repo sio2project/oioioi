@@ -47,7 +47,6 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
         return self.get_response(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs, selector=None):
-
         if not self._check_requirements(request):
             return
 
@@ -57,9 +56,8 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
         if selector is None:
             final_selector = _default_selector
         else:
-            final_selector = lambda user, contest: _default_selector(
-                user, contest
-            ) and selector(user, contest)
+            def final_selector(user, contest):
+                return _default_selector(user, contest) and selector(user, contest)
 
         if settings.ONLY_DEFAULT_CONTEST:
             qs = [Contest.objects.get(id=settings.DEFAULT_CONTEST)]

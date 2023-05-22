@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import generate_key
@@ -9,7 +8,6 @@ from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import Contest, ProblemInstance
 
 check_django_app_dependencies(__name__, ['oioioi.participants', 'oioioi.acm'])
-
 
 
 class ProblemBalloonsConfig(models.Model):
@@ -27,13 +25,7 @@ class ProblemBalloonsConfig(models.Model):
         verbose_name_plural = _("balloons colors")
 
     def __str__(self):
-        return (
-            str(self.problem_instance)
-            + u' ('
-            + str(self.color)
-            + u')'
-        )
-
+        return str(self.problem_instance) + u' (' + str(self.color) + u')'
 
 
 class BalloonsDisplay(models.Model):
@@ -53,7 +45,6 @@ class BalloonsDisplay(models.Model):
 
     def __str__(self):
         return str(self.ip_addr)
-
 
 
 class BalloonDelivery(models.Model):

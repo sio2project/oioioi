@@ -2,8 +2,8 @@ from importlib import import_module
 
 from django.conf import settings
 from django.contrib import admin as django_admin
-from django.views import i18n
 from django.urls import include, re_path
+from django.views import i18n
 
 from oioioi.base import registration_backend
 from oioioi.filetracker.views import raw_file_view

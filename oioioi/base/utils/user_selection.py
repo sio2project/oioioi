@@ -1,4 +1,3 @@
-import django
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -7,6 +6,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base.utils import jsonify
 
 INVALID_USER_SELECTION = '__invalid_user_selection__'
@@ -95,7 +95,6 @@ def _parse_user_hint(value, queryset=None, user_field_name=None):
     if len(value) == 1 or (
         len(value) > 1 and value[1].startswith('(') and value[-1].endswith(')')
     ):
-
         value = value[0]
 
         try:
@@ -110,9 +109,7 @@ def _parse_user_hint(value, queryset=None, user_field_name=None):
 
 
 class UserSelectionWidget(forms.TextInput):
-    html_template = (
-        "<script>init_user_selection('%(id)s', %(num_hints)s)</script>"
-    )
+    html_template = "<script>init_user_selection('%(id)s', %(num_hints)s)</script>"
 
     def __init__(self, attrs=None):
         if attrs is None:

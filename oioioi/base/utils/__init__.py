@@ -7,15 +7,13 @@ import re
 import shutil
 import sys
 import tempfile
+import urllib.parse
 from contextlib import contextmanager
 from importlib import import_module
 
 import six
-import urllib.parse
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.template import Template
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.encoding import force_str
@@ -438,9 +436,7 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
             raise Http404
         qs = request.GET.dict()
         qs['key'] = next(iter(tabs)).key
-        return HttpResponseRedirect(
-            request.path + '?' + urllib.parse.urlencode(qs)
-        )
+        return HttpResponseRedirect(request.path + '?' + urllib.parse.urlencode(qs))
     key = request.GET['key']
     for tab in tabs:
         if tab.key == key:
@@ -510,7 +506,8 @@ def strip_num_or_hash(filename):
 
 
 def naturalsort_key(key):
-    convert = lambda text: int(text) if text.isdigit() else text
+    def convert(text):
+        return int(text) if text.isdigit() else text
     return [convert(c) for c in re.split('([0-9]+)', key)]
 
 

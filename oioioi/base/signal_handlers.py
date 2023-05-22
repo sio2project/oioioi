@@ -1,4 +1,3 @@
-import django
 from django.contrib.auth.signals import user_logged_in
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver

@@ -28,7 +28,9 @@ class GlobalMessageAdmin(admin.ModelAdmin):
         urls = super(GlobalMessageAdmin, self).get_urls()
 
         custom_urls = [
-            re_path(r'^$', self.admin_site.admin_view(self.change_view), {'object_id': pk}),
+            re_path(
+                r'^$', self.admin_site.admin_view(self.change_view), {'object_id': pk}
+            ),
         ]
 
         return custom_urls + urls

@@ -192,7 +192,7 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
             ('contestcompiler_set', 0, 0, 0, 1000),
         )
         data = dict()
-        for (name, total, initial, min_num, max_num) in formsets:
+        for name, total, initial, min_num, max_num in formsets:
             data.update(
                 {
                     '{}-TOTAL_FORMS'.format(name): total,

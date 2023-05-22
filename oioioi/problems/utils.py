@@ -3,11 +3,11 @@ import sys
 import zipfile
 from collections import defaultdict
 
-import django
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.http import Http404, HttpResponse
 from django.utils import translation
+
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.contests.processors import recent_contests
@@ -26,9 +26,9 @@ from oioioi.problems.models import (
 )
 from oioioi.programs.models import (
     GroupReport,
+    LanguageOverrideForTest,
     ModelProgramSubmission,
     TestReport,
-    LanguageOverrideForTest,
 )
 
 
@@ -125,7 +125,7 @@ def query_statement(problem_id):
         return None
 
     lang_prefs = (
-        [translation.get_language()] + ['', None] + [l[0] for l in settings.LANGUAGES]
+        [translation.get_language()] + ['', None] + [lang[0] for lang in settings.LANGUAGES]
     )
     ext_prefs = ['.zip', '.pdf', '.ps', '.html', '.txt']
 
@@ -296,7 +296,7 @@ def generate_model_solutions_context(request, problem_instance):
                     percentage_statuses[s.id] = '25'
                 elif time_ratio <= 0.50:
                     percentage_statuses[s.id] = '50'
-                    if submissions_percentage_statuses[s.id] is not '100':
+                    if submissions_percentage_statuses[s.id] != '100':
                         submissions_percentage_statuses[s.id] = '50'
                 else:
                     percentage_statuses[s.id] = '100'

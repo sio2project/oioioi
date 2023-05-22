@@ -9,6 +9,7 @@ from django.core.files.storage import default_storage
 from django.db.models.fields.files import FieldFile, FileField
 from django.urls import reverse
 from django.utils import timezone
+
 from filetracker.client import Client as FiletrackerClient
 from filetracker.client.dummy import DummyClient
 from oioioi.base.tests import TestCase

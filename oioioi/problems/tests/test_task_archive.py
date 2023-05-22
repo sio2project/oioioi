@@ -16,6 +16,7 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.problems.models import OriginInfoCategory, OriginInfoValue, Problem
 from oioioi.problems.utils import get_prefetched_value
 
+
 @override_settings(LANGUAGE_CODE='pl')
 class TestTaskArchive(TestCase):
     fixtures = [
@@ -267,4 +268,3 @@ class TestTaskArchive(TestCase):
         test_can_access_with_result(IntegerScore(50), IntegerScore(100))
         test_can_access_with_result(None, IntegerScore(100))
         test_can_access_with_result(IntegerScore(50), None)
-

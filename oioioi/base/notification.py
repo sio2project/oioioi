@@ -2,9 +2,9 @@ import json
 import logging
 import threading
 import time
+import urllib.parse
 import uuid
 
-import urllib.parse
 from django.conf import settings
 from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 from pika.exceptions import AMQPChannelError, AMQPConnectionError

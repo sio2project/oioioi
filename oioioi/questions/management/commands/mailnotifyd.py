@@ -50,7 +50,7 @@ def mailnotify(instance):
         mails = [(sub.user, sub.user.email) for sub in subscriptions if sub.user.email]
 
         # if there are any users with e-mails
-        for (user, mail) in mails:
+        for user, mail in mails:
             try_sending(instance, user, mail)
 
     elif instance.kind == 'PRIVATE':
