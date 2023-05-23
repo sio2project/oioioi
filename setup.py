@@ -22,7 +22,7 @@ if os.getuid() == 0:  # root
 requirements = [
     "Django",
     "pytz",
-    "sqlalchemy",
+    "sqlalchemy<1.5", 
     "beautifulsoup4",
     "PyYAML",
     "python-dateutil",
