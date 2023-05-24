@@ -151,7 +151,7 @@ SEND_USER_ACTIVATION_EMAIL = False
 # Some features may depend on this setting, e.g. the "portals" app requires
 # that either the "neutral" or the "contest_if_possible" option is picked.
 from oioioi.contests.current_contest import ContestMode
-CONTEST_MODE = ContestMode.contest_if_possible
+CONTEST_MODE = ContestMode.neutral
 
 # RabbitMQ server URL for distributed workers.
 #
@@ -377,7 +377,7 @@ INSTALLED_APPS = [
 DISABLE_QUIZZES = True
 
 # Set to True to show the link to the problemset with contests on navbar.
-PROBLEMSET_LINK_VISIBLE = False
+PROBLEMSET_LINK_VISIBLE = True
 
 # Comment out to show tags on the list of problems
 #PROBLEM_TAGS_VISIBLE = True
