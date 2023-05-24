@@ -411,7 +411,8 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             problem = instance.problem_instance.problem
         except AttributeError:
             return
-        problem.controller.recalculate_statistics_for_user(user)
+        if user and problem:
+            problem.controller.recalculate_statistics_for_user(user)
 
     def _activate_newest_report(self, submission, queryset, kind=None):
         """Activates the newest report.
