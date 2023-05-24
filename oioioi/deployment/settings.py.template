@@ -1,4 +1,5 @@
 from oioioi.default_settings import *
+from django.utils.translation import gettext_lazy as _
 import os.path
 import os
 
@@ -389,6 +390,8 @@ PROBLEM_STATISTICS_AVAILABLE = True
 
 # Set to True to allow every logged in user to add problems directly to Problemset
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
+
+REGISTRATION_RULES_CONSENT = _("talent terms accepted")
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
 #   'oioioi.contestexcl.processors.register_contest_exclusive',
