@@ -133,6 +133,7 @@ c_patterns = [
         name='user_info_redirect',
     ),
     re_path(r'^admin/', admin.contest_site.urls),
+    re_path(r'^teacher-search/$', views.get_teacher_names, name='teacher_search'),
 ]
 
 nonc_patterns = [
