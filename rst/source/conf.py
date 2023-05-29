@@ -54,7 +54,8 @@ def should_skip_submodule(app, what, name, obj, skip, options):
     return skip
 
 def setup(sphinx):
-    import gendoc  # This will generate the list of modules.
+    # temporary fix
+    # import gendoc  # This will generate the list of modules.
 
     # Note: doing the same with autodoc-skip-member will make builds fail.
     sphinx.connect("autoapi-skip-member", should_skip_submodule)
