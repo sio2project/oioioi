@@ -15,7 +15,7 @@ class ProblemNameListFilter(SimpleListFilter):
         # name twice.
         matched_problem_names = list(
             self.initial_query_manager.annotate(pi_contest=self.contest_field)
-            .filter(pi_contest=request.contest)
+            .filter(pi_contest=(request.contest.id if request.contest else None))
             .prefetch_related(self.related_names)
             .annotate(problem_legacy_name=self.legacy_name_field)
             .annotate(

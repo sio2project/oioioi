@@ -580,7 +580,7 @@ class ProblemFilter(AllValuesFieldListFilter):
 
 class ContestsProblemNameListFilter(ProblemNameListFilter):
     initial_query_manager = Submission.objects
-    contest_field = F('problem_instance__contest')
+    contest_field = F('problem_instance__contest_id')
     related_names = 'problem_instance__problem__names'
     legacy_name_field = F('problem_instance__problem__legacy_name')
     outer_ref = OuterRef('problem_instance__problem__pk')
