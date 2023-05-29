@@ -1,3 +1,3 @@
 sphinx==4.2.0
-furo==2021.9.22  # sphinx theme https://github.com/pradyunsg/furo
-sphinx-autoapi==2.1.0  # sphinx extension https://sphinx-autoapi.readthedocs.io/en/latest/index.html
+furo==2022.9.29  # sphinx theme https://github.com/pradyunsg/furo
+sphinx-autoapi==2.0.0  # sphinx extension https://sphinx-autoapi.readthedocs.io/en/latest/index.html
