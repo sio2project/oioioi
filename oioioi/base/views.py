@@ -65,11 +65,15 @@ def handler500(request):
         pass
 
     plain_resp = HttpResponse(message, status=500, content_type='text/plain')
+    plain_resp.wsgi_request = request
 
     try:
         if is_ajax(request):
             return plain_resp
-        return render(request, '500.html', {'traceback': tb}, status=500)
+        else:
+            resp = render(request, '500.html', {'traceback': tb}, status=500)
+            resp.wsgi_request = request
+            return resp
     except Exception:
         return plain_resp
 
