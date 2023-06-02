@@ -37,7 +37,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/mailnotifyd.log
 stderr_logfile={{ PROJECT_DIR }}/logs/mailnotifyd-err.log
 
 [program:unpackmgr]
-command=celery -A oioioi.celery worker -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+command=celery -A oioioi.celery worker -n %%h-unpackmgr -E -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
 redirect_stderr=false
@@ -45,7 +45,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
 stderr_logfile={{ PROJECT_DIR }}/logs/unpackmgr-err.log
 
 [program:evalmgr]
-command=celery -A oioioi.celery worker -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
+command=celery -A oioioi.celery worker -n %%h-evalmgr -E -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
 redirect_stderr=false
@@ -53,7 +53,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr.log
 stderr_logfile={{ PROJECT_DIR }}/logs/evalmgr-err.log
 
 [program:evalmgr-zeus]
-command=celery -A oioioi.celery worker -E -l info -Q evalmgr-zeus -c 1
+command=celery -A oioioi.celery worker -n %%h-evalmgr-zeus -E -Q evalmgr-zeus -c 1
 startretries=0
 stopwaitsecs=15
 redirect_stderr=false

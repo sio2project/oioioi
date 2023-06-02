@@ -639,6 +639,11 @@ LOGGING = {
             'handlers': ['console', 'emit_notification'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        'celery': {
+            'handlers': ['console', 'emit_notification'],
+            'level': 'DEBUG',
+            'propagate': True,
         }
     }
 }
