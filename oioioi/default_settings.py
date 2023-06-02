@@ -517,6 +517,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'celery': {
+            'handlers': ['console', 'emit_notification'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         # Errors logged by the SDK itself
         "sentry_sdk": {"level": "ERROR", "handlers": ["console"], "propagate": False},
     }
