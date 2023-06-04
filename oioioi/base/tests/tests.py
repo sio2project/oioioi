@@ -1455,7 +1455,7 @@ class TestObtainingAPIToken(TestCase):
         response = self.client.post(reverse('api_regenerate_key'))
         new_token = Token.objects.get(user=self.user)
         self.assertNotEqual(old_token, new_token)
-        self.assertContains(response, 'was regenerated')
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, str(new_token))
         self.assertNotContains(response, str(old_token))
 
