@@ -20,7 +20,7 @@ if os.getuid() == 0:  # root
     sys.exit(2)
 
 requirements = [
-    "Django>=3.2,<3.3",  # when upgrading, upgrade also django-two-factor-auth!
+    "Django>=4.0,<4.1",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b,<=2021.1",
     "sqlalchemy<1.5",
     "beautifulsoup4<4.10",
@@ -62,7 +62,7 @@ requirements = [
     "fontawesomefree==6.1.1",
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.
-    "django-nested-admin<3.4",
+    "django-nested-admin",
     # SIO2 dependencies:
     "filetracker>=2.1.5,<3.0",
     "django-simple-captcha>=0.5.16,<=0.5.18",
