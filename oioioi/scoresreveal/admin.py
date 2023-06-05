@@ -37,7 +37,7 @@ class ScoresRevealProblemInstanceAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ScoresRevealProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ScoresRevealConfigInline]
+        self.inlines = tuple(self.inlines) + (ScoresRevealConfigInline,)
 
 
 ProblemInstanceAdmin.mix_in(ScoresRevealProblemInstanceAdminMixin)

@@ -404,7 +404,7 @@ class UserWithParticipantsAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(UserWithParticipantsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ParticipantInline]
+        self.inlines = tuple(self.inlines) + (ParticipantInline,)
 
 
 admin.OioioiUserAdmin.mix_in(UserWithParticipantsAdminMixin)
@@ -475,4 +475,4 @@ class TermsAcceptedPhraseAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(TermsAcceptedPhraseAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TermsAcceptedPhraseInline]
+        self.inlines = tuple(self.inlines) + (TermsAcceptedPhraseInline,)

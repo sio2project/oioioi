@@ -56,7 +56,7 @@ class PAProblemInstanceAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(PAProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [PAProblemInstanceInline]
+        self.inlines = tuple(self.inlines) + (PAProblemInstanceInline,)
 
 
 ProblemInstanceAdmin.mix_in(PAProblemInstanceAdminMixin)

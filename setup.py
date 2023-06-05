@@ -26,7 +26,7 @@ requirements = [
     "beautifulsoup4<4.10",
     "PyYAML<5.5",
     "python-dateutil<2.9",
-    "django-two-factor-auth==1.13.2",
+    "django-two-factor-auth==1.15.2",  # old version 1.13.2
     "django-formtools>=2.2,<=2.3",
     "django-registration-redux>=2.6,<=2.9",
     "Celery==4.4.7",

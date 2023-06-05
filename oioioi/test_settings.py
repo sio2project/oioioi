@@ -15,6 +15,10 @@ django.dispatch.Signal = ModSignal
 django.utils.encoding.smart_text = django.utils.encoding.smart_str
 django.utils.encoding.force_text = django.utils.encoding.force_str
 
+#if str(django.__version__).startswith("4.1"):
+#    import django.contrib.auth.views
+#    django.contrib.auth.views.SuccessURLAllowedHostsMixin = django.contrib.auth.views.RedirectURLMixin
+
 # https://docs.djangoproject.com/en/4.2/releases/4.0/#zoneinfo-default-timezone-implementation
 
 SAMPLE_VALUE = "abc"
