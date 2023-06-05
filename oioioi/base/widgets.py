@@ -9,25 +9,18 @@ from django.template.loader import render_to_string
 class DateTimePicker(forms.widgets.DateTimeInput):
     class Media(object):
         js = [
-            'bootstrap-datetimepicker-oioioi/moment.min.js',
-            'bootstrap-datetimepicker-oioioi/pl.js',
-            'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js',
+            'tempus-dominus/pl.js',
+            'tempus-dominus/tempus-dominus.min.js',
+            'tempus-dominus/jQuery-provider.min.js',
         ]
         css = {
-            'all': ('bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.css',)
+            'all': ('tempus-dominus/tempus-dominus.min.css',)
         }
 
     def __init__(self, *args, **kwargs):
         super(DateTimePicker, self).__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        # check if this is the default renderer
-        if renderer is not None and not isinstance(
-            renderer, forms.renderers.DjangoTemplates
-        ):
-            raise AssertionError
-        if value is None:
-            value = ''
         return render_to_string(
             'widgets/datetimepicker.html',
             {'name': name, 'value': value, 'attrs': flatatt(self.build_attrs(attrs))},

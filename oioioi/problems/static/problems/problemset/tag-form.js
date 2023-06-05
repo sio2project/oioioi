@@ -34,7 +34,7 @@ $(document).ready(function () {
     }
 
     // enable tooltips
-    $('[data-bs-toggle="tooltip"]').tooltip();
+    [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
 
     // show tag proposal form to the user if it's the first time they qualify
     if ($formOpen.length && !$.cookie('shown_proposal_popup')) {

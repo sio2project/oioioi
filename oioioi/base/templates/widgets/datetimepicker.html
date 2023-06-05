@@ -1,16 +1,20 @@
-<div class="input-group date oioioi-narrow-input">
-    <input type="text" class="form-control" name="{{ name }}"
+
+<div class="input-group date oioioi-narrow-input mb-2">
+    <input type="text" style="position: relative;" class="form-control" name="{{ name }}"
                             value="{{ value|date:"Y-m-d H:i" }}" {{ attrs }}/>
-    <span class="input-group-append">
+    <span class="input-group-text">
         <i class="fa-solid fa-calendar"></i>
     </span>
 </div>
 
 <script type="text/javascript">
     $(function() {
-        $('.input-group.date').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm',
-            locale: '{{ LANGUAGE_CODE|default:"en" }}'
+            $('.input-group.date').tempusDominus({
+ 
+            localization: {
+                format: 'yyyy-MM-dd HH:mm',
+                locale: '{{ LANGUAGE_CODE|default:"en" }}'
+            }
         });
     });
 </script>

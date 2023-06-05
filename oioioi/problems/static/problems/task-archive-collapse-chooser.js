@@ -21,12 +21,14 @@ function createLink(link) {
 
 function showMessage(el) {
     const prevTitle = el.dataset.originalTitle;
-    el.title = "Copied link!";
-    $(el).tooltip('fixTitle').tooltip('show');
 
-    const restoreTitle = function () {
-        el.title = prevTitle;
-        $(el).tooltip('fixTitle').tooltip('hide');
+    el.setAttribute('data-bs-original-title', 'Copied link!');
+    const tooltip = bootstrap.Tooltip.getInstance(el);
+    tooltip.show();
+
+    const restoreTitle = () => {
+        el.setAttribute('data-bs-original-title', prevTitle);
+        tooltip.hide();
     };
 
     setTimeout(function () {

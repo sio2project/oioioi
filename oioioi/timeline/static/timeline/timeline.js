@@ -494,13 +494,13 @@ If you want to split a date group, click the corresponding \
         }
 
         function create_hint() {
-            $timeline_form.find('.btn-hint').popover({
+            const popover = new bootstrap.Popover($timeline_form.find('.btn-hint'), {
                 animation: false,
                 html: true,
                 placement: 'bottom',
                 trigger: 'manual',
                 content: POPOVER_CONTENT
-            });
+            })
         }
 
         function create_lines() {
@@ -597,9 +597,10 @@ If you want to split a date group, click the corresponding \
             assign_colors();
 
             set_timeline_height();
-
+            const el = $timeline.find('.date');
+            console.log(el)
             // init datepickers
-            $timeline.find('.date').datetimepicker({
+            $timeline.find('.date').tempusDominus({
                 format: DATE_FORMAT,
                 locale: lang_code,
                 keyBinds: '',
@@ -690,11 +691,14 @@ If you want to split a date group, click the corresponding \
             });
 
             $(window).on('click', function(e) {
+
                 var $target = $(e.target);
                 if ($target.is('.btn-hint')) {
-                    $target.popover('toggle');
+                    const popover = bootstrap.Popover.getInstance($target);
+                    popover.toggle();
                 } else if ($target.parents('.popover.in').length === 0) {
-                    $timeline_form.find('.btn-hint').popover('hide');
+                    const popover = bootstrap.Popover.getInstance( $timeline_form.find('.btn-hint'));
+                    popover.hide();
                 }
             });
 
