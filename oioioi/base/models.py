@@ -35,8 +35,7 @@ from django.utils.translation import gettext_lazy as _
 auditLogger = logging.getLogger(__name__ + ".audit")
 
 # Sender will be equal to the form that was completed
-# PreferencesSaved = django.dispatch.Signal(providing_args=['user'])
-PreferencesSaved = django.dispatch.Signal()
+PreferencesSaved = django.dispatch.Signal(providing_args=['user'])
 
 
 class Consents(models.Model):

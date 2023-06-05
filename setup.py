@@ -37,11 +37,11 @@ requirements = [
     "django-libsass>=0.7,<=0.8",
     "django-debug-toolbar>=3.0,<=3.3",
     "django-extensions>=3.0,<=3.2",  # Django 2.2
-    "djangorestframework>=3.10,<3.13",
+    "djangorestframework>=3.14,<3.15",
     "werkzeug<1.1",
     'pytest==4.6.11',
     'pytest-metadata==1.11.0',
-    'pytest-django==3.10.0',
+    'pytest-django<4.1',
     'pytest-html==1.22.1',
     'pytest-xdist==1.34.0',
     'pytest-cov>=2.11,<2.12',

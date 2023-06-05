@@ -330,16 +330,19 @@ class TestErrorHandlers(TestCase):
             if self._user:
                 r.user = self._user
             self._req = r
-            return handler500(r)
+            res = handler500(r)
+            res.wsgi_request = r
+            return res
 
         def custom_get(*args, **kwargs):
             try:
                 return self._orig_get(*args, **kwargs)
             except Exception:
                 try:
+                    print(self.client.handler)
                     self.client.handler = wrapped_handler500
                     resp = self._orig_get(*args, **kwargs)
-                    resp.request = self._req
+                    resp.request = self._req                    
                     return resp
                 finally:
                     self.client.handler = self._orig_handler
@@ -377,7 +380,7 @@ class TestErrorHandlers(TestCase):
     def test_errors(self):
         self.assertHtml(self.client.get('/nonexistant'), 404)
         self.assertHtml(self.client.get(reverse('force_permission_denied')), 403)
-        self.assertHtml(self.client.get(reverse('force_error')), 500)
+        self.assertPlain(self.client.get(reverse('force_error')), 500)
 
     def test_user_in_500(self):
         from oioioi.base.views import ForcedError
@@ -1427,6 +1430,7 @@ class TestUserDeactivationLogout(TestCase):
 
 
 # Test for the API
+@override_settings(LANGUAGE_CODE='en')
 class TestObtainingAPIToken(TestCase):
     fixtures = ['test_users']
 

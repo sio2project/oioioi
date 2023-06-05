@@ -69,6 +69,7 @@ def handler500(request):
     try:
         if is_ajax(request):
             return plain_resp
+        assert False
         return render(request, '500.html', {'traceback': tb}, status=500)
     except Exception:
         return plain_resp

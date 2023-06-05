@@ -177,6 +177,7 @@ class TestSubmissionListOrder(TestCase):
         self.url = reverse(
             'oioioiadmin:contests_submission_changelist', kwargs={'contest_id': 'c'}
         )
+        super().setUp()
 
     def test_default_order(self):
         response = self.client.get(self.url)
@@ -264,6 +265,7 @@ class TestSubmissionListFilters(TestCase):
         self.url = reverse(
             'oioioiadmin:contests_submission_changelist', kwargs={'contest_id': 'c'}
         )
+        super().setUp()
 
     def test_all_filters(self):
         response = self.client.get(self.url, {
@@ -1676,6 +1678,7 @@ class TestPermissions(TestCase):
         self.observer = User.objects.get(username='test_observer')
         self.cadmin = User.objects.get(username='test_contest_admin')
         self.factory = self.get_fake_request_factory(self.contest)
+        super().setUp()
 
     def test_utils(self):
         ofactory = partial(self.factory, self.observer)
@@ -1769,6 +1772,7 @@ class TestPermissionsBasicAdmin(TestCase):
             'oioioi.programs.controllers.ProgrammingContestController'
         )
         self.contest.save()
+        super().setUp()
 
     def test_dashboard(self):
         unregister_contest_dashboard_view(simpleui_contest_dashboard)
@@ -2193,6 +2197,7 @@ class TestSubmissionChangeKind(TestCase):
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_admin'))
+        super().setUp()
 
     def change_kind(self, submission, kind):
         contest = Contest.objects.get()
@@ -2908,6 +2913,7 @@ class TestSubmissionViewWithoutContest(TestCase):
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_user'))
+        super().setUp()
 
     def test_submission_view_without_contest(self):
         submission = Submission.objects.get(id=1)
@@ -2934,6 +2940,7 @@ class TestSubmissionAdminWithoutContest(TestCase, SubmitFileMixin):
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_admin'))
+        super().setUp()
 
     def test_submission_admin_without_contest(self):
         contest1 = Contest.objects.get(pk='c1')
@@ -3074,6 +3081,7 @@ class TestAPIGetProblemId(APITestCase):
         self.contest = Contest.objects.get()
         self.problem_instance = ProblemInstance.objects.get(pk=1)
         self.problem = self.problem_instance.problem
+        super().setUp()
 
     def test_successful_query(self):
         url = reverse(self.view_name, args=(self.contest.id, self.problem.short_name))
@@ -3106,6 +3114,7 @@ class TestAPISubmitBase(APITestCase):
 
     def setUp(self):
         self.client.force_authenticate(user=User.objects.get(username='test_user'))
+        super().setUp()
 
     def submit_file(
         self,
