@@ -75,8 +75,10 @@ class Message(models.Model):
             related = Message.objects.filter(
                 Q(id=self.top_reference_id) | Q(top_reference_id=self.top_reference_id)
             )
-        else:
+        elif self.id:
             related = self.message_set.all()
+        else:
+            related = Message.objects.none()
         if self.id:
             related.exclude(id=self.id)
         related.update(
