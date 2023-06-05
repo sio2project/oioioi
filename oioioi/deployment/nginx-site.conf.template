@@ -24,9 +24,15 @@ server {
     keepalive_timeout 360s 360s;
     
     
+    location __STATIC_URL__/CACHE/ {
+        gzip_static on;
+        expires 1y;
+    }
+    
     location __STATIC_URL__ {
         #limit_req zone=static burst=40 delay=20;
         alias __STATIC_ROOT__/;
+        gzip on;
         gzip_vary on;
         gzip_min_length 1024;
         gzip_proxied expired no-cache no-store private auth;
