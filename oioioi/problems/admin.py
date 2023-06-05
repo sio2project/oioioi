@@ -83,7 +83,7 @@ class StatementConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(StatementConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [StatementConfigInline]
+        self.inlines = tuple(self.inlines) + (StatementConfigInline,)
 
 
 ContestAdmin.mix_in(StatementConfigAdminMixin)
@@ -112,7 +112,7 @@ class RankingVisibilityConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(RankingVisibilityConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [RankingVisibilityConfigInline]
+        self.inlines = tuple(self.inlines) + (RankingVisibilityConfigInline,)
 
 
 ContestAdmin.mix_in(RankingVisibilityConfigAdminMixin)
@@ -141,7 +141,7 @@ class RegistrationAvailabilityConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(RegistrationAvailabilityConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [RegistrationAvailabilityConfigInline]
+        self.inlines = tuple(self.inlines) + (RegistrationAvailabilityConfigInline,)
 
 
 ContestAdmin.mix_in(RegistrationAvailabilityConfigAdminMixin)
@@ -402,7 +402,7 @@ admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
 class ProblemAdmin(admin.ModelAdmin):
-    inlines = [
+    inlines = (
         DifficultyTagInline,
         AlgorithmTagInline,
         OriginTagInline,
@@ -412,7 +412,7 @@ class ProblemAdmin(admin.ModelAdmin):
         AttachmentInline,
         ProblemInstanceInline,
         ProblemSiteInline,
-    ]
+    )
     readonly_fields = [
         'author',
         'legacy_name',

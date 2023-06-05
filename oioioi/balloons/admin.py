@@ -166,7 +166,7 @@ class BalloonsDeliveryAccessDataAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(BalloonsDeliveryAccessDataAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [BalloonsDeliveryAccessDataInline]
+        self.inlines = tuple(self.inlines) + (BalloonsDeliveryAccessDataInline,)
 
 
 ContestAdmin.mix_in(BalloonsDeliveryAccessDataAdminMixin)

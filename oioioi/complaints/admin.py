@@ -27,7 +27,7 @@ class ComplaintsAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ComplaintsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ComplaintsConfigInline]
+        self.inlines = tuple(self.inlines) + (ComplaintsConfigInline,)
 
 
 ContestAdmin.mix_in(ComplaintsAdminMixin)
