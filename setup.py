@@ -50,7 +50,7 @@ requirements = [
     "unicodecsv<0.15",
     "shortuuid<1",
     "dnslib<0.10",
-    "bleach>=3.1.0,<3.2",
+    "bleach==6.0.0",
     "chardet<4.1",
     "django-gravatar2<1.5",
     "django-mptt>=0.10,<=0.12",
