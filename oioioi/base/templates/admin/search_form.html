@@ -1,12 +1,12 @@
 {% load i18n static admin_urls admin_list  %}
 {% if cl.search_fields or cl.has_filters %}
-<form class="form-inline ml-sm-auto" id="changelist-search" method="get">
+<form class="d-flex flex-row align-items-center flex-wrap ms-sm-auto" id="changelist-search" method="get">
     {% if show_result_count %}
-      <span class="small quiet mb-2 mr-2 d-none d-sm-flex">{% blocktranslate count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktranslate %} (<a href="?{% if cl.is_popup %}{{ is_popup_var }}=1{% endif %}">{% if cl.show_full_result_count %}{% blocktranslate with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktranslate %}{% else %}{% translate "Show all" %}{% endif %}</a>)</span>
+      <span class="small quiet mb-2 me-2 d-none d-sm-flex">{% blocktranslate count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktranslate %} (<a href="?{% if cl.is_popup %}{{ is_popup_var }}=1{% endif %}">{% if cl.show_full_result_count %}{% blocktranslate with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktranslate %}{% else %}{% translate "Show all" %}{% endif %}</a>)</span>
     {% endif %}
     {% if cl.search_fields %}
-      <input type="text" class="form-control mr-sm-2 mb-2" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" autofocus{% if cl.search_help_text %} aria-describedby="searchbar_helptext"{% endif %}>
-      <input type="submit" class="btn btn-outline-primary {% if cl.has_filters %}mr-2{% endif %} mb-2" value="{% translate 'Search' %}">
+      <input type="text" class="form-control me-sm-2 mb-2" name="{{ search_var }}" value="{{ cl.query }}" id="searchbar" autofocus{% if cl.search_help_text %} aria-describedby="searchbar_helptext"{% endif %}>
+      <input type="submit" class="btn btn-outline-primary {% if cl.has_filters %}me-2{% endif %} mb-2" value="{% translate 'Search' %}">
       {% for pair in cl.params.items %}
       {% if pair.0 != search_var %}<input type="hidden" name="{{ pair.0 }}" value="{{ pair.1 }}">{% endif %}
       {% endfor %}
@@ -15,7 +15,7 @@
     {% block filters %}
       {% if cl.has_filters %}
         <div class="dropdown">
-            <a href="#" class="btn btn-outline-secondary mb-2 dropdown-toggle" id="filtersDropdown" role="button" data-toggle="dropdown" aria-expanded="false">{% trans 'Filter' %}</a>
+            <a href="#" class="btn btn-outline-secondary mb-2 dropdown-toggle" id="filtersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">{% trans 'Filter' %}</a>
             <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="filtersDropdown">
               {% for spec in cl.filter_specs %}
                 {% admin_list_filter cl spec %}
@@ -29,7 +29,7 @@
     {% endblock %}
 
     {% if show_result_count %}
-      <span class="small quiet mb-2 ml-2 d-sm-none">{% blocktranslate count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktranslate %} (<a href="?{% if cl.is_popup %}{{ is_popup_var }}=1{% endif %}">{% if cl.show_full_result_count %}{% blocktranslate with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktranslate %}{% else %}{% translate "Show all" %}{% endif %}</a>)</span>
+      <span class="small quiet mb-2 ms-2 d-sm-none">{% blocktranslate count counter=cl.result_count %}{{ counter }} result{% plural %}{{ counter }} results{% endblocktranslate %} (<a href="?{% if cl.is_popup %}{{ is_popup_var }}=1{% endif %}">{% if cl.show_full_result_count %}{% blocktranslate with full_result_count=cl.full_result_count %}{{ full_result_count }} total{% endblocktranslate %}{% else %}{% translate "Show all" %}{% endif %}</a>)</span>
     {% endif %}
 </form>
 {% endif %}

@@ -18,7 +18,7 @@ $timeline-input-left-margin: 8px !default;
 
 $timeline-now-line-color: #9ecfff !default;
 $timeline-connector-color: $gray-400 !default;
-$timeline-connector-event-color: theme-color("danger") !default;
+$timeline-connector-event-color: $danger !default;
 $timeline-connector-width: 2px !default;
 
 $timeline-group-delete-btn-margin: 8px !default;

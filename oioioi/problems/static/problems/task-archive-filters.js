@@ -25,7 +25,7 @@ $(document).ready(function() {
     // Reimplement toggle to stop menu from closing on click
     checkbox_menu_toggle.on("click", function(e) {
         if ($(e.target).is(this)) {
-            var target = $($(this).attr("data-target"));
+            var target = $($(this).attr("data-bs-target"));
             if ($(this).hasClass("collapsed")) {
                 checkbox_menu_toggle.addClass("collapsed");
                 checkbox_menu.removeClass("in");

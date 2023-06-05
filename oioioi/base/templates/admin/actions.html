@@ -1,11 +1,11 @@
 {% load i18n simple_filters %}
-<div id="changelist-actions" class="actions form-inline">
+<div id="changelist-actions" class="actions d-flex flex-row align-items-center flex-wrap">
     {% block actions %}
       {% block actions-form %}
-      {% for field in action_form %}{% if field.label %}<label class="control-label mr-sm-2 mb-2">{{ field.label }}</label> {% endif %}{{ field | add_class:"form-control" | add_form:"changelist-form" | add_class:"mr-sm-2" | add_class:"mb-2" }}{% endfor %}
+      {% for field in action_form %}{% if field.label %}<label class="control-label me-sm-2 mb-2">{{ field.label }}</label> {% endif %}{{ field | add_class:"form-control" | add_form:"changelist-form" | add_class:"me-sm-2" | add_class:"mb-2" }}{% endfor %}
       {% endblock %}
       {% block actions-submit %}
-      <button form="changelist-form" type="submit" class="btn btn-outline-secondary mb-2 mr-2" title="{% translate "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">{% translate "Go" %}</button>
+      <button form="changelist-form" type="submit" class="btn btn-outline-secondary mb-2 me-2" title="{% translate "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">{% translate "Go" %}</button>
       {% endblock %}
       {% block actions-counter %}
       {% if actions_selection_counter %}

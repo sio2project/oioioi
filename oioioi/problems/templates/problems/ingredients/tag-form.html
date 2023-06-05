@@ -6,8 +6,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title text-center" id="modalLabel">{%  trans "Help us improve the problemset!" %}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    
                 </button>
             </div>
             <form autocomplete="off" id="tag-form" method="post">
@@ -34,9 +34,9 @@
                     </section>
 
                     <hr class="separator">
-                    <section class="form-group">
+                    <section class="mb-3">
                         <h4 class="text-center">
-                            <b data-toggle="tooltip" title="{% blocktrans %} Think of algorithms used to solve this
+                            <b data-bs-toggle="tooltip" title="{% blocktrans %} Think of algorithms used to solve this
                             problem as well as areas of algorithmics it falls into, such as Graphs or NumberTheory
                             {% endblocktrans %}">{% trans "Algorithms" %}</b>
                         </h4>
@@ -60,9 +60,9 @@
 
 
                     <hr class="separator">
-                    <section class="form-group">
+                    <section class="mb-3">
                         <h4 class="text-center">
-                            <b data-toggle="tooltip" title="{% blocktrans %} Most problems fall into the 'normal' category,
+                            <b data-bs-toggle="tooltip" title="{% blocktrans %} Most problems fall into the 'normal' category,
                             which is the default for the problemset. However, there are problems that are meant
                             for learning basics of programming (these are 'easy') and those that are exceptionally 'hard'
                             {% endblocktrans %}">{% trans "Difficulty" %}</b>
@@ -70,7 +70,7 @@
                         <div class="content-row btn-row">
                             {% for difficulty in difficulty_options %}
                                 <div class="md-col-4 sm-col-2">
-                                    <button type="button" class="btn btn-lg btn-option btn-block" data-state="">
+                                    <button type="button" class="btn btn-lg btn-option w-100" data-state="">
                                         {{ difficulty }}
                                     </button>
                                 </div>

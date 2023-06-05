@@ -19,7 +19,7 @@
     </p>
 
     {% for field in form.visible_fields %}
-        <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <div class="mb-3 {% if field.errors %}has-error{% endif %}">
             <label for="{{ field.html_name }}" >{{ field.label }}</label>
             {{ field |add_class: 'form-control'}}
 
@@ -29,7 +29,7 @@
         </div>
     {% endfor %}
 
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
     </div>
 </form>

@@ -135,7 +135,7 @@
               'data-hotkey': hotkey
             });
             if (button.toggle === true) {
-              buttonContainer.attr('data-toggle', 'button');
+              buttonContainer.attr('data-bs-toggle', 'button');
             }
             buttonIconContainer = $('<span/>');
             buttonIconContainer.addClass(buttonIcon);

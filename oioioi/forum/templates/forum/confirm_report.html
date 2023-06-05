@@ -13,7 +13,7 @@
     <form method="post" class="form-wide">
         {% csrf_token %}
         {% include "ingredients/form.html" %}
-        <div class="form-group">
+        <div class="mb-3">
             <button type="submit" class="btn btn-danger">{% trans "Report" %}</button>
             <button type="button" class="btn btn-outline-secondary" onclick="history.back()">{% trans "Cancel" %}</button>
         </div>

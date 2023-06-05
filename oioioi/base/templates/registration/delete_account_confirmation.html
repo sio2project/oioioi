@@ -4,7 +4,7 @@
 {% block title %}{% trans "Confirm deletion" %}{% endblock %}
 
 {% block content %}
-    <div class="card bg-light text-center ml-auto mr-auto" style="width: fit-content;">
+    <div class="card bg-light text-center ms-auto me-auto" style="width: fit-content;">
         <div class="card-header text-center">
             <h1 class="mb-0">{% trans "Confirm deletion" %}</h1>
         </div>
@@ -13,7 +13,7 @@
                 <p>{% trans "You are going to delete your account. It cannot be undone." %}</p>
                 <p><b>{% trans "Are you sure?" %}</b></p>
                 {% csrf_token %}
-                <div class="form-group mb-0">
+                <div class="mb-3 mb-0">
                     <input type="password" name="auth-password"
                            placeholder="{% trans "Password" %}"
                            class="form-control {% if failed %}is-invalid{% endif %}" />
@@ -24,10 +24,10 @@
             </div>
             <div class="card-footer">
                 <div class="row">
-                    <div class="col px-1"><button type="submit" class="btn btn-danger btn-block">
+                    <div class="col px-1"><button type="submit" class="btn btn-danger w0100
                         {% trans "Yes, I'm sure" %}
                     </button></div>
-                    <div class="col px-1"><button type="button" class="btn btn-outline-secondary btn-block" onclick="location.href={% url 'edit_profile' %}">
+                    <div class="col px-1"><button type="button" class="btn btn-outline-secondary w-100click="location.href={% url 'edit_profile' %}">
                         {% trans "No, go back" %}
                     </button></div>
                 </div>

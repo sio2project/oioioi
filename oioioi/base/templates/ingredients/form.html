@@ -1,10 +1,10 @@
 {% load i18n simple_filters %}
 
 {% if form.non_field_errors %}
-    <div class="form-group">
+    <div class="mb-3">
         {% for error in form.non_field_errors %}
             <div class="alert alert-danger" role="alert">
-                <span class="sr-only">{% trans "Error" %}:</span>
+                <span class="visually-hidden">{% trans "Error" %}:</span>
                 {{ error }}
             </div>
         {% endfor %}
@@ -16,9 +16,9 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    {% if not inline %}<div class="form-group">{% endif %}
+    {% if not inline %}<div class="mb-3">{% endif %}
     {% if field|is_checkbox %}
-        <div class="form-check {% if inline %}mr-sm-2 mb-2{% endif %}">
+        <div class="form-check {% if inline %}me-sm-2 mb-2{% endif %}">
             {% if field.errors %}
                 {{ field | add_class:"form-check-input" | add_class:"is-invalid" }}
             {% else %}
@@ -30,14 +30,14 @@
         </div>
     {% else %}
         {% if field.label %}
-            <label for="{{ field.auto_id }}" class="{% if display_labels == False %}sr-only{% endif %} control-label {% if field.errors %}text-danger{% endif %} {% if inline %}mr-sm-2 mb-2{% endif %}" data-submit="{{ field.field.widget.attrs|safe_lookup:"data-submit" }}">
+            <label for="{{ field.auto_id }}" class="{% if display_labels == False %}visually-hidden{% endif %} control-label {% if field.errors %}text-danger{% endif %} {% if inline %}me-sm-2 mb-2{% endif %}" data-submit="{{ field.field.widget.attrs|safe_lookup:"data-submit" }}">
                 {{ field.label }}
             </label>
         {% endif %}
 
         {% if field|is_checkbox_select_multiple or field|is_radioselect %}
             {% for pk, choice in field.field.widget.choices %}
-                <div class="form-check ml-2">
+                <div class="form-check ms-2">
                     <input class="form-check-input{% if field.errors %} is-invalid{% endif %}" id="id_{{ field.name }}_{{ forloop.counter0 }}" name="{{ field.name }}" type="{% if field|is_radioselect %}radio{% else %}checkbox{% endif %}" value="{{ pk }}" data-submit="{{ field.field.widget.attrs|safe_lookup:"data-submit" }}">
                     <label class="form-check-label" for="id_{{ field.name }}_{{ forloop.counter0 }}">
                         {{ choice }}
@@ -47,9 +47,9 @@
         {% else %}
             {% if inline %}
                 {% if field.errors %}
-                    {{ field | add_class:"form-control" | add_class:"is-invalid" | add_class:"mr-sm-2" | add_class:"mb-2" }}
+                    {{ field | add_class:"form-control" | add_class:"is-invalid" | add_class:"me-sm-2" | add_class:"mb-2" }}
                 {% else %}
-                    {{ field | add_class:"form-control" | add_class:"mr-sm-2" | add_class:"mb-2" }}
+                    {{ field | add_class:"form-control" | add_class:"me-sm-2" | add_class:"mb-2" }}
                 {% endif %}
             {% else %}
                 {% if field.errors %}

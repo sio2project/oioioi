@@ -24,7 +24,7 @@ $list-subheader-bgcolor: #eee !default;
   }
 
   .collapsing, .in {
-    padding: $table-cell-padding-sm;
+    padding: $table-cell-padding-y-sm $table-cell-padding-x-sm;
   }
 }
 

@@ -27,7 +27,7 @@
     <li>Run <kbd>python submit.py --help</kbd> for a complete list of options and usage details.</li>
 </ul>
 <h2>Authentication Token</h2>
-<p class="form-inline">Your current token is: <input type="text" class="form-control" title="token" disabled value="{{ token }}"/></p>
+<p class="d-flex flex-row align-items-center flex-wrap">Your current token is: <input type="text" class="form-control" title="token" disabled value="{{ token }}"/></p>
 <div class="alert alert-danger"><b>Warning:</b> you should be the only person that holds access to this code, as it authorizes users to submit solutions in your name.
      If you suspect that someone might know your token, get a new one now. Of course, you will need to reconfigure <code>submit.py</code>.</div>
 <button class="btn btn-outline-secondary" data-post-url="{{ clear_token_url }} ">Generate new token</button>

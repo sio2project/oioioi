@@ -16,7 +16,7 @@
         </small>
         {% endblocktrans %}
     </p>
-    <form method="post" class="form-inline nav-content">{% csrf_token %}
+    <form method="post" class="d-flex flex-row align-items-center flex-wrap nav-content">{% csrf_token %}
         {% include "ingredients/form.html" with inline=True %}
         <button type="submit" class="btn btn-primary a-btn-slide-text mb-2" name="befriend">
             <i class="fa-solid fa-plus" aria-hiddent="true"></i>

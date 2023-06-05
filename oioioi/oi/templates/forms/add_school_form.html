@@ -9,9 +9,9 @@
 <form id="add-school-form" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
-    <div class="form-group">
+    <div class="mb-3">
         <button id="add-school-button" type="submit" class="btn btn-primary"
-            data-loading-text="{% trans "Please, wait a while..." %}">
+            data-bs-loading-text="{% trans "Please, wait a while..." %}">
             {% trans "Add it" %}
         </button>
         <script type="text/javascript">
@@ -50,13 +50,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">{% trans "Confirm" %}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        
                     </button>
                 </div>
                 <div class="modal-body schools-similar-list"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{% trans "No, go back" %}</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "No, go back" %}</button>
                     <button type="submit" class="btn btn-primary">{% trans "Yes, I'm sure. Add that school." %}</button>
                 </div>
             </div>

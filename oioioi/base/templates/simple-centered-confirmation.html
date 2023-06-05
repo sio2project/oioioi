@@ -14,10 +14,10 @@
         {% csrf_token %}
         {% block buttons %}
             <input type="hidden" name="confirmation_sent" value="">
-            <button type="submit" class="btn btn-primary btn-block btn-lg" name="confirmation" value="">
+            <button type="submit" class="btn btn-primary w-100-lg" name="confirmation" value="">
                 {% block proceed_label %}{% trans "Confirm" %}{% endblock %}
             </button>
-            <button type="submit" class="btn btn-block">
+            <button type="submit" class="btn w-100
                 {% block cancel_label %}{% trans "Cancel" %}{% endblock %}
             </button>
         {% endblock %}

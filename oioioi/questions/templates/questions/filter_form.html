@@ -2,12 +2,12 @@
 
 {% for error in all_errors %}
     <div class="alert alert-danger" role="alert">
-        <span class="sr-only">{% trans "Error" %}:</span>
+        <span class="visually-hidden">{% trans "Error" %}:</span>
         {{ error | escape }}
     </div>
 {% endfor %}
 <div class="questions-filter breadcrumb pt-2 pb-0 mb-3">
-    <form enctype="multipart/form-data" class="form-inline form-wide">
+    <form enctype="multipart/form-data" class="d-flex flex-row align-items-center flex-wrap form-wide">
         {% include "ingredients/form.html" with focus=False inline=True %}
         <button type="button" class="btn btn-outline-secondary mb-2" onclick="location.href = location.origin + location.pathname"
                 {% if are_all_values_default %} disabled {% endif %}>

@@ -11,7 +11,7 @@
                     <th>#</th>
                     <th>{% trans "User" %}</th>
                     <th class="text-center">{% trans "Score" %}</th>
-                    <th class="text-right">{% trans "Time" %}</th>
+                    <th class="text-end">{% trans "Time" %}</th>
                     {% for pi, statement_visible in problem_instances %}
                         {% if statement_visible %}
                             {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
@@ -34,7 +34,7 @@
                         <td>{{ row.place }}</td>
                         <td>{% public_name row.user %}</td>
                         <td class="text-center"><strong>{{ row.sum.problems_solved }}</strong></td>
-                        <td class="text-right">{{ row.sum.total_time_repr }}</td>
+                        <td class="text-end">{{ row.sum.total_time_repr }}</td>
 
                         {% for result in row.results %}
                             <td class="text-center {% if result.problem_instance.round.is_trial %}trial-round{% endif %}">

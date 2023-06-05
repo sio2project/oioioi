@@ -13,7 +13,7 @@
 
 <div class="clearfix">
     {% if is_admin %}
-        <div class="float-right">
+        <div class="float-end">
             <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'user_info' message.author_id %}">
                 <i class="fa-solid fa-user"></i>
                 {% trans "Display user" %}
@@ -26,7 +26,7 @@
             {% endif %}
         </div>
     {% endif %}
-    <h1 class="message_topic float-left">
+    <h1 class="message_topic float-start">
         {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}:
         {{ message.topic }}
     </h1>
@@ -60,15 +60,15 @@
 {% if form %}
 <div class="oioioi-message--reply">
     <p class="oioioi-message__info oioioi-message__info--new">
-        <span class="oioioi-message__badge badge badge-secondary">{% trans "New reply" %}</span>
+        <span class="oioioi-message__badge badge bg-secondary">{% trans "New reply" %}</span>
     </p>
     <form enctype="multipart/form-data" id="reply_form" method="post">
         {% csrf_token %}
         {% include "ingredients/form.html" with focus=False %}
-        <div class="form-group">
+        <div class="mb-3">
             <div class="include-template btn-group">
                 <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                    data-toggle="dropdown" tabindex="-1" aria-expanded="false">
+                    data-bs-toggle="dropdown" tabindex="-1" aria-expanded="false">
                     <i class="fa-solid fa-pencil"></i>
                     {% trans "Include template" %} <span class="caret"></span>
                 </button>
@@ -87,10 +87,10 @@
             </button>
         </div>
         <div id="alerts"></div>
-        <div class="form-group">
+        <div class="mb-3">
             <input type="hidden" id="just_reload" name="just_reload" value="no">
             <input type="submit" id="submitter" class="btn btn-primary" value="{% trans "Submit" %}">
-            <div class="float-right checkbox">
+            <div class="float-end checkbox">
                 <label for="id_fake_save_template">
                     <input id="id_fake_save_template" name="fake_save_template" type="checkbox">
                     {% trans "Save as template" %}

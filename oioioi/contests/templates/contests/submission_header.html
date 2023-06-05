@@ -1,13 +1,13 @@
 {% load i18n %}
 {% block controls %}
 <div class="clearfix">
-    <div class="float-right">
+    <div class="float-end">
         {% if can_admin %}
             {% block controls_admin_buttons %}
             {% if submission.valid_kinds_for_submission %}
                 <div class="btn-group">
                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                            data-toggle="dropdown"
+                            data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa-solid fa-tags"></i>
                         {% trans "Change kind" %}
@@ -25,7 +25,7 @@
             {% endif %}
             <div class="btn-group">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                     <i class="fa-solid fa-rotate-right"></i>
                     {% trans "Rejudge" %}
@@ -67,7 +67,7 @@
         {% endif %}
         {% endblock %}
     </div>
-    <h1 class="float-left">{% trans "Submission" %} {{ submission.submission.id }}</h1>
+    <h1 class="float-start">{% trans "Submission" %} {{ submission.submission.id }}</h1>
 </div>
 {% endblock %}
 

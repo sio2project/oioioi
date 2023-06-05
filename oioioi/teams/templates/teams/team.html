@@ -27,8 +27,8 @@
     {% if show_invite %}
         <h2>{% trans "Invite members" %}</h2>
         <p>{% blocktrans %}There are still free places in your team. Invite your friends using the link:{% endblocktrans %}</p>
-        <div class="form-inline empty-space-filler-bottom">
-            <label for="join_link" class="mr-sm-2">{% trans "Join link" %}</label>
+        <div class="d-flex flex-row align-items-center flex-wrap empty-space-filler-bottom">
+            <label for="join_link" class="me-sm-2">{% trans "Join link" %}</label>
             <input type="text" id="join_link" class="form-control" disabled value="{{ join_link }}">
         </div>
         <div class="alert alert-info">

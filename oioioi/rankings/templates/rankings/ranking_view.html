@@ -6,7 +6,7 @@
 {% block main-content %}
 {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
 <div class="clearfix">
-    <div class="float-right">
+    <div class="float-end">
         {% if is_admin and key %}
             <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'ranking_csv' contest_id=contest.id key=key %}">
@@ -27,7 +27,7 @@
             </a>
         {% endif %}
     </div>
-    <h1 class="float-left">{% trans "Ranking" %}</h1>
+    <h1 class="float-start">{% trans "Ranking" %}</h1>
 </div>
 
 {% if choices|length > 1 %}
@@ -44,7 +44,7 @@
 
 {% if form %}
     {% if is_admin %}
-        <form class="form-inline nav-content">
+        <form class="d-flex flex-row align-items-center flex-wrap nav-content">
             {% include "ingredients/form.html" with inline=True %}
             <button class="btn btn-outline-secondary mb-2" type="submit">
                 {% trans "Find" %}

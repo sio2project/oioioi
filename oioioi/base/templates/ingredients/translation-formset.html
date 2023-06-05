@@ -5,10 +5,10 @@
     {{ formset.management_form }}
 
     {% if formset.non_form_errors %}
-        <div class="form-group">
+        <div class="mb-3">
             {% for error in formset.non_form_errors %}
                 <div class="alert alert-danger" role="alert">
-                    <span class="sr-only">{% trans "Error" %}:</span>
+                    <span class="visually-hidden">{% trans "Error" %}:</span>
                     {{ error }}
                 </div>
             {% endfor %}

@@ -28,10 +28,10 @@
     <form method="post">
         {% csrf_token %}
         {% include "ingredients/form.html" %}
-        <div class="form-group">
+        <div class="mb-3">
             <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
             {% if user.is_authenticated %}
-                <a role="button" href="/delete_account" class="btn btn-danger float-right">{% trans "Delete account" %}</a>
+                <a role="button" href="/delete_account" class="btn btn-danger float-end">{% trans "Delete account" %}</a>
             {% endif %}
         </div>
     </form>

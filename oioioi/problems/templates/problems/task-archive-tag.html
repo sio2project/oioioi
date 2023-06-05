@@ -20,7 +20,7 @@
         <div id="filters-panel" class="card-header">
             <div class="filters-heading">
                 <a class="collapse-toggle collapsed"
-                    data-toggle="collapse"
+                    data-bs-toggle="collapse"
                     href="#filters-collapse">
                     <span class="text-muted"><i class="fa-solid fa-chevron-down"></i></span>
                     {% trans "Filters" %}
@@ -28,7 +28,7 @@
             </div>
             <div id="filters-collapse" class="collapse">
                 <div class="btn-toolbar">
-                    <div class="btn-group mr-2">
+                    <div class="btn-group me-2">
                         <form id="task-archive-filters"
                               method=get>
                             <button type="submit" class="btn btn-primary">
@@ -55,11 +55,11 @@
                 <tr>
 
                     <td>
-                    <div class="btn-group btn-block">
+                    <div class="btn-group w-100">
                         <button type="button"
-                                class="btn btn-block btn-outline-secondary checkbox-menu-toggle collapsed"
+                                class="btn w-100 btn-outline-secondary checkbox-menu-toggle collapsed"
                                 style="z-index: {{ forloop.revcounter|add:"2" }}"
-                                data-target="#{{ category.name }}-filters">
+                                data-bs-target="#{{ category.name }}-filters">
                             {{ category.full_name }}
                             <span class="caret"></span>
                         </button>

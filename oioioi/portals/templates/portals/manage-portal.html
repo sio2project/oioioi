@@ -64,7 +64,7 @@
     <form method="post">
         {% csrf_token %}
         {% include 'ingredients/form.html' %}
-        <div class="form-group">
+        <div class="mb-3">
                 <button type="submit" class="btn btn-primary">
                     {% if user.is_superuser %}
                         {% trans "Save description and public option" %}
@@ -79,7 +79,7 @@
     <div id="tree" data-url="{% portal_url portal=portal action='portal_tree_json' %}">
     </div>
     <hr class="divider">
-    <div class="float-right">
+    <div class="float-end">
         <a role="button" href="{% portal_url portal=portal action='delete_portal' %}" class="btn btn-danger">
             {% trans "Delete portal" %}
         </a>

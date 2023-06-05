@@ -13,14 +13,14 @@
               method="post"
               id="user_info_dropdown_form">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="user-info">{% trans "Username" %}</label>
                 <input type="text" name="user" id="user-info" class="form-control"
                        placeholder='{% trans "Show info about..." %}'
                        data-hints-url="{% url 'contest_user_hints' contest_id=ctx.contest.id %}"
                        autocomplete="off">
             </div>
-            <button type="submit" class="btn btn-block btn-outline-secondary">{% trans "Show user info" %}</button>
+            <button type="submit" class="btn w-100 btn-outline-secondary">{% trans "Show user info" %}</button>
             <script>init_user_selection("user-info", {{ num_hints }})</script>
         </form>
     {% endif %}

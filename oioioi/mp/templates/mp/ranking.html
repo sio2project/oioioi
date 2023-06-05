@@ -1,20 +1,20 @@
 {% load i18n pagination_tags get_user_name static simple_filters %}
 
 {% if rows %}
-    <div class="float-left nav-content table-responsive-md">
+    <div class="float-start nav-content table-responsive-md">
         {% autopaginate rows participants_on_page %}
         {% paginate %}
         <table class="{% block table-classes %}table table-ranking table-striped table-sm submission{% endblock %}">
             <thead>
                 <tr>
-                    <th class="text-right">#</th>
+                    <th class="text-end">#</th>
                     <th>{% trans "User" %}</th>
-                    <th class="text-right">{% trans "Sum" %}</th>
+                    <th class="text-end">{% trans "Sum" %}</th>
                     {% for pi, statement_visible in problem_instances %}
                         {% if statement_visible %}
                             {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
                         {% endif %}
-                        <th class="text-right{% if pi.round.is_trial %} trial-round{% endif %}">
+                        <th class="text-end{% if pi.round.is_trial %} trial-round{% endif %}">
                             {% if statement_visible %}<a href="{{ link }}">{% endif %}
                                 {{ pi.get_short_name_display }}
                             {% if statement_visible %}</a>{% endif %}
@@ -25,11 +25,11 @@
             <tbody>
                 {% for row in rows %}
                     <tr id="ranking_row_{{ row.user.id }}" class="{% block row-classes %}{% endblock %}">
-                        <td class="text-right">{{ row.place }}</td>
+                        <td class="text-end">{{ row.place }}</td>
                         <td class="user-cell">{% public_name row.user %}</td>
-                        <td class="text-right">{{ row.sum }}</td>
+                        <td class="text-end">{{ row.sum }}</td>
                         {% for result in row.results %}
-                            <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round
+                            <td class="text-end{% if result.problem_instance.round.is_trial %} trial-round
                                                  {% else %} {{ result.score|result_color_class }}{% endif %}">
                                 <span data-username="{{ row.user.username }}"
                                       data-result_url="{{ result.url }}">

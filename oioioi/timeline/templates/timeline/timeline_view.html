@@ -4,19 +4,17 @@
 {% block styles %}
 {{ block.super }}
 {% compress css %}
-    <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.css" />
+    <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}tempus-dominus/tempus-dominus.min.css" />
     <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}timeline/timeline.scss" />
 {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
 {{ block.super }}
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/moment.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/pl.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}tempus-dominus/pl.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}jquery-ui/jquery-ui.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}tempus-dominus/tempus-dominus.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}timeline/timeline.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}moment/moment-timezone-with-data-2012-2022.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'), '{{ server_timezone }}');
@@ -52,14 +50,14 @@
 
 {% if registry %}
 <form id="timeline-form" method="post">
-    <div class="form-group clearfix">
-        <div class="float-right">
+    <div class="mb-3 clearfix">
+        <div class="float-end">
             <button type="button" class="btn btn-outline-secondary btn-hint">?</button>
             <button type="button" class="btn btn-outline-secondary btn-reset">{% trans "Reset" %}</button>
             <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
         </div>
     </div>
-    <div class="h-scrollable form-group oioioi-timeline__wrapper">
+    <div class="h-scrollable mb-3 oioioi-timeline__wrapper">
         <div class="oioioi-timeline">
             {% csrf_token %}
             {% for round, events in registry %}
@@ -69,7 +67,7 @@
                 {% endif %}
                 {% for record in events %}
                 <div id="datetimepickerbox_{{ round.0 }}_{{ forloop.counter }}" data-timeline-round-num="{{ round.0 }}" data-timeline-order="{{ record.order }}" data-timeline-type="{{ record.type }}" class="oioioi-timeline__datebox">
-                    <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-group date inline float-left">
+                    <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-group date inline float-start">
                         <input type="text" name="{{ record.date_id }}" class="oioioi-timeline__datetime-input form-control" value="{{ record.date|date:'Y-m-d H:i' }}" {{ attrs }} />
                         <div class="input-group-append">
                             <button class="btn btn-outline-secondary bg-light border datepickerbutton oioioi-timeline__calendar-icon" type="button"><i class="fa-solid fa-calendar"></i></button>
@@ -83,8 +81,8 @@
             {% endfor %}
         </div>
     </div>
-    <div class="form-group clearfix">
-        <div class="float-right">
+    <div class="mb-3 clearfix">
+        <div class="float-end">
             <button type="button" class="btn btn-outline-secondary btn-reset">{% trans "Reset" %}</button>
             <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
         </div>

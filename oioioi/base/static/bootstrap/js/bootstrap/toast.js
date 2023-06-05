@@ -1,41 +1,43 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v4.6.1): toast.js
+ * Bootstrap (v5.0.2): toast.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
 
-import $ from 'jquery'
-import Util from './util'
+import {
+  defineJQueryPlugin,
+  reflow,
+  typeCheckConfig
+} from './util/index'
+import EventHandler from './dom/event-handler'
+import Manipulator from './dom/manipulator'
+import BaseComponent from './base-component'
 
 /**
+ * ------------------------------------------------------------------------
  * Constants
+ * ------------------------------------------------------------------------
  */
 
 const NAME = 'toast'
-const VERSION = '4.6.1'
 const DATA_KEY = 'bs.toast'
 const EVENT_KEY = `.${DATA_KEY}`
-const JQUERY_NO_CONFLICT = $.fn[NAME]
-
-const CLASS_NAME_FADE = 'fade'
-const CLASS_NAME_HIDE = 'hide'
-const CLASS_NAME_SHOW = 'show'
-const CLASS_NAME_SHOWING = 'showing'
 
 const EVENT_CLICK_DISMISS = `click.dismiss${EVENT_KEY}`
+const EVENT_MOUSEOVER = `mouseover${EVENT_KEY}`
+const EVENT_MOUSEOUT = `mouseout${EVENT_KEY}`
+const EVENT_FOCUSIN = `focusin${EVENT_KEY}`
+const EVENT_FOCUSOUT = `focusout${EVENT_KEY}`
 const EVENT_HIDE = `hide${EVENT_KEY}`
 const EVENT_HIDDEN = `hidden${EVENT_KEY}`
 const EVENT_SHOW = `show${EVENT_KEY}`
 const EVENT_SHOWN = `shown${EVENT_KEY}`
 
-const SELECTOR_DATA_DISMISS = '[data-dismiss="toast"]'
-
-const Default = {
-  animation: true,
-  autohide: true,
-  delay: 500
-}
+const CLASS_NAME_FADE = 'fade'
+const CLASS_NAME_HIDE = 'hide'
+const CLASS_NAME_SHOW = 'show'
+const CLASS_NAME_SHOWING = 'showing'
 
 const DefaultType = {
   animation: 'boolean',
@@ -43,22 +45,32 @@ const DefaultType = {
   delay: 'number'
 }
 
+const Default = {
+  animation: true,
+  autohide: true,
+  delay: 5000
+}
+
+const SELECTOR_DATA_DISMISS = '[data-bs-dismiss="toast"]'
+
 /**
- * Class definition
+ * ------------------------------------------------------------------------
+ * Class Definition
+ * ------------------------------------------------------------------------
  */
 
-class Toast {
+class Toast extends BaseComponent {
   constructor(element, config) {
-    this._element = element
+    super(element)
+
     this._config = this._getConfig(config)
     this._timeout = null
+    this._hasMouseInteraction = false
+    this._hasKeyboardInteraction = false
     this._setListeners()
   }
 
   // Getters
-  static get VERSION() {
-    return VERSION
-  }
 
   static get DefaultType() {
     return DefaultType
@@ -68,12 +80,16 @@ class Toast {
     return Default
   }
 
-  // Public
-  show() {
-    const showEvent = $.Event(EVENT_SHOW)
+  static get NAME() {
+    return NAME
+  }
 
-    $(this._element).trigger(showEvent)
-    if (showEvent.isDefaultPrevented()) {
+  // Public
+
+  show() {
+    const showEvent = EventHandler.trigger(this._element, EVENT_SHOW)
+
+    if (showEvent.defaultPrevented) {
       return
     }
 
@@ -87,27 +103,16 @@ class Toast {
       this._element.classList.remove(CLASS_NAME_SHOWING)
       this._element.classList.add(CLASS_NAME_SHOW)
 
-      $(this._element).trigger(EVENT_SHOWN)
+      EventHandler.trigger(this._element, EVENT_SHOWN)
 
-      if (this._config.autohide) {
-        this._timeout = setTimeout(() => {
-          this.hide()
-        }, this._config.delay)
-      }
+      this._maybeScheduleHide()
     }
 
     this._element.classList.remove(CLASS_NAME_HIDE)
-    Util.reflow(this._element)
+    reflow(this._element)
     this._element.classList.add(CLASS_NAME_SHOWING)
-    if (this._config.animation) {
-      const transitionDuration = Util.getTransitionDurationFromElement(this._element)
 
-      $(this._element)
-        .one(Util.TRANSITION_END, complete)
-        .emulateTransitionEnd(transitionDuration)
-    } else {
-      complete()
-    }
+    this._queueCallback(complete, this._element, this._config.animation)
   }
 
   hide() {
@@ -115,14 +120,19 @@ class Toast {
       return
     }
 
-    const hideEvent = $.Event(EVENT_HIDE)
+    const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE)
 
-    $(this._element).trigger(hideEvent)
-    if (hideEvent.isDefaultPrevented()) {
+    if (hideEvent.defaultPrevented) {
       return
     }
 
-    this._close()
+    const complete = () => {
+      this._element.classList.add(CLASS_NAME_HIDE)
+      EventHandler.trigger(this._element, EVENT_HIDDEN)
+    }
+
+    this._element.classList.remove(CLASS_NAME_SHOW)
+    this._queueCallback(complete, this._element, this._config.animation)
   }
 
   dispose() {
@@ -132,50 +142,70 @@ class Toast {
       this._element.classList.remove(CLASS_NAME_SHOW)
     }
 
-    $(this._element).off(EVENT_CLICK_DISMISS)
-
-    $.removeData(this._element, DATA_KEY)
-    this._element = null
-    this._config = null
+    super.dispose()
   }
 
   // Private
+
   _getConfig(config) {
     config = {
       ...Default,
-      ...$(this._element).data(),
+      ...Manipulator.getDataAttributes(this._element),
       ...(typeof config === 'object' && config ? config : {})
     }
 
-    Util.typeCheckConfig(
-      NAME,
-      config,
-      this.constructor.DefaultType
-    )
+    typeCheckConfig(NAME, config, this.constructor.DefaultType)
 
     return config
   }
 
-  _setListeners() {
-    $(this._element).on(EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, () => this.hide())
+  _maybeScheduleHide() {
+    if (!this._config.autohide) {
+      return
+    }
+
+    if (this._hasMouseInteraction || this._hasKeyboardInteraction) {
+      return
+    }
+
+    this._timeout = setTimeout(() => {
+      this.hide()
+    }, this._config.delay)
   }
 
-  _close() {
-    const complete = () => {
-      this._element.classList.add(CLASS_NAME_HIDE)
-      $(this._element).trigger(EVENT_HIDDEN)
+  _onInteraction(event, isInteracting) {
+    switch (event.type) {
+      case 'mouseover':
+      case 'mouseout':
+        this._hasMouseInteraction = isInteracting
+        break
+      case 'focusin':
+      case 'focusout':
+        this._hasKeyboardInteraction = isInteracting
+        break
+      default:
+        break
     }
 
-    this._element.classList.remove(CLASS_NAME_SHOW)
-    if (this._config.animation) {
-      const transitionDuration = Util.getTransitionDurationFromElement(this._element)
-
-      $(this._element)
-        .one(Util.TRANSITION_END, complete)
-        .emulateTransitionEnd(transitionDuration)
-    } else {
-      complete()
+    if (isInteracting) {
+      this._clearTimeout()
+      return
     }
+
+    const nextElement = event.relatedTarget
+    if (this._element === nextElement || this._element.contains(nextElement)) {
+      return
+    }
+
+    this._maybeScheduleHide()
+  }
+
+  _setListeners() {
+    EventHandler.on(this._element, EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, () => this.hide())
+    EventHandler.on(this._element, EVENT_MOUSEOVER, event => this._onInteraction(event, true))
+    EventHandler.on(this._element, EVENT_MOUSEOUT, event => this._onInteraction(event, false))
+    EventHandler.on(this._element, EVENT_FOCUSIN, event => this._onInteraction(event, true))
+    EventHandler.on(this._element, EVENT_FOCUSOUT, event => this._onInteraction(event, false))
   }
 
   _clearTimeout() {
@@ -184,16 +214,10 @@ class Toast {
   }
 
   // Static
-  static _jQueryInterface(config) {
-    return this.each(function () {
-      const $element = $(this)
-      let data = $element.data(DATA_KEY)
-      const _config = typeof config === 'object' && config
 
-      if (!data) {
-        data = new Toast(this, _config)
-        $element.data(DATA_KEY, data)
-      }
+  static jQueryInterface(config) {
+    return this.each(function () {
+      const data = Toast.getOrCreateInstance(this, config)
 
       if (typeof config === 'string') {
         if (typeof data[config] === 'undefined') {
@@ -207,14 +231,12 @@ class Toast {
 }
 
 /**
+ * ------------------------------------------------------------------------
  * jQuery
+ * ------------------------------------------------------------------------
+ * add .Toast to jQuery only if jQuery is present
  */
 
-$.fn[NAME] = Toast._jQueryInterface
-$.fn[NAME].Constructor = Toast
-$.fn[NAME].noConflict = () => {
-  $.fn[NAME] = JQUERY_NO_CONFLICT
-  return Toast._jQueryInterface
-}
+defineJQueryPlugin(Toast)
 
 export default Toast

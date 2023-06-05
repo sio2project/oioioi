@@ -13,7 +13,7 @@
 
     <h6>
         {% trans "Group" %}
-        <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-toggle="tooltip" title="{% trans "Edit" %}">
+        <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-bs-toggle="tooltip" title="{% trans "Edit" %}">
             <i class="fa-solid fa-pen-to-square"></i>
         </a>
     </h6>
@@ -51,11 +51,11 @@
                 <td>
                     {% if similar_to.kind != 'IGNORED_HIDDEN' %}
                         {% if entry.guilty %}
-                        <a href="#" data-post-url="{{ not_guilty_link }}" data-toggle="tooltip" title="{% trans "Mark not guilty" %}">
+                        <a href="#" data-post-url="{{ not_guilty_link }}" data-bs-toggle="tooltip" title="{% trans "Mark not guilty" %}">
                             <i class="fa-solid fa-thumbs-up"></i>
                         </a>
                         {% else %}
-                        <a href="#" data-post-url="{{ guilty_link }}" data-toggle="tooltip" title="{% trans "Mark guilty" %}">
+                        <a href="#" data-post-url="{{ guilty_link }}" data-bs-toggle="tooltip" title="{% trans "Mark guilty" %}">
                             <i class="fa-solid fa-thumbs-down"></i>
                             </a>
                         {% endif %}
@@ -63,19 +63,19 @@
                     {% with submission_contexts|lookup:similar_to as submission_context %}
                         {% for value, description in submission_context.valid_kinds_for_submission %}
                             <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=similar_to.id kind=value %}"
-                                data-toggle="tooltip" title="{% blocktrans %}Change kind: {{ description }} (and mark not guilty){% endblocktrans %}">
+                                data-bs-toggle="tooltip" title="{% blocktrans %}Change kind: {{ description }} (and mark not guilty){% endblocktrans %}">
                                 <i class="fa-solid fa-tag"></i>
                             </a>
                         {% endfor %}
                     {% endwith %}
 
-                    <a href="{{ diff_link }}" data-toggle="tooltip" title="{% trans "Show diff" %}">
+                    <a href="{{ diff_link }}" data-bs-toggle="tooltip" title="{% trans "Show diff" %}">
                         <i class="fa-solid fa-down-left-and-up-right-to-center"></i>
                     </a>
-                    <a href="{{ source_link }}" data-toggle="tooltip" title="{% trans "Show code" %}">
+                    <a href="{{ source_link }}" data-bs-toggle="tooltip" title="{% trans "Show code" %}">
                         <i class="fa-solid fa-eye"></i>
                     </a>
-                    <a href="{{ download_link }}" data-toggle="tooltip" title="{% trans "Download" %}">
+                    <a href="{{ download_link }}" data-bs-toggle="tooltip" title="{% trans "Download" %}">
                         <i class="fa-solid fa-download"></i>
                     </a>
                 </td>

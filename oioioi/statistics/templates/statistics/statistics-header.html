@@ -1,8 +1,8 @@
 {% load i18n %}
 
 <div class="clearfix">
-    <div class="dropdown float-right">
-        <button class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown"
+    <div class="dropdown float-end">
+        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"
             aria-haspopup="true" aria-expanded="true">
             Other <span class="caret"></span>
         </button>
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <h1 class="float-left">
+    <h1 class="float-start">
         {% if title %} {{ title }} {% else %} {% trans "Statistics" %} {% endif %}
     </h1>
 </div>

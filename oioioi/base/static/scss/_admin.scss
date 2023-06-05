@@ -32,7 +32,7 @@
   }
 
   input[type=file] {
-    @extend .form-control-file;
+    @extend .form-control;
   }
 
   .datetime, .datetime span {
@@ -80,7 +80,7 @@
   }
 }
 
-@include media-breakpoint-down(xs) {
+@include media-breakpoint-down(sm) {
   #changelist-search, #changelist-actions {
     width: 100%;
   }

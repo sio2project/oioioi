@@ -126,9 +126,9 @@
                 <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-async-collapsible.js"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}js/menu.js"></script>
                 <script type="text/javascript">
-                    $(function () {
-                        $("[data-toggle='tooltip']").tooltip();
-                    });
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const tooltipList = [...document.querySelectorAll('[data-bs-toggle="tooltip"]')].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+                    })
                 </script>
                 <script>hljs.initHighlightingOnLoad();</script>
                 <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard.min.js"></script>
