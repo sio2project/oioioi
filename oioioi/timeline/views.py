@@ -69,9 +69,9 @@ def timeline_view(request):
             if date:
                 try:
                     current_tz = timezone.get_current_timezone()
-                    parsed_date = current_tz.localize(
-                        datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
-                    )
+                    dt = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+                    parsed_date = dt.replace(tzinfo=current_tz)
+                    # parsed_date = current_tz.localize(dt)
                 except ValueError:
                     error_list.append(
                         (

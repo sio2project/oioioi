@@ -39,7 +39,7 @@ requirements = [
     "django-extensions>=3.0,<=3.2",  # Django 2.2
     "djangorestframework>=3.14,<3.15",
     "werkzeug<1.1",
-    'pytest==4.6.11',
+    'pytest==6.2.5',  # previous version 4.6.11
     'pytest-metadata==1.11.0',
     'pytest-django<4.1',
     'pytest-html==1.22.1',

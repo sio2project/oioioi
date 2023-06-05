@@ -14,6 +14,9 @@ django.dispatch.dispatcher.Signal = ModSignal
 django.dispatch.Signal = ModSignal
 django.utils.encoding.smart_text = django.utils.encoding.smart_str
 django.utils.encoding.force_text = django.utils.encoding.force_str
+
+# https://docs.djangoproject.com/en/4.2/releases/4.0/#zoneinfo-default-timezone-implementation
+
 SAMPLE_VALUE = "abc"
 
 
