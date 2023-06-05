@@ -36,7 +36,8 @@ let
     STATIC_ROOT = "/var/lib/sio2/static";
     FILETRACKER_CACHE_ROOT = "/var/cache/sio2-filetracker-cache";
 
-    NOTIFICATIONS_SERVER_ENABLED = false;
+    NOTIFICATIONS_SERVER_ENABLED = true;
+    NOTIFICATIONS_SERVER_URL = "http${sIfSSL}://${cfg.domain}/";
 
     INSTALLED_APPS = pythonExpression ''${toPythonValue { } [
       "oioioi.participants"
@@ -131,9 +132,9 @@ in
       defaultText = lib.literalExpression "config.networking.fqdn";
       type = lib.types.str;
       description = lib.mkDoc ''
-        Domain name of the oioioi instance.
+        Domain name of the oioioi instance. This should be set to a domain that resolves to this computer!
 
-        Used for the default value of PUBLIC_ROOT_URL in settings and for nginx vhost configuration.
+        Used for the default value of PUBLIC_ROOT_URL in settings, for nginx vhost configuration and notifications server URL.
       '';
     };
 
@@ -156,7 +157,9 @@ in
     };
 
     rabbitmqUrl = lib.mkOption {
-      default = "amqp://oioioi:oioioi@localhost:${builtins.toString config.services.rabbitmq.port}//";
+      # Using 127.0.0.1 instead of localhost here, as that resolves
+      # to ::1, which apparently doesn't work properly.
+      default = "amqp://oioioi:oioioi@127.0.0.1:${builtins.toString config.services.rabbitmq.port}//";
       description = "The RabbitMQ URL in amqp format SIO2 processes should connect to";
       type = lib.types.str;
     };
@@ -307,6 +310,7 @@ in
             'wsgi.errors': errors,
         }, noop)
       '';
+      notificationsServer = pkgs.callPackage ./notifications-server { };
     in
     lib.mkIf cfg.enable {
       users.extraUsers.sio2 = {
@@ -560,6 +564,8 @@ in
             restartTriggers = [ script ];
             reloadIfChanged = true;
 
+            wants = [ "notifications-server.service" ];
+
             # These units all have to be in the same namespace due to celery requiring a shared /tmp.
             unitConfig.JoinsNamespaceOf = [ "evalmgr.service" "unpackmgr.service" "receive_from_workers.service" ];
 
@@ -590,6 +596,16 @@ in
 
               RuntimeDirectory = "sio2";
               StateDirectory = "sio2";
+            };
+          };
+
+          notifications-server = mkSioProcess {
+            name = "notifications-server";
+
+            serviceConfig = {
+              ExecStart = ''
+                ${notificationsServer}/bin/notifications-server --port 7887 --amqp ${lib.escapeShellArg cfg.rabbitmqUrl} --url ${finalSimpleSettings.NOTIFICATIONS_SERVER_URL}
+              '';
             };
           };
 

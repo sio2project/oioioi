@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if ! hash node2nix 2>/dev/null; then
+	echo "node2nix not found, downloading"
+	exec nix shell github:svanderburg/node2nix -c "$0" "$@"
+fi
+
+cd "$(dirname "$0")" || exit 1
+
+node2nix -c /dev/null --input ../../oioioi/notifications/server/package.json
