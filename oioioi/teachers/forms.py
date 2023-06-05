@@ -1,9 +1,12 @@
 from django import forms
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.forms import SimpleContestForm
 from oioioi.teachers.models import Teacher
+from oioioi.base.utils.user_selection import UserSelectionField
+
 
 
 class TeacherContestForm(SimpleContestForm):
@@ -14,7 +17,13 @@ class TeacherContestForm(SimpleContestForm):
 class AddTeacherForm(forms.ModelForm):
     class Meta(object):
         model = Teacher
-        fields = ['school']
+        fields = ['user', 'school']
+
+    user = UserSelectionField(label=_("Username"))
+
+    def __init__(self, *args, **kwargs):
+        super(AddTeacherForm, self).__init__(*args, **kwargs)
+        self.fields['user'].hints_url = reverse('user_search')
 
     school = forms.CharField(
         label=_("School"),

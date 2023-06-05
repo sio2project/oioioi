@@ -1,3 +1,4 @@
+import logging
 import urllib.parse
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -13,6 +14,7 @@ from oioioi.base.utils import get_user_display_name, request_cached
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import ContestController, RegistrationController
+from oioioi.contests.models import RegistrationAvailabilityConfig
 from oioioi.contests.utils import can_see_personal_data, is_contest_admin
 from oioioi.participants.models import (
     OnsiteRegistration,
@@ -21,6 +23,7 @@ from oioioi.participants.models import (
     TermsAcceptedPhrase,
 )
 
+auditLogger = logging.getLogger(__name__ + ".audit")
 
 class ParticipantsController(RegistrationController):
     registration_template = 'participants/registration.html'
@@ -193,6 +196,14 @@ class ParticipantsController(RegistrationController):
         Then and only then we allow to change terms accepted phrase.
         """
         return True
+
+    def is_registration_open(self, request):
+        try:
+            rvc = RegistrationAvailabilityConfig.objects.get(contest=request.contest)
+            return rvc.is_registration_open(request.timestamp)
+        except RegistrationAvailabilityConfig.DoesNotExist:
+            auditLogger.warning("RegistrationAvailabilityConfig does not exist for contest %s", request.contest)
+            return True
 
 
 class OpenParticipantsController(ParticipantsController):

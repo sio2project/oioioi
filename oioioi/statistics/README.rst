@@ -1,1 +1,1 @@
-A module providing contest statistics for admins and participants.
+Contest statistics for admins and participants.

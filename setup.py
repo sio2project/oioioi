@@ -72,6 +72,8 @@ requirements = [
     "pdfminer.six==20191110",
     # https://stackoverflow.com/questions/73929564/entrypoints-object-has-no-attribute-get-digital-ocean
     "importlib-metadata<5.0",
+    "supervisor<4.3",  # previously http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
+    "django-supervisor@git+https://github.com/sio2project/django-supervisor#egg=django-supervisor",  # previously http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
 ]
 
 setup(

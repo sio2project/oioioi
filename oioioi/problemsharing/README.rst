@@ -2,11 +2,8 @@
 Problem Sharing
 ===============
 
-Description
-===========
-
-Problem sharing module allows to share problems.
-Currently only way of sharing is through a one-sided friendship.
+Allows teachers to share problems.
+Currently the only way to share is through a one-sided friendship.
 
 Activating this module adds:
 

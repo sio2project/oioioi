@@ -6,7 +6,7 @@ from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.base.utils.inputs import narrow_input_field
-from oioioi.contests.models import ProblemStatementConfig, RankingVisibilityConfig
+from oioioi.contests.models import ProblemStatementConfig, RankingVisibilityConfig, RegistrationAvailabilityConfig
 from oioioi.problems.models import OriginInfoValue, Problem, ProblemSite
 
 
@@ -86,6 +86,13 @@ class RankingVisibilityConfigForm(forms.ModelForm):
     class Meta(object):
         fields = '__all__'
         model = RankingVisibilityConfig
+        widgets = {'visible': forms.RadioSelect()}
+
+
+class RegistrationAvailabilityConfigForm(forms.ModelForm):
+    class Meta(object):
+        fields = '__all__'
+        model = RegistrationAvailabilityConfig
         widgets = {'visible': forms.RadioSelect()}
 
 

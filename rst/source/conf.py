@@ -29,10 +29,37 @@ django.setup()
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-    'sphinx.ext.autodoc',
+    'sphinx.ext.autodoc',  # Also required by AutoAPI.
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'autoapi.extension'
 ]
+
+# Setup AutoAPI
+# https://sphinx-autoapi.readthedocs.io/en/latest/
+autoapi_dirs = ['../../oioioi/']
+
+# Keeping files will allow AutoAPI to use incremental builds. However, this means that when a module is deleted and then
+# docs are built locally, the corresponding files in autoapi/ (or the entire autoapi/ directory) need to be deleted.
+#
+# The public docs are built from scratch every time, so it's not a problem there.
+# autoapi_keep_files = True
+
+# Exclude migrations and tests.
+# Based on https://sphinx-autoapi.readthedocs.io/en/latest/how_to.html#connect-to-the-autoapi-skip-member-event.
+def should_skip_submodule(app, what, name, obj, skip, options):
+    submodule = name.split(".")[-1]
+    if submodule in ["migrations", "tests"]:
+        skip = True
+    return skip
+
+def setup(sphinx):
+    # temporary fix
+    # import gendoc  # This will generate the list of modules.
+
+    # Note: doing the same with autodoc-skip-member will make builds fail.
+    sphinx.connect("autoapi-skip-member", should_skip_submodule)
+
 
 autodoc_member_order = 'bysource'
 

@@ -4,10 +4,17 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.contests.utils import is_contest_admin
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.utils import filter_model_submissions, is_model_submission
+from oioioi.teachers.controllers import TeacherRegistrationController
 
 
 class UserContestController(ProgrammingContestController):
     description = _("Contest for everyone")
+
+    def registration_controller(self):
+        if settings.HIDE_USERCONTESTS:
+            return TeacherRegistrationController(self.contest)
+        else:
+            return super().registration_controller()
 
     def can_see_test(self, request, test):
         # Further restrict access to possibly copyrighted stuff

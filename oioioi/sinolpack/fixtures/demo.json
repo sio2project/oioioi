@@ -147,23 +147,13 @@
     "model": "programs.modelsolution",
     "fields": {
       "problem": 1,
-      "source_file": "data:problems/1/sum1_6.pas:dmFyDQogIGEsIGI6IGludGVnZXI7DQoNCmJlZ2luDQogIGEgOj0gcmVhZDsNCiAgYiA6PSByZWFkOw0KICB3cml0ZWxuKGErYisxKTsNCmVuZC4NCg==",
-      "name": "sum1.pas",
-      "kind": "NORMAL"
-    }
-  },
-  {
-    "pk": 3,
-    "model": "programs.modelsolution",
-    "fields": {
-      "problem": 1,
       "source_file": "data:problems/1/sumb0_6.c:I2luY2x1ZGUgPHN0ZGlvLmg+CgppbnQgbWFpbihpbnQgYXJnYywgY2hhcioqIGFyZ3YpIHsKICAgIHByaW50ZigiM1xuIik7CiAgICByZXR1cm4gMDsKfQo=",
       "name": "sumb0.c",
       "kind": "INCORRECT"
     }
   },
   {
-    "pk": 4,
+    "pk": 3,
     "model": "programs.modelsolution",
     "fields": {
       "problem": 1,
