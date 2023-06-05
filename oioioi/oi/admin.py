@@ -29,14 +29,14 @@ class SchoolAdmin(admin.ModelAdmin):
     )
     list_filter = ('province', 'city', 'is_approved', 'is_active')
     search_fields = ('name', 'address', 'postal_code')
-    actions = [
+    actions = (
         'make_active',
         'make_inactive',
         'approve',
         'disapprove',
         'merge_action',
         'delete_selected',
-    ]
+    )
 
     def participants_link(self, instance):
         return make_html_link(instance.get_participants_url(), _("Participants"))
@@ -146,9 +146,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
         'school_city',
         'school_province',
     ]
-    inlines = ParticipantAdmin.inlines + [
-        OIRegistrationInline,
-    ]
+    inlines = tuple(ParticipantAdmin.inlines) + (OIRegistrationInline,)
     readonly_fields = ['user']
     search_fields = ParticipantAdmin.search_fields + [
         'oi_oiregistration__school__name',

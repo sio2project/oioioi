@@ -20,7 +20,7 @@ class MPRegistrationInline(admin.StackedInline):
 
 class MPRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display
-    inlines = ParticipantAdmin.inlines + [MPRegistrationInline]
+    inlines = tuple(ParticipantAdmin.inlines) + (MPRegistrationInline,)
     readonly_fields = ['user']
 
     def has_add_permission(self, request):

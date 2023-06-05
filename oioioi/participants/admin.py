@@ -42,7 +42,7 @@ class ParticipantAdmin(admin.ModelAdmin):
         ('user', 'status'),
     ]
     search_fields = ['user__username', 'user__last_name']
-    actions = ['make_active', 'make_banned', 'delete_selected', 'extend_round']
+    actions = ('make_active', 'make_banned', 'delete_selected', 'extend_round')
     form = ParticipantForm
 
     def has_add_permission(self, request):
@@ -328,7 +328,7 @@ class RegionFilter(RelatedFieldListFilter):
 
 class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display + ['number', 'region', 'local_number']
-    inlines = ParticipantAdmin.inlines + [OnsiteRegistrationInline]
+    inlines = tuple(ParticipantAdmin.inlines) + (OnsiteRegistrationInline,)
     list_filter = ParticipantAdmin.list_filter + [
         ('participants_onsiteregistration__region', RegionFilter)
     ]
