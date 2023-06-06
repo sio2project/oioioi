@@ -33,7 +33,8 @@ def navbar_links(request):
     current_time = timezone.now()
 
     if hasattr(request, 'contest'):
-        running_rounds = Round.objects.filter(contest=request.contest, start_date__lte=current_time, end_date__gt=current_time)
+        running_rounds = Round.objects.filter(contest=request.contest, start_date__lte=current_time,
+                                              end_date__gt=current_time)
 
         if running_rounds.exists():
             empty_navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
