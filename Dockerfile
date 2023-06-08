@@ -88,20 +88,21 @@ RUN sed -i -e \
         s/#SIOWORKERS_LISTEN_ADDR/SIOWORKERS_LISTEN_ADDR/g;\
         s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
         s/RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
-        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
-        \$afrom basic_settings import *\n" \
+        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g" \
         settings.py && \
+    echo "SANDBOXES_MANIFEST = 'https://otsrv.net/sandboxes/Manifest'" >> settings.py && \
+    echo "from basic_settings import *" >> settings.py && \
     cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
     mkdir -p /sio2/deployment/{sockets,logs/{supervisor,runserver}} && \
     sudo ln -fs /sio2/deployment/nginx-site.conf /etc/nginx/sites-available/default
+
+ENV SIOWORKERS_SANDBOXES_URL https://otsrv.net/sandboxes/
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi \
         --nolaunch=rankingsd --nolaunch=mailnotifyd --nolaunch=evalmgr \
         --nolaunch=unpackmgr --nolaunch=sioworkersd \
         --nolaunch=receive_from_workers --nolaunch=notifications-server && \
-    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes compiler-fpc.2_6_2 \
-        compiler-gcc.10_2_1 exec-sandbox vcpu_exec-sandbox proot-sandbox \
-        proot-sandbox_amd64 null-sandbox sio2jail_exec-sandbox-1.4.2 && \
+    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes && \
     ./manage.py supervisor stop all && \
     rm -rf /sio2/deployment/cache

@@ -30,6 +30,11 @@ services:
       - filetracker:/sio2/deployment/media
 #      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
+    security_opt:
+      - seccomp:./extra/docker/seccomp.json
+      - apparmor:unconfined
+    cap_add:
+      - ALL
     depends_on:
       - db
       - broker
