@@ -1,10 +1,9 @@
 import os
 import zipfile
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.base.utils import strip_num_or_hash
@@ -47,7 +46,7 @@ class TestTestsPackages(TestCase):
             problem=problem,
             name='some name',
             description='some desc',
-            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=timezone.utc),
         )
 
         with self.assertRaises(ValidationError):
@@ -57,7 +56,7 @@ class TestTestsPackages(TestCase):
             problem=problem,
             name='some_name',
             description='some desc',
-            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=timezone.utc),
         )
         tp.full_clean()
         tp.save()
@@ -73,7 +72,7 @@ class TestTestsPackages(TestCase):
             problem=problem,
             name='some_name',
             description='some desc',
-            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=timezone.utc),
         )
         tp.save()
         tp.tests.add(test1, test3)
@@ -93,7 +92,7 @@ class TestTestsPackages(TestCase):
             problem=problem,
             name='some_name',
             description='some desc',
-            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=utc),
+            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=timezone.utc),
         )
         tp.full_clean()
         tp.save()
@@ -103,7 +102,7 @@ class TestTestsPackages(TestCase):
             problem=problem,
             name='some_name2',
             description='some desc2',
-            publish_date=datetime(2012, 8, 5, 1, 11, tzinfo=utc),
+            publish_date=datetime(2012, 8, 5, 1, 11, tzinfo=timezone.utc),
         )
         tp2.full_clean()
         tp2.save()
@@ -112,18 +111,18 @@ class TestTestsPackages(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('contest_files', kwargs={'contest_id': contest.id})
 
-        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertNotContains(response, 'some_name.zip')
             self.assertNotContains(response, 'some_name2.zip')
 
-        with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'some_name.zip')
             self.assertNotContains(response, 'some_name2.zip')
             self.assertEqual(200, response.status_code)
 
-        with fake_time(datetime(2012, 8, 5, 1, 12, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 1, 12, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'some_name.zip')
             self.assertContains(response, 'some_name2.zip')
@@ -131,10 +130,10 @@ class TestTestsPackages(TestCase):
 
         url = reverse('test', kwargs={'contest_id': contest.id, 'package_id': 1})
 
-        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(403, response.status_code)
 
-        with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(200, response.status_code)

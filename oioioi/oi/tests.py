@@ -1,13 +1,12 @@
 # ~*~ coding: utf-8 ~*~
 import os
 import re
-from datetime import datetime, timedelta  # pylint: disable=E0611
+from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.current_contest import ContestMode
@@ -439,15 +438,15 @@ class TestOISubmit(TestCase, SubmitFileMixin):
         round = Round.objects.get(pk=1)
         problem_instance = ProblemInstance.objects.get(pk=1)
         self.assertTrue(problem_instance.round == round)
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 5, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 5, tzinfo=timezone.utc)
         round.save()
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        with fake_time(datetime(2012, 8, 4, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 4, 0, 5, tzinfo=timezone.utc)):
             self.client.logout()
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
@@ -490,15 +489,15 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
         round = Round.objects.get(pk=1)
         problem_instance = ProblemInstance.objects.get(pk=1)
         self.assertTrue(problem_instance.round == round)
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 5, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 5, tzinfo=timezone.utc)
         round.save()
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        with fake_time(datetime(2012, 8, 4, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 4, 0, 5, tzinfo=timezone.utc)):
             self.client.logout()
             response = self.submit_file(contest, problem_instance)
             self._assertNotSubmitted(contest, response)

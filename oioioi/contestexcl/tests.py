@@ -1,10 +1,9 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.core import mail
 from django.test import Client
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contestexcl.models import ExclusivenessConfig
@@ -80,8 +79,8 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
     def test_exclusiveness_on(self):
         add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
         )
 
         self._check_user_access()
@@ -91,8 +90,8 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
     def test_exclusiveness_off(self):
         add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
             False,
         )
 
@@ -103,14 +102,14 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
     def test_exclusiveness_multiple_on(self):
         add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
         )
 
         add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 12, tzinfo=utc),
-            datetime(2012, 1, 1, 16, tzinfo=utc),
+            datetime(2012, 1, 1, 12, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 16, tzinfo=timezone.utc),
         )
         self._check_user_access()
         self._check_contestadmin_access(visible=True)
@@ -119,15 +118,15 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
     def test_exclusiveness_multiple_off(self):
         add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
             False,
         )
 
         add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 12, tzinfo=utc),
-            datetime(2012, 1, 1, 16, tzinfo=utc),
+            datetime(2012, 1, 1, 12, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 16, tzinfo=timezone.utc),
             False,
         )
         self._check_user_access()
@@ -137,14 +136,14 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
     def test_exclusiveness_multiple_mixed_on_off(self):
         ex_conf_1 = add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
         )
 
         ex_conf_2 = add_ex_conf(
             self.c,
-            datetime(2012, 1, 1, 12, tzinfo=utc),
-            datetime(2012, 1, 1, 16, tzinfo=utc),
+            datetime(2012, 1, 1, 12, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 16, tzinfo=timezone.utc),
             False,
         )
         self._check_user_access()
@@ -387,76 +386,76 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
 
         add_ex_conf(
             self.c2,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
         )
 
-        with fake_time(datetime(2012, 1, 1, 9, 59, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 9, 59, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 11, tzinfo=timezone.utc)):
             self._assertContestRedirects('c1', '/c/c2/')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 14, 1, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 14, 1, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
     def test_exclusive_contest_multiple_configs(self):
         add_ex_conf(
             self.c2,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 12, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 12, tzinfo=timezone.utc),
         )
 
         add_ex_conf(
             self.c2,
-            datetime(2012, 1, 1, 14, tzinfo=utc),
-            datetime(2012, 1, 1, 16, tzinfo=utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 16, tzinfo=timezone.utc),
         )
 
-        with fake_time(datetime(2012, 1, 1, 9, 59, 59, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 9, 59, 59, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 10, tzinfo=timezone.utc)):
             self._assertContestRedirects('c1', '/c/c2/')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 11, 59, 59, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 11, 59, 59, tzinfo=timezone.utc)):
             self._assertContestRedirects('c1', '/c/c2/')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 12, 0, 1, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 12, 0, 1, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 13, 59, 59, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 13, 59, 59, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 14, 0, 1, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 14, 0, 1, tzinfo=timezone.utc)):
             self._assertContestRedirects('c1', '/c/c2/')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 15, 59, 59, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 15, 59, 59, tzinfo=timezone.utc)):
             self._assertContestRedirects('c1', '/c/c2/')
             self._assertContestVisible('c2')
 
-        with fake_time(datetime(2012, 1, 1, 16, 0, 1, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 16, 0, 1, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
     def test_enabled_field(self):
         ex_conf = add_ex_conf(
             self.c2,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
             False,
         )
 
-        with fake_time(datetime(2012, 1, 1, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 11, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')
 
@@ -472,17 +471,17 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
 
         add_ex_conf(
             self.c1,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
         )
 
         add_ex_conf(
             self.c2,
-            datetime(2012, 1, 1, 12, tzinfo=utc),
-            datetime(2012, 1, 1, 16, tzinfo=utc),
+            datetime(2012, 1, 1, 12, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 16, tzinfo=timezone.utc),
         )
 
-        with fake_time(datetime(2012, 1, 1, 13, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 13, tzinfo=timezone.utc)):
             response = self.client.get('/c/c1/id/')
             self.assertContains(
                 response, 'participate in more than one contest that exc'
@@ -499,10 +498,10 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
 
         add_ex_conf(
             self.c1,
-            datetime(2012, 1, 1, 10, tzinfo=utc),
-            datetime(2012, 1, 1, 14, tzinfo=utc),
+            datetime(2012, 1, 1, 10, tzinfo=timezone.utc),
+            datetime(2012, 1, 1, 14, tzinfo=timezone.utc),
         )
 
-        with fake_time(datetime(2012, 1, 1, 12, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 12, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestVisible('c2')

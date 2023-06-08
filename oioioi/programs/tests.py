@@ -1,7 +1,7 @@
 import os
 import re
 from collections import defaultdict
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 import pytest
 import six
@@ -17,7 +17,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
-from django.utils.timezone import utc
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import (
     TestCase,
@@ -595,28 +594,28 @@ class TestSubmission(TestCase, SubmitFileMixin):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
         round.save()
 
-        with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 10, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
             self.assertContains(response, 'Sorry, there are no problems')
 
-        with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
-        with fake_time(datetime(2012, 8, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 10, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
-        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 11, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
             self.assertContains(response, 'Sorry, there are no problems')
@@ -1260,7 +1259,7 @@ class TestUserOutsGenerating(TestCase):
         self.assertEqual(response.status_code, 404)
 
         # test if results have not been published yet (2012-07-31)
-        with fake_time(datetime(2012, 7, 29, 11, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 29, 11, 11, tzinfo=timezone.utc)):
             response = self.client.post(gen_url, follow=True)
             self.assertEqual(response.status_code, 403)
 

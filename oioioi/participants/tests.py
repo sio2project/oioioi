@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -8,7 +8,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_str
-from django.utils.timezone import utc
 
 from oioioi.base.tests import (
     TestCase,
@@ -148,15 +147,15 @@ class TestParticipantsSubmit(TestCase, SubmitFileMixin):
         round = Round.objects.get(pk=1)
         problem_instance = ProblemInstance.objects.get(pk=1)
         self.assertTrue(problem_instance.round == round)
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 5, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 5, tzinfo=timezone.utc)
         round.save()
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        with fake_time(datetime(2012, 8, 4, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 4, 0, 5, tzinfo=timezone.utc)):
             self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)
@@ -447,11 +446,11 @@ class TestParticipantsExclusiveContestsMiddlewareMixin(
 
         ex_conf = ExclusivenessConfig()
         ex_conf.contest = self.c1
-        ex_conf.start_date = datetime(2012, 1, 1, 8, tzinfo=utc)
-        ex_conf.end_date = datetime(2012, 1, 1, 12, tzinfo=utc)
+        ex_conf.start_date = datetime(2012, 1, 1, 8, tzinfo=timezone.utc)
+        ex_conf.end_date = datetime(2012, 1, 1, 12, tzinfo=timezone.utc)
         ex_conf.save()
 
-        with fake_time(datetime(2012, 1, 1, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 10, tzinfo=timezone.utc)):
             self._assertContestVisible('c1')
             self._assertContestRedirects('c2', '/c/c1/')
             self.assertTrue(self.client.login(username='test_user2'))
@@ -470,18 +469,18 @@ class TestParticipantsExclusiveContestsMiddlewareMixin(
 
         ex_conf1 = ExclusivenessConfig()
         ex_conf1.contest = self.c1
-        ex_conf1.start_date = datetime(2012, 1, 1, 8, tzinfo=utc)
-        ex_conf1.end_date = datetime(2012, 1, 1, 12, tzinfo=utc)
+        ex_conf1.start_date = datetime(2012, 1, 1, 8, tzinfo=timezone.utc)
+        ex_conf1.end_date = datetime(2012, 1, 1, 12, tzinfo=timezone.utc)
         ex_conf1.save()
         ex_conf2 = ExclusivenessConfig()
         ex_conf2.contest = self.c2
-        ex_conf2.start_date = datetime(2012, 1, 1, 8, tzinfo=utc)
-        ex_conf2.end_date = datetime(2012, 1, 1, 12, tzinfo=utc)
+        ex_conf2.start_date = datetime(2012, 1, 1, 8, tzinfo=timezone.utc)
+        ex_conf2.end_date = datetime(2012, 1, 1, 12, tzinfo=timezone.utc)
         ex_conf2.save()
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        with fake_time(datetime(2012, 1, 1, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 10, tzinfo=timezone.utc)):
             self._assertContestVisible('c2')
             self._assertContestRedirects('c1', '/c/c2')
 
@@ -584,7 +583,7 @@ class TestAnonymousParticipants(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_admin'))
 
-        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
 
             user_pattern = r'>\s*%s\s*</a>'
@@ -615,7 +614,7 @@ class TestAnonymousParticipants(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_contest_admin'))
 
-        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             user_pattern = r'>\s*%s\s*</a>'
 

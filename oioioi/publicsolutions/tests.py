@@ -1,10 +1,9 @@
 # ~*~ encoding: utf-8 ~*~
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.core.cache import cache
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import Contest, Submission
@@ -61,13 +60,13 @@ class TestPublicSolutions(TestCase):
         return 'href="' + url + '"'
 
     def _no_public_rounds(self):
-        return datetime(2010, 6, 25, tzinfo=utc)
+        return datetime(2010, 6, 25, tzinfo=timezone.utc)
 
     def _rounds_14(self):
-        return datetime(2013, 4, 4, tzinfo=utc)
+        return datetime(2013, 4, 4, tzinfo=timezone.utc)
 
     def _all_rounds(self):
-        return datetime(2016, 1, 1, tzinfo=utc)
+        return datetime(2016, 1, 1, tzinfo=timezone.utc)
 
     def assertUserSubmissionHTMLDataCount(self, html, username, count):
         actual = len(
