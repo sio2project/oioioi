@@ -380,7 +380,7 @@ class TestErrorHandlers(TestCase):
     def test_errors(self):
         self.assertHtml(self.client.get('/nonexistant'), 404)
         self.assertHtml(self.client.get(reverse('force_permission_denied')), 403)
-        self.assertPlain(self.client.get(reverse('force_error')), 500)
+        self.assertHtml(self.client.get(reverse('force_error')), 500)
 
     def test_user_in_500(self):
         from oioioi.base.views import ForcedError

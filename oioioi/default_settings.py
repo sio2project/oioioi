@@ -1,20 +1,5 @@
 import django
 
-class ModSignal(django.dispatch.dispatcher.Signal):
-    def __init__(self, *args, **kwargs):
-        print(f"in ModSignal(args={args}, kwargs={kwargs})")
-        if "providing_args" in kwargs:
-            assert len(args) == 0
-            args = [kwargs["providing_args"]]
-            del kwargs["providing_args"]
-        super().__init__(*args, **kwargs)
-
-if str(django.__version__).startswith("4.0"):
-    django.dispatch.dispatcher.Signal = ModSignal
-    django.dispatch.Signal = ModSignal
-    django.utils.encoding.smart_text = django.utils.encoding.smart_str
-    django.utils.encoding.force_text = django.utils.encoding.force_str
-
 import sys
 
 from oioioi.base.utils.finders import find_executable_path

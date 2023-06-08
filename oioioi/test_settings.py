@@ -1,29 +1,6 @@
 # pylint: disable=wildcard-import
 import django
 
-class ModSignal(django.dispatch.dispatcher.Signal):
-    def __init__(self, *args, **kwargs):
-        print(f"in ModSignal(args={args}, kwargs={kwargs})")
-        if "providing_args" in kwargs:
-            assert len(args) == 0
-            args = [kwargs["providing_args"]]
-            del kwargs["providing_args"]
-        super().__init__(*args, **kwargs)
-
-django.dispatch.dispatcher.Signal = ModSignal
-django.dispatch.Signal = ModSignal
-django.utils.encoding.smart_text = django.utils.encoding.smart_str
-django.utils.encoding.force_text = django.utils.encoding.force_str
-
-#if str(django.__version__).startswith("4.1"):
-#    import django.contrib.auth.views
-#    django.contrib.auth.views.SuccessURLAllowedHostsMixin = django.contrib.auth.views.RedirectURLMixin
-
-# https://docs.djangoproject.com/en/4.2/releases/4.0/#zoneinfo-default-timezone-implementation
-
-SAMPLE_VALUE = "abc"
-
-
 from oioioi.default_settings import *
 
 TIME_ZONE = 'UTC'
