@@ -24,7 +24,7 @@ if os.getuid() == 0:  # root
 requirements = [
     "Django>=4.2.2,<4.3",
     "pytz>=2023.3,<2023.4",
-    "SQLAlchemy>=2.0.15,<2.1",
+    "SQLAlchemy<2.0",   # 2.0 is breaking, also requires celery >= 5.3
     "beautifulsoup4>=4.12.2,<4.13",
     "PyYAML>=6.0,<6.1",
     "python-dateutil>=2.8.2,<2.9",
