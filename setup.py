@@ -20,7 +20,7 @@ if os.getuid() == 0:  # root
     sys.exit(2)
 
 requirements = [
-    "Django>=4.0,<4.1",  # when upgrading, upgrade also django-two-factor-auth!
+    "Django==4.2",  # when upgrading, upgrade also django-two-factor-auth!
     "pytz>=2013b,<=2021.1",
     "sqlalchemy<1.5",
     "beautifulsoup4<4.10",
@@ -32,7 +32,7 @@ requirements = [
     "Celery==4.4.7",
     "coreapi>=2.3.0,<2.4",
     "dj-pagination==2.5",
-    "django-compressor==2.4.1",  # latest version
+    "django-compressor==4.3.1",  # latest version
     "pygments<2.6",
     "django-libsass>=0.7,<=0.8",
     "django-debug-toolbar>=3.0,<=3.3",
