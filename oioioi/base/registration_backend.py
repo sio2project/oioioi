@@ -58,9 +58,9 @@ class RegistrationView(DefaultRegistrationView):
                     TalentRegistration.objects.create(user=user, contest_id=group)
                     if group in settings.TALENT_SUPERVISED_IDS:
                         from oioioi.supervision.models import Membership, Group
-                        group=Group.objects.get(name=settings.TALENT_CONTEST_NAMES[group])
-                        Membership.objects.get_or_create(user=user, group=group)
-                    else:
+                        group_name=Group.objects.get(name=settings.TALENT_CONTEST_NAMES[group])
+                        Membership.objects.get_or_create(user=user, group=group_name)
+                    if group in settings.TALENT_CLOSED_CONTEST_IDS:
                         from oioioi.participants.models import Participant
                         Participant.objects.get_or_create(contest_id=group, user=user)
                         

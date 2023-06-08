@@ -36,9 +36,9 @@
 # camp by the 'talent_camp_init' command in oioioi.talent
 from datetime import timedelta
 
-# (username, password); password "" prompts the user
+# (username, password ("" to prompt), email ("" is ok))
 TALENT_DEFAULT_SUPERUSERS = [
-    ("ztalentariuszy", ""),
+    ("ztalentariuszy", "", ""),
 ]
 
 TALENT_SCORE1 = 75
@@ -47,6 +47,8 @@ TALENT_SCORE2 = 60
 
 # Reversed, so that group A is on top of the contest list
 TALENT_CONTEST_IDS = ["e", "d", "c", "b", "a",]
+# The rest will be open
+TALENT_CLOSED_CONTEST_IDS = ["d", "e",]
 # Groups for which to setup supervision
 TALENT_SUPERVISED_IDS = ["a", "b", "c",]
 # Groups for which to create phases
@@ -54,6 +56,9 @@ TALENT_PHASED_IDS = ["a", "b", "c",]
 # Default amount of score reveals for contests
 TALENT_DEFAULT_SCOREREVEALS = {
     "a": 15,
+}
+TALENT_MAIL_NOTIFICATIONS = {
+    "ztalentariuszy": ["a", "b", "c",],
 }
 
 TALENT_CONTEST_NAMES = {

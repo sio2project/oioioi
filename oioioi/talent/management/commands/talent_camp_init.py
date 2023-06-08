@@ -12,12 +12,13 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.contests.models import Contest, Round
 from oioioi.dashboard.models import DashboardMessage
 from oioioi.phase.models import Phase
+from oioioi.questions.models import MessageNotifierConfig
 from oioioi.scoresreveal.models import ScoreRevealContestConfig
 from oioioi.supervision.models import Supervision, Group
 from oioioi.talent.models import TalentRegistrationSwitch
 
 User = get_user_model();
-def createsuperuser(username, password=""):
+def createsuperuser(username, password="", email=""):
     if User.objects.filter(username=username).exists():
         print("User {} already exists!".format(username))
         return
@@ -28,7 +29,7 @@ def createsuperuser(username, password=""):
             print("The passwords don't match! Try again.")
             password = getpass("Password for {}: ".format(username))
             password2 = getpass("Password for {} (again): ".format(username))
-    User.objects.create_superuser(username, '', password)
+    User.objects.create_superuser(username, email, password)
 
 
 class Command(BaseCommand):
@@ -37,18 +38,35 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        today = timezone.localtime(timezone=pytz.timezone(settings.TIME_ZONE))
-        today = today.replace(microsecond=0, second=0, minute=0, hour=0)
-        contest_names = settings.TALENT_CONTEST_NAMES
 
-        print("--- Creating contests, rounds, etc.")
         with transaction.atomic():
+            print("--- Creating default superusers")
+            for user, password, email in settings.TALENT_DEFAULT_SUPERUSERS:
+                createsuperuser(user, password, email)
+
+            print(
+                "--- Enter additional superuser usernames to create\n"
+                + "--- When you're done, press enter at an empty prompt"
+            )
+            user = input(">>> ")
+            try:
+                while user != "":
+                    createsuperuser(user)
+                    user = input(">>> ")
+            except EOFError:
+                pass
+
+            today = timezone.localtime(timezone=pytz.timezone(settings.TIME_ZONE))
+            today = today.replace(microsecond=0, second=0, minute=0, hour=0)
+            contest_names = settings.TALENT_CONTEST_NAMES
+
+            print("--- Creating contests, rounds, etc.")
             # Contests
             for i in settings.TALENT_CONTEST_IDS:
-                if i in settings.TALENT_SUPERVISED_IDS:
-                    controller="oioioi.talent.controllers.TalentOpenContestController"
-                else:
+                if i in settings.TALENT_CLOSED_CONTEST_IDS:
                     controller="oioioi.talent.controllers.TalentContestController"
+                else:
+                    controller="oioioi.talent.controllers.TalentOpenContestController"
                 contest, _ = Contest.objects.get_or_create(
                     id=i,
                     name=contest_names[i],
@@ -68,6 +86,21 @@ class Command(BaseCommand):
                         end_date=round_end,
                         results_date=round_results,
                     )
+            # Trial contest & round (it's last to become the default contest)
+            contest, _ = Contest.objects.get_or_create(
+                id="p",
+                name="Kontest próbny",
+                controller_name='oioioi.talent.controllers.TalentOpenContestController',
+            )
+            Round.objects.get_or_create(
+                contest=contest,
+                name="Runda próbna",
+                start_date=today,
+                results_date=today,
+            )
+            DashboardMessage.objects.get_or_create(
+                contest=Contest.objects.get(id="p"), content=settings.TALENT_DASHBOARD_MESSAGE
+            )
             # Supervision groups
             for i in settings.TALENT_SUPERVISED_IDS:
                 group, _ = Group.objects.get_or_create(name=contest_names[i])
@@ -99,38 +132,12 @@ class Command(BaseCommand):
                     contest=Contest.objects.get(id=id),
                     reveal_limit=limit,
                 )
-            # Trial contest & round (it's last to become the default contest)
-            contest, _ = Contest.objects.get_or_create(
-                id="p",
-                name="Kontest próbny",
-                controller_name='oioioi.talent.controllers.TalentOpenContestController',
-            )
-            Round.objects.get_or_create(
-                contest=contest,
-                name="Runda próbna",
-                start_date=today,
-                results_date=today,
-            )
-            DashboardMessage.objects.get_or_create(
-                contest=Contest.objects.get(id="p"), content=settings.TALENT_DASHBOARD_MESSAGE
-            )
+            # Notified-about-new-questions configs
+            for login, contestids in settings.TALENT_MAIL_NOTIFICATIONS.items():
+                user = User.objects.get(username=login)
+                for cid in contestids:
+                    MessageNotifierConfig.objects.get_or_create(contest_id=cid, user=user)
             # Enable talent registration (automatic assigning to groups)
             TalentRegistrationSwitch.objects.get_or_create(status=True)
-
-        print("--- Creating default superusers")
-        for user, password in settings.TALENT_DEFAULT_SUPERUSERS:
-            createsuperuser(user, password)
-
-        print(
-            "--- Enter additional superuser usernames to create\n"
-            + "--- When you're done, press enter at an empty prompt"
-        )
-        user = input(">>> ")
-        try:
-            while user != "":
-                createsuperuser(user, "")
-                user = input(">>> ")
-        except EOFError:
-            pass
 
         print("\n--- Finished!")
