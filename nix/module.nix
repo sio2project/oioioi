@@ -421,10 +421,6 @@ in
             cp --no-preserve=all ${../oioioi/deployment/basic_settings.py.template} /etc/sio2/basic_settings.py
           fi
         '';
-        oioioi-create-symlink = ''
-          [ -d /var/run/sio2 ] || mkdir /var/run/sio2 || exit 1
-          ln -sf ${wsgiPy} /var/run/sio2/wsgi.py || exit 1
-        '';
       };
 
       services.sioworkersd.enable = true;
@@ -580,6 +576,7 @@ in
             '';
 
             reload = ''
+              ln -sf ${wsgiPy} /var/run/sio2/wsgi.py
               ${managePy}/bin/sio-manage collectstatic --no-input
               ${managePy}/bin/sio-manage compress --force
               ${managePy}/bin/sio-manage compilejsi18n
@@ -588,6 +585,7 @@ in
             serviceConfig = {
               ReadWritePaths = [ "/dev/shm" ];
               ExecStartPre = [
+                "${pkgs.coreutils-full}/bin/ln -sf ${wsgiPy} /var/run/sio2/wsgi.py"
                 "${managePy}/bin/sio-manage collectstatic --no-input"
                 "${managePy}/bin/sio-manage compress --force"
                 "${managePy}/bin/sio-manage compilejsi18n"
