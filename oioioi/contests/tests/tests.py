@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 import re
-from datetime import datetime, timedelta  # pylint: disable=E0611
+from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
 from functools import partial
 
 import pytest
@@ -19,8 +19,6 @@ from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
-from django.utils import timezone
-from django.utils.timezone import utc
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
@@ -177,6 +175,7 @@ class TestSubmissionListOrder(TestCase):
         self.url = reverse(
             'oioioiadmin:contests_submission_changelist', kwargs={'contest_id': 'c'}
         )
+        super().setUp()
 
     def test_default_order(self):
         response = self.client.get(self.url)
@@ -264,6 +263,7 @@ class TestSubmissionListFilters(TestCase):
         self.url = reverse(
             'oioioiadmin:contests_submission_changelist', kwargs={'contest_id': 'c'}
         )
+        super().setUp()
 
     def test_all_filters(self):
         response = self.client.get(self.url, {
@@ -475,16 +475,16 @@ class TestContestController(TestCase):
         r2 = Round.objects.get(pk=2)
         r3 = Round.objects.get(pk=3)
 
-        r1.start_date = datetime(2012, 1, 1, 8, 0, tzinfo=utc)
-        r1.end_date = datetime(2012, 1, 1, 10, 0, tzinfo=utc)
+        r1.start_date = datetime(2012, 1, 1, 8, 0, tzinfo=timezone.utc)
+        r1.end_date = datetime(2012, 1, 1, 10, 0, tzinfo=timezone.utc)
         r1.save()
 
-        r2.start_date = datetime(2012, 1, 1, 9, 59, tzinfo=utc)
-        r2.end_date = datetime(2012, 1, 1, 11, 00, tzinfo=utc)
+        r2.start_date = datetime(2012, 1, 1, 9, 59, tzinfo=timezone.utc)
+        r2.end_date = datetime(2012, 1, 1, 11, 00, tzinfo=timezone.utc)
         r2.save()
 
-        r3.start_date = datetime(2012, 1, 2, 8, 0, tzinfo=utc)
-        r3.end_date = datetime(2012, 1, 2, 10, 0, tzinfo=utc)
+        r3.start_date = datetime(2012, 1, 2, 8, 0, tzinfo=timezone.utc)
+        r3.end_date = datetime(2012, 1, 2, 10, 0, tzinfo=timezone.utc)
         r3.save()
 
         rounds = [r1, r2, r3]
@@ -496,20 +496,20 @@ class TestContestController(TestCase):
                 self.contest = contest
 
         for date, expected_order in (
-            (datetime(2011, 1, 1, tzinfo=utc), [r1, r2, r3]),
-            (datetime(2012, 1, 1, 7, 0, tzinfo=utc), [r1, r2, r3]),
-            (datetime(2012, 1, 1, 7, 55, tzinfo=utc), [r1, r2, r3]),
-            (datetime(2012, 1, 1, 9, 40, tzinfo=utc), [r1, r2, r3]),
-            (datetime(2012, 1, 1, 9, 55, tzinfo=utc), [r2, r1, r3]),
-            (datetime(2012, 1, 1, 9, 59, 29, tzinfo=utc), [r2, r1, r3]),
-            (datetime(2012, 1, 1, 9, 59, 31, tzinfo=utc), [r1, r2, r3]),
-            (datetime(2012, 1, 1, 10, 0, 1, tzinfo=utc), [r2, r1, r3]),
-            (datetime(2012, 1, 1, 11, 0, 1, tzinfo=utc), [r2, r1, r3]),
-            (datetime(2012, 1, 1, 12, 0, 1, tzinfo=utc), [r2, r1, r3]),
-            (datetime(2012, 1, 2, 2, 0, 1, tzinfo=utc), [r3, r2, r1]),
-            (datetime(2012, 1, 2, 2, 7, 55, tzinfo=utc), [r3, r2, r1]),
-            (datetime(2012, 1, 2, 2, 9, 0, tzinfo=utc), [r3, r2, r1]),
-            (datetime(2012, 1, 2, 2, 11, 0, tzinfo=utc), [r3, r2, r1]),
+            (datetime(2011, 1, 1, tzinfo=timezone.utc), [r1, r2, r3]),
+            (datetime(2012, 1, 1, 7, 0, tzinfo=timezone.utc), [r1, r2, r3]),
+            (datetime(2012, 1, 1, 7, 55, tzinfo=timezone.utc), [r1, r2, r3]),
+            (datetime(2012, 1, 1, 9, 40, tzinfo=timezone.utc), [r1, r2, r3]),
+            (datetime(2012, 1, 1, 9, 55, tzinfo=timezone.utc), [r2, r1, r3]),
+            (datetime(2012, 1, 1, 9, 59, 29, tzinfo=timezone.utc), [r2, r1, r3]),
+            (datetime(2012, 1, 1, 9, 59, 31, tzinfo=timezone.utc), [r1, r2, r3]),
+            (datetime(2012, 1, 1, 10, 0, 1, tzinfo=timezone.utc), [r2, r1, r3]),
+            (datetime(2012, 1, 1, 11, 0, 1, tzinfo=timezone.utc), [r2, r1, r3]),
+            (datetime(2012, 1, 1, 12, 0, 1, tzinfo=timezone.utc), [r2, r1, r3]),
+            (datetime(2012, 1, 2, 2, 0, 1, tzinfo=timezone.utc), [r3, r2, r1]),
+            (datetime(2012, 1, 2, 2, 7, 55, tzinfo=timezone.utc), [r3, r2, r1]),
+            (datetime(2012, 1, 2, 2, 9, 0, tzinfo=timezone.utc), [r3, r2, r1]),
+            (datetime(2012, 1, 2, 2, 11, 0, tzinfo=timezone.utc), [r3, r2, r1]),
         ):
             self.assertEqual(
                 contest.controller.order_rounds_by_focus(
@@ -588,7 +588,7 @@ class TestContestViews(TestCase):
             controller_name='oioioi.contests.tests.PrivateContestController',
         )
         contest2.save()
-        contest2.creation_date = datetime(2002, 1, 1, tzinfo=utc)
+        contest2.creation_date = datetime(2002, 1, 1, tzinfo=timezone.utc)
         contest2.save()
         contest3 = Contest(
             id='c3',
@@ -596,7 +596,7 @@ class TestContestViews(TestCase):
             controller_name='oioioi.contests.tests.PrivateContestController',
         )
         contest3.save()
-        contest3.creation_date = datetime(2004, 1, 1, tzinfo=utc)
+        contest3.creation_date = datetime(2004, 1, 1, tzinfo=timezone.utc)
         contest3.save()
         contest4 = Contest(
             id='c4',
@@ -604,7 +604,7 @@ class TestContestViews(TestCase):
             controller_name='oioioi.contests.tests.PrivateContestController',
         )
         contest4.save()
-        contest4.creation_date = datetime(2003, 1, 1, tzinfo=utc)
+        contest4.creation_date = datetime(2003, 1, 1, tzinfo=timezone.utc)
         contest4.save()
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 5)
@@ -619,7 +619,7 @@ class TestContestViews(TestCase):
         self.assertLess(content.index('Contest3'), content.index('Contest4'))
         self.assertLess(content.index('Contest4'), content.index('Contest2'))
 
-        contest2.creation_date = datetime(2003, 6, 1, tzinfo=utc)
+        contest2.creation_date = datetime(2003, 6, 1, tzinfo=timezone.utc)
         contest2.save()
         response = self.client.get(reverse('select_contest'))
         content = response.content.decode('utf-8')
@@ -748,7 +748,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
     def test_problems_visibility(self):
         contest = Contest.objects.get()
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             for user in ['test_admin', 'test_contest_admin']:
                 self.assertTrue(self.client.login(username=user))
                 response = self.client.get(url)
@@ -772,7 +772,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         contest = Contest.objects.get()
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             for task in ['zad1', 'zad3', 'zad4']:
                 self.assertContains(response, task)
@@ -784,20 +784,20 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
             self.assertEqual(self.remove_ws(response).count('>34<'), 2)
 
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(self.remove_ws(response).count('>34<'), 4)
 
-        with fake_time(datetime(2012, 7, 31, 20, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 20, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertNotIn('>34<', self.remove_ws(response))
             self.assertNotContains(response, 'Score')
 
-        with fake_time(datetime(2012, 7, 31, 21, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 21, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
-        with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 22, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(self.remove_ws(response).count('>34<'), 2)
 
@@ -806,29 +806,29 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         ext = RoundTimeExtension(user=user, round=round4, extra_time=60)
         ext.save()
 
-        with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 22, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
-        round4.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=utc)
-        round4.results_date = datetime(2012, 8, 10, 0, 10, tzinfo=utc)
+        round4.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=timezone.utc)
+        round4.results_date = datetime(2012, 8, 10, 0, 10, tzinfo=timezone.utc)
         round4.save()
 
         ext.extra_time = 0
         ext.save()
 
-        with fake_time(datetime(2012, 8, 10, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 10, 0, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
         ext.extra_time = 20
         ext.save()
 
-        with fake_time(datetime(2012, 8, 10, 0, 15, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 10, 0, 15, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
-        with fake_time(datetime(2012, 8, 10, 0, 21, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 10, 0, 21, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(self.remove_ws(response).count('>34<'), 2)
 
@@ -842,11 +842,11 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         user = User.objects.get(username='test_user')
 
         r1 = Round.objects.get(pk=1)
-        r1.end_date = datetime(2012, 7, 30, 21, 40, tzinfo=utc)
+        r1.end_date = datetime(2012, 7, 30, 21, 40, tzinfo=timezone.utc)
         r1.save()
 
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
-        with fake_time(datetime(2012, 7, 31, 21, 1, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 21, 1, tzinfo=timezone.utc)):
             # r3, r4 are active
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
@@ -854,13 +854,13 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
                 self.assertContains(response, task)
             self.assertEqual(len(response.context['problem_instances']), 2)
 
-        with fake_time(datetime(2015, 7, 31, 20, 1, tzinfo=utc)):
+        with fake_time(datetime(2015, 7, 31, 20, 1, tzinfo=timezone.utc)):
             # r1,r3,r4 are past, preparation time for r2
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             self.assertEqual(len(response.context['problem_instances']), 0)
 
-        with fake_time(datetime(2015, 7, 31, 20, 28, tzinfo=utc)):
+        with fake_time(datetime(2015, 7, 31, 20, 28, tzinfo=timezone.utc)):
             # r2 is active
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
@@ -868,10 +868,10 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             self.assertEqual(len(response.context['problem_instances']), 1)
 
         r2 = Round.objects.get(pk=2)
-        r2.start_date = datetime(2012, 7, 31, 21, 40, tzinfo=utc)
+        r2.start_date = datetime(2012, 7, 31, 21, 40, tzinfo=timezone.utc)
         r2.save()
 
-        with fake_time(datetime(2012, 7, 31, 21, 29, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 21, 29, tzinfo=timezone.utc)):
             # r1,r3,r4 are past, break = (21.27, 21.40) -- first half
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
@@ -879,13 +879,13 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
                 self.assertContains(response, task)
             self.assertEqual(len(response.context['problem_instances']), 3)
 
-        with fake_time(datetime(2012, 7, 31, 21, 35, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 21, 35, tzinfo=timezone.utc)):
             # r1,r3,r3 are past, break = (21.27, 21.40) -- second half
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             self.assertEqual(len(response.context['problem_instances']), 0)
 
-        with fake_time(datetime(2012, 7, 31, 21, 41, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 21, 41, tzinfo=timezone.utc)):
             # r2 is active
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
@@ -1016,13 +1016,13 @@ class TestSubmitButtonInProblemsList(TestCase):
 
     def test_with_ended_round(self):
         round = Round.objects.get()
-        round.end_date = datetime(2020, 1, 1, tzinfo=utc)
+        round.end_date = datetime(2020, 1, 1, tzinfo=timezone.utc)
         round.save()
 
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
 
-        with fake_time(datetime(2020, 1, 2, tzinfo=utc)):
+        with fake_time(datetime(2020, 1, 2, tzinfo=timezone.utc)):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(
                 reverse('problems_list', kwargs={'contest_id': contest.id})
@@ -1457,7 +1457,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
         )
         self.assertStreamingEqual(response, b'content-of-roundatt')
 
-        with fake_time(datetime(2011, 7, 10, tzinfo=utc)):
+        with fake_time(datetime(2011, 7, 10, tzinfo=timezone.utc)):
             response = self.client.get(
                 reverse('contest_files', kwargs={'contest_id': contest.id})
             )
@@ -1502,14 +1502,14 @@ class TestAttachments(TestCase, TestStreamingMixin):
             contest=contest,
             description='contest-attachment',
             content=ContentFile(b'content-visible', name='conatt-visible.txt'),
-            pub_date=datetime(2011, 7, 10, 0, 0, 0, tzinfo=utc),
+            pub_date=datetime(2011, 7, 10, 0, 0, 0, tzinfo=timezone.utc),
         )
         cb.save()
         cc = ContestAttachment(
             contest=contest,
             description='contest-attachment',
             content=ContentFile(b'content-hidden', name='conatt-hidden.txt'),
-            pub_date=datetime(2011, 7, 10, 1, 0, 0, tzinfo=utc),
+            pub_date=datetime(2011, 7, 10, 1, 0, 0, tzinfo=timezone.utc),
         )
         cc.save()
 
@@ -1543,7 +1543,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
                     kwargs={'contest_id': contest.id, 'attachment_id': id},
                 )
 
-        with fake_time(datetime(2011, 7, 10, 0, 30, 0, tzinfo=utc)):
+        with fake_time(datetime(2011, 7, 10, 0, 30, 0, tzinfo=timezone.utc)):
             self.assertTrue(self.client.login(username='test_user'))
             check_visibility('conatt-null-date.txt', 'conatt-visible.txt')
             check_accessibility(
@@ -1580,18 +1580,18 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         problem_instance2 = ProblemInstance.objects.get(pk=2)
         self.assertTrue(problem_instance1.round == round1)
         self.assertTrue(problem_instance2.round == round2)
-        round1.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round1.end_date = datetime(2012, 8, 5, tzinfo=utc)
+        round1.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round1.end_date = datetime(2012, 8, 5, tzinfo=timezone.utc)
         round1.save()
-        round2.start_date = datetime(2012, 8, 10, tzinfo=utc)
-        round2.end_date = datetime(2012, 8, 12, tzinfo=utc)
+        round2.start_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
+        round2.end_date = datetime(2012, 8, 12, tzinfo=timezone.utc)
         round2.save()
 
         user = User.objects.get(username='test_user')
         ext = RoundTimeExtension(user=user, round=round1, extra_time=10)
         ext.save()
 
-        with fake_time(datetime(2012, 8, 5, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 0, 5, tzinfo=timezone.utc)):
             self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
@@ -1600,12 +1600,12 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
             response = self.submit_file(contest, problem_instance1)
             self._assertSubmitted(contest, response)
 
-        with fake_time(datetime(2012, 8, 5, 0, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 0, 11, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
             self.assertContains(response, 'Sorry, there are no problems')
 
-        with fake_time(datetime(2012, 8, 12, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 12, 0, 5, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance2)
             self.assertEqual(200, response.status_code)
             self.assertContains(response, 'Sorry, there are no problems')
@@ -1667,15 +1667,16 @@ class TestPermissions(TestCase):
         self.contest.save()
         self.ccontr = self.contest.controller
         self.round = Round.objects.get()
-        self.round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        self.round.end_date = datetime(2012, 8, 5, tzinfo=utc)
+        self.round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        self.round.end_date = datetime(2012, 8, 5, tzinfo=timezone.utc)
         self.round.save()
 
-        self.during = datetime(2012, 8, 1, tzinfo=utc)
+        self.during = datetime(2012, 8, 1, tzinfo=timezone.utc)
 
         self.observer = User.objects.get(username='test_observer')
         self.cadmin = User.objects.get(username='test_contest_admin')
         self.factory = self.get_fake_request_factory(self.contest)
+        super().setUp()
 
     def test_utils(self):
         ofactory = partial(self.factory, self.observer)
@@ -1769,6 +1770,7 @@ class TestPermissionsBasicAdmin(TestCase):
             'oioioi.programs.controllers.ProgrammingContestController'
         )
         self.contest.save()
+        super().setUp()
 
     def test_dashboard(self):
         unregister_contest_dashboard_view(simpleui_contest_dashboard)
@@ -2193,6 +2195,7 @@ class TestSubmissionChangeKind(TestCase):
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_admin'))
+        super().setUp()
 
     def change_kind(self, submission, kind):
         contest = Contest.objects.get()
@@ -2422,9 +2425,9 @@ class TestPublicResults(TestCase):
         self.assertContains(response, 'Public results date')
 
     def _check_public_results(self, expected):
-        before_results = datetime(2012, 6, 20, 8, 0, tzinfo=utc)
-        after_results_before_public = datetime(2012, 8, 20, 8, 0, tzinfo=utc)
-        after_public = datetime(2012, 10, 20, 8, 0, tzinfo=utc)
+        before_results = datetime(2012, 6, 20, 8, 0, tzinfo=timezone.utc)
+        after_results_before_public = datetime(2012, 8, 20, 8, 0, tzinfo=timezone.utc)
+        after_public = datetime(2012, 10, 20, 8, 0, tzinfo=timezone.utc)
         dates = [before_results, after_results_before_public, after_public]
 
         request = RequestFactory().request()
@@ -2445,7 +2448,7 @@ class TestPublicResults(TestCase):
         self._check_public_results([False, False, False])
 
         round = Round.objects.get()
-        round.public_results_date = datetime(2012, 9, 20, 8, 0, tzinfo=utc)
+        round.public_results_date = datetime(2012, 9, 20, 8, 0, tzinfo=timezone.utc)
         round.save()
         self._check_public_results([False, False, True])
 
@@ -2465,22 +2468,22 @@ class TestPublicResults(TestCase):
 
         self.assertFalse(
             all_public_results_visible(
-                fake_request(datetime(2012, 7, 31, 21, 0, 0, tzinfo=utc))
+                fake_request(datetime(2012, 7, 31, 21, 0, 0, tzinfo=timezone.utc))
             )
         )
 
         round1 = Round.objects.get()
-        round1.public_results_date = datetime(2012, 8, 1, 12, 0, 0, tzinfo=utc)
+        round1.public_results_date = datetime(2012, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
         round1.save()
 
         self.assertFalse(
             all_public_results_visible(
-                fake_request(datetime(2012, 7, 31, 21, 0, 0, tzinfo=utc))
+                fake_request(datetime(2012, 7, 31, 21, 0, 0, tzinfo=timezone.utc))
             )
         )
         self.assertTrue(
             all_public_results_visible(
-                fake_request(datetime(2012, 8, 1, 12, 30, 0, tzinfo=utc))
+                fake_request(datetime(2012, 8, 1, 12, 30, 0, tzinfo=timezone.utc))
             )
         )
 
@@ -2496,21 +2499,21 @@ class TestPublicResults(TestCase):
 
         self.assertFalse(
             all_public_results_visible(
-                fake_request(datetime(2012, 8, 2, 12, 30, 0, tzinfo=utc))
+                fake_request(datetime(2012, 8, 2, 12, 30, 0, tzinfo=timezone.utc))
             )
         )
         self.assertTrue(
             all_non_trial_public_results_visible(
-                fake_request(datetime(2012, 8, 2, 12, 30, 0, tzinfo=utc))
+                fake_request(datetime(2012, 8, 2, 12, 30, 0, tzinfo=timezone.utc))
             )
         )
 
-        round2.public_results_date = datetime(2012, 8, 2, 12, 0, 0, tzinfo=utc)
+        round2.public_results_date = datetime(2012, 8, 2, 12, 0, 0, tzinfo=timezone.utc)
         round2.save()
 
         self.assertTrue(
             all_public_results_visible(
-                fake_request(datetime(2012, 8, 2, 12, 30, 0, tzinfo=utc))
+                fake_request(datetime(2012, 8, 2, 12, 30, 0, tzinfo=timezone.utc))
             )
         )
 
@@ -2573,12 +2576,12 @@ class TestUserInfo(TestCase):
         )
 
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url, follow=True)
             self.assertContains(response, '403', status_code=403)
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url, follow=True)
             self.assertContains(response, 'title>Test User - User info')
             self.assertContains(response, "User's submissions")
@@ -2908,6 +2911,7 @@ class TestSubmissionViewWithoutContest(TestCase):
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_user'))
+        super().setUp()
 
     def test_submission_view_without_contest(self):
         submission = Submission.objects.get(id=1)
@@ -2934,6 +2938,7 @@ class TestSubmissionAdminWithoutContest(TestCase, SubmitFileMixin):
 
     def setUp(self):
         self.assertTrue(self.client.login(username='test_admin'))
+        super().setUp()
 
     def test_submission_admin_without_contest(self):
         contest1 = Contest.objects.get(pk='c1')
@@ -3074,6 +3079,7 @@ class TestAPIGetProblemId(APITestCase):
         self.contest = Contest.objects.get()
         self.problem_instance = ProblemInstance.objects.get(pk=1)
         self.problem = self.problem_instance.problem
+        super().setUp()
 
     def test_successful_query(self):
         url = reverse(self.view_name, args=(self.contest.id, self.problem.short_name))
@@ -3106,6 +3112,7 @@ class TestAPISubmitBase(APITestCase):
 
     def setUp(self):
         self.client.force_authenticate(user=User.objects.get(username='test_user'))
+        super().setUp()
 
     def submit_file(
         self,
@@ -3144,27 +3151,27 @@ class TestAPIContestSubmit(TestAPISubmitBase):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
         round.save()
 
-        with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 10, tzinfo=timezone.utc)):
             response = self.contest_submit(contest, problem_instance)
             self.assertContains(response, 'Permission denied', status_code=400)
 
-        with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, tzinfo=timezone.utc)):
             response = self.contest_submit(contest, problem_instance)
             self._assertSubmitted(response, 2)
 
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.contest_submit(contest, problem_instance)
             self._assertSubmitted(response, 3)
 
-        with fake_time(datetime(2012, 8, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 10, tzinfo=timezone.utc)):
             response = self.contest_submit(contest, problem_instance)
             self._assertSubmitted(response, 4)
 
-        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 11, tzinfo=timezone.utc)):
             response = self.contest_submit(contest, problem_instance)
             self.assertContains(response, 'Permission denied', status_code=400)
 
@@ -3376,19 +3383,19 @@ class TestOpenRegistration(TestCase):
         check_registration(self, 403, 'NO')
 
     def test_configured_registration_opened(self):
-        now = timezone.now()
+        now = datetime.utcnow()
         available_from = now - timedelta(days=1)
         available_to = now + timedelta(days=1)
         check_registration(self, 200, 'CONFIG', available_from, available_to)
 
     def test_configured_registration_closed_before(self):
-        now = timezone.now()
+        now = datetime.utcnow()
         available_from = now + timedelta(hours=1)
         available_to = now + timedelta(days=1)
         check_registration(self, 403, 'CONFIG', available_from, available_to)
 
     def test_configured_registration_closed_after(self):
-        now = timezone.now()
+        now = datetime.utcnow()
         available_from = now - timedelta(hours=1)
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, 'CONFIG', available_from, available_to)

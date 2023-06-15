@@ -30,7 +30,7 @@ class StatisticsAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(StatisticsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [StatisticsConfigInline]
+        self.inlines = tuple(self.inlines) + (StatisticsConfigInline,)
 
 
 ContestAdmin.mix_in(StatisticsAdminMixin)

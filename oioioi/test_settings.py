@@ -1,4 +1,6 @@
 # pylint: disable=wildcard-import
+import django
+
 from oioioi.default_settings import *
 
 TIME_ZONE = 'UTC'

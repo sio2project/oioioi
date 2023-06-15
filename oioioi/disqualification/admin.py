@@ -134,7 +134,7 @@ class DisqualificationsAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(DisqualificationsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [DisqualificationsConfigInline]
+        self.inlines = tuple(self.inlines) + (DisqualificationsConfigInline,)
 
 
 ContestAdmin.mix_in(DisqualificationsAdminMixin)

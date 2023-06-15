@@ -2,8 +2,8 @@ FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
 
-RUN dpkg --add-architecture i386 && \
-    apt-get update && \
+#RUN dpkg --add-architecture i386
+RUN apt-get update && \
     apt-get install -y \
         git \
         libpq-dev \
@@ -18,10 +18,10 @@ RUN dpkg --add-architecture i386 && \
         texlive-pstricks \
         ghostscript \
         texlive-fonts-recommended \
-        gcc-multilib \
+        gcc \
         sudo \
-        libstdc++6:i386 \
-        zlib1g:i386 \
+        libstdc++6 \
+        zlib1g \
         locales \
         python3-pip && \
     apt-get clean
@@ -51,7 +51,9 @@ USER oioioi
 
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
+ENV BERKELEYDB_DIR /usr
 RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 

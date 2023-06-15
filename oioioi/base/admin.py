@@ -456,7 +456,7 @@ class ConsentsInline(StackedInline):
 class UserWithConsentsAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(UserWithConsentsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines += [ConsentsInline]
+        self.inlines = tuple(self.inlines) + (ConsentsInline,)
 
 
 OioioiUserAdmin.mix_in(UserWithConsentsAdminMixin)

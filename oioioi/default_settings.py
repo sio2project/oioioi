@@ -1,3 +1,5 @@
+import django
+
 import sys
 
 from oioioi.base.utils.finders import find_executable_path
@@ -307,6 +309,7 @@ INSTALLED_APPS = (
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
+    'two_factor.plugins.phonenumber',
 
     'nested_admin',
     'coreapi',

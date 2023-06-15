@@ -1,10 +1,9 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.complaints.models import ComplaintsConfig
@@ -24,7 +23,7 @@ class TestMakingComplaint(TestCase):
         p = Participant(contest=contest, user=user, status='ACTIVE')
         p.save()
 
-        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 11, tzinfo=timezone.utc)):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.post(
                 reverse('add_complaint', kwargs={'contest_id': contest.id}),
@@ -36,24 +35,24 @@ class TestMakingComplaint(TestCase):
         cconfig = ComplaintsConfig(
             contest=contest,
             enabled=True,
-            start_date=datetime(2012, 8, 10, tzinfo=utc),
-            end_date=datetime(2012, 8, 12, tzinfo=utc),
+            start_date=datetime(2012, 8, 10, tzinfo=timezone.utc),
+            end_date=datetime(2012, 8, 12, tzinfo=timezone.utc),
         )
         cconfig.save()
 
-        with fake_time(datetime(2012, 8, 9, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 9, tzinfo=timezone.utc)):
             response = self.client.get(
                 reverse('add_complaint', kwargs={'contest_id': contest.id})
             )
             self.assertEqual(response.status_code, 403)
 
-        with fake_time(datetime(2012, 8, 13, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 13, tzinfo=timezone.utc)):
             response = self.client.get(
                 reverse('add_complaint', kwargs={'contest_id': contest.id})
             )
             self.assertEqual(response.status_code, 403)
 
-        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 11, tzinfo=timezone.utc)):
             response = self.client.post(
                 reverse('add_complaint', kwargs={'contest_id': contest.id}),
                 {'complaint': "I am innocent! It is your fault!"},
