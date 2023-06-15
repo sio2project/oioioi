@@ -38,6 +38,16 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         'test_permissions',
     ]
 
+    def post_package_file(self, url, filename, visibility=Problem.VISIBILITY_PRIVATE):
+        return self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': visibility,
+            },
+            follow=True,
+        )
+
     def test_problem_statement_view(self):
         # superuser
         self.assertTrue(self.client.login(username='test_admin'))
@@ -93,14 +103,53 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         for element in elements_to_find:
             self.assertContains(response, element)
 
-    def test_admin_delete_view(self):
+    def test_admin_delete_view_basic(self):
         self.assertTrue(self.client.login(username='test_admin'))
         problem = Problem.objects.get()
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,))
 
-        self.client.post(url, {'post': 'yes'})
+
+        response = self.client.post(url, {'post': 'yes'}, follow=True)
         self.assertEqual(Problem.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_add_in_contest_delete_in_problemset(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        ProblemInstance.objects.all().delete()
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_full_package.tgz')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('admin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id}, follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            'problems/add-or-update.html',
+            [getattr(t, 'name', None) for t in response.templates],
+        )
+        response = self.post_package_file(url, filename)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        problem = Problem.objects.get()
+
+        url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,),)
+        response = self.client.post(url, {'post': 'yes'}, follow=True,)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 0)
+
+    def test_admin_add_to_contest_delete_in_problemset(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('problemset_add_to_contest', kwargs={'site_key': '123'})
+        url += '?problem_name=sum'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        problem = Problem.objects.get()
+        self.assertEqual(Problem.objects.count(), 1)
+        url = reverse('oioioiadmin:problems_problem_delete', args=(problem.id,),)
+        response = self.client.post(url, {'post': 'yes'}, follow=True,)
+        self.assertEqual(Problem.objects.count(), 0)
+        self.assertEqual(response.status_code, 200)
 
     def _test_problem_permissions(self):
         problem = Problem.objects.get()

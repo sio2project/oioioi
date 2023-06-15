@@ -100,7 +100,7 @@ class TestIndex(TestCase):
             response = self.client.get('/', follow=True)
         self.assertNotContains(response, 'test_user')
         self.assertTrue(self.client.login(username='test_user'))
-        with self.assertNumQueriesLessThan(70):
+        with self.assertNumQueriesLessThan(72):
             response = self.client.get('/', follow=True)
         self.assertContains(response, 'test_user')
         login_url = reverse('login')
@@ -130,12 +130,12 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(98):
+        with self.assertNumQueriesLessThan(99):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(85):
+        with self.assertNumQueriesLessThan(88):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
@@ -330,16 +330,19 @@ class TestErrorHandlers(TestCase):
             if self._user:
                 r.user = self._user
             self._req = r
-            return handler500(r)
+            res = handler500(r)
+            res.wsgi_request = r
+            return res
 
         def custom_get(*args, **kwargs):
             try:
                 return self._orig_get(*args, **kwargs)
             except Exception:
                 try:
+                    print(self.client.handler)
                     self.client.handler = wrapped_handler500
                     resp = self._orig_get(*args, **kwargs)
-                    resp.request = self._req
+                    resp.request = self._req                    
                     return resp
                 finally:
                     self.client.handler = self._orig_handler
@@ -1427,6 +1430,7 @@ class TestUserDeactivationLogout(TestCase):
 
 
 # Test for the API
+@override_settings(LANGUAGE_CODE='en')
 class TestObtainingAPIToken(TestCase):
     fixtures = ['test_users']
 

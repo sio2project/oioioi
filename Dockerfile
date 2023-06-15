@@ -1,9 +1,9 @@
-FROM python:3.7
+FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
 
-RUN dpkg --add-architecture i386 && \
-    apt-get update && \
+#RUN dpkg --add-architecture i386
+RUN apt-get update && \
     apt-get install -y \
         nginx \
         proot \
@@ -11,7 +11,6 @@ RUN dpkg --add-architecture i386 && \
         libpq-dev \
         postgresql-client \
         libdb-dev \
-        fp-compiler fp-units-base fp-units-math \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
@@ -21,15 +20,16 @@ RUN dpkg --add-architecture i386 && \
         texlive-pstricks \
         ghostscript \
         texlive-fonts-recommended \
-        gcc-multilib \
+        gcc \
         sudo \
-        libstdc++6:i386 \
-        zlib1g:i386 \
+        libstdc++6 \
+        zlib1g \
+        locales \
         sox \
         flite \
         nodejs \
         npm \
-        locales && \
+        python3-pip && \
     apt-get clean
 
 # This is oioioi user linux uid. Setting it is useful in development.
@@ -55,8 +55,8 @@ USER oioioi
 
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
-RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi && \
-    pip3 cache purge
+RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 
@@ -66,37 +66,27 @@ RUN pip3 install -r requirements.txt --user && \
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user && \
     pip3 cache purge
-COPY --chown=oioioi:oioioi requirements_talent.txt ./
-RUN pip3 install -r requirements_talent.txt --user && \
-    pip3 cache purge
 
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 
-RUN oioioi-create-config /sio2/deployment
+
+ENV OIOIOI_DB_ENGINE 'django.db.backends.postgresql'
+ENV RABBITMQ_HOST 'broker'
+ENV RABBITMQ_PORT '5672'
+ENV RABBITMQ_USER 'oioioi'
+ENV RABBITMQ_PASSWORD 'oioioi'
+ENV FILETRACKER_LISTEN_ADDR '0.0.0.0'
+ENV FILETRACKER_LISTEN_PORT '9999'
+ENV FILETRACKER_URL 'http://web:9999'
+ENV SIOWORKERS_SANDBOXES_URL https://otsrv.net/sandboxes/
+
+RUN oioioi-create-config /sio2/deployment && \
+    echo "from basic_settings import *" >> settings.py
 
 WORKDIR /sio2/deployment
 
-RUN sed -i -e \
-       "s/SERVER = 'django'/SERVER = 'uwsgi-http'/g;\
-        s/DEBUG = True/DEBUG = False/g;\
-        s/django.db.backends./django.db.backends.postgresql/g;\
-        s/#BROKER_URL/BROKER_URL/g;\
-        s/#FILETRACKER_LISTEN_ADDR/FILETRACKER_LISTEN_ADDR/g;\
-        s/#FILETRACKER_LISTEN_PORT/FILETRACKER_LISTEN_PORT/g;\
-        s|#FILETRACKER_URL = '.*'|FILETRACKER_URL = 'http://web:9999'|g;\
-        s/#*RUN_SIOWORKERSD$/RUN_SIOWORKERSD/g;\
-        s/#SIOWORKERS_LISTEN_ADDR/SIOWORKERS_LISTEN_ADDR/g;\
-        s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
-        s/RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
-        s/USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g" \
-        settings.py && \
-    echo "SANDBOXES_MANIFEST = 'https://otsrv.net/sandboxes/Manifest'" >> settings.py && \
-    echo "from basic_settings import *" >> settings.py && \
-    cp /sio2/oioioi/oioioi/selenium_settings.py selenium_settings.py && \
-    mkdir -p /sio2/deployment/{sockets,logs/{supervisor,runserver}} && \
+RUN mkdir -p /sio2/deployment/{sockets,logs/{supervisor,runserver}} && \
     sudo ln -fs /sio2/deployment/nginx-site.conf /etc/nginx/sites-available/default
-
-ENV SIOWORKERS_SANDBOXES_URL https://otsrv.net/sandboxes/
 
 # Download sandboxes
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi \

@@ -76,7 +76,7 @@ class UserGroupRankingInline(admin.StackedInline):
 class UserGroupRankingsContestAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(UserGroupRankingsContestAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [UserGroupRankingInline]
+        self.inlines = tuple(self.inlines) + (UserGroupRankingInline,)
 
 
 ContestAdmin.mix_in(UserGroupRankingsContestAdminMixin)

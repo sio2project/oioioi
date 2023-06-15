@@ -38,7 +38,7 @@ class MailSubmissionConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(MailSubmissionConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [MailSubmissionConfigInline]
+        self.inlines = tuple(self.inlines) + (MailSubmissionConfigInline,)
 
 
 ContestAdmin.mix_in(MailSubmissionConfigAdminMixin)

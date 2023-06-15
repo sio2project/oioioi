@@ -1,8 +1,8 @@
-from datetime import datetime, timedelta  # pylint: disable=E0611
+from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
 
 from django.core.files.base import ContentFile
 from django.urls import reverse
-from django.utils.timezone import get_current_timezone, utc
+from django.utils.timezone import get_current_timezone
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
@@ -25,7 +25,7 @@ class OISubmitFileMixin(object):
         file = ContentFile('a' * file_size, name=file_name)
 
         if localtime is None:
-            localtime = datetime.now(utc)
+            localtime = datetime.now(timezone.utc)
 
         if isinstance(localtime, datetime):
             localtime_str = localtime.astimezone(get_current_timezone()).strftime(
@@ -99,11 +99,11 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 30, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 30, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
         round.save()
 
-        dt = datetime(2012, 7, 10, tzinfo=utc)
+        dt = datetime(2012, 7, 10, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
@@ -115,28 +115,28 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 str(SUSPICION_REASONS['BEFORE_START']),
             )
 
-        dt = datetime(2012, 7, 31, tzinfo=utc)
+        dt = datetime(2012, 7, 31, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertNotSuspected(response, submission_number, suspected_number)
 
-        dt = datetime(2012, 8, 5, tzinfo=utc)
+        dt = datetime(2012, 8, 5, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertNotSuspected(response, submission_number, suspected_number)
 
-        dt = datetime(2012, 8, 10, tzinfo=utc)
+        dt = datetime(2012, 8, 10, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertNotSuspected(response, submission_number, suspected_number)
 
-        dt = datetime(2012, 8, 11, tzinfo=utc)
+        dt = datetime(2012, 8, 11, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
@@ -148,7 +148,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 str(SUSPICION_REASONS['AFTER_END']),
             )
 
-        dt = datetime(2012, 8, 9, tzinfo=utc)
+        dt = datetime(2012, 8, 9, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
@@ -157,7 +157,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
             )
             self._assertNotSuspected(response, submission_number, suspected_number)
 
-        dt = datetime(2012, 8, 9, tzinfo=utc)
+        dt = datetime(2012, 8, 9, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
@@ -171,7 +171,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                 str(SUSPICION_REASONS['TIMES_DIFFER']),
             )
 
-        dt = datetime(2012, 8, 9, tzinfo=utc)
+        dt = datetime(2012, 8, 9, tzinfo=timezone.utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
             suspected_number = Submission.objects.filter(kind='SUSPECTED').count()
@@ -200,7 +200,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         self._assertSubmitted(response, submission_number)
 
     def test_submissions_limitation(self):
-        dt = datetime(2012, 8, 9, tzinfo=utc)
+        dt = datetime(2012, 8, 9, tzinfo=timezone.utc)
         with fake_time(dt):
             contest = Contest.objects.get()
             pi = ProblemInstance.objects.get()

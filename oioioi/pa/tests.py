@@ -1,5 +1,5 @@
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 import urllib.parse
 
@@ -9,7 +9,6 @@ from django.core.files.base import ContentFile
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import utc
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import (
     Contest,
@@ -136,9 +135,9 @@ class TestPARoundTimes(TestCase):
             )
 
         dates = [
-            datetime(2012, 6, 1, 0, 0, tzinfo=utc),
-            datetime(2012, 8, 1, 0, 0, tzinfo=utc),
-            datetime(2012, 10, 1, 0, 0, tzinfo=utc),
+            datetime(2012, 6, 1, 0, 0, tzinfo=timezone.utc),
+            datetime(2012, 8, 1, 0, 0, tzinfo=timezone.utc),
+            datetime(2012, 10, 1, 0, 0, tzinfo=timezone.utc),
         ]
 
         # 1) results date of round 1
@@ -181,7 +180,7 @@ class TestPARanking(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=timezone.utc)):
             response = self.client.get(self._ranking_url(B_RANKING_KEY))
             check_visibility(['B'], response)
             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
@@ -192,7 +191,7 @@ class TestPARanking(TestCase):
 
     def test_no_zero_scores_in_ranking(self):
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=timezone.utc)):
             response = self.client.get(self._ranking_url(3))
             # Test User should be present in the ranking.
             self.assertTrue(re.search(b'<td[^>]*>Test User</td>', response.content))
@@ -217,7 +216,7 @@ class TestPARanking(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=timezone.utc)):
             # 28 (10, 8, 6, 4), 28 (9, 9, 7, 3), 10 (10)
             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
             check_order(response, [b'Test User', b'Test User 2', b'Test User 3'])

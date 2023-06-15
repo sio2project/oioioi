@@ -1,11 +1,10 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.test import RequestFactory
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Submission
@@ -32,8 +31,8 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
         contest = Contest.objects.get()
         tconf = TeamsConfig(
             contest=contest,
-            modify_begin_date=datetime(2012, 1, 1, 8, tzinfo=utc),
-            modify_end_date=datetime(2012, 1, 1, 12, tzinfo=utc),
+            modify_begin_date=datetime(2012, 1, 1, 8, tzinfo=timezone.utc),
+            modify_end_date=datetime(2012, 1, 1, 12, tzinfo=timezone.utc),
             enabled=True,
         )
         tconf.save()
@@ -45,7 +44,7 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
         request.contest = contest
         request.user = user
 
-        timestamp = datetime(2012, 1, 1, 10, tzinfo=utc)
+        timestamp = datetime(2012, 1, 1, 10, tzinfo=timezone.utc)
         with fake_time(timestamp):
             request.timestamp = timestamp
             self.assertEqual(contest.controller.can_modify_team(request), True)
@@ -77,13 +76,13 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
         contest = Contest.objects.get()
         tconf = TeamsConfig(
             contest=contest,
-            modify_begin_date=datetime(2012, 1, 1, 8, tzinfo=utc),
-            modify_end_date=datetime(2012, 1, 1, 12, tzinfo=utc),
+            modify_begin_date=datetime(2012, 1, 1, 8, tzinfo=timezone.utc),
+            modify_end_date=datetime(2012, 1, 1, 12, tzinfo=timezone.utc),
             enabled=True,
         )
         tconf.save()
 
-        timestamp = datetime(2012, 1, 1, 10, tzinfo=utc)
+        timestamp = datetime(2012, 1, 1, 10, tzinfo=timezone.utc)
         with fake_time(timestamp):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(

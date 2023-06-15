@@ -11,7 +11,7 @@ from django.db.models import Case, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
 from django.forms.models import modelform_factory
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import re_path, reverse
 from django.utils.encoding import force_str
@@ -420,12 +420,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         )
 
     def _edit_quiz_href(self, instance):
-        if not settings.DISABLE_QUIZZES:
-            return reverse(
-                'oioioiadmin:quizzes_quiz_change', args=[instance.problem.pk]
-            )
-        else:
-            return Http404
+        return reverse('oioioiadmin:quizzes_quiz_change', args=[instance.problem.pk])
 
     def _move_href(self, instance):
         return reverse(
@@ -444,10 +439,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         assert ProblemSite.objects.filter(problem=instance.problem).exists()
         move_href = self._move_href(instance)
         result.append((move_href, _("Edit")))
-        if not settings.DISABLE_QUIZZES:
-            is_quiz = hasattr(instance.problem, 'quiz') and instance.problem.quiz
-        else:
-            is_quiz = False
+        is_quiz = hasattr(instance.problem, 'quiz') and instance.problem.quiz
         if is_quiz:
             edit_quiz_href = self._edit_quiz_href(instance)
             result.append((edit_quiz_href, _("Quiz questions")))
@@ -541,7 +533,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         qs = super(ProblemInstanceAdmin, self).get_queryset(request)
         qs = (
             qs.filter(contest=request.contest)
-            .select_related('problem__problemsite')
+            .select_related(
+                'problem__problemsite',
+                'problem__quiz',
+            )
             .annotate(
                 localized_name=Subquery(
                     ProblemName.objects.filter(
@@ -558,8 +553,6 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         )
         if 'oioioi.suspendjudge' in settings.INSTALLED_APPS:
             qs = qs.select_related('suspended')
-        if not settings.DISABLE_QUIZZES:
-            qs = qs.select_related('problem__quiz')
         return qs
 
 

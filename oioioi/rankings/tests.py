@@ -1,12 +1,11 @@
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import QueryDict
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.templatetags.simple_filters import result_color_class
 from oioioi.base.tests import (
@@ -154,14 +153,14 @@ class TestRankingViews(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Export to CSV')
             self.assertContains(response, 'Regenerate ranking')
 
         # Check that Admin is filtered out.
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
 
             self.assertFalse(
@@ -179,7 +178,7 @@ class TestRankingViews(TestCase):
         admin.save()
 
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_timezone_now(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertIn(
                 'rankings/ranking_view.html', [t.name for t in response.templates]
@@ -202,7 +201,7 @@ class TestRankingViews(TestCase):
                 )
             )
 
-        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             expected_order = ['Test User', 'Test User 2', 'Test Admin']
             prev_pos = 0
@@ -236,7 +235,7 @@ class TestRankingViews(TestCase):
         )
         contest.save()
 
-        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
 
             for task in VISIBLE_TASKS:
@@ -256,11 +255,11 @@ class TestRankingViews(TestCase):
         url = reverse('ranking_csv', kwargs={'contest_id': contest.id, 'key': 'c'})
 
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             check_not_accessible(self, url)
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'User,')
             # Check that Admin is filtered out.
@@ -295,11 +294,11 @@ class TestRankingViews(TestCase):
         )
 
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2019, 1, 27, tzinfo=utc)):
+        with fake_time(datetime(2019, 1, 27, tzinfo=timezone.utc)):
             check_not_accessible(self, url)
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2019, 1, 27, tzinfo=utc)):
+        with fake_time(datetime(2019, 1, 27, tzinfo=timezone.utc)):
             ranking, _ = Ranking.objects.get_or_create(
                 contest=contest, key='admin#key', needs_recalculation=False
             )

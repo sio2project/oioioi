@@ -50,12 +50,12 @@ class TestPortalModels(TestCase):
 
     def test_get_siblings(self):
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_siblings(), [], transform=repr)
-        self.assertQuerysetEqual(node.get_siblings(include_self=True), ['<Node: Root>'], transform=repr)
+        self.assertQuerySetEqual(node.get_siblings(), [], transform=repr)
+        self.assertQuerySetEqual(node.get_siblings(include_self=True), ['<Node: Root>'], transform=repr)
 
         node = node.children.get(short_name='child1')
-        self.assertQuerysetEqual(node.get_siblings(), ['<Node: Child 2>'], transform=repr)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(node.get_siblings(), ['<Node: Child 2>'], transform=repr)
+        self.assertQuerySetEqual(
             node.get_siblings(include_self=True), ['<Node: Child 1>', '<Node: Child 2>'], transform=repr
         )
 
@@ -249,7 +249,7 @@ class TestPortalViews(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         root = get_portal().root
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             root.get_children(), ['<Node: Child 1>', '<Node: Child 2>'], transform=repr
         )
 
@@ -291,7 +291,7 @@ class TestPortalViews(TestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             root.get_children(), ['<Node: Child 1>', '<Node: Child 2>'], transform=repr
         )
 
@@ -336,7 +336,7 @@ class TestPortalViews(TestCase):
         self.assertRedirects(response, portal_url(portal=get_portal()))
 
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
+        self.assertQuerySetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
 
     def test_portal_tree_json_view(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -403,11 +403,11 @@ class TestPortalViews(TestCase):
 
         assertMoveStatus('test_user', 2, 3, 'inside', 200)
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
+        self.assertQuerySetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
         node = node.children.get()
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 1>'], transform=repr)
+        self.assertQuerySetEqual(node.get_children(), ['<Node: Child 1>'], transform=repr)
         node = node.children.get()
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Grandchild 1>'], transform=repr)
+        self.assertQuerySetEqual(node.get_children(), ['<Node: Grandchild 1>'], transform=repr)
 
     def test_delete_portal_view(self):
         self.assertTrue(self.client.login(username='test_user'))

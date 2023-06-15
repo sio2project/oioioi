@@ -36,10 +36,7 @@ class ScoresRevealProblemInstanceAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ScoresRevealProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
-        # It's more comfortable to use if it's not below tens of tests.
-        # A more long-term solution would be putting the tests in a fieldset
-        # collapsed by default, like Advanced settings in ContestAdmin
-        self.inlines = [ScoresRevealConfigInline] + self.inlines
+        self.inlines = (ScoresRevealConfigInline,) + tuple(self.inlines)
 
 
 ProblemInstanceAdmin.mix_in(ScoresRevealProblemInstanceAdminMixin)
@@ -95,7 +92,7 @@ class ScoresRevealContestConfigInline(admin.TabularInline):
 class ScoresRevealContestConfigAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ScoresRevealContestConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ScoresRevealContestConfigInline]
+        self.inlines = tuple(self.inlines) + (ScoresRevealContestConfigInline,)
 
 
 ContestAdmin.mix_in(ScoresRevealContestConfigAdminMixin)

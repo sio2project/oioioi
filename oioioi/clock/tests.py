@@ -1,12 +1,11 @@
 import calendar
 import time
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from dateutil.parser import parse as parse_date
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
@@ -67,7 +66,7 @@ class TestClock(TestCase):
     def test_admin_time(self):
         self.assertTrue(self.client.login(username='test_admin'))
         session = self.client.session
-        session['admin_time'] = datetime(2012, 12, 12, tzinfo=utc).isoformat()
+        session['admin_time'] = datetime(2012, 12, 12, tzinfo=timezone.utc).isoformat()
         session.save()
         response = self.client.get(reverse('get_status')).json()
         self.assertTrue(response['is_admin_time_set'])

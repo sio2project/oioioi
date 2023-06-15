@@ -1,9 +1,8 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
@@ -56,30 +55,30 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         problem_instance.submissions_limit = 0
         problem_instance.save()
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
         round.save()
         msc = MailSubmissionConfig(
             contest=contest,
             enabled=True,
-            start_date=datetime(2012, 8, 12, tzinfo=utc),
-            end_date=datetime(2012, 8, 14, tzinfo=utc),
+            start_date=datetime(2012, 8, 12, tzinfo=timezone.utc),
+            end_date=datetime(2012, 8, 14, tzinfo=timezone.utc),
         )
         msc.save()
 
-        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 11, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)
 
         self.assertEqual(MailSubmission.objects.count(), 0)
 
-        with fake_time(datetime(2012, 8, 13, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 13, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
 
         self.assertEqual(MailSubmission.objects.count(), 1)
 
-        with fake_time(datetime(2012, 8, 15, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 15, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)
 
@@ -91,18 +90,18 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         problem_instance.submissions_limit = 0
         problem_instance.save()
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
         round.save()
         msc = MailSubmissionConfig(
             contest=contest,
             enabled=True,
-            start_date=datetime(2012, 8, 12, tzinfo=utc),
-            end_date=datetime(2012, 8, 14, tzinfo=utc),
+            start_date=datetime(2012, 8, 12, tzinfo=timezone.utc),
+            end_date=datetime(2012, 8, 14, tzinfo=timezone.utc),
         )
         msc.save()
 
-        with fake_time(datetime(2012, 8, 13, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 13, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
 
@@ -151,14 +150,14 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         problem_instance.submissions_limit = 0
         problem_instance.save()
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
         round.save()
         msc = MailSubmissionConfig(
             contest=contest,
             enabled=True,
-            start_date=datetime(2012, 8, 12, tzinfo=utc),
-            end_date=datetime(2012, 8, 14, tzinfo=utc),
+            start_date=datetime(2012, 8, 12, tzinfo=timezone.utc),
+            end_date=datetime(2012, 8, 14, tzinfo=timezone.utc),
         )
         msc.save()
 
@@ -166,7 +165,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        with fake_time(datetime(2012, 8, 13, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 13, 0, 5, tzinfo=timezone.utc)):
             self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)

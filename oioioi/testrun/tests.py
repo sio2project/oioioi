@@ -1,12 +1,11 @@
 # coding: utf-8
 import os
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import (
     TestCase,
@@ -42,7 +41,7 @@ class TestTestrunViews(TestCase):
             'submission_id': submission.id,
         }
 
-        with fake_time(datetime(2011, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2011, 8, 5, tzinfo=timezone.utc)):
             submission_view = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertContains(submission_view, 'Input')
             self.assertContains(submission_view, 'Output')
@@ -66,7 +65,7 @@ class TestTestrunViews(TestCase):
             'submission_id': submission.id,
         }
 
-        with fake_time(datetime(2011, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2011, 8, 5, tzinfo=timezone.utc)):
             show_output = self.client.get(
                 reverse('get_testrun_input', kwargs=kwargs),
                 HTTP_X_REQUESTED_WITH='XMLHttpRequest',
@@ -94,7 +93,7 @@ class TestTestrunViews(TestCase):
             'submission_id': submission.id,
         }
 
-        with fake_time(datetime(2011, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2011, 8, 5, tzinfo=timezone.utc)):
             show_output = self.client.get(
                 reverse('get_testrun_output', kwargs=kwargs),
                 HTTP_X_REQUESTED_WITH='XMLHttpRequest',
@@ -114,7 +113,7 @@ class TestTestrunViews(TestCase):
                 'filename="output.out"', download_response['Content-Disposition']
             )
 
-        with fake_time(datetime(2014, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2014, 8, 5, tzinfo=timezone.utc)):
             show_output = self.client.get(
                 reverse('get_testrun_output', kwargs=kwargs),
                 HTTP_X_REQUESTED_WITH='XMLHttpRequest',

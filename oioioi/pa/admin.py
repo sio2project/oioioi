@@ -20,7 +20,7 @@ class PARegistrationInline(admin.StackedInline):
 
 class PARegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display
-    inlines = ParticipantAdmin.inlines + [PARegistrationInline]
+    inlines = tuple(ParticipantAdmin.inlines) + (PARegistrationInline,)
     readonly_fields = ['user']
 
     def has_add_permission(self, request):
@@ -56,7 +56,7 @@ class PAProblemInstanceAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(PAProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [PAProblemInstanceInline]
+        self.inlines = tuple(self.inlines) + (PAProblemInstanceInline,)
 
 
 ProblemInstanceAdmin.mix_in(PAProblemInstanceAdminMixin)
