@@ -696,6 +696,7 @@ def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
         {'problem_instance': problem_instance, 'destination_contest': contest},
     )
 
+@enforce_condition(is_contest_basicadmin)
 def get_teacher_names(request):
     queryset = User.objects.filter(teacher__isnull=False)
     return get_user_hints_view(request, 'substr', queryset)
