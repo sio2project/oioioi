@@ -341,9 +341,8 @@ def _prepare_changed_package(request, form, archive, package_name):
     extraction_dir = tempfile.mkdtemp()
     archive.extract(to_path=extraction_dir)
     file_path = os.path.join(extraction_dir, file_path)
-    with open(file_path, "w+") as original_file:
-        original_file.truncate(0)
-        original_file.writelines(uploaded_file.read())
+    with open(file_path, "wb") as original_file:
+        original_file.write(uploaded_file.read())
     package_dir = tempfile.mkdtemp()
     package_archive_name = os.path.join(package_dir, package_name)
     shutil.make_archive(

@@ -97,7 +97,7 @@ class TestSinolPackageIdentify(TestCase):
 
 @enable_both_unpack_configurations
 @needs_linux
-class TestSinolPackage(TestCase):
+class TestSinolPackage(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest']
 
     def test_title_in_config_yml(self):
@@ -105,6 +105,52 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
+
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    def test_single_file_replacement(self):
+        filename = get_test_filename('test_simple_package.zip')
+        old_statement = 'tst/doc/tstzad.pdf'
+        bad_statement = get_test_filename('blank.pdf')
+        good_statement = get_test_filename('tstzad.pdf') # copy of blank
+
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        site_key = problem.problemsite.url_key
+        url = (
+            reverse('problem_site', kwargs={'site_key': site_key})
+            + '?key=manage_files_problem_package'
+        )
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url)
+        self.assertNotEqual(response.status_code, 200)
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, old_statement)
+
+        post_data = {
+            'file_name': old_statement,
+            'file_replacement': open(bad_statement, 'rb'),
+            'upload_button': '',
+        }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'must have the same name') # error
+
+        post_data['file_replacement'] = open(good_statement, 'rb')
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        # It is in the old and modified packages' rows and also in a filter
+        self.assertContains(response, 'Uploaded', 3)
+
+        statement = ProblemStatement.objects.get(problem=problem)
+        url = reverse('show_statement', kwargs={'statement_id': statement.id})
+        response = self.client.get(url)
+        content = self.streamingContent(response)
+        self.assertEqual(content, open(good_statement, 'rb').read())
+
 
     def test_title_translations_in_config_yml(self):
         filename = get_test_filename('test_simple_package_translations.zip')
