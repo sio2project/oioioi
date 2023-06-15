@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.permissions import Condition
 
-
 class OrderedRegistry(object):
     """Maintains a collection of values ordered by a separate key."""
 
@@ -229,3 +228,7 @@ side_pane_menus_registry.register(menu_registry, order=1000)
 
 personal_menu_registry = MenuRegistry(_("Personal Menu"))
 side_pane_menus_registry.register(personal_menu_registry, order=50)
+
+#: The registry for uncollapsed menu in the upper navigation bar.
+navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
+

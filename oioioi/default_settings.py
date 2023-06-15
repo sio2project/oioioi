@@ -193,6 +193,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'oioioi.su.processors.real_user',
                 'oioioi.base.processors.base_url',
+                'oioioi.base.processors.navbar_links',
                 'oioioi.base.processors.side_menus',
                 'oioioi.base.processors.site_name',
                 'oioioi.base.processors.mathjax_location',
