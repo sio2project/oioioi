@@ -176,40 +176,22 @@ in
       type = lib.types.bool;
     };
 
-    uwsgi = lib.mkOption {
-      default = { };
-      description = "uwsgi settings";
-      type = mkOptionSubmodule {
-        concurrency = lib.mkOption {
-          default = "auto";
-          description = "The number of uwsgi processes to spawn";
-          type = with lib.types; oneOf [ (strMatching "auto") ints.positive ];
-        };
-      };
+    uwsgi.concurrency = lib.mkOption {
+      default = "auto";
+      description = "The number of uwsgi processes to spawn";
+      type = with lib.types; oneOf [ (strMatching "auto") ints.positive ];
     };
 
-    unpackmgr = lib.mkOption {
-      default = { };
-      description = "unpackmgr settings";
-      type = mkOptionSubmodule {
-        concurrency = lib.mkOption {
-          default = 1;
-          description = "unpackmgr concurrency";
-          type = lib.types.ints.positive;
-        };
-      };
+    unpackmgr.concurrency = lib.mkOption {
+      default = 1;
+      description = "unpackmgr concurrency";
+      type = lib.types.ints.positive;
     };
 
-    evalmgr = lib.mkOption {
-      default = { };
-      description = "evalmgr settings";
-      type = mkOptionSubmodule {
-        concurrency = lib.mkOption {
-          default = 1;
-          description = "evalmgr concurrency";
-          type = lib.types.ints.positive;
-        };
-      };
+    evalmgr.concurrency = lib.mkOption {
+      default = 1;
+      description = "evalmgr concurrency";
+      type = lib.types.ints.positive;
     };
 
     extraSettings = lib.mkOption {
@@ -470,7 +452,7 @@ in
 
                 User = "sio2";
                 Group = "sio2";
-              } // {
+
                 PrivateTmp = true;
                 ProtectSystem = "strict";
                 RemoveIPC = true;

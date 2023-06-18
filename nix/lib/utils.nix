@@ -1,13 +1,6 @@
 { lib }:
 
 rec {
-  mkSimpleOption = description: type: lib.mkOption {
-    inherit description type;
-  };
-  mkOptionSubmodule = options: lib.types.submodule {
-    inherit options;
-  };
-
   # Kind of like a hash, but not really
   collectUniqueString = thing:
     if builtins.typeOf thing == "set" then
