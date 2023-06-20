@@ -7616,7 +7616,10 @@ msgstr "Brak dostępnych rankingów."
 #: rankings/templates/rankings/ranking_view.html:19
 #| msgid "Regenerate key"
 msgid "Regenerate ranking"
-msgstr "Wygeneruj ranking ponownie"
+msgstr "Odśwież ranking"
+
+msgid "Regenerate all rankings"
+msgstr "Odśwież wszystkie rankingi"
 
 #: rankings/templates/rankings/ranking_view.html:26
 msgid "Find my place"
