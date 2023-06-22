@@ -1122,6 +1122,10 @@ class SinolPackage(object):
         Time limits are validated the same way it's validated
         in default package.
         """
+        # Needed for package reuploads
+        LanguageOverrideForTest.objects.filter(
+            test__problem_instance_id=self.main_problem_instance.id,
+        ).delete()
         if 'override_limits' in self.config and self.config['override_limits']:
             overrides = self.config['override_limits']
             for lang in overrides:
