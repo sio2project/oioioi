@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.10
 
 ENV PYTHONUNBUFFERED 1
 
@@ -81,7 +81,7 @@ ENV FILETRACKER_URL 'http://web:9999'
 ENV SIOWORKERS_SANDBOXES_URL https://otsrv.net/sandboxes/
 
 RUN oioioi-create-config /sio2/deployment && \
-    echo "from basic_settings import *" >> settings.py
+    echo "from basic_settings import *" >> /sio2/deployment/settings.py
 
 WORKDIR /sio2/deployment
 

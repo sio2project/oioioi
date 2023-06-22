@@ -34,37 +34,8 @@ let
 
     PROBLEM_STATISTICS_AVAILABLE = true;
 
-    MIDDLEWARE = overrideAssignment "+=" (
-      "oioioi.supervision.middleware.supervision_middleware" # needed for supervision
-      "oioioi.contests.middleware.CurrentContestMiddleware"
-    );
-
-    INSTALLED_APPS = pythonExpression ''${toPythonValue { } (
-      "oioioi.participants"
-      "oioioi.testrun"
-      "oioioi.scoresreveal"
-      "oioioi.confirmations"
-      "oioioi.ctimes"
-      "oioioi.suspendjudge"
-      "oioioi.submitservice"
-      "oioioi.timeline"
-      "oioioi.statistics"
-      "oioioi.notifications"
-      "oioioi.globalmessage"
-      "oioioi.phase"
-      "oioioi.supervision"
-      "oioioi.talent"
-    )} + INSTALLED_APPS'';
-
     # Managed by systemd
     FILETRACKER_CACHE_ROOT = "/var/cache/sio2-filetracker-cache";
-
-    SUBMITTABLE_LANGUAGES = pythonStatements ''
-      SUBMITTABLE_LANGUAGES.pop('Java');
-      SUBMITTABLE_LANGUAGES.pop('Python');
-      SUBMITTABLE_EXTENSIONS.pop('Java');
-      SUBMITTABLE_EXTENSIONS.pop('Python');
-    '';
 
     USE_SINOLPACK_MAKEFILES = false;
 
@@ -188,14 +159,14 @@ in
 
   config =
     let
-      python = pkgs.python38;
+      python = pkgs.python310;
       package = python.pkgs.callPackage ./package.nix { };
       uwsgi = pkgs.uwsgi.override { plugins = [ "python3" ]; python3 = python; };
       # FIXME: This could probably be acomplished without this hackery
       celery = builtins.head (builtins.filter (x: lib.getName x == "celery") package.propagatedBuildInputs);
 
-      writePython38 = pkgs.writers.makePythonWriter python pkgs.python38Packages /* FIXME: build packages? */ pkgs.python38Packages;
-      writePython38Bin = name: writePython38 "/bin/${name}";
+      writePython310 = pkgs.writers.makePythonWriter python pkgs.python310Packages /* FIXME: build packages? */ pkgs.python310Packages;
+      writePython310Bin = name: writePython310 "/bin/${name}";
 
       finalSimpleSettings = baseSettings // (builtins.foldl' (a: b: a // b) { } (builtins.filter builtins.isAttrs cfg.extraSettings)) // {
         SERVER = "uwsgi";
@@ -227,7 +198,7 @@ in
 
       PYTHONPATH = "${settingsDir}:${python.pkgs.makePythonPath [ package ]}:/etc/sio2/";
       DJANGO_SETTINGS_MODULE = "settings";
-      writePythonSio = name: script: writePython38 name { } ''
+      writePythonSio = name: script: writePython310 name { } ''
         # flake8: noqa
         import sys
         import os
