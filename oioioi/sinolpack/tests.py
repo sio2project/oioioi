@@ -591,21 +591,35 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
 
     @pytest.mark.slow
     @both_configurations
-    def test_overriden_limits(self):
+    def test_overriden_limits_with_reupload(self):
         filename = get_test_filename('test_limits_overriden_for_cpp.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
         overriden_tests = LanguageOverrideForTest.objects.filter(test__in=tests)
-        self.assertTrue(len(overriden_tests) > 0)
+        self.assertEqual(len(overriden_tests), 5)
         self.assertTrue(all([t.language == 'cpp' for t in overriden_tests]))
         # New global time limit
         self.assertTrue(all([t.time_limit == 1000 for t in overriden_tests]))
-
+        # New group-specific memory limits
         overriden_memory_group = overriden_tests.filter(test__group=1)
         self.assertTrue(all([t.memory_limit == 6000 for t in overriden_memory_group]))
         overriden_memory_group2 = overriden_tests.filter(test__group=2)
         self.assertTrue(all([t.memory_limit == 2000 for t in overriden_memory_group2]))
+
+        filename = get_test_filename('test_limits_overriden_for_cpp_and_py.zip')
+        call_command('updateproblem', str(problem.id),filename)
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
+        overriden_tests = LanguageOverrideForTest.objects.filter(test__in=tests)
+        for lang in ('cpp', 'py'):
+            self.assertEqual(overriden_tests.filter(language=lang).count(), 5)
+        # New and halved global time limit
+        self.assertTrue(all([t.time_limit == 500 for t in overriden_tests]))
+        # New and halved memory limits for a different set of groups
+        overriden_memory_group = overriden_tests.filter(test__group=0)
+        self.assertTrue(all([t.memory_limit == 3000 for t in overriden_memory_group]))
+        overriden_memory_group2 = overriden_tests.filter(test__group=2)
+        self.assertTrue(all([t.memory_limit == 1000 for t in overriden_memory_group2]))
 
 
 @enable_both_unpack_configurations
