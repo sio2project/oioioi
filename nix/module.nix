@@ -301,19 +301,19 @@ in
       };
       services.filetracker.ensureFiles = lib.mkIf cfg.defaultFiletrackerEnsureFiles {
         "/sandboxes/compiler-gcc.10_2_1.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/compiler-gcc.10_2_1.tar.gz";
-          hash = "sha256-+QO7/ZqLWRvFCF9KdVqrZ6ZsBB96bkRgYVUUezvAf8A=";
+          url = "https://otsrv.net/sandboxes/compiler-gcc.10_2_1.tar.gz";
+          hash = "sha256-Qg/tN8VoQvxYYnI8YgwWLedUJI/3brey0JVsAdQbUG4=";
         };
         "/sandboxes/compiler-fpc.2_6_2.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/compiler-fpc.2_6_2.tar.gz";
+          url = "https://otsrv.net/sandboxes/compiler-fpc.2_6_2.tar.gz";
           hash = "sha256-bci/e++hKvWhVgK3uAHuhp5bl3salIj/j9/aYFZ8uKQ=";
         };
         "/sandboxes/exec-sandbox.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/exec-sandbox.tar.gz";
+          url = "https://otsrv.net/sandboxes/exec-sandbox.tar.gz";
           hash = "sha256-v482YOlf63OlgTwK5HvAuFgDFf739GvFXCbyX9nvRb4=";
         };
         "/sandboxes/proot-sandbox_amd64.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/proot-sandbox_amd64.tar.gz";
+          url = "https://otsrv.net/sandboxes/proot-sandbox_amd64.tar.gz";
           hash = "sha256-u6CSak326pAa7amYqYuHIqFu1VppItOXjFyFZgpf39w=";
         };
         "/sandboxes/talent_sio2jail_exec-sandbox-1.4.3.tar.gz" = pkgs.fetchurl {
