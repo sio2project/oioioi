@@ -28,13 +28,13 @@ from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
-from oioioi.contests.handlers import call_submission_judged
+from oioioi.contests.handlers import send_notification_judged
 from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import make_report, collect_tests
+from oioioi.programs.handlers import collect_tests
 from oioioi.programs.models import (
     ModelSolution,
     ProblemAllowedLanguage,
@@ -546,10 +546,10 @@ class TestSubmission(TestCase, SubmitFileMixin):
         environ['is_rejudge'] = False
         environ['submission_id'] = submission.pk
         environ['contest_id'] = submission.problem_instance.contest.id
-        call_submission_judged(environ)
+        send_notification_judged(environ)
 
         environ['is_rejudge'] = True
-        call_submission_judged(environ)
+        send_notification_judged(environ)
 
         # Check if a notification for user 1001 was send
         # And user 1002 doesn't received a notification
@@ -560,6 +560,8 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self.assertIn('%(score)s', messages[0][0])
         self.assertIn('score', messages[0][1])
         self.assertEqual(messages[0][1]['score'], '34')
+        self.assertIn('was judged', messages[0][0])
+        self.assertNotIn('Initial result', messages[0][0])
 
         NotificationHandler.send_notification = send_notification_backup
 
@@ -899,6 +901,7 @@ class TestNotifications(TestCase):
 
     def test_initial_results_notification(self):
         msg_count = defaultdict(int)
+        messages = []
 
         @classmethod
         def fake_send_notification(
@@ -910,25 +913,38 @@ class TestNotifications(TestCase):
         ):
             if user.pk == 1001 and notification_type == 'initial_results':
                 msg_count['user_1001_notifications'] += 1
+            messages.append((notification_message, notificaion_message_arguments))
 
         send_notification_backup = NotificationHandler.send_notification
         NotificationHandler.send_notification = fake_send_notification
-        make_report(
-            {
-                'compilation_result': 'OK',
-                'submission_id': 1,
-                'status': 'OK',
-                'score': None,
-                'max_score': None,
-                'compilation_message': '',
-                'tests': {},
-                'rejudge': False,
-            },
-            'INITIAL',
-        )
+        environ = {
+            'compilation_result': 'OK',
+            'submission_id': 1,
+            'status': 'OK',
+            'score': None,
+            'max_score': None,
+            'compilation_message': '',
+            'tests': {},
+            'is_rejudge': False,
+        }
 
+        send_notification_judged(environ, 'INITIAL')
         # Check if a notification for user 1001 was sent
         self.assertEqual(msg_count['user_1001_notifications'], 1)
+
+        environ['status'] = 'CE'
+        send_notification_judged(environ, 'INITIAL')
+        # We should send a notif even for non-compiling submissions
+        self.assertEqual(msg_count['user_1001_notifications'], 2)
+
+        environ['is_rejudge'] = True
+        send_notification_judged(environ, 'INITIAL')
+        # No notification should be sent for a rejudge
+        self.assertEqual(msg_count['user_1001_notifications'], 2)
+
+        self.assertIn('Initial result', messages[0][0])
+        self.assertNotIn('was judged', messages[0][0])
+
         NotificationHandler.send_notification = send_notification_backup
 
 
