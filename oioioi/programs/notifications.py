@@ -1,5 +1,6 @@
 from datetime import datetime, timezone  # pylint: disable=E0611
 
+from django.conf import settings
 from django.test import RequestFactory
 from django.urls import reverse
 from django.utils.translation import gettext_noop
@@ -59,6 +60,9 @@ def notification_function_submission_judged(arguments):
     # Check if the final report is visible to the user
     if not pi.controller.can_see_submission_score(
         request, arguments.submission
+    ) and not (
+        'oioioi.scoresreveal' in settings.INSTALLED_APPS
+        and pi.controller.can_reveal(request, arguments.submission)
     ):
         return
 

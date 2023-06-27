@@ -28,13 +28,13 @@ from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
-from oioioi.contests.handlers import call_submission_judged
+from oioioi.contests.handlers import send_notification_judged
 from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import make_report, collect_tests
+from oioioi.programs.handlers import collect_tests
 from oioioi.programs.models import (
     ModelSolution,
     ProblemAllowedLanguage,
@@ -546,10 +546,10 @@ class TestSubmission(TestCase, SubmitFileMixin):
         environ['is_rejudge'] = False
         environ['submission_id'] = submission.pk
         environ['contest_id'] = submission.problem_instance.contest.id
-        call_submission_judged(environ)
+        send_notification_judged(environ)
 
         environ['is_rejudge'] = True
-        call_submission_judged(environ)
+        send_notification_judged(environ)
 
         # Check if a notification for user 1001 was send
         # And user 1002 doesn't received a notification
@@ -913,7 +913,7 @@ class TestNotifications(TestCase):
 
         send_notification_backup = NotificationHandler.send_notification
         NotificationHandler.send_notification = fake_send_notification
-        make_report(
+        send_notification_judged(
             {
                 'compilation_result': 'OK',
                 'submission_id': 1,
@@ -922,7 +922,7 @@ class TestNotifications(TestCase):
                 'max_score': None,
                 'compilation_message': '',
                 'tests': {},
-                'rejudge': False,
+                'is_rejudge': False,
             },
             'INITIAL',
         )
