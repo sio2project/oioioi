@@ -260,6 +260,7 @@ in
 
         execute_from_command_line(sys.argv)
       '';
+      # The dict values are meaningless, but they must be rfc-compliant.
       wsgiPy = writePythonSio "wsgi.py" ''
         from django.core.wsgi import get_wsgi_application
         application = get_wsgi_application()
@@ -270,19 +271,19 @@ in
             pass
         application({
             'CONTENT_LENGTH': '0',
-            'CONTENT_TYPE': ' ',
-            'DOCUMENT_ROOT': ' ',
-            'HTTP_HOST': ' ',
+            'CONTENT_TYPE': 'application/octet-stream',
+            'DOCUMENT_ROOT': '/',
+            'HTTP_HOST': 'localhost',
             'PATH_INFO': '/api/ping',
             'REMOTE_ADDR': '127.0.0.1',
             'REMOTE_PORT': '60420',
             'REQUEST_METHOD': 'GET',
             'REQUEST_URI': '/api/ping',
-            'SERVER_NAME': ' ',
+            'SERVER_NAME': 'uwsgi',
             'SERVER_PORT': '80',
             'SERVER_PROTOCOL': 'HTTP/1.0',
-            'uwsgi.node': ' ',
-            'uwsgi.version': ' ',
+            'uwsgi.node': '1',
+            'uwsgi.version': '2.0.12',
             'wsgi.multiprocess': True,
             'wsgi.multithread': True,
             'wsgi.run_once': False,
