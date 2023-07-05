@@ -1,4 +1,0 @@
-https://github.com/Stowarzyszenie-Talent/sioworkers/archive/refs/tags/v1.5.0.tar.gz
-https://github.com/Stowarzyszenie-Talent/filetracker/archive/refs/tags/2.2.0.tar.gz
-
--e .

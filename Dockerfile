@@ -1,6 +1,7 @@
 FROM python:3.7
 
 ENV PYTHONUNBUFFERED 1
+ENV YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION 1
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
@@ -65,9 +66,6 @@ RUN pip3 install -r requirements.txt --user && \
     pip3 cache purge
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user && \
-    pip3 cache purge
-COPY --chown=oioioi:oioioi requirements_talent.txt ./
-RUN pip3 install -r requirements_talent.txt --user && \
     pip3 cache purge
 
 COPY --chown=oioioi:oioioi . /sio2/oioioi
