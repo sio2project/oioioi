@@ -39,5 +39,8 @@ def get_category(message):
 
 def unanswered_questions(messages):
     return messages.filter(
-        message__isnull=True, top_reference__isnull=True, kind='QUESTION'
+        message__isnull=True,
+        top_reference__isnull=True,
+        marked_read_by__isnull=True,
+        kind='QUESTION'
     )

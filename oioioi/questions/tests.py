@@ -151,6 +151,77 @@ class TestQuestions(TestCase):
             response = self.client.get(list_url)
         self.assertContains(response, '>NEW<', count=1)
 
+    def check_unread_num(self, num):
+        self.assertEqual(num, len(unanswered_questions(Message.objects.all())))
+
+    def mark_read(self, message_id):
+        contest = Message.objects.get(id=message_id).contest
+        url_kwargs = {'contest_id': contest.id, 'message_id': message_id}
+        read_url = reverse('mark_question_read', kwargs=url_kwargs)
+        response = self.client.post(read_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Success!")
+        self.assertContains(response, "Mark unread")
+        self.assertContains(response, "Marked read by")
+
+    def mark_unread(self, message_id):
+        contest = Message.objects.get(id=message_id).contest
+        url_kwargs = {'contest_id': contest.id, 'message_id': message_id}
+        unread_url = reverse('mark_question_unread', kwargs=url_kwargs)
+        response = self.client.post(unread_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Success!")
+        self.assertContains(response, "Mark read")
+        self.assertNotContains(response, "Marked read by")
+
+    def test_mark_read(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        contest = Contest.objects.get()
+        url_kwargs = {'contest_id': contest.id, 'message_id': 1}
+        message_url = reverse('message', kwargs=url_kwargs)
+        read_url = reverse('mark_question_read', kwargs=url_kwargs)
+        unread_url = reverse('mark_question_unread', kwargs=url_kwargs)
+        # View the message
+        self.check_unread_num(1)
+        response = self.client.get(message_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Mark read")
+
+        # Mark the message as read
+        self.mark_read(1)
+        self.check_unread_num(0)
+        # Try to mark it again
+        response = self.client.post(read_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.check_unread_num(0)
+        self.assertContains(response, "This question has already been marked read!")
+
+        # Unmark the message
+        self.mark_unread(1)
+        self.check_unread_num(1)
+        # Try to unmark it again
+        response = self.client.post(unread_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.check_unread_num(1)
+        self.assertContains(response, "This question has already been marked unread!")
+
+        # You should be able to mark an answered message as read
+        url_kwargs['message_id'] = 2
+        message_url = reverse('message', kwargs=url_kwargs)
+        response = self.client.get(message_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Mark read")
+        self.mark_read(2)
+        self.mark_unread(2)
+
+        # Only questions should be markable as read
+        for i in (5, 6):
+            url_kwargs['message_id'] = i
+            message_url = reverse('message', kwargs=url_kwargs)
+            response = self.client.get(message_url)
+            self.assertEqual(response.status_code, 200)
+            self.assertNotContains(response, "Mark read")
+
     def test_ask_and_reply(self):
         self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
