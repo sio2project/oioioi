@@ -12,7 +12,7 @@ services:
     stop_grace_period: 1m
   web:
     image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/selenium_init.sh"]
+    command: ["/sio2/oioioi/oioioi_init.sh", "--dev"]
     build:
       context: .
       dockerfile: Dockerfile
