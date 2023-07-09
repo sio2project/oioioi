@@ -30,7 +30,7 @@ In order to use `easy_toolbox.py` alternative method, check python package requi
 
 To build OIOIOI image run 
 ```bash
-OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml build
+OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml build
 ```
 or
 ```bash
@@ -39,7 +39,7 @@ or
 
 Set your containers up and running
 ```bash
-OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml up -d
+OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up -d
 ```
 or
 ```bash
@@ -50,7 +50,7 @@ Wait some time for the migration to finish (no more than a few minutes).
 
 Run your web service
 ```bash
-OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec web python3 manage.py runserver 0.0.0.0:8000
+OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml exec web python3 manage.py runserver 0.0.0.0:8000
 ```
 or
 ```bash
@@ -63,7 +63,7 @@ Now visit `localhost:8000` and start exploring OIOIOI.
 In order to run unit tests Docker installation is required.
 To do it just run
 ```bash
-docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml exec "web" ../oioioi/test.sh
+docker-compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh
 ```
 or
 ```bash
@@ -138,7 +138,7 @@ especially that it is more stable approach.
 Whenever you don't have the containers up.
 After running it you should see the following output:
 ```bash
-Running command OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml up -d
+Running command OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up -d
 ===================================================================================================================================
 Creating network "oioioi_default" with the default driver
 Creating oioioi_broker_1 ... done
