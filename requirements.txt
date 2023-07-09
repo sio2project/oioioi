@@ -1,7 +1,7 @@
 # These dependencies need to be installed from external sources,
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
-https://github.com/Stowarzyszenie-Talent/sioworkers/archive/refs/tags/v1.5.0.tar.gz
-https://github.com/Stowarzyszenie-Talent/filetracker/archive/refs/tags/2.2.0.tar.gz
+sioworkers @ https://github.com/Stowarzyszenie-Talent/sioworkers/archive/refs/tags/v1.5.0.tar.gz
+filetracker [server] @ https://github.com/Stowarzyszenie-Talent/filetracker/archive/refs/tags/2.2.0.tar.gz
 
 -e .

@@ -36,9 +36,9 @@
 # camp by the 'talent_camp_init' command in oioioi.talent
 from datetime import timedelta
 
-# (username, password ("" to prompt), email ("" is ok))
+# (username, password ("" to prompt), email ("" is ok), first_name, last_name)
 TALENT_DEFAULT_SUPERUSERS = [
-    ("ztalentariuszy", "", ""),
+    ("ztalentariuszy", "", "", "Zespół", "Talentariuszy"),
 ]
 
 TALENT_SCORE1 = 75

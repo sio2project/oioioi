@@ -113,40 +113,22 @@ in
       type = lib.types.bool;
     };
 
-    uwsgi = lib.mkOption {
-      default = { };
-      description = "uwsgi settings";
-      type = mkOptionSubmodule {
-        concurrency = lib.mkOption {
-          default = "auto";
-          description = "The number of uwsgi processes to spawn";
-          type = with lib.types; oneOf [ (strMatching "auto") ints.positive ];
-        };
-      };
+    uwsgi.concurrency = lib.mkOption {
+      default = "auto";
+      description = "The number of uwsgi processes to spawn";
+      type = with lib.types; oneOf [ (strMatching "auto") ints.positive ];
     };
 
-    unpackmgr = lib.mkOption {
-      default = { };
-      description = "unpackmgr settings";
-      type = mkOptionSubmodule {
-        concurrency = lib.mkOption {
-          default = 1;
-          description = "unpackmgr concurrency";
-          type = lib.types.ints.positive;
-        };
-      };
+    unpackmgr.concurrency = lib.mkOption {
+      default = 1;
+      description = "unpackmgr concurrency";
+      type = lib.types.ints.positive;
     };
 
-    evalmgr = lib.mkOption {
-      default = { };
-      description = "evalmgr settings";
-      type = mkOptionSubmodule {
-        concurrency = lib.mkOption {
-          default = 1;
-          description = "evalmgr concurrency";
-          type = lib.types.ints.positive;
-        };
-      };
+    evalmgr.concurrency = lib.mkOption {
+      default = 1;
+      description = "evalmgr concurrency";
+      type = lib.types.ints.positive;
     };
 
     extraSettings = lib.mkOption {
@@ -215,6 +197,7 @@ in
 
         execute_from_command_line(sys.argv)
       '';
+      # The dict values are meaningless, but they must be rfc-compliant.
       wsgiPy = writePythonSio "wsgi.py" ''
         from django.core.wsgi import get_wsgi_application
         application = get_wsgi_application()
@@ -225,19 +208,19 @@ in
             pass
         application({
             'CONTENT_LENGTH': '0',
-            'CONTENT_TYPE': ' ',
-            'DOCUMENT_ROOT': ' ',
-            'HTTP_HOST': ' ',
+            'CONTENT_TYPE': 'application/octet-stream',
+            'DOCUMENT_ROOT': '/',
+            'HTTP_HOST': 'localhost',
             'PATH_INFO': '/api/ping',
             'REMOTE_ADDR': '127.0.0.1',
             'REMOTE_PORT': '60420',
             'REQUEST_METHOD': 'GET',
             'REQUEST_URI': '/api/ping',
-            'SERVER_NAME': ' ',
+            'SERVER_NAME': 'uwsgi',
             'SERVER_PORT': '80',
             'SERVER_PROTOCOL': 'HTTP/1.0',
-            'uwsgi.node': ' ',
-            'uwsgi.version': ' ',
+            'uwsgi.node': '1',
+            'uwsgi.version': '2.0.12',
             'wsgi.multiprocess': True,
             'wsgi.multithread': True,
             'wsgi.run_once': False,
@@ -256,19 +239,19 @@ in
       };
       services.filetracker.ensureFiles = lib.mkIf cfg.defaultFiletrackerEnsureFiles {
         "/sandboxes/compiler-gcc.10_2_1.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/compiler-gcc.10_2_1.tar.gz";
-          hash = "sha256-+QO7/ZqLWRvFCF9KdVqrZ6ZsBB96bkRgYVUUezvAf8A=";
+          url = "https://otsrv.net/sandboxes/compiler-gcc.10_2_1.tar.gz";
+          hash = "sha256-Qg/tN8VoQvxYYnI8YgwWLedUJI/3brey0JVsAdQbUG4=";
         };
         "/sandboxes/compiler-fpc.2_6_2.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/compiler-fpc.2_6_2.tar.gz";
+          url = "https://otsrv.net/sandboxes/compiler-fpc.2_6_2.tar.gz";
           hash = "sha256-bci/e++hKvWhVgK3uAHuhp5bl3salIj/j9/aYFZ8uKQ=";
         };
         "/sandboxes/exec-sandbox.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/exec-sandbox.tar.gz";
+          url = "https://otsrv.net/sandboxes/exec-sandbox.tar.gz";
           hash = "sha256-v482YOlf63OlgTwK5HvAuFgDFf739GvFXCbyX9nvRb4=";
         };
         "/sandboxes/proot-sandbox_amd64.tar.gz" = pkgs.fetchurl {
-          url = "https://downloads.sio2project.mimuw.edu.pl/sandboxes/proot-sandbox_amd64.tar.gz";
+          url = "https://otsrv.net/sandboxes/proot-sandbox_amd64.tar.gz";
           hash = "sha256-u6CSak326pAa7amYqYuHIqFu1VppItOXjFyFZgpf39w=";
         };
         "/sandboxes/talent_sio2jail_exec-sandbox-1.4.3.tar.gz" = pkgs.fetchurl {
@@ -407,7 +390,7 @@ in
 
                 User = "sio2";
                 Group = "sio2";
-              } // {
+
                 PrivateTmp = true;
                 ProtectSystem = "strict";
                 RemoveIPC = true;

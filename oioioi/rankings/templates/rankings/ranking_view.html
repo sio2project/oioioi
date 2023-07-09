@@ -18,6 +18,11 @@
                 <i class="fa-solid fa-rotate-right"></i>
                 {% trans "Regenerate ranking" %}
             </a>
+            <a role="button" class="btn btn-sm btn-outline-secondary"
+                href="#" data-post-url="{% url 'ranking_invalidate_contest' contest_id=contest.id key=key %}">
+                <i class="fa-solid fa-rotate-right"></i>
+                {% trans "Regenerate all rankings" %}
+            </a>
         {% endif %}
         {% if form and user.is_authenticated and not is_admin %}
             <a role="button" class="btn btn-sm btn-outline-secondary"

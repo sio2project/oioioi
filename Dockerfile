@@ -1,6 +1,7 @@
 FROM python:3.10
 
 ENV PYTHONUNBUFFERED 1
+ENV YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION 1
 
 #RUN dpkg --add-architecture i386
 RUN apt-get update && \

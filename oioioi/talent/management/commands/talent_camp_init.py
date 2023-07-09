@@ -17,8 +17,8 @@ from oioioi.scoresreveal.models import ScoreRevealContestConfig
 from oioioi.supervision.models import Supervision, Group
 from oioioi.talent.models import TalentRegistrationSwitch
 
-User = get_user_model();
-def createsuperuser(username, password="", email=""):
+User = get_user_model()
+def createsuperuser(username, password="", email="", first_name="", last_name=""):
     if User.objects.filter(username=username).exists():
         print("User {} already exists!".format(username))
         return
@@ -29,7 +29,7 @@ def createsuperuser(username, password="", email=""):
             print("The passwords don't match! Try again.")
             password = getpass("Password for {}: ".format(username))
             password2 = getpass("Password for {} (again): ".format(username))
-    User.objects.create_superuser(username, email, password)
+    User.objects.create_superuser(username, email, password, first_name=first_name, last_name=last_name)
 
 
 class Command(BaseCommand):
@@ -41,20 +41,8 @@ class Command(BaseCommand):
 
         with transaction.atomic():
             print("--- Creating default superusers")
-            for user, password, email in settings.TALENT_DEFAULT_SUPERUSERS:
-                createsuperuser(user, password, email)
-
-            print(
-                "--- Enter additional superuser usernames to create\n"
-                + "--- When you're done, press enter at an empty prompt"
-            )
-            user = input(">>> ")
-            try:
-                while user != "":
-                    createsuperuser(user)
-                    user = input(">>> ")
-            except EOFError:
-                pass
+            for user, password, email, first_name, last_name in settings.TALENT_DEFAULT_SUPERUSERS:
+                createsuperuser(user, password, email, first_name, last_name)
 
             today = timezone.localtime(timezone=pytz.timezone(settings.TIME_ZONE))
             today = today.replace(microsecond=0, second=0, minute=0, hour=0)
@@ -140,4 +128,4 @@ class Command(BaseCommand):
             # Enable talent registration (automatic assigning to groups)
             TalentRegistrationSwitch.objects.get_or_create(status=True)
 
-        print("\n--- Finished!")
+        print("--- Finished!")
