@@ -1,8 +1,8 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
+from django.conf import settings
 from django.test import RequestFactory
 from django.urls import reverse
-from django.utils.timezone import utc
 from django.utils.translation import gettext_noop
 
 from oioioi.base.notification import NotificationHandler
@@ -14,7 +14,7 @@ def notification_function_initial_results(arguments):
     request = RequestFactory().get('/', data={'name': u'test'})
     request.user = arguments.user
     request.contest = pi.contest
-    request.timestamp = datetime.now().replace(tzinfo=utc)
+    request.timestamp = datetime.now().replace(tzinfo=timezone.utc)
 
     # Check if any initial result is visible for user
     if not pi.controller.can_see_submission_status(request, arguments.submission):
@@ -55,11 +55,14 @@ def notification_function_submission_judged(arguments):
     request = RequestFactory().get('/', data={'name': u'test'})
     request.user = arguments.user
     request.contest = pi.contest
-    request.timestamp = datetime.now().replace(tzinfo=utc)
+    request.timestamp = datetime.now().replace(tzinfo=timezone.utc)
 
     # Check if the final report is visible to the user
     if not pi.controller.can_see_submission_score(
         request, arguments.submission
+    ) and not (
+        'oioioi.scoresreveal' in settings.INSTALLED_APPS
+        and pi.controller.can_reveal(request, arguments.submission)
     ):
         return
 

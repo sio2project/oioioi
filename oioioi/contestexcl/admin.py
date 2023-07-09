@@ -50,7 +50,7 @@ class ContestAdminWithExclusivenessInlineMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ContestAdminWithExclusivenessInlineMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ExclusivenessConfigInline]
+        self.inlines = tuple(self.inlines) + (ExclusivenessConfigInline,)
 
     def _warn_on_contestexcl_overlap(self, request, ex_confs):
         for obj in ex_confs:

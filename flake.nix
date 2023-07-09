@@ -1,6 +1,6 @@
 {
   description = "The main component of the SIO2 project";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-22.11";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-23.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.filetracker = {
     url = "github:Stowarzyszenie-Talent/filetracker";
@@ -19,30 +19,6 @@
   outputs = { self, nixpkgs, flake-utils, filetracker, sioworkers, extra-container }:
     let
       overlays = [
-        # HACK: This seems broken in this version of nixpkgs
-        (final: prev: {
-          pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
-            (python-final: python-prev: {
-              # of course this is broken in nixpkgs...
-              jsonschema = python-prev.jsonschema.overrideAttrs
-                (old: {
-                  propagatedBuildInputs = old.propagatedBuildInputs ++ [
-                    (python-prev.buildPythonPackage rec {
-                      pname = "pkgutil-resolve-name";
-                      version = "1.3.10";
-
-                      src = python-prev.fetchPypi {
-                        pname = "pkgutil_resolve_name";
-                        inherit version;
-                        hash = "sha256-NX1snmp1VlPP14iTgXwIU682XdUeyX89NYqBk3O70XQ=";
-                      };
-                    })
-                  ];
-                });
-            })
-          ];
-        })
-
         sioworkers.overlays.default
         filetracker.overlays.default
       ];
@@ -73,7 +49,7 @@
         };
       in
       {
-        packages.default = pkgs.python38Packages.callPackage ./nix/package.nix { };
+        packages.default = pkgs.python310Packages.callPackage ./nix/package.nix { };
         packages.extra-container = extra-container.lib.buildContainers {
           inherit nixpkgs system;
 

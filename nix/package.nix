@@ -5,12 +5,11 @@
 , pythonAtLeast
 , python
 
+, poetry-core
 , six
 , libsass
-, django-otp
 , setuptools
 , setuptools_scm
-, selenium
 , vine
 , billiard
 , kombu
@@ -23,12 +22,14 @@
 , beautifulsoup4
 , pyyaml
 , python-dateutil
+, django-two-factor-auth
 , django-formtools
 , celery
 , coreapi
 , django-compressor
 , django-statici18n
 , pygments
+, django-libsass
 , django-debug-toolbar
 , django-extensions
 , djangorestframework
@@ -36,7 +37,7 @@
 , pytest
 , pytest-metadata
 , pytest-django
-, pytest-html
+#, pytest-html
 , pytest-xdist
 , pytest-cov
 , requests
@@ -56,7 +57,6 @@
 , django-simple-captcha
 , phonenumbers
 , pdfminer-six
-, importlib-metadata
 
 , sioworkers
 , psycopg2
@@ -124,6 +124,10 @@ let
     "extension"
   ]));
 
+  o-sqlalchemy = overridePackage sqlalchemy {
+    version = "1.4.48";
+    hash = "sha256-tHvChwltmJoIOM6W99jpZpFKJNqHftQadTHUS1XNuN8=";
+  };
   python-monkey-business = simplePackage {
     name = "python-monkey-business";
     version = "1.0.0";
@@ -131,33 +135,6 @@ let
 
     propagatedBuildInputs = [
       six
-    ];
-  };
-  django-phonenumber-field = simplePackage {
-    name = "django-phonenumber-field";
-    version = "6.4.0";
-    hash = "sha256-cqPno+dJO/KhLAejvHfOiYE6zBZZK/BNDu47WkUgl+0=";
-
-    format = "pyproject";
-
-    nativeBuildInputs = [
-      setuptools
-      setuptools_scm
-    ];
-
-    propagatedBuildInputs = [
-      django
-    ];
-  };
-  django-selenosis = simplePackage {
-    name = "django-selenosis";
-    version = "2.0.0";
-    hash = "sha256-/MSC5/yAv+dN7JwrY0LY2R45gI0ub48Ldg05TKqmubE=";
-
-    doCheck = false;
-
-    propagatedBuildInputs = [
-      django
     ];
   };
   o-vine = overridePackage vine {
@@ -203,23 +180,10 @@ let
 
     propagatedBuildInputs = [ amqp ];
   };
-  o-django-two-factor-auth = simplePackage {
-    name = "django-two-factor-auth";
-    version = "1.13.2";
-    hash = "sha256-P6wmbRJHKsZkdd1ze7GPKZJIQxO/Vqz1ou6l6CQpHuY=";
-
-    doCheck = false;
-
-    propagatedBuildInputs = [
-      django-otp
-      django-phonenumber-field
-      django-formtools
-    ];
-  };
   o-django-registration-redux = simplePackage {
     name = "django-registration-redux";
-    version = "2.9";
-    hash = "sha256-49EjNUobjL+gBdYPHruJroVB8+r/1hdNnyr/UptX5DA=";
+    version = "2.12";
+    hash = "sha256-IhO76HMr5yckA09BRvAlWnvWZutaXhstjYqmM/6K+JQ=";
 
     doCheck = false;
 
@@ -232,6 +196,12 @@ let
     version = "4.4.7";
     hash = "sha256-0iCxOo7VfHgUms+CwAZ4U1YHGESv4LJwEqSZHUQCb58=";
 
+    patches = [ ];
+    doCheck = false;
+    postPatch = ''
+      sed -i "s/pytz>dev/pytz/" requirements/default.txt
+    '';
+
     disabledTestPaths = [
       "t/unit/backends/test_mongodb.py"
       "t/unit/concurrency/test_pool.py"
@@ -243,24 +213,16 @@ let
       "t/unit/backends/test_cassandra.py"
     ];
 
-    propagatedBuildInputs = [ o-vine o-billiard o-kombu ];
+    propagatedBuildInputs = [ pytz o-vine o-billiard o-kombu ];
   };
   o-dj-pagination = simplePackage {
     name = "dj-pagination";
     version = "2.5.0";
     hash = "sha256-hgMBzcee3AcSAIkhA3sjQScdOlVYa8NPrQcudMjoAMQ=";
 
-    propagatedBuildInputs = [ django ];
-  };
-  o-django-libsass = simplePackage {
-    name = "django-libsass";
-    version = "0.8";
-    hash = "sha256-OPq0zhJFVC86/XJI3Ej4oLJh9fbGHnzEOWmpyQebX/0=";
+    doCheck = false;
 
-    propagatedBuildInputs = [
-      django-compressor
-      libsass
-    ];
+    propagatedBuildInputs = [ django ];
   };
   o-mistune = overridePackage mistune {
     version = "0.8.4";
@@ -268,15 +230,17 @@ let
   };
   o-fontawesomefree = simplePackage rec {
     name = "fontawesomefree";
-    version = "6.3.0";
+    version = "6.4.0";
     format = "wheel";
+
+    dontStrip = true;
 
     src = fetchPypi {
       pname = name;
       inherit version format;
       dist = "py3";
       python = "py3";
-      hash = "sha256-kmJ+dYXh19ET4UeohVvazZ/CimuDpwypvrEfr+DadbY=";
+      hash = "sha256-4S7a1xts9pk/x8aupjZ+Ex8vJHtkNfrKmbEjKbrNKyc=";
     };
   };
   o-django-nested-admin = simplePackage {
@@ -288,8 +252,6 @@ let
 
     propagatedBuildInputs = [
       python-monkey-business
-      selenium
-      django-selenosis
     ];
   };
   django-supervisor = simplePackage rec {
@@ -313,12 +275,16 @@ in
 buildPythonPackage rec {
   name = "oioioi";
   version = "unstable-2023-03-12";
-  disabled = pythonAtLeast "3.9";
 
   src = builtins.path {
     path = ./..;
     filter = path: type: builtins.match "(.*/nix|.*/flake\\..*)" path == null;
   };
+
+  postPatch = ''
+    sed -i 's/"pytest-html/#"pytest-html/;
+            s/"django-supervisor.*$/"django-supervisor",/' setup.py
+  '';
 
   doCheck = false;
   dontStrip = true;
@@ -328,7 +294,7 @@ buildPythonPackage rec {
   SIOWORKERS_SANDBOXES_URL = "https://otsrv.net/sandboxes/";
 
   # This is just so pytest is available in nix shell and can be manually run.
-  nativeBuildInputs = [ pytest pkgs.texlive.combined.scheme-full ];
+  nativeBuildInputs = [ poetry-core pytest pkgs.texlive.combined.scheme-full pkgs.sox pkgs.flite ];
 
   # This is only required so that tests can be run from a devshell.
   # TODO: Add texlive to oioioi services in module.nix
@@ -337,11 +303,11 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     django
     pytz
-    sqlalchemy
+    o-sqlalchemy
     beautifulsoup4
     pyyaml
     python-dateutil
-    o-django-two-factor-auth
+    django-two-factor-auth
     django-formtools
     o-django-registration-redux
     o-celery
@@ -350,7 +316,7 @@ buildPythonPackage rec {
     django-compressor
     django-statici18n
     pygments
-    o-django-libsass
+    django-libsass
     django-debug-toolbar
     django-extensions
     djangorestframework
@@ -358,7 +324,7 @@ buildPythonPackage rec {
     pytest
     pytest-metadata
     pytest-django
-    pytest-html
+#    pytest-html
     pytest-xdist
     pytest-cov
     requests
@@ -380,7 +346,6 @@ buildPythonPackage rec {
     django-simple-captcha
     phonenumbers
     pdfminer-six
-    importlib-metadata
     supervisor
     django-supervisor
 

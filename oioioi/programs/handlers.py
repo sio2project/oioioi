@@ -588,23 +588,6 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         group_report.save()
         group_result['result_id'] = group_report.id
 
-    if kind == 'INITIAL':
-        if submission.user is not None and not env.get('is_rejudge', False):
-            logger.info(
-                "Submission %(submission_id)d by user %(username)s"
-                " for problem %(short_name)s got initial result.",
-                {
-                    'submission_id': submission.pk,
-                    'username': submission.user.username,
-                    'short_name': submission.problem_instance.short_name,
-                },
-                extra={
-                    'notification': 'initial_results',
-                    'user': submission.user,
-                    'submission': submission,
-                },
-            )
-
     return env
 
 

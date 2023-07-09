@@ -1,7 +1,7 @@
 import os
 import re
 from collections import defaultdict
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 import pytest
 import six
@@ -17,7 +17,6 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
-from django.utils.timezone import utc
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import (
     TestCase,
@@ -29,13 +28,13 @@ from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
-from oioioi.contests.handlers import call_submission_judged
+from oioioi.contests.handlers import send_notification_judged
 from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import make_report, collect_tests
+from oioioi.programs.handlers import collect_tests
 from oioioi.programs.models import (
     ModelSolution,
     ProblemAllowedLanguage,
@@ -250,14 +249,14 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         response = self.client.get(url)
 
         no_whitespaces_content = re.sub(r"\s*", "", response.content.decode('utf-8'))
-        for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<', '>0<']:
+        for element in ['>sum<', '>sumb0<', '>sums1<', '>100<', '>0<']:
             self.assertIn(element, no_whitespaces_content)
 
         self.assertNotContains(response, 'submission--INI_OK')
         self.assertContains(response, 'submission--INI_ERR', count=1)
         self.assertContains(response, 'submission--OK25', count=8)
         self.assertContains(response, 'submission--WA', count=5)
-        self.assertContains(response, 'submission--CE', count=2)
+        self.assertContains(response, 'submission--CE', count=1)
 
         self.assertNotContains(response, 'submission--WA25')
         self.assertNotContains(response, 'submission--WA50')
@@ -547,10 +546,10 @@ class TestSubmission(TestCase, SubmitFileMixin):
         environ['is_rejudge'] = False
         environ['submission_id'] = submission.pk
         environ['contest_id'] = submission.problem_instance.contest.id
-        call_submission_judged(environ)
+        send_notification_judged(environ)
 
         environ['is_rejudge'] = True
-        call_submission_judged(environ)
+        send_notification_judged(environ)
 
         # Check if a notification for user 1001 was send
         # And user 1002 doesn't received a notification
@@ -595,28 +594,28 @@ class TestSubmission(TestCase, SubmitFileMixin):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
         round.save()
 
-        with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 10, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
             self.assertContains(response, 'Sorry, there are no problems')
 
-        with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
-        with fake_time(datetime(2012, 8, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 10, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
-        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 11, tzinfo=timezone.utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
             self.assertContains(response, 'Sorry, there are no problems')
@@ -914,7 +913,7 @@ class TestNotifications(TestCase):
 
         send_notification_backup = NotificationHandler.send_notification
         NotificationHandler.send_notification = fake_send_notification
-        make_report(
+        send_notification_judged(
             {
                 'compilation_result': 'OK',
                 'submission_id': 1,
@@ -923,7 +922,7 @@ class TestNotifications(TestCase):
                 'max_score': None,
                 'compilation_message': '',
                 'tests': {},
-                'rejudge': False,
+                'is_rejudge': False,
             },
             'INITIAL',
         )
@@ -1260,7 +1259,7 @@ class TestUserOutsGenerating(TestCase):
         self.assertEqual(response.status_code, 404)
 
         # test if results have not been published yet (2012-07-31)
-        with fake_time(datetime(2012, 7, 29, 11, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 29, 11, 11, tzinfo=timezone.utc)):
             response = self.client.post(gen_url, follow=True)
             self.assertEqual(response.status_code, 403)
 

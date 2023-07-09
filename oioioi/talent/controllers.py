@@ -1,4 +1,4 @@
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.contests.utils import is_contest_admin

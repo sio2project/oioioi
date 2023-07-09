@@ -10,63 +10,14 @@ let
     CONFIG_VERSION = 49;
     DEBUG = false;
 
-    SITE_NAME = "OIOIOI";
-    SITE_ID = 1;
-    PUBLIC_ROOT_URL = "http${sIfSSL}://${cfg.domain}";
-
-    DISABLE_QUIZZES = false;
-    PROBLEM_STATISTICS_AVAILABLE = true;
-    CONTEST_MODE = pythonExpression ''ContestMode.neutral'';
-    REGISTRATION_RULES_CONSENT = pythonExpression ''_("talent terms accepted")'';
-
-    # SERVER is managed by a more high level module below, same with DATABASES
+    ALLOWED_HOSTS = [ "*" ];
 
     TIME_ZONE = config.time.timeZone;
-    LANGUAGE_CODE = "en";
-
-    COMPRESS_OFFLINE = true;
-
-    CAPTCHA_FLITE_PATH = "${pkgs.flite}/bin/flite";
-    CAPTCHA_SOX_PATH = "${pkgs.sox}/bin/sox";
 
     # This shouldn't be written to, if it is then we've encountered a bug.
     MEDIA_ROOT = "/var/empty";
-
     # Managed by systemd
     STATIC_ROOT = "/var/lib/sio2/static";
-    FILETRACKER_CACHE_ROOT = "/var/cache/sio2-filetracker-cache";
-
-    NOTIFICATIONS_SERVER_ENABLED = true;
-    NOTIFICATIONS_SERVER_URL = "http${sIfSSL}://${cfg.domain}/";
-
-    INSTALLED_APPS = pythonExpression ''${toPythonValue { } [
-      "oioioi.participants"
-      "oioioi.testrun"
-      "oioioi.scoresreveal"
-      "oioioi.confirmations"
-      "oioioi.ctimes"
-      "oioioi.suspendjudge"
-      "oioioi.submitservice"
-      "oioioi.timeline"
-      "oioioi.statistics"
-      "oioioi.notifications"
-      "oioioi.globalmessage"
-      "oioioi.phase"
-      "oioioi.supervision"
-      "oioioi.talent"
-    ]} + INSTALLED_APPS'';
-
-    MIDDLEWARE = overrideAssignment "+=" [
-      "oioioi.supervision.middleware.supervision_middleware" # needed for supervision
-      "oioioi.contests.middleware.CurrentContestMiddleware"
-    ];
-
-    SUBMITTABLE_LANGUAGES = pythonStatements ''
-      SUBMITTABLE_LANGUAGES.pop('Java');
-      SUBMITTABLE_LANGUAGES.pop('Python');
-      SUBMITTABLE_EXTENSIONS.pop('Java');
-      SUBMITTABLE_EXTENSIONS.pop('Python');
-    '';
 
     SECRET_KEY = pythonStatements ''
       import uuid
@@ -81,46 +32,32 @@ let
         SECRET_KEY_PATH.write_text(SECRET_KEY)
     '';
 
-    ADMINS = [ ];
-    MANAGERS = pythonExpression "ADMINS";
+    PROBLEM_STATISTICS_AVAILABLE = true;
 
-    EMAIL_USE_TLS = false;
-    EMAIL_HOST = "localhost";
-    EMAIL_PORT = 25;
-    EMAIL_HOST_USER = "";
-    EMAIL_HOST_PASSWORD = "";
-    EMAIL_SUBJECT_PREFIX = "[OIOIOI] ";
-
-    DEFAULT_FROM_EMAIL = "oioioi@${cfg.domain}";
-    SERVER_EMAIL = pythonExpression "DEFAULT_FROM_EMAIL";
-
-    SEND_USER_ACTIVATION_EMAIL = false;
-
-    AVAILABLE_COMPILERS = {
-      "C" = {
-        "gcc10_2_1_c99" = { "display_name" = "gcc=10.2.1 std=gnu99 -O3"; };
-      };
-      "C++" = {
-        "g++10_2_1_cpp17" = { "display_name" = "g++=10.2.1 std=c++17 -O3"; };
-      };
-      "Pascal" = {
-        "fpc2_6_2" = { "display_name" = "fpc=2.6.2"; };
-      };
-      "Output-only" = {
-        "output-only" = { "display_name" = "output-only"; };
-      };
-    };
-
-    DEFAULT_COMPILERS = {
-      "C" = "gcc10_2_1_c99";
-      "C++" = "g++10_2_1_cpp17";
-      "Pascal" = "fpc2_6_2";
-      "Output-only" = "output-only";
-    };
+    # Managed by systemd
+    FILETRACKER_CACHE_ROOT = "/var/cache/sio2-filetracker-cache";
 
     USE_SINOLPACK_MAKEFILES = false;
 
-    ALLOWED_HOSTS = [ "*" ];
+    CONTEST_MODE = pythonExpression ''ContestMode.neutral'';
+
+    REGISTRATION_RULES_CONSENT = pythonExpression ''_("talent terms accepted")'';
+
+    NOTIFICATIONS_SERVER_URL = "http${sIfSSL}://${cfg.domain}/";
+
+    MATHJAX_LOCATION = "";
+
+    PUBLIC_ROOT_URL = "http${sIfSSL}://${cfg.domain}";
+
+    COMPRESS_OFFLINE = true;
+
+    CAPTCHA_FLITE_PATH = "${pkgs.flite}/bin/flite";
+    CAPTCHA_SOX_PATH = "${pkgs.sox}/bin/sox";
+
+    ADMINS = [ ];
+    MANAGERS = pythonExpression "ADMINS";
+
+    SEND_USER_ACTIVATION_EMAIL = false;
   };
 in
 {
@@ -204,14 +141,14 @@ in
 
   config =
     let
-      python = pkgs.python38;
+      python = pkgs.python310;
       package = python.pkgs.callPackage ./package.nix { };
       uwsgi = pkgs.uwsgi.override { plugins = [ "python3" ]; python3 = python; };
       # FIXME: This could probably be acomplished without this hackery
       celery = builtins.head (builtins.filter (x: lib.getName x == "celery") package.propagatedBuildInputs);
 
-      writePython38 = pkgs.writers.makePythonWriter python pkgs.python38Packages /* FIXME: build packages? */ pkgs.python38Packages;
-      writePython38Bin = name: writePython38 "/bin/${name}";
+      writePython310 = pkgs.writers.makePythonWriter python pkgs.python310Packages /* FIXME: build packages? */ pkgs.python310Packages;
+      writePython310Bin = name: writePython310 "/bin/${name}";
 
       finalSimpleSettings = baseSettings // (builtins.foldl' (a: b: a // b) { } (builtins.filter builtins.isAttrs cfg.extraSettings)) // {
         SERVER = "uwsgi";
@@ -243,7 +180,7 @@ in
 
       PYTHONPATH = "${settingsDir}:${python.pkgs.makePythonPath [ package ]}:/etc/sio2/";
       DJANGO_SETTINGS_MODULE = "settings";
-      writePythonSio = name: script: writePython38 name { } ''
+      writePythonSio = name: script: writePython310 name { } ''
         # flake8: noqa
         import sys
         import os

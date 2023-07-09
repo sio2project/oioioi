@@ -2,7 +2,7 @@
 from settings import *
 
 # Enable optional modules.
-INSTALLED_APPS = [
+INSTALLED_APPS = (
     'oioioi.teachers',
     'oioioi.ipdnsauth',
     'oioioi.zeus',
@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'oioioi.simpleui',
     'oioioi.livedata',
     'oioioi.mp',
-] + INSTALLED_APPS
+) + INSTALLED_APPS
 
 DATABASES = {
     'default': {
@@ -36,15 +36,15 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'oioioi.portals.processors.portal_processor',
 ]
 
-AUTHENTICATION_BACKENDS += [
+AUTHENTICATION_BACKENDS += (
     'oioioi.base.tests.IgnorePasswordAuthBackend',
     'oioioi.teachers.auth.TeacherAuthBackend',
-]
+)
 
-MIDDLEWARE += [
-    'oioioi.contests.CurrentContestMiddleware',
+MIDDLEWARE += (
+    'oioioi.contests.middleware.CurrentContestMiddleware',
     'oioioi.base.tests.FakeTimeMiddleware',
-]
+)
 
 TESTS = True
 MOCK_RANKINGSD = True
@@ -59,7 +59,7 @@ COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 WARN_ABOUT_REPEATED_SUBMISSION = False
 
-PROBLEM_SOURCES += ['oioioi.zeus.problem_sources.ZeusProblemSource',]
+PROBLEM_SOURCES += ('oioioi.zeus.problem_sources.ZeusProblemSource',)
 
 ZEUS_INSTANCES = {
     'dummy': ('__use_object__', 'oioioi.zeus.tests.ZeusDummyServer', ('', '', '')),

@@ -21,7 +21,7 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import (
     ProblemInstance,
     ProblemStatementConfig,
-    RankingVisibilityConfig,
+    RankingVisibilityConfig, RegistrationAvailabilityConfig,
 )
 from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin
 from oioioi.problems.forms import (
@@ -34,7 +34,7 @@ from oioioi.problems.forms import (
     ProblemNameInlineFormSet,
     ProblemSiteForm,
     ProblemStatementConfigForm,
-    RankingVisibilityConfigForm,
+    RankingVisibilityConfigForm, RegistrationAvailabilityConfigForm,
 )
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -83,7 +83,7 @@ class StatementConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(StatementConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [StatementConfigInline]
+        self.inlines = tuple(self.inlines) + (StatementConfigInline,)
 
 
 ContestAdmin.mix_in(StatementConfigAdminMixin)
@@ -112,10 +112,39 @@ class RankingVisibilityConfigAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(RankingVisibilityConfigAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [RankingVisibilityConfigInline]
+        self.inlines = tuple(self.inlines) + (RankingVisibilityConfigInline,)
 
 
 ContestAdmin.mix_in(RankingVisibilityConfigAdminMixin)
+
+
+class RegistrationAvailabilityConfigInline(admin.TabularInline):
+    model = RegistrationAvailabilityConfig
+    extra = 1
+    form = RegistrationAvailabilityConfigForm
+    category = _("Advanced")
+
+    def has_add_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+
+class RegistrationAvailabilityConfigAdminMixin(object):
+    """Adds :class:`~oioioi.contests.models.OpenRegistrationConfig` to an admin
+    panel.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(RegistrationAvailabilityConfigAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = tuple(self.inlines) + (RegistrationAvailabilityConfigInline,)
+
+
+ContestAdmin.mix_in(RegistrationAvailabilityConfigAdminMixin)
 
 
 class NameInline(admin.StackedInline):
@@ -373,7 +402,7 @@ admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
 class ProblemAdmin(admin.ModelAdmin):
-    inlines = [
+    inlines = (
         DifficultyTagInline,
         AlgorithmTagInline,
         OriginTagInline,
@@ -383,7 +412,7 @@ class ProblemAdmin(admin.ModelAdmin):
         AttachmentInline,
         ProblemInstanceInline,
         ProblemSiteInline,
-    ]
+    )
     readonly_fields = [
         'author',
         'legacy_name',
@@ -413,9 +442,9 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def redirect_to_list(self, request, problem):
         if problem.contest:
-            return redirect('oioioiadmin:contests_probleminstance_changelist')
+            return redirect('oioioiadmin:contests_probleminstance_changelist', contest_id=problem.contest.id)
         else:
-            return redirect('oioioiadmin:problems_problem_changelist')
+            return redirect('problemset_all_problems')
 
     def response_change(self, request, obj):
         if '_continue' not in request.POST and obj.problemsite:

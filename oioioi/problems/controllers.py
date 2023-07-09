@@ -181,6 +181,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                     'oioioi.contests.handlers.call_submission_judged',
                 ),
                 (
+                    'send_notification_submission_judged',
+                    'oioioi.contests.handlers.send_notification_judged',
+                ),
+                (
                     'dump_final_env',
                     'oioioi.evalmgr.handlers.dump_env',
                     dict(message='Finished evaluation'),
@@ -409,7 +413,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         try:
             user = instance.user
             problem = instance.problem_instance.problem
-        except AttributeError:
+        except (AttributeError, ObjectDoesNotExist):
             return
         if user and problem:
             problem.controller.recalculate_statistics_for_user(user)

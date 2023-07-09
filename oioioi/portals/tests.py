@@ -48,14 +48,21 @@ class TestPortalUtils(TestCase):
 class TestPortalModels(TestCase):
     fixtures = ['test_users', 'test_portals']
 
+    def universalAssertQuerySetEqual(self, *args, **kwargs):
+        from django import get_version
+        if int(get_version().split('.')[0])>=4:
+            return self.assertQuerySetEqual(*args, **kwargs)
+        else:
+            return self.assertQuerysetEqual(*args, **kwargs)
+
     def test_get_siblings(self):
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_siblings(), [], transform=repr)
-        self.assertQuerysetEqual(node.get_siblings(include_self=True), ['<Node: Root>'], transform=repr)
+        self.universalAssertQuerySetEqual(node.get_siblings(), [], transform=repr)
+        self.universalAssertQuerySetEqual(node.get_siblings(include_self=True), ['<Node: Root>'], transform=repr)
 
         node = node.children.get(short_name='child1')
-        self.assertQuerysetEqual(node.get_siblings(), ['<Node: Child 2>'], transform=repr)
-        self.assertQuerysetEqual(
+        self.universalAssertQuerySetEqual(node.get_siblings(), ['<Node: Child 2>'], transform=repr)
+        self.universalAssertQuerySetEqual(
             node.get_siblings(include_self=True), ['<Node: Child 1>', '<Node: Child 2>'], transform=repr
         )
 
@@ -102,6 +109,13 @@ class TestPortalViews(TestCase):
         'test_problem_instance',
         'test_problem_site',
     ]
+
+    def universalAssertQuerySetEqual(self, *args, **kwargs):
+        from django import get_version
+        if int(get_version().split('.')[0])>=4:
+            return self.assertQuerySetEqual(*args, **kwargs)
+        else:
+            return self.assertQuerysetEqual(*args, **kwargs)
 
     def test_create_user_portal_view(self):
         create_url = reverse('create_user_portal')
@@ -249,7 +263,7 @@ class TestPortalViews(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         root = get_portal().root
-        self.assertQuerysetEqual(
+        self.universalAssertQuerySetEqual(
             root.get_children(), ['<Node: Child 1>', '<Node: Child 2>'], transform=repr
         )
 
@@ -291,7 +305,7 @@ class TestPortalViews(TestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertQuerysetEqual(
+        self.universalAssertQuerySetEqual(
             root.get_children(), ['<Node: Child 1>', '<Node: Child 2>'], transform=repr
         )
 
@@ -336,7 +350,7 @@ class TestPortalViews(TestCase):
         self.assertRedirects(response, portal_url(portal=get_portal()))
 
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
+        self.universalAssertQuerySetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
 
     def test_portal_tree_json_view(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -403,11 +417,11 @@ class TestPortalViews(TestCase):
 
         assertMoveStatus('test_user', 2, 3, 'inside', 200)
         node = get_portal().root
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
+        self.universalAssertQuerySetEqual(node.get_children(), ['<Node: Child 2>'], transform=repr)
         node = node.children.get()
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 1>'], transform=repr)
+        self.universalAssertQuerySetEqual(node.get_children(), ['<Node: Child 1>'], transform=repr)
         node = node.children.get()
-        self.assertQuerysetEqual(node.get_children(), ['<Node: Grandchild 1>'], transform=repr)
+        self.universalAssertQuerySetEqual(node.get_children(), ['<Node: Grandchild 1>'], transform=repr)
 
     def test_delete_portal_view(self):
         self.assertTrue(self.client.login(username='test_user'))

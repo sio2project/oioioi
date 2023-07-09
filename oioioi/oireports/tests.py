@@ -1,10 +1,9 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from io import BytesIO
 
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils.timezone import utc
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.models import Contest
@@ -45,12 +44,12 @@ class TestReportViews(TestCase, TestStreamingMixin):
 
         # Let's check if report is not available for regular user.
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.post(url, post_vars)
             self.assertEqual(response.status_code, 403)
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.post(url, post_vars)
 
             pages = extract_text_from_pdf(BytesIO(self.streamingContent(response)))
@@ -75,12 +74,12 @@ class TestReportViews(TestCase, TestStreamingMixin):
 
         # Let's check if report is not available for regular user.
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.post(url, post_vars)
             self.assertEqual(response.status_code, 403)
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.post(url, post_vars)
             content = self.streamingContent(response).decode('utf-8')
             self.assertIn("<user>Test User (test_user)", content)
@@ -103,7 +102,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
         }
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.post(url, post_vars)
             content = self.streamingContent(response).decode('utf-8')
             self.assertNotIn('test_user2', content)
@@ -114,6 +113,6 @@ class TestReportViews(TestCase, TestStreamingMixin):
         url = reverse('oireports', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2016, 11, 6, tzinfo=utc)):
+        with fake_time(datetime(2016, 11, 6, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'selected>Past round')

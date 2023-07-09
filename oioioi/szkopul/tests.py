@@ -30,12 +30,11 @@ class TestMainPageView(TestCase):
         except NoReverseMatch as e:
             self.fail(str(e))
 
-        self.assertContains(response, 'Contests')
         self.assertContains(response, 'Problemset')
         self.assertContains(response, 'Task archive')
 
-        self.assertContains(response, 'href="/contest/"')
         self.assertContains(response, 'href="/problemset/"')
+        self.assertContains(response, 'href="/task_archive/"')
 
     # Regression test for SIO-2278
     @override_settings(CONTEST_MODE=ContestMode.neutral)

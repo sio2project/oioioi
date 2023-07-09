@@ -1,9 +1,6 @@
 # These dependencies need to be installed from external sources,
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
-http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
-git+https://github.com/sio2project/django-supervisor
-
 sioworkers @ https://github.com/Stowarzyszenie-Talent/sioworkers/archive/refs/tags/v1.5.0.tar.gz
 filetracker [server] @ https://github.com/Stowarzyszenie-Talent/filetracker/archive/refs/tags/2.2.0.tar.gz
 

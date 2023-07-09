@@ -43,7 +43,7 @@ class ParticipantAdmin(admin.ModelAdmin):
     ]
     autocomplete_fields = ['user',]
     search_fields = ['user__username', 'user__last_name']
-    actions = ['make_active', 'make_banned', 'delete_selected', 'extend_round']
+    actions = ('make_active', 'make_banned', 'delete_selected', 'extend_round')
     form = ParticipantForm
 
     def has_add_permission(self, request):
@@ -329,7 +329,7 @@ class RegionFilter(RelatedFieldListFilter):
 
 class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display + ['number', 'region', 'local_number']
-    inlines = ParticipantAdmin.inlines + [OnsiteRegistrationInline]
+    inlines = tuple(ParticipantAdmin.inlines) + (OnsiteRegistrationInline,)
     list_filter = ParticipantAdmin.list_filter + [
         ('participants_onsiteregistration__region', RegionFilter)
     ]
@@ -405,7 +405,7 @@ class UserWithParticipantsAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(UserWithParticipantsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ParticipantInline]
+        self.inlines = tuple(self.inlines) + (ParticipantInline,)
 
 
 admin.OioioiUserAdmin.mix_in(UserWithParticipantsAdminMixin)
@@ -476,4 +476,4 @@ class TermsAcceptedPhraseAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(TermsAcceptedPhraseAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TermsAcceptedPhraseInline]
+        self.inlines = tuple(self.inlines) + (TermsAcceptedPhraseInline,)

@@ -1,11 +1,13 @@
 # pylint: disable=wildcard-import
+import django
+
 from oioioi.default_settings import *
 
 TIME_ZONE = 'UTC'
 
 SITE_ID = 1
 
-ADMINS = [('Test admin', 'admin@example.com'),]
+ADMINS = (('Test admin', 'admin@example.com'),)
 
 DATABASES = {
     'default': {
@@ -15,7 +17,7 @@ DATABASES = {
 }
 
 # Enable optional modules.
-INSTALLED_APPS = [
+INSTALLED_APPS = (
     'oioioi.contestlogo',
     'oioioi.teachers',
     'oioioi.ipdnsauth',
@@ -59,7 +61,7 @@ INSTALLED_APPS = [
     'oioioi.problemsharing',
     'oioioi.usercontests',
     'oioioi.mp',
-] + INSTALLED_APPS
+) + INSTALLED_APPS
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'oioioi.contestlogo.processors.logo_processor',
@@ -68,16 +70,16 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'oioioi.portals.processors.portal_processor',
 ]
 
-AUTHENTICATION_BACKENDS += [
+AUTHENTICATION_BACKENDS += (
     'oioioi.base.tests.IgnorePasswordAuthBackend',
     'oioioi.teachers.auth.TeacherAuthBackend',
     'oioioi.usercontests.auth.UserContestAuthBackend',
-]
+)
 
-MIDDLEWARE += [
+MIDDLEWARE += (
     'oioioi.contests.middleware.CurrentContestMiddleware',
     'oioioi.base.tests.FakeTimeMiddleware',
-]
+)
 
 TESTS = True
 MOCK_RANKINGSD = True
@@ -108,13 +110,14 @@ WARN_ABOUT_REPEATED_SUBMISSION = False
 # Experimental according to default_settings.py
 USE_ACE_EDITOR = True
 
-PROBLEM_SOURCES += ['oioioi.zeus.problem_sources.ZeusProblemSource',]
+PROBLEM_SOURCES += ('oioioi.zeus.problem_sources.ZeusProblemSource',)
 
 ZEUS_INSTANCES = {
     'dummy': ('__use_object__', 'oioioi.zeus.tests.ZeusDummyServer', ('', '', '')),
 }
 
-CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}
+# dummy.DummyCache ...?
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
 
 CONFIG_VERSION = INSTALLATION_CONFIG_VERSION
 

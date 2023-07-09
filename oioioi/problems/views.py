@@ -52,7 +52,6 @@ from oioioi.contests.models import (
 from oioioi.contests.utils import administered_contests, is_contest_basicadmin
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
-from oioioi.problems.menu import navbar_links_registry
 from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagLocalization,
@@ -95,28 +94,6 @@ from oioioi.problems.utils import (
 )
 from oioioi.programs.models import ModelSolution
 from unidecode import unidecode
-
-if settings.CONTEST_MODE == ContestMode.neutral:
-    navbar_links_registry.register(
-        name='contests_list',
-        text=_("Contests"),
-        url_generator=lambda request: reverse('select_contest'),
-        order=100,
-    )
-
-navbar_links_registry.register(
-    name='problemset',
-    text=_("Problemset"),
-    url_generator=lambda request: reverse('problemset_main'),
-    order=200,
-)
-
-navbar_links_registry.register(
-    name='task_archive',
-    text=_("Task archive"),
-    url_generator=lambda request: reverse('task_archive'),
-    order=300,
-)
 
 
 def show_statement_view(request, statement_id):
@@ -182,12 +159,10 @@ def add_or_update_problem(request, contest, template):
             if contest and (not is_contest_basicadmin(request)):
                 raise PermissionDenied
 
-    navbar_links = navbar_links_registry.template_context(request)
     problemset_tabs = generate_problemset_tabs(request)
 
     context = {
         'existing_problem': existing_problem,
-        'navbar_links': navbar_links,
         'problemset_tabs': problemset_tabs,
     }
     if existing_problem is not None:
@@ -476,7 +451,6 @@ def problemset_generate_view(request, page_title, problems, view_type):
     assert sum(col_proportions.values()) == 13
     form = ProblemsetSourceForm("")
 
-    navbar_links = navbar_links_registry.template_context(request)
     problemset_tabs = generate_problemset_tabs(request)
 
     origin_tags = {}
@@ -499,7 +473,6 @@ def problemset_generate_view(request, page_title, problems, view_type):
         'problems/problemset/problem-list.html',
         {
             'problems': problems,
-            'navbar_links': navbar_links,
             'problemset_tabs': problemset_tabs,
             'page_title': page_title,
             'select_problem_src': request.GET.get('select_problem_src'),
@@ -571,7 +544,6 @@ def problem_site_view(request, site_key):
         request
     )
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
-    navbar_links = navbar_links_registry.template_context(request)
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append(
         {
@@ -594,7 +566,6 @@ def problem_site_view(request, site_key):
         'show_proposal_form': show_proposal_form(problem, request.user),
         'difficulty_options': difficulty_options,
         'administered_recent_contests': administered_recent_contests,
-        'navbar_links': navbar_links,
         'problemset_tabs': problemset_tabs,
     }
     tab_kwargs = {'problem': problem}
@@ -641,7 +612,6 @@ def problemset_add_to_contest_view(request, site_key):
         raise Http404
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
-    navbar_links = navbar_links_registry.template_context(request)
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append(
         {
@@ -656,7 +626,6 @@ def problemset_add_to_contest_view(request, site_key):
             'site_key': site_key,
             'administered_contests': administered,
             'problem_name': problem_name,
-            'navbar_links': navbar_links,
             'problemset_tabs': problemset_tabs,
         },
     )
@@ -727,12 +696,10 @@ def task_archive_view(request):
         OriginTag.objects.all().prefetch_related('localizations').order_by('name')
     )
 
-    navbar_links = navbar_links_registry.template_context(request)
     return TemplateResponse(
         request,
         'problems/task-archive.html',
         {
-            'navbar_links': navbar_links,
             'origin_tags': origin_tags,
         },
     )
@@ -938,14 +905,12 @@ def task_archive_tag_view(request, origin_tag):
         problems, user_results, categories, 'problemgroups'
     )
 
-    navbar_links = navbar_links_registry.template_context(request)
     return TemplateResponse(
         request,
         'problems/task-archive-tag.html',
         {
             'origin_tag': origin_tag,
             'problems': problems_root_node,
-            'navbar_links': navbar_links,
         },
     )
 
