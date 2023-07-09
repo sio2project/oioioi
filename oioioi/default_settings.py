@@ -146,7 +146,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Set to true to send user activation emails. Needs an SMTP server to be
 # configured above.
-SEND_USER_ACTIVATION_EMAIL = True
+SEND_USER_ACTIVATION_EMAIL = False
 
 # List of callables that know how to import templates from various sources.
 UNCACHED_TEMPLATE_LOADERS = (

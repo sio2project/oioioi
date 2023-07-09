@@ -113,7 +113,7 @@ SECRET_KEY = '__SECRET__'
 
 # Set to true to send user activation emails. Needs an SMTP server to be
 # configured above.
-# SEND_USER_ACTIVATION_EMAIL = True
+# SEND_USER_ACTIVATION_EMAIL = False
 
 # Set to True to show the link to the problemset with contests on navbar.
 # PROBLEMSET_LINK_VISIBLE = True
