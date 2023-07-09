@@ -413,7 +413,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         try:
             user = instance.user
             problem = instance.problem_instance.problem
-        except AttributeError:
+        except (AttributeError, ObjectDoesNotExist):
             return
         if user and problem:
             problem.controller.recalculate_statistics_for_user(user)
