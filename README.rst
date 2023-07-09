@@ -8,45 +8,20 @@ main component — the web interface.
 Installation
 ------------
 
-Easy Installer
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can easily install and run oioioi out of the box with oioioi_easy_installer.
-Just download the oioioi_easy_installer archive, unpack it and run::
-
-  ./oioioi.sh install
-
-to install oioioi. Then you can run::
-
-  ./oioioi.sh start
-  ./oioioi.sh stop
-
-to start and stop oioioi.
-
-Make sure to change default superuser password. To do that:
-   1. Login to the superuser with default credentials (username:admin, password:admin).
-   2. Click username ("admin") in upper-right corner of the webpage.
-   3. Click "Change password".
-   4. Fill and submit password change form.
-
-You can also update your oioioi instance by typing::
-
-  ./oioioi.sh update
-
 Docker (for deployment)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-The easy installer method above uses Docker under the hood. Additionally, you can manually use docker files to create images containing our services.
+You can manually use docker files to create images containing our services.
 
 To run the infrastructure simply::
 
-  "OIOIOI_CONFIGDIR=<config directory>" "OIOIOI_VERSION=<oioioi_version>" docker-compose up
+  "OIOIOI_VERSION=<oioioi_version>" docker-compose up
 
 Make sure to change default superuser password, same as in the automatic method.
 
 To start additional number of workers::
 
-  "OIOIOI_CONFIGDIR=<config directory>" "OIOIOI_VERSION=<oioioi_version>" docker-compose up --scale worker=<number>
+  "OIOIOI_VERSION=<oioioi_version>" docker-compose up --scale worker=<number>
 
 as described `in Docker docs`_.
 
@@ -177,7 +152,6 @@ Testing
 OIOIOI has a big suite of unit tests. You can run them in following way:
 
 * ``test.sh`` - a simple test runner, use from virtualenv
-* ``test_selenium.sh`` - long selenium tests, use from virtualenv
 * ``tox [path/to/module[::TestClass[::test_method]]] [-- arg1 arg2 ...]`` - runs pytest in isolated environemnt
 
 Supported args:
