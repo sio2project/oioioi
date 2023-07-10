@@ -36,8 +36,8 @@ PUBLIC_ROOT_URL = 'http://localhost'
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
-# None - nothing will be run
-SERVER = os.getenv('OIOIOI_SERVER_MODE', None)
+# 'none' - nothing will be ran
+SERVER = os.getenv('OIOIOI_SERVER_MODE', 'none')
 
 DATABASES = {
     'default': {

@@ -39,8 +39,8 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
-# None - nothing will be run
-# SERVER = None
+# 'none' - nothing will be ran
+# SERVER = 'none'
 
 # DATABASES = {
 #     'default': {
