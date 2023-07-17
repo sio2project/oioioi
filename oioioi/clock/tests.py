@@ -1,8 +1,6 @@
-import calendar
 import time
 from datetime import datetime, timezone  # pylint: disable=E0611
 
-from dateutil.parser import parse as parse_date
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -65,12 +63,24 @@ class TestClock(TestCase):
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_admin_time(self):
         self.assertTrue(self.client.login(username='test_admin'))
-        session = self.client.session
-        session['admin_time'] = datetime(2012, 12, 12, tzinfo=timezone.utc).isoformat()
-        session.save()
+        # As seconds since the epoch
+        changed_time = datetime(2012, 12, 12, tzinfo=timezone.utc).timestamp()
+        response = self.client.get(reverse('get_status')).json()
+        current_time = response['time']
+        post_data = {'ok-button': '', 'admin-time': '2012-12-12+0:0:0'}
+        post_url = reverse('admin_time')
+
+        response = self.client.post(post_url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse('get_status')).json()
         self.assertTrue(response['is_admin_time_set'])
-        self.assertEqual(
-            response['time'],
-            calendar.timegm(parse_date(session['admin_time']).timetuple()),
-        )
+        self.assertEqual(response['time'], changed_time)
+
+        post_data = {'reset-button': '', 'admin-time': '2012-12-12+0:0:0'}
+
+        response = self.client.post(post_url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('get_status')).json()
+        self.assertFalse(response['is_admin_time_set'])
+        # This test shouldn't take more than a minute.
+        self.assertLess(abs(response['time'] - current_time), 60)
