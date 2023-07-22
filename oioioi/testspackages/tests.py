@@ -137,3 +137,18 @@ class TestTestsPackages(TestCase):
         with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(200, response.status_code)
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('contest_files', kwargs={'contest_id': contest.id})
+        # Admins should see even unpublished test packages
+        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=timezone.utc)):
+            response = self.client.get(url)
+            self.assertContains(response, 'some_name.zip')
+            self.assertContains(response, 'some_name2.zip')
+            self.assertEqual(200, response.status_code)
+
+        with fake_time(datetime(2012, 8, 5, 1, 12, tzinfo=timezone.utc)):
+            response = self.client.get(url)
+            self.assertContains(response, 'some_name.zip')
+            self.assertContains(response, 'some_name2.zip')
+            self.assertEqual(200, response.status_code)
