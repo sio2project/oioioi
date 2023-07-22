@@ -103,9 +103,9 @@ def admin_time(request, next_page=None):
                 messages.error(request, _("Invalid date. Admin-time was not set."))
                 return safe_redirect(request, next_page)
             if current_admin_time.year >= 1900:
+                local_tz = timezone.localtime().tzinfo
                 request.session['admin_time'] = (
-                    timezone.localtime(timezone.now())
-                    .tzinfo.localize(current_admin_time)
+                    current_admin_time.replace(tzinfo=local_tz)
                     .astimezone(pytz.utc)
                     .isoformat()
                 )
