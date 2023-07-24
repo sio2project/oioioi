@@ -1,7 +1,7 @@
 import os
 import re
 from collections import defaultdict
-from datetime import datetime, timezone  # pylint: disable=E0611
+from datetime import datetime, timezone, timedelta  # pylint: disable=E0611
 
 import pytest
 import six
@@ -17,6 +17,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
+from django.utils import timezone as django_timezone
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import (
     TestCase,
@@ -518,6 +519,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def setUp(self):
         self.assertTrue(self.client.login(username='test_user'))
 
+    @override_settings(TIME_ZONE="Europe/Warsaw")
     def test_submission_completed_notification(self):
         msg_count = defaultdict(int)
         messages = []
@@ -548,15 +550,28 @@ class TestSubmission(TestCase, SubmitFileMixin):
         environ['contest_id'] = submission.problem_instance.contest.id
         send_notification_judged(environ)
 
-        environ['is_rejudge'] = True
-        send_notification_judged(environ)
-
         # Check if a notification for user 1001 was send
         # And user 1002 doesn't received a notification
+        self.assertEqual(len(messages), 1)
         self.assertEqual(msg_count['user_1001_notifications'], 1)
         self.assertEqual(msg_count['user_1002_notifications'], 0)
 
+        environ['is_rejudge'] = True
+        send_notification_judged(environ)
         self.assertEqual(len(messages), 1)
+
+        environ['is_rejudge'] = False
+        # Results barely not available, should catch timezone-related errors
+        Round.objects.update(
+            results_date=django_timezone.now()+timedelta(minutes=30)
+        )
+        send_notification_judged(environ)
+        self.assertEqual(len(messages), 1)
+
+        Round.objects.update(results_date=None)
+        send_notification_judged(environ)
+        self.assertEqual(len(messages), 1)
+
         self.assertIn('%(score)s', messages[0][0])
         self.assertIn('score', messages[0][1])
         self.assertEqual(messages[0][1]['score'], '34')
