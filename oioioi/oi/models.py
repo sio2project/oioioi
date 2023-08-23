@@ -42,11 +42,11 @@ PROVINCES = [
 ]
 
 CLASS_TYPES = [
-    ('1LO', "pierwsza szkoły ponadgimnazjalnej"),
-    ('2LO', "druga szkoły ponadgimnazjalnej"),
-    ('3LO', "trzecia szkoły ponadgimnazjalnej"),
-    ('4LO', "czwarta szkoły ponadgimnazjalnej"),
-    ('5LO', "piąta szkoły ponadgimnazjalnej"),
+    ('1LO', "pierwsza szkoły średniej"),
+    ('2LO', "druga szkoły średniej"),
+    ('3LO', "trzecia szkoły średniej"),
+    ('4LO', "czwarta szkoły średniej"),
+    ('5LO', "piąta szkoły średniej"),
     ('1G', "pierwsza gimnazjum"),
     ('2G', "druga gimnazjum"),
     ('3G', "trzecia gimnazjum"),

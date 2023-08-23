@@ -61,7 +61,8 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
                 user, contest
             ) and selector(user, contest)
 
-        if settings.ONLY_DEFAULT_CONTEST:
+        if settings.ONLY_DEFAULT_CONTEST and \
+                (request.user is None or not request.user.is_superuser):
             qs = [Contest.objects.get(id=settings.DEFAULT_CONTEST)]
         else:
             qs = ExclusivenessConfig.objects.get_active(

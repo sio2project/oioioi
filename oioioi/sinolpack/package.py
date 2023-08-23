@@ -510,7 +510,9 @@ class SinolPackage(object):
         """Looks for extra compilation files specified in ``config.yml``."""
         ExtraFile.objects.filter(problem=self.problem).delete()
         files = list(self.config.get('extra_compilation_files', ()))
-        not_found = self._find_and_save_files(files)
+        for lang_files in self.config.get('extra_execution_files', {}).values():
+            files.extend(lang_files)
+        not_found = self._find_and_save_files(set(files))
         if not_found:
             raise ProblemPackageError(
                 _("Expected extra files %r not found in prog/") % (not_found)
@@ -655,7 +657,7 @@ class SinolPackage(object):
         sinol_cls_tgz = os.path.join(
             os.path.dirname(__file__), 'files', 'sinol-cls.tgz'
         )
-        execute(['tar', '-C', docdir, '-kzxf', sinol_cls_tgz], cwd=docdir)
+        execute(['tar', '-C', docdir, '--skip-old-files','-zxf',  sinol_cls_tgz], cwd=docdir)
 
         try:
             execute('make', cwd=docdir)
@@ -757,7 +759,7 @@ class SinolPackage(object):
         outs_to_make = []
         scored_groups = set()
 
-        if self.use_make:
+        if self.use_make and not self.config.get('no_outgen', False):
             self._find_and_compile('', command='outgen')
 
         for order, test in enumerate(sorted(all_items, key=naturalsort_key)):
@@ -1137,9 +1139,11 @@ class SinolPackage(object):
         """
         tests = Test.objects.filter(problem_instance=self.main_problem_instance)
         for test in tests:
-            LanguageOverrideForTest.objects.create(
-                time_limit=test.time_limit,
-                memory_limit=test.memory_limit,
+            LanguageOverrideForTest.objects.update_or_create(
+                defaults={
+                    'time_limit': test.time_limit,
+                    'memory_limit': test.memory_limit,
+                },
                 test=test,
                 language=lang,
             )

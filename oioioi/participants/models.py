@@ -116,7 +116,11 @@ class OpenRegistration(RegistrationModel):
 class OnsiteRegistration(RegistrationModel):
     number = models.IntegerField(verbose_name=_("number"))
     region = models.ForeignKey(
-        Region, null=True, on_delete=models.SET_NULL, verbose_name=_("region")
+        Region,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("region"),
+        blank=True,
     )
     local_number = models.IntegerField(verbose_name=_("local number"))
 

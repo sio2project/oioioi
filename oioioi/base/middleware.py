@@ -126,6 +126,38 @@ class UserInfoInErrorMessage(object):
             pass
 
 
+class UsernameHeaderMiddleware(object):
+    """Middleware used for reporting username in response header,
+    so that nginx can log it in access log."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        return self._process_response(request, response)
+
+    def _process_response(self, request, response):
+        if not hasattr(request, 'user'):
+            raise ImproperlyConfigured(
+                "The UsernameHeaderMiddleware requires the"
+                " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
+                " earlier in MIDDLEWARE."
+            )
+
+        username = "-"
+        if request.user.is_authenticated:
+            username = str(request.user.username)
+
+        if is_under_su(request):
+            username = f"{request.real_user.username}/{username}"
+
+        response['X-Username'] = username
+
+        return response
+
+
 class CheckLoginMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response

@@ -131,6 +131,11 @@ class QuizProblemController(ProblemController):
 
     def adjust_submission_form(self, request, form, problem_instance):
         questions = self.select_questions(request.user, problem_instance, None)
+        questions = questions.prefetch_related(
+            'quizanswer_set',
+            'quizanswer_set__quizanswerpicture_set',
+            'quizquestionpicture_set',
+        )
 
         for question in questions:
             self.add_question_to_form(request, form, problem_instance, question)
@@ -195,6 +200,8 @@ class QuizProblemController(ProblemController):
     def _get_selected_answers(self, form_data, field_id, question):
         field_value = form_data.get(field_id)
         if question.is_text_input:
+            if isinstance(field_value, list):
+                return field_value[:1]
             return [field_value]
         elif question.is_multiple_choice:
             return [int(a) for a in field_value]
