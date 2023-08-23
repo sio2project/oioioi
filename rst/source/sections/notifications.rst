@@ -33,10 +33,10 @@ To add a new notification, you should:
   If so, you have to modify it, adding the code described below.
   Otherwise you should create it, remembering that:
 
-  * You don't want to import django.utils.translation.ugettext,
+  * You don't want to import django.utils.translation.gettext,
     as the notification message should be translated into
     the receiving user's language, not the sender's language. Instead,
-    you may want to use ugettext_noop function.
+    you may want to use gettext_noop function.
     This allows the external translating program to process these strings,
     but prevents translating them at a wrong time
     by the Django translations module.
@@ -53,7 +53,7 @@ To add a new notification, you should:
                 "The log doesn't have user, question_instance" \
                 "or answer_instance value in the extra map"
 
-        message = ugettext_noop("Your question was answered.")
+        message = gettext_noop("Your question was answered.")
         message_arguments = {'link': arguments.question_instance
                 .get_absolute_url()}
 
