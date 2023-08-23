@@ -39,8 +39,8 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
-# None - nothing will be run
-# SERVER = None
+# 'none' - nothing will be ran
+# SERVER = 'none'
 
 # DATABASES = {
 #     'default': {
@@ -57,11 +57,9 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = '__TIMEZONE__'
+# TIME_ZONE = 'UTC'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -113,7 +111,7 @@ SECRET_KEY = '__SECRET__'
 
 # Set to true to send user activation emails. Needs an SMTP server to be
 # configured above.
-# SEND_USER_ACTIVATION_EMAIL = True
+# SEND_USER_ACTIVATION_EMAIL = False
 
 # Set to True to show the link to the problemset with contests on navbar.
 # PROBLEMSET_LINK_VISIBLE = True

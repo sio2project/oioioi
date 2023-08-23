@@ -9,7 +9,7 @@ export OIOIOI_UID=$(id -u)
 docker_run_built="docker run --rm --entrypoint=/entrypoint_checks.sh -t sio2project/oioioi-dev "
 
 # can be used without rebuilding the image
-docker_compose_alias="docker-compose -f docker-compose-dev.yml -f extra/docker/docker-compose-dev-noserver.yml "
+docker_compose_alias="docker-compose -f docker-compose-dev.yml "
 docker_compose_exec="${docker_compose_alias} exec web /sio2/oioioi/entrypoint_checks.sh "
 
 # choose the way of running static on docker

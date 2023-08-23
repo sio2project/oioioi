@@ -19,29 +19,6 @@ def error(message):
     sys.exit(1)
 
 
-def get_timezone():
-    ret = ''
-    try:
-        if os.path.isfile('/etc/timezone'):
-            ret = open('/etc/timezone').read().strip()
-        elif os.path.isfile('/etc/sysconfig/clock'):
-            file = open('/etc/sysconfig/clock')
-            for line in file:
-                if 'ZONE' in line:
-                    ret = ''.join(line.split())[6:-1]
-        elif os.path.isfile('/etc/sysconfig/timezone'):
-            file = open('/etc/sysconfig/timezone')
-            for line in file:
-                if 'TIMEZONE' in line:
-                    ret = ''.join(line.split())[10:-1]
-    except IOError:
-        ret = 'GMT'
-    if ret != '':
-        return ret
-    else:
-        return 'GMT'
-
-
 def generate_from_template(dir, filename, context, mode=None):
     dest = os.path.join(dir, filename)
     template = open(os.path.join(basedir, filename + '.template')).read()
@@ -60,7 +37,6 @@ def generate_all(dir, verbose):
             '__CONFIG_VERSION__': str(INSTALLATION_CONFIG_VERSION),
             '__DIR__': dir,
             '__SECRET__': str(uuid.uuid4()),
-            '__TIMEZONE__': get_timezone(),
         },
     )
 

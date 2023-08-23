@@ -36,8 +36,8 @@ PUBLIC_ROOT_URL = 'http://localhost'
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
 # 'uwsgi-http' - uwsgi deamon with built-in http server
-# None - nothing will be run
-SERVER = os.getenv('OIOIOI_SERVER_MODE', None)
+# 'none' - nothing will be ran
+SERVER = os.getenv('OIOIOI_SERVER_MODE', 'none')
 
 DATABASES = {
     'default': {
@@ -74,11 +74,9 @@ STATEMENT_LANGUAGES = (
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
-# On Unix systems, a value of None will cause Django to use the same
-# timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = os.getenv('OIOIOI_TIMEZONE', None)
+TIME_ZONE = os.getenv('OIOIOI_TIMEZONE', 'UTC')
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -146,7 +144,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Set to true to send user activation emails. Needs an SMTP server to be
 # configured above.
-SEND_USER_ACTIVATION_EMAIL = True
+SEND_USER_ACTIVATION_EMAIL = False
 
 # List of callables that know how to import templates from various sources.
 UNCACHED_TEMPLATE_LOADERS = (
