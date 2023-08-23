@@ -2,7 +2,6 @@ from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
 from django.template.response import TemplateResponse
 
-from oioioi.participants.models import OnsiteRegistration
 from oioioi.su.utils import is_under_su, reset_to_real_user
 
 
@@ -85,12 +84,6 @@ class ForceDnsIpAuthMiddleware(object):
         if not request.contest.controller.is_onsite():
             return
         if not request.user.is_authenticated:
-            return
-        if not OnsiteRegistration.objects.filter(
-            participant__user_id=request.user.id,
-            participant__contest=request.contest,
-            region__isnull=False,
-        ).exists():
             return
         backend_path = request.user.backend
         if backend_path != 'oioioi.ipdnsauth.backends.IpDnsBackend':

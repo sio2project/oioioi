@@ -1,6 +1,5 @@
 from django.template.loader import render_to_string
 
-from oioioi.base.utils import request_cached
 from oioioi.base.permissions import make_request_condition
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -31,7 +30,6 @@ def render_head(requirements):
 
 
 @make_request_condition
-@request_cached
 def any_statistics_avaiable(request):
     controller = request.contest.controller
     if not isinstance(controller, ProgrammingContestController):
@@ -40,6 +38,5 @@ def any_statistics_avaiable(request):
 
 
 @make_request_condition
-@request_cached
 def can_see_stats(request):
     return request.contest.controller.can_see_stats(request)

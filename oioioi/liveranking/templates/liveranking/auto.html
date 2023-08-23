@@ -44,12 +44,7 @@
         model.setTime(1000000);
         var ranking = new CRanking(model, "#ranking");
         ranking.settings.headerRowHeight = 55;
-        ranking.settings.teamRowHeight = 40;
-        ranking.settings.visibleTeams = 12;
-        var customTeamCount = Number(document.location.hash.substr(1))
-        if (customTeamCount > 0) {
-            ranking.settings.visibleTeams = customTeamCount;
-        }
+        ranking.settings.visibleTeams = 9;
         ranking.settings.taskColWidth = 55;
         ranking.settings.useModelTime = false;
         ranking.settings.parseTeamTask = function(teamTask) {
@@ -93,7 +88,7 @@
         }
 
         .row .name, .headerRow .name {
-            width: 248px !important;
+            width: 148px !important;
         }
 
         #ranking {

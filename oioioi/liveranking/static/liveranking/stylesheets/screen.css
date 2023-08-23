@@ -80,7 +80,6 @@ body {
   background-image: url("images/header.png") !important;
   background-repeat: no-repeat;
   background-position: center 0;
-  background-size: contain;
   position: relative;
   margin: 0 auto;
   height: 140px;
@@ -96,7 +95,6 @@ body {
   background-image: url("images/footer.png") !important;
   background-position: center bottom;
   background-repeat: no-repeat;
-  background-size: contain;
   clear: both;
   cursor: none;
   position: relative;
@@ -133,8 +131,7 @@ body {
   background: black;
   border: 1px solid orange;
   width: 68px;
-  height: 38px;
-  line-height: 38px;
+  height: 48px;
 }
 /* line 58, ../sass/screen.scss */
 #ranking .headerRow {
@@ -177,8 +174,8 @@ body {
 /* line 80, ../sass/screen.scss */
 #ranking .name, #ranking .score, #ranking .time, #ranking .rank {
   border: 1px solid orange;
-  height: 38px;
-  line-height: 38px;
+  height: 48px;
+  line-height: 48px;
 }
 
 /* line 87, ../sass/screen.scss */
