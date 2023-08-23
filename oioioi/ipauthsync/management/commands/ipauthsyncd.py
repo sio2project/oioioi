@@ -5,7 +5,6 @@ from django.core.mail import mail_admins
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
-import requests
 
 from oioioi.ipauthsync.models import (
     IpAuthSyncConfig,
@@ -14,6 +13,11 @@ from oioioi.ipauthsync.models import (
 )
 from oioioi.ipdnsauth.models import IpToUser
 from oioioi.participants.models import OnsiteRegistration
+
+try:
+    import MySQLdb
+except ImportError:
+    MySQLdb = None
 
 
 class Command(BaseCommand):
@@ -38,17 +42,22 @@ class Command(BaseCommand):
         rc = config.contest.controller.registration_controller()
         for region in config.contest.regions.all():
             try:
-                r = requests.get(
-                    f'http://{region.region_server}/ipauthsync/list',
-                    headers=dict(Host='oireg'),
+                db = MySQLdb.connect(
+                    host=region.region_server,
+                    user=config.region_server_mysql_user,
+                    passwd=config.region_server_mysql_pass,
+                    db=config.region_server_mysql_db,
+                    connect_timeout=self.options['timeout'],
                 )
-                r.raise_for_status()
+                cursor = db.cursor()
+                cursor.execute(
+                    'SELECT z.id, k.ip FROM zaw z, komp k '
+                    'WHERE z.komp=k.id ORDER BY z.id'
+                )
 
                 warnings = []
                 mapping = []
-                for item in r.json()['mappings']:
-                    zaw_id = item['user_id']
-                    ip = item['ip_address']
+                for zaw_id, ip in cursor.fetchall():
                     try:
                         reg = OnsiteRegistration.objects.select_related(
                             'participant__user'
@@ -99,7 +108,7 @@ class Command(BaseCommand):
             # pylint: disable=broad-except
             except Exception:
                 if region.short_name in self.failing_regions:
-                    continue
+                    return
                 self.failing_regions.add(region.short_name)
                 mail_admins(
                     "ipauthsyncd: Sync failing for region %s" % (region.short_name,),
@@ -107,6 +116,11 @@ class Command(BaseCommand):
                 )
 
     def handle(self, *args, **options):
+        if MySQLdb is None:
+            raise CommandError(
+                "MySQLdb Python module not found (you may "
+                "install it with 'pip install MySQL-python')"
+            )
         # pylint: disable=attribute-defined-outside-init
         self.options = options
         # pylint: disable=attribute-defined-outside-init

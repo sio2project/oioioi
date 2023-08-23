@@ -25,16 +25,15 @@ def update_problem_instance(env):
     """
     problem = Problem.objects.get(id=env['problem_id'])
     if env.get('contest_id', None):
-        pi = ProblemInstance.objects.filter(
+        if not ProblemInstance.objects.filter(
             contest__id=env['contest_id'], problem=problem
-        ).first()
-        if not pi:
+        ).exists():
             contest = Contest.objects.get(id=env['contest_id'])
             pi = get_new_problem_instance(problem, contest)
             if env.get('round_id', None) and not pi.round:
                 pi.round = Round.objects.get(id=env['round_id'])
             pi.save()
-        env['problem_instance_id'] = pi.id
+            env['problem_instance_id'] = pi.id
     if env['is_reupload']:
         update_all_probleminstances_after_reupload(problem)
 
