@@ -14,6 +14,18 @@ contest_patterns = [
         name='message_visit',
     ),
     re_path(
+        r'^questions/(?P<message_id>\d+)/mark_read$',
+        views.toggle_question_read,
+        {'read': True},
+        name='mark_question_read',
+    ),
+    re_path(
+        r'^questions/(?P<message_id>\d+)/mark_unread$',
+        views.toggle_question_read,
+        {'read': False},
+        name='mark_question_unread',
+    ),
+    re_path(
         r'^questions/add/$', views.add_contest_message_view, name='add_contest_message'
     ),
     re_path(r'^questions/subscription/$', views.subscription, name='subscription'),

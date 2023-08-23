@@ -18,6 +18,9 @@
                     {{ message.get_user_date }}
                 {% endif %}
             </span>
+            {% if is_admin and message.marked_read_by %}
+            | {% trans "Marked read by " %} {% full_name message.marked_read_by %}
+            {% endif %}
         </small>
         {% if is_admin %}
             <span class="oioioi-message__actions float-right">

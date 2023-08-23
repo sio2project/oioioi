@@ -14,6 +14,19 @@
 <div class="clearfix">
     {% if is_admin %}
         <div class="float-right">
+            {% if message.kind == 'QUESTION' %}
+                {% if message.marked_read_by %}
+                    <a role="button" class="btn btn-sm btn-outline-secondary" data-post-url="{% url 'mark_question_unread' contest_id=request.contest.id message.id %}">
+                        <i class="fa-solid fa-eye-slash"></i>
+                        {% trans "Mark unread" %}
+                    </a>
+                {% else %}
+                    <a role="button" class="btn btn-sm btn-outline-secondary" data-post-url="{% url 'mark_question_read' contest_id=request.contest.id message.id %}">
+                        <i class="fa-solid fa-eye"></i>
+                        {% trans "Mark read" %}
+                    </a>
+                {% endif %}
+            {% endif %}
             <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'user_info' message.author_id %}">
                 <i class="fa-solid fa-user"></i>
                 {% trans "Display user" %}
