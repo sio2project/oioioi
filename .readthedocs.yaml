@@ -32,4 +32,3 @@ python:
    install:
    - requirements: rst/requirements.txt
    - requirements: requirements.txt
-   system_packages: true
