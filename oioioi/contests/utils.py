@@ -301,6 +301,16 @@ def administered_contests(request):
 
 @make_request_condition
 @request_cached
+def is_contest_owner(request):
+    """Checks if the user is the owner of the current contest.
+    This permission level allows full access to all contest functionality
+    and additionally permits managing contest permissions.
+    """
+    return request.user.has_perm('contests.contest_owner', request.contest)
+
+
+@make_request_condition
+@request_cached
 def is_contest_admin(request):
     """Checks if the user is the contest admin of the current contest.
     This permission level allows full access to all contest functionality.

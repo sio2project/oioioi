@@ -21,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
+from oioioi.base.permissions import isnt_superuser
 from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.base.utils.filters import ProblemNameListFilter
 from oioioi.base.utils.user_selection import UserSelectionField
@@ -44,10 +45,12 @@ from oioioi.contests.models import (
     RoundTimeExtension,
     Submission,
     SubmissionReport,
+    contest_permissions,
     submission_kinds,
 )
 from oioioi.contests.utils import (
     can_admin_contest,
+    is_contest_owner,
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
@@ -1039,6 +1042,27 @@ class ContestPermissionAdmin(admin.ModelAdmin):
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
 
+    def has_add_permission(self, request):
+        return is_contest_owner(request)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        if not request.contest:
+            return False
+        if obj is None:
+            return is_contest_owner(request)
+        # Contest owners can't manage other contests' permissions
+        # and other contest owners.
+        return (
+            is_contest_owner(request) and
+            request.contest == obj.contest and
+            obj.permission != 'contests.contest_owner'
+        )
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
     def get_queryset(self, request):
         qs = super(ContestPermissionAdmin, self).get_queryset(request)
         if request.contest:
@@ -1056,11 +1080,28 @@ class ContestPermissionAdmin(admin.ModelAdmin):
             db_field, request, **kwargs
         )
 
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'permission':
+            # Contest owners musn't manage other contest owners
+            if not request.user.is_superuser:
+                kwargs['choices'] = [
+                    i for i in contest_permissions
+                    if i[0] != 'contests.contest_owner'
+                ]
+        return super(ContestPermissionAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
+
 
 contest_site.register(ContestPermission, ContestPermissionAdmin)
 admin.system_admin_menu_registry.register(
     'contestspermission_admin',
     _("Contest rights"),
     lambda request: reverse('oioioiadmin:contests_contestpermission_changelist'),
+    order=50,
+)
+contest_admin_menu_registry.register(
+    'contestspermission_admin',
+    _("Contest rights"),
+    lambda request: reverse('oioioiadmin:contests_contestpermission_changelist'),
+    is_contest_owner & isnt_superuser,
     order=50,
 )
