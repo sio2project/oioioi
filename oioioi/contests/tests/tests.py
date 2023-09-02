@@ -3,7 +3,6 @@ from __future__ import print_function
 
 import re
 from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
-from functools import partial
 
 import pytest
 import pytz
@@ -19,6 +18,7 @@ from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
+from oioioi.base.permissions import is_superuser
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
 from oioioi.base.tests.tests import TestPublicMessage
 from oioioi.contests.current_contest import ContestMode
@@ -50,7 +50,9 @@ from oioioi.contests.utils import (
     all_public_results_visible,
     can_enter_contest,
     can_see_personal_data,
+    is_contest_owner,
     is_contest_admin,
+    is_contest_basicadmin,
     is_contest_observer,
     rounds_times,
 )
@@ -1639,17 +1641,13 @@ class TestPermissions(TestCase):
         'test_permissions',
     ]
 
-    def get_fake_request_factory(self, contest=None):
+    def factory(self, user, timestamp=None):
         factory = RequestFactory()
-
-        def with_timestamp(user, timestamp):
-            request = factory.request()
-            request.contest = contest
-            request.user = user
-            request.timestamp = timestamp
-            return request
-
-        return with_timestamp
+        request = factory.request()
+        request.contest = self.contest
+        request.user = user
+        request.timestamp = timestamp or self.during 
+        return request
 
     def setUp(self):
         self.contest = Contest.objects.get()
@@ -1663,48 +1661,83 @@ class TestPermissions(TestCase):
 
         self.during = datetime(2012, 8, 1, tzinfo=timezone.utc)
 
+        self.superuser = User.objects.get(username='test_admin')
         self.observer = User.objects.get(username='test_observer')
         self.cadmin = User.objects.get(username='test_contest_admin')
-        self.factory = self.get_fake_request_factory(self.contest)
+        self.pdata = User.objects.get(username='test_personal_data_user')
+        self.badmin = User.objects.get(username='test_contest_basicadmin')
+        self.cowner = User.objects.get(username='test_contest_owner')
+        self.user = User.objects.get(username='test_user')
+
+        self.perms_list = (
+            'contests.personal_data',
+            'contests.contest_observer',
+            'contests.contest_basicadmin',
+            'contests.contest_admin',
+            'contests.contest_owner',
+        )
+
         super().setUp()
 
     def test_utils(self):
-        ofactory = partial(self.factory, self.observer)
-        cfactory = partial(self.factory, self.cadmin)
-        ufactory = partial(self.factory, User.objects.get(username='test_user'))
-        self.assertFalse(can_enter_contest(ufactory(self.during)))
-        self.assertTrue(is_contest_admin(cfactory(self.during)))
-        self.assertTrue(can_enter_contest(cfactory(self.during)))
-        self.assertTrue(is_contest_observer(ofactory(self.during)))
-        self.assertTrue(can_enter_contest(ofactory(self.during)))
+        all_funlist = [
+            is_superuser,
+            is_contest_owner,
+            is_contest_admin,
+            is_contest_basicadmin,
+            is_contest_observer,
+            can_enter_contest,
+            can_see_personal_data,
+        ]
+
+        def check_perms(user, perms):
+            request = self.factory(user)
+            for f in all_funlist:
+                self.assertEqual(f(request), f in perms)
+
+        check_perms(self.superuser, all_funlist)
+        check_perms(self.cowner, [
+            is_contest_owner,
+            is_contest_admin,
+            is_contest_basicadmin,
+            can_enter_contest,
+        ])
+        check_perms(
+            self.cadmin,
+            [is_contest_admin, is_contest_basicadmin, can_enter_contest,],
+        )
+        check_perms(self.badmin, [is_contest_basicadmin, can_enter_contest])
+        check_perms(self.observer, [is_contest_observer, can_enter_contest])
+        check_perms(self.pdata, [can_see_personal_data, can_enter_contest])
+        check_perms(self.user, [])
 
     def test_privilege_manipulation(self):
-        self.assertTrue(
-            self.observer.has_perm('contests.contest_observer', self.contest)
+        def check_perms(user, perms):
+            for p in self.perms_list:
+                self.assertEqual(user.has_perm(p, self.contest), p in perms)
+
+        check_perms(self.superuser, self.perms_list)
+        check_perms(self.cowner, [
+            'contests.contest_owner',
+            'contests.contest_admin',
+            'contests.contest_basicadmin',
+        ])
+        check_perms(
+            self.cadmin,
+            ['contests.contest_admin', 'contests.contest_basicadmin'],
         )
-        self.assertFalse(self.observer.has_perm('contests.contest_admin', self.contest))
+        check_perms(self.badmin, ['contests.contest_basicadmin'])
+        check_perms(self.observer, ['contests.contest_observer'])
+        check_perms(self.pdata, ['contests.personal_data'])
+        check_perms(self.user, [])
 
-        self.assertFalse(
-            self.cadmin.has_perm('contests.contest_observer', self.contest)
-        )
-        self.assertTrue(self.cadmin.has_perm('contests.contest_admin', self.contest))
-
-        test_user = User.objects.get(username='test_user')
-
-        self.assertFalse(test_user.has_perm('contests.contest_observer', self.contest))
-        self.assertFalse(test_user.has_perm('contests.contest_admin', self.contest))
-
-        del test_user._contest_perms_cache
-        ContestPermission(
-            user=test_user, contest=self.contest, permission='contests.contest_observer'
-        ).save()
-        self.assertTrue(test_user.has_perm('contests.contest_observer', self.contest))
-
-        del test_user._contest_perms_cache
-        ContestPermission(
-            user=test_user, contest=self.contest, permission='contests.contest_admin'
-        ).save()
-        self.assertTrue(test_user.has_perm('contests.contest_observer', self.contest))
+        for perm in self.perms_list:
+            del self.user._contest_perms_cache
+            cperm = ContestPermission.objects.create(
+                user=self.user, contest=self.contest, permission=perm
+            )
+            self.assertTrue(self.user.has_perm(perm, self.contest))
+            cperm.delete()
 
     def test_menu(self):
         unregister_contest_dashboard_view(simpleui_contest_dashboard)
