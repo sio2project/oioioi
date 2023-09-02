@@ -1,1 +1,1 @@
-{% load i18n %}{% trans "OIOIOI Registration" %}
+{% load i18n %}{% trans "OIOIOI Sign-up" %}
