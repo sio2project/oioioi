@@ -718,7 +718,7 @@ class TestRegistration(TestCase):
     def test_registration_form_fields(self):
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 0)
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 1)
         form = response.context['form']
@@ -726,14 +726,14 @@ class TestRegistration(TestCase):
         self.assertIn('last_name', form.fields)
 
     def _register_user(self, terms_accepted=True, pass_captcha=True):
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 1)
         captcha = CaptchaStore.objects.all()[0]
         if not pass_captcha:
             captcha.response += "z"
         self.client.post(
-            reverse('registration_register'),
+            reverse('sign-up'),
             {
                 'username': 'test_foo',
                 'first_name': 'Foo',
@@ -1329,7 +1329,7 @@ class TestPreferences(TestCase):
         self.assertContains(response, 'Edycja profilu')
 
     def test_registration_preferences(self):
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         self.assertContains(response, 'Preferred language')
 
         self.assertTrue(self.client.login(username='test_user'))
@@ -1347,7 +1347,7 @@ class TestPreferences(TestCase):
         self.assertEqual(response.status_code, 200)
         self.client.logout()
 
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         self.assertContains(response, 'Preferred language')
 
 
