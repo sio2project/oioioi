@@ -1029,7 +1029,6 @@ class ContestPermissionAdminForm(ModelForm):
 
 
 class ContestPermissionAdmin(admin.ModelAdmin):
-    list_display = ['permission', 'user', 'user_full_name']
     list_display_links = ['user']
     ordering = ['permission', 'user']
     form = ContestPermissionAdminForm
@@ -1041,6 +1040,12 @@ class ContestPermissionAdmin(admin.ModelAdmin):
 
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
+
+    def get_list_display(self, request):
+        fields = ['permission', 'user', 'user_full_name',]
+        if not request.contest:
+            fields.append('contest')
+        return fields
 
     def has_add_permission(self, request):
         return is_contest_owner(request)
