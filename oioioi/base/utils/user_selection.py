@@ -154,6 +154,11 @@ class UserSelectionField(forms.CharField):
     def prepare_value(self, value):
         if isinstance(value, User):
             return value.username
+        if isinstance(value, int):
+            try:
+                return User.objects.get(id=value).username
+            except User.DoesNotExist:
+                pass
         return super(UserSelectionField, self).prepare_value(value)
 
     def to_python(self, value):
