@@ -738,6 +738,30 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         # Bad packages need to be left over for the error messages
         self.assertEqual(ProblemPackage.objects.count(), 1)
 
+    @both_configurations
+    def test_inwer_input_names(self):
+        ProblemInstance.objects.all().delete()
+
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_inwer_input_names.zip')
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id}, follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(
+            url,
+            {
+                'package_file': open(filename, 'rb'),
+                'visibility': Problem.VISIBILITY_PRIVATE,
+            },
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 2)
+        self.assertEqual(ProblemPackage.objects.count(), 1)
+
 
 class TestSinolPackageCreator(TestCase, TestStreamingMixin):
     fixtures = [
