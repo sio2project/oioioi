@@ -113,10 +113,7 @@ def show_problem_attachment_view(request, attachment_id):
 def _get_package(request, package_id, contest_perm=None):
     package = get_object_or_404(ProblemPackage, id=package_id)
     if package.contest:
-        has_perm = request.user.has_perm(contest_perm, package.contest) or (
-            contest_perm == 'contests.contest_basicadmin'
-            and request.user.has_perm('contests.contest_admin', package.contest)
-        )
+        has_perm = request.user.has_perm(contest_perm, package.contest)
     elif package.problem:
         has_perm = can_admin_problem(request, package.problem)
     else:
