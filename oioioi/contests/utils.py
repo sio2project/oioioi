@@ -328,12 +328,8 @@ def is_contest_admin(request):
 
 
 def can_admin_contest(user, contest):
-    """Checks if the user should be allowed on the admin pages of the contest.
-    This is the same level of permissions as is_contest_basicadmin.
-    """
-    return user.has_perm('contests.contest_admin', contest) or user.has_perm(
-        'contests.contest_basicadmin', contest
-    )
+    """Checks if the user should be allowed on the admin pages of the contest."""
+    return user.has_perm('contests.contest_basicadmin', contest)
 
 
 @make_request_condition
