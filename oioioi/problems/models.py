@@ -813,6 +813,23 @@ class OriginInfoValueLocalization(models.Model):
         return str("{} - {}".format(self.origin_info_value, self.language))
 
 
+class FakeOriginInfoValue(object):
+    value = None
+    order = float('inf')
+    cat = None
+
+    def __init__(self, category):
+        self.cat = category
+
+    def __eq__(self, other):
+        if type(other) is FakeOriginInfoValue:
+            return self.cat == other.cat
+        return False
+
+    def __hash__(self):
+        return hash(self.cat)
+
+
 @_localized('full_name')
 
 class DifficultyTag(models.Model):
