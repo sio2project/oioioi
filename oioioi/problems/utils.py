@@ -23,6 +23,7 @@ from oioioi.problems.models import (
     ProblemStatement,
     ProblemStatistics,
     UserStatistics,
+    FakeOriginInfoValue,
 )
 from oioioi.programs.models import (
     GroupReport,
@@ -359,21 +360,7 @@ def get_prefetched_value(problem, category):
     for oiv in problem.origininfovalue_set.all():
         if oiv.category == category:
             return oiv
-
-    class FakeOriginInfoValue(object):
-        value = None
-        order = float('inf')
-        cat = category
-
-        def __eq__(self, other):
-            if type(other) is FakeOriginInfoValue:
-                return self.cat == other.cat
-            return False
-
-        def __hash__(self):
-            return hash(self.cat)
-
-    return FakeOriginInfoValue()
+    return FakeOriginInfoValue(category)
 
 
 def show_proposal_form(problem, user):
