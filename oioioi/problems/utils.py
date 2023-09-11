@@ -23,7 +23,6 @@ from oioioi.problems.models import (
     ProblemStatement,
     ProblemStatistics,
     UserStatistics,
-    FakeOriginInfoValue,
 )
 from oioioi.programs.models import (
     GroupReport,
@@ -342,6 +341,23 @@ def generate_model_solutions_context(request, problem_instance):
         'rows': rows,
         'total_row': total_row,
     }
+
+
+class FakeOriginInfoValue(object):
+    value = None
+    order = float('inf')
+    cat = None
+
+    def __init__(self, category):
+        self.cat = category
+
+    def __eq__(self, other):
+        if type(other) is FakeOriginInfoValue:
+            return self.cat == other.cat
+        return False
+
+    def __hash__(self):
+        return hash(self.cat)
 
 
 def get_prefetched_value(problem, category):
