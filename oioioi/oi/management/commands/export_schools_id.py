@@ -4,7 +4,7 @@ import sys
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext as _
 
-from oioioi.oi.management.commands.import_schools import COLUMNS
+from oioioi.oi.management.commands.import_schools_legacy import COLUMNS
 from oioioi.oi.models import School
 
 COLUMNS = ['id'] + COLUMNS
