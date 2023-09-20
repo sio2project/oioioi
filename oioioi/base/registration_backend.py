@@ -66,7 +66,7 @@ urlpatterns = [
     re_path(r'^sign-up/$', RegistrationView.as_view(), name='sign-up'),
     re_path(
         r'^register/$',
-        RedirectView.as_view(pattern_name='/sign-up/', permanent=True),
+        RedirectView.as_view(pattern_name='sign-up', permanent=True),
         name='registration_redirect',
     ),
 ]
