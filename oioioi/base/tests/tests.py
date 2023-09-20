@@ -25,7 +25,7 @@ from django.template import Context, Template
 from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from django.urls import reverse
+from django.urls import reverse, clear_url_caches
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
@@ -725,6 +725,13 @@ class TestRegistration(TestCase):
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
 
+    def _reload_urlconf(self):
+        import oioioi.base.registration_backend
+        reload(oioioi.base.registration_backend)
+        import oioioi.urls
+        reload(oioioi.urls)
+        clear_url_caches()
+
     def _register_user(self, terms_accepted=True, pass_captcha=True):
         response = self.client.get(reverse('sign-up'))
         captcha_count = CaptchaStore.objects.count()
@@ -732,7 +739,7 @@ class TestRegistration(TestCase):
         captcha = CaptchaStore.objects.all()[0]
         if not pass_captcha:
             captcha.response += "z"
-        self.client.post(
+        return self.client.post(
             reverse('sign-up'),
             {
                 'username': 'test_foo',
@@ -745,6 +752,7 @@ class TestRegistration(TestCase):
                 'captcha_0': captcha.hashkey,
                 'captcha_1': captcha.response,
             },
+            follow=True,
         )
 
     def _assert_user_active(self):
@@ -780,6 +788,17 @@ class TestRegistration(TestCase):
         self._register_user(pass_captcha=False)
         self.assertEqual(User.objects.filter(username='test_foo').count(), 0)
 
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=False)
+    def test_registration_complete_text_no_email(self):
+        self._reload_urlconf()
+        resp = self._register_user()
+        self.assertNotContains(resp, 'e-mail')
+
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=True)
+    def test_registration_complete_text_with_email(self):
+        self._reload_urlconf()
+        resp = self._register_user()
+        self.assertContains(resp, 'e-mail')
 
 
 class TestArchive(TestCase):
