@@ -8,11 +8,18 @@ from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from oioioi.base.utils import request_cached
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import Round
 from oioioi.status.registry import status_registry
 from oioioi.su.utils import is_real_superuser
 
+
+@request_cached
+def get_round_times(request):
+    contest = getattr(request, 'contest', None)
+    return [(contest.controller.get_round_times(request, round), round)
+              for round in Round.objects.filter(contest=contest)]
 
 @status_registry.register
 def get_times_status(request, response):
@@ -46,10 +53,7 @@ def get_times_status(request, response):
     current_rounds_times = None
 
     if timestamp and contest:
-        rtimes = [
-            (contest.controller.get_round_times(request, round), round)
-            for round in Round.objects.filter(contest=contest)
-        ]
+        rtimes = get_round_times(request)
         next_rounds_times = [
             (rt, round) for (rt, round) in rtimes if rt.is_future(timestamp)
         ]
@@ -103,9 +107,9 @@ def admin_time(request, next_page=None):
                 messages.error(request, _("Invalid date. Admin-time was not set."))
                 return safe_redirect(request, next_page)
             if current_admin_time.year >= 1900:
+                local_tz = timezone.localtime().tzinfo
                 request.session['admin_time'] = (
-                    timezone.localtime(timezone.now())
-                    .tzinfo.localize(current_admin_time)
+                    current_admin_time.replace(tzinfo=local_tz)
                     .astimezone(pytz.utc)
                     .isoformat()
                 )

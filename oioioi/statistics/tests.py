@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.test import RequestFactory
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance
@@ -25,6 +24,7 @@ class TestStatisticsPlotFunctions(TestCase):
         'test_full_package',
         'test_problem_instance',
         'test_submission',
+        'test_submission_another_user_for_statistics',
         'test_extra_rounds',
         'test_extra_problem',
     ]
@@ -33,7 +33,7 @@ class TestStatisticsPlotFunctions(TestCase):
         self.request = RequestFactory().request()
         self.request.user = User.objects.get(username='test_user')
         self.request.contest = Contest.objects.get()
-        self.request.timestamp = datetime.now().replace(tzinfo=utc)
+        self.request.timestamp = datetime.now().replace(tzinfo=timezone.utc)
 
     def assertSizes(self, data, dims):
         """Assert that ``data`` is a ``len(dims)``-dimensional rectangular
@@ -77,7 +77,7 @@ class TestStatisticsPlotFunctions(TestCase):
         pi = ProblemInstance.objects.get(short_name='zad1')
         plot = points_to_source_length_problem(self.request, pi)
         self.assertEqual(len(plot['series']), 1)
-        self.assertSizes(plot['data'], [1, 1, 3])
+        self.assertSizes(plot['data'], [1, 2, 3])
 
     def test_test_scores(self):
         pi = ProblemInstance.objects.get(short_name='zad1')
@@ -113,7 +113,7 @@ class TestHighchartsOptions(TestCase):
         self.request = RequestFactory().request()
         self.request.user = User.objects.get(username='test_user')
         self.request.contest = Contest.objects.get()
-        self.request.timestamp = datetime.now().replace(tzinfo=utc)
+        self.request.timestamp = datetime.now().replace(tzinfo=timezone.utc)
 
     def test_scatter(self):
         plot_function, plot_type = statistics_plot_kinds[
@@ -174,29 +174,29 @@ class TestStatisticsViews(TestCase):
 
         # Without StatisticsConfig model
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Results histogram')
 
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(403, response.status_code)
 
         cfg = StatisticsConfig(
             contest=contest,
             visible_to_users=True,
-            visibility_date=datetime(2014, 2, 3, tzinfo=utc),
+            visibility_date=datetime(2014, 2, 3, tzinfo=timezone.utc),
         )
         cfg.save()
 
         self.assertTrue(self.client.login(username='test_admin'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Results histogram')
 
         self.assertTrue(self.client.login(username='test_user'))
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Results histogram')
             self.assertContains(response, 'zad4')

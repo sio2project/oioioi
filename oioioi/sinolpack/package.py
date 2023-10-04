@@ -155,14 +155,14 @@ class SinolPackage(object):
         Otherwise None is returned.
         """
 
-        files = list(map(os.path.normcase, self.archive.filenames()))
-        files = list(map(os.path.normpath, files))
-        toplevel_dirs = set(f.split(os.sep)[0] for f in files)
+        dirs = list(map(os.path.normcase, self.archive.dirnames()))
+        dirs = list(map(os.path.normpath, dirs))
+        toplevel_dirs = set(f.split(os.sep)[0] for f in dirs)
         toplevel_dirs = list(filter(slug_re.match, toplevel_dirs))
         problem_dirs = []
         for dir in toplevel_dirs:
             for required_subdir in ('in', 'out'):
-                if all(f.split(os.sep)[:2] != [dir, required_subdir] for f in files):
+                if all(f.split(os.sep)[:2] != [dir, required_subdir] for f in dirs):
                     break
             else:
                 problem_dirs.append(dir)
@@ -239,6 +239,24 @@ class SinolPackage(object):
         new_env['compiled_file'] = new_env['out_file']
         return new_env
 
+    # This is a hack for szkopul backwards compatibility.
+    # See settings.OVERRIDE_COMPILER_LANGS for more info.
+    # Should be removed when szkopul removes older compilers.
+    def _override_compiler(self, prefix, lang, compilation_job):
+        if prefix != 'default':
+            return
+
+        name_map = {
+            'c': 'C',
+            'cpp': 'C++',
+            'pas': 'Pascal',
+            'java': 'Java',
+            'py': 'Python'
+        }
+
+        if lang in name_map and lang in settings.OVERRIDE_COMPILER_LANGS:
+            compilation_job['compiler'] = settings.DEFAULT_COMPILERS[name_map[lang]]
+
     def _run_compilation_job(self, ext, ft_source_name, out_name):
         compilation_job = self.env.copy()
         compilation_job['job_type'] = 'compile'
@@ -252,6 +270,8 @@ class SinolPackage(object):
         else:
             prefix = 'system'
         compilation_job['compiler'] = prefix + '-' + lang
+        self._override_compiler(prefix, lang, compilation_job)
+       
         if not self.use_make and self.prog_archive:
             compilation_job['additional_archive'] = self.prog_archive
         add_extra_files(
@@ -291,6 +311,10 @@ class SinolPackage(object):
             env['exe_file'] = env['compiled_file']
             env['re_string'] = re_string
             env['use_sandboxes'] = self.use_sandboxes
+            try:
+                env['ingen_mem_limit'] = settings.INGEN_MEMORY_LIMIT
+            except Exception:
+                pass
             env['collected_files_path'] = _make_filename_in_job_dir(self.env, 'in')
 
             renv = run_sioworkers_job(env)
@@ -486,7 +510,9 @@ class SinolPackage(object):
         """Looks for extra compilation files specified in ``config.yml``."""
         ExtraFile.objects.filter(problem=self.problem).delete()
         files = list(self.config.get('extra_compilation_files', ()))
-        not_found = self._find_and_save_files(files)
+        for lang_files in self.config.get('extra_execution_files', {}).values():
+            files.extend(lang_files)
+        not_found = self._find_and_save_files(set(files))
         if not_found:
             raise ProblemPackageError(
                 _("Expected extra files %r not found in prog/") % (not_found)
@@ -631,7 +657,7 @@ class SinolPackage(object):
         sinol_cls_tgz = os.path.join(
             os.path.dirname(__file__), 'files', 'sinol-cls.tgz'
         )
-        execute(['tar', '-C', docdir, '-kzxf', sinol_cls_tgz], cwd=docdir)
+        execute(['tar', '-C', docdir, '--skip-old-files','-zxf',  sinol_cls_tgz], cwd=docdir)
 
         try:
             execute('make', cwd=docdir)
@@ -733,7 +759,7 @@ class SinolPackage(object):
         outs_to_make = []
         scored_groups = set()
 
-        if self.use_make:
+        if self.use_make and not self.config.get('no_outgen', False):
             self._find_and_compile('', command='outgen')
 
         for order, test in enumerate(sorted(all_items, key=naturalsort_key)):
@@ -1113,9 +1139,11 @@ class SinolPackage(object):
         """
         tests = Test.objects.filter(problem_instance=self.main_problem_instance)
         for test in tests:
-            LanguageOverrideForTest.objects.create(
-                time_limit=test.time_limit,
-                memory_limit=test.memory_limit,
+            LanguageOverrideForTest.objects.update_or_create(
+                defaults={
+                    'time_limit': test.time_limit,
+                    'memory_limit': test.memory_limit,
+                },
                 test=test,
                 language=lang,
             )

@@ -18,7 +18,7 @@ class Command(BaseCommand):
         )
         parser.add_argument('args', type=str, nargs='*', help='Command\' arguments')
 
-    def cmd_list(self, **kwargs):
+    def cmd_list(self, *args, **kwargs):
         l = self.server.get_workers()
         if l:
             self.stdout.write('\n'.join(map(str, l)))
@@ -76,7 +76,7 @@ class Command(BaseCommand):
         if not q:
             self.stdout.write('Empty queue.\n')
             return
-        self.stdout.write(str(q).encode('utf-8'))
+        self.stdout.write(json.dumps(q))
 
     def handle(self, *args, **options):
         if not options['command']:
@@ -84,7 +84,6 @@ class Command(BaseCommand):
             self.stdout.write('Available commands: %s\n' % ', '.join(cmds))
             return
         cmd = options['command']
-        args = options['args']
         try:
             f = getattr(self, 'cmd_' + cmd)
         except AttributeError:

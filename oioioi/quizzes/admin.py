@@ -62,7 +62,7 @@ class QuizAnswerInline(nested.NestedTabularInline):
     formset = QuizAnswerFormset
     sortable_field_name = 'order'
     extra = 0
-    inlines = [QuizAnswerPictureInline]
+    inlines = (QuizAnswerPictureInline,)
 
     def has_add_permission(self, request, obj=None):
         return True
@@ -78,7 +78,7 @@ class QuizQuestionInline(nested.NestedStackedInline):
     model = QuizQuestion
     sortable_field_name = 'order'
     extra = 0
-    inlines = [QuizAnswerInline, QuizQuestionPictureInline]
+    inlines = (QuizAnswerInline, QuizQuestionPictureInline,)
 
     def has_add_permission(self, request, obj=None):
         return True
@@ -95,7 +95,7 @@ class QuizQuestionInline(nested.NestedStackedInline):
 
 class QuizModelAdmin(nested.NestedModelAdmin):
     model = Quiz
-    inlines = [QuizQuestionInline]
+    inlines = (QuizQuestionInline,)
 
     class Media(object):
         css = {'all': ('quizzes/quizadmin.css',)}
@@ -155,4 +155,4 @@ class QuizAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(QuizAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [QuizInline]
+        self.inlines = tuple(self.inlines) + (QuizInline,)

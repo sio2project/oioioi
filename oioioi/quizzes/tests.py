@@ -1,9 +1,8 @@
 import os.path
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.test import RequestFactory
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import (
@@ -406,7 +405,7 @@ class TestPictures(TestCase):
 
     def test_access(self):
         url = QuizQuestionPicture.objects.get().get_absolute_url()
-        with fake_time(datetime(1999, 1, 1, tzinfo=utc)):
+        with fake_time(datetime(1999, 1, 1, tzinfo=timezone.utc)):
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 403)
 

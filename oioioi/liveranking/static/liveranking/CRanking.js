@@ -417,10 +417,10 @@ var CRanking = function(model, targetDiv) {
 
 CRanking.prototype.settings = {
 	'headerRowHeight' : 50,
-	'teamRowHeight' : 50,
+	'teamRowHeight' : 40,
 	'staticRowsNo' : 4, //liczba nieruchomych wierszy, nie wliczając nagłówka, dotyczy przewijania rankingu	
 	'rankColWidth' : 60,
-	'teamsColWidth' : 150,
+	'teamsColWidth' : 250,
 	'scoreColWidth' : 90,
 	'taskColWidth' : 50,
 	'timeColWidth' : 120,

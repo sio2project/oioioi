@@ -1,1 +1,1 @@
-A module for sending complaints from participants to jury.
+Complaints from participants to the jury.

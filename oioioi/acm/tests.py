@@ -1,8 +1,7 @@
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_timezone_now
 from oioioi.contests.models import Contest
@@ -53,20 +52,20 @@ class TestACMRanking(TestCase):
 
         # trial round begins at 11:00, ends at 16:00, results are available
         # at 19:00
-        with fake_timezone_now(datetime(2013, 12, 13, 10, 59, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 13, 10, 59, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             for task in ['trial', 'A', 'sum', 'test']:
                 self.assertActiveTaskNotIn(task, content)
 
-        with fake_timezone_now(datetime(2013, 12, 13, 11, 30, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 13, 11, 30, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             self.assertActiveTaskIn('trial', content)
             for task in ['A', 'sum', 'test']:
                 self.assertActiveTaskNotIn(task, content)
 
-        with fake_timezone_now(datetime(2013, 12, 13, 17, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 13, 17, 0, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             self.assertInactiveTaskIn('trial', content)
@@ -75,14 +74,14 @@ class TestACMRanking(TestCase):
 
         # round 1 starts at 20:40, ends at 01:40, results are available at
         # 09:00
-        with fake_timezone_now(datetime(2013, 12, 14, 20, 39, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 14, 20, 39, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             self.assertInactiveTaskIn('trial', content)
             for task in ['A', 'sum', 'test']:
                 self.assertInactiveTaskNotIn(task, content)
 
-        with fake_timezone_now(datetime(2013, 12, 14, 20, 40, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 14, 20, 40, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             self.assertActiveTaskNotIn('trial', content)
@@ -90,7 +89,7 @@ class TestACMRanking(TestCase):
                 self.assertActiveTaskIn(task, content)
             self.assertNotContains(response, 'The ranking is frozen.')
 
-        with fake_timezone_now(datetime(2013, 12, 15, 1, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 1, 0, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             self.assertActiveTaskNotIn('trial', content)
@@ -98,7 +97,7 @@ class TestACMRanking(TestCase):
                 self.assertActiveTaskIn(task, content)
             self.assertContains(response, 'The ranking is frozen.')
 
-        with fake_timezone_now(datetime(2013, 12, 15, 7, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 7, 0, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             self.assertInactiveTaskNotIn('trial', content)
@@ -106,7 +105,7 @@ class TestACMRanking(TestCase):
                 self.assertInactiveTaskIn(task, content)
             self.assertContains(response, 'The ranking is frozen.')
 
-        with fake_timezone_now(datetime(2013, 12, 15, 9, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 9, 0, tzinfo=timezone.utc)):
             response = self.client.get(url)
             content = response.content.decode('utf-8')
             self.assertInactiveTaskNotIn('trial', content)
@@ -114,13 +113,13 @@ class TestACMRanking(TestCase):
                 self.assertInactiveTaskIn(task, content)
             self.assertNotContains(response, 'The ranking is frozen.')
 
-        with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertContains(response, 'data-username="test_user"', count=2)
 
         self.assertTrue(self.client.login(username='test_admin'))
 
-        with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=timezone.utc)):
             response = self.client.get(csv_url)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, '\n', count=4)

@@ -1,12 +1,12 @@
 {% extends "simple-centered.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Registration successful" %}{% endblock %}
+{% block title %}{% trans "Sign-up successful" %}{% endblock %}
 
 {% block content %}
     <div class="alert alert-success text-center">
-        <h1>{% trans "Registration successful" %}</h1>
-        <p>{% trans "Thank you for registering." %}</p>
+        <h1>{% trans "Sign-up successful" %}</h1>
+        <p>{% trans "Thank you for signing up." %}</p>
         <p>{% trans "Your account is now active. You may go ahead and log in now." %}</p>
         <p><a role="button" class="btn btn-primary" href="{% url "auth_login" %}">{% trans "Log in" %}</a></p>
     </div>

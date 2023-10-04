@@ -56,6 +56,15 @@ class Message(models.Model):
     pub_date = models.DateTimeField(
         default=None, blank=True, null=True, verbose_name=_("publication date")
     )
+    marked_read_by = models.ForeignKey(
+        User,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        # This is needed, because we have another ForeignKey to User - author
+        related_name='message_marked_read_set',
+        verbose_name=_("marked read by")
+    )
     mail_sent = models.BooleanField(
         default=False, verbose_name=_("mail notification sent")
     )
@@ -75,8 +84,10 @@ class Message(models.Model):
             related = Message.objects.filter(
                 Q(id=self.top_reference_id) | Q(top_reference_id=self.top_reference_id)
             )
-        else:
+        elif self.id:
             related = self.message_set.all()
+        else:
+            related = Message.objects.none()
         if self.id:
             related.exclude(id=self.id)
         related.update(

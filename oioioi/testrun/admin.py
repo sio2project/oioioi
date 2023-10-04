@@ -16,7 +16,7 @@ class TestRunAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(TestRunAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestRunConfigInline]
+        self.inlines = tuple(self.inlines) + (TestRunConfigInline,)
 
 
 ProblemInstanceAdmin.mix_in(TestRunAdminMixin)

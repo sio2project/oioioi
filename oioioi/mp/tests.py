@@ -1,8 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, UserResultForProblem
@@ -41,13 +40,13 @@ class TestMPRanking(TestCase):
 
     def test_rounds_order(self):
         self.assertTrue(self.client.login(username='test_user1'))
-        with fake_time(datetime(2023, 1, 6, 0, 0, tzinfo=utc)):
+        with fake_time(datetime(2023, 1, 6, 0, 0, tzinfo=timezone.utc)):
             response = self.client.get(self._ranking_url())
             self._check_order(response, [b'Round 2', b'Round 1'])
 
     def test_columns_order(self):
         self.assertTrue(self.client.login(username='test_user1'))
-        with fake_time(datetime(2023, 1, 6, 0, 0, tzinfo=utc)):
+        with fake_time(datetime(2023, 1, 6, 0, 0, tzinfo=timezone.utc)):
             response = self.client.get(self._ranking_url())
             self._check_order(response, [
                 b'<th>User</th>',
@@ -58,7 +57,7 @@ class TestMPRanking(TestCase):
 
     def test_no_zero_scores_in_ranking(self):
         self.assertTrue(self.client.login(username='test_user1'))
-        with fake_time(datetime(2023, 1, 6, 0, 0, tzinfo=utc)):
+        with fake_time(datetime(2023, 1, 6, 0, 0, tzinfo=timezone.utc)):
             response = self.client.get(self._ranking_url())
             # Test User should be present in the ranking.
             self.assertTrue(re.search(b'<td[^>]*>Test User1</td>', response.content))

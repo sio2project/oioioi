@@ -15,6 +15,7 @@ from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
     is_contest_admin,
+    is_contest_basicadmin,
     visible_problem_instances,
 )
 from oioioi.contests.models import ProblemInstance
@@ -30,7 +31,10 @@ def visible_tests_packages(request):
     return [
         tp
         for tp in tests_packages
-        if tp.is_visible(request.timestamp) and tp.package is not None
+        if tp.package is not None and (
+            is_contest_basicadmin(request) or
+            tp.is_visible(request.timestamp)
+        )
     ]
 
 

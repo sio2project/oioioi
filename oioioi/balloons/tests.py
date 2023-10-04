@@ -1,9 +1,8 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.balloons.models import BalloonDelivery, BalloonsDeliveryAccessData
 from oioioi.base.tests import TestCase, fake_time
@@ -190,11 +189,11 @@ class TestBalloons(TestCase):
 
     def test_cookie_expiry_date(self):
         url = reverse('balloons_delivery_panel', kwargs=self.c_kwargs)
-        with fake_time(datetime(2012, 8, 5, 0, 5, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 5, 0, 5, tzinfo=timezone.utc)):
             self._generate_link_and_set_cookie()
-        with fake_time(datetime(2012, 8, 12, 0, 4, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 12, 0, 4, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
-        with fake_time(datetime(2012, 8, 12, 0, 6, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 12, 0, 6, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)

@@ -2,8 +2,9 @@ import calendar
 import datetime
 
 from django.conf import settings
+from django.contrib import messages as django_messages
 from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
@@ -11,7 +12,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_POST
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
@@ -267,6 +268,37 @@ def mark_messages_read(user, messages):
             pass
 
 
+@enforce_condition(contest_exists & is_contest_basicadmin)
+@require_POST
+def toggle_question_read(request, message_id, read):
+    error = None
+    with transaction.atomic():
+        try:
+            question = Message.objects.select_for_update().get(
+                id=message_id,
+                contest_id=request.contest.id,
+                kind='QUESTION',
+            )
+        except Message.DoesNotExist:
+            raise Http404
+        if read:
+            if not question.marked_read_by:
+                question.marked_read_by = request.user
+            else:
+                error = _("This question has already been marked read!")
+        else:
+            if question.marked_read_by:
+                question.marked_read_by = None
+            else:
+                error = _("This question has already been marked unread!")
+        question.save()
+    if error:
+        django_messages.error(request, error)
+    else:
+        django_messages.success(request, _("Success!"))
+    return redirect('message', message_id=message_id)
+
+
 @enforce_condition(contest_exists & can_enter_contest)
 def message_visit_view(request, message_id):
     message = get_object_or_404(Message, id=message_id, contest_id=request.contest.id)
@@ -428,13 +460,14 @@ def check_new_messages_view(request, topic_id):
 
 
 @require_http_methods(["GET", "POST"])
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def subscription(request):
     mgr = QuestionSubscription.objects
     ctxt = {'contest': request.contest, 'user': request.user}
     entries = mgr.filter(**ctxt)
     subscribed = entries.exists()
 
-    if request.POST:
+    if request.method == 'POST':
         should_add = request.POST['add_subscription'] == 'true'
         incorrect = should_add == subscribed
 
@@ -449,5 +482,6 @@ def subscription(request):
             QuestionSubscription.objects.create(**ctxt)
 
         return HttpResponse("OK")
-    elif request.GET:
+    else:
+        # request.method == 'GET', enforced by decorator
         return HttpResponse(subscribed)

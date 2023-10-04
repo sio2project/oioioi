@@ -1,10 +1,9 @@
 import os
 import socket
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contestexcl.models import ExclusivenessConfig
@@ -34,12 +33,12 @@ class TestAutoAuthorization(TestCase):
 
         ex_conf = ExclusivenessConfig()
         ex_conf.contest = Contest.objects.get(id='c1')
-        ex_conf.start_date = datetime(2012, 1, 1, 10, tzinfo=utc)
-        ex_conf.end_date = datetime(2012, 1, 1, 14, tzinfo=utc)
+        ex_conf.start_date = datetime(2012, 1, 1, 10, tzinfo=timezone.utc)
+        ex_conf.end_date = datetime(2012, 1, 1, 14, tzinfo=timezone.utc)
         ex_conf.save()
 
     def _assertBackend(self, user):
-        with fake_time(datetime(2012, 1, 1, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 1, 1, 11, tzinfo=timezone.utc)):
             self.client.get('/c/c1/id')
             session = self.client.session
             self.assertEqual(session['_auth_user_id'], str(user.id))

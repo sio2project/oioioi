@@ -71,7 +71,7 @@ class TestsPackageAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(TestsPackageAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestsPackageInline]
+        self.inlines = tuple(self.inlines) + (TestsPackageInline,)
 
 
 ProblemAdmin.mix_in(TestsPackageAdminMixin)

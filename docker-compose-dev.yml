@@ -12,7 +12,7 @@ services:
     stop_grace_period: 1m
   web:
     image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/selenium_init.sh"]
+    command: ["/sio2/oioioi/oioioi_init.sh", "--dev"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,7 +21,10 @@ services:
       extra_hosts:
         - "web:127.0.0.1"
     ports:
+    # web server
       - "8000:8000"
+    # notifications server
+    # - "7887:7887"
     volumes:
       - .:/sio2/oioioi
 #      - ./deployment:/sio2/deployment

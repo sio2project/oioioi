@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
 from django.contrib.sites.requests import RequestSite
 from django.urls import re_path, reverse_lazy
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from registration import signals
 from registration.backends.default.views import (
     RegistrationView as DefaultRegistrationView,
@@ -63,19 +63,24 @@ class RegistrationView(DefaultRegistrationView):
 
 
 urlpatterns = [
-    re_path(r'^register/$', RegistrationView.as_view(), name='registration_register'),
+    re_path(r'^sign-up/$', RegistrationView.as_view(), name='sign-up'),
+    re_path(
+        r'^register/$',
+        RedirectView.as_view(pattern_name='sign-up', permanent=True),
+        name='registration_redirect',
+    ),
 ]
 
 if not settings.SEND_USER_ACTIVATION_EMAIL:
     urlpatterns += [
         re_path(
-            r'^register/complete/$',
+            r'^sign-up/complete/$',
             TemplateView.as_view(
                 template_name='registration/'
                 'registration_and_activation_complete.html'
             ),
-            name='registration_complete',
-        )
+            name='sign-up_complete',
+        ),
     ]
 
 urlpatterns += [

@@ -42,10 +42,10 @@ def submission_receipt_proof(submission):
         ).count()
         + 1
     )
-    source_hash = hashlib.sha256()
-    for chunk in submission.source_file.chunks():
-        source_hash.update(chunk)
-    submission.source_file.seek(0)
+    with submission.source_file.read_using_cache() as source_file:
+        source_hash = hashlib.sha256()
+        for chunk in source_file.chunks():
+            source_hash.update(chunk)
 
     proof_data = {
         'id': submission.id,

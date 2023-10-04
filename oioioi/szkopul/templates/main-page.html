@@ -3,10 +3,6 @@
 {% load i18n static contest_selection newsfeed %}
 {% get_current_language as LANGUAGE_CODE %}
 
-{% block left-navbar %}
-    {% include "navbar-left.html" %}
-{% endblock %}
-
 {# disables the clock on the main page #}
 {% block countdown-clock %}{% endblock countdown-clock %}
 

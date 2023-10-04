@@ -1,9 +1,8 @@
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
@@ -140,7 +139,7 @@ class TestAddToContestFromProblemset(TestCase):
             controller_name='oioioi.contests.tests.PrivateContestController',
         )
         contest2.save()
-        contest2.creation_date = datetime(2002, 1, 1, tzinfo=utc)
+        contest2.creation_date = datetime(2002, 1, 1, tzinfo=timezone.utc)
         contest2.save()
         contest3 = Contest(
             id='c3',
@@ -148,7 +147,7 @@ class TestAddToContestFromProblemset(TestCase):
             controller_name='oioioi.contests.tests.PrivateContestController',
         )
         contest3.save()
-        contest3.creation_date = datetime(2004, 1, 1, tzinfo=utc)
+        contest3.creation_date = datetime(2004, 1, 1, tzinfo=timezone.utc)
         contest3.save()
         contest4 = Contest(
             id='c4',
@@ -156,7 +155,7 @@ class TestAddToContestFromProblemset(TestCase):
             controller_name='oioioi.contests.tests.PrivateContestController',
         )
         contest4.save()
-        contest4.creation_date = datetime(2003, 1, 1, tzinfo=utc)
+        contest4.creation_date = datetime(2003, 1, 1, tzinfo=timezone.utc)
         contest4.save()
 
         self.assertTrue(self.client.login(username='test_admin'))

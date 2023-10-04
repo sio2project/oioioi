@@ -1,2 +1,2 @@
-Filetracker is a module for storing files like submission
-source codes and tests.
+Stores files (submission
+source codes, tests, etc.).

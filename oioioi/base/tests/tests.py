@@ -100,7 +100,7 @@ class TestIndex(TestCase):
             response = self.client.get('/', follow=True)
         self.assertNotContains(response, 'test_user')
         self.assertTrue(self.client.login(username='test_user'))
-        with self.assertNumQueriesLessThan(70):
+        with self.assertNumQueriesLessThan(72):
             response = self.client.get('/', follow=True)
         self.assertContains(response, 'test_user')
         login_url = reverse('login')
@@ -130,12 +130,12 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(98):
+        with self.assertNumQueriesLessThan(99):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(85):
+        with self.assertNumQueriesLessThan(88):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
@@ -330,16 +330,19 @@ class TestErrorHandlers(TestCase):
             if self._user:
                 r.user = self._user
             self._req = r
-            return handler500(r)
+            res = handler500(r)
+            res.wsgi_request = r
+            return res
 
         def custom_get(*args, **kwargs):
             try:
                 return self._orig_get(*args, **kwargs)
             except Exception:
                 try:
+                    print(self.client.handler)
                     self.client.handler = wrapped_handler500
                     resp = self._orig_get(*args, **kwargs)
-                    resp.request = self._req
+                    resp.request = self._req                    
                     return resp
                 finally:
                     self.client.handler = self._orig_handler
@@ -715,7 +718,7 @@ class TestRegistration(TestCase):
     def test_registration_form_fields(self):
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 0)
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 1)
         form = response.context['form']
@@ -723,14 +726,14 @@ class TestRegistration(TestCase):
         self.assertIn('last_name', form.fields)
 
     def _register_user(self, terms_accepted=True, pass_captcha=True):
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 1)
         captcha = CaptchaStore.objects.all()[0]
         if not pass_captcha:
             captcha.response += "z"
         self.client.post(
-            reverse('registration_register'),
+            reverse('sign-up'),
             {
                 'username': 'test_foo',
                 'first_name': 'Foo',
@@ -1326,7 +1329,7 @@ class TestPreferences(TestCase):
         self.assertContains(response, 'Edycja profilu')
 
     def test_registration_preferences(self):
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         self.assertContains(response, 'Preferred language')
 
         self.assertTrue(self.client.login(username='test_user'))
@@ -1344,7 +1347,7 @@ class TestPreferences(TestCase):
         self.assertEqual(response.status_code, 200)
         self.client.logout()
 
-        response = self.client.get(reverse('registration_register'))
+        response = self.client.get(reverse('sign-up'))
         self.assertContains(response, 'Preferred language')
 
 
@@ -1427,6 +1430,7 @@ class TestUserDeactivationLogout(TestCase):
 
 
 # Test for the API
+@override_settings(LANGUAGE_CODE='en')
 class TestObtainingAPIToken(TestCase):
     fixtures = ['test_users']
 

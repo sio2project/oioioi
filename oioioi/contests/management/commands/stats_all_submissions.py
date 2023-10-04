@@ -5,7 +5,7 @@ import time
 
 from django.core.management.base import BaseCommand
 from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db import transaction
 from oioioi.contests.models import Contest, Round, Submission, SubmissionReport
 from datetime import datetime, timedelta

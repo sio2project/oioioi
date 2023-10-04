@@ -22,9 +22,9 @@ class TeamsAdmin(admin.ModelAdmin):
     list_display = ['name', 'join_key']
     fields = ['name', 'login']
     search_fields = ['name']
-    inlines = [
+    inlines = (
         MembersInline,
-    ]
+    )
     form = TeamForm
 
     def has_add_permission(self, request):
@@ -76,7 +76,7 @@ class TeamsAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(TeamsAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TeamsConfigInline]
+        self.inlines = tuple(self.inlines) + (TeamsConfigInline,)
 
 
 ContestAdmin.mix_in(TeamsAdminMixin)

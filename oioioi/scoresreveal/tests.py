@@ -1,9 +1,8 @@
 import re
-from datetime import datetime  # pylint: disable=E0611
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import (
@@ -54,9 +53,9 @@ class TestScoresManualReveal(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         self.user = User.objects.get(username='test_user')
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
-        round.results_date = datetime(2012, 8, 12, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
+        round.results_date = datetime(2012, 8, 12, tzinfo=timezone.utc)
         round.save()
         problem_instance = ProblemInstance.objects.get()
         config = ScoreRevealConfig()
@@ -66,7 +65,7 @@ class TestScoresManualReveal(TestCase):
         config.save()
 
     def test_simple_reveal(self):
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             response = self.reveal_submit(1)
 
             self.assertContains(response, '34')
@@ -74,7 +73,7 @@ class TestScoresManualReveal(TestCase):
     def test_disable_time(self):
         contest = Contest.objects.get()
 
-        date = datetime(2012, 8, 9, 23, 15, tzinfo=utc)
+        date = datetime(2012, 8, 9, 23, 15, tzinfo=timezone.utc)
         with fake_time(date):
             submission = Submission.objects.get(pk=1)
             submission.date = date
@@ -93,11 +92,11 @@ class TestScoresManualReveal(TestCase):
         r1 = Round.objects.get()
         RoundTimeExtension(user=user, round=r1, extra_time=10).save()
 
-        with fake_time(datetime(2012, 8, 9, 23, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 9, 23, 10, tzinfo=timezone.utc)):
             self.reveal_submit(1)
 
     def test_reveal_limit(self):
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             self.reveal_submit(4)
             self.reveal_submit(5)
             response = self.reveal_submit(1, success=False)
@@ -105,13 +104,13 @@ class TestScoresManualReveal(TestCase):
             self.assertContains(response, 'used <strong>2</strong> out of 2 reveals')
 
     def test_compilation_error(self):
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             self.reveal_submit(2, success=False)
 
     def test_not_scored(self):
         contest = Contest.objects.get()
 
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             kwargs = {'contest_id': contest.id, 'submission_id': 3}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
@@ -122,10 +121,10 @@ class TestScoresManualReveal(TestCase):
     def test_after_round(self):
         contest = Contest.objects.get()
 
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             self.reveal_submit(4)
 
-        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 11, tzinfo=timezone.utc)):
             kwargs = {'contest_id': contest.id, 'submission_id': 4}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
@@ -153,9 +152,9 @@ class TestScoresAutoReveal(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         self.user = User.objects.get(username='test_user')
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
-        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
-        round.results_date = datetime(2012, 8, 12, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=timezone.utc)
+        round.results_date = datetime(2012, 8, 12, tzinfo=timezone.utc)
         round.save()
         problem_instance = ProblemInstance.objects.get()
         config = ScoreRevealConfig()
@@ -179,7 +178,7 @@ class TestScoresAutoReveal(TestCase):
         return re.sub(r'\s*', '', response.content.decode('utf-8'))
 
     def test_simple_reveal(self):
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             self.assertIn(
                 '<td>34</td>', self.no_whitespaces(self.get_submission_page(1))
             )
@@ -191,7 +190,7 @@ class TestScoresAutoReveal(TestCase):
             )
 
     def test_disable_time(self):
-        date = datetime(2012, 8, 9, 23, 15, tzinfo=utc)
+        date = datetime(2012, 8, 9, 23, 15, tzinfo=timezone.utc)
         submission = Submission.objects.get(pk=1)
         submission.date = date
         submission.save()
@@ -209,7 +208,7 @@ class TestScoresAutoReveal(TestCase):
         r1 = Round.objects.get()
         RoundTimeExtension(user=user, round=r1, extra_time=10).save()
 
-        date = datetime(2012, 8, 9, 23, 10, tzinfo=utc)
+        date = datetime(2012, 8, 9, 23, 10, tzinfo=timezone.utc)
         with fake_time(date):
             submission = Submission.objects.get(pk=1)
             submission.date = date
@@ -217,18 +216,18 @@ class TestScoresAutoReveal(TestCase):
             self.assertContains(self.get_submission_page(1), '34')
 
     def test_compilation_error(self):
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             self.assertContains(
                 self.get_submission_page(2),
                 'You cannot reveal the score of the submission with status',
             )
 
     def test_not_scored(self):
-        with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 8, tzinfo=timezone.utc)):
             self.assertContains(self.get_submission_page(3), 'has not been scored yet')
 
     def test_after_round(self):
-        with fake_time(datetime(2012, 8, 10, 10, tzinfo=utc)):
+        with fake_time(datetime(2012, 8, 10, 10, tzinfo=timezone.utc)):
             response = self.get_submission_page(4)
             no_whitespaces_response = re.sub(
                 r'\s*', '', response.content.decode('utf-8')

@@ -7,7 +7,6 @@ from django.db.models import F, OuterRef, Q, Subquery
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import dateformat
-from django.utils.timezone import utc
 from django.utils.translation import get_language
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import allow_cross_origin, jsonify
@@ -71,6 +70,10 @@ def livedata_teams_view(request, round_id):
 @jsonify
 def livedata_tasks_view(request, round_id):
     round = get_object_or_404(request.contest.round_set.all(), pk=round_id)
+
+    if not request.contest.controller.can_see_round(request, round):
+        return []
+
     pis = (
         round.probleminstance_set.all()
         .prefetch_related('problem__names')
@@ -115,7 +118,7 @@ def livedata_events_view(request, round_id):
         # Only admin/observer is allowed to specify 'from' parameter.
         start_time = datetime.datetime.utcfromtimestamp(
             int(request.GET['from'])
-        ).replace(tzinfo=utc)
+        ).replace(tzinfo=datetime.timezone.utc)
         reports = reports.filter(creation_date__gte=start_time)
 
     round = get_object_or_404(request.contest.round_set.all(), pk=round_id)
@@ -125,6 +128,9 @@ def livedata_events_view(request, round_id):
         freeze_time = None
     else:
         freeze_time = request.contest.controller.get_round_freeze_time(round)
+
+    if round.results_date is not None and request.timestamp > round.results_date:
+        freeze_time = None
 
     return [
         {

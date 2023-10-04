@@ -74,10 +74,9 @@ def accept_mail_submission(request, mailsubmission):
 
 def mail_submission_hashes(mailsubmission):
     source_hash = hashlib.sha256()
-    for chunk in mailsubmission.source_file.chunks():
+    for chunk in mailsubmission.source_file.read_using_cache().chunks():
         source_hash.update(chunk)
     source_hash = source_hash.hexdigest()
-    mailsubmission.source_file.seek(0)
 
     pi = mailsubmission.problem_instance
 

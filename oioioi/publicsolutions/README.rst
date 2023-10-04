@@ -1,1 +1,1 @@
-A module implementing publishing and viewing participants' solutions.
+Publishing and viewing participants' solutions.

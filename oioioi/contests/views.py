@@ -59,7 +59,6 @@ from oioioi.problems.utils import (
     update_tests_from_main_pi,
 )
 from oioioi.status.registry import status_registry
-from oioioi.szkopul.menu import navbar_links_registry
 
 
 @register_main_page_view(order=900)
@@ -72,8 +71,11 @@ def main_page_view(request):
 def select_contest_view(request):
     contests = visible_contests(request)
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
+    context = {
+        'contests': contests,
+    }
     return TemplateResponse(
-        request, 'contests/select_contest.html', {'contests': contests}
+        request, 'contests/select_contest.html', context
     )
 
 
@@ -319,8 +321,6 @@ def all_submissions_view(request):
         request.contest = None
         show_scores = any(s['can_see_score'] for s in submissions)
 
-    navbar_links = navbar_links_registry.template_context(request)
-
     return TemplateResponse(
         request,
         'contests/my_submissions_all.html',
@@ -328,7 +328,6 @@ def all_submissions_view(request):
             'submissions': submissions,
             'show_scores': show_scores,
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
-            'navbar_links': navbar_links,
         },
     )
 

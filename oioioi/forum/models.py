@@ -297,6 +297,8 @@ class Ban(models.Model):
 
     @staticmethod
     def is_banned(forum, user):
+        if user.is_anonymous:
+            return False
         return Ban.objects.filter(forum=forum, user=user).exists()
 
     def __str__(self):

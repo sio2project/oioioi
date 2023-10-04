@@ -14,12 +14,10 @@ def dangling_problems_processor(request):
     if not is_contest_basicadmin(request):
         return {}
 
+    dangling_pis = ProblemInstance.objects.filter(contest=request.contest,
+            round__isnull=True)
+    count = dangling_pis.count()
     def generator():
-        dangling_pis = ProblemInstance.objects.filter(
-            contest=request.contest,
-            round__isnull=True,
-        )
-        count = dangling_pis.count()
         if not count:
             return ''
         elif count == 1:
@@ -53,11 +51,10 @@ def problems_need_rejudge_processor(request):
     if not is_contest_basicadmin(request):
         return {}
 
+    pis = ProblemInstance.objects.filter(contest=request.contest,
+            needs_rejudge=True)
+    count = pis.count()
     def generator():
-        pis = ProblemInstance.objects.filter(
-            contest=request.contest, needs_rejudge=True
-        )
-        count = pis.count()
         if not count:
             return ''
         else:
