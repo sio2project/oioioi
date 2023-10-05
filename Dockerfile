@@ -22,6 +22,8 @@ RUN apt-get update && \
         sudo \
         libstdc++6 \
         zlib1g \
+        sox \
+        flite \
         locales \
         python3-pip && \
     apt-get clean
