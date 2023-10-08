@@ -8,6 +8,7 @@ from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.contests.utils import is_contest_admin
 from oioioi.forum.models import Ban, Category, Post, PostReaction, Thread
+from oioioi.participants.utils import is_participant
 
 
 @make_request_condition
@@ -67,6 +68,8 @@ def is_proper_forum(request, *args, **kwargs):
 @make_request_condition
 def can_interact_with_users(request):
     if request.user.is_anonymous:
+        return False
+    if not is_participant(request) and not is_contest_admin(request):
         return False
     is_banned = Ban.is_banned(request.contest.forum, request.user)
     is_locked = request.contest.forum.is_locked(request.timestamp)
