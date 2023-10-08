@@ -130,6 +130,7 @@ def category_view(request, category_id):
             'msgs': get_msgs(request),
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
+            'forum_threads_per_page': getattr(settings, 'FORUM_THREADS_PER_PAGE', 30),
         },
     )
 
