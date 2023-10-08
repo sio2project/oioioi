@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
+from django.db.models import Count, Q
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
@@ -52,9 +53,24 @@ from oioioi.forum.utils import (
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request):
-    category_set = request.contest.forum.category_set.prefetch_related(
-        'thread_set', 'thread_set__post_set'
-    ).all()
+    categories = []
+    for category in request.contest.forum.category_set.all():
+        threads = category.thread_set.annotate(
+            post_count=Count('post'),
+            reported_count=Count('post', filter=Q(post__reported=True)),
+        ).all()
+        post_count = 0
+        reported_count = 0
+        for thread in threads:
+            post_count += thread.post_count
+            reported_count += thread.reported_count
+
+        categories.append({
+            'category': category,
+            'thread_count': threads.count(),
+            'post_count': post_count,
+            'reported_count': reported_count,
+        })
 
     return TemplateResponse(
         request,
@@ -65,7 +81,7 @@ def forum_view(request):
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
             'is_locked': request.contest.forum.is_locked(),
-            'category_set': category_set,
+            'categories': categories,
         },
     )
 

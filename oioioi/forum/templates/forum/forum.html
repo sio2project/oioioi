@@ -29,7 +29,7 @@
 {% endblock %}
 
 {% block forum-contents %}
-    {% if category_set.exists %}
+    {% if categories %}
         <div class="table-responsive-md">
             <table class="table auto-width">
                 <thead>
@@ -46,42 +46,42 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for c in category_set %}
+                    {% for c in categories %}
                         <tr>
                             <td>
                                 <a class="show"
-                                   href="{% url 'forum_category' contest_id=contest.id category_id=c.id %}">
-                                    {{ c.name }}
+                                   href="{% url 'forum_category' contest_id=contest.id category_id=c.category.id %}">
+                                    {{ c.category.name }}
                                 </a>
                             </td>
-                            <td>{{ c.count_threads }}</td>
-                            <td>{{ c.count_posts }}</td>
+                            <td>{{ c.thread_count }}</td>
+                            <td>{{ c.post_count }}</td>
                             {% if is_admin %}
                                 <td>
-                                    <a href="#" data-post-url="{% url 'forum_category_toggle_reactions' contest_id=contest.id category_id=c.id %}">
-                                        {% if c.reactions_enabled %}
+                                    <a href="#" data-post-url="{% url 'forum_category_toggle_reactions' contest_id=contest.id category_id=c.category.id %}">
+                                        {% if c.category.reactions_enabled %}
                                             {% trans "Disable post reactions" %}
                                         {% else %}
                                             {% trans "Enable post reactions" %}
                                         {% endif %}
                                     </a>
-                                    <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.id %}">
+                                    <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.category.id %}">
                                         <i class="fa-solid fa-trash"></i>
                                     </a>
                                     {% if forloop.counter0 > 0 %}
-                                    <a href="#" data-post-url="{% url 'forum_category_move_up' contest_id=contest.id category_id=c.id %}">
+                                    <a href="#" data-post-url="{% url 'forum_category_move_up' contest_id=contest.id category_id=c.category.id %}">
                                         <i class="fa-solid fa-chevron-up"></i>
                                     </a>
                                     {% endif %}
                                     {% if forloop.counter < category_set|length %}
-                                    <a href="#" data-post-url="{% url 'forum_category_move_down' contest_id=contest.id category_id=c.id %}">
+                                    <a href="#" data-post-url="{% url 'forum_category_move_down' contest_id=contest.id category_id=c.category.id %}">
                                         <i class="fa-solid fa-chevron-down"></i>
                                     </a>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <div {% if c.count_reported > 0 %}class="badge badge-danger"{% endif %}>
-                                        {{ c.count_reported }}
+                                    <div {% if c.reported_count > 0 %}class="badge badge-danger"{% endif %}>
+                                        {{ c.reported_count }}
                                     </div>
                                 </td>
                             {% endif %}
