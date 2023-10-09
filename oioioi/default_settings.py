@@ -860,6 +860,7 @@ ARCHIVE_USERCONTESTS = False
 HIDE_USERCONTESTS = False
 
 FORUM_PAGE_SIZE = 15
+FORUM_THREADS_PER_PAGE = 30
 
 # Check seems to be broken. https://stackoverflow.com/a/65578574
 SILENCED_SYSTEM_CHECKS = ['admin.E130']
