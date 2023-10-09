@@ -59,11 +59,8 @@ def forum_view(request):
             post_count=Count('post'),
             reported_count=Count('post', filter=Q(post__reported=True)),
         ).all()
-        post_count = 0
-        reported_count = 0
-        for thread in threads:
-            post_count += thread.post_count
-            reported_count += thread.reported_count
+        post_count = sum([thread.post_count for thread in threads])
+        reported_count = sum([thread.reported_count for thread in threads])
 
         categories.append({
             'category': category,
