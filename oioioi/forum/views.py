@@ -53,21 +53,11 @@ from oioioi.forum.utils import (
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request):
-    categories = []
-    for category in request.contest.forum.category_set.all():
-        threads = category.thread_set.annotate(
-            post_count=Count('post'),
-            reported_count=Count('post', filter=Q(post__reported=True)),
-        ).all()
-        post_count = sum([thread.post_count for thread in threads])
-        reported_count = sum([thread.reported_count for thread in threads])
-
-        categories.append({
-            'category': category,
-            'thread_count': threads.count(),
-            'post_count': post_count,
-            'reported_count': reported_count,
-        })
+    category_set = request.contest.forum.category_set.annotate(
+        thread_count=Count('thread'),
+        post_count=Count('thread__post'),
+        reported_count=Count('thread__post', filter=Q(thread__post__reported=True))
+    ).all()
 
     return TemplateResponse(
         request,
@@ -78,7 +68,7 @@ def forum_view(request):
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
             'is_locked': request.contest.forum.is_locked(),
-            'categories': categories,
+            'category_set': category_set,
         },
     )
 
