@@ -69,12 +69,15 @@ def is_proper_forum(request, *args, **kwargs):
 def can_interact_with_users(request):
     if request.user.is_anonymous:
         return False
-    if request.contest.forum.only_for_registered and \
-            (not is_participant(request) and not is_contest_admin(request)):
+    if is_contest_admin(request):
+        return True
+    if Ban.is_banned(request.contest.forum, request.user):
         return False
-    is_banned = Ban.is_banned(request.contest.forum, request.user)
-    is_locked = request.contest.forum.is_locked(request.timestamp)
-    return is_contest_admin(request) or (not is_banned and not is_locked)
+    if request.contest.forum.is_locked(request.timestamp):
+        return False
+    if request.contest.forum.only_for_registered and not is_participant(request):
+        return False
+    return True
 
 
 @make_request_condition
