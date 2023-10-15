@@ -134,8 +134,9 @@ $(function() {
             }
         });
     };
-    $(window).one('setBalloonUrls', function(ev, data) {
-        setButtonEvents(data.setDeliveredUrl);
-        fetchNewDeliveryRequests(data.fetchUrl);
-    });
+
+    const setDeliveredUrl = $("#set-delivered-url").val();
+    const fetchUrl = $("#fetch-url").val();
+    setButtonEvents(setDeliveredUrl);
+    fetchNewDeliveryRequests(fetchUrl);
 });

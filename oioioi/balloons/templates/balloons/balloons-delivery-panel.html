@@ -4,7 +4,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_URL }}balloons/delivery_panel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}balloons/delivery-panel.js"></script>
 {% endblock %}
 {% block container-class %}container-fluid{% endblock %}
 
@@ -45,12 +45,6 @@
             </table>
         </div>
     </div>
-    <script>
-        $(document).ready(function() {
-            $(window).trigger('setBalloonUrls', {
-                setDeliveredUrl: '{% filter escapejs %}{% url 'balloons_set_delivered' contest_id=request.contest.id %}{% endfilter %}',
-                fetchUrl: '{% filter escapejs %}{% url 'balloons_delivery_new' contest_id=request.contest.id %}{% endfilter %}'
-            });
-        });
-    </script>
+    <input type="hidden" id="set-delivered-url" value="{% url 'balloons_set_delivered' contest_id=request.contest.id %}">
+    <input type="hidden" id="fetch-url" value="{% url 'balloons_delivery_new' contest_id=request.contest.id %}">
 {% endblock %}
