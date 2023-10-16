@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.forum.models import Ban, Post, Thread
@@ -12,6 +13,15 @@ class PostForm(forms.ModelForm):
     def __init__(self, request, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
         self.fields['content'].widget.attrs['class'] = 'monospace'
+
+    def is_valid(self):
+        valid = super(PostForm, self).is_valid()
+        if not valid:
+            return valid
+        if len(self.cleaned_data['content']) > getattr(settings, 'FORUM_POST_MAX_LENGTH', 20000):
+            self.add_error('content', _('Post is too long'))
+            return False
+        return True
 
 
 class NewThreadForm(forms.ModelForm):
