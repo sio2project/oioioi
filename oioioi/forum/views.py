@@ -54,9 +54,13 @@ from oioioi.forum.utils import (
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request):
     category_set = request.contest.forum.category_set.annotate(
-        thread_count=Count('thread'),
-        post_count=Count('thread__post'),
-        reported_count=Count('thread__post', filter=Q(thread__post__reported=True))
+        thread_count=Count('thread', distinct=True),
+        post_count=Count('thread__post', distinct=True),
+        reported_count=Count(
+            'thread__post',
+            filter=Q(thread__post__reported=True),
+            distinct=True
+        )
     ).order_by('order').all()
 
     return TemplateResponse(
