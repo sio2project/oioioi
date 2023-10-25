@@ -65,7 +65,6 @@ class AdminTeacherForm(forms.ModelForm):
             instance = kwargs['instance']
             if hasattr(instance, 'user'):
                 instance_user = instance.user
-                print(f"user={repr(instance_user)}")
         if instance_user is not None:
             self.fields['user'].disabled = True
             self.initial['user'] = instance_user
