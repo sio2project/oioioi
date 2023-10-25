@@ -5,6 +5,7 @@ from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
 from oioioi.contests.tests import make_empty_contest_formset
 from oioioi.contests.tests.utils import make_user_contest_admin
+from oioioi.teachers.models import Teacher
 
 
 def change_contest_type(contest):
@@ -137,3 +138,46 @@ class TestSimpleUITeacherDashboard(TestCase):
         url = reverse('teacher_dashboard')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+
+class TestAdminTeacher(TestCase):
+    fixtures = ['test_users', 'teachers', 'test_contest']
+
+    def test_teacher_list(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('admin:teachers_teacher_changelist')
+        response = self.client.get(url, follow=True)
+
+        self.assertContains(response, 'Select teacher to change')
+
+    def test_teacher_add(self):
+        self.assertEqual(Teacher.objects.all().count(), 2)
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = "/c/c" + reverse('admin:teachers_teacher_add')
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, 'Add teacher')
+
+        self.client.post(url, data={
+            'user': 'test_user3',
+            'school': 'New School',
+            'is_active': 'on',
+        })
+
+        self.assertEqual(Teacher.objects.all().count(), 3)
+
+    def test_teacher_modify(self):
+        self.assertEqual(Teacher.objects.all().count(), 2)
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = "/c/c" + reverse('oioioiadmin:teachers_teacher_change', args=('1001',))
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, 'Change teacher')
+
+        self.client.post(url, data={
+            'user': 'test_user1',
+            'school': 'New School',
+            'is_active': 'on',
+        })
+
+        self.assertEqual(Teacher.objects.all().count(), 2)
+        mod_teacher = Teacher.objects.get(pk=1001)
+        self.assertEqual(mod_teacher.school, "New School")
