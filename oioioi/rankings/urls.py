@@ -7,6 +7,11 @@ app_name = 'rankings'
 contest_patterns = [
     re_path(r'^ranking/$', views.ranking_view, name='default_ranking'),
     re_path(
+        r'^ranking/edit_message/$',
+        views.edit_ranking_message_view,
+        name='edit_ranking_message',
+    ),
+    re_path(
         r'^ranking/get_users_in_ranking/$',
         views.get_users_in_ranking_view,
         name='get_users_in_ranking',
