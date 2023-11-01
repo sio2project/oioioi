@@ -8,6 +8,14 @@
         {% if is_admin %}
             <div class="float-right">
                 <a role="button" class="btn btn-sm btn-outline-secondary"
+                    href="{% url 'edit_forum_message' %}">
+                    {% trans "Edit forum message" %}
+                </a>
+                <a role="button" class="btn btn-sm btn-outline-secondary"
+                    href="{% url 'edit_forum_new_post_message' %}">
+                    {% trans "Edit new post message" %}
+                </a>
+                <a role="button" class="btn btn-sm btn-outline-secondary"
                     href="{% url 'oioioiadmin:forum_category_add' %}">
                     {% trans "Add new category" %}
                 </a>
@@ -26,6 +34,7 @@
         {% endif %}
         <h1 class="float-left">{% trans "Forum" %}: {{ forum }}</h1>
     </div>
+    {% include "public_message/show.html" %}
 {% endblock %}
 
 {% block forum-contents %}

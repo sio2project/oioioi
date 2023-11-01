@@ -19,7 +19,14 @@ from oioioi.contests.utils import (
     contest_exists,
     is_contest_admin,
 )
-from oioioi.forum.forms import BanForm, NewThreadForm, PostForm, ReportForm
+from oioioi.forum.forms import (
+    BanForm,
+    NewThreadForm,
+    PostForm,
+    ReportForm,
+    ForumMessageForm,
+    NewPostMessageForm,
+)
 from oioioi.forum.models import Category, Post, PostReaction, post_reaction_types
 from oioioi.forum.utils import (
     annotate_posts_with_current_user_reactions,
@@ -32,6 +39,8 @@ from oioioi.forum.utils import (
     get_msgs,
     is_proper_forum,
     move_category,
+    get_forum_message,
+    get_new_post_message,
 )
 
 
@@ -66,6 +75,7 @@ def forum_view(request):
             'can_interact_with_admins': can_interact_with_admins(request),
             'is_locked': request.contest.forum.is_locked(),
             'category_set': category_set,
+            'message': get_forum_message(request),
         },
     )
 
@@ -135,6 +145,7 @@ def thread_view(request, category_id, thread_id):
         'post_set': posts,
         'can_interact_with_users': can_interact_with_users(request),
         'can_interact_with_admins': can_interact_with_admins(request),
+        'message': get_new_post_message(request),
     }
 
     if can_interact_with_users(request):
@@ -532,4 +543,38 @@ def ban_user_view(request, user_id):
             'next': redirect_url,
             'msgs': get_msgs(request),
         },
+    )
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def edit_message_view(request):
+    instance = get_forum_message(request)
+    if request.method == 'POST':
+        form = ForumMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('forum', contest_id=request.contest.id)
+    else:
+        form = ForumMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit forum message")},
+    )
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def edit_new_post_message_view(request):
+    instance = get_new_post_message(request)
+    if request.method == 'POST':
+        form = NewPostMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('forum', contest_id=request.contest.id)
+    else:
+        form = NewPostMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit new post message")},
     )

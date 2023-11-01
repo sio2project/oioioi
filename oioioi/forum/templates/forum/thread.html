@@ -33,6 +33,7 @@
     {% if form %}
         <h4>{% trans "New post" %}</h4>
         <form method="post">
+            {% include "public_message/show.html" %}
             {% csrf_token %}
             {% include "ingredients/form.html" with focus=False display_labels=False %}
             <div class="form-group">
