@@ -16,7 +16,7 @@ class TestDashboardMessage(TestPublicMessage):
     model = DashboardMessage
     edit_viewname = 'dashboard_message_edit'
     viewname = 'contest_dashboard'
-    controller_name = 'oioioi.dashboard.tests.DashboardMessageContestController'
+    controller_name = 'oioioi.dashboard.tests.PublicMessageContestController'
 
 
 class TestMessagesSection(TestCase):
