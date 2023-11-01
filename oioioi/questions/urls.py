@@ -49,4 +49,14 @@ contest_patterns = [
         views.check_new_messages_view,
         name='check_new_messages',
     ),
+    re_path(
+        r'^questions_message/$',
+        views.news_edit_view,
+        name='edit_question_news_message',
+    ),
+    re_path(
+        r'^questions/add_message/$',
+        views.add_edit_message_view,
+        name='edit_add_question_message',
+    ),
 ]
