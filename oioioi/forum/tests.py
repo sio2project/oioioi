@@ -8,10 +8,21 @@ from django.urls import reverse
 from django.utils import timezone
 
 from oioioi.base.tests import TestCase, fake_time
+from oioioi.base.tests.tests import TestPublicMessage
 from oioioi.contests.models import Contest
 from oioioi.forum.forms import PostForm
-from oioioi.forum.models import Ban, Category, Post, PostReaction, Thread
+from oioioi.forum.models import (
+    Ban,
+    Category,
+    Post,
+    PostReaction,
+    Thread,
+    ForumMessage,
+    NewPostMessage,
+    Forum,
+)
 from oioioi.participants.models import Participant
+from oioioi.programs.controllers import ProgrammingContestController
 
 
 def get_contest_with_forum():
@@ -900,3 +911,39 @@ class TestBan(TestCase):
         self.assertEqual('Abuse', ban.reason)
         self.assertEqual(self.contest.forum, ban.forum)
         self.assertEqual([False, False, False, True], check_reports())
+
+
+class PublicMessagesContestController(ProgrammingContestController):
+    forum_message = 'Test public message'
+    forum_new_post_message = 'Test public message'
+
+
+class TestForumMessage(TestPublicMessage):
+    model = ForumMessage
+    edit_viewname = 'edit_forum_message'
+    viewname = 'forum'
+    controller_name = 'oioioi.forum.tests.PublicMessagesContestController'
+
+    def setUp(self):
+        super().setUp()
+        contest = Contest.objects.get()
+        Forum.objects.get_or_create(contest=contest)
+
+
+class TestNewPostMessage(TestPublicMessage):
+    model = NewPostMessage
+    edit_viewname = 'edit_forum_new_post_message'
+    viewname = 'forum_thread'
+    controller_name = 'oioioi.forum.tests.PublicMessagesContestController'
+
+    def setUp(self):
+        super().setUp()
+        contest = Contest.objects.get()
+        forum = Forum.objects.get_or_create(contest=contest)[0]
+        cat = Category.objects.get_or_create(forum=forum, name='test_category')[0]
+        thr = Thread.objects.get_or_create(category=cat, name='test_thread')[0]
+        self.viewname_kwargs = {
+            'contest_id': contest.id,
+            'category_id': cat.id,
+            'thread_id': thr.id,
+        }
