@@ -10,7 +10,7 @@ from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import visible_contests
 from oioioi.problems.utils import filter_my_all_visible_submissions
 
-# from oioioi.base.navbar_links import navbar_links_registry
+from oioioi.base.navbar_links import navbar_links_registry
 
 # navbar_links_registry.register(
 #     name='courses',
