@@ -124,25 +124,22 @@ $(function() {
 
         // Show countdown progress
         countdownProgressFill.css('visibility', 'visible');
-        const completion = remainingSeconds / roundDuration;
+        const completion = 1 - remainingSeconds / roundDuration;
 
         countdownProgressFill.width((completion * 100) + '%');
         countdownProgressFill.attr('aria-valuenow',
             Math.floor(completion * 100));
         countdownProgressText.text(Math.floor(completion * 100) + "%");
 
-        if (completion < 0.2) {
-            countdownProgressFill.removeClass('progress-bar-success');
-            countdownProgressFill.removeClass('progress-bar-warning');
-            countdownProgressFill.addClass('progress-bar-danger');
-        } else if (completion < 0.5) {
-            countdownProgressFill.removeClass('progress-bar-success');
-            countdownProgressFill.removeClass('progress-bar-danger');
-            countdownProgressFill.addClass('progress-bar-warning');
+        if (completion < 0.5) {
+            countdownProgressFill.removeClass('bg-warning');
+            countdownProgressFill.removeClass('bg-danger');
+        } else if (completion < 0.8) {
+            countdownProgressFill.removeClass('bg-danger');
+            countdownProgressFill.addClass('bg-warning');
         } else {
-            countdownProgressFill.removeClass('progress-bar-warning');
-            countdownProgressFill.removeClass('progress-bar-danger');
-            countdownProgressFill.addClass('progress-bar-success');
+            countdownProgressFill.removeClass('bg-warning');
+            countdownProgressFill.addClass('bg-danger');
         }
     }
 

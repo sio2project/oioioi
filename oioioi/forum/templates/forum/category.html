@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load check_perm %}
 {% load get_user_name %}
+{% load pagination_tags %}
 
 {% block title %}{% trans "Category" %}: {{ category.name }}{% endblock %}
 
@@ -22,6 +23,8 @@
 
 {% block forum-contents %}
 {% if threads %}
+{% autopaginate threads forum_threads_per_page %}
+{% paginate %}
 <div class="table-responsive-md">
     <table class="table auto-width">
         <thead>
@@ -72,6 +75,7 @@
         </tbody>
     </table>
 </div>
+{% paginate %}
 {% else %}
     <h5>{% trans "There is no thread in this category, sorry." %}</h5>
 {% endif %}
