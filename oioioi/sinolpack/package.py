@@ -1248,7 +1248,7 @@ class SinolPackage(object):
         """
         lang_exts_list = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values()
         extensions = [ext for lang_exts in lang_exts_list for ext in lang_exts]
-        regex = r'^%s[0-9]*([bs]?)[0-9]*(sol.*)?\.(' + '|'.join(extensions) + ')'
+        regex = r'^%s[0-9]*([bs]?)[0-9]*(_.*)?\.(' + '|'.join(extensions) + ')'
         names_re = re.compile(regex % (re.escape(self.short_name),))
         progdir = os.path.join(self.rootdir, 'prog')
         progs = [
