@@ -2139,6 +2139,29 @@ class TestPermissionsBasicAdmin(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    def test_teachers_list(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        contest = Contest.objects.get()
+        url = reverse('teacher_search')
+        response = self.client.get(url, {'substr': ''})
+        self.assertEqual(404, response.status_code)
+        response = self.client.get(url)
+        self.assertEqual(404, response.status_code)
+
+        response = self.client.get(url, {'substr': 'te'})
+        self.assertEqual(200, response.status_code)
+        response = response.json()
+        self.assertListEqual(
+            ['test_admin (Test Admin)', 'test_user (Test User)'], response
+        )
+
+        response = self.client.get(url, {'substr': 'test admin'})
+        response = response.json()
+        self.assertListEqual(['test_admin (Test Admin)'], response)
+
+        self.assertTrue(self.client.login(username='test_user'))
+        check_not_accessible(self, url)
+
 
 class TestProblemsMenuWithQuizzes(TestCase):
     fixtures = [

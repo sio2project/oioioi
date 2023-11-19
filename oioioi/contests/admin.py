@@ -9,7 +9,6 @@ from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
 from django.db.models import Case, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
-from django.forms import ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
@@ -29,6 +28,7 @@ from oioioi.contests.forms import (
     ProblemInstanceForm,
     SimpleContestForm,
     TestsSelectionForm,
+    ContestPermissionAdminForm,
 )
 from oioioi.contests.menu import (
     contest_admin_menu_registry,
@@ -1016,19 +1016,11 @@ contest_admin_menu_registry.register(
     order=50,
 )
 
-
-class ContestPermissionAdminForm(ModelForm):
-    user = UserSelectionField(label=_("Username"))
-
-    class Meta(object):
-        model = ContestPermission
-        fields = ('user', 'contest', 'permission')
-
-
 class ContestPermissionAdmin(admin.ModelAdmin):
     list_display = ['permission', 'user', 'user_full_name']
     list_display_links = ['user']
     ordering = ['permission', 'user']
+    
     form = ContestPermissionAdminForm
 
     def user_full_name(self, instance):

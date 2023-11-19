@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.forms import ModelForm
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
 from django.forms import ValidationError
@@ -11,10 +12,21 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
 from oioioi.base.utils.user_selection import UserSelectionField
-from oioioi.contests.models import Contest, ProblemInstance, Round
+from oioioi.contests.models import Contest, ProblemInstance, Round, ContestPermission
 from oioioi.contests.utils import is_contest_basicadmin, submittable_problem_instances
 from oioioi.programs.models import Test
 
+
+class ContestPermissionAdminForm(ModelForm):
+    user = UserSelectionField(label=_("Username"))
+
+    def __init__(self, *args, **kwargs):
+        super(ContestPermissionAdminForm, self).__init__(*args, **kwargs)
+        self.fields['user'].hints_url = reverse('teacher_search')
+
+    class Meta(object):
+        model = ContestPermission
+        fields = ('user', 'contest', 'permission')
 
 class SimpleContestForm(forms.ModelForm):
     class Meta(object):
