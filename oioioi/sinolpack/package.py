@@ -816,6 +816,7 @@ class SinolPackage(object):
                 job['task_priority'] = TASK_PRIORITY
                 job['exe_file'] = env['compiled_file']
                 job['in_file'] = django_to_filetracker_path(test.input_file)
+                job['in_file_name'] = self.short_name + test.name + '.in'
                 job['use_sandboxes'] = self.use_sandboxes
                 jobs[test.name] = job
 
