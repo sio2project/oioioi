@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# 
+#
 # Translators:
 # Translators:
 # Accounts-Payable - Alkemics, 2015
@@ -9434,17 +9434,20 @@ msgid ""
 "href=\"register\">make an account</a>."
 msgstr "Witaj na Szkopule - portalu do rozwiązywania wyzwań algorytmicznych!<br> Zanim będziesz mógł wysyłać swoje rozwiązania, musisz <a href=\"register\">założyć konto</a>."
 
-#: szkopul/templates/szkopul/contact-info.html:13
+#: oioioi/szkopul/templates/szkopul/contact-info.html:13
 #, python-format
 msgid ""
 "<p>In the event of technical difficulties with Szkopuł, please contact us "
-"via email at <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p>"
-" <p>If you are familiar with IRC chat, the support team is also reachable on"
-" PIRC network (<code>irc.pirc.pl</code>) in <code>#szkopul</code> channel. "
-"If you are not, just use email.</p> <p>Please do not ask us things like "
-"\"how to solve task XYZ?\".</p> <p>Please remember that the support team has"
-" to sleep sometimes or go to work in real life.</p>"
-msgstr "<p>W razie problemów technicznych ze Szkopułem, prosimy o kontakt mailowy pod adresem <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p> <p>Jeżeli czat IRC nie jest Ci obcy, zespół techniczny jest również dostępny na sieci PIRC (<code>irc.pirc.pl</code>) na kanale <code>#szkopul</code>. Jeżeli nie jesteś, użyj po prostu maila.</p> <p>Prosimy nie zadawać pytań typu \"Jak rozwiązać zadanie Wielomian?\".</p> <p>Pragniemy podkreślić, że zespół techniczny również potrzebuje snu, pracuje, studiuje.</p>"
+"via email at <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p> "
+"<p> If you would like to talk about tasks, solutions or technical problems, "
+"please visit our Discord servers. They are moderated by the community, but "
+"members of the support team are also active there.</p>"
+msgstr ""
+"<p>W razie problemów technicznych ze Szkopułem, prosimy o kontakt mailowy "
+"pod adresem <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p> "
+"<p>Jeśli chciałbyś porozmawiać o zadaniach, rozwiązaniach lub problemach technicznych, "
+"zapraszamy na serwery Discord. Są one moderowane przez społeczność, "
+"ale członkowie zespołu technicznego też są tam aktywni.</p>"
 
 #: teachers/admin.py:67
 #| msgid "E-mail address:"
