@@ -457,7 +457,7 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         self.assertEqual(sol1.kind, 'SLOW')
         solb0 = model_solutions.get(name='sumb0.c')
         self.assertEqual(solb0.kind, 'INCORRECT')
-        sol_long_name = model_solutions.get(name='sums2sol_very_long_name.cpp')
+        sol_long_name = model_solutions.get(name='sums2_very_long_name.cpp')
         self.assertEqual(sol_long_name.kind, 'SLOW')
         self.assertEqual(model_solutions.count(), 4)
         self.assertEqual(list(model_solutions), [sol, sol1, sol_long_name, solb0])
