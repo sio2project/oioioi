@@ -196,6 +196,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
     extend_round.short_description = _("Extend round")
 
+admin.site.register(Participant, ParticipantAdmin)
 
 class NoParticipantAdmin(ParticipantAdmin):
     def has_add_permission(self, request):
