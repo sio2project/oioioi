@@ -1,1 +1,6 @@
-Handles `Akademickie Mistrzostwa Polski w Programowaniu Zespołowym type <https://pl.wikipedia.org/wiki/Akademickie_Mistrzostwa_Polski_w_Programowaniu_Zespo%C5%82owym>`_ programming contests.
+Handles `Akademickie Mistrzostwa Polski w Programowaniu Zespołowym <https://amppz.edu.pl>`_ type programming contests.
+Other hosts webpages:
+
+http://amppz.tcs.uj.edu.pl/
+
+http://amppz.ii.uni.wroc.pl/
