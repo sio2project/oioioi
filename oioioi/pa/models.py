@@ -26,15 +26,23 @@ JOB_TYPES = [
 
 
 class PARegistration(RegistrationModel):
-    address = models.CharField(max_length=255, verbose_name=_("address"))
-    postal_code = PostalCodeField(verbose_name=_("postal code"))
-    city = models.CharField(max_length=100, verbose_name=_("city"))
+    address = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name=_("address")
+        )
+    postal_code = PostalCodeField(null=True,  blank=True, verbose_name=_("postal code"))
+    city = models.CharField(
+        max_length=100, blank=True, null=True, verbose_name=_("city")
+        )
     job = models.CharField(
         max_length=7, choices=JOB_TYPES, verbose_name=_("job or school kind")
     )
     job_name = models.CharField(max_length=255, verbose_name=_("job or school name"))
     t_shirt_size = models.CharField(
-        max_length=7, choices=T_SHIRT_SIZES, verbose_name=_("t-shirt size")
+        max_length=7,
+        null=True,
+        blank=True,
+        choices=T_SHIRT_SIZES,
+        verbose_name=_("t-shirt size")
     )
     newsletter = models.BooleanField(
         _("newsletter"),
