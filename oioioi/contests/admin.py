@@ -275,6 +275,7 @@ class ContestAdmin(admin.ModelAdmin):
 
     def response_delete(self, request):
         set_cc_id(None)
+        print("XD")
         return super(ContestAdmin, self).response_delete(request)
 
     def _get_extra_context(self, extra_context):
