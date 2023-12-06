@@ -55,6 +55,9 @@ class PARegistration(RegistrationModel):
     # It is presented with the default verbose name in all contexts, except for
     # the custom registration form (in contests like OI and PA)
     terms_accepted = models.BooleanField(_("terms accepted"), default=False)
+    no_prizes = models.BooleanField(
+        _("I don't want to provide my address (opt out of prizes)"), default=False
+        )
 
     def erase_data(self):
         self.address = 'Account deleted'

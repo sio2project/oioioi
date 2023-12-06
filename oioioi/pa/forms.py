@@ -7,19 +7,25 @@ from oioioi.pa.models import PARegistration
 
 
 class PARegistrationForm(forms.ModelForm):
-    eligible_for_prizes = forms.BooleanField(required=False)
-    eligible_for_prizes.label = _("I want to be eligible for prizes.")
 
     class Meta(object):
         model = PARegistration
         exclude = ['participant']
-        help_texts = {'address': (
-            "Address fields are optional, required only for prizes."
-            )}
+        fields = [
+            'job',
+            'job_name',
+            'no_prizes',
+            'address',
+            'postal_code',
+            'city',
+            't_shirt_size',
+            'newsletter',
+            'terms_accepted',
+        ]
 
     def clean(self):
         cleaned_data = super().clean()
-        prize_fields_required = cleaned_data.get('eligible_for_prizes')
+        prize_fields_required = not cleaned_data.get('no_prizes')
         prize_fields_error_msg = _("This field is required to be eligible for prizes.")
         prize_fields = ['address', 'postal_code', 'city', 't_shirt_size']
 
