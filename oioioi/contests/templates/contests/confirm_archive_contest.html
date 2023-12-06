@@ -1,0 +1,16 @@
+{% extends "contests/base_confirmation_screen.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm contest archive" %}{% endblock %}
+{% block confirmation_header %}{% trans "Confirm contest archive" %}{% endblock %}
+{% block confirmation_form_explanation %}
+    <p>
+        {% trans "Contest archiving will make contest "read only" which means you won't be able to: " %}
+        <ul>
+            <li> {% trans "adding new participants" %} </li>
+            <li> {% trans "submitting solutions" %} </li>
+            <li> {% trans "adding new problems and rounds" %} </li>
+            <li> {% trans "asking questions also on forum." %} </li>
+        </ul>
+    </p>
+{% endblock %}
