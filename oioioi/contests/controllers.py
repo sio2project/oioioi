@@ -286,6 +286,9 @@ class PublicContestRegistrationController(RegistrationController):
     @classmethod
     def anonymous_can_enter_contest(cls):
         return True
+    
+    def allow_login_as_public_name(self):
+        return False
 
     def visible_contests_query(self, request):
         return Q_always_true()

@@ -196,8 +196,6 @@ class ParticipantAdmin(admin.ModelAdmin):
 
     extend_round.short_description = _("Extend round")
 
-admin.site.register(Participant, ParticipantAdmin)
-
 class NoParticipantAdmin(ParticipantAdmin):
     def has_add_permission(self, request):
         return False
@@ -210,7 +208,7 @@ class NoParticipantAdmin(ParticipantAdmin):
 
 
 class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
-    default_participant_admin = NoParticipantAdmin
+    default_participant_admin = ParticipantAdmin
 
     def _find_model_admin(self, request, object_id):
         rcontroller = request.contest.controller.registration_controller()
