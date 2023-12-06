@@ -1,5 +1,5 @@
 sphinx>7.1.0
 furo
-sphinx-autoapi<3.0.0 # sphinx extension https://sphinx-autoapi.readthedocs.io/en/latest/index.html
+sphinx-autoapi==3.0.0 # sphinx extension https://sphinx-autoapi.readthedocs.io/en/latest/index.html
 pydantic==2.5.2
 pydantic-settings
