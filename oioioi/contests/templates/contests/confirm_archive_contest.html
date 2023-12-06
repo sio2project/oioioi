@@ -5,12 +5,19 @@
 {% block confirmation_header %}{% trans "Confirm contest archive" %}{% endblock %}
 {% block confirmation_form_explanation %}
     <p>
-        {% trans "Contest archiving will make contest "read only" which means you won't be able to: " %}
+        {% trans "Contest archiving will make contest \"read only\" which means nobody will be able to: " %}
         <ul>
-            <li> {% trans "adding new participants" %} </li>
-            <li> {% trans "submitting solutions" %} </li>
-            <li> {% trans "adding new problems and rounds" %} </li>
-            <li> {% trans "asking questions also on forum." %} </li>
+            <li> {% trans "add new participants" %} </li>
+            <li> {% trans "submit solutions" %} </li>
+            <li> {% trans "add new problems and rounds" %} </li>
+            <li> {% trans "ask questions" %} </li>
+            <li> {% trans "add posts and comments on forum." %} </li>
         </ul>
     </p>
+
+    <p>
+        {% trans "You will be able to unarchive this contest later." %}
+    </p>
+
 {% endblock %}
+

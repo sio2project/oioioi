@@ -275,7 +275,6 @@ class ContestAdmin(admin.ModelAdmin):
 
     def response_delete(self, request):
         set_cc_id(None)
-        print("XD")
         return super(ContestAdmin, self).response_delete(request)
 
     def _get_extra_context(self, extra_context):
@@ -302,6 +301,12 @@ class ContestAdmin(admin.ModelAdmin):
         return super(ContestAdmin, self).change_view(
             request, object_id, form_url, extra_context
         )
+
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        if not add:
+            context.update({'show_unarchive': obj.is_archived})
+            context.update({'show_archive': not obj.is_archived})
+        return super().render_change_form(request, context, add, change, form_url, obj)
 
     def delete_selected_contests(self, modeladmin, request, queryset):
         # Redirect to contest-unprefixed view, just in case we deleted the current contest.
