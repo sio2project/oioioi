@@ -107,6 +107,17 @@ class MPContestController(ProgrammingContestController):
     def ranking_controller(self):
         return MPRankingController(self.contest)
 
+    def _get_score_for_submission(self, submission, ssm):
+        score = FloatScore(submission.score.value)
+        rtimes = self.get_round_times(None, submission.problem_instance.round)
+        # Round was active when the submission was sent
+        if rtimes.is_active(submission.date):
+            return score
+        # Round was over when the submission was sent but multiplier was ahead
+        if ssm and ssm.end_date >= submission.date:
+            return score * ssm.multiplier
+        return None
+
     def update_user_result_for_problem(self, result):
         """Submissions sent during the round are scored as normal.
         Submissions sent while the round was over but SubmissionScoreMultiplier was active
@@ -119,40 +130,31 @@ class MPContestController(ProgrammingContestController):
             score__isnull=False,
         )
 
-        if submissions:
-            best_submission = None
-            for submission in submissions:
-                ssm = SubmissionScoreMultiplier.objects.filter(
-                    contest=submission.problem_instance.contest,
-                )
+        best_submission = None
+        best_submission_score = None
+        try:
+            ssm = SubmissionScoreMultiplier.objects.get(
+                contest=result.problem_instance.contest
+            )
+        except SubmissionScoreMultiplier.DoesNotExist:
+            ssm = None
 
-                score = FloatScore(submission.score.value)
-                rtimes = self.get_round_times(None, submission.problem_instance.round)
-                if rtimes.is_active(submission.date):
-                    pass
-                elif ssm.exists() and ssm[0].end_date >= submission.date:
-                    score = score * ssm[0].multiplier
-                else:
-                    score = None
-                if not best_submission or (
-                    score is not None and best_submission[1] < score
-                ):
-                    best_submission = [submission, score]
+        for submission in submissions:
+            score = self._get_score_for_submission(submission, ssm)
+            if not best_submission or (score and best_submission_score < score):
+                best_submission = submission
+                best_submission_score = score
 
-            try:
-                report = SubmissionReport.objects.get(
-                    submission=best_submission[0], status='ACTIVE', kind='NORMAL'
-                )
-            except SubmissionReport.DoesNotExist:
-                report = None
+        try:
+            report = SubmissionReport.objects.get(
+                submission=best_submission, status='ACTIVE', kind='NORMAL'
+            )
+        except SubmissionReport.DoesNotExist:
+            report = None
 
-            result.score = best_submission[1]
-            result.status = best_submission[0].status
-            result.submission_report = report
-        else:
-            result.score = None
-            result.status = None
-            result.submission_report = None
+        result.score = best_submission_score
+        result.status = best_submission.status if best_submission else None
+        result.submission_report = report
 
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Contest admin can always submit.
