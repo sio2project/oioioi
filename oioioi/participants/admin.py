@@ -208,7 +208,7 @@ class NoParticipantAdmin(ParticipantAdmin):
 
 
 class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
-    default_participant_admin = ParticipantAdmin
+    default_participant_admin = NoParticipantAdmin
 
     def _find_model_admin(self, request, object_id):
         rcontroller = request.contest.controller.registration_controller()
