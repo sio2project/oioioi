@@ -164,11 +164,11 @@
                     </button>
                 </p>
             {% else %}
-            {% if member_type == 'teacher' %}
-            <p>{% trans "Registration of teachers is disabled." %}</p>
-            {% else %}
-            <p>{% trans "Registration of pupils is disabled." %}</p>
-            {% endif %}
+                {% if member_type == 'teacher' %}
+                    <p>{% trans "Registration of teachers is disabled." %}</p>
+                {% else %}
+                    <p>{% trans "Registration of pupils is disabled." %}</p>
+                {% endif %}
                 <p>
                     <a role="button" class="btn btn-info" data-post-url="{% url 'teachers_enable_registration' contest_id=contest.id member_type=member_type %}">
                         {% trans "Enable registration" %}
