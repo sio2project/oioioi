@@ -411,34 +411,39 @@ def get_appendable_users_view(request, member_type):
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def add_user_to_contest(request, member_type, **kwargs):
+def add_user_to_contest(request, member_type):
     form = AddUserToContestForm(request.POST)
-    if not form.is_valid():
-        return TemplateResponse(
-            request,
-            'simple-centered-form.html',
-            {
-                'form': form,
-                'action': redirect_to_members(request, member_type),
-                'title': _("Invalid user name"),
-            },
-        )
+    if form.is_valid():
+        user = form.cleaned_data['user']
 
-    user = form.cleaned_data['user']
-    created = False
-    if member_type == 'pupil':
-        _p, created = Participant.objects.get_or_create(
-            contest=request.contest, user=user
-        )
-    elif member_type == 'teacher':
-        teacher_obj = get_object_or_404(Teacher, user=user)
-        _ct, created = ContestTeacher.objects.get_or_create(
-            contest=request.contest, teacher=teacher_obj
-        )
+        try:
+            teacher = Teacher.objects.get(user=user)
+        except Teacher.DoesNotExist:
+            teacher = None
 
-    if not created:
-        messages.error(request, _("User is already added."))
+        user_is_already_added = False
+        if user.participant_set.filter(contest=request.contest) or \
+            teacher and teacher.contestteacher_set.filter(contest=request.contest):
+            user_is_already_added = True
+
+        if user_is_already_added:
+            messages.error(request, _("User \'{}\' is already added.".format(user)))
+        else:
+            created = False
+            if member_type == 'pupil':
+                _p, created = Participant.objects.get_or_create(
+                    contest=request.contest, user=user
+                )
+            elif member_type == 'teacher':
+                if teacher:
+                    _ct, created = ContestTeacher.objects.get_or_create(
+                        contest=request.contest, teacher=teacher
+                    )
+                else:
+                    messages.error(request, _("User \'{}\' is not a teacher!".format(user)))
+            if created:
+                messages.success(request, _("Successfully added \'{}\' as a {}.".format(user, member_type)))
     else:
-        messages.info(request, _("Successfuly added the user."))
+        messages.error(request, _('There is no user \'{}\'.'.format(form.data['user'])))
 
     return redirect_to_members(request, member_type)
