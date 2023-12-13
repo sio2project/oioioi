@@ -417,7 +417,7 @@ def add_user_to_contest(request, member_type):
         user = form.cleaned_data['user']
 
         try:
-            teacher = Teacher.objects.get(user=user)
+            teacher = user.teacher
         except Teacher.DoesNotExist:
             teacher = None
 
