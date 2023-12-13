@@ -22,6 +22,7 @@ from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
     is_contest_basicadmin,
+    is_not_archived,
     visible_rounds,
 )
 from oioioi.questions.forms import (
@@ -200,6 +201,7 @@ def messages_view(request):
             'already_subscribed': already_subscribed,
             'no_email': no_email,
             'onsite': request.contest.controller.is_onsite(),
+            'is_archived': request.contest.is_archived,
             **template_kwargs,
         },
     )
@@ -328,6 +330,7 @@ def message_view(request, message_id):
         is_contest_basicadmin(request)
         and message.kind == 'QUESTION'
         and message.can_have_replies
+        and not request.contest.is_archived
     ):
         if request.method == 'POST':
             form = AddReplyForm(request, request.POST)
@@ -367,7 +370,7 @@ def message_view(request, message_id):
     )
 
 
-@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest & is_not_archived)
 def add_contest_message_view(request):
     is_admin = is_contest_basicadmin(request)
     if request.method == 'POST':
