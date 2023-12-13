@@ -695,6 +695,7 @@ def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
         {'problem_instance': problem_instance, 'destination_contest': contest},
     )
 
+
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def confirm_archive_contest(request):
     if request.method == 'POST':
@@ -703,3 +704,11 @@ def confirm_archive_contest(request):
         contest.save()
         return redirect('default_contest_view', contest_id=contest.id)
     return TemplateResponse(request, 'contests/confirm_archive_contest.html')
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def unarchive_contest(request):
+    contest = request.contest
+    contest.is_archived = False
+    contest.save()
+    return redirect('default_contest_view', contest_id=contest.id)
