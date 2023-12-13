@@ -435,3 +435,9 @@ def best_round_to_display(request, allow_past_rounds=False):
 def has_any_contest(request):
     contests = [contest for contest in administered_contests(request)]
     return len(contests) > 0
+
+
+@make_request_condition
+@request_cached
+def is_not_archived(request):
+    return not request.contest.is_archived

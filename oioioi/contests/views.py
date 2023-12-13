@@ -43,6 +43,7 @@ from oioioi.contests.utils import (
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
+    is_not_archived,
     visible_contests,
     visible_problem_instances,
     visible_rounds,
@@ -135,7 +136,7 @@ def problems_list_view(request):
                 ),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
-                controller.can_submit(request, pi),
+                controller.can_submit(request, pi) and not request.contest.is_archived,
             )
             for pi in problem_instances
         ],
@@ -240,6 +241,7 @@ def problem_statement_zip_view(request, problem_instance, statement_id, path):
 @enforce_condition(
     has_any_submittable_problem, template='contests/nothing_to_submit.html'
 )
+@enforce_condition(is_not_archived)
 def submit_view(request, problem_instance_id=None):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES)
@@ -295,6 +297,7 @@ def my_submissions_view(request):
             'submissions': submissions,
             'show_scores': show_scores,
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
+            'is_archived': request.contest.is_archived,
         },
     )
 

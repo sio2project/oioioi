@@ -5,15 +5,18 @@
 {% block title %}{% trans "My submissions" %}{% endblock %}
 
 {% block main-content %}
+    
     <div class="clearfix">
-        <div class="float-right">
-            <a role="button"
-               class="btn btn-sm btn-outline-secondary"
-               href="{% url 'submit' contest_id=contest.id %}">
-                <i class="fa-regular fa-circle-up"></i>
-                {% trans "Submit" %}
-            </a>
-        </div>
+        {% if not is_archived %}
+            <div class="float-right">
+                <a role="button"
+                class="btn btn-sm btn-outline-secondary"
+                href="{% url 'submit' contest_id=contest.id %}">
+                    <i class="fa-regular fa-circle-up"></i>
+                    {% trans "Submit" %}
+                </a>
+            </div>
+        {% endif %}
         <h1 class="float-left">{% trans "My submissions" %}</h1>
     </div>
 
