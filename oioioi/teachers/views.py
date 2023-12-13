@@ -27,7 +27,7 @@ from oioioi.contests.models import Contest
 from oioioi.contests.utils import contest_exists, is_contest_admin
 from oioioi.participants.models import Participant
 from oioioi.teachers.controllers import TeacherContestController
-from oioioi.teachers.forms import AddTeacherForm
+from oioioi.teachers.forms import AddTeacherForm, AddUserToContestForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 if 'oioioi.usergroups' in settings.INSTALLED_APPS:
@@ -398,3 +398,52 @@ if 'oioioi.simpleui' in settings.INSTALLED_APPS:
                     kwargs={'contest_id': request.contest.id},
                 )
             )
+
+
+@enforce_condition(is_teachers_contest & is_contest_admin)
+def get_appendable_users_view(request, member_type):
+    users = User.objects.filter(is_superuser=False, is_active=True)
+    if member_type == 'teacher':
+        users = users.filter(teacher__isnull=False)
+
+    return get_user_hints_view(request, 'substr', users)
+
+
+@require_POST
+@enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
+def add_user_to_contest(request, member_type):
+    form = AddUserToContestForm(request.POST)
+    if form.is_valid():
+        user = form.cleaned_data['user']
+
+        try:
+            teacher = Teacher.objects.get(user=user)
+        except Teacher.DoesNotExist:
+            teacher = None
+
+        user_is_already_added = False
+        if user.participant_set.filter(contest=request.contest) or \
+            teacher and teacher.contestteacher_set.filter(contest=request.contest):
+            user_is_already_added = True
+
+        if user_is_already_added:
+            messages.error(request, _("User \'{}\' is already added.".format(user)))
+        else:
+            created = False
+            if member_type == 'pupil':
+                _p, created = Participant.objects.get_or_create(
+                    contest=request.contest, user=user
+                )
+            elif member_type == 'teacher':
+                if teacher:
+                    _ct, created = ContestTeacher.objects.get_or_create(
+                        contest=request.contest, teacher=teacher
+                    )
+                else:
+                    messages.error(request, _("User \'{}\' is not a teacher!".format(user)))
+            if created:
+                messages.success(request, _("Successfully added \'{}\' as a {}.".format(user, member_type)))
+    else:
+        messages.error(request, _('There is no user \'{}\'.'.format(form.data['user'])))
+
+    return redirect_to_members(request, member_type)

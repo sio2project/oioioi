@@ -4,9 +4,10 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.forms import SimpleContestForm
-from oioioi.teachers.models import Teacher
+from oioioi.teachers.models import ContestTeacher, Teacher
 from oioioi.base.utils.user_selection import UserSelectionField
-
+from oioioi.participants.models import Participant
+from django.contrib import messages
 
 
 class TeacherContestForm(SimpleContestForm):
@@ -83,3 +84,10 @@ class AdminTeacherForm(forms.ModelForm):
     def clean_school(self):
         data = self.cleaned_data['school']
         return ' '.join(data.splitlines())
+
+
+class AddUserToContestForm(forms.Form):
+    user = UserSelectionField()
+
+    def __init__(self, *args, **kwargs):
+        super(AddUserToContestForm, self).__init__(*args, **kwargs)
