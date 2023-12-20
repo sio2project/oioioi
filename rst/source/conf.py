@@ -48,6 +48,8 @@ autoapi_dirs = ['../../oioioi/']
 # Exclude migrations and tests.
 # Based on https://sphinx-autoapi.readthedocs.io/en/latest/how_to.html#connect-to-the-autoapi-skip-member-event.
 def should_skip_submodule(app, what, name, obj, skip, options):
+    if name.startswith("oioioi.problems"):
+        skip = True
     submodule = name.split(".")[-1]
     if submodule in ["migrations", "tests"]:
         skip = True
