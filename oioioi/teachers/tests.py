@@ -7,6 +7,9 @@ from oioioi.contests.tests import make_empty_contest_formset
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.teachers.models import Teacher
 
+from oioioi.teachers.utils import add_user_to_contest_as as autc, \
+    UserAddResult as add_res
+
 
 def change_contest_type(contest):
     contest.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
@@ -28,7 +31,8 @@ class TestProblemsetPermissions(TestCase):
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 200)
 
-        self.assertTrue(self.client.login(username='test_user2'))  # test_user2 is not
+        self.assertTrue(
+            self.client.login(username='test_user2'))  # test_user2 is not
         response = self.client.get(url_main)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Add problem')
@@ -181,3 +185,36 @@ class TestAdminTeacher(TestCase):
         self.assertEqual(Teacher.objects.all().count(), 2)
         mod_teacher = Teacher.objects.get(pk=1001)
         self.assertEqual(mod_teacher.school, "New School")
+
+
+class TestAddUserToContestForm(TestCase):
+    fixtures = ['test_users', 'teachers', 'test_contest']
+
+    def setUp(self):
+        self.user = User.objects.get(username='test_user')
+        self.c = Contest.objects.get(id='c')
+
+    def test_add_user_to_contest_as_pupil(self):
+        self.assertEqual(add_res.Added, autc(self.user, self.c, 'pupil'))
+        self.assertEqual(add_res.UserIsAlreadyAdded,
+                         autc(self.user, self.c, 'pupil'))
+        self.assertEqual(add_res.UserIsAlreadyAdded,
+                         autc(self.user, self.c, 'teacher'))
+
+    def test_add_user_to_contest_as_teacher(self):
+        self.assertEqual(add_res.Added, autc(self.user, self.c, 'teacher'))
+        self.assertEqual(add_res.UserIsAlreadyAdded,
+                         autc(self.user, self.c, 'pupil'))
+        self.assertEqual(add_res.UserIsAlreadyAdded,
+                         autc(self.user, self.c, 'teacher'))
+
+    def test_add_non_teacher_as_teacher(self):
+        not_teacher = User.objects.filter(is_superuser=False,
+                                          teacher__isnull=True,
+                                          is_active=True).first()
+
+        self.assertEqual(add_res.UserIsNotATeacher,
+                         autc(not_teacher, self.c, 'teacher'))
+        self.assertEqual(add_res.Added, autc(not_teacher, self.c, 'pupil'))
+        self.assertEqual(add_res.UserIsAlreadyAdded,
+                         autc(not_teacher, self.c, 'teacher'))
