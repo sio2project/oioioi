@@ -1,5 +1,5 @@
 import calendar
-import datetime
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.contrib import messages as django_messages
@@ -444,8 +444,9 @@ def increment_template_usage_view(request, template_id=None):
 @jsonify
 @enforce_condition(contest_exists)
 def check_new_messages_view(request, topic_id):
-    timestamp = request.GET['timestamp']
-    unix_date = datetime.datetime.fromtimestamp(int(timestamp))
+    timestamp = int(request.GET['timestamp'])
+    # utcfromtimestamp returns a naive datetime
+    date = datetime.utcfromtimestamp(timestamp).replace(tzinfo=timezone.utc)
     output = [
         [
             x.topic,
@@ -454,7 +455,7 @@ def check_new_messages_view(request, topic_id):
         ]
         for x in visible_messages(request)
         .filter(top_reference_id=topic_id)
-        .filter(date__gte=unix_date)
+        .filter(date__gte=date)
     ]
     return {'timestamp': request_time_seconds(request), 'messages': output}
 
