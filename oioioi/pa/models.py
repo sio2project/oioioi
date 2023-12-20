@@ -26,15 +26,23 @@ JOB_TYPES = [
 
 
 class PARegistration(RegistrationModel):
-    address = models.CharField(max_length=255, verbose_name=_("address"))
-    postal_code = PostalCodeField(verbose_name=_("postal code"))
-    city = models.CharField(max_length=100, verbose_name=_("city"))
+    address = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name=_("address")
+        )
+    postal_code = PostalCodeField(null=True,  blank=True, verbose_name=_("postal code"))
+    city = models.CharField(
+        max_length=100, blank=True, null=True, verbose_name=_("city")
+        )
     job = models.CharField(
         max_length=7, choices=JOB_TYPES, verbose_name=_("job or school kind")
     )
     job_name = models.CharField(max_length=255, verbose_name=_("job or school name"))
     t_shirt_size = models.CharField(
-        max_length=7, choices=T_SHIRT_SIZES, verbose_name=_("t-shirt size")
+        max_length=7,
+        null=True,
+        blank=True,
+        choices=T_SHIRT_SIZES,
+        verbose_name=_("t-shirt size")
     )
     newsletter = models.BooleanField(
         _("newsletter"),
@@ -47,6 +55,9 @@ class PARegistration(RegistrationModel):
     # It is presented with the default verbose name in all contexts, except for
     # the custom registration form (in contests like OI and PA)
     terms_accepted = models.BooleanField(_("terms accepted"), default=False)
+    no_prizes = models.BooleanField(
+        _("I don't want to provide my address (opt out of prizes)"), default=False
+        )
 
     def erase_data(self):
         self.address = 'Account deleted'
