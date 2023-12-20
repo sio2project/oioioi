@@ -29,6 +29,8 @@ from oioioi.participants.models import Participant
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm, AddUserToContestForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
+from oioioi.teachers.utils import is_user_already_in_contest, get_user_teacher_obj, add_user_to_contest_as, \
+    UserAddResult
 
 if 'oioioi.usergroups' in settings.INSTALLED_APPS:
     import oioioi.usergroups.utils as usergroups
@@ -416,33 +418,13 @@ def add_user_to_contest(request, member_type):
     if form.is_valid():
         user = form.cleaned_data['user']
 
-        try:
-            teacher = user.teacher
-        except Teacher.DoesNotExist:
-            teacher = None
-
-        user_is_already_added = False
-        if user.participant_set.filter(contest=request.contest) or \
-            teacher and teacher.contestteacher_set.filter(contest=request.contest):
-            user_is_already_added = True
-
-        if user_is_already_added:
+        result = add_user_to_contest_as(user, request.contest, member_type)
+        if result == UserAddResult.UserIsAlreadyAdded:
             messages.error(request, _("User \'{}\' is already added.".format(user)))
+        elif result == UserAddResult.UserIsNotATeacher:
+            messages.error(request, _("User \'{}\' is not a teacher!".format(user)))
         else:
-            created = False
-            if member_type == 'pupil':
-                _p, created = Participant.objects.get_or_create(
-                    contest=request.contest, user=user
-                )
-            elif member_type == 'teacher':
-                if teacher:
-                    _ct, created = ContestTeacher.objects.get_or_create(
-                        contest=request.contest, teacher=teacher
-                    )
-                else:
-                    messages.error(request, _("User \'{}\' is not a teacher!".format(user)))
-            if created:
-                messages.success(request, _("Successfully added \'{}\' as a {}.".format(user, member_type)))
+            messages.success(request, _("Successfully added \'{}\' as a {}.".format(user, member_type)))
     else:
         messages.error(request, _('There is no user \'{}\'.'.format(form.data['user'])))
 
