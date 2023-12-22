@@ -54,10 +54,14 @@ from oioioi.forum.utils import (
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request):
     category_set = request.contest.forum.category_set.annotate(
-        thread_count=Count('thread'),
-        post_count=Count('thread__post'),
-        reported_count=Count('thread__post', filter=Q(thread__post__reported=True))
-    ).all()
+        thread_count=Count('thread', distinct=True),
+        post_count=Count('thread__post', distinct=True),
+        reported_count=Count(
+            'thread__post',
+            filter=Q(thread__post__reported=True),
+            distinct=True
+        )
+    ).order_by('order').all()
 
     return TemplateResponse(
         request,
@@ -80,7 +84,7 @@ def latest_posts_forum_view(request):
         Post.objects.filter(
             thread__category__forum=request.contest.forum.pk,
         )
-        .prefetch_related('thread')
+        .select_related('thread')
         .order_by('-add_date')
     )
     posts = annotate_posts_with_current_user_reactions(request, posts)
@@ -128,7 +132,7 @@ def thread_view(request, category_id, thread_id):
     category, thread = get_forum_ct(category_id, thread_id)
     forum = request.contest.forum
 
-    posts = thread.post_set.select_related('author').all()
+    posts = thread.post_set.select_related('author').order_by('add_date').all()
     posts = annotate_posts_with_current_user_reactions(request, posts)
 
     context = {
@@ -137,6 +141,7 @@ def thread_view(request, category_id, thread_id):
         'thread': thread,
         'msgs': get_msgs(request),
         'post_set': posts,
+        'forum_posts_per_page': getattr(settings, 'FORUM_POSTS_PER_PAGE', 30),
         'can_interact_with_users': can_interact_with_users(request),
         'can_interact_with_admins': can_interact_with_admins(request),
     }
@@ -150,12 +155,16 @@ def thread_view(request, category_id, thread_id):
                 instance.thread = thread
                 instance.add_date = request.timestamp
                 instance.save()
-                return redirect(
+                post_count = thread.post_set.count()
+                page = (post_count - 1) // getattr(settings, 'FORUM_POSTS_PER_PAGE', 30) + 1
+                forum_thread_redirect = redirect(
                     'forum_thread',
                     contest_id=request.contest.id,
                     category_id=category.id,
                     thread_id=thread.id,
                 )
+                forum_thread_redirect['Location'] += f'?page={page}'
+                return forum_thread_redirect
         else:
             form = PostForm(request)
         context['form'] = form
