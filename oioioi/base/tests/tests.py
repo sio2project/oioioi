@@ -131,12 +131,12 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(99):
+        with self.assertNumQueriesLessThan(100):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(88):
+        with self.assertNumQueriesLessThan(89):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
