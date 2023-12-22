@@ -53,6 +53,9 @@ class BinaryScore(ScoreValue):
         else:
             return _("Rejected")
 
+    def __str__(self):
+        return self.__unicode__()
+
     def to_int(self):
         return int(self.accepted)
 
@@ -121,6 +124,9 @@ class ACMScore(ScoreValue):
             if penalty_string != '':
                 time_string += ' '
         return str(time_string + penalty_string)
+
+    def __str__(self):
+        return self.__unicode__()
 
     def csv_repr(self):
         if self.problems_solved == 0:

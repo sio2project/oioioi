@@ -30,6 +30,8 @@ auditLogger = logging.getLogger(__name__ + ".audit")
 
 
 class PARegistrationController(ParticipantsController):
+    registration_template = 'pa/registration.html'
+
     @property
     def form_class(self):
         from oioioi.pa.forms import PARegistrationForm

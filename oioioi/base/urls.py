@@ -25,14 +25,16 @@ urlpatterns = [
     # login view which can be used to bypass 2FA.
     #   re_path(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     re_path(r'^admin/logout/$', views.logout_view),
-    re_path(r'^admin/', admin.site.urls),
 ]
 
 urlpatterns += [
     re_path(r'^$', main_page_view, name='index'),
 ]
 
-noncontest_patterns = []
+noncontest_patterns = [
+    # The contest versions are included by contests.admin.contest_site
+    re_path(r'^admin/', admin.site.urls),
+]
 
 if settings.USE_API:
     urlpatterns += [

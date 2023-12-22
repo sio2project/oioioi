@@ -24,6 +24,9 @@ class Forum(models.Model):
     """Forum is connected with contest"""
 
     contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
+    only_for_registered = models.BooleanField(
+        default=True, verbose_name=_("allow only registered users to post on forum")
+    )
     visible = models.BooleanField(
         default=True, verbose_name=_("forum is visible after lock")
     )

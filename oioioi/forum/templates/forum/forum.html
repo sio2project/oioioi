@@ -63,8 +63,8 @@
                                     {{ c.name }}
                                 </a>
                             </td>
-                            <td>{{ c.count_threads }}</td>
-                            <td>{{ c.count_posts }}</td>
+                            <td>{{ c.thread_count }}</td>
+                            <td>{{ c.post_count }}</td>
                             {% if is_admin %}
                                 <td>
                                     <a href="#" data-post-url="{% url 'forum_category_toggle_reactions' contest_id=contest.id category_id=c.id %}">
@@ -89,8 +89,8 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <div {% if c.count_reported > 0 %}class="badge badge-danger"{% endif %}>
-                                        {{ c.count_reported }}
+                                    <div {% if c.reported_count > 0 %}class="badge badge-danger"{% endif %}>
+                                        {{ c.reported_count }}
                                     </div>
                                 </td>
                             {% endif %}

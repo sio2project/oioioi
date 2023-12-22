@@ -271,7 +271,7 @@ class SinolPackage(object):
             prefix = 'system'
         compilation_job['compiler'] = prefix + '-' + lang
         self._override_compiler(prefix, lang, compilation_job)
-       
+
         if not self.use_make and self.prog_archive:
             compilation_job['additional_archive'] = self.prog_archive
         add_extra_files(
@@ -816,6 +816,7 @@ class SinolPackage(object):
                 job['task_priority'] = TASK_PRIORITY
                 job['exe_file'] = env['compiled_file']
                 job['in_file'] = django_to_filetracker_path(test.input_file)
+                job['in_file_name'] = self.short_name + test.name + '.in'
                 job['use_sandboxes'] = self.use_sandboxes
                 jobs[test.name] = job
 
@@ -1247,7 +1248,7 @@ class SinolPackage(object):
         """
         lang_exts_list = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values()
         extensions = [ext for lang_exts in lang_exts_list for ext in lang_exts]
-        regex = r'^%s[0-9]*([bs]?)[0-9]*\.(' + '|'.join(extensions) + ')'
+        regex = r'^%s[0-9]*([bs]?)[0-9]*(_.*)?\.(' + '|'.join(extensions) + ')'
         names_re = re.compile(regex % (re.escape(self.short_name),))
         progdir = os.path.join(self.rootdir, 'prog')
         progs = [

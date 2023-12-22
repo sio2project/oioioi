@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
+from django.db.models import Count, Q
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
@@ -61,8 +62,10 @@ from oioioi.forum.utils import (
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request):
-    category_set = request.contest.forum.category_set.prefetch_related(
-        'thread_set', 'thread_set__post_set'
+    category_set = request.contest.forum.category_set.annotate(
+        thread_count=Count('thread'),
+        post_count=Count('thread__post'),
+        reported_count=Count('thread__post', filter=Q(thread__post__reported=True))
     ).all()
 
     return TemplateResponse(
@@ -124,6 +127,7 @@ def category_view(request, category_id):
             'msgs': get_msgs(request),
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
+            'forum_threads_per_page': getattr(settings, 'FORUM_THREADS_PER_PAGE', 30),
         },
     )
 

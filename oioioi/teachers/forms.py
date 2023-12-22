@@ -48,3 +48,38 @@ class AddTeacherForm(forms.ModelForm):
     def clean_school(self):
         data = self.cleaned_data['school']
         return ' '.join(data.splitlines())
+
+
+class AdminTeacherForm(forms.ModelForm):
+    class Meta(object):
+        model = Teacher
+        fields = ['user', 'school', 'is_active']
+
+    user = UserSelectionField(label=_("Username"))
+
+    def __init__(self, *args, **kwargs):
+        super(AdminTeacherForm, self).__init__(*args, **kwargs)
+        self.fields['user'].hints_url = reverse('user_search')
+        instance_user = None
+        if 'instance' in kwargs:
+            instance = kwargs['instance']
+            if hasattr(instance, 'user'):
+                instance_user = instance.user
+        if instance_user is not None:
+            self.fields['user'].disabled = True
+            self.initial['user'] = instance_user
+
+    school = forms.CharField(
+        label=_("School"),
+        help_text=mark_safe(
+            _(
+                "Please provide the full name. If the "
+                "school is a part of a larger organization of schools, "
+                "<br>enter the name of this organization."
+            )
+        ),
+    )
+
+    def clean_school(self):
+        data = self.cleaned_data['school']
+        return ' '.join(data.splitlines())

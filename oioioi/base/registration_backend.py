@@ -63,7 +63,6 @@ class RegistrationView(DefaultRegistrationView):
 
 
 urlpatterns = [
-    re_path(r'^sign-up/$', RegistrationView.as_view(), name='sign-up'),
     re_path(
         r'^register/$',
         RedirectView.as_view(pattern_name='sign-up', permanent=True),
@@ -74,6 +73,13 @@ urlpatterns = [
 if not settings.SEND_USER_ACTIVATION_EMAIL:
     urlpatterns += [
         re_path(
+            r'^sign-up/$',
+            RegistrationView.as_view(
+                success_url=reverse_lazy('sign-up_complete')
+            ),
+            name='sign-up',
+        ),
+        re_path(
             r'^sign-up/complete/$',
             TemplateView.as_view(
                 template_name='registration/'
@@ -81,6 +87,10 @@ if not settings.SEND_USER_ACTIVATION_EMAIL:
             ),
             name='sign-up_complete',
         ),
+    ]
+else:
+    urlpatterns += [
+        re_path(r'^sign-up/$', RegistrationView.as_view(), name='sign-up')
     ]
 
 urlpatterns += [

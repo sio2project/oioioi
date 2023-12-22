@@ -21,8 +21,7 @@
 \pagestyle{fancy}
 \fancyhead[L]{\small {{ submission.user.get_full_name|latex_escape }} ({{ submission.user.username|latex_escape }}) }
 \fancyhead[R]{\small {% trans "ID" %}: {{ submission.id }}}
-\fancyfoot[C]{\small {% trans "SHA-256 of the uploaded file" %}:\\{{ source_hash|latex_escape }}\\
-{% blocktrans %}You can check the SHA-256 of any file at \url{http://hash.online-convert.com/sha256-generator}.{% endblocktrans %}}
+\fancyfoot[C]{\small {% trans "SHA-256 of the uploaded file" %}:\\{{ source_hash|latex_escape }}\\ }
 
 \begin{document}
 \begin{center}

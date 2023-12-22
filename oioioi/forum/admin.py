@@ -33,6 +33,7 @@ def get_permission(self, request):
 class ForumAdmin(admin.ModelAdmin):
     fields = (
         'visible',
+        'only_for_registered',
         'lock_date',
         'unlock_date',
         'categories',
