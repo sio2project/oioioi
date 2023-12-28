@@ -28,11 +28,11 @@ function ns_main() {
     var pj = require('prettyjson');
 
     program
-      .version('0.0.1')
-      .option('-p, --port <n>', 'Server port (defaults to 7887)', parseInt)
-      .option('-u, --url <s>', 'OIOIOI instance url (defaults to http://localhost:8000/)')
-      .option('-a, --amqp <s>', 'RabbitMQ server url (defaults to amqp://oioioi:oioioi@broker)')
-      .parse(process.argv);
+        .version('0.1.0')
+        .option('-p, --port <n>', 'Server port (defaults to 7887)', parseInt)
+        .option('-u, --url <s>', 'OIOIOI instance url (defaults to http://localhost:8000/)')
+        .option('-a, --amqp <s>', 'RabbitMQ server url (defaults to amqp://oioioi:oioioi@broker)')
+        .parse(process.argv);
 
     var config = {};
     config.amqp = program.amqp ? program.amqp : 'amqp://oioioi:oioioi@broker';

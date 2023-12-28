@@ -1,6 +1,6 @@
 {
   "name": "notifications-server",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "OIOIOI Notifications Server",
   "scripts": {
     "test": "mocha --reporter spec test/*",
@@ -11,13 +11,16 @@
     "commander": "^2.9.0",
     "prettyjson": "^1.1.3",
     "rabbit.js": "^0.4.4",
-    "request": "^2.67.0",
-    "socket.io": "^1.3.7"
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
     "mocha": "*",
     "sinon": "*"
   },
   "author": "OIOIOI Team",
-  "license": "ISC"
+  "license": "ISC",
+  "engines" : { 
+    "npm" : ">=8.0.0",
+    "node" : ">=18.0.0"
+  }
 }
