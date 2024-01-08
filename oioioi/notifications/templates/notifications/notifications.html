@@ -1,6 +1,6 @@
 {% load i18n static %}
 
-<script src="{{ notif_server_url }}socket.io/socket.io.js"></script>
+<script src="{{ notif_server_url }}socket.io/socket.io.min.js"></script>
 <script>
     $(document).ready(function() {
         notificationsClient = new NotificationsClient('{{ notif_server_url }}', '{{ notifications_session_id }}');
