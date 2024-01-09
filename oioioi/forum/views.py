@@ -19,6 +19,7 @@ from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
     is_contest_admin,
+    is_not_archived,
 )
 from oioioi.forum.forms import BanForm, NewThreadForm, PostForm, ReportForm
 from oioioi.forum.models import Category, Post, PostReaction, post_reaction_types
@@ -117,6 +118,7 @@ def category_view(request, category_id):
             'msgs': get_msgs(request),
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
+            'is_archived': request.contest.is_archived,
             'forum_threads_per_page': getattr(settings, 'FORUM_THREADS_PER_PAGE', 30),
         },
     )
@@ -139,6 +141,7 @@ def thread_view(request, category_id, thread_id):
         'post_set': posts,
         'can_interact_with_users': can_interact_with_users(request),
         'can_interact_with_admins': can_interact_with_admins(request),
+        'is_archived': request.contest.is_archived,
     }
 
     if can_interact_with_users(request):
@@ -158,12 +161,12 @@ def thread_view(request, category_id, thread_id):
                 )
         else:
             form = PostForm(request)
-        context['form'] = form
+        context['form'] = form if is_not_archived(request) else None
 
     return TemplateResponse(request, 'forum/thread.html', context)
 
 
-@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest & is_not_archived)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & can_interact_with_users)
 def thread_add_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
@@ -210,6 +213,10 @@ def edit_post_view(request, category_id, thread_id, post_id):
     if not (post.author == request.user or is_admin):
         raise PermissionDenied
 
+    # Only admins can edit posts when contest is archived.
+    if not is_admin and request.contest.is_archived:
+        raise PermissionDenied
+
     if request.method == 'POST':
         form = PostForm(request, request.POST, instance=post)
         if form.is_valid():
@@ -252,6 +259,7 @@ def delete_post_view(request, category_id, thread_id, post_id):
             # you can remove a post only if there is no post added after yours
             and not thread.post_set.filter(add_date__gt=post.add_date).exists()
             and post.can_be_removed()
+            and not request.contest.is_archived
         )
     ):
         raise PermissionDenied
@@ -280,7 +288,9 @@ def delete_post_view(request, category_id, thread_id, post_id):
     )
 
 
-@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
+@enforce_condition(
+    not_anonymous & contest_exists & can_enter_contest & is_not_archived
+)
 @enforce_condition(
     forum_exists_and_visible & is_proper_forum & can_interact_with_admins
 )
@@ -373,7 +383,7 @@ def show_post_view(request, category_id, thread_id, post_id):
     )
 
 
-@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest & is_not_archived)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & can_interact_with_users)
 @require_POST
 def post_toggle_reaction(request, category_id, thread_id, post_id):
