@@ -23,6 +23,7 @@ services:
     ports:
     # web server
       - "8000:8000"
+      - "9999:9999"
     # notifications server
     # - "7887:7887"
     volumes:
@@ -37,6 +38,7 @@ services:
     command: ["/sio2/oioioi/worker_init.sh"]
     volumes:
       - .:/sio2/oioioi
+      - ~/sioworkers:/sioworkers
     stop_grace_period: 1m
     cap_add:
       - ALL

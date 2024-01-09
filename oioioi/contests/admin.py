@@ -49,6 +49,7 @@ from oioioi.contests.models import (
 )
 from oioioi.contests.utils import (
     can_admin_contest,
+    get_inline_for_contest,
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
@@ -241,6 +242,12 @@ class ContestAdmin(admin.ModelAdmin):
         if obj:
             return {}
         return self.prepopulated_fields
+
+    def get_inlines(self, request, obj):
+        inlines = []
+        for inline in self.inlines:
+            inlines.append(get_inline_for_contest(inline, obj))
+        return inlines
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):

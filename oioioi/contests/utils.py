@@ -299,6 +299,16 @@ def administered_contests(request):
     ]
 
 
+@request_cached
+def administered_unarchived_contests(request):
+    """Returns a list of unarchived contests for which the logged
+    user has contest_admin permission for.
+    """
+    return [
+        contest for contest in administered_contests(request) if not contest.is_archived
+    ]
+
+
 @make_request_condition
 @request_cached
 def is_contest_admin(request):
@@ -408,17 +418,13 @@ def best_round_to_display(request, allow_past_rounds=False):
             (round, contest.controller.get_round_times(request, round))
             for round in Round.objects.filter(contest=contest)
         )
-        next_rtimes = [
-            (r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)
-        ]
+        next_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [
             (r, rt) for r, rt in rtimes if rt.is_active(timestamp) and rt.get_end()
         ]
         current_rtimes.sort(key=lambda r_rt1: r_rt1[1].get_end())
-        past_rtimes = [
-            (r, rt) for r, rt in rtimes.items() if rt.is_past(timestamp)
-        ]
+        past_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_past(timestamp)]
         past_rtimes.sort(key=lambda r_rt2: r_rt2[1].get_end())
 
     if current_rtimes:
@@ -437,7 +443,46 @@ def has_any_contest(request):
     return len(contests) > 0
 
 
+def _is_contest_archived(contest):
+    return hasattr(contest, 'is_archived') and contest.is_archived
+
+
+@make_request_condition
+@request_cached
+def is_archived(request):
+    return (
+        hasattr(request, 'contest')
+        and _is_contest_archived(request)
+    )
+
+
 @make_request_condition
 @request_cached
 def is_not_archived(request):
-    return not request.contest.is_archived
+    return not is_archived(request)
+
+
+def get_inline_for_contest(inline, contest):
+    if not _is_contest_archived(contest):
+        return inline
+
+    class ArchivedInlineWrapper(inline):
+        extra = 0
+        max_num = 0
+        can_delete = False
+        editable_fields = []
+        exclude = []
+
+        def has_add_permission(self, request, obj=None):
+            return False
+
+        def has_change_permission(self, request, obj=None):
+            return False
+
+        def has_delete_permission(self, request, obj=None):
+            return False
+
+        def has_view_permission(self, request, obj=None):
+            return True
+
+    return ArchivedInlineWrapper
