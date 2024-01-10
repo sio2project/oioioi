@@ -24,14 +24,14 @@ if os.getuid() == 0:  # root
 requirements = [
     "Django>=4.2,<4.3",
     "pytz>=2023.3,<2023.4",
-    "SQLAlchemy<2.0",   # 2.0 is breaking, also requires celery >= 5.3
+    "SQLAlchemy<2.1.0",
     "beautifulsoup4>=4.12,<4.13",
     "PyYAML>=6.0,<6.1",
     "python-dateutil>=2.8,<2.9",
     "django-two-factor-auth>=1.15,<1.16",
     "django-formtools>=2.4,<2.5",
     "django-registration-redux>=2.12,<2.13",
-    "Celery==4.4",    # 5.0 is breaking
+    "Celery<5.4.0",
     "coreapi>=2.3,<2.4",
     "dj-pagination>=2.5,<2.6",
     "django-compressor>=4.3,<4.4",
