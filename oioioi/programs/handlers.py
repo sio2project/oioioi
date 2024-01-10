@@ -559,9 +559,8 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         comment = result.get('result_string', '')
         if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
             comment = ''
-        test_report.comment = Truncator(comment).chars(
-            TestReport._meta.get_field('comment').max_length
-        )
+        max_comment_length = TestReport._meta.get_field('comment').max_length
+        test_report.comment = (comment[:max_comment_length - 1] + '…') if len(comment) > max_comment_length else comment
         if env.get('save_outputs', False):
             test_report.output_file = filetracker_to_django_file(result['out_file'])
         test_report.save()
