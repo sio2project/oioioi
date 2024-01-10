@@ -165,9 +165,10 @@ class ProblemNameInlineFormSet(forms.models.BaseInlineFormSet):
 
 class LocalizationFormset(forms.models.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
-        kwargs['initial'] = _localized_formset_get_initial(
-            kwargs['instance'].localizations
-        )
+        if kwargs['instance'].pk:
+            kwargs['initial'] = _localized_formset_get_initial(
+                kwargs['instance'].localizations
+            )
         super(LocalizationFormset, self).__init__(*args, **kwargs)
         self.min_num = self.max_num = len(settings.LANGUAGES)
         for form in self.forms:
