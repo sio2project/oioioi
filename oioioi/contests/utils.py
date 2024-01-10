@@ -452,7 +452,7 @@ def _is_contest_archived(contest):
 def is_archived(request):
     return (
         hasattr(request, 'contest')
-        and _is_contest_archived(request)
+        and _is_contest_archived(request.contest)
     )
 
 
