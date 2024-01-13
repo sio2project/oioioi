@@ -963,6 +963,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         )
         email.send()
 
+    def get_complaints_email(self, request):
+        return settings.COMPLAINTS_EMAIL
+
     def _is_partial_score(self, test_report):
         if not test_report:
             return False
