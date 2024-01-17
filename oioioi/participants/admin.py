@@ -196,6 +196,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
     extend_round.short_description = _("Extend round")
 
+
 class NoParticipantAdmin(ParticipantAdmin):
     def has_add_permission(self, request):
         return False
