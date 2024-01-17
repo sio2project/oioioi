@@ -7,8 +7,7 @@ from oioioi.contests.tests import make_empty_contest_formset
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.teachers.models import Teacher
 
-from oioioi.teachers.utils import add_user_to_contest_as as autc, \
-    UserAddResult as add_res
+from oioioi.teachers.utils import add_user_to_contest_as, UserAddResult
 
 
 def change_contest_type(contest):
@@ -195,26 +194,67 @@ class TestAddUserToContestForm(TestCase):
         self.c = Contest.objects.get(id='c')
 
     def test_add_user_to_contest_as_pupil(self):
-        self.assertEqual(add_res.Added, autc(self.user, self.c, 'pupil'))
-        self.assertEqual(add_res.UserIsAlreadyAdded,
-                         autc(self.user, self.c, 'pupil'))
-        self.assertEqual(add_res.UserIsAlreadyAdded,
-                         autc(self.user, self.c, 'teacher'))
+        self.assertFalse(self.c.participant_set.filter(user=self.user))
+        self.assertEqual(
+            UserAddResult.Added,
+            add_user_to_contest_as(self.user, self.c, 'pupil'))
+        self.assertTrue(self.c.participant_set.filter(user=self.user))
+
+        self.assertEqual(
+            UserAddResult.UserIsAlreadyAdded,
+            add_user_to_contest_as(self.user, self.c, 'pupil'))
+        self.assertEqual(
+            UserAddResult.UserIsAlreadyAdded,
+            add_user_to_contest_as(self.user, self.c, 'teacher'))
 
     def test_add_user_to_contest_as_teacher(self):
-        self.assertEqual(add_res.Added, autc(self.user, self.c, 'teacher'))
-        self.assertEqual(add_res.UserIsAlreadyAdded,
-                         autc(self.user, self.c, 'pupil'))
-        self.assertEqual(add_res.UserIsAlreadyAdded,
-                         autc(self.user, self.c, 'teacher'))
+        self.assertFalse(
+            self.c.contestteacher_set.filter(teacher__user=self.user))
+        self.assertEqual(
+            UserAddResult.Added,
+            add_user_to_contest_as(self.user, self.c, 'teacher'))
+        self.assertTrue(
+            self.c.contestteacher_set.filter(teacher__user=self.user))
+        self.assertEqual(
+            UserAddResult.UserIsAlreadyAdded,
+            add_user_to_contest_as(self.user, self.c, 'pupil'))
+        self.assertEqual(
+            UserAddResult.UserIsAlreadyAdded,
+            add_user_to_contest_as(self.user, self.c, 'teacher'))
 
     def test_add_non_teacher_as_teacher(self):
         not_teacher = User.objects.filter(is_superuser=False,
                                           teacher__isnull=True,
                                           is_active=True).first()
 
-        self.assertEqual(add_res.UserIsNotATeacher,
-                         autc(not_teacher, self.c, 'teacher'))
-        self.assertEqual(add_res.Added, autc(not_teacher, self.c, 'pupil'))
-        self.assertEqual(add_res.UserIsAlreadyAdded,
-                         autc(not_teacher, self.c, 'teacher'))
+        self.assertEqual(
+            UserAddResult.UserIsNotATeacher,
+            add_user_to_contest_as(not_teacher, self.c, 'teacher'))
+        self.assertFalse(
+            self.c.contestteacher_set.filter(teacher__user=self.user))
+        self.assertEqual(
+            UserAddResult.Added,
+            add_user_to_contest_as(not_teacher, self.c, 'pupil'))
+        self.assertEqual(
+            UserAddResult.UserIsAlreadyAdded,
+            add_user_to_contest_as(not_teacher, self.c, 'teacher'))
+
+    def test_http_add_not_possible_by_non_admin(self):
+        # niezalogowany, nieteacher, teacher
+        self.assertTrue(self.client.login(username='test_user'))
+        self.assertEqual(
+            UserAddResult.Added,
+            add_user_to_contest_as(self.user, self.c, 'teacher'))
+        url = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'teacher'})
+        print(url)
+        self.assertFalse(True)
+        # response = self.client.get(url, follow=True)
+        # self.assertContains(response, 'Add teacher')
+
+        # self.client.post(url, data={
+        #     'user': 'test_user3',
+        #     'school': 'New School',
+        #     'is_active': 'on',
+        # })
+
+        # self.assertEqual(Teacher.objects.all().count(), 3)

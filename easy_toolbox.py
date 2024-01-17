@@ -3,7 +3,7 @@
 # pip requirements:
 #   python ^3.6
 #   inquirer     (only for GUI)
-# 
+#
 # system:
 #   docker
 #   docker-compose
@@ -37,7 +37,7 @@ RAW_COMMANDS = [
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh"),
     ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow"),
     ("test-abc", "Run specific test file. (edit the toolbox)",
-     "{exec} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
+     "{exec} web ../oioioi/test.sh -v oioioi/teachers/tests.py"),
     ("test-coverage", "Run coverage tests.",
      "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
