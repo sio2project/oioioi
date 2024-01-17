@@ -6,8 +6,17 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached
+from oioioi.base.utils.public_message import get_public_message
 from oioioi.contests.utils import is_contest_admin
-from oioioi.forum.models import Ban, Category, Post, PostReaction, Thread
+from oioioi.forum.models import (
+    Ban,
+    Category,
+    Post,
+    PostReaction,
+    Thread,
+    ForumMessage,
+    NewPostMessage,
+)
 from oioioi.participants.utils import is_participant
 
 
@@ -190,3 +199,19 @@ def annotate_posts_with_current_user_reactions(request, qs):
             )
 
     return qs
+
+
+def get_forum_message(request):
+    return get_public_message(
+        request,
+        ForumMessage,
+        'forum_message',
+    )
+
+
+def get_new_post_message(request):
+    return get_public_message(
+        request,
+        NewPostMessage,
+        'forum_new_post_message',
+    )

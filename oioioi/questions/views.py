@@ -29,15 +29,23 @@ from oioioi.questions.forms import (
     AddReplyForm,
     FilterMessageAdminForm,
     FilterMessageForm,
+    NewsMessageForm,
+    AddQuestionMessageForm,
 )
 from oioioi.questions.mails import new_question_signal
 from oioioi.questions.models import (
     Message,
     MessageView,
     QuestionSubscription,
-    ReplyTemplate,
+    ReplyTemplate
 )
-from oioioi.questions.utils import get_categories, log_addition, unanswered_questions
+from oioioi.questions.utils import (
+    get_categories,
+    log_addition,
+    unanswered_questions,
+    get_add_question_message,
+    get_news_message,
+)
 
 
 def visible_messages(request, author=None, category=None, kind=None):
@@ -200,6 +208,7 @@ def messages_view(request):
             'already_subscribed': already_subscribed,
             'no_email': no_email,
             'onsite': request.contest.controller.is_onsite(),
+            'message': get_news_message(request),
             **template_kwargs,
         },
     )
@@ -404,7 +413,12 @@ def add_contest_message_view(request):
     return TemplateResponse(
         request,
         'questions/add.html',
-        {'form': form, 'title': title, 'is_news': is_admin},
+        {
+            'form': form,
+            'title': title,
+            'is_news': is_admin,
+            'message': get_add_question_message(request),
+        },
     )
 
 
@@ -486,3 +500,37 @@ def subscription(request):
     else:
         # request.method == 'GET', enforced by decorator
         return HttpResponse(subscribed)
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def news_edit_view(request):
+    instance = get_news_message(request)
+    if request.method == 'POST':
+        form = NewsMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('contest_messages', contest_id=request.contest.id)
+    else:
+        form = NewsMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit news message")},
+    )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def add_edit_message_view(request):
+    instance = get_add_question_message(request)
+    if request.method == 'POST':
+        form = AddQuestionMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('contest_messages', contest_id=request.contest.id)
+    else:
+        form = AddQuestionMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit add question message")},
+    )

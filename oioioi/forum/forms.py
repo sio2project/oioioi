@@ -2,7 +2,8 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from oioioi.forum.models import Ban, Post, Thread
+from oioioi.base.forms import PublicMessageForm
+from oioioi.forum.models import Ban, Post, Thread, ForumMessage, NewPostMessage
 
 
 class PostForm(forms.ModelForm):
@@ -62,3 +63,15 @@ class ReportForm(forms.ModelForm):
         super(ReportForm, self).__init__(*args, **kwargs)
         self.fields['report_reason'].label = _("Reason")
         self.fields['report_reason'].widget.attrs['class'] = 'monospace non-resizable'
+
+
+class ForumMessageForm(PublicMessageForm):
+    class Meta(object):
+        model = ForumMessage
+        fields = ['content']
+
+
+class NewPostMessageForm(PublicMessageForm):
+    class Meta(object):
+        model = NewPostMessage
+        fields = ['content']

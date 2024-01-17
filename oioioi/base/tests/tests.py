@@ -57,6 +57,7 @@ from oioioi.base.utils import (
     strip_num_or_hash,
 )
 from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.contests.models import Contest
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
 
@@ -130,12 +131,12 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(99):
+        with self.assertNumQueriesLessThan(100):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(88):
+        with self.assertNumQueriesLessThan(89):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
@@ -342,7 +343,7 @@ class TestErrorHandlers(TestCase):
                     print(self.client.handler)
                     self.client.handler = wrapped_handler500
                     resp = self._orig_get(*args, **kwargs)
-                    resp.request = self._req                    
+                    resp.request = self._req
                     return resp
                 finally:
                     self.client.handler = self._orig_handler
@@ -1578,3 +1579,49 @@ class TestJsCatalog(TestCase):
     def test_javascript_catalog(self):
         response = self.client.get(reverse('javascript_catalog'))
         self.assertContains(response, 'jsi18n_initialized')
+
+
+class TestPublicMessage(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def add_message(self):
+        self.model.objects.all().delete()
+        self.assertTrue(self.client.login(username='test_admin'))
+        contest = Contest.objects.get()
+        edit_viewname_kwargs = getattr(self, 'edit_viewname_kwargs', {'contest_id': contest.id})
+        viewname_kwargs = getattr(self, 'viewname_kwargs', {'contest_id': contest.id})
+
+        url = reverse(self.edit_viewname, kwargs=edit_viewname_kwargs)
+        post_data = {
+            'content': 'Test public message',
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+
+        # Check if message is visible
+        self.assertTrue(self.client.login(username='test_user2'))
+        url = reverse(self.viewname, kwargs=viewname_kwargs)
+        response = self.client.get(url)
+        self.assertContains(response, 'Test public message')
+
+    def contest_controller(self):
+        self.model.objects.all().delete()
+        contest = Contest.objects.get()
+        contest.controller_name = (
+            self.controller_name
+        )
+        contest.save()
+        viewname_kwargs = getattr(self, 'viewname_kwargs', {'contest_id': contest.id})
+
+        self.assertTrue(self.client.login(username='test_user2'))
+        url = reverse(self.viewname, kwargs=viewname_kwargs)
+        response = self.client.get(url)
+        self.assertContains(response, 'Test public message')
+
+    def test_add_message(self):
+        if hasattr(self, 'model'):
+            self.add_message()
+
+    def test_contest_controller(self):
+        if hasattr(self, 'controller_name'):
+            self.contest_controller()

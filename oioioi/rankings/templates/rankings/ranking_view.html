@@ -9,6 +9,11 @@
     <div class="float-right">
         {% if is_admin and key %}
             <a role="button" class="btn btn-sm btn-outline-secondary"
+                href="{% url 'edit_ranking_message' contest_id=contest.id %}">
+                <i class="fa-solid fa-pencil"></i>
+                {% trans "Edit ranking message" %}
+            </a>
+            <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'ranking_csv' contest_id=contest.id key=key %}">
                 <i class="fa-solid fa-download"></i>
                 {% trans "Export to CSV" %}
@@ -29,6 +34,7 @@
     </div>
     <h1 class="float-left">{% trans "Ranking" %}</h1>
 </div>
+{% include "public_message/show.html" %}
 
 {% if choices|length > 1 %}
 <div>

@@ -3,12 +3,19 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from oioioi.base.forms import PublicMessageForm
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.base.widgets import DateTimePicker
 from oioioi.contests.models import ProblemInstance, Round
 from oioioi.contests.utils import is_contest_basicadmin
-from oioioi.questions.models import Message, ReplyTemplate, message_kinds
+from oioioi.questions.models import (
+    Message,
+    ReplyTemplate,
+    message_kinds,
+    NewsMessage,
+    AddQuestionMessage,
+)
 from oioioi.questions.utils import get_categories, get_category
 
 
@@ -137,3 +144,15 @@ class FilterMessageAdminForm(FilterMessageForm):
             'get_messages_authors', kwargs={'contest_id': request.contest.id}
         )
         self.fields['author'].widget.attrs['placeholder'] = _("Author username")
+
+
+class NewsMessageForm(PublicMessageForm):
+    class Meta(object):
+        model = NewsMessage
+        fields = ['content']
+
+
+class AddQuestionMessageForm(PublicMessageForm):
+    class Meta(object):
+        model = AddQuestionMessage
+        fields = ['content']

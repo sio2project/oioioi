@@ -4,7 +4,9 @@ from datetime import timedelta  # pylint: disable=E0611
 from django.conf import settings
 from django.db import models, transaction
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
+from oioioi.base.models import PublicMessage
 from oioioi.contests.models import Contest
 
 
@@ -202,3 +204,9 @@ def recalculate(recalc):
     serialized, pages_list = ranking_controller.build_ranking(r.key)
     date_after = timezone.now()
     save_recalc_results(recalc, date_before, date_after, serialized, pages_list)
+
+
+class RankingMessage(PublicMessage):
+    class Meta(object):
+        verbose_name = _("ranking message")
+        verbose_name_plural = _("ranking messages")
