@@ -1,0 +1,22 @@
+[
+  {
+    "pk": "c",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z",
+      "is_archived": "True"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "c",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  }
+]

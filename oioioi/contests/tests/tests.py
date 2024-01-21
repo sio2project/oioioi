@@ -3399,3 +3399,56 @@ class TestOpenRegistration(TestCase):
         available_from = now - timedelta(hours=1)
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, 'CONFIG', available_from, available_to)
+
+
+
+class TestContestArchived(TestCase):
+    fixtures = [
+        'test_users',
+        'test_archived_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
+
+    def test_contest_archived(self):
+        contest = Contest.objects.get()
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
+        contest.save()
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_submit(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('submit', kwargs={'contest_id': 'c'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_dashboard_view(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This contest is archived.")
+        self.assertNotContains(response, "Submit")
+
+    def test_submission_list_visibility(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('my_submissions', kwargs={'contest_id': 'c'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sumżyce")
+
+    def test_add_question(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('add_contest_message', kwargs={'contest_id': 'c'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_question_list_visibility(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('contest_all_messages', kwargs={'contest_id': 'c'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)

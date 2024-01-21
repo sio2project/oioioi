@@ -900,3 +900,34 @@ class TestBan(TestCase):
         self.assertEqual('Abuse', ban.reason)
         self.assertEqual(self.contest.forum, ban.forum)
         self.assertEqual([False, False, False, True], check_reports())
+
+
+class TestContestArchived(TestCase):
+    fixtures = ['test_users', 'test_archived_contest']
+
+    def setUp(self):
+        delta = timedelta(days=3)
+        self.now = timezone.now()
+        self.future = self.now + delta
+        self.past = self.now - delta
+        self.contest = get_contest_with_forum()
+        self.category = Category(forum=self.contest.forum, name='test_category')
+        self.category.save()
+
+    def test_add_new_forum_category(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('oioioiadmin:forum_category_add', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(403, response.status_code)
+
+        self.client.logout()
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        response = self.client.get(url, follow=True)
+        self.assertEqual(200, response.status_code)
+
+
+    # TODO: test do dodawania postow 
