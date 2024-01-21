@@ -59,6 +59,7 @@ RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 
+COPY --chown=oioioi:oioioi setup.py requirements_pinned.txt ./
 COPY --chown=oioioi:oioioi setup.py requirements.txt ./
 RUN pip3 install -r requirements.txt --user
 COPY --chown=oioioi:oioioi requirements_static.txt ./
