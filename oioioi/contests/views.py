@@ -237,11 +237,10 @@ def problem_statement_zip_view(request, problem_instance, statement_id, path):
 @menu_registry.register_decorator(
     _("Submit"), lambda request: reverse('submit'), order=300
 )
-@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest & is_not_archived)
 @enforce_condition(
     has_any_submittable_problem, template='contests/nothing_to_submit.html'
 )
-@enforce_condition(is_not_archived)
 def submit_view(request, problem_instance_id=None):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES)
