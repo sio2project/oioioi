@@ -906,11 +906,8 @@ class TestContestArchived(TestCase):
     fixtures = ['test_users', 'test_archived_contest']
 
     def setUp(self):
-        delta = timedelta(days=3)
-        self.now = timezone.now()
-        self.future = self.now + delta
-        self.past = self.now - delta
         self.contest = get_contest_with_forum()
+        self.user = User.objects.get(username='test_user')
         self.category = Category(forum=self.contest.forum, name='test_category')
         self.category.save()
 
@@ -919,6 +916,7 @@ class TestContestArchived(TestCase):
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         url = reverse('oioioiadmin:forum_category_add', kwargs={'contest_id': 'c'})
+        # non-admins should not be able to add categories when contest is archived
         response = self.client.get(url, follow=True)
         self.assertEqual(403, response.status_code)
 
@@ -926,8 +924,35 @@ class TestContestArchived(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
+        # admins also should not be able to add categories when contest is archived
         response = self.client.get(url, follow=True)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(403, response.status_code)
 
+    def test_add_post(self):
+        thr = Thread(category=self.category, name='test_thread')
+        thr.save()
+        thread_url = reverse(
+            'forum_thread',
+            kwargs={
+                'contest_id': self.contest.id,
+                'category_id': self.category.id,
+                'thread_id': thr.id,
+            },
+        )
+        # non-admins should not be able to post when contest is archived
+        self.assertTrue(self.client.login(username='test_user'))
+        self.assertFalse(Post.objects.filter(author=self.user).exists())
+        response = self.client.get(thread_url)
+        self.assertNotIsInstance(response.context['form'], PostForm)
 
-    # TODO: test do dodawania postow 
+        self.client.post(thread_url, {'content': "lorem ipsum?"})
+        self.assertFalse(Post.objects.filter(author=self.user).exists())
+        self.client.logout()
+
+        # admins also should not be able to post when contest is archived
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(thread_url)
+        self.assertNotIsInstance(response.context['form'], PostForm)
+
+        self.client.post(thread_url, {'content': "lorem ipsum?"})
+        self.assertFalse(Post.objects.filter(author=self.user).exists())
