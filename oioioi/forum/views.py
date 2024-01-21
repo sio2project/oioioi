@@ -18,6 +18,7 @@ from oioioi.contests.utils import (
     can_admin_contest,
     can_enter_contest,
     contest_exists,
+    is_archived,
     is_contest_admin,
     is_not_archived,
 )
@@ -69,6 +70,7 @@ def forum_view(request):
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
             'is_locked': request.contest.forum.is_locked(),
+            'is_contest_archived': is_archived(request),
             'category_set': category_set,
         },
     )
@@ -140,11 +142,10 @@ def thread_view(request, category_id, thread_id):
         'msgs': get_msgs(request),
         'post_set': posts,
         'can_interact_with_users': can_interact_with_users(request),
-        'can_interact_with_admins': can_interact_with_admins(request),
-        'is_archived': request.contest.is_archived,
+        'can_interact_with_admins': can_interact_with_admins(request)
     }
 
-    if can_interact_with_users(request):
+    if can_interact_with_users(request) and is_not_archived(request):
         if request.method == "POST":
             form = PostForm(request, request.POST)
             if form.is_valid():
@@ -161,7 +162,7 @@ def thread_view(request, category_id, thread_id):
                 )
         else:
             form = PostForm(request)
-        context['form'] = form if is_not_archived(request) else None
+        context['form'] = form
 
     return TemplateResponse(request, 'forum/thread.html', context)
 
@@ -289,7 +290,7 @@ def delete_post_view(request, category_id, thread_id, post_id):
 
 
 @enforce_condition(
-    not_anonymous & contest_exists & can_enter_contest & is_not_archived
+    not_anonymous & contest_exists & can_enter_contest
 )
 @enforce_condition(
     forum_exists_and_visible & is_proper_forum & can_interact_with_admins
