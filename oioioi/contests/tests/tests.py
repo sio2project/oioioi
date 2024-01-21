@@ -3401,7 +3401,6 @@ class TestOpenRegistration(TestCase):
         check_registration(self, 403, 'CONFIG', available_from, available_to)
 
 
-
 class TestContestArchived(TestCase):
     fixtures = [
         'test_users',
@@ -3452,3 +3451,14 @@ class TestContestArchived(TestCase):
         url = reverse('contest_all_messages', kwargs={'contest_id': 'c'})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_registration(self):
+        contest = Contest.objects.get()
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
+        contest.save()
+
+        url = reverse('participants_register', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_user'))
+
+        response = self.client.get(url)
+        self.assertEqual(403, response.status_code)
