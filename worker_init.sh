@@ -3,11 +3,6 @@ set -e
 set -x
 
 sudo apt install -y proot
-sudo mkdir -pv /sw
-sudo cp -dr /sioworkers/* /sw
-sudo chown -R oioioi:oioioi /sw
-pip install poster3==0.8.1
-pip install /sw
 
 /sio2/oioioi/wait-for-it.sh -t 60 "db:5432"
 /sio2/oioioi/wait-for-it.sh -t 0  "web:8000"
