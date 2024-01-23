@@ -442,22 +442,22 @@ def check_compilers_config():
     DEFAULT_COMPILERS = getattr(settings, "DEFAULT_COMPILERS", {})
     for language, language_info in SUBMITTABLE_LANGUAGES.items():
         if not language_info.get('display_name'):
-            raise ImproperlyConfigured()
+            raise ImproperlyConfigured
         if language_info.get('type', 'main') not in ['main', 'extra']:
-            raise ImproperlyConfigured()
+            raise ImproperlyConfigured
         if not SUBMITTABLE_EXTENSIONS.get(language):
-            raise ImproperlyConfigured()
+            raise ImproperlyConfigured
         compilers_for_lang = AVAILABLE_COMPILERS.get(language)
         if not compilers_for_lang:
-            raise ImproperlyConfigured()
+            raise ImproperlyConfigured
         else:
             for compiler, compiler_info in compilers_for_lang.items():
                 if 'display_name' not in compiler_info:
-                    raise ImproperlyConfigured()
+                    raise ImproperlyConfigured
         if not DEFAULT_COMPILERS.get(language):
-            raise ImproperlyConfigured()
+            raise ImproperlyConfigured
         if DEFAULT_COMPILERS[language] not in AVAILABLE_COMPILERS[language]:
-            raise ImproperlyConfigured()
+            raise ImproperlyConfigured
 
 
 check_compilers_config()
