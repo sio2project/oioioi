@@ -1,4 +1,3 @@
-import logging
 import threading
 from functools import partial
 from django.conf import settings
@@ -57,8 +56,6 @@ from oioioi.contests.utils import (
 from oioioi.problems.models import ProblemName, ProblemPackage, ProblemSite
 from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.models import Test, TestReport
-
-logger = logging.getLogger(__name__)
 
 
 class ContestProxyAdminSite(admin.AdminSite):
@@ -600,7 +597,6 @@ class SubmissionKindListFilter(SimpleListFilter):
         return submission_kinds
 
     def queryset(self, request, queryset):
-        logger.debug(self.value())
         if self.value():
             return queryset.filter(kind=self.value())
         else:

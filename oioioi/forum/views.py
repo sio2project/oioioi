@@ -134,7 +134,7 @@ def category_view(request, category_id):
             'msgs': get_msgs(request),
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
-            'is_archived': request.contest.is_archived,
+            'is_archived': is_archived(request),
             'forum_threads_per_page': getattr(settings, 'FORUM_THREADS_PER_PAGE', 30),
         },
     )
@@ -158,7 +158,7 @@ def thread_view(request, category_id, thread_id):
         'forum_posts_per_page': getattr(settings, 'FORUM_POSTS_PER_PAGE', 30),
         'can_interact_with_users': can_interact_with_users(request),
         'can_interact_with_admins': can_interact_with_admins(request),
-        'message': get_new_post_message(request)
+        'message': get_new_post_message(request),
     }
 
     if can_interact_with_users(request) and is_not_archived(request):
@@ -235,7 +235,7 @@ def edit_post_view(request, category_id, thread_id, post_id):
         raise PermissionDenied
 
     # Only admins can edit posts when contest is archived.
-    if not is_admin and request.contest.is_archived:
+    if not is_admin and is_archived(request):
         raise PermissionDenied
 
     if request.method == 'POST':
@@ -280,7 +280,7 @@ def delete_post_view(request, category_id, thread_id, post_id):
             # you can remove a post only if there is no post added after yours
             and not thread.post_set.filter(add_date__gt=post.add_date).exists()
             and post.can_be_removed()
-            and not request.contest.is_archived
+            and is_not_archived(request)
         )
     ):
         raise PermissionDenied

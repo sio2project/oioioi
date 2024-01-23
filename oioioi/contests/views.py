@@ -46,6 +46,7 @@ from oioioi.contests.utils import (
     contest_exists,
     get_submission_or_error,
     has_any_submittable_problem,
+    is_archived,
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
@@ -145,7 +146,7 @@ def problems_list_view(request):
                 ),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
-                controller.can_submit(request, pi) and not request.contest.is_archived,
+                controller.can_submit(request, pi) and is_not_archived(request),
             )
             for pi in problem_instances
         ],
@@ -326,7 +327,7 @@ def my_submissions_view(request):
             'submissions': submissions,
             'show_scores': show_scores,
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
-            'is_archived': request.contest.is_archived,
+            'is_archived': is_archived(request),
             'message': get_submissions_message(request),
         },
     )
