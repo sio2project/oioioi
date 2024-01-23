@@ -105,7 +105,7 @@ class Contest(models.Model):
     )
 
     # Part of szkopul backporting.
-    # This is a hack for situation where contest controller is empty, 
+    # This is a hack for situation where contest controller is empty,
     # which is very uncommon in normal usage.
     def save(self, *args, **kwargs):
         if not self.controller_name:
@@ -740,3 +740,30 @@ def contest_links_generator(request):
 
 
 menu_registry.register_generator('contest_links', contest_links_generator)
+
+
+class FilesMessage(models.Model):
+    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
+    content = models.TextField(verbose_name=_("message"), blank=True)
+
+    class Meta(object):
+        verbose_name = _("files message")
+        verbose_name_plural = _("files messages")
+
+
+class SubmissionsMessage(models.Model):
+    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
+    content = models.TextField(verbose_name=_("message"), blank=True)
+
+    class Meta(object):
+        verbose_name = _("submissions message")
+        verbose_name_plural = _("submissions messages")
+
+
+class SubmitMessage(models.Model):
+    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
+    content = models.TextField(verbose_name=_("message"), blank=True)
+
+    class Meta(object):
+        verbose_name = _("new submission message")
+        verbose_name_plural = _("new submission messages")

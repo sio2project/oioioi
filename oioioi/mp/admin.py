@@ -52,7 +52,7 @@ class SubmissionScoreMultiplierAdminMixin(object):
         if hasattr(obj, 'controller') and isinstance(
             obj.controller, MPContestController
         ):
-            return inlines + [SubmissionScoreMultiplierInline]
+            return inlines + (SubmissionScoreMultiplierInline,)
         return inlines
 
 

@@ -25,7 +25,7 @@ from django.template import Context, Template
 from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-from django.urls import reverse
+from django.urls import reverse, clear_url_caches
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
@@ -57,6 +57,7 @@ from oioioi.base.utils import (
     strip_num_or_hash,
 )
 from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.contests.models import Contest
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
 
@@ -130,12 +131,12 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(99):
+        with self.assertNumQueriesLessThan(100):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(88):
+        with self.assertNumQueriesLessThan(89):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
@@ -342,7 +343,7 @@ class TestErrorHandlers(TestCase):
                     print(self.client.handler)
                     self.client.handler = wrapped_handler500
                     resp = self._orig_get(*args, **kwargs)
-                    resp.request = self._req                    
+                    resp.request = self._req
                     return resp
                 finally:
                     self.client.handler = self._orig_handler
@@ -725,6 +726,13 @@ class TestRegistration(TestCase):
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
 
+    def _reload_urlconf(self):
+        import oioioi.base.registration_backend
+        reload(oioioi.base.registration_backend)
+        import oioioi.urls
+        reload(oioioi.urls)
+        clear_url_caches()
+
     def _register_user(self, terms_accepted=True, pass_captcha=True):
         response = self.client.get(reverse('sign-up'))
         captcha_count = CaptchaStore.objects.count()
@@ -732,7 +740,7 @@ class TestRegistration(TestCase):
         captcha = CaptchaStore.objects.all()[0]
         if not pass_captcha:
             captcha.response += "z"
-        self.client.post(
+        return self.client.post(
             reverse('sign-up'),
             {
                 'username': 'test_foo',
@@ -745,6 +753,7 @@ class TestRegistration(TestCase):
                 'captcha_0': captcha.hashkey,
                 'captcha_1': captcha.response,
             },
+            follow=True,
         )
 
     def _assert_user_active(self):
@@ -780,6 +789,17 @@ class TestRegistration(TestCase):
         self._register_user(pass_captcha=False)
         self.assertEqual(User.objects.filter(username='test_foo').count(), 0)
 
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=False)
+    def test_registration_complete_text_no_email(self):
+        self._reload_urlconf()
+        resp = self._register_user()
+        self.assertNotContains(resp, 'e-mail')
+
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=True)
+    def test_registration_complete_text_with_email(self):
+        self._reload_urlconf()
+        resp = self._register_user()
+        self.assertContains(resp, 'e-mail')
 
 
 class TestArchive(TestCase):
@@ -1559,3 +1579,49 @@ class TestJsCatalog(TestCase):
     def test_javascript_catalog(self):
         response = self.client.get(reverse('javascript_catalog'))
         self.assertContains(response, 'jsi18n_initialized')
+
+
+class TestPublicMessage(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def add_message(self):
+        self.model.objects.all().delete()
+        self.assertTrue(self.client.login(username='test_admin'))
+        contest = Contest.objects.get()
+        edit_viewname_kwargs = getattr(self, 'edit_viewname_kwargs', {'contest_id': contest.id})
+        viewname_kwargs = getattr(self, 'viewname_kwargs', {'contest_id': contest.id})
+
+        url = reverse(self.edit_viewname, kwargs=edit_viewname_kwargs)
+        post_data = {
+            'content': 'Test public message',
+        }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+
+        # Check if message is visible
+        self.assertTrue(self.client.login(username='test_user2'))
+        url = reverse(self.viewname, kwargs=viewname_kwargs)
+        response = self.client.get(url)
+        self.assertContains(response, 'Test public message')
+
+    def contest_controller(self):
+        self.model.objects.all().delete()
+        contest = Contest.objects.get()
+        contest.controller_name = (
+            self.controller_name
+        )
+        contest.save()
+        viewname_kwargs = getattr(self, 'viewname_kwargs', {'contest_id': contest.id})
+
+        self.assertTrue(self.client.login(username='test_user2'))
+        url = reverse(self.viewname, kwargs=viewname_kwargs)
+        response = self.client.get(url)
+        self.assertContains(response, 'Test public message')
+
+    def test_add_message(self):
+        if hasattr(self, 'model'):
+            self.add_message()
+
+    def test_contest_controller(self):
+        if hasattr(self, 'controller_name'):
+            self.contest_controller()

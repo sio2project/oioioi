@@ -7,9 +7,33 @@ from oioioi.pa.models import PARegistration
 
 
 class PARegistrationForm(forms.ModelForm):
+
     class Meta(object):
         model = PARegistration
         exclude = ['participant']
+        fields = [
+            'job',
+            'job_name',
+            'no_prizes',
+            'address',
+            'postal_code',
+            'city',
+            't_shirt_size',
+            'newsletter',
+            'terms_accepted',
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        prize_fields_required = not cleaned_data.get('no_prizes')
+        prize_fields_error_msg = _("This field is required to be eligible for prizes.")
+        prize_fields = ['address', 'postal_code', 'city', 't_shirt_size']
+
+        for field in prize_fields:
+            if prize_fields_required and not cleaned_data.get(field):
+                self.add_error(field, prize_fields_error_msg)
+
+        return cleaned_data
 
     def set_terms_accepted_text(self, terms_accepted_phrase):
         if terms_accepted_phrase is None:

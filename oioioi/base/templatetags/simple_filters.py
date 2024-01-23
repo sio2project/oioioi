@@ -8,6 +8,7 @@ from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
 
 from oioioi.contests.scores import IntegerScore
+from oioioi.mp.score import FloatScore
 from oioioi.pa.score import PAScore
 
 register = template.Library()
@@ -274,6 +275,8 @@ def result_color_class(raw_score):
         score_max_value = 100
     elif isinstance(raw_score, PAScore):
         score_max_value = 10
+    elif isinstance(raw_score, FloatScore):
+        score_max_value = 100
     else:
         # There should be a method to get maximum points for
         # contest, for now, support just above cases.

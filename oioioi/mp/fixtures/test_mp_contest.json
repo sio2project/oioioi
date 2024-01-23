@@ -14,6 +14,16 @@
         }
     },
     {
+        "model": "participants.participant",
+        "pk": 1,
+        "fields": {
+            "contest": "contest1",
+            "user": 2,
+            "status": "ACTIVE",
+            "anonymous": false
+        }
+    },
+    {
         "model": "problems.problem",
         "pk": 1,
         "fields": {
@@ -101,6 +111,18 @@
             "round": 2,
             "problem": 2,
             "short_name": "squ1",
+            "submissions_limit": 10,
+            "needs_rejudge": false
+        }
+    },
+    {
+        "model": "contests.probleminstance",
+        "pk": 5,
+        "fields": {
+            "contest": "contest1",
+            "round": null,
+            "problem": 1,
+            "short_name": "squ2",
             "submissions_limit": 10,
             "needs_rejudge": false
         }

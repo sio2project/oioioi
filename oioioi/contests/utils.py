@@ -9,6 +9,7 @@ from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
+from oioioi.base.utils.public_message import get_public_message
 from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
     Contest,
@@ -16,6 +17,9 @@ from oioioi.contests.models import (
     Round,
     RoundTimeExtension,
     Submission,
+    FilesMessage,
+    SubmissionsMessage,
+    SubmitMessage,
 )
 
 
@@ -441,6 +445,30 @@ def best_round_to_display(request, allow_past_rounds=False):
 def has_any_contest(request):
     contests = [contest for contest in administered_contests(request)]
     return len(contests) > 0
+
+
+def get_files_message(request):
+    return get_public_message(
+        request,
+        FilesMessage,
+        'files_message',
+    )
+
+
+def get_submissions_message(request):
+    return get_public_message(
+        request,
+        SubmissionsMessage,
+        'submissions_message',
+    )
+
+
+def get_submit_message(request):
+    return get_public_message(
+        request,
+        SubmitMessage,
+        'submit_message',
+    )
 
 
 def _is_contest_archived(contest):

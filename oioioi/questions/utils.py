@@ -3,7 +3,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
+from oioioi.base.utils.public_message import get_public_message
 from oioioi.contests.utils import visible_problem_instances, visible_rounds
+from oioioi.questions.models import NewsMessage, AddQuestionMessage
 
 
 # taken from django.contrib.admin.options.ModelAdmin
@@ -43,4 +45,20 @@ def unanswered_questions(messages):
         top_reference__isnull=True,
         marked_read_by__isnull=True,
         kind='QUESTION'
+    )
+
+
+def get_news_message(request):
+    return get_public_message(
+        request,
+        NewsMessage,
+        'questions_news_message'
+    )
+
+
+def get_add_question_message(request):
+    return get_public_message(
+        request,
+        AddQuestionMessage,
+        'add_question_message',
     )

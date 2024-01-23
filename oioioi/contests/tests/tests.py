@@ -20,6 +20,7 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
+from oioioi.base.tests.tests import TestPublicMessage
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import (
@@ -37,6 +38,9 @@ from oioioi.contests.models import (
     Submission,
     UserResultForContest,
     UserResultForProblem,
+    FilesMessage,
+    SubmissionsMessage,
+    SubmitMessage,
 )
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import make_empty_contest_formset
@@ -3399,6 +3403,40 @@ class TestOpenRegistration(TestCase):
         available_from = now - timedelta(hours=1)
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, 'CONFIG', available_from, available_to)
+
+
+class PublicMessageContestController(ProgrammingContestController):
+    files_message = 'Test public message'
+    submissions_message = 'Test public message'
+    submit_message = 'Test public message'
+
+
+class TestFilesMessage(TestPublicMessage):
+    model = FilesMessage
+    edit_viewname = 'edit_files_message'
+    viewname = 'contest_files'
+    controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
+
+
+class TestSubmissionsMessage(TestPublicMessage):
+    model = SubmissionsMessage
+    edit_viewname = 'edit_submissions_message'
+    viewname = 'my_submissions'
+    controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
+
+
+class TestSubmitMessage(TestPublicMessage):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
+    model = SubmitMessage
+    edit_viewname = 'edit_submit_message'
+    viewname = 'submit'
+    controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
+
 
 
 class TestContestArchived(TestCase):

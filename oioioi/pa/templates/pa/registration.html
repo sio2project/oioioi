@@ -1,0 +1,21 @@
+{% extends "participants/registration.html" %}
+{% load i18n %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script> 
+        var prizeFieldsIDs = ["id_address", "id_postal_code", "id_city", "id_t_shirt_size"];
+
+        function togglePrizeFields() {
+            var hidePrizeFields = document.getElementById("id_no_prizes").checked;
+            
+            prizeFieldsIDs.forEach(function (id) {
+                var input = document.getElementById(id);
+                var formGroup = input.closest(".form-group");
+                formGroup.style.display = hidePrizeFields ? "none" : "block";
+            });
+        }
+
+        document.getElementById("id_no_prizes").addEventListener("change", togglePrizeFields);
+    </script>
+{% endblock %}

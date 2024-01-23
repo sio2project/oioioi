@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json.schemastore.org/jsconfig",
+    "compilerOptions": {
+        "target": "ES2022",
+        "moduleResolution": "NodeNext",
+        "module": "NodeNext",
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
+        "allowJs": true,
+        "checkJs": true,
+        "noEmit": true,
+        "strict": true,
+        "exactOptionalPropertyTypes": true,
+        // "resolveJsonModule": true,
+        // "noUncheckedIndexedAccess": true, // Broken
+        "skipLibCheck": false // Poorly documented, doesn't check own project files if true (default)
+    },
+    // Files we wish to typecheck
+    "include": [
+        "oioioi/notifications/**/*"
+    ],
+    "typeAcquisition": {
+        "include": [
+            "jquery"
+        ]
+    }
+}

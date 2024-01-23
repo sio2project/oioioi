@@ -16,8 +16,9 @@ from oioioi.contests.utils import (
     contest_exists,
     is_contest_basicadmin,
 )
-from oioioi.rankings.forms import FilterUsersInRankingForm
+from oioioi.rankings.forms import FilterUsersInRankingForm, RankingMessageForm
 from oioioi.rankings.models import Ranking
+from oioioi.rankings.utils import get_ranking_message
 
 
 @make_request_condition
@@ -115,6 +116,7 @@ def ranking_view(request, key=None):
     context['choices'] = choices
     context['ranking'] = ranking
     context['key'] = key
+    context['message'] = get_ranking_message(request)
 
     return TemplateResponse(request, 'rankings/ranking_view.html', context)
 
@@ -137,3 +139,20 @@ def ranking_invalidate_view(request, key):
     ranking = Ranking.objects.filter(key=full_key)
     Ranking.invalidate_queryset(ranking)
     return redirect('ranking', key=key)
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def edit_ranking_message_view(request):
+    instance = get_ranking_message(request)
+    if request.method == 'POST':
+        form = RankingMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('default_ranking', contest_id=request.contest.id)
+    else:
+        form = RankingMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit ranking message")},
+    )

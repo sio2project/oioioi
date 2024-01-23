@@ -7,7 +7,6 @@ from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
 
-check_django_app_dependencies(__name__, ['oioioi.participants'])
 check_django_app_dependencies(__name__, ['oioioi.contests'])
 
 
@@ -20,12 +19,13 @@ class MPRegistration(RegistrationModel):
 
 
 class SubmissionScoreMultiplier(models.Model):
-    """ If SubmissionScoreMultiplier exists, users can submit problems
+    """If SubmissionScoreMultiplier exists, users can submit problems
     even after round ends, until end_date
-    
+
     Result score for submission after round's end is multiplied by
     given multiplier value
     """
+
     contest = models.OneToOneField(
         Contest, verbose_name=_("contest"), on_delete=models.CASCADE
     )

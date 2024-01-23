@@ -15,7 +15,7 @@ TranslationClient.prototype.translate = function (originalText) {
     return new Promise((resolve, reject) => {
         if (!this.translationQueue[originalText]) {
             this.translationQueue[originalText] = [];
-            $.get('/translate/', {query: originalText}, 'json')
+            $.get('/translate/', { query: originalText }, 'json')
                 .success(function (data) {
                     tClient.translationCache[originalText] = data.answer;
                     for (let request of tClient.translationQueue[originalText]) {
@@ -24,14 +24,14 @@ TranslationClient.prototype.translate = function (originalText) {
                     delete tClient.translationQueue[originalText];
                 })
                 .fail(function (err) {
-                    console.warn('Translation failed!',  err);
+                    console.warn('Translation failed!', err);
                     for (let request of tClient.translationQueue[originalText]) {
                         request.reject(err);
                     }
                     delete tClient.translationQueue[originalText];
                 });
         }
-        this.translationQueue[originalText].push({resolve: resolve, reject: reject});
+        this.translationQueue[originalText].push({ resolve: resolve, reject: reject });
     });
 };
 
@@ -64,7 +64,7 @@ function NotificationsClient(serverUrl, sessionId) {
     this.waitingPermissions = [];
     this.permissionBanner = null;
 
-    if (typeof(io) === 'undefined') {
+    if (typeof (io) === 'undefined') {
         this.setErrorState();
         this.DROPDOWN_DISCONNECTED.show();
         return;
@@ -84,7 +84,7 @@ function NotificationsClient(serverUrl, sessionId) {
     });
     this.socket = io.connect(this.NOTIF_SERVER_URL);
     this.socket.on('connect', this.authenticate.bind(this));
-    this.socket.emits = function(k, v) {
+    this.socket.emits = function (k, v) {
         this.socket.emit(k, JSON.stringify(v));
     }.bind(this);
     setInterval(this.notifWatchdog.bind(this), 2000);
@@ -93,30 +93,29 @@ function NotificationsClient(serverUrl, sessionId) {
 
 NotificationsClient.prototype.constructor = NotificationsClient;
 
-NotificationsClient.prototype.notifWatchdog = function() {
+NotificationsClient.prototype.notifWatchdog = function () {
     if (!this.socket || !this.socket.connected) {
         this.setErrorState();
         this.DROPDOWN_DISCONNECTED.show();
     }
 };
 
-NotificationsClient.prototype.clearNumberBadgeClasses = function() {
+NotificationsClient.prototype.clearNumberBadgeClasses = function () {
     this.DROPDOWN.removeClass("btn btn-danger");
     this.DROPDOWN_ICON.removeClass("text-warning");
     this.DROPDOWN_DISCONNECTED.hide();
 };
 
-NotificationsClient.prototype.setErrorState = function() {
+NotificationsClient.prototype.setErrorState = function () {
     this.clearNumberBadgeClasses();
     this.DROPDOWN_ICON.addClass("text-warning");
 };
 
-NotificationsClient.prototype.authenticate = function() {
+NotificationsClient.prototype.authenticate = function () {
     let me = this;
     const sid = this.NOTIF_SESSION;
-    this.socket.emits("authenticate", {session_id: sid});
-    this.socket.on("authenticate", function(result)
-    {
+    this.socket.emits("authenticate", { session_id: sid });
+    this.socket.on("authenticate", function (result) {
         if (result.status !== 'OK') {
             me.setErrorState();
             me.DROPDOWN_DISCONNECTED.show();
@@ -128,13 +127,13 @@ NotificationsClient.prototype.authenticate = function() {
     });
 };
 
-NotificationsClient.prototype.updateNotifCount = function() {
+NotificationsClient.prototype.updateNotifCount = function () {
     this.clearNumberBadgeClasses();
     if (this.notifCount > 0)
         this.DROPDOWN.addClass("btn btn-danger");
 };
 
-NotificationsClient.prototype.renderMessages = function() {
+NotificationsClient.prototype.renderMessages = function () {
     if (this.dropdownUpToDate || this.dropdownLoading)
         return;
     this.dropdownLoading = true;
@@ -200,7 +199,7 @@ NotificationsClient.prototype.generatePermissionBanner = function () {
                     this.waitingPermissions = [];
                 })
         );
-}
+};
 
 NotificationsClient.prototype.askPermission = function () {
     if (window.Notification) {
@@ -209,7 +208,7 @@ NotificationsClient.prototype.askPermission = function () {
         if (Notification.permission === "denied" || window.localStorage["notif_denied"])
             return Promise.reject("User rejected notifications");
         return new Promise((resolve, reject) => {
-            this.waitingPermissions.push({resolve: resolve, reject: reject});
+            this.waitingPermissions.push({ resolve: resolve, reject: reject });
             if (this.permissionBanner === null) {
                 this.permissionBanner = this.generatePermissionBanner();
                 this.permissionBanner.prependTo($(".body"));
@@ -220,7 +219,7 @@ NotificationsClient.prototype.askPermission = function () {
     return Promise.reject("Notifications support missing");
 };
 
-NotificationsClient.prototype.onMessageReceived = function(message) {
+NotificationsClient.prototype.onMessageReceived = function (message) {
     if (this.DEBUG) {
         console.log('Received message:', message);
     }
@@ -242,7 +241,7 @@ NotificationsClient.prototype.onMessageReceived = function(message) {
     }).then((translation) => {
         let content = interpolate(translation, message.arguments, true);
         let notification = new Notification(content,
-            {tag: message.id, timestamp: message.date, body: content});
+            { tag: message.id, timestamp: message.date, body: content });
         if (message.address) {
             notification.addEventListener('click', (ev) => {
                 ev.preventDefault();
@@ -258,7 +257,7 @@ NotificationsClient.prototype.onMessageReceived = function(message) {
     }
 };
 
-NotificationsClient.prototype.acknowledgeMessages = function() {
+NotificationsClient.prototype.acknowledgeMessages = function () {
     this.notifCount = 0;
     this.updateNotifCount();
     this.openNotifications.forEach((notif) => {

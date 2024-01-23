@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contests', '0015_registrationavailabilityconfig'),
+        ('contests', '0016_filesmessage_submissionsmessage_submitmessage'),
     ]
 
     operations = [
