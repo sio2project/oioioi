@@ -98,8 +98,8 @@ def min_group_scorer(test_results):
 
 def discrete_test_scorer(test, result):
     status = result['result_code']
-    percentage = result.get('result_percentage', 100)
-    max_score = int(ceil(percentage * test['max_score'] / 100.))
+    percentage = result.get('result_percentage', (100, 1))
+    max_score = int(ceil(percentage[0] * test['max_score'] / (100. * percentage[1])))
     score = max_score if status == 'OK' else 0
     return IntegerScore(score), IntegerScore(test['max_score']), status
 
@@ -109,8 +109,8 @@ def threshold_linear_test_scorer(test, result):
     limit = test.get('exec_time_limit', 0)
     used = result.get('time_used', 0)
     status = result['result_code']
-    percentage = result.get('result_percentage', 100)
-    max_score = int(ceil(percentage * test['max_score'] / 100.0))
+    percentage = result.get('result_percentage', (100, 1))
+    max_score = int(ceil(percentage[0] * test['max_score'] / (100. * percentage[1])))
     test_max_score = IntegerScore(test['max_score'])
 
     if status != 'OK':
