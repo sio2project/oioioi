@@ -193,6 +193,17 @@ class TestAddUserToContestForm(TestCase):
         self.user = User.objects.get(username='test_user')
         self.c = Contest.objects.get(id='c')
 
+        # In order to get the required URL for tests,
+        # we have to first get it as a regular teacher.
+        self.assertTrue(self.client.login(username='test_user'))
+        self.assertEqual(
+            UserAddResult.Added,
+            add_user_to_contest_as(self.user, self.c, 'teacher'))
+        self.url_add_teacher = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'teacher'})
+        self.url_add_pupil = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'pupil'})
+        self.assertTrue(self.c.contestteacher_set.filter(teacher__user=self.user).first().delete())
+        self.client.logout()
+
     def test_add_user_to_contest_as_pupil(self):
         self.assertFalse(self.c.participant_set.filter(user=self.user))
         self.assertEqual(
@@ -239,22 +250,21 @@ class TestAddUserToContestForm(TestCase):
             UserAddResult.UserIsAlreadyAdded,
             add_user_to_contest_as(not_teacher, self.c, 'teacher'))
 
-    def test_http_add_not_possible_by_non_admin(self):
-        # niezalogowany, nieteacher, teacher
+    def test_http_add_not_possible_when_logged_out(self):
+        # W sumie trzeba przetestować co mogą: niezalogowany, nieteacher, teacher
+        post_data = { 'user': 'test_user2' }
+
+        # <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/c/c/account/login/?next=/c/c/teachers/teacher/registration/add_user/">
+        # <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/c/c/account/login/?next=/c/c/teachers/pupil/registration/add_user/">
+        response_tch = self.client.post(self.url_add_teacher, post_data, Follow=False)
+        self.assertContains(response_tch, '/login/')
+        self.assertEqual(response_tch.status_code, 302)
+
+        response_usr = self.client.post(self.url_add_pupil, post_data, Follow=False)
+        self.assertContains(response_usr, '/login/')
+        self.assertEqual(response_usr.status_code, 302)
+
+        # Login
         self.assertTrue(self.client.login(username='test_user'))
-        self.assertEqual(
-            UserAddResult.Added,
-            add_user_to_contest_as(self.user, self.c, 'teacher'))
-        url = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'teacher'})
-        print(url)
-        self.assertFalse(True)
-        # response = self.client.get(url, follow=True)
-        # self.assertContains(response, 'Add teacher')
-
-        # self.client.post(url, data={
-        #     'user': 'test_user3',
-        #     'school': 'New School',
-        #     'is_active': 'on',
-        # })
-
-        # self.assertEqual(Teacher.objects.all().count(), 3)
+        # self.assertFalse(self.client.post(self.url_add_teacher, post_data, Follow=False))
+        # self.assertFalse(self.client.post(self.url_add_pupil, post_data, Follow=False))
