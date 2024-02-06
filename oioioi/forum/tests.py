@@ -920,6 +920,7 @@ class PublicMessagesContestController(ProgrammingContestController):
 
 class TestForumMessage(TestPublicMessage):
     model = ForumMessage
+    button_viewname = 'forum'
     edit_viewname = 'edit_forum_message'
     viewname = 'forum'
     controller_name = 'oioioi.forum.tests.PublicMessagesContestController'
@@ -932,6 +933,7 @@ class TestForumMessage(TestPublicMessage):
 
 class TestNewPostMessage(TestPublicMessage):
     model = NewPostMessage
+    button_viewname = 'forum'
     edit_viewname = 'edit_forum_new_post_message'
     viewname = 'forum_thread'
     controller_name = 'oioioi.forum.tests.PublicMessagesContestController'

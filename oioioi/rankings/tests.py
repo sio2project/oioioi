@@ -553,6 +553,7 @@ class PublicMessageContestController(ProgrammingContestController):
 
 class TestRankingMessage(TestPublicMessage):
     model = RankingMessage
+    button_viewname = 'default_ranking'
     edit_viewname = 'edit_ranking_message'
     viewname = 'default_ranking'
     controller_name = 'oioioi.rankings.tests.PublicMessageContestController'
