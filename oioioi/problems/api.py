@@ -94,8 +94,8 @@ class BasePackageUploadView(APIView):
         raise NotImplementedError
 
     @staticmethod
-    def submit_upload_form(form, request, contest):
-        return UploadedPackageSource().handle_form(form, request, contest)
+    def submit_upload_form(form, request, contest, existing_problem):
+        return UploadedPackageSource().handle_form(form, request, contest, existing_problem)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -116,7 +116,7 @@ class BasePackageUploadView(APIView):
             if form_data.get('round_id'):
                 form.data['round_id'] = form_data['round_id']
 
-            package_id = self.submit_upload_form(form, request, contest)
+            package_id = self.submit_upload_form(form, request, contest, existing_problem)
 
             if package_id is not None:
                 return Response(
