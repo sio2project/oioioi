@@ -14,6 +14,7 @@ class PublicMessageContestController(ProgrammingContestController):
 
 class TestDashboardMessage(TestPublicMessage):
     model = DashboardMessage
+    button_viewname = 'contest_dashboard'
     edit_viewname = 'dashboard_message_edit'
     viewname = 'contest_dashboard'
     controller_name = 'oioioi.dashboard.tests.PublicMessageContestController'

@@ -326,6 +326,7 @@ def my_submissions_view(request):
             'show_scores': show_scores,
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
             'message': get_submissions_message(request),
+            'is_admin': is_contest_basicadmin(request),
         },
     )
 
