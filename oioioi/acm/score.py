@@ -73,19 +73,26 @@ class ACMScore(ScoreValue):
     states that team doesn't obtain any penalty for nonsolved problems.
     """
 
+    DEFAULT_PENALTY_TIME = 20 * 60  # in seconds
+
     symbol = 'ACM'
     problems_solved = 0
     time_passed = 0  # in seconds
     penalties_count = 0
-    penalty_time = 20 * 60  # in seconds
+    penalty_time = DEFAULT_PENALTY_TIME  # in seconds
 
-    def __init__(self, problems_solved=0, time_passed=0, penalties_count=0):
+    def __init__(self, problems_solved=0, time_passed=0, penalties_count=0,
+                       penalty_time=DEFAULT_PENALTY_TIME):
         self.problems_solved = int(problems_solved)
         self.time_passed = int(time_passed)
         self.penalties_count = int(penalties_count)
+        self.penalty_time = penalty_time
 
     def __add__(self, other):
         sum = ACMScore()
+        # assume penalty time is the same for both
+        sum.penalty_time = self.penalty_time
+
         if self.problems_solved > 0:
             sum.problems_solved += self.problems_solved
             sum.time_passed += self.time_passed
@@ -152,12 +159,18 @@ class ACMScore(ScoreValue):
     @classmethod
     def _from_repr(cls, value):
         tokens = [int(x) for x in value.split(':')]
+
+        penalty_time = cls.DEFAULT_PENALTY_TIME
+        if len(tokens) == 5:
+            penalty_time = tokens[4]
+            tokens = tokens[:4]
+
         try:
             _ordering, problems_solved, time_passed, penalties_count = tokens
         except ValueError:
             # try decoding older format
             problems_solved, time_passed, penalties_count = tokens
-        return ACMScore(problems_solved, time_passed, penalties_count)
+        return ACMScore(problems_solved, time_passed, penalties_count, penalty_time)
 
     def _to_repr(self):
         """Store score as string \
@@ -170,11 +183,12 @@ class ACMScore(ScoreValue):
            ``penalties_count`` is number of unsuccessful submissions.
         """
         ordering = 10 ** 10 * (self.problems_solved + 1) - self.total_time
-        return '%020d:%010d:%010d:%010d' % (
+        return '%020d:%010d:%010d:%010d:%010d' % (
             ordering,
             self.problems_solved,
             self.time_passed,
             self.penalties_count,
+            self.penalty_time,
         )
 
     @property
