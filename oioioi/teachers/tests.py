@@ -6,8 +6,9 @@ from oioioi.contests.models import Contest
 from oioioi.contests.tests import make_empty_contest_formset
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.teachers.models import Teacher
+from django.core.exceptions import ValidationError
 
-from oioioi.teachers.utils import add_user_to_contest_as, UserAddResult
+from oioioi.teachers.utils import add_user_to_contest_as
 
 
 def change_contest_type(contest):
@@ -196,9 +197,7 @@ class TestAddUserToContestForm(TestCase):
         # In order to get the required URL for tests,
         # we have to first get it as a regular teacher.
         self.assertTrue(self.client.login(username='test_user'))
-        self.assertEqual(
-            UserAddResult.Added,
-            add_user_to_contest_as(self.user, self.c, 'teacher'))
+        add_user_to_contest_as(self.user, self.c, 'teacher')
         self.url_add_teacher = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'teacher'})
         self.url_add_pupil = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'pupil'})
         self.assertTrue(self.c.contestteacher_set.filter(teacher__user=self.user).first().delete())
@@ -206,49 +205,38 @@ class TestAddUserToContestForm(TestCase):
 
     def test_add_user_to_contest_as_pupil(self):
         self.assertFalse(self.c.participant_set.filter(user=self.user))
-        self.assertEqual(
-            UserAddResult.Added,
-            add_user_to_contest_as(self.user, self.c, 'pupil'))
+        add_user_to_contest_as(self.user, self.c, 'pupil')
         self.assertTrue(self.c.participant_set.filter(user=self.user))
 
-        self.assertEqual(
-            UserAddResult.UserIsAlreadyAdded,
-            add_user_to_contest_as(self.user, self.c, 'pupil'))
-        self.assertEqual(
-            UserAddResult.UserIsAlreadyAdded,
-            add_user_to_contest_as(self.user, self.c, 'teacher'))
+        with self.assertRaisesRegex(ValidationError, 'User is already added'):
+            add_user_to_contest_as(self.user, self.c, 'pupil')
+        with self.assertRaisesRegex(ValidationError, 'User is already added'):
+            add_user_to_contest_as(self.user, self.c, 'teacher')
 
     def test_add_user_to_contest_as_teacher(self):
         self.assertFalse(
             self.c.contestteacher_set.filter(teacher__user=self.user))
-        self.assertEqual(
-            UserAddResult.Added,
-            add_user_to_contest_as(self.user, self.c, 'teacher'))
+        add_user_to_contest_as(self.user, self.c, 'teacher')
         self.assertTrue(
             self.c.contestteacher_set.filter(teacher__user=self.user))
-        self.assertEqual(
-            UserAddResult.UserIsAlreadyAdded,
-            add_user_to_contest_as(self.user, self.c, 'pupil'))
-        self.assertEqual(
-            UserAddResult.UserIsAlreadyAdded,
-            add_user_to_contest_as(self.user, self.c, 'teacher'))
+
+        with self.assertRaisesRegex(ValidationError, 'User is already added'):
+            add_user_to_contest_as(self.user, self.c, 'pupil')
+        with self.assertRaisesRegex(ValidationError, 'User is already added'):
+            add_user_to_contest_as(self.user, self.c, 'teacher')
 
     def test_add_non_teacher_as_teacher(self):
         not_teacher = User.objects.filter(is_superuser=False,
                                           teacher__isnull=True,
                                           is_active=True).first()
 
-        self.assertEqual(
-            UserAddResult.UserIsNotATeacher,
-            add_user_to_contest_as(not_teacher, self.c, 'teacher'))
+        with self.assertRaisesRegex(ValidationError, 'User is not a teacher'):
+            add_user_to_contest_as(not_teacher, self.c, 'teacher')
         self.assertFalse(
             self.c.contestteacher_set.filter(teacher__user=self.user))
-        self.assertEqual(
-            UserAddResult.Added,
-            add_user_to_contest_as(not_teacher, self.c, 'pupil'))
-        self.assertEqual(
-            UserAddResult.UserIsAlreadyAdded,
-            add_user_to_contest_as(not_teacher, self.c, 'teacher'))
+        add_user_to_contest_as(not_teacher, self.c, 'pupil')
+        with self.assertRaisesRegex(ValidationError, 'User is already added'):
+            add_user_to_contest_as(not_teacher, self.c, 'teacher')
 
     def test_http_logged_out(self):
         post_data = { 'user': 'test_user' }
@@ -279,8 +267,6 @@ class TestAddUserToContestForm(TestCase):
         try_add()
 
         # Retry as a contest pupil.
-        self.assertEqual(
-            UserAddResult.Added,
-            add_user_to_contest_as(self.user, self.c, 'pupil'))
+        add_user_to_contest_as(self.user, self.c, 'pupil')
         self.assertTrue(self.c.participant_set.filter(user=self.user))
         try_add()

@@ -1,5 +1,3 @@
-from enum import Enum
-
 from oioioi.participants.models import Participant
 from oioioi.teachers.models import ContestTeacher, Teacher
 from django.core.exceptions import ValidationError
@@ -24,23 +22,23 @@ def is_user_already_in_contest(user, contest):
 
 
 def add_user_to_contest_as(user, contest, member_type):
-    if is_user_already_in_contest(user, contest):
-        raise ValidationError(_("User is already added: %"), user)
-
     created = False
-    if member_type == 'pupil':
-        _p, created = Participant.objects.get_or_create(
-            contest=contest, user=user
-        )
-    elif member_type == 'teacher':
-        if teacher := get_user_teacher_obj(user):
-            _ct, created = ContestTeacher.objects.get_or_create(
-                contest=contest, teacher=teacher
+
+    if not is_user_already_in_contest(user, contest):
+
+        if member_type == 'pupil':
+            _p, created = Participant.objects.get_or_create(
+                contest=contest, user=user
             )
+        elif member_type == 'teacher':
+            if teacher := get_user_teacher_obj(user):
+                _ct, created = ContestTeacher.objects.get_or_create(
+                    contest=contest, teacher=teacher
+                )
+            else:
+                raise ValidationError(_("User is not a teacher: %(user)"), params={"user": user})
         else:
-            raise ValidationError(_("User is not a teacher: {}").format(user))
-    else:
-        raise ValueError("Invalid member type")
+            raise ValueError("Invalid member type")
 
     if not created:
-        raise ValidationError(_("User is already added: {}").format(user))
+        raise ValidationError(_("User is already added: %(user)"), params={"user": user})
