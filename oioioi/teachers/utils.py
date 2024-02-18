@@ -2,6 +2,8 @@ from enum import Enum
 
 from oioioi.participants.models import Participant
 from oioioi.teachers.models import ContestTeacher, Teacher
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 
 def get_user_teacher_obj(user):
@@ -21,15 +23,9 @@ def is_user_already_in_contest(user, contest):
     return False
 
 
-class UserAddResult(Enum):
-    Added = 1
-    UserIsAlreadyAdded = 2
-    UserIsNotATeacher = 3
-
-
-def add_user_to_contest_as(user, contest, member_type) -> UserAddResult:
+def add_user_to_contest_as(user, contest, member_type):
     if is_user_already_in_contest(user, contest):
-        return UserAddResult.UserIsAlreadyAdded
+        raise ValidationError(_("User is already added: %"), user)
 
     created = False
     if member_type == 'pupil':
@@ -42,9 +38,9 @@ def add_user_to_contest_as(user, contest, member_type) -> UserAddResult:
                 contest=contest, teacher=teacher
             )
         else:
-            return UserAddResult.UserIsNotATeacher
-
-    if created:
-        return UserAddResult.Added
+            raise ValidationError(_("User is not a teacher: {}").format(user))
     else:
-        return UserAddResult.UserIsAlreadyAdded
+        raise ValueError("Invalid member type")
+
+    if not created:
+        raise ValidationError(_("User is already added: {}").format(user))

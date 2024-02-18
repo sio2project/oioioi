@@ -250,21 +250,37 @@ class TestAddUserToContestForm(TestCase):
             UserAddResult.UserIsAlreadyAdded,
             add_user_to_contest_as(not_teacher, self.c, 'teacher'))
 
-    def test_http_add_not_possible_when_logged_out(self):
-        # W sumie trzeba przetestować co mogą: niezalogowany, nieteacher, teacher
-        post_data = { 'user': 'test_user2' }
+    def test_http_logged_out(self):
+        post_data = { 'user': 'test_user' }
 
-        # <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/c/c/account/login/?next=/c/c/teachers/teacher/registration/add_user/">
-        # <HttpResponseRedirect status_code=302, "text/html; charset=utf-8", url="/c/c/account/login/?next=/c/c/teachers/pupil/registration/add_user/">
-        response_tch = self.client.post(self.url_add_teacher, post_data, Follow=False)
-        self.assertContains(response_tch, '/login/')
-        self.assertEqual(response_tch.status_code, 302)
+        for url in [self.url_add_pupil, self.url_add_teacher]:
+            response = self.client.post(url, post_data, Follow=False)
+            self.assertEqual(response.status_code, 302)
+            self.assertIn('/login/?next=', response['Location'])
+            self.assertTrue(response['Location'].endswith(url))
 
-        response_usr = self.client.post(self.url_add_pupil, post_data, Follow=False)
-        self.assertContains(response_usr, '/login/')
-        self.assertEqual(response_usr.status_code, 302)
+            # Check if it has not added any new users.
+            self.assertFalse(self.c.contestteacher_set.filter(teacher__user=self.user))
+            self.assertFalse(self.c.participant_set.filter(user=self.user))
 
-        # Login
+    def test_http_logged_in(self):
         self.assertTrue(self.client.login(username='test_user'))
-        # self.assertFalse(self.client.post(self.url_add_teacher, post_data, Follow=False))
-        # self.assertFalse(self.client.post(self.url_add_pupil, post_data, Follow=False))
+
+        # Make sure 'test_user' is not a contest teacher.
+        self.assertFalse(self.c.contestteacher_set.filter(teacher__user=self.user))
+        self.assertFalse(self.c.participant_set.filter(user=self.user))
+
+        def try_add():
+            post_data = { 'user': 'test_user2' }  # Some other user
+            for url in [self.url_add_pupil, self.url_add_teacher]:
+                response = self.client.post(url, post_data, Follow=False)
+                self.assertEqual(response.status_code, 403)
+
+        try_add()
+
+        # Retry as a contest pupil.
+        self.assertEqual(
+            UserAddResult.Added,
+            add_user_to_contest_as(self.user, self.c, 'pupil'))
+        self.assertTrue(self.c.participant_set.filter(user=self.user))
+        try_add()
