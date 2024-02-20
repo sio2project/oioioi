@@ -34,7 +34,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-23 15:34+0000\n"
+"POT-Creation-Date: 2024-02-20 09:35+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
 "Last-Translator: Paweł Dietrich <pawel.dietrich@gmail.com>, 2023\n"
 "Language-Team: Polish (http://app.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -112,27 +112,27 @@ msgstr "skopiowane!"
 msgid "Press Ctrl+C to copy"
 msgstr "Naciśnij Ctrl+C, żeby skopiować"
 
-#: clock/static/common/clocks.js:264
+#: clock/static/common/clocks.js:261
 #| msgid "end of the %(round_name)s"
 #| msgid_plural "end of the %(round_name)s"
 msgid "end of the %(round_name)s"
 msgstr " końca %(round_name)s"
 
-#: clock/static/common/clocks.js:267
+#: clock/static/common/clocks.js:264
 msgid "to the end"
 msgstr "do końca"
 
-#: clock/static/common/clocks.js:271
+#: clock/static/common/clocks.js:268
 #| msgid "start of the %(round_name)s"
 #| msgid_plural "start of the %(round_name)s"
 msgid "start of the %(round_name)s"
 msgstr "rozpoczęcia %(round_name)s"
 
-#: clock/static/common/clocks.js:274
+#: clock/static/common/clocks.js:271
 msgid "to the start"
 msgstr "do początku"
 
-#: clock/static/common/clocks.js:281
+#: clock/static/common/clocks.js:278
 msgid "%(seconds)s second "
 msgid_plural "%(seconds)s seconds "
 msgstr[0] "%(seconds)s sekunda."
@@ -140,11 +140,11 @@ msgstr[1] "%(seconds)s sekundy."
 msgstr[2] "%(seconds)s sekund."
 msgstr[3] "%(seconds)s sekund"
 
-#: clock/static/common/clocks.js:286
+#: clock/static/common/clocks.js:283
 msgid "%(seconds)ss "
 msgstr "%(seconds)ss "
 
-#: clock/static/common/clocks.js:293
+#: clock/static/common/clocks.js:290
 msgid "%(minutes)s minute "
 msgid_plural "%(minutes)s minutes "
 msgstr[0] "%(minutes)s minuta "
@@ -152,11 +152,11 @@ msgstr[1] "%(minutes)s minuty "
 msgstr[2] "%(minutes)s minut "
 msgstr[3] "%(minutes)s minut "
 
-#: clock/static/common/clocks.js:298
+#: clock/static/common/clocks.js:295
 msgid "%(minutes)sm "
 msgstr "%(minutes)sm "
 
-#: clock/static/common/clocks.js:305
+#: clock/static/common/clocks.js:302
 msgid "%(hours)s hour "
 msgid_plural "%(hours)s hours "
 msgstr[0] "%(hours)s godzina "
@@ -164,11 +164,11 @@ msgstr[1] "%(hours)s godziny "
 msgstr[2] "%(hours)s godzin "
 msgstr[3] "%(hours)s godzin "
 
-#: clock/static/common/clocks.js:309
+#: clock/static/common/clocks.js:306
 msgid "%(hours)sh "
 msgstr "%(hours)sh "
 
-#: clock/static/common/clocks.js:316
+#: clock/static/common/clocks.js:313
 msgid "%(days)s day "
 msgid_plural "%(days)s days "
 msgstr[0] "%(days)s dzień "
@@ -176,11 +176,11 @@ msgstr[1] "%(days)s dni "
 msgstr[2] "%(days)s dni "
 msgstr[3] "%(days)s dni "
 
-#: clock/static/common/clocks.js:321
+#: clock/static/common/clocks.js:318
 msgid "%(days)sd "
 msgstr "%(days)sd "
 
-#: clock/static/common/clocks.js:330
+#: clock/static/common/clocks.js:327
 msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s."
 msgstr[0] "Pozostał %(countdown_days)s do %(countdown_destination)s."
@@ -188,7 +188,7 @@ msgstr[1] "Pozostały %(countdown_days)s do %(countdown_destination)s."
 msgstr[2] "Pozostało %(countdown_days)s do %(countdown_destination)s."
 msgstr[3] "Pozostało %(countdown_days)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:342
+#: clock/static/common/clocks.js:339
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_hours)sleft to the %(countdown_destination)s."
@@ -198,7 +198,7 @@ msgstr[1] "zostało %(countdown_hours)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_hours)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_hours)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:353
+#: clock/static/common/clocks.js:350
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_minutes)sleft to the %(countdown_destination)s."
@@ -208,7 +208,7 @@ msgstr[1] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:363
+#: clock/static/common/clocks.js:360
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_seconds)sleft to the %(countdown_destination)s."
@@ -218,11 +218,11 @@ msgstr[1] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:370
+#: clock/static/common/clocks.js:367
 msgid "The round is over!"
 msgstr "Runda zakończona!"
 
-#: clock/static/common/clocks.js:374
+#: clock/static/common/clocks.js:371
 msgid "The round has started!"
 msgstr "Runda rozpoczęta!"
 
@@ -234,25 +234,25 @@ msgstr[1] "Zostało ci %(sub_num)s zgłoszeń."
 msgstr[2] "Zostało ci %(sub_num)s zgłoszeń."
 msgstr[3] "Zostało ci %(sub_num)s zgłoszeń."
 
-#: notifications/static/common/notifications.js:154
+#: notifications/static/common/notifications.js:153
 msgid "You don't have any submissions."
 msgstr "Nie masz żadnych zgłoszeń."
 
-#: notifications/static/common/notifications.js:164
+#: notifications/static/common/notifications.js:163
 msgid "A network error occured. Recent submissions list could not be loaded"
 msgstr "Wystąpił bład sieci. Nie udało się pobrać listy ostatnich zgłoszeń."
 
-#: notifications/static/common/notifications.js:174
+#: notifications/static/common/notifications.js:173
 msgid ""
 "Would you like to enable desktop notifications (for submission results and "
 "more)?"
 msgstr "Czy chcesz właczyć powiadomienia systemowe (o wynikach zgłoszeń i nie tylko)?"
 
-#: notifications/static/common/notifications.js:177
+#: notifications/static/common/notifications.js:176
 msgid "Yes, please!"
 msgstr "Tak, poproszę!"
 
-#: notifications/static/common/notifications.js:193
+#: notifications/static/common/notifications.js:192
 msgid "Never ask again on this computer"
 msgstr "Nigdy już nie pytaj na tym komputerze"
 
