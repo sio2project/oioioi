@@ -27,11 +27,19 @@ from oioioi.questions.views import messages_template_context, visible_messages
 from oioioi.rankings.views import has_any_ranking_visible
 
 top_links_registry.register(
+    'contest_rules',
+    _("Rules"),
+    lambda request: reverse('contest_rules', kwargs={'contest_id': request.contest.id}),
+    condition=None,
+    order=100,
+)
+
+top_links_registry.register(
     'problems_list',
     _("Problems"),
     lambda request: reverse('problems_list', kwargs={'contest_id': request.contest.id}),
     condition=has_any_visible_problem_instance,
-    order=100,
+    order=200,
 )
 
 top_links_registry.register(
@@ -39,7 +47,7 @@ top_links_registry.register(
     _("Submit"),
     lambda request: reverse('submit', kwargs={'contest_id': request.contest.id}),
     condition=has_any_submittable_problem,
-    order=200,
+    order=300,
 )
 
 top_links_registry.register(
@@ -49,7 +57,7 @@ top_links_registry.register(
         'default_ranking', kwargs={'contest_id': request.contest.id}
     ),
     condition=has_any_ranking_visible,
-    order=300,
+    order=400,
 )
 
 
