@@ -1,0 +1,78 @@
+{% load i18n %}
+
+<div class="alert alert-info">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle-fill" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"></path></svg>
+    <br>
+    {% for signal in signals_to_explain %}
+        {% if signal == 6 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGABRT signal (signal 6):</b>
+                <br>
+                - Out-of-bounds index access for the vector data structure
+                <br>
+                - Array allocation with an invalid size e.g. <code>int tab[-1];</code>
+                <br>
+                - Bad use of C++ standard library functions, e.g. <code>sort()</code> over an invalid range
+                <br>
+                - A failed assertion when using <code>assert</code> - commonly used by the C++ Standard Library
+                <br>
+                - Other illegal memory operations.
+            {% endblocktrans %}
+        {% elif signal == 7 %}
+            {% blocktrans %}
+                <b>The SIGBUS signal (signal 7)</b> can mean a general memory violation, and can
+                be caused by trying to access an invalid memory address.
+            {% endblocktrans %}
+        {% elif signal == 8 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGFPE signal (signal 8):</b>
+                <br>
+                - Overflows/underflows for floating-point numbers
+                <br>
+                - Division by zero, either with floating-point numbers and integers
+                <br>
+                - Other illegal arithmetic operations, e.g. square-root of negative numbers.
+            {% endblocktrans %}
+        {% elif signal == 9 %}
+            {% blocktrans %}
+                <b>Most common sources for the SIGKILL signal (signal 9):</b>
+                <br>
+                - Your global variable exceeds the memory limit
+                <br>
+                (The difference compared to MLE is that the program exits before it can even "fully start")
+                <br>
+                - Other unexpected operations causing the program to get terminated preemptively.
+            {% endblocktrans %}
+        {% elif signal == 11 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGSEGV signal (signal 11):</b>
+                <br>
+                - Out-of-bounds array accesses
+                <br>
+                - De-referencing an invalid pointer (an empty "null-pointer" or a pointer to memory which has already been freed)
+                <br>
+                - Other memory violation errors
+            {% endblocktrans %}
+        {% elif signal == 31 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGSYS signal (signal 31):</b>
+                <br>
+                - Using a system call (syscall) that's not allowed by this task/contest.
+                <br>
+                - Using an invalid/non-existent system call.
+            {% endblocktrans %}
+        {% else %}
+            <span style="color: red;font-size: 1.5rem;font-weight: bold">
+                {% blocktranslate with signal=signal %}
+                    Signal {{ signal }} shouldn't show up while checking...
+                    <u>We recommend reporting this issue.</u>
+                {% endblocktranslate %}
+            </span>
+        {% endif %}
+        <br>
+    {% endfor %}
+    <hr>
+    {% blocktranslate %}
+        Program execution can differ depending on the operating system used and the execution environment.
+    {% endblocktranslate %}
+</div>
