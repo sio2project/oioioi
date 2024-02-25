@@ -247,6 +247,12 @@ def visible_rounds(request):
     return [r for r in queryset if controller.can_see_round(request, r)]
 
 
+@request_cached
+def get_number_of_rounds(request):
+    queryset = Round.objects.filter(contest=request.contest)
+    return len(queryset)
+
+
 def aggregate_statuses(statuses):
     """Returns first unsuccessful status or 'OK' if all are successful"""
 

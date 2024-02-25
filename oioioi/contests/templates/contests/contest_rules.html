@@ -17,6 +17,10 @@
             {% blocktrans %}
                 <li class="list-group-item">The contest starts on {{ contest_start_date }} and ends on {{ contest_end_date }}.</li>
             {% endblocktrans %}
+        {% else if contest_start_date %}
+            {% blocktrans %}
+                <li class="list-group-item">The contest starts on {{ contest_start_date }}.</li>
+            {% endblocktrans %}
         {% endif %}
         {% if submission_limit|length > 1 %}
             {% blocktrans %}
