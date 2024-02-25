@@ -6,50 +6,44 @@
 
 {% block main-content %}
 <h1>{% trans "Rules" %}</h1>
-{% if contest_rules %}
-    <ul class="list-group list-group-light">
-        {% if no_of_rounds %}
-            {% blocktrans %}
-                <li class="list-group-item">There are {{ no_of_rounds }} rounds in this contest.</li>
-            {% endblocktrans %}
-        {% endif %}
-        {% if contest_start_date and contest_end_date %}
-            {% blocktrans %}
-                <li class="list-group-item">The contest starts on {{ contest_start_date }} and ends on {{ contest_end_date }}.</li>
-            {% endblocktrans %}
-        {% else if contest_start_date %}
-            {% blocktrans %}
-                <li class="list-group-item">The contest starts on {{ contest_start_date }}.</li>
-            {% endblocktrans %}
-        {% endif %}
-        {% if submission_limit|length > 1 %}
-            {% blocktrans %}
-                <li class="list-group-item">There is a limit of - submissions, depending on a problem.</li>
-            {% endblocktrans %}
-        {% else %}
-            {% blocktrans %}
-                <li class="list-group-item">There is a limit of {{ submission_limit }} submissions for each problem.</li>
-            {% endblocktrans %}
-        {% endif %}
-        {% if results_visibility %}
-            {% blocktrans %}
-                <li class="list-group-item">Your results will be visible on</li> <!-- co tu dać, żeby to miało sens? -->
-            {% endblocktrans %}
-        {% endif %}
-        {% if ranking_visibility %}
-            {% blocktrans %}
-                <li class="list-group-item">Public ranking will be visible </li> <!-- co tu dać, żeby to miało sens? -->
-            {% endblocktrans %}
-        {% endif %}
-        {% if scoring_type %}
-            {% blocktrans %}
-                <li class="list-group-item">The scoring type is {{ scoring_type }}.</li>
-            {% endblocktrans %}
-        {% endif %}
-    </ul>
-{% else %}
-<div class="text-center">
-    {% blocktrans %}No rules were found for this contest.{% endblocktrans %}
-</div>
-{% endif %}
+<ul class="list-group list-group-light">
+    {% if no_of_rounds %}
+        {% blocktrans %}
+            <li class="list-group-item">There are {{ no_of_rounds }} rounds in this contest.</li>
+        {% endblocktrans %}
+    {% endif %}
+    {% if contest_start_date and contest_end_date %}
+        {% blocktrans %}
+            <li class="list-group-item">The contest starts on {{ contest_start_date }} and ends on {{ contest_end_date }}.</li>
+        {% endblocktrans %}
+    {% elif contest_start_date %}
+        {% blocktrans %}
+            <li class="list-group-item">The contest starts on {{ contest_start_date }}.</li>
+        {% endblocktrans %}
+    {% endif %}
+    {% if submission_limit|length > 1 %}
+        {% blocktrans %}
+            <li class="list-group-item">There is a limit of - submissions, depending on a problem.</li>
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans %}
+            <li class="list-group-item">There is a limit of {{ submission_limit }} submissions for each problem.</li>
+        {% endblocktrans %}
+    {% endif %}
+    {% if results_visibility %}
+        {% blocktrans %}
+            <li class="list-group-item">Your results will be visible on</li> <!-- co tu dać, żeby to miało sens? -->
+        {% endblocktrans %}
+    {% endif %}
+    {% if ranking_visibility %}
+        {% blocktrans %}
+            <li class="list-group-item">Public ranking will be visible </li> <!-- co tu dać, żeby to miało sens? -->
+        {% endblocktrans %}
+    {% endif %}
+    {% if scoring_type %}
+        {% blocktrans %}
+            <li class="list-group-item">The scoring type is {{ scoring_type }}.</li>
+        {% endblocktrans %}
+    {% endif %}
+</ul>
 {% endblock %}

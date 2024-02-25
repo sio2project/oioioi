@@ -121,13 +121,11 @@ def contest_rules_view(request):
     results_visibility = get_results_visibility(request)
     ranking_visibility = get_ranking_visibility(request)
     scoring_type = get_scoring_type(request)
-    contest_rules = True
 
     return TemplateResponse(
         request,
         'contests/contest_rules.html',
         {
-            'contest_rules' : contest_rules,
             'no_of_rounds' : no_of_rounds,
             'contest_start_date' : contest_start_date,
             'contest_end_date' : contest_end_date,
