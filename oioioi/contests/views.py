@@ -474,23 +474,37 @@ def change_submission_kind_view(request, submission_id, kind):
 )
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def contest_files_view(request):
+    is_admin = is_contest_basicadmin(request)
     additional_files = attachment_registry.to_list(request=request)
-    contest_files = (
-        ContestAttachment.objects.filter(contest=request.contest)
-        .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request)))
-        .select_related('round')
-    )
-    if not is_contest_basicadmin(request):
-        contest_files = contest_files.filter(
-            Q(pub_date__isnull=True) | Q(pub_date__lte=request.timestamp)
-        )
 
-    round_file_exists = contest_files.filter(round__isnull=False).exists()
-    problem_instances = visible_problem_instances(request)
-    problem_ids = [pi.problem_id for pi in problem_instances]
+    contest_files = ContestAttachment.objects.filter(
+        contest=request.contest,
+    ).filter(
+        Q(round__isnull=True) | Q(round__in=visible_rounds(request))
+    ).select_related('round')
+    contest_files_without_admin = contest_files.filter(
+        Q(pub_date__isnull=True) | Q(pub_date__lte=request.timestamp),
+    )
+    if is_admin:
+        contest_files_without_admin = contest_files_without_admin.filter(
+            Q(round__isnull=True) | Q(round__in=visible_rounds(request, no_admin=True))
+        )
+    else:
+        contest_files = contest_files_without_admin
+    contest_files_without_admin = set(contest_files_without_admin)
+
+    problem_ids = [pi.problem_id for pi in visible_problem_instances(request)]
+    if is_admin:
+        problem_ids_without_admin = {
+            pi.problem_id for pi in visible_problem_instances(request, no_admin=True)
+        }
+    else:
+        problem_ids_without_admin = set(problem_ids)
     problem_files = ProblemAttachment.objects.filter(
         problem_id__in=problem_ids
     ).select_related('problem')
+
+    round_file_exists = contest_files.filter(round__isnull=False).exists()
     add_category_field = round_file_exists or problem_files.exists()
     rows = [
         {
@@ -502,6 +516,7 @@ def contest_files_view(request):
                 kwargs={'contest_id': request.contest.id, 'attachment_id': cf.id},
             ),
             'pub_date': cf.pub_date,
+            'admin_only': cf not in contest_files_without_admin,
         }
         for cf in contest_files
     ]
@@ -515,19 +530,11 @@ def contest_files_view(request):
                 kwargs={'contest_id': request.contest.id, 'attachment_id': pf.id},
             ),
             'pub_date': None,
+            'admin_only': pf.problem_id not in problem_ids_without_admin,
         }
         for pf in problem_files
     ]
-    rows += [
-        {
-            'category': af.get('category'),
-            'name': af.get('name'),
-            'description': af.get('description'),
-            'link': af.get('link'),
-            'pub_date': af.get('pub_date'),
-        }
-        for af in additional_files
-    ]
+    rows += additional_files
     rows.sort(key=itemgetter('name'))
     return TemplateResponse(
         request,
