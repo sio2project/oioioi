@@ -253,6 +253,36 @@ def get_number_of_rounds(request):
     return len(queryset)
 
 
+@request_cached
+def get_contest_start_date(request):
+    return -1
+
+
+@request_cached
+def get_contest_end_date(request):
+    return -1
+
+
+@request_cached
+def get_problems_sumbmission_limit(request):
+    return -1
+
+
+@request_cached
+def get_results_visibility(request):
+    return -1
+
+
+@request_cached
+def get_ranking_visibility(request):
+    return -1
+
+
+@request_cached
+def get_scoring_type(request):
+    return -1
+
+
 def aggregate_statuses(statuses):
     """Returns first unsuccessful status or 'OK' if all are successful"""
 

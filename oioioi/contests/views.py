@@ -56,6 +56,13 @@ from oioioi.contests.utils import (
     get_submissions_message,
     get_submit_message,
     get_number_of_rounds,
+    get_contest_start_date,
+    get_contest_end_date,
+    get_problems_sumbmission_limit,
+    get_results_visibility,
+    get_ranking_visibility,
+    get_scoring_type,
+
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -107,15 +114,13 @@ def get_contest_permissions(request, response):
 )
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_rules_view(request):
-    controller = request.contest.controller
-    problem_instances = visible_problem_instances(request)
     no_of_rounds = get_number_of_rounds(request)
-    contest_start_date = get_number_of_rounds(request)
-    contest_end_date = get_number_of_rounds(request)
+    contest_start_date = get_contest_start_date(request)
+    contest_end_date = get_contest_end_date(request)
     submission_limit = get_number_of_rounds(request)
-    results_visibility = get_number_of_rounds(request)
-    ranking_visibility = get_number_of_rounds(request)
-    scoring_type = get_number_of_rounds(request)
+    results_visibility = get_results_visibility(request)
+    ranking_visibility = get_ranking_visibility(request)
+    scoring_type = get_scoring_type(request)
     contest_rules = True
 
     return TemplateResponse(
