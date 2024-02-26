@@ -425,7 +425,7 @@ def problem_site_related_portal_pages(request, problem):
     ]
     return TemplateResponse(
         request,
-        'problems/related-portal-pages.html',
+        'portals/related-portal-pages.html',
         {'pages': pages},
     )
 
