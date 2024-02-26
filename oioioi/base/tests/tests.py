@@ -1618,6 +1618,21 @@ class TestPublicMessage(TestCase):
         response = self.client.get(url)
         self.assertContains(response, 'Test public message')
 
+    def button_visibility(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        contest = Contest.objects.get()
+        button_viewname_kwargs = getattr(self, 'edit_viewname_kwargs', {'contest_id': contest.id})
+        url = reverse(self.button_viewname, kwargs=button_viewname_kwargs)
+        edit_viewname_kwargs = getattr(self, 'edit_viewname_kwargs', {'contest_id': contest.id})
+        edit_url = reverse(self.edit_viewname, kwargs=edit_viewname_kwargs)
+        response = self.client.get(url)
+        self.assertContains(response, edit_url)
+
+        self.assertTrue(self.client.login(username='test_user2'))
+        response = self.client.get(url)
+        self.assertNotContains(response, edit_url)
+
+
     def test_add_message(self):
         if hasattr(self, 'model'):
             self.add_message()
@@ -1625,3 +1640,7 @@ class TestPublicMessage(TestCase):
     def test_contest_controller(self):
         if hasattr(self, 'controller_name'):
             self.contest_controller()
+
+    def test_button_visibility(self):
+        if hasattr(self, 'button_viewname') and hasattr(self, 'edit_viewname'):
+            self.button_visibility()

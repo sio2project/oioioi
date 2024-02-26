@@ -882,6 +882,7 @@ class PublicMessageContestController(ProgrammingContestController):
 
 class TestNewsMessage(TestPublicMessage):
     model = NewsMessage
+    button_viewname = 'contest_messages'
     edit_viewname = 'edit_question_news_message'
     viewname = 'contest_messages'
     controller_name = 'oioioi.questions.tests.PublicMessageContestController'
@@ -889,6 +890,7 @@ class TestNewsMessage(TestPublicMessage):
 
 class TestAddQuestionMessage(TestPublicMessage):
     model = AddQuestionMessage
+    button_viewname = 'contest_messages'
     edit_viewname = 'edit_add_question_message'
     viewname = 'add_contest_message'
     controller_name = 'oioioi.questions.tests.PublicMessageContestController'

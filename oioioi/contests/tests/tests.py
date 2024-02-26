@@ -3413,6 +3413,7 @@ class PublicMessageContestController(ProgrammingContestController):
 
 class TestFilesMessage(TestPublicMessage):
     model = FilesMessage
+    button_viewname = 'contest_files'
     edit_viewname = 'edit_files_message'
     viewname = 'contest_files'
     controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
@@ -3420,6 +3421,7 @@ class TestFilesMessage(TestPublicMessage):
 
 class TestSubmissionsMessage(TestPublicMessage):
     model = SubmissionsMessage
+    button_viewname = 'my_submissions'
     edit_viewname = 'edit_submissions_message'
     viewname = 'my_submissions'
     controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
@@ -3433,6 +3435,7 @@ class TestSubmitMessage(TestPublicMessage):
         'test_problem_instance',
     ]
     model = SubmitMessage
+    button_viewname = 'my_submissions'
     edit_viewname = 'edit_submit_message'
     viewname = 'submit'
     controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'

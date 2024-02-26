@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-23 15:34+0000\n"
+"POT-Creation-Date: 2024-02-20 09:35+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
 "Last-Translator: Michal Boron <beredentod@gmail.com>, 2019\n"
 "Language-Team: German (http://app.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -86,73 +86,73 @@ msgstr ""
 msgid "Press Ctrl+C to copy"
 msgstr ""
 
-#: clock/static/common/clocks.js:264
+#: clock/static/common/clocks.js:261
 #| msgid "end of the %(round_name)s"
 #| msgid_plural "end of the %(round_name)s"
 msgid "end of the %(round_name)s"
 msgstr ""
 
-#: clock/static/common/clocks.js:267
+#: clock/static/common/clocks.js:264
 msgid "to the end"
 msgstr "zum Ende"
 
-#: clock/static/common/clocks.js:271
+#: clock/static/common/clocks.js:268
 #| msgid "start of the %(round_name)s"
 #| msgid_plural "start of the %(round_name)s"
 msgid "start of the %(round_name)s"
 msgstr ""
 
-#: clock/static/common/clocks.js:274
+#: clock/static/common/clocks.js:271
 msgid "to the start"
 msgstr "zum Beginn"
 
-#: clock/static/common/clocks.js:281
+#: clock/static/common/clocks.js:278
 msgid "%(seconds)s second "
 msgid_plural "%(seconds)s seconds "
 msgstr[0] "%(seconds)s Sekunde"
 msgstr[1] "%(seconds)s Sekunden"
 
-#: clock/static/common/clocks.js:286
+#: clock/static/common/clocks.js:283
 msgid "%(seconds)ss "
 msgstr "%(seconds)ss "
 
-#: clock/static/common/clocks.js:293
+#: clock/static/common/clocks.js:290
 msgid "%(minutes)s minute "
 msgid_plural "%(minutes)s minutes "
 msgstr[0] "%(minutes)s Minute "
 msgstr[1] "%(minutes)s Minuten"
 
-#: clock/static/common/clocks.js:298
+#: clock/static/common/clocks.js:295
 msgid "%(minutes)sm "
 msgstr "%(minutes)smin"
 
-#: clock/static/common/clocks.js:305
+#: clock/static/common/clocks.js:302
 msgid "%(hours)s hour "
 msgid_plural "%(hours)s hours "
 msgstr[0] "%(hours)s Stunde"
 msgstr[1] "%(hours)s Stunden"
 
-#: clock/static/common/clocks.js:309
+#: clock/static/common/clocks.js:306
 msgid "%(hours)sh "
 msgstr "%(hours)sh "
 
-#: clock/static/common/clocks.js:316
+#: clock/static/common/clocks.js:313
 msgid "%(days)s day "
 msgid_plural "%(days)s days "
 msgstr[0] "%(days)s Tag"
 msgstr[1] "%(days)s Tage"
 
-#: clock/static/common/clocks.js:321
+#: clock/static/common/clocks.js:318
 msgid "%(days)sd "
 msgstr "%(days)sd "
 
-#: clock/static/common/clocks.js:330
+#: clock/static/common/clocks.js:327
 msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s."
 msgstr[0] "%(countdown_days)sbis zu %(countdown_destination)s."
 msgstr[1] "%(countdown_days)sbis zu %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:342
+#: clock/static/common/clocks.js:339
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_hours)sleft to the %(countdown_destination)s."
@@ -160,7 +160,7 @@ msgid_plural "%(countdown_hours)sleft to the %(countdown_destination)s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:353
+#: clock/static/common/clocks.js:350
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_minutes)sleft to the %(countdown_destination)s."
@@ -168,7 +168,7 @@ msgid_plural "%(countdown_minutes)sleft to the %(countdown_destination)s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:363
+#: clock/static/common/clocks.js:360
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_seconds)sleft to the %(countdown_destination)s."
@@ -176,11 +176,11 @@ msgid_plural "%(countdown_seconds)sleft to the %(countdown_destination)s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:370
+#: clock/static/common/clocks.js:367
 msgid "The round is over!"
 msgstr "Die Runde ist zu Ende!"
 
-#: clock/static/common/clocks.js:374
+#: clock/static/common/clocks.js:371
 msgid "The round has started!"
 msgstr "Die Runde hat angefangen!"
 
@@ -190,25 +190,25 @@ msgid_plural "You have %(sub_num)s submissions left."
 msgstr[0] ""
 msgstr[1] ""
 
-#: notifications/static/common/notifications.js:154
+#: notifications/static/common/notifications.js:153
 msgid "You don't have any submissions."
 msgstr ""
 
-#: notifications/static/common/notifications.js:164
+#: notifications/static/common/notifications.js:163
 msgid "A network error occured. Recent submissions list could not be loaded"
 msgstr ""
 
-#: notifications/static/common/notifications.js:174
+#: notifications/static/common/notifications.js:173
 msgid ""
 "Would you like to enable desktop notifications (for submission results and "
 "more)?"
 msgstr ""
 
-#: notifications/static/common/notifications.js:177
+#: notifications/static/common/notifications.js:176
 msgid "Yes, please!"
 msgstr ""
 
-#: notifications/static/common/notifications.js:193
+#: notifications/static/common/notifications.js:192
 msgid "Never ask again on this computer"
 msgstr ""
 

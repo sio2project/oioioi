@@ -146,19 +146,29 @@ def call_submission_judged(env, submission, **kwargs):
     else:
         assert contest.id == env['contest_id']
         contest.controller.submission_judged(submission, rejudged=env['is_rejudge'])
+    return env
 
-        
+
+@transaction.atomic
+@_get_submission_or_skip
+def send_notification_judged(env, submission, kind='NORMAL', **kwargs):
     if submission.user is not None and not env['is_rejudge']:
+        message = "Submission %(submission_id)d by user %(username)s for problem %(short_name)s"
+        if kind == 'INITIAL':
+            notification = 'initial_results'
+            message += " got initial result."
+        else:
+            notification =  'submission_judged'
+            message += " was judged"
         logger.info(
-            "Submission %(submission_id)d by user %(username)s"
-            " for problem %(short_name)s was judged",
+            message,
             {
                 'submission_id': submission.pk,
                 'username': submission.user.username,
                 'short_name': submission.problem_instance.short_name,
             },
             extra={
-                'notification': 'submission_judged',
+                'notification': notification,
                 'user': submission.user,
                 'submission': submission,
             },

@@ -329,6 +329,7 @@ def my_submissions_view(request):
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
             'is_archived': is_archived(request),
             'message': get_submissions_message(request),
+            'is_admin': is_contest_basicadmin(request),
         },
     )
 
