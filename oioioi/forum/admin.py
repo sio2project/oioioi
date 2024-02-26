@@ -9,7 +9,7 @@ from django.utils.translation import ngettext_lazy
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import contest_site
-from oioioi.contests.utils import _is_contest_archived, is_archived, is_contest_admin
+from oioioi.contests.utils import is_archived, is_contest_admin
 from oioioi.forum.models import Ban, Category, Forum, Post, Thread
 
 def string_concat(*strings):
@@ -58,7 +58,7 @@ class ForumAdmin(admin.ModelAdmin):
     categories.short_description = _("Categories")
 
     def add_category(self, obj):
-        if _is_contest_archived(obj.contest):
+        if obj.contest.is_archived:
             return _("Unarchive the contest to add category.")
 
         return make_html_link(
