@@ -1248,6 +1248,7 @@ class TestContestAdmin(TestCase):
                 'results_date_0': '2012-02-05',
                 'results_date_1': '06:07:08',
                 'controller_name': 'oioioi.programs.controllers.ProgrammingContestController',
+                'is_archived': 'False',
             }
         )
 
@@ -2780,6 +2781,7 @@ class TestModifyContest(TestCase):
                 'results_date_0': '2012-02-05',
                 'results_date_1': '06:07:08',
                 'controller_name': controller_name,
+                'is_archived': 'False',
             }
         )
         response = self.client.post(url, post_data, follow=True)

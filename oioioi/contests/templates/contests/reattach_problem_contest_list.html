@@ -21,8 +21,7 @@
                 {% for contest in contest_list %}
                 <tr>
                     <td>{{ contest.id }}</td>
-                    <td>
-                        <a href="{% url 'reattach_problem_confirm' problem_instance.id contest.id %}">
+                    <td><a href="{% url 'reattach_problem_confirm' problem_instance.id contest.id %}">
                             {{ contest.name }}
                         </a>
                         {% if contest.is_archived %}

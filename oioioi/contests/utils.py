@@ -487,7 +487,7 @@ def is_not_archived(request):
 
 
 def get_inline_for_contest(inline, contest):
-    if not contest.is_archived:
+    if not contest or not contest.is_archived:
         return inline
 
     class ArchivedInlineWrapper(inline):
