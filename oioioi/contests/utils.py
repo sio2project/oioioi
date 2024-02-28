@@ -71,12 +71,20 @@ class RoundTimes(object):
             )
 
         return current_datetime >= self.show_results
+    
+    def results_date(self, current_datetime):
+        if self.is_active(current_datetime):
+            return current_datetime >= self.show_results + timedelta(
+            minutes=self.extra_time
+        )
+
+        return self.show_results
 
     def public_results_visible(self, current_datetime):
         """Returns True if the results of the round have already been made
         public
 
-        It the contest's controller makes no distinction between personal
+        If the contest's controller makes no distinction between personal
         and public results, this function returns the same as
         :meth:'results_visible'.
 
@@ -89,6 +97,12 @@ class RoundTimes(object):
             return False
 
         return current_datetime >= self.show_public_results
+    
+    def public_results_date(self, current_datetime):
+        if not self.contest.controller.separate_public_results():
+            return self.results_date(current_datetime)
+
+        return self.show_public_results
 
     def get_start(self):
         return self.start
@@ -249,33 +263,82 @@ def visible_rounds(request):
 
 @request_cached
 def get_number_of_rounds(request):
-    queryset = Round.objects.filter(contest=request.contest)
-    return len(queryset)
+    """Returns the number of rounds in the current contest.
+    """ 
+    return Round.objects.filter(contest=request.contest).count()
 
 
-@request_cached
-def get_contest_start_date(request):
-    return -1
+def get_contest_dates(request):
+    """Returns the end_date of the latest round and the start_date
+    of the earliest round.
+    """ 
+    if isinstance(request, HttpRequest):
+        rtimes = rounds_times(request, request.contest)
+    else:
+        rtimes = generic_rounds_times(None, request.contest)
 
+    ends = [
+        rt.get_end()
+        for rt in rtimes.values()
+    ]
+    starts = [
+        rt.get_start()
+        for rt in rtimes.values()
+    ]
 
-@request_cached
-def get_contest_end_date(request):
-    return -1
+    if (not starts or starts.count(None)):
+        min_start = -1
+    else:
+        min_start = min(starts)
+
+    if (not ends or ends.count(None)):
+        max_end = -1
+    else:
+        max_end = max(ends)
+
+    return min_start, max_end
 
 
 @request_cached
 def get_problems_sumbmission_limit(request):
-    return -1
+    """Returns the list of distinct submission limits in the current contest.
+    """
+    controller = request.contest.controller
+    queryset = (
+        ProblemInstance.objects.filter(contest=request.contest)
+        .select_related('problem')
+        .prefetch_related('round')
+    )
+
+    if (queryset is None):
+        return None
+    
+    limits = set()
+    for p in queryset:
+        limits.add(controller.get_submissions_limit(request, p))
+
+    return list(limits)
 
 
 @request_cached
 def get_results_visibility(request):
-    return -1
+    if isinstance(request, HttpRequest):
+        rtimes = rounds_times(request, request.contest)
+    else:
+        rtimes = generic_rounds_times(None, request.contest)
 
+    dates = dict(
+        (
+            r.name,
+            (
+                rtimes[r].results_date(request.timestamp),
+                rtimes[r].public_results_date(request.timestamp)
+            )
+        )
+        for r in rtimes.keys()
+    )
 
-@request_cached
-def get_ranking_visibility(request):
-    return -1
+    return dates
 
 
 @request_cached

@@ -56,11 +56,9 @@ from oioioi.contests.utils import (
     get_submissions_message,
     get_submit_message,
     get_number_of_rounds,
-    get_contest_start_date,
-    get_contest_end_date,
+    get_contest_dates,
     get_problems_sumbmission_limit,
     get_results_visibility,
-    get_ranking_visibility,
     get_scoring_type,
 
 )
@@ -115,12 +113,25 @@ def get_contest_permissions(request, response):
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_rules_view(request):
     no_of_rounds = get_number_of_rounds(request)
-    contest_start_date = get_contest_start_date(request)
-    contest_end_date = get_contest_end_date(request)
-    submission_limit = get_number_of_rounds(request)
+    contest_dates = get_contest_dates(request)
+    submission_limit = get_problems_sumbmission_limit(request)
     results_visibility = get_results_visibility(request)
-    ranking_visibility = get_ranking_visibility(request)
     scoring_type = get_scoring_type(request)
+
+    if (contest_dates[0] != -1):
+        contest_start_date = contest_dates[0]
+    else :
+        contest_start_date = None
+
+    if (contest_dates[1] != -1):
+        contest_end_date = contest_dates[1]
+    else :
+        contest_end_date = None
+
+    if (len(submission_limit) == 1 and submission_limit[0] == None):
+        submission_limit = None
+
+    # assert(False)
 
     return TemplateResponse(
         request,
@@ -129,9 +140,8 @@ def contest_rules_view(request):
             'no_of_rounds' : no_of_rounds,
             'contest_start_date' : contest_start_date,
             'contest_end_date' : contest_end_date,
-            'submissions_limit' : submission_limit,
+            'submission_limit' : submission_limit,
             'results_visibility' : results_visibility,
-            'ranking_visibility' : ranking_visibility,
             'scoring_type' : scoring_type,
         },
     )

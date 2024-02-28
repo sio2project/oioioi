@@ -23,23 +23,39 @@
     {% endif %}
     {% if submission_limit|length > 1 %}
         {% blocktrans %}
-            <li class="list-group-item">There is a limit of - submissions, depending on a problem.</li>
+            <li class="list-group-item">There is a limit of {{ submission_limit|join:", " }} submissions, depending on a problem.</li>
+        {% endblocktrans %}
+    {% elif submission_limit %}
+        {% blocktrans %}
+        <!-- HACK: a workaround for failure of submission_limit|join, submission_limit[0], submission_limit|first, 
+            submission_limit.0 or any other seemingly reasonable and elegant solution -->
+            <li class="list-group-item">There is a limit of 
+            {% endblocktrans %}
+                {% for l in submission_limit %} 
+                    {{ l }}
+                {% endfor %} 
+            {% blocktrans %} submissions for each problem.</li>
         {% endblocktrans %}
     {% else %}
         {% blocktrans %}
-            <li class="list-group-item">There is a limit of {{ submission_limit }} submissions for each problem.</li>
+            <li class="list-group-item">There are no submission limits in this contest.</li>
         {% endblocktrans %}
     {% endif %}
-    {% if results_visibility %}
-        {% blocktrans %}
-            <li class="list-group-item">Your results will be visible on</li> <!-- co tu dać, żeby to miało sens? -->
-        {% endblocktrans %}
-    {% endif %}
-    {% if ranking_visibility %}
-        {% blocktrans %}
-            <li class="list-group-item">Public ranking will be visible </li> <!-- co tu dać, żeby to miało sens? -->
-        {% endblocktrans %}
-    {% endif %}
+    {% for contest, dates in results_visibility.items %}
+        {% if dates.0 and dates.1 %}
+            {% blocktrans %}
+                <li class="list-group-item">In round {{ contest }}, your results will be visible on {{ dates.0 }} and the public ranking will be visible on {{ dates.1 }}.</li>
+            {% endblocktrans %}
+        {% elif dates.0 %}
+            {% blocktrans %}
+                <li class="list-group-item">In round {{ contest }}, your results as well as public ranking will be visible on {{ dates.0 }}. </li>
+            {% endblocktrans %}
+        {% else %}
+            {% blocktrans %}
+                <li class="list-group-item">In round {{ contest }}, your results as well as public ranking will be visible immediately.</li>
+            {% endblocktrans %}
+        {% endif %}
+    {% endfor %}
     {% if scoring_type %}
         {% blocktrans %}
             <li class="list-group-item">The scoring type is {{ scoring_type }}.</li>
