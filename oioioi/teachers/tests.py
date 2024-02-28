@@ -198,9 +198,16 @@ class TestAddUserToContestForm(TestCase):
         # we have to first get it as a regular teacher.
         self.assertTrue(self.client.login(username='test_user'))
         add_user_to_contest_as(self.user, self.c, 'teacher')
-        self.url_add_teacher = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'teacher'})
-        self.url_add_pupil = reverse('teachers_add_user_to_contest', kwargs={'contest_id':self.c.id, 'member_type':'pupil'})
-        self.assertTrue(self.c.contestteacher_set.filter(teacher__user=self.user).first().delete())
+        self.url_add_teacher = reverse(
+            'teachers_add_user_to_contest',
+            kwargs={'contest_id':self.c.id, 'member_type':'teacher'})
+        self.url_add_pupil = reverse(
+            'teachers_add_user_to_contest',
+            kwargs={'contest_id':self.c.id, 'member_type':'pupil'})
+        self.assertTrue(
+            self.c.contestteacher_set
+            .filter(teacher__user=self.user)
+            .first().delete())
         self.client.logout()
 
     def test_add_user_to_contest_as_pupil(self):
@@ -248,15 +255,19 @@ class TestAddUserToContestForm(TestCase):
             self.assertTrue(response['Location'].endswith(url))
 
             # Check if it has not added any new users.
-            self.assertFalse(self.c.contestteacher_set.filter(teacher__user=self.user))
-            self.assertFalse(self.c.participant_set.filter(user=self.user))
+            self.assertFalse(
+                self.c.contestteacher_set.filter(teacher__user=self.user))
+            self.assertFalse(
+                self.c.participant_set.filter(user=self.user))
 
     def test_http_logged_in(self):
         self.assertTrue(self.client.login(username='test_user'))
 
         # Make sure 'test_user' is not a contest teacher.
-        self.assertFalse(self.c.contestteacher_set.filter(teacher__user=self.user))
-        self.assertFalse(self.c.participant_set.filter(user=self.user))
+        self.assertFalse(
+            self.c.contestteacher_set.filter(teacher__user=self.user))
+        self.assertFalse(
+            self.c.participant_set.filter(user=self.user))
 
         def try_add():
             post_data = { 'user': 'test_user2' }  # Some other user

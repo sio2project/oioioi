@@ -15,7 +15,8 @@ def is_user_already_in_contest(user, contest):
     teacher = get_user_teacher_obj(user)
 
     if user.participant_set.filter(contest=contest) or \
-            (teacher and teacher.contestteacher_set.filter(contest=contest)):
+       (teacher and
+       teacher.contestteacher_set.filter(contest=contest)):
         return True
 
     return False
@@ -35,14 +36,18 @@ def validate_can_add_user_to_contest(user, contest, member_type):
                     contest=contest, teacher=teacher
                 )) > 0
             else:
-                raise ValidationError(_("User is not a teacher: \'%(user)s\'") % {"user": user })
+                raise ValidationError(
+                    _("User is not a teacher: \'%(user)s\'")
+                    % {"user": user })
         else:
             raise ValueError("Invalid member type")
     else:
         exists = True
 
     if exists:
-        raise ValidationError(_("User is already added: \'%(user)s\'") % { "user": user })
+        raise ValidationError(
+            _("User is already added: \'%(user)s\'")
+            % { "user": user })
 
 
 def add_user_to_contest_as(user, contest, member_type):
