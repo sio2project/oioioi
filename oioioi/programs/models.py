@@ -106,6 +106,10 @@ class Test(models.Model):
     def problem(self):
         return self.problem_instance.problem
 
+    @property
+    def total_time_limit(self):
+        return self.time_limit
+
     def __str__(self):
         return str(self.name)
 
@@ -331,6 +335,10 @@ class TestReport(models.Model):
     test_name = models.CharField(max_length=30)
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
+
+    @property
+    def has_all_outputs(self):
+        return bool(self.output_file)
 
 
 class GroupReport(models.Model):
