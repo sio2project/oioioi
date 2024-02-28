@@ -5,6 +5,14 @@
 
 {% block main-content %}
 <h1>{% trans "Test run" %}</h1>
+<div class="mb-3">
+    {% blocktrans %}
+        Test runs allow you to run the program on your own test. They are used to check the running time and
+        execution errors of the program in the same environment in which the solutions are evaluated.
+        In this case, however, SIO does not validate the input or output.
+        Test runs do not count towards your submission limit and may not be available for some types of problems.
+    {% endblocktrans %}
+</div>
 <h4 id="submissions-left"></h4>
 <h5 id="time-memory-limits"></h5>
 <form enctype="multipart/form-data" method="post">

@@ -23,7 +23,13 @@ from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.attachment_registration import attachment_registry
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.forms import GetUserInfoForm, SubmissionForm
+from oioioi.contests.forms import (
+    GetUserInfoForm,
+    SubmissionForm,
+    FilesMessageForm,
+    SubmissionsMessageForm,
+    SubmitMessageForm,
+)
 from oioioi.contests.models import (
     Contest,
     ContestAttachment,
@@ -46,6 +52,9 @@ from oioioi.contests.utils import (
     visible_contests,
     visible_problem_instances,
     visible_rounds,
+    get_files_message,
+    get_submissions_message,
+    get_submit_message,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -261,7 +270,28 @@ def submit_view(request, problem_instance_id=None):
     return TemplateResponse(
         request,
         'contests/submit.html',
-        {'form': form, 'submissions_left': submissions_left},
+        {
+            'form': form,
+            'submissions_left': submissions_left,
+            'message': get_submit_message(request),
+        },
+    )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def edit_submit_message_view(request):
+    instance = get_submit_message(request)
+    if request.method == 'POST':
+        form = SubmitMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('my_submissions')
+    else:
+        form = SubmitMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit submit message")},
     )
 
 
@@ -295,7 +325,26 @@ def my_submissions_view(request):
             'submissions': submissions,
             'show_scores': show_scores,
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
+            'message': get_submissions_message(request),
+            'is_admin': is_contest_basicadmin(request),
         },
+    )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def edit_submissions_message_view(request):
+    instance = get_submissions_message(request)
+    if request.method == 'POST':
+        form = SubmissionsMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('my_submissions', contest_id=request.contest.id)
+    else:
+        form = SubmissionsMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit submissions message")},
     )
 
 
@@ -488,7 +537,25 @@ def contest_files_view(request):
             'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100),
             'add_category_field': add_category_field,
             'show_pub_dates': True,
+            'message': get_files_message(request),
         },
+    )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def edit_files_message_view(request):
+    instance = get_files_message(request)
+    if request.method == 'POST':
+        form = FilesMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('contest_files', contest_id=request.contest.id)
+    else:
+        form = FilesMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit files message")},
     )
 
 

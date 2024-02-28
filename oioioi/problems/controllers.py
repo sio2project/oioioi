@@ -180,6 +180,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                     'oioioi.contests.handlers.call_submission_judged',
                 ),
                 (
+                    'send_notification_submission_judged',
+                    'oioioi.contests.handlers.send_notification_judged',
+                ),
+                (
                     'dump_final_env',
                     'oioioi.evalmgr.handlers.dump_env',
                     dict(message='Finished evaluation'),

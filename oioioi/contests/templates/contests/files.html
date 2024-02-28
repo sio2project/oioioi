@@ -11,6 +11,11 @@
         {% if is_admin %}
             <div class="float-right">
                 <a role="button" class="btn btn-sm btn-outline-secondary"
+                    href="{% url 'edit_files_message' %}">
+                    <i class="fa-solid fa-pencil"></i>
+                    {% trans "Edit files message" %}
+                </a>
+                <a role="button" class="btn btn-sm btn-outline-secondary"
                     href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
                     <i class="fa-regular fa-circle-up"></i>
                     {% trans "Add file" %}
@@ -19,6 +24,7 @@
         {% endif %}
         <h1 class="float-left">{% trans "Downloads" %}</h1>
     </div>
+    {% include "public_message/show.html" %}
 
     {% include "problems/files.html" %}
 {% endblock %}

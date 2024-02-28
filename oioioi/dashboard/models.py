@@ -1,13 +1,9 @@
-from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from oioioi.contests.models import Contest
+from oioioi.base.models import PublicMessage
 
 
-class DashboardMessage(models.Model):
-    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
-    content = models.TextField(verbose_name=_("message"), blank=True)
-
+class DashboardMessage(PublicMessage):
     class Meta(object):
         verbose_name = _("dashboard message")
         verbose_name_plural = _("dashboard messages")

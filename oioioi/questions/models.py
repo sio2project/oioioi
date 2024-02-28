@@ -14,6 +14,7 @@ from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
+from oioioi.base.models import PublicMessage
 from oioioi.base.utils.validators import validate_whitespaces
 from oioioi.contests.models import Contest, ProblemInstance, Round
 
@@ -241,3 +242,15 @@ def send_notification(sender, instance, created, **kwargs):
 class QuestionSubscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+
+
+class NewsMessage(PublicMessage):
+    class Meta(object):
+        verbose_name = _("news message")
+        verbose_name_plural = _("news messages")
+
+
+class AddQuestionMessage(PublicMessage):
+    class Meta(object):
+        verbose_name = _("add question message")
+        verbose_name_plural = _("add question messages")

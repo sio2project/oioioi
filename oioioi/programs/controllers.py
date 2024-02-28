@@ -944,6 +944,15 @@ class ProgrammingContestController(ContestController):
                     'oioioi.contests.handlers.update_submission_score',
                 ),
             )
+            add_before_placeholder(
+                environ,
+                'after_initial_tests',
+                (
+                    'send_notification_initial_tests_judged',
+                    'oioioi.contests.handlers.send_notification_judged',
+                    dict(kind='INITIAL'),
+                ),
+            )
 
     def get_submission_size_limit(self, problem_instance):
         return problem_instance.problem.controller.get_submission_size_limit(

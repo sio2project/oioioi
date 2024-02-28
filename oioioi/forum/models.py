@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
+from oioioi.base.models import PublicMessage
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import Contest
 
@@ -335,3 +336,15 @@ def _remove_reports_if_approved(sender, instance, **kwargs):
     if instance.approved:
         instance.reported = False
         instance.reported_by = None
+
+
+class ForumMessage(PublicMessage):
+    class Meta(object):
+        verbose_name = _("forum message")
+        verbose_name_plural = _("forum messages")
+
+
+class NewPostMessage(PublicMessage):
+    class Meta(object):
+        verbose_name = _("new post message")
+        verbose_name_plural = _("new post messages")

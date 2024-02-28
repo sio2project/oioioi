@@ -38,6 +38,11 @@ class SchoolAdmin(admin.ModelAdmin):
         'delete_selected',
     )
 
+    def get_list_display(self, request):
+        if request.contest is None:
+            return tuple(ld for ld in self.list_display if ld != 'participants_link')
+        return self.list_display
+
     def participants_link(self, instance):
         return make_html_link(instance.get_participants_url(), _("Participants"))
 

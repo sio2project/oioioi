@@ -14,6 +14,7 @@ from oioioi.base.tests import (
     fake_time,
     fake_timezone_now,
 )
+from oioioi.base.tests.tests import TestPublicMessage
 from oioioi.contests.models import Contest, ProblemInstance, UserResultForProblem
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
@@ -25,6 +26,7 @@ from oioioi.rankings.models import (
     RankingRecalc,
     choose_for_recalculation,
     recalculate,
+    RankingMessage,
 )
 
 VISIBLE_TASKS = ["zad1", "zad2"]
@@ -543,3 +545,15 @@ class TestResultColorClassFilter(TestCase):
     def check_score_color(self, int_score, color_class_name, score_class_factory):
         score = score_class_factory(int_score)
         self.assertEqual(result_color_class(score), color_class_name)
+
+
+class PublicMessageContestController(ProgrammingContestController):
+    ranking_message = 'Test public message'
+
+
+class TestRankingMessage(TestPublicMessage):
+    model = RankingMessage
+    button_viewname = 'default_ranking'
+    edit_viewname = 'edit_ranking_message'
+    viewname = 'default_ranking'
+    controller_name = 'oioioi.rankings.tests.PublicMessageContestController'
