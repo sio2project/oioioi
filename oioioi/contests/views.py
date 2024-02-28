@@ -59,8 +59,6 @@ from oioioi.contests.utils import (
     get_contest_dates,
     get_problems_sumbmission_limit,
     get_results_visibility,
-    get_scoring_type,
-
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -116,7 +114,7 @@ def contest_rules_view(request):
     contest_dates = get_contest_dates(request)
     submission_limit = get_problems_sumbmission_limit(request)
     results_visibility = get_results_visibility(request)
-    scoring_type = get_scoring_type(request)
+    scoring_type = request.contest.controller.description
 
     if (contest_dates[0] != -1):
         contest_start_date = contest_dates[0]
@@ -128,10 +126,10 @@ def contest_rules_view(request):
     else :
         contest_end_date = None
 
+    #assert(False)
+
     if (len(submission_limit) == 1 and submission_limit[0] == None):
         submission_limit = None
-
-    # assert(False)
 
     return TemplateResponse(
         request,

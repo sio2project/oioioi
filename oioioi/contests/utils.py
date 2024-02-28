@@ -73,10 +73,10 @@ class RoundTimes(object):
         return current_datetime >= self.show_results
     
     def results_date(self, current_datetime):
-        if self.is_active(current_datetime):
-            return current_datetime >= self.show_results + timedelta(
-            minutes=self.extra_time
-        )
+        # if self.is_active(current_datetime):
+        #     return current_datetime >= self.show_results + timedelta(
+        #     minutes=self.extra_time
+        # )
 
         return self.show_results
 
@@ -339,11 +339,6 @@ def get_results_visibility(request):
     )
 
     return dates
-
-
-@request_cached
-def get_scoring_type(request):
-    return -1
 
 
 def aggregate_statuses(statuses):
