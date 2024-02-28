@@ -29,7 +29,8 @@ from oioioi.participants.models import Participant
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm, AddUserToContestForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
-from oioioi.teachers.utils import is_user_already_in_contest, get_user_teacher_obj, add_user_to_contest_as
+from oioioi.teachers.utils import \
+    is_user_already_in_contest, get_user_teacher_obj, add_user_to_contest_as
 from django.core.exceptions import ValidationError
 
 if 'oioioi.usergroups' in settings.INSTALLED_APPS:
