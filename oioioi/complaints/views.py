@@ -35,6 +35,13 @@ def can_make_complaint(request):
         return False
 
 
+def get_complaints_email(request):
+    """This method allows the contest controller to override the complaints email"""
+    if hasattr(request.contest.controller, 'get_complaints_email'):
+        return request.contest.controller.get_complaints_email(request)
+    return settings.COMPLAINTS_EMAIL
+
+
 def email_template_context(request, message):
     user = request.user
     contest = request.contest
@@ -59,7 +66,7 @@ def email_template_context(request, message):
         'user_info': '%s (%s)' % (user.get_full_name(), user),
         'participant': participant,
         'participant_status': participant_status,
-        'complaints_email': settings.COMPLAINTS_EMAIL,
+        'complaints_email': get_complaints_email(request),
         'submissions_link': request.build_absolute_uri(
             reverse('oioioiadmin:contests_submission_changelist')
             + '?'
@@ -81,11 +88,11 @@ def notify_complainer(request, body, message_id, ref_id):
     message = EmailMessage(
         subject,
         body,
-        settings.COMPLAINTS_EMAIL,
+        context['complaints_email'],
         (request.user.email,),
         headers={
-            'Errors-To': settings.COMPLAINTS_EMAIL,
-            'Reply-To': settings.COMPLAINTS_EMAIL,
+            'Errors-To': context['complaints_email'],
+            'Reply-To': context['complaints_email'],
             'Message-ID': '<%s@oioioi>' % message_id,
             'References': '<%s@oioioi>' % ref_id,
         },
@@ -105,7 +112,7 @@ def notify_jury(request, body, message_id, ref_id):
         subject,
         body,
         settings.SERVER_EMAIL,
-        (settings.COMPLAINTS_EMAIL,),
+        (context['complaints_email'],),
         headers={
             'Reply-To': request.user.email,
             'Message-ID': '<%s@oioioi>' % message_id,
@@ -119,7 +126,7 @@ def complaint_sent(request):
     return TemplateResponse(
         request,
         'complaints/complaint-sent.html',
-        {'complaints_email': settings.COMPLAINTS_EMAIL},
+        {'complaints_email': get_complaints_email(request)},
     )
 
 

@@ -8,7 +8,7 @@
     $(function() {
         // Warning: If moving this code to a separate .js file,
         // ABSOLUTELY MAKE SURE to change all occurences of
-        // the trans template tag in js code to gettext("text to translate") 
+        // the trans template tag in js code to gettext("text to translate")
         // also make sure to run django-admin makemessages
         // before submitting your changes to github
         // and translate strings in oioioi-js in Transifex
@@ -105,6 +105,16 @@
                         <i class="fa-solid fa-pencil"></i>
                         {% trans "Edit reply templates" %}
                     </a>
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
+                        href="{% url 'edit_question_news_message' %}">
+                        <i class="fa-solid fa-pencil"></i>
+                        {% trans "Edit news message" %}
+                    </a>
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
+                        href="{% url 'edit_add_question_message' %}">
+                        <i class="fa-solid fa-pencil"></i>
+                        {% trans "Edit new question message" %}
+                    </a>
                 {% elif categories %}
                     <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'add_contest_message' contest_id=contest.id %}">
@@ -121,6 +131,7 @@
         </div>
         <h1 class="float-left">{% trans "Questions and news" %}</h1>
     </div>
+    {% include "public_message/show.html" %}
     <div id="sub-alert-success" class="alert alert-success collapse">
         <strong></strong> <span></span>
     </div>

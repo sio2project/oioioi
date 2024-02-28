@@ -21,8 +21,8 @@ from oioioi.contests.utils import (
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.dashboard.forms import DashboardMessageForm
 from oioioi.dashboard.menu import top_links_registry
-from oioioi.dashboard.models import DashboardMessage
 from oioioi.dashboard.registry import dashboard_headers_registry, dashboard_registry
+from oioioi.dashboard.util import get_dashboard_message
 from oioioi.questions.views import messages_template_context, visible_messages
 from oioioi.rankings.views import has_any_ranking_visible
 
@@ -55,9 +55,7 @@ top_links_registry.register(
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def dashboard_message_edit_view(request):
-    instance, _created = DashboardMessage.objects.get_or_create(
-        contest_id=request.contest.id
-    )
+    instance = get_dashboard_message(request)
     if request.method == 'POST':
         form = DashboardMessageForm(request, request.POST, instance=instance)
         if form.is_valid():
@@ -66,7 +64,9 @@ def dashboard_message_edit_view(request):
     else:
         form = DashboardMessageForm(request, instance=instance)
     return TemplateResponse(
-        request, 'dashboard/dashboard-message-edit.html', {'form': form}
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _('Edit dashboard message')}
     )
 
 
@@ -74,11 +74,7 @@ def dashboard_message_edit_view(request):
 def dashboard_message_fragment(request):
     if request.contest is None:
         return None
-    try:
-        instance = DashboardMessage.objects.get(contest=request.contest)
-    except DashboardMessage.DoesNotExist:
-        instance = None
-
+    instance = get_dashboard_message(request)
     is_admin = is_contest_basicadmin(request)
     content = ''
     if instance and instance.content:

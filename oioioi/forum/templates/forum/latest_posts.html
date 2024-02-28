@@ -14,7 +14,7 @@
     <div class="card-column">
         {% autopaginate post_set posts_per_page %}
         {% for post in post_set %}
-            <div class="card" id="forum-post-{{ post.id }}">
+            <div class="card mb-2" id="forum-post-{{ post.id }}">
                 <div class="anchor-jump-fix" id="forum-anchor-{{ post.id }}"></div>
                 {% if post.hidden %}
                     <div class="card-header">

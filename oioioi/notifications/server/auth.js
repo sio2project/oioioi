@@ -1,4 +1,3 @@
-var request = require("request");
 var debug = require('debug')('auth');
 var queuemanager = require('./queuemanager');
 
@@ -26,17 +25,17 @@ function init(config) {
 // onCompleted - callback called with associated user name
 // or null if login failed
 function login(socket, sessionId, onCompleted) {
-    auth(sessionId, function(userName) {
+    auth(sessionId, function (userName) {
         if (!userName) {
             onCompleted(null);
             return;
         }
-        sockets[socket.dict_id] = userName;
+        sockets[socket.data.dict_id] = userName;
         if (!users[userName]) {
             users[userName] = {};
             queuemanager.subscribe(userName);
         }
-        users[userName][socket.dict_id] = socket;
+        users[userName][socket.data.dict_id] = socket;
         onCompleted(userName);
     });
 
@@ -45,50 +44,70 @@ function login(socket, sessionId, onCompleted) {
 // Operation actually performing communication with OIOIOI instance
 // in order to determine user's identity.
 // Parameters: see login function
-function auth(sessionId, onCompleted) {
+async function auth(sessionId, onCompleted) {
     if (session_id_cache[sessionId]) {
         if (Date.now() < session_id_cache[sessionId].expires) {
             debug('User ' + session_id_cache[sessionId].user +
-                  ' logged in from cache');
+                ' logged in from cache');
             onCompleted(session_id_cache[sessionId].user);
             return;
         }
     }
-
-    request.post(
-        CONFIG ? CONFIG['oioioi-url'] : 'bogus-url',
-        { form: { nsid: sessionId } },
-        function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-                body = JSON.parse(body);
-                if (body.status !== 'OK') {
-                    console.log('Unable to authorize user!');
-                    onCompleted(null);
-                } else {
-                    debug('Authorized user: ' + body.user);
-                    session_id_cache[sessionId] = {
-                        user: body.user,
-                        expires: Date.now() +
-                            AUTH_CACHE_EXPIRATION_SECONDS * 1000
-                    };
-                    onCompleted(body.user);
+    /**
+     * @type {Response | undefined}
+     */
+    let response;
+    /**
+     * @type {string | undefined}
+     */
+    let body;
+    /**
+     * @type {unknown}
+     */
+    let error;
+    try {
+        response = await fetch(
+            CONFIG ? CONFIG['oioioi-url'] : 'bogus-url',
+            {
+                method: "POST",
+                body: `nsid=${encodeURIComponent(sessionId)}`,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
-            } else {
-                if (error) {
-                    console.log('Unable to authorize user!');
-                    console.log(error);
-                    console.log('Make sure that OIOIOI instance is properly configured ' +
-                        ' - tried to open URL: ' + CONFIG['oioioi-url']);
-                }
-                onCompleted(null);
-            }
+            },
+        );
+        body = await response.text();
+    } catch (err) {
+        error = err;
+    }
+    if (error || response == null || body == null) {
+        console.log('Unable to authorize user!');
+        console.log(error);
+        console.log('Make sure that OIOIOI instance is properly configured ' +
+            ' - tried to open URL: ' + CONFIG['oioioi-url']);
+        onCompleted(null);
+        return;
+    }
+    if (response.status === 200) {
+        const json = JSON.parse(body);
+        if (json.status !== 'OK') {
+            console.log('Unable to authorize user!');
+            onCompleted(null);
+        } else {
+            debug('Authorized user: ' + json.user);
+            session_id_cache[sessionId] = {
+                user: json.user,
+                expires: Date.now() +
+                    AUTH_CACHE_EXPIRATION_SECONDS * 1000
+            };
+            onCompleted(json.user);
         }
-    );
+    }
 }
 
 // Maps socket to associated user name.
 function resolveUserName(socket) {
-    return sockets[socket.dict_id];
+    return sockets[socket.data.dict_id];
 }
 
 // Returns socket.io sockets for given user name
@@ -100,9 +119,9 @@ function getClientsForUser(userName) {
 // Removes a socket and, if it's the last socket associated with given user name,
 // it unsubscribes from a queue for that user.
 function logout(socket) {
-    var userName = sockets[socket.dict_id];
+    var userName = sockets[socket.data.dict_id];
     if (users[userName]) {
-        delete users[userName][socket.dict_id];
+        delete users[userName][socket.data.dict_id];
         if (Object.keys(users[userName]).length === 0) {
             delete users[userName];
             debug("No more users subscribed to queue " + userName + "! " +
@@ -110,7 +129,7 @@ function logout(socket) {
             queuemanager.unsubscribe(userName);
         }
     }
-    delete sockets[socket.dict_id];
+    delete sockets[socket.data.dict_id];
 }
 
 exports.init = init;

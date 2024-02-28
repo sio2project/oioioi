@@ -559,9 +559,8 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         comment = result.get('result_string', '')
         if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
             comment = ''
-        test_report.comment = Truncator(comment).chars(
-            TestReport._meta.get_field('comment').max_length
-        )
+        max_comment_length = TestReport._meta.get_field('comment').max_length
+        test_report.comment = (comment[:max_comment_length - 1] + '…') if len(comment) > max_comment_length else comment
         if env.get('save_outputs', False):
             test_report.output_file = filetracker_to_django_file(result['out_file'])
         test_report.save()
@@ -578,23 +577,6 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         group_report.status = group_result['status']
         group_report.save()
         group_result['result_id'] = group_report.id
-
-    if kind == 'INITIAL':
-        if submission.user is not None and not env.get('is_rejudge', False):
-            logger.info(
-                "Submission %(submission_id)d by user %(username)s"
-                " for problem %(short_name)s got initial result.",
-                {
-                    'submission_id': submission.pk,
-                    'username': submission.user.username,
-                    'short_name': submission.problem_instance.short_name,
-                },
-                extra={
-                    'notification': 'initial_results',
-                    'user': submission.user,
-                    'submission': submission,
-                },
-            )
 
     return env
 

@@ -87,6 +87,16 @@ forum_patterns = [
         name='forum_post_toggle_reaction',
     ),
     re_path(r'^user/(?P<user_id>\d+)/ban/$', views.ban_user_view, name='forum_user_ban'),
+    re_path(
+        r'^edit_message/$',
+        views.edit_message_view,
+        name='edit_forum_message',
+    ),
+    re_path(
+        r'^edit_new_post_message/$',
+        views.edit_new_post_message_view,
+        name='edit_forum_new_post_message',
+    ),
 ]
 
 contest_patterns = [

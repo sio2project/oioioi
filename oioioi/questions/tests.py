@@ -20,7 +20,8 @@ from oioioi.questions.management.commands.mailnotifyd import (
     candidate_messages,
     mailnotify,
 )
-from oioioi.questions.models import Message, ReplyTemplate
+from oioioi.base.tests.tests import TestPublicMessage
+from oioioi.questions.models import Message, ReplyTemplate, NewsMessage, AddQuestionMessage
 from oioioi.questions.utils import unanswered_questions
 
 from .views import visible_messages
@@ -872,3 +873,24 @@ class TestUserInfo(TestCase):
         self.assertContains(response, 'User info')
         self.assertContains(response, "User's messages")
         self.assertContains(response, 'general-question')
+
+
+class PublicMessageContestController(ProgrammingContestController):
+    questions_news_message = 'Test public message'
+    add_question_message = 'Test public message'
+
+
+class TestNewsMessage(TestPublicMessage):
+    model = NewsMessage
+    button_viewname = 'contest_messages'
+    edit_viewname = 'edit_question_news_message'
+    viewname = 'contest_messages'
+    controller_name = 'oioioi.questions.tests.PublicMessageContestController'
+
+
+class TestAddQuestionMessage(TestPublicMessage):
+    model = AddQuestionMessage
+    button_viewname = 'contest_messages'
+    edit_viewname = 'edit_add_question_message'
+    viewname = 'add_contest_message'
+    controller_name = 'oioioi.questions.tests.PublicMessageContestController'
