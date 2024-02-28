@@ -1,5 +1,4 @@
 @import "scss/utility";
-@import "scss/style";
 
 $list-grid-column-min-width: 70px !default;
 $list-grid-column-count: 5 !default;
@@ -30,7 +29,8 @@ $list-subheader-bgcolor: #eee !default;
 
 .form-list-unstyled {
   ul {
-    @extend .list-unstyled;
+    padding-left: 0;
+    list-style: none;
   }
 }
 
