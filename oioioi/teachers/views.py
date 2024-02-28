@@ -30,6 +30,7 @@ from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm, AddUserToContestForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 from oioioi.teachers.utils import is_user_already_in_contest, get_user_teacher_obj, add_user_to_contest_as
+from django.core.exceptions import ValidationError
 
 if 'oioioi.usergroups' in settings.INSTALLED_APPS:
     import oioioi.usergroups.utils as usergroups
@@ -414,17 +415,26 @@ def get_appendable_users_view(request, member_type):
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
 def add_user_to_contest(request, member_type):
     form = AddUserToContestForm(member_type, request.contest, request.POST)
-    if form.is_valid():
-        user = form.cleaned_data['user']
+    try:
+        if form.is_valid():
+            user = form.cleaned_data['user']
 
-        add_user_to_contest_as(user, request.contest, member_type)
-        # if result == UserAddResult.UserIsAlreadyAdded:
-        #     messages.error(request, _("User \'{}\' is already added.".format(user)))
-        # elif result == UserAddResult.UserIsNotATeacher:
-        #     messages.error(request, _("User \'{}\' is not a teacher!".format(user)))
-        # else:
-        #     messages.success(request, _("Successfully added \'{}\' as a {}.".format(user, member_type)))
-    else:
-        messages.error(request, _('There is no user \'{}\'.'.format(form.data['user'])))
+            try:
+                add_user_to_contest_as(
+                    user,
+                    request.contest,
+                    member_type
+                )
+                messages.success(request,
+                    _('User \'%(user)s\' successfully added as a \'%(member_type)s\'.')
+                    % {'user': user, 'member_type': member_type}
+                )
+            except ValidationError as e:
+                messages.error(request, e.message)
+        else:
+            for err in form.errors.as_data()['user']:
+                messages.error(request, err.message)
+    except ValidationError as e:
+        messages.error(e.message)
 
     return redirect_to_members(request, member_type)

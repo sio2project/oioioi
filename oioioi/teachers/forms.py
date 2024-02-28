@@ -9,7 +9,7 @@ from oioioi.contests.forms import SimpleContestForm
 from oioioi.teachers.models import ContestTeacher, Teacher
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.participants.models import Participant
-from oioioi.teachers.utils import get_user_teacher_obj, is_user_already_in_contest
+from oioioi.teachers.utils import validate_can_add_user_to_contest, add_user_to_contest_as
 
 
 class TeacherContestForm(SimpleContestForm):
@@ -97,27 +97,13 @@ class AddUserToContestForm(forms.Form):
         super(AddUserToContestForm, self).__init__(*args, **kwargs)
 
     def clean(self):
-        super().clean()
+        clean_data = super().clean()
+
         if self.is_valid():
             user = self.cleaned_data['user']
+            try:
+                validate_can_add_user_to_contest(user, self.contest, self.member_type)
+            except ValidationError as e:
+                self.add_error('user', e.message)
 
-            exists = False
-
-            if not is_user_already_in_contest(user, self.contest):
-
-                if self.member_type == 'pupil':
-                    exists = len(Participant.objects.filter(
-                        contest=self.contest, user=user
-                    )) > 0
-                elif self.member_type == 'teacher':
-                    if teacher := get_user_teacher_obj(user):
-                        exists = len(ContestTeacher.objects.filter(
-                            contest=self.contest, teacher=teacher
-                        )) > 0
-                    else:
-                        raise ValidationError(_("User is not a teacher: {}").format(user))
-                else:
-                    raise ValueError("Invalid member type")
-
-            if exists:
-                raise ValidationError(_("User is already added: {}").format(user))
+        return clean_data
