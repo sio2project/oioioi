@@ -29,6 +29,9 @@ $list-subheader-bgcolor: #eee !default;
 
 .form-list-unstyled {
   ul {
+    // Should be @extend .list-unstyled
+    // but it requires whole scss/style
+    // which increases bundle size dramatically
     padding-left: 0;
     list-style: none;
   }

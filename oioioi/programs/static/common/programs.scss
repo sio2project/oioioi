@@ -16,12 +16,14 @@
 }
 
 .table-report {
+
   // In table-report with table-responsive firefox makes new line for
   // test-actions used with float-right on sm display.
   // This is a workaround for this.
   .fix-float-right {
     white-space: normal !important;
   }
+
   .group-score {
     vertical-align: middle;
   }
@@ -38,21 +40,25 @@
 }
 
 .syntax-highlighttable {
+
   // Collapse the border between line numbers and code.
   // (...) (...) -> (...|...)
   td.linenos {
-    & > .linenodiv {
+    &>.linenodiv {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
       border-right: none;
     }
+
     padding-right: 0;
   }
+
   td.code {
-    & > .syntax-highlight {
+    &>.syntax-highlight {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
     }
+
     padding-left: 0
   }
 
@@ -73,8 +79,12 @@
     margin-bottom: 0;
   }
 
-  .linenodiv, .syntax-highlight {
+  .linenodiv,
+  .syntax-highlight {
     @extend .card;
+    // Should be @extend .bg-light
+    // but it requires whole bootstrap to be included
+    // which increases bundle size dramatically
     background-color: #f8f9fa !important;
     padding: ($spacer * 0.5);
   }
@@ -85,8 +95,12 @@
     margin-bottom: 0;
   }
 
-  &.line-numbers, &.code {
+  &.line-numbers,
+  &.code {
     @extend .card;
+    // Should be @extend .bg-light
+    // but it requires whole bootstrap to be included
+    // which increases bundle size dramatically
     background-color: #f8f9fa !important;
     padding: ($spacer * 0.5);
   }
