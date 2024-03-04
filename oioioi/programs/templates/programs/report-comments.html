@@ -31,14 +31,14 @@
                     {% if test.comment %}
                         {% if test.result_percentage %}
                             {% blocktranslate with test.result_percentage as percentage %}
-                                Granted {{ percentage  }}% points, comment:
+                                Granted <b>{{ percentage }}%</b> points, comment:
                             {% endblocktranslate %}
                         {% endif %}
                         {{ test.comment }}
                     {% else %}
                         {% if test.result_percentage %}
                             {% blocktranslate with test.result_percentage as percentage %}
-                                Granted {{ percentage  }}% points.
+                                Granted <b>{{ percentage }}%</b> points.
                             {% endblocktranslate %}
                         {% endif %}
                     {% endif %}
