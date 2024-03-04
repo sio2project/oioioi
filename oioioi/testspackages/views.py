@@ -14,11 +14,9 @@ from oioioi.contests.attachment_registration import (
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
-    is_contest_admin,
     is_contest_basicadmin,
     visible_problem_instances,
 )
-from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem
 from oioioi.testspackages.models import TestsPackage
@@ -91,13 +89,8 @@ def get_tests_package_file(test_package):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def test_view(request, package_id):
     tp = get_object_or_404(TestsPackage, id=package_id)
-    # Check if TestPackage is attached to requested contest
-    if not ProblemInstance.objects.filter(
-        problem=tp.problem, contest=request.contest
-    ).exists():
+    if all(tp != i[0] for i in visible_tests_packages(request)):
         raise Http404
-    if not is_contest_admin(request) and not tp.is_visible(request.timestamp):
-        raise PermissionDenied
     return get_tests_package_file(tp)
 
 
