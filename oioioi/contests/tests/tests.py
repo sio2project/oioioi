@@ -19,6 +19,7 @@ from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
+from oioioi.base.permissions import is_superuser
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
 from oioioi.base.tests.tests import TestPublicMessage
 from oioioi.contests.current_contest import ContestMode
@@ -50,7 +51,9 @@ from oioioi.contests.utils import (
     all_public_results_visible,
     can_enter_contest,
     can_see_personal_data,
+    is_contest_owner,
     is_contest_admin,
+    is_contest_basicadmin,
     is_contest_observer,
     rounds_times,
 )
@@ -1647,6 +1650,7 @@ class TestPermissions(TestCase):
     fixtures = [
         'test_users',
         'test_contest',
+        'test_extra_contests',
         'test_full_package',
         'test_problem_instance',
         'test_submission',
@@ -1666,79 +1670,359 @@ class TestPermissions(TestCase):
         return with_timestamp
 
     def setUp(self):
-        self.contest = Contest.objects.get()
+        self.contest = Contest.objects.get(id='c')
         self.contest.controller_name = 'oioioi.contests.tests.PrivateContestController'
         self.contest.save()
         self.ccontr = self.contest.controller
-        self.round = Round.objects.get()
+        self.round = Round.objects.get(contest=self.contest)
         self.round.start_date = datetime(2012, 7, 31, tzinfo=timezone.utc)
         self.round.end_date = datetime(2012, 8, 5, tzinfo=timezone.utc)
         self.round.save()
 
         self.during = datetime(2012, 8, 1, tzinfo=timezone.utc)
 
+        self.superuser = User.objects.get(username='test_admin')
         self.observer = User.objects.get(username='test_observer')
         self.cadmin = User.objects.get(username='test_contest_admin')
+        self.cowner = User.objects.get(username='test_contest_owner')
+        self.user = User.objects.get(username='test_user')
         self.factory = self.get_fake_request_factory(self.contest)
+
+        self.perms_list = (
+            'contests.contest_observer',
+            'contests.contest_basicadmin',
+            'contests.contest_admin',
+            'contests.contest_owner',
+        )
         super().setUp()
 
     def test_utils(self):
+        sufactory = partial(self.factory, self.superuser)
         ofactory = partial(self.factory, self.observer)
-        cfactory = partial(self.factory, self.cadmin)
-        ufactory = partial(self.factory, User.objects.get(username='test_user'))
-        self.assertFalse(can_enter_contest(ufactory(self.during)))
-        self.assertTrue(is_contest_admin(cfactory(self.during)))
-        self.assertTrue(can_enter_contest(cfactory(self.during)))
+        cafactory = partial(self.factory, self.cadmin)
+        cofactory = partial(self.factory, self.cowner)
+        ufactory = partial(self.factory, self.user)
+
+        # Superuser
+        self.assertTrue(is_superuser(sufactory(self.during)))
+        self.assertTrue(is_contest_owner(sufactory(self.during)))
+        self.assertTrue(is_contest_admin(sufactory(self.during)))
+        self.assertTrue(is_contest_basicadmin(sufactory(self.during)))
+        self.assertTrue(is_contest_observer(sufactory(self.during)))
+        self.assertTrue(can_enter_contest(sufactory(self.during)))
+        # Contest owner
+        self.assertFalse(is_superuser(cofactory(self.during)))
+        self.assertTrue(is_contest_owner(cofactory(self.during)))
+        self.assertTrue(is_contest_admin(cofactory(self.during)))
+        self.assertTrue(is_contest_basicadmin(cofactory(self.during)))
+        self.assertFalse(is_contest_observer(cofactory(self.during)))
+        self.assertTrue(can_enter_contest(cofactory(self.during)))
+        # Contest admin
+        self.assertFalse(is_superuser(cafactory(self.during)))
+        self.assertFalse(is_contest_owner(cafactory(self.during)))
+        self.assertTrue(is_contest_admin(cafactory(self.during)))
+        self.assertTrue(is_contest_basicadmin(cafactory(self.during)))
+        self.assertFalse(is_contest_observer(cafactory(self.during)))
+        self.assertTrue(can_enter_contest(cafactory(self.during)))
+        # Observer
+        self.assertFalse(is_superuser(ofactory(self.during)))
+        self.assertFalse(is_contest_owner(ofactory(self.during)))
+        self.assertFalse(is_contest_admin(ofactory(self.during)))
+        self.assertFalse(is_contest_basicadmin(ofactory(self.during)))
         self.assertTrue(is_contest_observer(ofactory(self.during)))
         self.assertTrue(can_enter_contest(ofactory(self.during)))
+        # Normal user
+        self.assertFalse(is_superuser(ufactory(self.during)))
+        self.assertFalse(is_contest_owner(ufactory(self.during)))
+        self.assertFalse(is_contest_admin(ufactory(self.during)))
+        self.assertFalse(is_contest_basicadmin(ufactory(self.during)))
+        self.assertFalse(is_contest_observer(ufactory(self.during)))
+        self.assertFalse(can_enter_contest(ufactory(self.during)))
 
     def test_privilege_manipulation(self):
+        self.assertFalse(
+            self.cowner.has_perm('contests.contest_observer', self.contest)
+        )
+        self.assertTrue(self.cowner.has_perm('contests.contest_owner', self.contest))
+        self.assertTrue(self.cowner.has_perm('contests.contest_admin', self.contest))
+        self.assertTrue(
+            self.cowner.has_perm('contests.contest_basicadmin', self.contest)
+        )
+
         self.assertTrue(
             self.observer.has_perm('contests.contest_observer', self.contest)
         )
+        self.assertFalse(self.observer.has_perm('contests.contest_owner', self.contest))
         self.assertFalse(self.observer.has_perm('contests.contest_admin', self.contest))
+        self.assertFalse(
+            self.observer.has_perm('contests.contest_basicadmin', self.contest)
+        )
 
         self.assertFalse(
             self.cadmin.has_perm('contests.contest_observer', self.contest)
         )
+        self.assertFalse(self.cadmin.has_perm('contests.contest_owner', self.contest))
         self.assertTrue(self.cadmin.has_perm('contests.contest_admin', self.contest))
+        self.assertTrue(
+            self.cadmin.has_perm('contests.contest_basicadmin', self.contest)
+        )
 
-        test_user = User.objects.get(username='test_user')
+        for perm in self.perms_list:
+            self.assertFalse(self.user.has_perm(perm, self.contest))
 
-        self.assertFalse(test_user.has_perm('contests.contest_observer', self.contest))
-        self.assertFalse(test_user.has_perm('contests.contest_admin', self.contest))
+        for perm in self.perms_list:
+            del self.user._contest_perms_cache
+            ContestPermission(
+                user=self.user, contest=self.contest, permission=perm
+            ).save()
+            self.assertTrue(self.user.has_perm(perm, self.contest))
 
-        del test_user._contest_perms_cache
-        ContestPermission(
-            user=test_user, contest=self.contest, permission='contests.contest_observer'
-        ).save()
-        self.assertTrue(test_user.has_perm('contests.contest_observer', self.contest))
+    def try_post_perm(self, url, cid, user, perm, should_fail):
+        qs = ContestPermission.objects.filter(
+            user=user,
+            contest_id=cid,
+            permission=perm,
+        )
+        self.assertEqual(qs.count(), 0)
 
-        del test_user._contest_perms_cache
-        ContestPermission(
-            user=test_user, contest=self.contest, permission='contests.contest_admin'
-        ).save()
-        self.assertTrue(test_user.has_perm('contests.contest_observer', self.contest))
+        data = {
+            'user': user.username,
+            'contest': cid,
+            'permission': perm,
+        }
+
+        resp = self.client.post(url, data, follow=True)
+        if resp.status_code == 403:
+            self.assertTrue(should_fail)
+            return
+        self.assertEqual(resp.status_code, 200)
+        if should_fail:
+            self.assertEqual(qs.count(), 0)
+            return
+        self.assertEqual(qs.count(), 1)
+        qs.delete()
+
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    def test_contestpermission_admin(self):
+        list_url = reverse(
+            'oioioiadmin:contests_contestpermission_changelist',
+            kwargs={'contest_id': self.contest.id},
+        )
+        list_url_another_contest = reverse(
+            'oioioiadmin:contests_contestpermission_changelist',
+            kwargs={'contest_id': 'c1'},
+        )
+        list_url_nocontest = reverse(
+            'noncontest:oioioiadmin:contests_contestpermission_changelist',
+        )
+        add_url = reverse(
+            'oioioiadmin:contests_contestpermission_add',
+            kwargs={'contest_id': self.contest.id},
+        )
+        add_url_nocontest = reverse(
+            'noncontest:oioioiadmin:contests_contestpermission_add',
+        )
+        # Only superusers and contest owners should see these pages
+        for u in (self.observer, self.cadmin, self.user):
+            self.client.force_login(u)
+            for url in (
+                list_url, add_url, list_url_nocontest, add_url_nocontest,
+            ):
+                self.assertEqual(self.client.get(url).status_code, 403)
+
+        perm_different_contest = ContestPermission(
+            user=self.user,
+            contest_id='c1',
+            permission='contests.contest_personal_data',
+        )
+
+        for u in (self.cowner, self.superuser):
+            self.client.force_login(u)
+            for url in (list_url, add_url):
+                self.assertEqual(self.client.get(url).status_code, 200)
+            resp = self.client.get(list_url)
+            # All perms should be visible on the list. We check for the users'
+            # names here.
+            self.assertContains(resp, 'Test Contest owner')
+            self.assertContains(resp, 'Test Contest admin')
+            self.assertContains(resp, 'Test Contest basicadmin')
+            self.assertNotContains(resp, 'Test User')
+
+            perm_different_contest.save()
+            # This shouldn't be visible, since it's in a different contest...
+            self.assertNotContains(resp, 'Test User')
+            # ... but a superuser with no selected contest should see it.
+            if u == self.cowner:
+                # This will have been redirected to the last contest
+                resp = self.client.get(list_url_nocontest)
+                self.assertEqual(resp.status_code, 403)
+                resp = self.client.get(list_url_another_contest)
+                self.assertEqual(resp.status_code, 403)
+            else:
+                resp = self.client.get(list_url_nocontest)
+                self.assertEqual(resp.status_code, 200)
+                self.assertContains(resp, 'Test Contest owner')
+                self.assertContains(resp, 'Test Contest admin')
+                self.assertContains(resp, 'Test Contest basicadmin')
+                self.assertContains(resp, 'Test User')
+            perm_different_contest.delete()
+
+            for perm in self.perms_list:
+                # Creating new objects
+                # This should fail only for contest owners trying to add
+                # another contest owner
+                self.try_post_perm(
+                    add_url,
+                    self.contest.id,
+                    self.user,
+                    perm,
+                    u == self.cowner and perm == 'contests.contest_owner',
+                )
+                # Different contest should always fail...
+                self.try_post_perm(
+                    add_url,
+                    'c1',
+                    self.user,
+                    perm,
+                    True,
+                )
+                # ... except for a superuser with no selected contest.
+                self.try_post_perm(
+                    add_url_nocontest,
+                    'c1',
+                    self.user,
+                    perm,
+                    u == self.cowner,
+                )
+
+                # Editing objects, mostly same as above
+                tmp_perm = ContestPermission(
+                    user=self.user,
+                    contest=self.contest,
+                    permission='contests.contest_personal_data',
+                )
+
+                cid = self.contest.id
+                # Different contest should always fail...
+                tmp_perm.save()
+                change_url = reverse(
+                    'oioioiadmin:contests_contestpermission_change',
+                    kwargs={'object_id': tmp_perm.id, 'contest_id': cid},
+                )
+                self.try_post_perm(
+                    change_url,
+                    'c1',
+                    self.user,
+                    perm,
+                    True,
+                )
+
+                # the url is still up to date
+                self.try_post_perm(
+                    change_url,
+                    self.contest.id,
+                    self.user,
+                    perm,
+                    u == self.cowner and perm == 'contests.contest_owner',
+                )
+
+                # ... except for a superuser with no selected contest.
+                tmp_perm.save()
+                change_url = reverse(
+                    'noncontest:oioioiadmin:contests_contestpermission_change',
+                    kwargs={'object_id': tmp_perm.id,},
+                )
+                self.try_post_perm(
+                    change_url,
+                    'c1',
+                    self.user,
+                    perm,
+                    u == self.cowner,
+                )
+                tmp_perm.delete()
+
+        # Deleting
+        perm_different_contest.save()
+        # 'post' is to bypass confirmation screen
+        data_owner = {
+            'post': 'yes',
+            'action': 'delete_selected',
+            '_selected_action': ContestPermission.objects.get(
+                permission='contests.contest_owner').id,
+        }
+        data_admin = {
+            'post': 'yes',
+            'action': 'delete_selected',
+            '_selected_action': ContestPermission.objects.get(
+                permission='contests.contest_admin').id,
+        }
+        data_different_contest = {
+            'post': 'yes',
+            'action': 'delete_selected',
+            '_selected_action': perm_different_contest.id,
+        }
+
+        self.client.force_login(self.cadmin)
+        resp = self.client.post(list_url, data_owner)
+        self.assertEqual(resp.status_code, 403)
+        resp = self.client.post(list_url, data_admin)
+        self.assertEqual(resp.status_code, 403)
+
+        self.client.force_login(self.cowner)
+        resp = self.client.post(list_url, data_owner)
+        self.assertEqual(resp.status_code, 403)
+        resp = self.client.post(list_url, data_different_contest, follow=True)
+        # Verifying this is tricky
+        self.assertEqual(resp.status_code, 200)
+        redir_url = resp.redirect_chain[:1][0]
+        resp = self.client.post(redir_url, data_different_contest, follow=True)
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(ContestPermission.objects.filter(
+            id=perm_different_contest.id).count(), 1)
+        resp = self.client.post(list_url, data_admin)
+        self.assertEqual(resp.status_code, 302)
+
+        self.client.force_login(self.superuser)
+        resp = self.client.post(list_url, data_different_contest)
+        self.assertEqual(resp.status_code, 302)
+        resp = self.client.post(list_url, data_owner)
+        self.assertEqual(resp.status_code, 302)
 
     def test_menu(self):
         unregister_contest_dashboard_view(simpleui_contest_dashboard)
         unregister_contest_dashboard_view(teachers_contest_dashboard)
-
-        self.assertTrue(self.client.login(username='test_contest_admin'))
-        response = self.client.get(
-            reverse('default_contest_view', kwargs={'contest_id': self.contest.id}),
-            follow=True,
+        url = reverse(
+            'default_contest_view',
+            kwargs={'contest_id': self.contest.id}
         )
+
+        self.client.force_login(self.cadmin)
+        response = self.client.get(url, follow=True)
         self.assertNotContains(response, 'System Administration')
         self.assertContains(response, 'Contest Administration')
+        self.assertNotContains(response, 'Contest rights')
         self.assertNotContains(response, 'Observer Menu')
 
-        self.assertTrue(self.client.login(username='test_observer'))
-        response = self.client.get(
-            reverse('problems_list', kwargs={'contest_id': self.contest.id}),
-            follow=True,
-        )
+        self.client.force_login(self.observer)
+        response = self.client.get(url, follow=True)
+        self.assertNotContains(response, 'Contest Administration')
+        self.assertNotContains(response, 'Contest rights')
         self.assertContains(response, 'Observer Menu')
+
+        self.client.force_login(self.superuser)
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, 'System Administration')
+        # The menus are duplicated in the html and this entry
+        # should only appear once in the visible part.
+        self.assertContains(response, 'Contest rights', count=2)
+        self.assertContains(response, 'Contest Administration')
+
+        self.client.force_login(self.cowner)
+        response = self.client.get(url, follow=True)
+        self.assertNotContains(response, 'System Administration')
+        # Same as above
+        self.assertContains(response, 'Contest rights', count=2)
+        self.assertContains(response, 'Contest Administration')
 
 
 class TestPermissionsBasicAdmin(TestCase):

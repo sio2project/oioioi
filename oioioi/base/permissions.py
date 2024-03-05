@@ -177,3 +177,7 @@ def not_anonymous(request):
 @make_request_condition
 def is_superuser(request):
     return request.user.is_superuser
+
+@make_request_condition
+def isnt_superuser(request):
+    return not request.user.is_superuser
