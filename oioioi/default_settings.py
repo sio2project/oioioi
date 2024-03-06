@@ -715,6 +715,7 @@ PRINTING_COMMAND = ['lp', '-o landscape', '-o sides=two-sided-short-edge']
 # To get unlimited submissions count set to 0.
 DEFAULT_SUBMISSIONS_LIMIT = 10
 WARN_ABOUT_REPEATED_SUBMISSION = True
+DEFAULT_SUBMISSION_SIZE_LIMIT = 1024 * 100  # in bytes
 
 # Only used if 'testrun' app is enabled.
 # To get unlimited test runs set to 0.
