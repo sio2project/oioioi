@@ -6,7 +6,9 @@
 {% block main-content %}
     {{ head|safe }}
 
-    <div class="alert alert-info">
-        {% trans "No plots are available at the moment." %}
+    <div class="row">
+        <div class="col">
+            {% include "statistics/_rounds_info.html" %}
+        </div>
     </div>
 {% endblock %}

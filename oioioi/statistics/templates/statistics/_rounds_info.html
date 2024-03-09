@@ -1,0 +1,24 @@
+{% load i18n pagination_tags %}
+{% if rounds_times %}
+<div class="table-responsive-md">
+    <h4> {% trans "Rounds" %} </h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th> {% trans "Round name" %} </th>
+                <th> {% trans "Start time" %} </th>
+                <th> {% trans "End time" %} </th>
+            </tr>
+        </thead>
+    <tbody>
+        {% for round, time in rounds_times %}
+            <tr>
+                <td>{{ round }}</td>
+                <td>{{ time.start }}</td>
+                <td>{{ time.end }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endif %}

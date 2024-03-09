@@ -1,3 +1,6 @@
+import inspect
+from pprint import pprint
+
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.template.response import TemplateResponse
@@ -12,7 +15,7 @@ from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
     is_contest_admin,
-    is_contest_observer,
+    is_contest_observer, rounds_times,
 )
 from oioioi.statistics.controllers import statistics_categories
 from oioioi.statistics.utils import any_statistics_avaiable, can_see_stats, render_head
@@ -116,6 +119,8 @@ def statistics_view(
             'links': links(request),
         },
     )
+
+
 @contest_admin_menu_registry.register_decorator(
     _("Monitoring"),
     lambda request: reverse(
@@ -125,11 +130,14 @@ def statistics_view(
     order=110,
 )
 def monitoring_view(request):
+    r_times = rounds_times(request, request.contest).items()
+
     return TemplateResponse(
         request,
         'statistics/monitoring.html',
         {
-            'title': 'Monitoring',
+            'title': _("Monitoring"),
+            'rounds_times': r_times,
             'links': links(request),
         },
     )
