@@ -116,3 +116,13 @@ def statistics_view(
             'links': links(request),
         },
     )
+@contest_admin_menu_registry.register_decorator(
+    _("Monitoring"),
+    lambda request: reverse(
+        'monitoring', kwargs={'contest_id': request.contest.id}
+    ),
+    condition=(is_contest_admin | is_contest_observer),
+    order=110,
+)
+def monitoring_view(request):
+    raise NotImplementedError

@@ -16,4 +16,5 @@ contest_patterns = [
         name='statistics_view_without_object',
     ),
     re_path(r'^stat/$', views.statistics_view, name='statistics_main'),
+    re_path(r'^monitoring/$', views.monitoring_view, name='monitoring'),
 ]
