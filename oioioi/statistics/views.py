@@ -125,4 +125,11 @@ def statistics_view(
     order=110,
 )
 def monitoring_view(request):
-    raise NotImplementedError
+    return TemplateResponse(
+        request,
+        'statistics/monitoring.html',
+        {
+            'title': 'Monitoring',
+            'links': links(request),
+        },
+    )

@@ -1,0 +1,12 @@
+{% extends "base-with-menu.html" %}
+{% load i18n pagination_tags %}
+
+{% block title %}{% trans "Monitoring" %}{% endblock %}
+
+{% block main-content %}
+    {{ head|safe }}
+
+    <div class="alert alert-info">
+        {% trans "No plots are available at the moment." %}
+    </div>
+{% endblock %}
