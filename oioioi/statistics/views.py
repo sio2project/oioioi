@@ -10,13 +10,14 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.models import ProblemInstance
+from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
     is_contest_admin,
     is_contest_observer, rounds_times,
 )
+from oioioi.participants.models import Participant
 from oioioi.statistics.controllers import statistics_categories
 from oioioi.statistics.utils import any_statistics_avaiable, can_see_stats, render_head
 
@@ -131,6 +132,14 @@ def statistics_view(
 )
 def monitoring_view(request):
     r_times = rounds_times(request, request.contest).items()
+    permissions_count = {
+        permission_name: (ContestPermission
+                          .objects
+                          .filter(contest_id=request.contest.id, permission=permission_cls)
+                          .count())
+        for permission_cls, permission_name in contest_permissions
+    }
+    permissions_count['Participant'] = Participant.objects.filter(contest_id=request.contest.id).count()
 
     return TemplateResponse(
         request,
@@ -138,6 +147,7 @@ def monitoring_view(request):
         {
             'title': _("Monitoring"),
             'rounds_times': r_times,
+            'permissions_count': permissions_count,
             'links': links(request),
         },
     )
