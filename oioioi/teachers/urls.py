@@ -25,6 +25,15 @@ member_type_dependent_patterns = [
         name='teachers_regenerate_key',
     ),
     re_path(r'^delete/$', views.delete_members_view, name='teachers_delete_members'),
+
+    re_path(
+        r'^registration/add_user/$',
+        views.add_user_to_contest,
+        name='teachers_add_user_to_contest'),
+    re_path(
+        r'^registration/get_appendable_users/$',
+        views.get_appendable_users_view,
+        name='teachers_get_appendable_users'),
 ]
 
 contest_patterns = [
