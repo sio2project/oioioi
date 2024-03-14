@@ -18,6 +18,7 @@ from oioioi.contests.utils import (
     is_contest_observer, rounds_times,
 )
 from oioioi.statistics.controllers import statistics_categories
+from oioioi.evalmgr.models import QueuedJob
 from oioioi.statistics.utils import any_statistics_avaiable, can_see_stats, render_head
 
 
@@ -131,6 +132,13 @@ def statistics_view(
 )
 def monitoring_view(request):
     r_times = rounds_times(request, request.contest).items()
+    q_size = (QueuedJob.objects
+                .filter(submission__problem_instance__contest=request.contest)
+                .count())
+    q_size_global = (QueuedJob.objects
+                .count())
+
+
 
     return TemplateResponse(
         request,
@@ -139,5 +147,7 @@ def monitoring_view(request):
             'title': _("Monitoring"),
             'rounds_times': r_times,
             'links': links(request),
+            'q_size': q_size,
+            'q_size_global': q_size_global,
         },
     )
