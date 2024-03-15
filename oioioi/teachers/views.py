@@ -24,7 +24,7 @@ from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Contest
-from oioioi.contests.utils import contest_exists, is_contest_admin, is_contest_not_archived
+from oioioi.contests.utils import contest_exists, is_contest_admin, is_contest_archived
 from oioioi.participants.models import Participant
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm
@@ -199,7 +199,7 @@ def members_view(request, member_type):
     return TemplateResponse(request, 'teachers/members.html', context)
 
 
-@enforce_condition(not_anonymous & is_teachers_contest & is_contest_not_archived)
+@enforce_condition(not_anonymous & is_teachers_contest & ~is_contest_archived)
 def activate_view(request, key):
     registration_config = get_object_or_404(RegistrationConfig, contest=request.contest)
     t_active = registration_config.is_active_teacher

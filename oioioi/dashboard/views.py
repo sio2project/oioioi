@@ -17,7 +17,6 @@ from oioioi.contests.utils import (
     has_any_submittable_problem,
     has_any_visible_problem_instance,
     is_contest_basicadmin,
-    is_contest_not_archived,
 )
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.dashboard.forms import DashboardMessageForm
@@ -39,7 +38,7 @@ top_links_registry.register(
     'submit',
     _("Submit"),
     lambda request: reverse('submit', kwargs={'contest_id': request.contest.id}),
-    condition=has_any_submittable_problem & is_contest_not_archived,
+    condition=has_any_submittable_problem & ~is_contest_archived,
     order=200,
 )
 
