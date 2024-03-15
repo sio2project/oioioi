@@ -473,7 +473,7 @@ def get_submit_message(request):
 
 @make_request_condition
 @request_cached
-def is_archived(request):
+def is_contest_archived(request):
     return (
         hasattr(request, 'contest')
         and request.contest.is_archived
@@ -483,7 +483,7 @@ def is_archived(request):
 @make_request_condition
 @request_cached
 def is_not_archived(request):
-    return not is_archived(request)
+    return not is_contest_archived(request)
 
 
 def get_inline_for_contest(inline, contest):

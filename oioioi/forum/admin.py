@@ -9,7 +9,7 @@ from django.utils.translation import ngettext_lazy
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import contest_site
-from oioioi.contests.utils import is_archived, is_contest_admin
+from oioioi.contests.utils import is_contest_archived, is_contest_admin
 from oioioi.forum.models import Ban, Category, Forum, Post, Thread
 
 def string_concat(*strings):
@@ -94,7 +94,7 @@ class ForumAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
 
@@ -102,7 +102,7 @@ class ForumAdmin(admin.ModelAdmin):
         return False
     
     def has_view_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return get_permission(self, request)
         return super().has_view_permission(request, obj)
 
@@ -144,22 +144,22 @@ class CategoryAdmin(admin.ModelAdmin):
         obj.save()
 
     def has_add_permission(self, request):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
 
     def has_change_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
 
     def has_delete_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
     
     def has_view_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return get_permission(self, request)
         return super().has_view_permission(request, obj)
 
@@ -218,17 +218,17 @@ class ThreadAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
 
     def has_delete_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
 
     def has_view_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return get_permission(self, request)
         return super().has_view_permission(request, obj)
 
@@ -296,17 +296,17 @@ class PostAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
 
     def has_delete_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return False
         return get_permission(self, request)
 
     def has_view_permission(self, request, obj=None):
-        if is_archived(request):
+        if is_contest_archived(request):
             return get_permission(self, request)
         return super().has_view_permission(request, obj)
 

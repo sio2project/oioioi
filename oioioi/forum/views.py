@@ -18,7 +18,7 @@ from oioioi.contests.utils import (
     can_admin_contest,
     can_enter_contest,
     contest_exists,
-    is_archived,
+    is_contest_archived,
     is_contest_admin,
     is_not_archived,
 )
@@ -83,7 +83,7 @@ def forum_view(request):
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
             'is_locked': request.contest.forum.is_locked(),
-            'is_contest_archived': is_archived(request),
+            'is_contest_archived': is_contest_archived(request),
             'category_set': category_set,
             'message': get_forum_message(request),
         },
@@ -134,7 +134,7 @@ def category_view(request, category_id):
             'msgs': get_msgs(request),
             'can_interact_with_users': can_interact_with_users(request),
             'can_interact_with_admins': can_interact_with_admins(request),
-            'is_archived': is_archived(request),
+            'is_contest_archived': is_contest_archived(request),
             'forum_threads_per_page': getattr(settings, 'FORUM_THREADS_PER_PAGE', 30),
         },
     )
@@ -235,7 +235,7 @@ def edit_post_view(request, category_id, thread_id, post_id):
         raise PermissionDenied
 
     # Only admins can edit posts when contest is archived.
-    if not is_admin and is_archived(request):
+    if not is_admin and is_contest_archived(request):
         raise PermissionDenied
 
     if request.method == 'POST':
