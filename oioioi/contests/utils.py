@@ -487,6 +487,10 @@ def is_contest_not_archived(request):
 
 
 def get_inline_for_contest(inline, contest):
+    """Returns inline without add, change or delete permissions,
+    with all fields in readonly for archived contests.
+    For unarchived contests returns the inline itself.
+    """
     if not contest or not contest.is_archived:
         return inline
 

@@ -309,9 +309,7 @@ def delete_post_view(request, category_id, thread_id, post_id):
     )
 
 
-@enforce_condition(
-    not_anonymous & contest_exists & can_enter_contest
-)
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(
     forum_exists_and_visible & is_proper_forum & can_interact_with_admins
 )
