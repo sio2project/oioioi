@@ -16,6 +16,7 @@ from oioioi.contests.utils import (
     contest_exists,
     has_any_submittable_problem,
     has_any_visible_problem_instance,
+    is_contest_archived,
     is_contest_basicadmin,
 )
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view

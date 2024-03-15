@@ -480,12 +480,6 @@ def is_contest_archived(request):
     )
 
 
-@make_request_condition
-@request_cached
-def is_contest_not_archived(request):
-    return not is_contest_archived(request)
-
-
 def get_inline_for_contest(inline, contest):
     """Returns inline without add, change or delete permissions,
     with all fields in readonly for archived contests.
