@@ -482,7 +482,7 @@ def is_contest_archived(request):
 
 @make_request_condition
 @request_cached
-def is_not_archived(request):
+def is_contest_not_archived(request):
     return not is_contest_archived(request)
 
 
