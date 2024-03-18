@@ -3419,6 +3419,7 @@ class TestRulesVisibility(TestCase):
     fixtures = [
         'test_users',
         'test_contest',
+        'test_full_package',
         'test_problem_instances'
     ]
 
