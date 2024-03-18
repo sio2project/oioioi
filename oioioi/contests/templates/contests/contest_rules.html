@@ -38,18 +38,18 @@
             <li class="list-group-item">There are no submission limits in this contest.</li>
         {% endblocktrans %}
     {% endif %}
-    {% for contest, dates in results_visibility.items %}
+    {% for round, dates in results_visibility.items %}
         {% if dates.0 and dates.1 %}
             {% blocktrans %}
-                <li class="list-group-item">In round {{ contest }}, your results will be visible on {{ dates.0 }} and the public ranking will be visible on {{ dates.1 }}.</li>
+                <li class="list-group-item">In round {{ round }}, your results will be visible on {{ dates.0 }} and the public ranking will be visible on {{ dates.1 }}.</li>
             {% endblocktrans %}
         {% elif dates.0 %}
             {% blocktrans %}
-                <li class="list-group-item">In round {{ contest }}, your results as well as public ranking will be visible on {{ dates.0 }}. </li>
+                <li class="list-group-item">In round {{ round }}, your results as well as public ranking will be visible on {{ dates.0 }}. </li>
             {% endblocktrans %}
         {% else %}
             {% blocktrans %}
-                <li class="list-group-item">In round {{ contest }}, your results as well as public ranking will be visible immediately.</li>
+                <li class="list-group-item">In round {{ round }}, your results as well as public ranking will be visible immediately.</li>
             {% endblocktrans %}
         {% endif %}
     {% endfor %}

@@ -126,10 +126,11 @@ def contest_rules_view(request):
     else :
         contest_end_date = None
 
-    #assert(False)
-
     if (len(submission_limit) == 1 and submission_limit[0] == None):
         submission_limit = None
+    elif (submission_limit.contains(0)):
+        submission_limit.remove(0)
+        submission_limit.append(' or no limit of ')
 
     return TemplateResponse(
         request,

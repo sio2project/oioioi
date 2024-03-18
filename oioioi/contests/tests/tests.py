@@ -900,6 +900,16 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 1)
 
+    def test_rules_visibility(self):
+        contest = Contest.objects.get()
+        contest.controller_name = 'oioioi.oi.controllers.ProgrammingContestController'
+        contest.save()
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "There are 4 rounds in this contest.")
+
 
 class TestMultilingualStatements(TestCase, TestStreamingMixin):
     fixtures = [
@@ -2037,6 +2047,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, "User Menu")
 
         self.assertContains(response, "Dashboard")
+        self.assertContains(response, "Rules")
         self.assertContains(response, "Problems")
         self.assertContains(response, "Downloads")
         self.assertContains(response, "Submit")
@@ -2055,7 +2066,7 @@ class TestPermissionsBasicAdmin(TestCase):
         pos2 = html.find('</div', pos)
         self.assertNotEqual(pos2, -1)
 
-        self.assertEqual(html[pos:pos2].count('list-group-item'), 16)
+        self.assertEqual(html[pos:pos2].count('list-group-item'), 18)
 
     def test_usermenu_files(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -3403,6 +3414,145 @@ class TestOpenRegistration(TestCase):
         available_from = now - timedelta(hours=1)
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, 'CONFIG', available_from, available_to)
+
+class TestRulesVisibility(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_problem_instances'
+    ]
+
+    controller_names = [
+        'oioioi.programs.controllers.ProgrammingContestController',
+        'oioioi.acm.controllers.ACMContestController',
+        'oioioi.acm.controllers.ACMOpenContestController',
+        'oioioi.amppz.controllers.AMPPZContestController',
+        'oioioi.mp.controllers.MPContestController',
+        'oioioi.oi.controllers.OIContestController',
+        'oioioi.oi.controllers.OIOnsiteContestController',
+        'oioioi.oi.controllers.OIFinalOnsiteContestController',
+        'oioioi.oi.controllers.BOIOnsiteContestController',
+        'oioioi.oi.controllers.BOIOnlineContestController',
+        'oioioi.pa.controllers.PAContestController',
+        'oioioi.pa.controllers.PAFinalsContestController'            
+    ]
+
+    descriptions = [
+        'Simple programming contest',
+        'ACM style contest',
+        'ACM style contest (open)',
+        'AMPPZ',
+        'Master of Programming',
+        'Polish Olympiad in Informatics - Online',
+        'Polish Olympiad in Informatics - Onsite',
+        'Polish Olympiad in Informatics - Onsite - Finals',
+        'Baltic Olympiad in Informatics',
+        'Baltic Olympiad in Informatics - online',
+        'Algorithmic Engagements',
+        'Algorithmic Engagements finals'
+    ]
+    
+    def test_dashboard_view(self):
+        for c in self.controller_names:
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+            self.assertTrue(self.client.login(username='test_user'))
+            url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "Rules")
+        
+    def test_contest_type(self):
+        for c, d in zip(self.controller_names, self.descriptions):
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+            self.assertTrue(self.client.login(username='test_user'))
+            url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, d)
+    
+    def test_no_of_rounds(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "There is 1 round in this contest.")
+
+    def test_problem_limits(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "There are no submission limits in this contest.")
+
+        problem2 = ProblemInstance.objects.get(pk=2)
+        problem2.submissions_limit = 10
+        problem2.save()
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "There is a limit of 10, or no limit of submissions for each problem.")
+
+        problem1 = ProblemInstance.objects.get(pk=1)
+        problem1.submissions_limit = 20
+        problem1.save()
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "There is a limit of 20, 10, or no limit of submissions for each problem.")
+
+        problem1 = ProblemInstance.objects.get(pk=1)
+        problem1.submissions_limit = 10
+        problem1.save()
+        problem3 = ProblemInstance.objects.get(pk=3)
+        problem3.submissions_limit = 10
+        problem3.save()
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "There is a limit of 10 submissions for each problem.")
+
+    def test_contest_dates(self):
+        times = [
+            fake_time(datetime(2012, 8, 5, tzinfo=timezone.utc)),
+            fake_time(datetime(2012, 8, 15, tzinfo=timezone.utc))
+        ]
+
+        for t in times:
+            with t:
+                self.assertTrue(self.client.login(username='test_user'))
+                url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+                response = self.client.get(url, follow=True)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, "The contest starts on 2011-07-31 20:27:58.")
+
+                contest = Contest.objects.get()
+                contest.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=timezone.utc)
+                contest.save()
+                response = self.client.get(url, follow=True)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, "The contest starts on 2011-07-31 20:27:58 and ends on 2012-08-10 00:00:00.")
+
+    def test_ranking_visibility(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible on 2012-07-31 20:27:58.")
+
+        round1 = Round.objects.get()
+        round1.public_results_date = datetime(2012, 8, 10, 0, 0, tzinfo=timezone.utc)
+        round1.save()
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "In round Round 1, your results will be visible on 2012-07-31 20:27:58 and the public ranking will be visible on 2012-08-10 00:00:00.")
+
+        round1.public_results_date = None
+        round1.results_date = None
+        round1.save()
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
 
 class PublicMessageContestController(ProgrammingContestController):
