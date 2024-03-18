@@ -128,7 +128,7 @@ def contest_rules_view(request):
 
     if (len(submission_limit) == 1 and submission_limit[0] == None):
         submission_limit = None
-    elif (submission_limit.contains(0)):
+    elif 0 in submission_limit:
         submission_limit.remove(0)
         submission_limit.append(' or no limit of ')
 
