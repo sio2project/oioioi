@@ -7,14 +7,16 @@
     {{ head|safe }}
 
     <div class="row">
-        <div class="col">
+        <div class="col col-sm">
+            {% include "statistics/_general_info.html" %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-sm">
             {% include "statistics/_permissions_info.html" %}
         </div>
-        <div class="col">
+        <div class="col col-8">
             {% include "statistics/_rounds_info.html" %}
-        </div>
-        <div class="col">
-            {% include "statistics/_general_info.html" %}
         </div>
     </div>
 {% endblock %}
