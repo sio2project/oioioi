@@ -14,11 +14,9 @@ from oioioi.contests.attachment_registration import (
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
-    is_contest_admin,
     is_contest_basicadmin,
     visible_problem_instances,
 )
-from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem
 from oioioi.testspackages.models import TestsPackage
@@ -27,21 +25,31 @@ from oioioi.testspackages.models import TestsPackage
 @request_cached
 def visible_tests_packages(request):
     problems = [pi.problem for pi in visible_problem_instances(request)]
+    is_admin = is_contest_basicadmin(request)
+    if is_admin:
+        problem_ids_without_admin = {
+            pi.problem_id for pi in visible_problem_instances(
+                request,
+                no_admin=True,
+            )
+        }
+    else:
+        problem_ids_without_admin = {p.id for p in problems}
     tests_packages = TestsPackage.objects.filter(problem__in=problems)
-    return [
-        tp
-        for tp in tests_packages
-        if tp.package is not None and (
-            is_contest_basicadmin(request) or
-            tp.is_visible(request.timestamp)
-        )
-    ]
+    visible_packages = [] # list of (test package, is for admins only) tuples
+    for tp in tests_packages:
+        visible = tp.is_visible(request.timestamp)
+        if tp.package is None or (not visible and not is_admin):
+            continue
+        admin_only = tp.problem_id not in problem_ids_without_admin or not visible
+        visible_packages.append((tp, admin_only))
+    return visible_packages
 
 
 @attachment_registry.register
 def get_tests(request):
     tests = []
-    for tp in visible_tests_packages(request):
+    for tp, admin_only in visible_tests_packages(request):
         t = {
             'category': tp.problem,
             'name': os.path.basename(tp.name) + '.zip',
@@ -50,6 +58,7 @@ def get_tests(request):
                 'test', kwargs={'contest_id': request.contest.id, 'package_id': tp.id}
             ),
             'pub_date': tp.publish_date,
+            'admin_only': admin_only,
         }
         tests.append(t)
     return tests
@@ -80,13 +89,8 @@ def get_tests_package_file(test_package):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def test_view(request, package_id):
     tp = get_object_or_404(TestsPackage, id=package_id)
-    # Check if TestPackage is attached to requested contest
-    if not ProblemInstance.objects.filter(
-        problem=tp.problem, contest=request.contest
-    ).exists():
+    if all(tp != i[0] for i in visible_tests_packages(request)):
         raise Http404
-    if not is_contest_admin(request) and not tp.is_visible(request.timestamp):
-        raise PermissionDenied
     return get_tests_package_file(tp)
 
 

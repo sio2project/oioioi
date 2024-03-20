@@ -88,67 +88,86 @@ class TestTestsPackages(TestCase):
         test1 = Test.objects.get(name='0')
         test2 = Test.objects.get(name='1a')
 
+        # The round starts at 2011.07.31-20:57:58
+        def get_time(hour):
+            return datetime(2011, 7, 31, hour, 0, 0, tzinfo=timezone.utc)
+
+        # Published before the round start
         tp = TestsPackage(
             problem=problem,
-            name='some_name',
+            name='tp1',
             description='some desc',
-            publish_date=datetime(2012, 8, 5, 0, 11, tzinfo=timezone.utc),
+            publish_date=get_time(19),
         )
         tp.full_clean()
         tp.save()
         tp.tests.add(test1, test2)
 
+        # Published after the round start
         tp2 = TestsPackage(
             problem=problem,
-            name='some_name2',
+            name='tp2',
             description='some desc2',
-            publish_date=datetime(2012, 8, 5, 1, 11, tzinfo=timezone.utc),
+            publish_date=get_time(22),
         )
         tp2.full_clean()
         tp2.save()
         tp2.tests.add(test2)
 
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('contest_files', kwargs={'contest_id': contest.id})
+        # Never published
+        tp3 = TestsPackage(
+            problem=problem,
+            name='tp3',
+            description='some desc3',
+            publish_date=None,
+        )
+        tp3.full_clean()
+        tp3.save()
+        tp3.tests.add(test1)
 
-        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=timezone.utc)):
-            response = self.client.get(url)
-            self.assertNotContains(response, 'some_name.zip')
-            self.assertNotContains(response, 'some_name2.zip')
+        def check_accessibility(id, visible):
+            url = reverse('test', kwargs={
+                'contest_id': contest.id,
+                'package_id': id,
+            })
+            self.assertEqual(visible, 200 == self.client.get(url).status_code)
 
-        with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=timezone.utc)):
-            response = self.client.get(url)
-            self.assertContains(response, 'some_name.zip')
-            self.assertNotContains(response, 'some_name2.zip')
+        def check_visibility(visible, invisible):
+            list_url = reverse('contest_files', kwargs={'contest_id': contest.id})
+
+            self.assertTrue(self.client.login(username='test_user'))
+            response = self.client.get(list_url)
             self.assertEqual(200, response.status_code)
+            for i in visible:
+                self.assertContains(response, i.name + '.zip')
+                check_accessibility(i.id, True)
+            for i in invisible:
+                self.assertNotContains(response, i.name + '.zip')
+                check_accessibility(i.id, False)
+            for f in response.context['files']:
+                self.assertEqual(f['admin_only'], False)
 
-        with fake_time(datetime(2012, 8, 5, 1, 12, tzinfo=timezone.utc)):
-            response = self.client.get(url)
-            self.assertContains(response, 'some_name.zip')
-            self.assertContains(response, 'some_name2.zip')
+            self.assertTrue(self.client.login(username='test_admin'))
+            response = self.client.get(list_url)
             self.assertEqual(200, response.status_code)
+            for i in visible + invisible:
+                self.assertContains(response, i.name + '.zip')
+                check_accessibility(i.id, True)
+            invisible_names = set([i.name + '.zip' for i in invisible])
+            for f in response.context['files']:
+                self.assertEqual(f['admin_only'], f['name'] in invisible_names)
 
-        url = reverse('test', kwargs={'contest_id': contest.id, 'package_id': 1})
-
-        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=timezone.utc)):
-            response = self.client.get(url)
-            self.assertEqual(403, response.status_code)
-
-        with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=timezone.utc)):
-            response = self.client.get(url)
-            self.assertEqual(200, response.status_code)
-
-        self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse('contest_files', kwargs={'contest_id': contest.id})
-        # Admins should see even unpublished test packages
-        with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=timezone.utc)):
-            response = self.client.get(url)
-            self.assertContains(response, 'some_name.zip')
-            self.assertContains(response, 'some_name2.zip')
-            self.assertEqual(200, response.status_code)
-
-        with fake_time(datetime(2012, 8, 5, 1, 12, tzinfo=timezone.utc)):
-            response = self.client.get(url)
-            self.assertContains(response, 'some_name.zip')
-            self.assertContains(response, 'some_name2.zip')
-            self.assertEqual(200, response.status_code)
+        # Now, so after everything
+        check_visibility([tp, tp2], [tp3])
+        # Before everything
+        with fake_time(get_time(18)):
+            check_visibility([], [tp, tp2, tp3])
+        # After the first publish_date, but before the round start
+        with fake_time(get_time(20)):
+            check_visibility([], [tp, tp2, tp3])
+        # After the round start, but before the second publish_date
+        with fake_time(get_time(21)):
+            check_visibility([tp], [tp2, tp3])
+        # After everything
+        with fake_time(get_time(23)):
+            check_visibility([tp, tp2], [tp3])

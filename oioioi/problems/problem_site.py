@@ -150,6 +150,7 @@ def problem_site_files(request, problem):
                         'attachment_id': f.id,
                     },
                 ),
+                'admin_only': False,
             }
             for f in files_qs
         ],

@@ -365,6 +365,24 @@ def request_cached(fn):
     return cacher
 
 
+def request_cached_complex(fn):
+    """Adds per-request caching for functions which operate on more than a request.
+    Additional arguments and keyword arguments passed to the wrapped function
+    must be hashable, which generally means that their type must be immutable.
+    """
+
+    @functools.wraps(fn)
+    def cacher(request, *args, **kwargs):
+        if not hasattr(request, '_cache'):
+            setattr(request, '_cache', {})
+        key = (fn, tuple(args), tuple(kwargs.items()))
+        if key not in request._cache:
+            request._cache[key] = fn(request, *args, **kwargs)
+        return request._cache[key]
+
+    return cacher
+
+
 # Generating HTML
 
 
