@@ -55,6 +55,10 @@ from oioioi.contests.utils import (
     get_files_message,
     get_submissions_message,
     get_submit_message,
+    get_number_of_rounds,
+    get_contest_dates,
+    get_problems_sumbmission_limit,
+    get_results_visibility,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -99,6 +103,47 @@ def get_contest_permissions(request, response):
     response['is_contest_admin'] = is_contest_admin(request)
     response['is_contest_basicadmin'] = is_contest_basicadmin(request)
     return response
+
+
+@menu_registry.register_decorator(
+    _("Rules"), lambda request: reverse('contest_rules'), order=100
+)
+@enforce_condition(contest_exists & can_enter_contest)
+def contest_rules_view(request):
+    no_of_rounds = get_number_of_rounds(request)
+    contest_dates = get_contest_dates(request)
+    submission_limit = get_problems_sumbmission_limit(request)
+    results_visibility = get_results_visibility(request)
+    scoring_type = request.contest.controller.description
+
+    if (contest_dates[0] != -1):
+        contest_start_date = contest_dates[0]
+    else :
+        contest_start_date = None
+
+    if (contest_dates[1] != -1):
+        contest_end_date = contest_dates[1]
+    else :
+        contest_end_date = None
+
+    if (len(submission_limit) == 1 and submission_limit[0] == None):
+        submission_limit = None
+    elif 0 in submission_limit:
+        submission_limit.remove(0)
+        submission_limit.append(' or no limit of ')
+
+    return TemplateResponse(
+        request,
+        'contests/contest_rules.html',
+        {
+            'no_of_rounds' : no_of_rounds,
+            'contest_start_date' : contest_start_date,
+            'contest_end_date' : contest_end_date,
+            'submission_limit' : submission_limit,
+            'results_visibility' : results_visibility,
+            'scoring_type' : scoring_type,
+        },
+    )
 
 
 @menu_registry.register_decorator(
