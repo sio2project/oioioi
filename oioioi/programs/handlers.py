@@ -555,6 +555,9 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         test_report.score = result['score'] if save_scores else None
         test_report.status = result['status']
         test_report.time_used = result['time_used']
+        percentage = result.get('result_percentage', 0.)
+        if percentage != 100. and percentage != 0.:
+            test_report.result_percentage = percentage
 
         comment = result.get('result_string', '')
         if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
