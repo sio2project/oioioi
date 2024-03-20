@@ -4,7 +4,17 @@
     <i class="fa-solid fa-circle-info"></i>
     <br>
     {% for signal in signals_to_explain %}
-        {% if signal == 6 %}
+        {% if signal == 4 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGILL signal (signal 4):</b>
+                <ul>
+                    <li>Enabling compiler optimizations through <code>#pragma</code>, which may not be supported by this contest</li>
+                    <li>With compiler optimizations enabled, programs may cause this signal when they encounter
+                undefined behavior (e.g. division by zero), instead of giving a more informative signal</li>
+                    <li>Your compiled code contains machine code that the processor cannot understand.</li>
+                </ul>
+            {% endblocktrans %}
+        {% elif signal == 6 %}
             {% blocktrans %}
                 <b>Most common causes of the SIGABRT signal (signal 6):</b>
                 <ul>
