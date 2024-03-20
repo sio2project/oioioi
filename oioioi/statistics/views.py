@@ -1,4 +1,4 @@
-import inspect
+from datetime import datetime
 from pprint import pprint
 
 from django.core.exceptions import PermissionDenied
@@ -6,6 +6,7 @@ from django.http import Http404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from pytz import UTC
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
@@ -131,7 +132,23 @@ def statistics_view(
     order=110,
 )
 def monitoring_view(request):
-    r_times = rounds_times(request, request.contest).items()
+    cur_time = UTC.localize(datetime.now())
+    r_times = []
+    for round_, rt in rounds_times(request, request.contest).items():
+        round_time_info = {'name': str(round_)}
+        round_time_info['start'] = rt.start or _("Not set")
+        if rt.start:
+            round_time_info['start_relative'] = str(rt.start - cur_time)[:-7] if rt.is_future(cur_time) else _("Started")
+        else:
+            round_time_info['start_relative'] = _("Not set")
+        round_time_info['end'] = rt.end or _("Not set")
+        if rt.end:
+            round_time_info['end_relative'] = str(rt.end - cur_time)[:-7] if not rt.is_past(cur_time) else _("Finished")
+        else:
+            round_time_info['end_relative'] = _("Not set")
+        r_times.append(round_time_info)
+
+    print(f'TUTAJ: {r_times}')
     permissions_count = {
         permission_name: (ContestPermission
                           .objects
