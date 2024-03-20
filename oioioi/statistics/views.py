@@ -149,7 +149,6 @@ def monitoring_view(request):
             round_time_info['end_relative'] = _("Not set")
         r_times.append(round_time_info)
 
-    print(f'TUTAJ: {r_times}')
     permissions_count = {
         permission_name: (ContestPermission
                           .objects
