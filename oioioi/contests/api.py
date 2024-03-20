@@ -4,8 +4,9 @@ from oioioi.base.utils.api import make_path_coreapi_schema
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.contests.serializers import SubmissionSerializer
-from oioioi.contests.utils import can_enter_contest
-from oioioi.problems.models import Problem
+from oioioi.contests.utils import contest_exists, can_enter_contest, visible_contests, visible_rounds
+from oioioi.problems.models import Problem, ProblemInstance
+from oioioi.contests.models import Round
 from oioioi.base.permissions import enforce_condition, not_anonymous
 
 from rest_framework import permissions, status, views
@@ -25,9 +26,86 @@ class ContestSerializer(serializers.ModelSerializer):
 @api_view(['GET'])
 @enforce_condition(not_anonymous, login_redirect=False)
 def contest_list(request):
-    contests = [x.contest for x in request.user.contestview_set.all()]
+    contests = visible_contests(request)
     serializer = ContestSerializer(contests, many=True)
     return Response(serializer.data)
+
+class RoundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Round
+        fields = ['__all__']
+
+
+@api_view(['GET'])
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
+def round_list(request):
+    rounds = visible_rounds(request)
+    serializer = RoundSerializer(rounds, many=True)
+    return Response(serializer.data)
+
+#     # Problem statements in order
+#     # 1) problem instance
+#     # 2) statement_visible
+#     # 3) round end time
+#     # 4) user result
+#     # 5) number of submissions left
+#     # 6) submissions_limit
+#     # 7) can_submit
+#     # Sorted by (start_date, end_date, round name, problem name)
+#     problems_statements = sorted(
+#         [
+#             (
+#                 pi,
+#                 controller.can_see_statement(request, pi),
+#                 controller.get_round_times(request, pi.round),
+#                 # Because this view can be accessed by an anynomous user we can't
+#                 # use `user=request.user` (it would cause TypeError). Surprisingly
+#                 # using request.user.id is ok since for AnynomousUser id is set
+#                 # to None.
+#                 next(
+#                     (
+#                         r
+#                         for r in UserResultForProblem.objects.filter(
+#                             user__id=request.user.id, problem_instance=pi
+#                         )
+#                         if r
+#                         and r.submission_report
+#                         and controller.can_see_submission_score(
+#                             request, r.submission_report.submission
+#                         )
+#                     ),
+#                     None,
+#                 ),
+#                 pi.controller.get_submissions_left(request, pi),
+#                 pi.controller.get_submissions_limit(request, pi),
+#                 controller.can_submit(request, pi) and not is_contest_archived(request),
+#             )
+#             for pi in problem_instances
+#         ],
+#         key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name, p[0].short_name),
+#     )
+
+#     show_submissions_limit = any([p[5] for p in problems_statements])
+#     show_submit_button = any([p[6] for p in problems_statements])
+#     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
+#     table_columns = 3 + int(show_submissions_limit) + int(show_submit_button)
+
+#     return TemplateResponse(
+#         request,
+#         'contests/problems_list.html',
+#         {
+#             'problem_instances': problems_statements,
+#             'show_rounds': show_rounds,
+#             'show_scores': request.user.is_authenticated,
+#             'show_submissions_limit': show_submissions_limit,
+#             'show_submit_button': show_submit_button,
+#             'table_columns': table_columns,
+#             'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100),
+#         },
+#     )
+#     rounds = [x.contest for x in request.user.contestview_set.all()]
+#     serializer = RoundSerializer(rounds, many=True)
+#     return Response(serializer.data)
 
 
 class CanEnterContest(permissions.BasePermission):

@@ -205,6 +205,7 @@ if settings.USE_API:
             api.GetProblemIdView.as_view(),
             name='api_contest_get_problem_id',
         ),
+        re_path(r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$', api.round_list),
         re_path(
             r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',
             api.SubmitProblemsetSolutionView.as_view(),

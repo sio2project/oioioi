@@ -50,7 +50,7 @@ Return a list of contests that user is signed into.
 
 [
     {
-        slug: "{contest_slug}":
+        id: "{contest_id}":
         name: "{contest_name}",
     },
     ...
@@ -60,8 +60,8 @@ Return a list of contests that user is signed into.
 
 | parameter | type | description |
 |:---------:|:----:|:-----------:|
-| contest_slug      |  string | Short, unique name of the contest, typically, eg. `oi31-1` |
-| contest_name      |  string | Long, unique? name of the contest, typically, eg. `XXXI Olimpiada Informatyczna` |
+| contest_id      |  string | Id is a short, unique name of the contest, eg. `oi31-1` |
+| contest_name      |  string | Long, unique? name of the contest, eg. `XXXI Olimpiada Informatyczna` |
 
 ### `/api/user_info`
 
@@ -86,7 +86,7 @@ Return all available user information **unrelated** to contests.
 |:---------:|:----:|:-----------:|
 | username      |  string | Username of the user ;D   |
 
-### `/api/contest/{contest_slug}/problem_list`
+### `/api/c/{contest_id}/problem_list`
 
 Return the available problems inside a contest.
 
@@ -94,33 +94,32 @@ Return the available problems inside a contest.
 
 | parameter | type | description |
 |:-------------:|:----:|:-----------:|
-| contest_slug  |  string |  Contest slug, any returned by `/api/contest_list`.   |
+| contest_id  |  string |  Contest id, any returned by `/api/contest_list`.   |
 
 #### Output
 
 ```json
-{
-    "{contest_slug}": {
-        "{problem_slug}" : {
-            "problem_name": {problem_name},
-            "content_link": {
-                "type": "pdf" / "other",
-                "link": {link},
-            }
-        },
-        ...
-    }
-}
+[
+    {
+        "problem_id":"{problem_id}",
+        "problem_name": {problem_name},
+        "content_link": {
+            "type": "pdf" / "other",
+            "link": {link},
+        }
+    },
+    ...
+]
 ```
 
 | parameter | type | description |
 |:---------:|:----:|:-----------:|
-| contest_slug      |  string |  Contest id, any returned by `/api/contest_list`.       |
-| problem_slug      |  string |  Problem id, usually a 3 letter-long short name.  |
+| contest_id      |  string |  Contest id, any returned by `/api/contest_list`.       |
+| problem_id      |  string |  Problem id, usually a 3 letter-long short name.  |
 | problem_name      |  string |    Full name of the problem   |
 | link      |  string |  In case of `pdf`, a link to a PDF, else a regular link.   |
 
-### `/api/contest/{contest_slug}/problem/{problem_slug}/`
+### `/api/c/{contest_id}/problem/{problem_slug}/`
 
 Return ????????
 
