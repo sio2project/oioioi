@@ -6,11 +6,28 @@ from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.contests.serializers import SubmissionSerializer
 from oioioi.contests.utils import can_enter_contest
 from oioioi.problems.models import Problem
+from oioioi.base.permissions import enforce_condition, not_anonymous
+
 from rest_framework import permissions, status, views
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.schemas import AutoSchema
+from rest_framework import serializers
+from rest_framework.decorators import api_view
+
+class ContestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contest
+        fields = ['id', 'name']
+
+
+@api_view(['GET'])
+@enforce_condition(not_anonymous, login_redirect=False)
+def contest_list(request):
+    contests = [x.contest for x in request.user.contestview_set.all()]
+    serializer = ContestSerializer(contests, many=True)
+    return Response(serializer.data)
 
 
 class CanEnterContest(permissions.BasePermission):

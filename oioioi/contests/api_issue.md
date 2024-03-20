@@ -47,10 +47,15 @@ Return a list of contests that user is signed into.
 #### Output
 
 ```json
-{
-    "{contest_slug}": "{contest_name}",
+
+[
+    {
+        slug: "{contest_slug}":
+        name: "{contest_name}",
+    },
     ...
-}
+],
+
 ```
 
 | parameter | type | description |
