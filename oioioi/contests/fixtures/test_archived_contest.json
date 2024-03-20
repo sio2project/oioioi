@@ -6,7 +6,7 @@
       "name": "Test contest",
       "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
       "creation_date": "2011-07-31T20:27:58.768Z",
-      "is_archived": "False"
+      "is_archived": "True"
     }
   },
   {

@@ -12,7 +12,7 @@
 
 {% block links_to_post %}<a href="#forum-anchor-{{ post.id }}">#{{ post.id }}</a>{% endblock %}
 
-{% if category.reactions_enabled %}
+{% if category.reactions_enabled and not is_contest_archived %}
     <span class="post_reactions">|
         {% if can_interact_with_users %}
             <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=upvote">
@@ -54,7 +54,7 @@
     | {% trans "Last edit" %}: {{ post.last_edit_date }}
 {% endif %}
 
-{% if can_interact_with_users and post.author == user or is_admin %}
+{% if can_interact_with_users and post.author == user and not is_contest_archived or is_admin %}
     | <a href="{{ forum_post_edit_url }}">
         {% trans "edit" %}
       </a>

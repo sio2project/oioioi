@@ -46,6 +46,7 @@ from oioioi.contests.utils import (
     contest_exists,
     get_submission_or_error,
     has_any_submittable_problem,
+    is_contest_archived,
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
@@ -144,7 +145,7 @@ def problems_list_view(request):
                 ),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
-                controller.can_submit(request, pi),
+                controller.can_submit(request, pi) and not is_contest_archived(request),
             )
             for pi in problem_instances
         ],
@@ -245,7 +246,7 @@ def problem_statement_zip_view(request, problem_instance, statement_id, path):
 @menu_registry.register_decorator(
     _("Submit"), lambda request: reverse('submit'), order=300
 )
-@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest & ~is_contest_archived)
 @enforce_condition(
     has_any_submittable_problem, template='contests/nothing_to_submit.html'
 )
@@ -325,6 +326,7 @@ def my_submissions_view(request):
             'submissions': submissions,
             'show_scores': show_scores,
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
+            'is_contest_archived': is_contest_archived(request),
             'message': get_submissions_message(request),
             'is_admin': is_contest_basicadmin(request),
         },
@@ -761,3 +763,21 @@ def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
         'contests/reattach_problem_confirm.html',
         {'problem_instance': problem_instance, 'destination_contest': contest},
     )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def confirm_archive_contest(request):
+    if request.method == 'POST':
+        contest = request.contest
+        contest.is_archived = True
+        contest.save()
+        return redirect('default_contest_view', contest_id=contest.id)
+    return TemplateResponse(request, 'contests/confirm_archive_contest.html')
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def unarchive_contest(request):
+    contest = request.contest
+    contest.is_archived = False
+    contest.save()
+    return redirect('default_contest_view', contest_id=contest.id)
