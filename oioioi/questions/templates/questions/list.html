@@ -94,18 +94,19 @@
                     </button>
                 {% endif %}
                 {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
-                {% if is_admin %}
-                    <a role="button" class="btn btn-sm btn-outline-secondary"
-                        href="{% url 'add_contest_message' contest_id=contest.id %}">
-                        <i class="fa-solid fa-message"></i>
-                        {% trans "Add news" %}
-                    </a>
-                    <a role="button" class="btn btn-sm btn-outline-secondary"
-                        href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
-                        <i class="fa-solid fa-pencil"></i>
-                        {% trans "Edit reply templates" %}
-                    </a>
-                    <a role="button" class="btn btn-sm btn-outline-secondary"
+                {% if not is_contest_archived %}
+                    {% if is_admin %}
+                        <a role="button" class="btn btn-sm btn-outline-secondary"
+                            href="{% url 'add_contest_message' contest_id=contest.id %}">
+                            <i class="fa-solid fa-message"></i>
+                            {% trans "Add news" %}
+                        </a>
+                        <a role="button" class="btn btn-sm btn-outline-secondary"
+                            href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
+                            <i class="fa-solid fa-pencil"></i>
+                            {% trans "Edit reply templates" %}
+                        </a>
+                        <a role="button" class="btn btn-sm btn-outline-secondary"
                         href="{% url 'edit_question_news_message' %}">
                         <i class="fa-solid fa-pencil"></i>
                         {% trans "Edit news message" %}
@@ -116,11 +117,12 @@
                         {% trans "Edit new question message" %}
                     </a>
                 {% elif categories %}
-                    <a role="button" class="btn btn-sm btn-outline-secondary"
-                        href="{% url 'add_contest_message' contest_id=contest.id %}">
-                        <i class="fa-solid fa-circle-question"></i>
-                        {% trans "Ask a question" %}
-                    </a>
+                        <a role="button" class="btn btn-sm btn-outline-secondary"
+                            href="{% url 'add_contest_message' contest_id=contest.id %}">
+                            <i class="fa-solid fa-circle-question"></i>
+                            {% trans "Ask a question" %}
+                        </a>
+                    {% endif %}
                 {% endif %}
             {% endif %}
             <a role="button" class="btn btn-sm btn-outline-secondary"

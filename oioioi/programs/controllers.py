@@ -732,6 +732,11 @@ class ProgrammingProblemController(ProblemController):
         all_outs_generated = allow_download_out
 
         groups = []
+        signals_to_explain = set()
+        # Sioworkers doesn't give us exit codes or signals explicitly. Neither does sio2jail.
+        # This detection mechanism is similar to the one sioworkers uses to give a RE verdict:
+        # https://github.com/sio2project/sioworkers/blob/55776ac98613ff2b11bd63397be536029616b9bb/sio/workers/executors.py#L670
+        signal_exit_msg = 'process exited due to signal '
         for group_name, tests in itertools.groupby(
             test_reports, attrgetter('test_group')
         ):
@@ -740,6 +745,13 @@ class ProgrammingProblemController(ProblemController):
             for test in tests_list:
                 test.generate_status = picontroller._out_generate_status(request, test)
                 all_outs_generated &= test.generate_status == 'OK'
+                # Extract all error signals from the test report according to the format
+                if test.comment.startswith(signal_exit_msg):
+                    try:
+                        signal = int(test.comment[len(signal_exit_msg):])
+                        signals_to_explain.add(signal)
+                    except ValueError:
+                        pass
 
             tests_records = [
                 {'display_type': get_report_display_type(request, test), 'test': test}
@@ -761,6 +773,7 @@ class ProgrammingProblemController(ProblemController):
                 'allow_test_comments': allow_test_comments,
                 'all_outs_generated': all_outs_generated,
                 'is_admin': picontroller.is_admin(request, report),
+                'signals_to_explain': signals_to_explain,
             },
         )
 

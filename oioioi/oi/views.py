@@ -24,6 +24,7 @@ def registration_notice_fragment(request):
         and request.user.is_authenticated
         and not is_contest_admin(request)
         and not is_participant(request)
+        and rc.can_register(request)
     ):
         return render_to_string('oi/registration_notice.html', request=request)
     else:

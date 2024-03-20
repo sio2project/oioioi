@@ -19,12 +19,16 @@
             </thead>
             <tbody>
                 {% for contest in contest_list %}
-                    <tr>
-                        <td>{{ contest.id }}</td>
-                        <td><a href="{% url 'reattach_problem_confirm' problem_instance.id contest.id %}">
+                <tr>
+                    <td>{{ contest.id }}</td>
+                    <td><a href="{% url 'reattach_problem_confirm' problem_instance.id contest.id %}">
                             {{ contest.name }}
-                        </a></td>
-                    </tr>
+                        </a>
+                        {% if contest.is_archived %}
+                            <span class="badge badge-warning">{% trans "Archived" %}</span>
+                        {% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

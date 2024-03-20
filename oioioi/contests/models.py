@@ -99,6 +99,10 @@ class Contest(models.Model):
         verbose_name=_("enable editor"),
         default=False
     )
+    is_archived = models.BooleanField(
+        verbose_name=_("is archived"),
+        default=False
+    )
 
     # Part of szkopul backporting.
     # This is a hack for situation where contest controller is empty,

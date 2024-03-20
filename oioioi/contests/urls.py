@@ -148,6 +148,8 @@ c_patterns = [
         name='user_info_redirect',
     ),
     re_path(r'^admin/', admin.contest_site.urls),
+    re_path(r'^archive/confirm$', views.confirm_archive_contest, name='confirm_archive_contest'),
+    re_path(r'^unarchive/$', views.unarchive_contest, name='unarchive_contest'),
 ]
 
 nonc_patterns = [

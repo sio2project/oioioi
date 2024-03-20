@@ -176,6 +176,25 @@
                 </p>
             {% endif %}
 
+            <form action="{% url 'teachers_add_user_to_contest' contest_id=contest.id member_type=member_type %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-success" type="submit">
+                            {% if member_type == 'teacher' %}
+                                {% trans "Add a teacher" %}
+                            {% else %}
+                                {% trans "Add a pupil" %}
+                            {% endif %}
+                        </button>
+                    </div>
+                    <input type="text" name="user" id="new-user" class="form-control" placeholder="{% trans "Username" %}" data-hints-url="{% url 'teachers_get_appendable_users' contest_id=contest.id member_type=member_type %}">
+                    <script>init_user_selection("new-user", {{ num_hints }})</script>
+                </div>
+            </form>
+
             {% if member_type == 'pupil' and usergroups_active and members %}
                 <div class="text-center">
                     <form class="convert-members" action="{% url 'teacher_usergroups_add_group' %}" method="get">
