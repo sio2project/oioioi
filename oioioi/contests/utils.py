@@ -322,6 +322,7 @@ def get_problems_sumbmission_limit(request):
 
 @request_cached
 def get_results_visibility(request):
+    """Returns the results visibility for each round in the contest"""
     if isinstance(request, HttpRequest):
         rtimes = rounds_times(request, request.contest)
     else:
