@@ -19,8 +19,14 @@ if os.getuid() == 0:  # root
     print("ERROR: message and edit the source at your own risk.", file=sys.stderr)
     sys.exit(2)
 
+
 # All modules in the newest versions at the time of upgrade to Django 4.2
 # unless specified otherwise.
+# This list includes requirements for sioworkers 1.4.3 (near the end of file)
+#
+# To recompile requirements (pin newest compatible versions) run:
+#   pip-compile --output-file=requirements_pinned.txt setup.py
+#
 requirements = [
     "Django>=4.2,<4.3",
     "pytz>=2023.3,<2023.4",
@@ -72,6 +78,16 @@ requirements = [
     "importlib-metadata<5.0",
     "supervisor<4.3",  # previously http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
     "django-supervisor@git+https://github.com/sio2project/django-supervisor#egg=django-supervisor",  # previously http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
+
+    # sioworkers requirements
+    "filetracker>=2.1.5,<3.0",
+    "bsddb3==6.2.7",
+    "simplejson==3.14.0",
+    "supervisor>=4.0,<4.3",
+    "Twisted==20.3.0",
+    "sortedcontainers==2.1.0",
+    "six",
+    "urllib3>=1.26.14,<2.0",
 ]
 
 setup(
