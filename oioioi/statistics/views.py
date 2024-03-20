@@ -20,6 +20,7 @@ from oioioi.contests.utils import (
 )
 from oioioi.participants.models import Participant
 from oioioi.statistics.controllers import statistics_categories
+from oioioi.evalmgr.models import QueuedJob
 from oioioi.statistics.utils import any_statistics_avaiable, can_see_stats, render_head
 
 
@@ -157,6 +158,11 @@ def monitoring_view(request):
         for permission_cls, permission_name in contest_permissions
     }
     permissions_count['Participant'] = Participant.objects.filter(contest_id=request.contest.id).count()
+    q_size = (QueuedJob.objects
+                .filter(submission__problem_instance__contest=request.contest)
+                .count())
+    q_size_global = (QueuedJob.objects
+                .count())
 
     return TemplateResponse(
         request,
@@ -166,5 +172,7 @@ def monitoring_view(request):
             'rounds_times': r_times,
             'permissions_count': permissions_count,
             'links': links(request),
+            'q_size': q_size,
+            'q_size_global': q_size_global,
         },
     )
