@@ -13,7 +13,7 @@ from oioioi.oi.models import PROVINCES, OIRegistration, School
 class AddSchoolForm(forms.ModelForm):
     class Meta(object):
         model = School
-        exclude = ['is_active', 'is_approved']
+        exclude = ['is_active', 'is_approved', 'rspo', 'type']
 
 
 def city_options(province):
