@@ -36,7 +36,9 @@ RAW_COMMANDS = [
      "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh"),
     ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow"),
-    ("test-abc", "Run specific test file. You will be promted to enter the path to the test file, starting from oioioi/[...].",
+    ("test-abc", "Run specific test file. The path is hardcoded in the toolbox.", 
+     "{exec} web ../oioioi/test.sh -v oioioi/contests/tests/tests.py::TestRulesVisibility"),
+    ("test-specific", "Run specific test file. You will be promted to enter the path to the test file, starting from oioioi/[...].",
      "{exec} web ../oioioi/test.sh -v {module_path}"),
     ("test-coverage", "Run coverage tests.",
      "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
@@ -81,7 +83,7 @@ class Option:
                 elif "yes".startswith(choice):
                     input_subclass = input("Enter subclass name: ")
                     self.command = self.command.format(exec="exec -T" if disable else "exec",
-                                                        module_path=module_path + ":" + input_subclass)
+                                                        module_path=module_path + "::" + input_subclass)
                     break
                 else:
                     print("Please answer [yes] or [no].")
