@@ -72,12 +72,7 @@ class RoundTimes(object):
 
         return current_datetime >= self.show_results
     
-    def results_date(self, current_datetime):
-        # if self.is_active(current_datetime):
-        #     return current_datetime >= self.show_results + timedelta(
-        #     minutes=self.extra_time
-        # )
-
+    def results_date(self):
         return self.show_results
 
     def public_results_visible(self, current_datetime):
@@ -98,9 +93,9 @@ class RoundTimes(object):
 
         return current_datetime >= self.show_public_results
     
-    def public_results_date(self, current_datetime):
+    def public_results_date(self):
         if not self.contest.controller.separate_public_results():
-            return self.results_date(current_datetime)
+            return self.results_date()
 
         return self.show_public_results
 
@@ -306,7 +301,6 @@ def get_problems_sumbmission_limit(request):
     controller = request.contest.controller
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
-        .select_related('problem')
         .prefetch_related('round')
     )
 
@@ -317,7 +311,7 @@ def get_problems_sumbmission_limit(request):
     for p in queryset:
         limits.add(controller.get_submissions_limit(request, p))
 
-    return list(limits)
+    return sorted(limits)
 
 
 @request_cached
@@ -328,16 +322,28 @@ def get_results_visibility(request):
     else:
         rtimes = generic_rounds_times(None, request.contest)
 
-    dates = dict(
-        (
+    dates = list()
+    for r in rtimes.keys():
+        results = rtimes[r].results_date()
+        public_results = rtimes[r].public_results_date()
+        if (results <= request.timestamp):
+            results = 'immediately'
+        else:
+            results = f'after {results}'
+
+        if (public_results <= request.timestamp):
+            public_results = 'immediately'
+        else:
+            public_results = f'after {public_results}'
+
+        dates.append((
             r.name,
-            (
-                rtimes[r].results_date(request.timestamp),
-                rtimes[r].public_results_date(request.timestamp)
-            )
-        )
-        for r in rtimes.keys()
-    )
+            results,
+            public_results
+        ))
+        print(r.name)
+        print(results)
+        print(public_results)
 
     return dates
 

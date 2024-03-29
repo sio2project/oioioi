@@ -27,29 +27,23 @@
     {% if submission_limit|length > 1 %}
             <li class="list-group-item">There is a limit of {{ submission_limit|join:", " }} submissions, depending on a problem.</li>
     {% elif submission_limit %}
-        {% blocktrans %}
-            <li class="list-group-item">There is a limit of 
-            {% endblocktrans %}
-            {{ submission_limit.0 }}
-            {% blocktrans %} submissions for each problem.</li>
-        {% endblocktrans %}
+            <li class="list-group-item">There is a limit of {{ submission_limit.0 }} submissions for each problem.</li>
     {% else %}
         {% blocktrans %}
             <li class="list-group-item">There are no submission limits in this contest.</li>
         {% endblocktrans %}
     {% endif %}
-    {% for round, dates in results_visibility.items %}
-        {% if dates.0 and dates.1 %}
+    {% for rv in results_visibility %}
+        {% if rv.0 %}
+            <li class="list-group-item">BLBL!</li>
+        {% endif %}
+        {% if rv.1 != rv.2 %}
             {% blocktrans %}
-                <li class="list-group-item">In round {{ round }}, your results will be visible on {{ dates.0 }} and the public ranking will be visible on {{ dates.1 }}.</li>
-            {% endblocktrans %}
-        {% elif dates.0 %}
-            {% blocktrans %}
-                <li class="list-group-item">In round {{ round }}, your results as well as public ranking will be visible on {{ dates.0 }}. </li>
+                <li class="list-group-item">In round {{ rv.0|default:"blbl" }}, your results will be visible {{ rv.1 }} and the public ranking will be visible {{ rv.2 }}.</li>
             {% endblocktrans %}
         {% else %}
             {% blocktrans %}
-                <li class="list-group-item">In round {{ round }}, your results as well as public ranking will be visible immediately.</li>
+                <li class="list-group-item">In round {{ rv.0|default:"blbl" }}, your results as well as public ranking will be visible {{ rv.1 }}.</li>
             {% endblocktrans %}
         {% endif %}
     {% endfor %}
