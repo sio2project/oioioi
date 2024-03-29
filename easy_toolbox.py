@@ -37,7 +37,7 @@ RAW_COMMANDS = [
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh"),
     ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow"),
     ("test-abc", "Run specific test file. (edit the toolbox)",
-     "{exec} web ../oioioi/test.sh -v oioioi/problems/tests/test_task_archive.py"),
+     "{exec} web ../oioioi/test.sh -v {module_path}"),
     ("test-coverage", "Run coverage tests.",
      "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
@@ -60,7 +60,17 @@ class Option:
 
     # If we use exec we should add -T for GitHub actions (disable tty).
     def fill_tty(self, disable=False):
-        self.command = self.command.format(exec="exec -T" if disable else "exec")
+        if "{module_path}" in self.command:
+            module_path = input("Enter full test module path (ex. oioioi/problems/tests/test_task_archive.py ")
+            if os.path.exists(module_path):
+                if not module_path.startswith("oioioi/") or "tests" not in module_path:
+                    Exception(f"File {module_path} is not a test file.")
+                self.command = self.command.format(exec="exec -T" if disable else "exec", module_path=module_path)
+            else:
+                raise Exception(f"File {module_path} does not exist.")
+
+        else:
+            self.command = self.command.format(exec="exec -T" if disable else "exec")
 
     def long_str(self) -> str:
         return f"Option({self.arg}, Description='{self.help}', Command='{self.command}')"
@@ -142,8 +152,12 @@ def warn_user(action: Option) -> bool:
 
 
 def run() -> None:
+    print("1")
     action = get_action_from_args() or get_action_from_gui()
+    print("2")
     action.fill_tty(disable=NO_INPUT)
+    print("3")
+    print("4")
     if action.warn and not NO_INPUT:
         if not warn_user(action):
             print("Aborting.")
@@ -160,8 +174,11 @@ def print_help() -> None:
 
 def main() -> None:
     try:
+        print("a")
         check_commands()
+        print("b")
         run()
+        print("c")
     except Help:
         print_help()
     except Exception as e:
