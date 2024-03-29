@@ -36,7 +36,7 @@ RAW_COMMANDS = [
      "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh"),
     ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow"),
-    ("test-abc", "Run specific test file. (edit the toolbox)",
+    ("test-abc", "Run specific test file. You will be promted to enter the path to the test file, starting from oioioi/[...].",
      "{exec} web ../oioioi/test.sh -v {module_path}"),
     ("test-coverage", "Run coverage tests.",
      "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi"),
@@ -60,15 +60,31 @@ class Option:
 
     # If we use exec we should add -T for GitHub actions (disable tty).
     def fill_tty(self, disable=False):
+        # defining module_path is put here, as we need to format the entire command at once
+        # {module_path} is a placeholder for the test path only in the test-abc command
         if "{module_path}" in self.command:
-            module_path = input("Enter full test module path (ex. oioioi/problems/tests/test_task_archive.py ")
+            module_path = input("Enter full test module path (ex. oioioi/problems/tests/test_task_archive.py): ")
+
             if os.path.exists(module_path):
                 if not module_path.startswith("oioioi/") or "tests" not in module_path:
-                    Exception(f"File {module_path} is not a test file.")
-                self.command = self.command.format(exec="exec -T" if disable else "exec", module_path=module_path)
+                    Exception(f"File {module_path} is (most probably) not a test file. \
+                              If this is not correct, please edit the toolbox.")
             else:
                 raise Exception(f"File {module_path} does not exist.")
 
+            print("Do you want to specify the test subclass? [y/N]")
+            while True:
+                choice = input().lower()
+                if not choice or "no".startswith(choice):
+                    self.command = self.command.format(exec="exec -T" if disable else "exec", module_path=module_path)
+                    break
+                elif "yes".startswith(choice):
+                    input_subclass = input("Enter subclass name: ")
+                    self.command = self.command.format(exec="exec -T" if disable else "exec",
+                                                        module_path=module_path + ":" + input_subclass)
+                    break
+                else:
+                    print("Please answer [yes] or [no].")
         else:
             self.command = self.command.format(exec="exec -T" if disable else "exec")
 
@@ -152,12 +168,8 @@ def warn_user(action: Option) -> bool:
 
 
 def run() -> None:
-    print("1")
     action = get_action_from_args() or get_action_from_gui()
-    print("2")
     action.fill_tty(disable=NO_INPUT)
-    print("3")
-    print("4")
     if action.warn and not NO_INPUT:
         if not warn_user(action):
             print("Aborting.")
@@ -174,11 +186,8 @@ def print_help() -> None:
 
 def main() -> None:
     try:
-        print("a")
         check_commands()
-        print("b")
         run()
-        print("c")
     except Help:
         print_help()
     except Exception as e:
