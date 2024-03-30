@@ -63,12 +63,12 @@ class Option:
     # If we use exec we should add -T for GitHub actions (disable tty).
     def fill_tty(self, disable=False):
         # defining module_path is put here, as we need to format the entire command at once
-        # {module_path} is a placeholder for the test path only in the test-abc command
+        # {module_path} is a placeholder for the test path only in the test-specific command
         if "{module_path}" in self.command:
             module_path = input("Enter full test module path (ex. oioioi/problems/tests/test_task_archive.py): ")
 
             if os.path.exists(module_path):
-                if not module_path.startswith("oioioi/") or "tests" not in module_path:
+                if not module_path.startswith("oioioi/") or "tests" not in module_path or not module_path.endswith(".py"):
                     Exception(f"File {module_path} is (most probably) not a test file. \
                               If this is not correct, please edit the toolbox.")
             else:
