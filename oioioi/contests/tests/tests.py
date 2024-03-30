@@ -908,7 +908,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         url = reverse('contest_rules', kwargs={'contest_id': 'c'})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "There are 4 rounds in this contest.")
+        self.assertContains(response, "The contest has 4 rounds.")
 
 
 class TestMultilingualStatements(TestCase, TestStreamingMixin):
@@ -3471,13 +3471,12 @@ class TestRulesVisibility(TestCase):
             contest = Contest.objects.get()
             contest.controller_name = c
             contest.save()
+            # logging in as admin in order not to have to 
+            # register as contest participant to check if rules are visible
             self.assertTrue(self.client.login(username='test_admin'))
             url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
-            print('\n')
-            print(contest.controller_name)
-            print(response.content)
             self.assertContains(response, "Rules")
         
     def test_contest_type(self):
@@ -3497,7 +3496,7 @@ class TestRulesVisibility(TestCase):
         url = reverse('contest_rules', kwargs={'contest_id': 'c'})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "There is 1 round in this contest.")
+        self.assertContains(response, "The contest has 1 round.")
 
     def test_problem_limits(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -3586,8 +3585,6 @@ class TestRulesVisibility(TestCase):
             url = reverse('contest_rules', kwargs={'contest_id': 'c'})
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
-            print(round.results_date)
-            print(response.content)
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
         
             self._change_controller(public_results=True)
@@ -3610,8 +3607,6 @@ class TestRulesVisibility(TestCase):
             url = reverse('contest_rules', kwargs={'contest_id': 'c'})
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
-            print(round.results_date)
-            print(response.content)
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
         
             self._change_controller(public_results=True)

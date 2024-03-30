@@ -326,9 +326,6 @@ def get_results_visibility(request):
     for r in rtimes.keys():
         results_date = rtimes[r].results_date()
         public_results_date = rtimes[r].public_results_date()
-        print(request.timestamp)
-        print(results_date)
-        print(public_results_date)
  
         if (results_date is None or results_date <= request.timestamp):
             results_visibility = 'immediately'
@@ -345,10 +342,6 @@ def get_results_visibility(request):
             'results' : results_visibility,
             'ranking' : public_results_visibility
         })
-        print(request.timestamp)
-        print(r.name)
-        print(results_visibility)
-        print(public_results_visibility)
 
     return dates
 
