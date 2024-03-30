@@ -134,11 +134,6 @@ def contest_rules_view(request):
         submission_limit.remove(0)
         submission_limit.append('or no limit of')
 
-    for r in results_visibility:
-        print(r[0])
-        print(r[1])
-        print(r[2])
-
     return TemplateResponse(
         request,
         'contests/contest_rules.html',

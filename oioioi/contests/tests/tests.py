@@ -3440,44 +3440,56 @@ class TestRulesVisibility(TestCase):
     ]
 
     descriptions = [
-        'Simple programming contest'
-        # 'ACM style contest',
-        # 'ACM style contest (open)',
-        # 'AMPPZ',
-        # 'Master of Programming',
-        # 'Polish Olympiad in Informatics - Online',
-        # 'Polish Olympiad in Informatics - Onsite',
-        # 'Polish Olympiad in Informatics - Onsite - Finals',
-        # 'Baltic Olympiad in Informatics',
-        # 'Baltic Olympiad in Informatics - online',
-        # 'Algorithmic Engagements',
-        # 'Algorithmic Engagements finals'
+        'Simple programming contest',
+        'ACM style contest',
+        'ACM style contest (open)',
+        'AMPPZ',
+        'Master of Programming',
+        'Polish Olympiad in Informatics - Online',
+        'Polish Olympiad in Informatics - Onsite',
+        'Polish Olympiad in Informatics - Onsite - Finals',
+        'Baltic Olympiad in Informatics',
+        'Baltic Olympiad in Informatics - online',
+        'Algorithmic Engagements',
+        'Algorithmic Engagements finals'
     ]
+
+    def _change_controller(self, public_results=False):
+        contest = Contest.objects.get()
+        if public_results:
+            contest.controller_name = (
+                'oioioi.contests.tests.tests.ContestWithPublicResultsController'
+            )
+        else:
+            contest.controller_name = (
+                'oioioi.programs.controllers.ProgrammingContestController'
+            )
+        contest.save()
     
-    # def test_dashboard_view(self):
-    #     for c in self.controller_names:
-    #         contest = Contest.objects.get()
-    #         contest.controller_name = c
-    #         contest.save()
-    #         # self.assertTrue(self.client.login(username='test_user'))
-    #         url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
-    #         response = self.client.get(url, follow=True)
-    #         self.assertEqual(response.status_code, 200)
-    #         print('\n')
-    #         print(contest.controller_name)
-    #         print(response.content)
-    #         self.assertContains(response, "Rules")
+    def test_dashboard_view(self):
+        for c in self.controller_names:
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+            self.assertTrue(self.client.login(username='test_admin'))
+            url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            print('\n')
+            print(contest.controller_name)
+            print(response.content)
+            self.assertContains(response, "Rules")
         
-    # def test_contest_type(self):
-    #     for c, d in zip(self.controller_names, self.descriptions):
-    #         contest = Contest.objects.get()
-    #         contest.controller_name = c
-    #         contest.save()
-    #         self.assertTrue(self.client.login(username='test_user'))
-    #         url = reverse('contest_rules', kwargs={'contest_id': 'c'})
-    #         response = self.client.get(url, follow=True)
-    #         self.assertEqual(response.status_code, 200)
-    #         self.assertContains(response, d)
+    def test_contest_type(self):
+        for c, d in zip(self.controller_names, self.descriptions):
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+            self.assertTrue(self.client.login(username='test_admin'))
+            url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, d)
     
     def test_no_of_rounds(self):
         # a bigger number of rounds is tested in TestManyRounds::test_rules_visibility
@@ -3542,19 +3554,19 @@ class TestRulesVisibility(TestCase):
                 self.assertContains(response, "The contest starts on 2011-07-31 20:27:58 and ends on 2012-08-10 00:00:00.")
 
     def test_ranking_visibility(self):
-        round = Round.objects.get()
-        round.results_date = datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc)
-        round.save()
-
-        with fake_time(datetime(2014, 8, 4, 13, 46, 37, tzinfo=timezone.utc)):
+        with fake_time(datetime(2012, 8, 4, 13, 46, 37, tzinfo=timezone.utc)):
+            round = Round.objects.get()
+            round.results_date = datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc)
+            round.public_results_date = None
+            round.save()
+            
             self.assertTrue(self.client.login(username='test_user'))
             url = reverse('contest_rules', kwargs={'contest_id': 'c'})
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
-            print(round.results_date)
-            print(response.content)
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible after 2012-08-15 20:27:58.")
         
+            self._change_controller(public_results=True)
             round.public_results_date = datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)
             round.save()
             response = self.client.get(url, follow=True)
@@ -3569,19 +3581,45 @@ class TestRulesVisibility(TestCase):
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
         with fake_time(datetime(2012, 12, 24, 11, 23, 56, tzinfo=timezone.utc)):
+            self._change_controller(public_results=False)
             self.assertTrue(self.client.login(username='test_user'))
             url = reverse('contest_rules', kwargs={'contest_id': 'c'})
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
             print(round.results_date)
             print(response.content)
-            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible after 2012-08-15 20:27:58.")
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
         
+            self._change_controller(public_results=True)
             round.public_results_date = datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)
             round.save()
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
-            self.assertContains(response, "In round Round 1, your results will be visible after 2012-08-15 20:27:58 and the public ranking will be visible after 2013-04-20 21:37:13.")
+            self.assertContains(response, "In round Round 1, your results will be visible immediately and the public ranking will be visible after 2013-04-20 21:37:13.")
+
+            round.results_date = None
+            round.public_results_date = None
+            round.save()
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+
+        with fake_time(datetime(2014, 8, 26, 11, 23, 56, tzinfo=timezone.utc)):
+            self._change_controller(public_results=False)
+            self.assertTrue(self.client.login(username='test_user'))
+            url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            print(round.results_date)
+            print(response.content)
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+        
+            self._change_controller(public_results=True)
+            round.public_results_date = datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)
+            round.save()
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
             round.results_date = None
             round.public_results_date = None

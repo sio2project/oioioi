@@ -13,6 +13,7 @@
         {% endblocktrans %}
     {% endif %}
     {% if no_of_rounds %}
+        {% comment %} There is a problem with blocktrans!!! {% endcomment %}
             <li class="list-group-item">There {{no_of_rounds|pluralize:"is,are"}} {{ no_of_rounds }} round{{ no_of_rounds|pluralize }} in this contest.</li>
     {% endif %}
     {% if contest_start_date and contest_end_date %}
@@ -33,18 +34,12 @@
             <li class="list-group-item">There are no submission limits in this contest.</li>
         {% endblocktrans %}
     {% endif %}
-    {% for rv in results_visibility %}
-        {% if rv.0 %}
-            <li class="list-group-item">BLBL!</li>
-        {% endif %}
-        {% if rv.1 != rv.2 %}
-            {% blocktrans %}
-                <li class="list-group-item">In round {{ rv.0|default:"blbl" }}, your results will be visible {{ rv.1 }} and the public ranking will be visible {{ rv.2 }}.</li>
-            {% endblocktrans %}
+    {% for round in results_visibility %}
+        {% comment %} There is a problem with blocktrans!!! {% endcomment %}
+        {% if round.results != round.ranking %}
+                <li class="list-group-item">In round {{ round.name }}, your results will be visible {{ round.results }} and the public ranking will be visible {{ round.ranking }}.</li>
         {% else %}
-            {% blocktrans %}
-                <li class="list-group-item">In round {{ rv.0|default:"blbl" }}, your results as well as public ranking will be visible {{ rv.1 }}.</li>
-            {% endblocktrans %}
+                <li class="list-group-item">In round {{ round.name }}, your results as well as public ranking will be visible {{ round.results }}.</li>
         {% endif %}
     {% endfor %}
 </ul>

@@ -324,26 +324,31 @@ def get_results_visibility(request):
 
     dates = list()
     for r in rtimes.keys():
-        results = rtimes[r].results_date()
-        public_results = rtimes[r].public_results_date()
-        if (results <= request.timestamp):
-            results = 'immediately'
+        results_date = rtimes[r].results_date()
+        public_results_date = rtimes[r].public_results_date()
+        print(request.timestamp)
+        print(results_date)
+        print(public_results_date)
+ 
+        if (results_date is None or results_date <= request.timestamp):
+            results_visibility = 'immediately'
         else:
-            results = f'after {results}'
+            results_visibility = f'after {results_date.strftime("%Y-%m-%d %H:%M:%S")}'
 
-        if (public_results <= request.timestamp):
-            public_results = 'immediately'
+        if (public_results_date is None or public_results_date <= request.timestamp):
+            public_results_visibility = 'immediately'
         else:
-            public_results = f'after {public_results}'
+            public_results_visibility = f'after {public_results_date.strftime("%Y-%m-%d %H:%M:%S")}'
 
-        dates.append((
-            r.name,
-            results,
-            public_results
-        ))
+        dates.append({
+            'name' : r.name,
+            'results' : results_visibility,
+            'ranking' : public_results_visibility
+        })
+        print(request.timestamp)
         print(r.name)
-        print(results)
-        print(public_results)
+        print(results_visibility)
+        print(public_results_visibility)
 
     return dates
 
