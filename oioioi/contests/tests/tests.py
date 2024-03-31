@@ -908,6 +908,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         url = reverse('contest_rules', kwargs={'contest_id': 'c'})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
+        print(response.content)
         self.assertContains(response, "The contest has 4 rounds.")
 
 

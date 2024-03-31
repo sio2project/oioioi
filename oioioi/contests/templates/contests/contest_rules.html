@@ -13,8 +13,8 @@
         {% endblocktrans %}
     {% endif %}
     {% if no_of_rounds %}
-        {% blocktrans with number=no_of_rounds %}
-            <li class="list-group-item">The contest has {{ number }} round{{ plural}}.</li>
+        {% blocktrans with no_of_rounds as number and no_of_rounds|pluralize as fix %}
+            <li class="list-group-item">The contest has {{ number }} round{{ fix }}.</li>
         {% endblocktrans %}
     {% endif %}
     {% if contest_start_date and contest_end_date %}
