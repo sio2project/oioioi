@@ -224,8 +224,12 @@ def generate_add_to_contest_metadata(request):
     "add to contest" functionality in problemset.
     """
 
-    administered = administered_contests(request)
-    # If user doesn't own any contest we won't show the option.
+    administered = [
+        contest
+        for contest in administered_contests(request)
+        if not contest.is_archived
+    ]
+    # If user doesn't own any unarchived contest we won't show the option.
     if administered:
         show_add_button = True
     else:
@@ -239,6 +243,7 @@ def generate_add_to_contest_metadata(request):
             contest
             for contest in rcontests
             if request.user.has_perm('contests.contest_admin', contest)
+            and not contest.is_archived
         ]
     return show_add_button, administered_recent_contests
 
