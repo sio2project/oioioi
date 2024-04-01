@@ -615,7 +615,11 @@ def problemset_add_to_contest_view(request, site_key):
         raise Http404
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
-    administered = filter(lambda contest: not contest.is_archived, administered)
+    administered = [
+        contest
+        for contest in administered
+        if not contest.is_archived
+    ]
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append(
         {
