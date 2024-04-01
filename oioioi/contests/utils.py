@@ -303,16 +303,6 @@ def administered_contests(request):
     ]
 
 
-@request_cached
-def administered_unarchived_contests(request):
-    """Returns a list of unarchived contests for which the logged
-    user has contest_admin permission for.
-    """
-    return [
-        contest for contest in administered_contests(request) if not contest.is_archived
-    ]
-
-
 @make_request_condition
 @request_cached
 def is_contest_admin(request):
