@@ -908,7 +908,6 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         url = reverse('contest_rules', kwargs={'contest_id': 'c'})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        print(response.content)
         self.assertContains(response, "The contest has 4 rounds.")
 
 
@@ -3576,7 +3575,7 @@ class TestRulesVisibility(TestCase):
 
     def test_ranking_visibility(self):
         # here we don't check for individual contests, as it would be hard to get the separate_public_results()
-        # from the specific controller, and the only thing that utimately matters is this setting
+        # from the specific controller, and the only thing that utimately matters is separate_public_results setting
         with fake_time(datetime(2012, 8, 4, 13, 46, 37, tzinfo=timezone.utc)):
             round = Round.objects.get()
             round.results_date = datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc)
