@@ -8,7 +8,7 @@
 
 {% block forum-head %}
 <div class="clearfix">
-    {% if user.is_authenticated and can_interact_with_users %}
+    {% if user.is_authenticated and can_interact_with_users and not is_contest_archived %}
         <div class="float-right">
             <a role="button" class="btn btn-sm btn-outline-secondary"
                 href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}">

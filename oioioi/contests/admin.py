@@ -48,7 +48,9 @@ from oioioi.contests.models import (
 )
 from oioioi.contests.utils import (
     can_admin_contest,
+    get_inline_for_contest,
     is_contest_admin,
+    is_contest_archived,
     is_contest_basicadmin,
     is_contest_observer,
 )
@@ -231,6 +233,10 @@ class ContestAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
+            if obj.is_archived:
+                return list(self.readonly_fields) + \
+                    [field.name for field in obj._meta.fields] + \
+                    [field.name for field in obj._meta.many_to_many]
             return self.readonly_fields + ['id', 'controller_name']
         return []
 
@@ -238,6 +244,12 @@ class ContestAdmin(admin.ModelAdmin):
         if obj:
             return {}
         return self.prepopulated_fields
+
+    def get_inlines(self, request, obj):
+        inlines = []
+        for inline in self.inlines:
+            inlines.append(get_inline_for_contest(inline, obj))
+        return inlines
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
@@ -302,6 +314,12 @@ class ContestAdmin(admin.ModelAdmin):
             request, object_id, form_url, extra_context
         )
 
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        if not add:
+            context.update({'show_unarchive': obj.is_archived})
+            context.update({'show_archive': not obj.is_archived})
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
     def delete_selected_contests(self, modeladmin, request, queryset):
         # Redirect to contest-unprefixed view, just in case we deleted the current contest.
         return delete_selected(
@@ -363,10 +381,19 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return is_contest_basicadmin(request)
 
     def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return self.has_change_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return is_contest_basicadmin(request)
+        return super(ProblemInstanceAdmin, self).has_view_permission(request, obj)
 
     def _problem_change_href(self, instance):
         came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
@@ -476,6 +503,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return result
 
     def actions_field(self, instance):
+        request = self._request_local.request
+        if is_contest_archived(request):
+            return _("Unarchive the contest to change this problem.")
         return make_html_links(self.inline_actions(instance))
 
     actions_field.short_description = _("Actions")
@@ -547,6 +577,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         )
 
         return qs
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_add_button'] = not is_contest_archived(request)
+        return super(ProblemInstanceAdmin, self).changelist_view(
+            request, extra_context=extra_context
+        )
 
 
 contest_site.contest_register(ProblemInstance, ProblemInstanceAdmin)
@@ -956,13 +993,24 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__last_name']
 
     def has_add_permission(self, request):
+        if is_contest_archived(request):
+            return False
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return self.has_change_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return is_contest_admin(request)
+        return super().has_view_permission(request, obj)
 
     def user_login(self, instance):
         if not instance.user:

@@ -3,7 +3,7 @@
 # pip requirements:
 #   python ^3.6
 #   inquirer     (only for GUI)
-# 
+#
 # system:
 #   docker
 #   docker-compose

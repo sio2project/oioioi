@@ -9,7 +9,7 @@ from django.utils.translation import ngettext_lazy
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import contest_site
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_archived, is_contest_admin
 from oioioi.forum.models import Ban, Category, Forum, Post, Thread
 
 def string_concat(*strings):
@@ -58,6 +58,9 @@ class ForumAdmin(admin.ModelAdmin):
     categories.short_description = _("Categories")
 
     def add_category(self, obj):
+        if obj.contest.is_archived:
+            return _("Unarchive the contest to add category.")
+
         return make_html_link(
             reverse(
                 'oioioiadmin:forum_category_add',
@@ -91,10 +94,17 @@ class ForumAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
 
     def has_delete_permission(self, request, obj=None):
         return False
+    
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return get_permission(self, request)
+        return super().has_view_permission(request, obj)
 
     def response_change(self, request, obj):
         # Never redirect to the list of forums. Just re-display the edit
@@ -134,13 +144,24 @@ class CategoryAdmin(admin.ModelAdmin):
         obj.save()
 
     def has_add_permission(self, request):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
 
     def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
+    
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return get_permission(self, request)
+        return super().has_view_permission(request, obj)
 
     def response_add(self, request, obj, post_url_continue=None):
         if '_popup' not in request.POST:
@@ -197,10 +218,19 @@ class ThreadAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
 
     def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
+
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return get_permission(self, request)
+        return super().has_view_permission(request, obj)
 
     def response_add(self, request, obj, post_url_continue=None):
         if '_popup' not in request.POST:
@@ -266,10 +296,19 @@ class PostAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
 
     def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return get_permission(self, request)
+
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return get_permission(self, request)
+        return super().has_view_permission(request, obj)
 
     def response_change(self, request, obj):
         if '_popup' not in request.POST:

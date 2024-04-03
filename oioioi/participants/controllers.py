@@ -15,7 +15,7 @@ from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import ContestController, RegistrationController
 from oioioi.contests.models import RegistrationAvailabilityConfig
-from oioioi.contests.utils import can_see_personal_data, is_contest_admin
+from oioioi.contests.utils import can_see_personal_data, is_contest_admin, is_contest_archived
 from oioioi.participants.models import (
     OnsiteRegistration,
     Participant,
@@ -200,6 +200,8 @@ class ParticipantsController(RegistrationController):
         return True
 
     def is_registration_open(self, request):
+        if is_contest_archived(request):
+            return False
         try:
             rvc = RegistrationAvailabilityConfig.objects.get(contest=request.contest)
             return rvc.is_registration_open(request.timestamp)
@@ -230,6 +232,8 @@ class OpenParticipantsController(ParticipantsController):
         return Q_always_true()
 
     def can_register(self, request):
+        if is_contest_archived(request):
+            return False
         return True
 
     def can_unregister(self, request, participant):

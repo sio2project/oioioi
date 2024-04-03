@@ -5,21 +5,23 @@
 {% block title %}{% trans "My submissions" %}{% endblock %}
 
 {% block main-content %}
+    
     <div class="clearfix">
-        <div class="float-right">
+        {% if not is_contest_archived %}
+          <div class="float-right">
             {% if is_admin %}
-                <a role="button"
-                   class="btn btn-sm btn-outline-secondary"
-                   href="{% url 'edit_submit_message' contest_id=contest.id %}">
-                    <i class="fa-solid fa-pencil"></i>
-                    {% trans "Edit submit message" %}
-                </a>
-                <a role="button"
-                   class="btn btn-sm btn-outline-secondary"
-                   href="{% url 'edit_submissions_message' contest_id=contest.id %}">
-                    <i class="fa-solid fa-pencil"></i>
-                    {% trans "Edit submissions message" %}
-                </a>
+              <a role="button"
+                 class="btn btn-sm btn-outline-secondary"
+                 href="{% url 'edit_submit_message' contest_id=contest.id %}">
+                  <i class="fa-solid fa-pencil"></i>
+                  {% trans "Edit submit message" %}
+              </a>
+              <a role="button"
+                 class="btn btn-sm btn-outline-secondary"
+                 href="{% url 'edit_submissions_message' contest_id=contest.id %}">
+                  <i class="fa-solid fa-pencil"></i>
+                  {% trans "Edit submissions message" %}
+              </a>
             {% endif %}
             <a role="button"
                class="btn btn-sm btn-outline-secondary"
@@ -27,7 +29,8 @@
                 <i class="fa-regular fa-circle-up"></i>
                 {% trans "Submit" %}
             </a>
-        </div>
+          </div>
+        {% endif %}
         <h1 class="float-left">{% trans "My submissions" %}</h1>
     </div>
     {% include "public_message/show.html" %}

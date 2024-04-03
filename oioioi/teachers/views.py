@@ -24,11 +24,14 @@ from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Contest
-from oioioi.contests.utils import contest_exists, is_contest_admin
+from oioioi.contests.utils import contest_exists, is_contest_admin, is_contest_archived
 from oioioi.participants.models import Participant
 from oioioi.teachers.controllers import TeacherContestController
-from oioioi.teachers.forms import AddTeacherForm
+from oioioi.teachers.forms import AddTeacherForm, AddUserToContestForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
+from oioioi.teachers.utils import \
+    is_user_already_in_contest, get_user_teacher_obj, add_user_to_contest_as
+from django.core.exceptions import ValidationError
 
 if 'oioioi.usergroups' in settings.INSTALLED_APPS:
     import oioioi.usergroups.utils as usergroups
@@ -199,7 +202,7 @@ def members_view(request, member_type):
     return TemplateResponse(request, 'teachers/members.html', context)
 
 
-@enforce_condition(not_anonymous & is_teachers_contest)
+@enforce_condition(not_anonymous & is_teachers_contest & ~is_contest_archived)
 def activate_view(request, key):
     registration_config = get_object_or_404(RegistrationConfig, contest=request.contest)
     t_active = registration_config.is_active_teacher
@@ -398,3 +401,42 @@ if 'oioioi.simpleui' in settings.INSTALLED_APPS:
                     kwargs={'contest_id': request.contest.id},
                 )
             )
+
+
+@enforce_condition(is_teachers_contest & is_contest_admin)
+def get_appendable_users_view(request, member_type):
+    users = User.objects.filter(is_superuser=False, is_active=True)
+    if member_type == 'teacher':
+        users = users.filter(teacher__isnull=False)
+
+    return get_user_hints_view(request, 'substr', users)
+
+
+@require_POST
+@enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
+def add_user_to_contest(request, member_type):
+    form = AddUserToContestForm(member_type, request.contest, request.POST)
+    try:
+        if form.is_valid():
+            user = form.cleaned_data['user']
+
+            try:
+                add_user_to_contest_as(
+                    user,
+                    request.contest,
+                    member_type
+                )
+                messages.success(
+                    request,
+                    _('User \'%(user)s\' successfully added as a \'%(member_type)s\'.')
+                    % {'user': user, 'member_type': member_type})
+
+            except ValidationError as e:
+                messages.error(request, e.message)
+        else:
+            for err in form.errors.as_data()['user']:
+                messages.error(request, err.message)
+    except ValidationError as e:
+        messages.error(e.message)
+
+    return redirect_to_members(request, member_type)

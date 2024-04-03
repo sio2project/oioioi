@@ -1,0 +1,25 @@
+{% extends "contests/base_confirmation_screen.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm contest archive" %}{% endblock %}
+{% block confirmation_header %}{% trans "Confirm contest archive" %}{% endblock %}
+{% block confirmation_form_explanation %}
+    <p>
+        {% blocktrans %}
+        Archiving will make the contest 'read-only', which means nobody will be able to:
+        <ul>
+            <li>add new participants,</li>
+            <li>submit solutions,</li>
+            <li>add new problems and rounds,</li>
+            <li>ask questions,</li>
+            <li>add posts and comments on forum.</li>
+        </ul>
+        {% endblocktrans %}
+    </p>
+
+    <p>
+        {% trans "You will be able to unarchive this contest later." %}
+    </p>
+
+{% endblock %}
+

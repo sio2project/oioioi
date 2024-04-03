@@ -2,11 +2,14 @@ from django import forms
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.contrib import messages
+from django.core.exceptions import ValidationError
 
 from oioioi.contests.forms import SimpleContestForm
-from oioioi.teachers.models import Teacher
+from oioioi.teachers.models import ContestTeacher, Teacher
 from oioioi.base.utils.user_selection import UserSelectionField
-
+from oioioi.participants.models import Participant
+from oioioi.teachers.utils import validate_can_add_user_to_contest, add_user_to_contest_as
 
 
 class TeacherContestForm(SimpleContestForm):
@@ -83,3 +86,24 @@ class AdminTeacherForm(forms.ModelForm):
     def clean_school(self):
         data = self.cleaned_data['school']
         return ' '.join(data.splitlines())
+
+
+class AddUserToContestForm(forms.Form):
+    user = UserSelectionField()
+
+    def __init__(self, member_type, contest, *args, **kwargs):
+        self.member_type = member_type
+        self.contest = contest
+        super(AddUserToContestForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        clean_data = super().clean()
+
+        if self.is_valid():
+            user = self.cleaned_data['user']
+            try:
+                validate_can_add_user_to_contest(user, self.contest, self.member_type)
+            except ValidationError as e:
+                self.add_error('user', e.message)
+
+        return clean_data
