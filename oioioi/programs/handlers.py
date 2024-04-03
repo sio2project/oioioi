@@ -277,7 +277,7 @@ def run_tests(env, kind=None, **kwargs):
             not_to_judge.append(test_name)
             continue
         job = test_env.copy()
-        job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
+        job['job_type'] = (env.get('exec_mode', '') + env.get('task_type_suffix', '-exec')).lstrip('-')
         if kind == 'INITIAL' or kind == 'EXAMPLE':
             job['task_priority'] = EXAMPLE_TEST_TASK_PRIORITY
         elif env['submission_kind'] == 'TESTRUN':

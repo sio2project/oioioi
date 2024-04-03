@@ -27,6 +27,7 @@ from oioioi.filetracker.utils import (
     filetracker_to_django_file,
     stream_file,
 )
+from oioioi.interactive.models import Interactor
 from oioioi.problems.models import (
     Problem,
     ProblemAttachment,
@@ -142,6 +143,7 @@ class SinolPackage(object):
         self.restrict_html = (
             settings.SINOLPACK_RESTRICT_HTML and not settings.USE_SINOLPACK_MAKEFILES
         )
+        self.task_type = 'standard'
 
     def identify(self):
         return self._find_main_dir() is not None
@@ -332,6 +334,8 @@ class SinolPackage(object):
         self.env = env
         self.package = package
 
+        self._detect_task_type()
+
         self._create_problem_or_reuse_if_exists(self.package.problem)
         return self._extract_and_process_package()
 
@@ -370,7 +374,7 @@ class SinolPackage(object):
         return Problem.create(
             legacy_name=self.short_name,
             short_name=self.short_name,
-            controller_name=self.controller_name,
+            controller_name=self._get_controller_name(),
             contest=self.package.contest,
             visibility=(
                 Problem.VISIBILITY_PUBLIC
@@ -379,6 +383,12 @@ class SinolPackage(object):
             ),
             author=author,
         )
+
+    def _get_controller_name(self):
+        return {
+            'standard': 'oioioi.sinolpack.controllers.SinolProblemController',
+            'interactive': 'oioioi.interactive.controllers.InteractiveProblemController',
+        }[self.task_type]
 
     def _extract_and_process_package(self):
         tmpdir = tempfile.mkdtemp()
@@ -430,7 +440,10 @@ class SinolPackage(object):
             self._save_prog_dir()
         self._process_statements()
         self._generate_tests()
-        self._process_checkers()
+        if self.task_type == 'standard':
+            self._process_checkers()
+        elif self.task_type == 'interactive':
+            self._process_interactive_checkers()
         self._process_model_solutions()
         self._process_attachments()
         self._save_original_package()
@@ -450,6 +463,11 @@ class SinolPackage(object):
             instance.config = ''
         instance.save()
         self.config = instance.parsed_config
+
+    @_describe_processing_error
+    def _detect_task_type(self):
+        if any(map(lambda name: self.short_name + 'soc' in name, self.archive.filenames())):
+            self.task_type = 'interactive'
 
     @_describe_processing_error
     def _detect_full_name(self):
@@ -1207,9 +1225,29 @@ class SinolPackage(object):
             instance.exe_file = self._find_checker_exec()
             instance.save()
 
-    def _find_checker_exec(self):
-        checker_prefix = os.path.join(self.rootdir, 'prog', self.short_name + 'chk')
-        exe_candidates = [checker_prefix + '.e', checker_prefix + '.sh']
+    @_describe_processing_error
+    def _process_interactive_checkers(self):
+        interactor_name = '%ssoc.e' % (self.short_name)
+        out_name = _make_filename_in_job_dir(self.env, interactor_name)
+        instance = Interactor.objects.get_or_create(problem=self.problem)[0]
+        env = self._find_and_compile(
+            'soc',
+            command=interactor_name,
+            cwd=os.path.join(self.rootdir, 'prog'),
+            log_on_failure=False,
+            out_name=out_name,
+        )
+        if not self.use_make and env:
+            self._save_to_field(instance.exe_file, env['compiled_file'])
+        else:
+            instance.exe_file = self._find_checker_exec('soc', False)
+            instance.save()
+
+    def _find_checker_exec(self, name='chk', allow_sh=True):
+        checker_prefix = os.path.join(self.rootdir, 'prog', self.short_name + name)
+        exe_candidates = [checker_prefix + '.e']
+        if allow_sh:
+            exe_candidates.append(checker_prefix + '.sh')
         for exe in exe_candidates:
             if os.path.isfile(exe):
                 return File(open(exe, 'rb'))
