@@ -19,6 +19,7 @@ from oioioi.contests.utils import (
     is_contest_observer, rounds_times,
 )
 from oioioi.participants.models import Participant
+from oioioi.questions.models import Message
 from oioioi.statistics.controllers import statistics_categories
 from oioioi.evalmgr.models import QueuedJob
 from oioioi.statistics.utils import any_statistics_avaiable, can_see_stats, render_head
@@ -171,6 +172,10 @@ def monitoring_view(request):
         print(attachment.pub_date, cur_time)
         pub_date_relative = str(attachment.pub_date - cur_time)[:-7] if attachment.pub_date > cur_time else _("Published")
         setattr(attachment, 'pub_date_relative', pub_date_relative)
+    unanswered_questions = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest).count())
+    oldest_unanswered_question = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest)
+                                  .order_by('pub_date').first())
+    oldest_unanswered_question_date = oldest_unanswered_question.date if oldest_unanswered_question else None
 
     return TemplateResponse(
         request,
@@ -183,5 +188,7 @@ def monitoring_view(request):
             'q_size': q_size,
             'q_size_global': q_size_global,
             'attachments': attachments,
+            'unanswered_questions': unanswered_questions,
+            'oldest_unanswered_question': oldest_unanswered_question_date,
         },
     )
