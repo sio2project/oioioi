@@ -19,6 +19,7 @@ from oioioi.contests.utils import (
     is_contest_observer, rounds_times,
 )
 from oioioi.participants.models import Participant
+from oioioi.questions.models import Message
 from oioioi.statistics.controllers import statistics_categories
 from oioioi.evalmgr.models import QueuedJob
 from oioioi.statistics.utils import any_statistics_avaiable, can_see_stats, render_head
@@ -163,6 +164,10 @@ def monitoring_view(request):
     q_size_global = (QueuedJob.objects
                 .count())
 
+    unanswered_questions = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest).count())
+    oldest_unanswered_question = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest)
+                                  .order_by('pub_date').first()).date
+
     return TemplateResponse(
         request,
         'statistics/monitoring.html',
@@ -173,5 +178,7 @@ def monitoring_view(request):
             'links': links(request),
             'q_size': q_size,
             'q_size_global': q_size_global,
+            'unanswered_questions': unanswered_questions,
+            'oldest_unanswered_question': oldest_unanswered_question,
         },
     )
