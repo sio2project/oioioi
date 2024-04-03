@@ -11,7 +11,7 @@ from pytz import UTC
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions
+from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions, ContestAttachment
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
@@ -132,6 +132,9 @@ def statistics_view(
     condition=(is_contest_admin | is_contest_observer),
     order=110,
 )
+@enforce_condition(
+    contest_exists & can_enter_contest & can_see_stats
+)
 def monitoring_view(request):
     cur_time = UTC.localize(datetime.now())
     r_times = []
@@ -163,6 +166,12 @@ def monitoring_view(request):
     q_size_global = (QueuedJob.objects
                 .count())
 
+    attachments = ContestAttachment.objects.filter(contest_id=request.contest.id).order_by('id')
+    for attachment in attachments:
+        print(attachment.pub_date, cur_time)
+        pub_date_relative = str(attachment.pub_date - cur_time)[:-7] if attachment.pub_date > cur_time else _("Published")
+        setattr(attachment, 'pub_date_relative', pub_date_relative)
+
     return TemplateResponse(
         request,
         'statistics/monitoring.html',
@@ -173,5 +182,6 @@ def monitoring_view(request):
             'links': links(request),
             'q_size': q_size,
             'q_size_global': q_size_global,
+            'attachments': attachments,
         },
     )
