@@ -182,9 +182,9 @@ class ACMContestController(ProgrammingContestController):
     def ranking_controller(self):
         return ACMRankingController(self.contest)
 
-    def can_see_round(self, request_or_context, round):
+    def can_see_round(self, request_or_context, round, no_admin=False):
         context = self.make_context(request_or_context)
-        if context.is_admin:
+        if not no_admin and context.is_admin:
             return True
         rtimes = self.get_round_times(request_or_context, round)
         return rtimes.is_active(context.timestamp)
