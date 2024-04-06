@@ -440,9 +440,8 @@ class SinolPackage(object):
             self._save_prog_dir()
         self._process_statements()
         self._generate_tests()
-        if self.task_type == 'standard':
-            self._process_checkers()
-        elif self.task_type == 'interactive':
+        self._process_checkers()
+        if self.task_type == 'interactive':
             self._process_interactive_checkers()
         self._process_model_solutions()
         self._process_attachments()

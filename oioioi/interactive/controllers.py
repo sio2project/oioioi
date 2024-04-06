@@ -1,3 +1,4 @@
+from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.interactive.models import Interactor
 from oioioi.programs.controllers import ProgrammingProblemController
 
@@ -8,6 +9,6 @@ class InteractiveProblemController(ProgrammingProblemController):
         super().fill_evaluation_environ(environ, submission, **kwargs)
 
         interactor = Interactor.objects.get(problem=self.problem)
-        environ['interactor_file'] = interactor.exe_file
+        environ['interactor_file'] = django_to_filetracker_path(interactor.exe_file)
 
         environ['task_type_suffix'] = '-interactive-exec'
