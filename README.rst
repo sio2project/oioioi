@@ -28,7 +28,7 @@ as described `in Docker docs`_.
 .. _in Docker docs: https://docs.docker.com/compose/reference/up/
 
 Docker (for development)
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Make sure you installed docker properly. The easiest way to do this::
 
@@ -80,7 +80,7 @@ you are connected to after using docker exec -it “web” /bin/bash. The defaul
     docker-compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
 
 Running static code analysis tools locally (requires Docker)
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The static code analysis tools currently in use for python code are black, isort, pep8 and pylint.
 All of them can be run locally using the `run_static.sh` shell script.
@@ -102,7 +102,8 @@ To run one of the tools::
     ./run_static.sh pep8
 
 Script toolbox for Docker (development)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Copy-pasting all Docker commands from GitHub can be tedious. Instead use a set of pre-prepared commands embedded into `easy_toolbox.py`.
 For help run `easy_toolbox.py -h`. Add custom commands by editing `RAW_COMMANDS` in the file. Script can be used with user-friendly
 CLI or by passing commands as arguments.
@@ -116,7 +117,7 @@ Developer environment can be easily set up by running::
 For system requirements check `easy_toolbox.py`.
 
 Manual installation (deprecated)
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 See `INSTALL`_ for instructions.
 
