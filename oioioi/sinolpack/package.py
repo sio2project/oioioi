@@ -729,7 +729,8 @@ class SinolPackage(object):
         self._verify_time_limits(sum_of_time_limits)
 
         self._verify_inputs(created_tests)
-        self._generate_test_outputs(created_tests, outs_to_make)
+        if self.task_type == 'standard':
+            self._generate_test_outputs(created_tests, outs_to_make)
         self._validate_tests(created_tests)
         self._delete_non_existing_tests(created_tests)
 
@@ -865,7 +866,7 @@ class SinolPackage(object):
         :raises: :class:`~oioioi.problems.package.ProblemPackageError`
         """
         for instance in created_tests:
-            if not instance.output_file:
+            if self.task_type == 'standard' and not instance.output_file:
                 raise ProblemPackageError(
                     _("Missing out file for test %s") % instance.name
                 )
