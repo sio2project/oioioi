@@ -2,6 +2,7 @@ from datetime import datetime
 from pprint import pprint
 
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -11,7 +12,8 @@ from pytz import UTC
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions, ContestAttachment
+from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions, ContestAttachment, \
+    Submission
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
@@ -169,13 +171,16 @@ def monitoring_view(request):
 
     attachments = ContestAttachment.objects.filter(contest_id=request.contest.id).order_by('id')
     for attachment in attachments:
-        print(attachment.pub_date, cur_time)
-        pub_date_relative = str(attachment.pub_date - cur_time)[:-7] if attachment.pub_date > cur_time else _("Published")
+        pub_date_relative = None
+        if attachment.pub_date:
+            pub_date_relative = str(attachment.pub_date - cur_time)[:-7] if attachment.pub_date > cur_time else _("Published")
         setattr(attachment, 'pub_date_relative', pub_date_relative)
     unanswered_questions = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest).count())
     oldest_unanswered_question = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest)
                                   .order_by('pub_date').first())
     oldest_unanswered_question_date = oldest_unanswered_question.date if oldest_unanswered_question else None
+
+    submissions_info = Submission.objects.filter(problem_instance__contest=request.contest).values('kind').annotate(total=Count('kind')).order_by()
 
     return TemplateResponse(
         request,
@@ -190,5 +195,6 @@ def monitoring_view(request):
             'attachments': attachments,
             'unanswered_questions': unanswered_questions,
             'oldest_unanswered_question': oldest_unanswered_question_date,
+            'submissions_info': submissions_info
         },
     )
