@@ -1,3 +1,4 @@
+import sys
 from importlib import import_module
 
 from django.conf import settings
@@ -221,7 +222,9 @@ for app in settings.INSTALLED_APPS:
             # patterns defined in the global urls.py are an exception
             if hasattr(urls_module, 'urlpatterns'):
                 neutral_patterns += getattr(urls_module, 'urlpatterns')
-        except ImportError:
+        except ImportError as e:
+            if settings.DEBUG:
+                print(e, file=sys.stderr)
             pass
 
 # We actually use make_patterns here, but we don't pass the globs, because

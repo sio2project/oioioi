@@ -1,4 +1,5 @@
 # coding: utf-8
+import sys
 from importlib import import_module
 
 import django.dispatch
@@ -22,7 +23,9 @@ for app in settings.INSTALLED_APPS:
             # Controllers should be imported at startup, because they register
             # mixins
             import_module(app + '.controllers')
-        except ImportError:
+        except ImportError as e:
+            if settings.DEBUG:
+                print(e, file=sys.stderr)
             pass
 
 import logging
