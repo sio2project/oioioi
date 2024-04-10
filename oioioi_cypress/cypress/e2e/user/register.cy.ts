@@ -27,7 +27,7 @@ context("Simple user operations", () => {
 });
 
 const getUniqueUsername = () => {
-    return uuidv4().substring(12).replaceAll('-', '_');
+    return "test_username_" + uuidv4().substring(20).replaceAll('-', '_');
 }
 
 const registerNewUser = (user_info: OIOIOI.User) => {
