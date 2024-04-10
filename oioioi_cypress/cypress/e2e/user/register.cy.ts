@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { v4 as uuidv4 } from "uuid";
+
 context("Simple user operations", () => {
     before(() => {
         cy.visit("/");
@@ -9,10 +11,11 @@ context("Simple user operations", () => {
 
     it("Register new user", () => {
         cy.fixture("credentials").then((data) => {
-            registerNewUser(data.user);
-            checkIfCanLogIn(data.user);
-            tryRemovingUser(data.user, false);
-            tryRemovingUser(data.user);
+            const user_data = getUniqueUserData(data.user);
+            registerNewUser(user_data);
+            checkIfCanLogIn(user_data);
+            tryRemovingUser(user_data, false);
+            tryRemovingUser(user_data);
         });
     });
 
@@ -22,6 +25,13 @@ context("Simple user operations", () => {
         });
     })
 });
+
+const getUniqueUserData = (data: any) => {
+    // Generate unique user data from common fixture
+    const user_uuid = uuidv4().substring(10).replaceAll('-', '_');
+    data.username += user_uuid;
+    return data;
+};
 
 const registerNewUser = (user_info: OIOIOI.User) => {
     visitRegistrationSite();
