@@ -6,7 +6,7 @@ context("Simple user operations", () => {
     before(() => {
         cy.visit("/");
         cy.hideDjangoToolbar();
-        cy.enLang()
+        cy.enLang();
     });
 
     it("Register new user", () => {
@@ -23,19 +23,19 @@ context("Simple user operations", () => {
         cy.fixture("credentials").then((data) => {
             checkIfCanLogIn(data.admin);
         });
-    })
+    });
 });
 
 const getUniqueUsername = () => {
     return "test_username_" + uuidv4().substring(20).replaceAll('-', '_');
-}
+};
 
 const registerNewUser = (user_info: OIOIOI.User) => {
     visitRegistrationSite();
     cy.get('.oioioi-form__container').within(() => {
         fillRegistrationForm(user_info);
         cy.get('button[type="submit"]').first().click();
-    })
+    });
 };
 
 const visitRegistrationSite = () => {
