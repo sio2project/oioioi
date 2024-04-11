@@ -1,3 +1,4 @@
+import sys
 from importlib import import_module
 
 from django.conf import settings
@@ -44,8 +45,9 @@ for app in settings.INSTALLED_APPS:
             urls_module = import_module(app + '.urls')
             if hasattr(urls_module, 'urlpatterns'):
                 urlpatterns += getattr(urls_module, 'urlpatterns')
-        except ImportError:
-            pass
+        except ImportError as e:
+            if settings.DEBUG:
+                print(e, file=sys.stderr)
 
 urlpatterns.extend(
     [
