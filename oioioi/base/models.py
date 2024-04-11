@@ -26,7 +26,6 @@ for app in settings.INSTALLED_APPS:
         except ImportError as e:
             if settings.DEBUG:
                 print(e, file=sys.stderr)
-            pass
 
 import logging
 
