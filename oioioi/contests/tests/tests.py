@@ -1,6 +1,7 @@
 # pylint: disable=abstract-method
 from __future__ import print_function
 
+import os
 import re
 from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
 from functools import partial
@@ -14,6 +15,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.core.management import call_command
 from django.http import HttpResponse
 from django.template import RequestContext, Template
 from django.test import RequestFactory
@@ -250,7 +252,9 @@ class TestSubmissionListOrder(TestCase):
         self.assertTrue(test_first_index < test_second_index, error_msg)
 
 
+
 # TODO: expand this TestCase
+@override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestSubmissionListFilters(TestCase):
     fixtures = [
         'test_users',
@@ -265,20 +269,55 @@ class TestSubmissionListFilters(TestCase):
     def setUp(self):
         self.assertTrue(self.client.login(username='test_admin'))
         self.url = reverse(
-            'oioioiadmin:contests_submission_changelist', kwargs={'contest_id': 'c'}
+            'noncontest:oioioiadmin:contests_submission_changelist',
+        )
+        self.curl = reverse(
+            'oioioiadmin:contests_submission_changelist',
+            kwargs={'contest_id': 'c'},
         )
         super().setUp()
 
+    def get_package(self, name):
+        return os.path.join(os.path.dirname(__file__), '../../sinolpack/files', name)
+
     def test_all_filters(self):
-        response = self.client.get(self.url, {
+        args = {
             'has_active_system_error': 'yes',
             'kind': 'NORMAL',
             'status__exact': 'INI_OK',
             'revealed': '1',
-            'round': 'Round 1',
             'lang': 'Pascal',
-        })
+        }
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '4 submissions')
+        response = self.client.get(self.url, args)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '0 submissions')
+        args['round'] = 'Round 1'
+        response = self.client.get(self.curl, args)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '0 submissions')
+
+    def test_search(self):
+        self.url = reverse(
+            'noncontest:oioioiadmin:contests_submission_changelist',
+        )
+        filename = self.get_package('test_simple_package_translations.zip')
+        call_command('addproblem', filename)
+        response = self.client.get(self.url)
+        self.assertContains(response, '5 submissions')
+        response = self.client.get(self.url, {'pi': 'Sumżyce'})
+        self.assertContains(response, '4 submissions')
+        response = self.client.get(self.url, {'pi': 'Sumżyce', 'q': 'Sumżyce'})
+        self.assertContains(response, '4 submissions')
+        response = self.client.get(self.url, {'pi': 'Sumżyce', 'q': 'Zadanie'})
+        self.assertContains(response, '0 submissions')
+        response = self.client.get(self.url, {'pi': 'Zadanie z tłumaczeniami'})
+        self.assertContains(response, '1 submission')
+        response = self.client.get(self.url, {'pi': 'Zadanie z tłumaczeniami', 'q': 'Zadanie'})
+        self.assertContains(response, '1 submission')
+        response = self.client.get(self.url, {'pi': 'Zadanie z tłumaczeniami', 'q': 'Sumżyce'})
         self.assertContains(response, '0 submissions')
 
 
