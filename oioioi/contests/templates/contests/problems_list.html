@@ -1,7 +1,7 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 {% load pagination_tags %}
-
+{% load format_data_range %}
 {% block title %}{% trans "Problems" %}{% endblock %}
 
 {% block main-content %}
@@ -38,9 +38,7 @@
                             <tr class="problemlist-subheader">
                                 <td colspan={{ table_columns }}>
                                     <strong>{{ pi.round }}</strong>
-                                    {% if round_time.get_end %}
-                                        <em>({{ round_time.get_end|date:"j E Y, H:i" }})</em>
-                                    {% endif %}
+                                    <em> {% format_data_range round_time.get_start round_time.get_end %} </em>
                                 </td>
                             </tr>
                         {% endifchanged %}
