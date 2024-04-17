@@ -756,6 +756,8 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             for user in ['test_admin', 'test_contest_admin']:
                 self.assertTrue(self.client.login(username=user))
                 response = self.client.get(url)
+                print(response)
+                assert False
                 for task in ['zad1', 'zad2', 'zad3', 'zad4']:
                     self.assertContains(response, task)
                 self.assertIn(

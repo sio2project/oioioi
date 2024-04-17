@@ -102,7 +102,7 @@ def get_action_from_args() -> Option:
     opt = COMMANDS[arguments[0]]
 
     if len(arguments) > 1:
-        if r"{extra_args}" not in opt.command:
+        if r"{extra_args}" in opt.command:
             opt.extra_args = " ".join(map(quote, arguments[1:]))
         else:
             raise Exception("Too many arguments!")
