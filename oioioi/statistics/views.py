@@ -13,7 +13,7 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions, ContestAttachment, \
-    Submission
+    Submission, SubmissionReport
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
@@ -169,6 +169,12 @@ def monitoring_view(request):
     q_size_global = (QueuedJob.objects
                 .count())
 
+    sys_error_count = (
+        SubmissionReport.objects.filter( status='ACTIVE', failurereport__isnull=False).count()
+        +
+        SubmissionReport.objects.filter( status='ACTIVE', testreport__status='SE').count()
+    )
+
     attachments = ContestAttachment.objects.filter(contest_id=request.contest.id).order_by('id')
     for attachment in attachments:
         pub_date_relative = None
@@ -195,6 +201,7 @@ def monitoring_view(request):
             'attachments': attachments,
             'unanswered_questions': unanswered_questions,
             'oldest_unanswered_question': oldest_unanswered_question_date,
-            'submissions_info': submissions_info
+            'submissions_info': submissions_info,
+            'sys_error_count': sys_error_count,
         },
     )
