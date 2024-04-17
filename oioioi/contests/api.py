@@ -21,6 +21,7 @@ from oioioi.contests.utils import (
 from oioioi.problems.models import Problem, ProblemInstance
 from oioioi.base.permissions import enforce_condition, not_anonymous
 
+from oioioi.problems.utils import query_statement
 from rest_framework import permissions, status, views
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -117,6 +118,9 @@ class GetContestProblems(views.APIView):
             ).data
             serialized["submissions_left"] = problem_stmt[4]
             serialized["can_submit"] = problem_stmt[6]
+            serialized["statement_ext"] = query_statement(
+                problem_stmt[0].problem
+            ).extension
             data.append(serialized)
 
         return Response(data)
