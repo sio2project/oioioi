@@ -1,0 +1,30 @@
+{% load i18n pagination_tags %}
+{% if rounds_times %}
+    <div class="table-responsive-md">
+        <h4> {% trans "Test limits" %} </h4>
+        <table class="table table-sm table-bordered">
+            <thead>
+            <tr>
+                <th> {% trans "Round" %} </th>
+                <th> {% trans "Problem" %} </th>
+                <th> {% trans "Memory limit" %} </th>
+                <th> {% trans "Time limit" %} </th>
+                <th> {% trans "#tests" %} </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for round, test_info in tests_info.items %}
+                {% for t_info in test_info %}
+                    <tr>
+                        <td>{{ round }}</td>
+                        <td>{{ t_info.problem_instance__short_name }}</td>
+                        <td>{{ t_info.memory_limit }}</td>
+                        <td>{{ t_info.time_limit }}</td>
+                        <td>{{ t_info.count }}</td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

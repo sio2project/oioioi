@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 from pprint import pprint
 
@@ -21,6 +22,7 @@ from oioioi.contests.utils import (
     is_contest_observer, rounds_times,
 )
 from oioioi.participants.models import Participant
+from oioioi.programs.models import Test
 from oioioi.questions.models import Message
 from oioioi.statistics.controllers import statistics_categories
 from oioioi.evalmgr.models import QueuedJob
@@ -139,7 +141,7 @@ def statistics_view(
     contest_exists & can_enter_contest & can_see_stats
 )
 def monitoring_view(request):
-    cur_time = UTC.localize(datetime.now())
+    cur_time = request.timestamp
     r_times = []
     for round_, rt in rounds_times(request, request.contest).items():
         round_time_info = {'name': str(round_)}
@@ -182,6 +184,14 @@ def monitoring_view(request):
 
     submissions_info = Submission.objects.filter(problem_instance__contest=request.contest).values('kind').annotate(total=Count('kind')).order_by()
 
+    tests_info = defaultdict(list)
+    tests_qs = Test.objects.filter(problem_instance__contest=request.contest)
+    tests_limits = (tests_qs.values('memory_limit', 'time_limit', 'problem_instance', 'problem_instance__round__name', 'problem_instance__short_name')
+                    .annotate(count=Count('problem_instance'))
+                    .order_by('problem_instance', 'memory_limit', 'time_limit'))
+    for t_info in tests_limits:
+        tests_info[t_info['problem_instance__round__name']].append(t_info)
+
     return TemplateResponse(
         request,
         'statistics/monitoring.html',
@@ -195,6 +205,7 @@ def monitoring_view(request):
             'attachments': attachments,
             'unanswered_questions': unanswered_questions,
             'oldest_unanswered_question': oldest_unanswered_question_date,
-            'submissions_info': submissions_info
+            'submissions_info': submissions_info,
+            'tests_info': dict(tests_info)
         },
     )
