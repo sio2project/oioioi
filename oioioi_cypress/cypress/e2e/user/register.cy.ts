@@ -11,6 +11,9 @@ context("Simple user operations", () => {
 
     it("Register new user", () => {
         cy.fixture("credentials").then((data) => {
+            // Unique username is required, because deleting a user prevents
+            // registering a new account with the same username, which
+            // breaks this test if ran multiple times
             data.user.username = getUniqueUsername();
             registerNewUser(data.user);
             checkIfCanLogIn(data.user);
