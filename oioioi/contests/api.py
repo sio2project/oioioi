@@ -6,8 +6,18 @@ from oioioi.base.utils import request_cached
 from oioioi.base.utils.api import make_path_coreapi_schema
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import Contest, ProblemInstance
-from oioioi.contests.serializers import ContestSerializer, ProblemSerializer, RoundSerializer, SubmissionSerializer
-from oioioi.contests.utils import can_enter_contest, visible_contests
+from oioioi.contests.serializers import (
+    ContestSerializer,
+    ProblemSerializer,
+    RoundSerializer,
+    SubmissionSerializer,
+    UserResultForProblemSerializer,
+)
+from oioioi.contests.utils import (
+    can_enter_contest,
+    get_problem_statements,
+    visible_contests,
+)
 from oioioi.problems.models import Problem, ProblemInstance
 from oioioi.base.permissions import enforce_condition, not_anonymous
 
@@ -44,7 +54,7 @@ class GetContestRounds(views.APIView):
             make_path_coreapi_schema(
                 name='contest_id',
                 title="Contest id",
-                description="Id of the contest from contest_list endpoint"
+                description="Id of the contest from contest_list endpoint",
             ),
         ]
     )
@@ -53,7 +63,8 @@ class GetContestRounds(views.APIView):
         contest = get_object_or_404(Contest, id=contest_id)
         rounds = contest.round_set.all()
         serializer = RoundSerializer(rounds, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
+
 
 class GetContestProblems(views.APIView):
     permission_classes = (
@@ -66,7 +77,7 @@ class GetContestProblems(views.APIView):
             make_path_coreapi_schema(
                 name='contest_id',
                 title="Contest id",
-                description="Id of the contest from contest_list endpoint"
+                description="Id of the contest from contest_list endpoint",
             ),
         ]
     )
@@ -74,15 +85,41 @@ class GetContestProblems(views.APIView):
     def get(self, request, contest_id):
         contest: Contest = get_object_or_404(Contest, id=contest_id)
         controller = contest.controller
-        queryset = (
+        problem_instances = (
             ProblemInstance.objects.filter(contest=request.contest)
             .select_related('problem')
             .prefetch_related('round')
         )
 
-        problems = [pi for pi in queryset if controller.can_see_problem(request, pi)]
-        serializer = ProblemSerializer(problems, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # problems = [pi for pi in problem_instances if controller.can_see_problem(request, pi)]
+        # serializer = ProblemSerializer(problems, many=True)
+        # return Response(serializer.data,)
+
+        # Problem statements in order
+        # 0) problem instance
+        # 1) statement_visible
+        # 2) round end time
+        # 3) user result
+        # 4) number of submissions left
+        # 5) submissions_limit
+        # 6) can_submit
+        # Sorted by (start_date, end_date, round name, problem name)
+        problem_statements = get_problem_statements(
+            request, controller, problem_instances
+        )
+
+        data = []
+        for problem_stmt in problem_statements:
+            serialized = dict(ProblemSerializer(problem_stmt[0], many=False).data)
+            serialized["full_name"] = problem_stmt[0].problem.legacy_name
+            serialized["user_result"] = UserResultForProblemSerializer(
+                problem_stmt[3], many=False
+            ).data
+            serialized["submissions_left"] = problem_stmt[4]
+            serialized["can_submit"] = problem_stmt[6]
+            data.append(serialized)
+
+        return Response(data)
 
 
 class GetProblemIdView(views.APIView):

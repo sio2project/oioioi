@@ -1,4 +1,4 @@
-from oioioi.contests.models import Contest, ProblemInstance, Round
+from oioioi.contests.models import Contest, ProblemInstance, Round, UserResultForProblem
 from rest_framework import serializers
 from django.utils.timezone import now
 
@@ -46,9 +46,14 @@ class RoundSerializer(serializers.ModelSerializer):
     class Meta:
         model = Round
         fields = [
-                    "name", "start_date", "end_date", "is_active",
-                    "results_date", "public_results_date", "is_trial",
-                ]
+            "name",
+            "start_date",
+            "end_date",
+            "is_active",
+            "results_date",
+            "public_results_date",
+            "is_trial",
+        ]
 
     def get_is_active(self, obj: Round):
         if obj.end_date:
@@ -60,5 +65,11 @@ class ProblemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProblemInstance
-        fields = "__all__"
+        exclude = ['needs_rejudge', 'problem', 'contest']
 
+
+class UserResultForProblemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserResultForProblem
+        fields = ['score', 'status']
