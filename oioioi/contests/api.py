@@ -111,17 +111,18 @@ class GetContestProblems(views.APIView):
 
         data = []
         for problem_stmt in problem_statements:
-            serialized = dict(ProblemSerializer(problem_stmt[0], many=False).data)
-            serialized["full_name"] = problem_stmt[0].problem.legacy_name
-            serialized["user_result"] = UserResultForProblemSerializer(
-                problem_stmt[3], many=False
-            ).data
-            serialized["submissions_left"] = problem_stmt[4]
-            serialized["can_submit"] = problem_stmt[6]
-            serialized["statement_ext"] = query_statement(
-                problem_stmt[0].problem
-            ).extension
-            data.append(serialized)
+            if problem_stmt[1]:
+                serialized = dict(ProblemSerializer(problem_stmt[0], many=False).data)
+                serialized["full_name"] = problem_stmt[0].problem.legacy_name
+                serialized["user_result"] = UserResultForProblemSerializer(
+                    problem_stmt[3], many=False
+                ).data
+                serialized["submissions_left"] = problem_stmt[4]
+                serialized["can_submit"] = problem_stmt[6]
+                serialized["statement_ext"] = query_statement(
+                    problem_stmt[0].problem
+                ).extension
+                data.append(serialized)
 
         return Response(data)
 
