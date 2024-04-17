@@ -29,6 +29,7 @@ RAW_COMMANDS = [
     ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
+    ("exec", "Run a command in the web container.", "{exec} web {extra_args}"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
     ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),
@@ -36,8 +37,6 @@ RAW_COMMANDS = [
      "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh {extra_args}"),
     ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow {extra_args}"),
-    ("test-abc", "Run specific test file. (edit the toolbox)",
-     "{exec} web ../oioioi/test.sh -v oioioi/teachers/tests.py"),
     ("test-coverage", "Run coverage tests.",
      "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
