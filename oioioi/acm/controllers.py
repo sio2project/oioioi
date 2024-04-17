@@ -48,6 +48,9 @@ class ACMContestController(ProgrammingContestController):
 
         return round.end_date - datetime.timedelta(minutes=frozen_ranking_minutes)
 
+    def get_penalty_time(self):
+        return ACMScore.DEFAULT_PENALTY_TIME
+
     def fill_evaluation_environ(self, environ, submission):
         environ['group_scorer'] = 'oioioi.acm.utils.acm_group_scorer'
         environ['test_scorer'] = 'oioioi.acm.utils.acm_test_scorer'
@@ -122,6 +125,7 @@ class ACMContestController(ProgrammingContestController):
                 problems_solved=solved,
                 penalties_count=(penalties_count - solved),
                 time_passed=self.get_submission_relative_time(submission),
+                penalty_time=self.get_penalty_time(),
             )
             result.score = score
             result.status = submission.status
@@ -178,9 +182,9 @@ class ACMContestController(ProgrammingContestController):
     def ranking_controller(self):
         return ACMRankingController(self.contest)
 
-    def can_see_round(self, request_or_context, round):
+    def can_see_round(self, request_or_context, round, no_admin=False):
         context = self.make_context(request_or_context)
-        if context.is_admin:
+        if not no_admin and context.is_admin:
             return True
         rtimes = self.get_round_times(request_or_context, round)
         return rtimes.is_active(context.timestamp)
