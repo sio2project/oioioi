@@ -154,7 +154,7 @@ def problems_list_view(request):
 
     show_submissions_limit = any([p[5] for p in problems_statements])
     show_submit_button = any([p[6] for p in problems_statements])
-    show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 0
+    show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     table_columns = 3 + int(show_submissions_limit) + int(show_submit_button)
 
     return TemplateResponse(
