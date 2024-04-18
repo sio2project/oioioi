@@ -222,6 +222,8 @@ for app in settings.INSTALLED_APPS:
             # patterns defined in the global urls.py are an exception
             if hasattr(urls_module, 'urlpatterns'):
                 neutral_patterns += getattr(urls_module, 'urlpatterns')
+        except ModuleNotFoundError:
+            pass
         except ImportError as e:
             if settings.DEBUG:
                 print(e, file=sys.stderr)
