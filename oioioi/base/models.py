@@ -1,5 +1,4 @@
 # coding: utf-8
-import sys
 
 import django.dispatch
 from django.conf import settings
