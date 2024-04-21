@@ -3456,6 +3456,21 @@ class TestRulesVisibility(TestCase):
         'Algorithmic Engagements finals'
     ]
 
+    visibility_dates = [
+        [
+            datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc),
+            None
+        ],
+        [
+            datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), 
+            datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)
+        ],
+        [
+            None,
+            None
+        ]
+    ]
+
     def _set_problem_limits(self, url, limits_list):
         for i in range(len(limits_list)):
             problem = ProblemInstance.objects.get(pk=i+1)
@@ -3582,39 +3597,39 @@ class TestRulesVisibility(TestCase):
         url = reverse('contest_rules', kwargs={'contest_id': 'c'})
 
         with fake_time(datetime(2012, 8, 4, 13, 46, 37, tzinfo=timezone.utc)):
-            response = self._set_results_dates(url, [datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), None])
+            response = self._set_results_dates(url, self.visibility_dates[0])
             self.assertContains(response, "In round Round 1, your results as well as " \
                                 "public ranking will be visible after 2012-08-15 20:27:58.")
         
             self._change_controller(public_results=True)
-            response = self._set_results_dates(url, [datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)])
+            response = self._set_results_dates(url, self.visibility_dates[1])
             self.assertContains(response, "In round Round 1, your results will be visible after 2012-08-15 20:27:58" \
                                 " and the public ranking will be visible after 2013-04-20 21:37:13.")
 
-            response = self._set_results_dates(url, [None, None])
+            response = self._set_results_dates(url, self.visibility_dates[2])
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
         with fake_time(datetime(2012, 12, 24, 11, 23, 56, tzinfo=timezone.utc)):
-            response = self._set_results_dates(url, [datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), None])
+            response = self._set_results_dates(url, self.visibility_dates[0])
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
         
             self._change_controller(public_results=True)
-            response = self._set_results_dates(url, [datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)])
+            response = self._set_results_dates(url, self.visibility_dates[1])
             self.assertContains(response, "In round Round 1, your results will be visible immediately" \
                                 " and the public ranking will be visible after 2013-04-20 21:37:13.")
 
-            response = self._set_results_dates(url, [None, None])
+            response = self._set_results_dates(url, self.visibility_dates[2])
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
         with fake_time(datetime(2014, 8, 26, 11, 23, 56, tzinfo=timezone.utc)):
-            response = self._set_results_dates(url, [datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), None])
+            response = self._set_results_dates(url, self.visibility_dates[0])
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
         
             self._change_controller(public_results=True)
-            response = self._set_results_dates(url, [datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)])
+            response = self._set_results_dates(url, self.visibility_dates[1])
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
-            response = self._set_results_dates(url, [None, None])
+            response = self._set_results_dates(url, self.visibility_dates[2])
             self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
 
