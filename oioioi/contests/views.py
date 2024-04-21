@@ -107,7 +107,7 @@ def get_contest_permissions(request, response):
 
 
 @menu_registry.register_decorator(
-    _("Rules"), lambda request: reverse('contest_rules'), order=100
+    _("Rules"), lambda request: reverse('contest_rules'), order=90
 )
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_rules_view(request):
@@ -117,19 +117,18 @@ def contest_rules_view(request):
     results_visibility = get_results_visibility(request)
     scoring_type = request.contest.controller.description
 
-    if (contest_dates[0] != -1):
+    if contest_dates[0] != -1:
         contest_start_date = contest_dates[0]
     else :
         contest_start_date = None
 
-    if (contest_dates[1] != -1):
+    if contest_dates[1] != -1:
         contest_end_date = contest_dates[1]
     else :
         contest_end_date = None
 
-    if (len(submission_limit) == 1 
-        and (submission_limit[0] == None 
-        or submission_limit[0] == 0)):
+    if len(submission_limit) == 1 and (submission_limit[0] == None 
+        or submission_limit[0] == 0):
         submission_limit = None
     elif 0 in submission_limit:
         submission_limit.remove(0)

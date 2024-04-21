@@ -8,46 +8,66 @@
 <h1>{% trans "Rules" %}</h1>
 <ul class="list-group list-group-light">
     {% if scoring_type %}
-        {% blocktrans %}
-            <li class="list-group-item">The scoring and contest type is "{{ scoring_type }}".</li>
-        {% endblocktrans %}
+        <li class="list-group-item">
+            {% blocktrans %}
+                The scoring and contest type is "{{ scoring_type }}".
+            {% endblocktrans %}
+        </li>
     {% endif %}
     {% if no_of_rounds %}
-        {% blocktrans with no_of_rounds as number and no_of_rounds|pluralize as fix %}
-            <li class="list-group-item">The contest has {{ number }} round{{ fix }}.</li>
-        {% endblocktrans %}
+        <li class="list-group-item">
+            {% blocktrans with no_of_rounds as number and no_of_rounds|pluralize as fix %}
+                The contest has {{ number }} round{{ fix }}.
+            {% endblocktrans %}
+        </li>
     {% endif %}
     {% if contest_start_date and contest_end_date %}
-        {% blocktrans %}
-            <li class="list-group-item">The contest starts on {{ contest_start_date }} and ends on {{ contest_end_date }}.</li>
-        {% endblocktrans %}
+        <li class="list-group-item">
+            {% blocktrans %}
+                The contest starts on {{ contest_start_date }} and ends on {{ contest_end_date }}.
+            {% endblocktrans %}
+        </li>
     {% elif contest_start_date %}
-        {% blocktrans %}
-            <li class="list-group-item">The contest starts on {{ contest_start_date }}.</li>
-        {% endblocktrans %}
+        <li class="list-group-item">
+            {% blocktrans %}
+                The contest starts on {{ contest_start_date }}.
+            {% endblocktrans %}
+        </li>
     {% endif %}
     {% if submission_limit|length > 1 %}
-        {% blocktrans with submission_limit|join:", " as limit %}
-            <li class="list-group-item">There is a limit of {{ limit }} submissions, depending on a problem.</li>
-        {% endblocktrans %}
+        <li class="list-group-item">
+            {% blocktrans with submission_limit|join:", " as limit %}
+                There is a limit of {{ limit }} submissions, depending on a problem.
+            {% endblocktrans %}
+        </li>
     {% elif submission_limit %}
-        {% blocktrans with limit=submission_limit.0 %}
-            <li class="list-group-item">There is a limit of {{ limit }} submissions for each problem.</li>
-        {% endblocktrans %}
+        <li class="list-group-item">
+            {% blocktrans with limit=submission_limit.0 %}
+                There is a limit of {{ limit }} submissions for each problem.
+            {% endblocktrans %}
+        </li>
     {% else %}
-        {% blocktrans %}
-            <li class="list-group-item">There are no submission limits in this contest.</li>
-        {% endblocktrans %}
+        <li class="list-group-item">
+            {% blocktrans %}
+                There are no submission limits in this contest.
+            {% endblocktrans %}
+        </li>
     {% endif %}
     {% for round in results_visibility %}
+        {% translate round.results as results %}
         {% if round.results != round.ranking %}
-            {% blocktrans with round.name as name and round.results as results and round.ranking as public %}
-                <li class="list-group-item">In round {{ name }}, your results will be visible {{ results }} and the public ranking will be visible {{ public }}.</li>
-            {% endblocktrans %}
+            <li class="list-group-item">
+                {% translate round.ranking as ranking %}
+                {% blocktrans with round.name as name and results as r_results and ranking as public %}
+                    In round {{ name }}, your results will be visible {{ r_results }} and the public ranking will be visible {{ public }}.
+                {% endblocktrans %}
+            </li>
         {% else %}
-            {% blocktrans with round.name as name and round.results as results %}
-                <li class="list-group-item">In round {{ name }}, your results as well as public ranking will be visible {{ results }}.</li>
-            {% endblocktrans %}
+            <li class="list-group-item">
+                {% blocktrans with round.name as name and results as r_results %}
+                    In round {{ name }}, your results as well as public ranking will be visible {{ r_results }}.
+                {% endblocktrans %}
+            </li>
         {% endif %}
     {% endfor %}
 </ul>

@@ -267,10 +267,7 @@ def get_contest_dates(request):
     """Returns the end_date of the latest round and the start_date
     of the earliest round.
     """ 
-    if isinstance(request, HttpRequest):
-        rtimes = rounds_times(request, request.contest)
-    else:
-        rtimes = generic_rounds_times(None, request.contest)
+    rtimes = rounds_times(request, request.contest)
 
     ends = [
         rt.get_end()
@@ -281,15 +278,16 @@ def get_contest_dates(request):
         for rt in rtimes.values()
     ]
 
-    if (not starts or starts.count(None)):
+    if starts and None not in starts:  
+        min_start = min(starts)  
+    else:  
         min_start = -1
-    else:
-        min_start = min(starts)
 
-    if (not ends or ends.count(None)):
-        max_end = -1
-    else:
-        max_end = max(ends)
+    if ends and None not in ends:  
+        max_end = max(ends)  
+    else:  
+        max_end = -1  
+        
 
     return min_start, max_end
 
@@ -304,7 +302,7 @@ def get_problems_sumbmission_limit(request):
         .prefetch_related('round')
     )
 
-    if (queryset is None):
+    if queryset is None:
         return None
     
     limits = set()
@@ -317,22 +315,19 @@ def get_problems_sumbmission_limit(request):
 @request_cached
 def get_results_visibility(request):
     """Returns the results visibility for each round in the contest"""
-    if isinstance(request, HttpRequest):
-        rtimes = rounds_times(request, request.contest)
-    else:
-        rtimes = generic_rounds_times(None, request.contest)
+    rtimes = rounds_times(request, request.contest)
 
     dates = list()
     for r in rtimes.keys():
         results_date = rtimes[r].results_date()
         public_results_date = rtimes[r].public_results_date()
  
-        if (results_date is None or results_date <= request.timestamp):
+        if results_date is None or results_date <= request.timestamp:
             results_visibility = 'immediately'
         else:
             results_visibility = f'after {results_date.strftime("%Y-%m-%d %H:%M:%S")}'
 
-        if (public_results_date is None or public_results_date <= request.timestamp):
+        if public_results_date is None or public_results_date <= request.timestamp:
             public_results_visibility = 'immediately'
         else:
             public_results_visibility = f'after {public_results_date.strftime("%Y-%m-%d %H:%M:%S")}'
