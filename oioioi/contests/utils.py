@@ -302,8 +302,8 @@ def get_problems_sumbmission_limit(request):
         .prefetch_related('round')
     )
 
-    if queryset is None:
-        return None
+    if queryset is None or not queryset.exists():
+        return [Contest.objects.get(id=request.contest.id).default_submissions_limit]
     
     limits = set()
     for p in queryset:
