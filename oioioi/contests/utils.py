@@ -8,7 +8,7 @@ from django.utils.module_loading import import_string
 from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
-from oioioi.base.utils import request_cached
+from oioioi.base.utils import request_cached, request_cached_complex
 from oioioi.base.utils.public_message import get_public_message
 from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
@@ -238,22 +238,26 @@ def submittable_problem_instances(request):
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
 
-@request_cached
-def visible_problem_instances(request):
+@request_cached_complex
+def visible_problem_instances(request, no_admin=False):
     controller = request.contest.controller
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
         .select_related('problem')
         .prefetch_related('round')
     )
-    return [pi for pi in queryset if controller.can_see_problem(request, pi)]
+    return [pi for pi in queryset if controller.can_see_problem(
+        request, pi, no_admin=no_admin,
+    )]
 
 
-@request_cached
-def visible_rounds(request):
+@request_cached_complex
+def visible_rounds(request, no_admin=False):
     controller = request.contest.controller
     queryset = Round.objects.filter(contest=request.contest)
-    return [r for r in queryset if controller.can_see_round(request, r)]
+    return [r for r in queryset if controller.can_see_round(
+        request, r, no_admin=no_admin,
+    )]
 
 
 @request_cached
