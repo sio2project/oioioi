@@ -17,7 +17,7 @@ class AttachmentRegistry(object):
         :Parameters:
             Function that takes elements from `**kwargs` as arguments and
             returns dictionary containing following keys: `category`,
-            `name`, `description`, `link`, `pub_date`.
+            `name`, `description`, `link`, `pub_date`, `admin_only`.
         """
         if attachment_generator is not None:
             self._registry.register(attachment_generator, order)

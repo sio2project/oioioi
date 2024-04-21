@@ -1413,169 +1413,154 @@ class TestAttachments(TestCase, TestStreamingMixin):
     ]
 
     def test_attachments(self):
-        contest = Contest.objects.get()
-        problem = Problem.objects.get()
-        ca = ContestAttachment(
-            contest=contest,
-            description='contest-attachment',
-            content=ContentFile(b'content-of-conatt', name='conatt.txt'),
-        )
-        ca.save()
-        pa = ProblemAttachment(
-            problem=problem,
-            description='problem-attachment',
-            content=ContentFile(b'content-of-probatt', name='probatt.txt'),
-        )
-        pa.save()
-        round = Round.objects.get(pk=1)
-        ra = ContestAttachment(
-            contest=contest,
-            description='round-attachment',
-            content=ContentFile(b'content-of-roundatt', name='roundatt.txt'),
-            round=round,
-        )
-        ra.save()
+        # Possible attachments:
+        #  - ContestAttachent without round: pub_date == None or not
+        #  - ProblemAttachment (has round and no pub_date)
+        #  - ContestAttachent with round: pub_date == None or before or after
 
-        self.assertTrue(self.client.login(username='test_user'))
-        response = self.client.get(
-            reverse('contest_files', kwargs={'contest_id': contest.id})
-        )
-        self.assertEqual(response.status_code, 200)
-        for part in [
-            'contest-attachment',
+        # The round starts at 2011.07.31-20:57:58
+        def get_time(hour):
+            return datetime(2011, 7, 31, hour, 0, 0, tzinfo=timezone.utc)
+
+        # The attachemnts are in (attachment, content, name) tuples.
+        contest = Contest.objects.get()
+        ca = (
+            ContestAttachment.objects.create(
+                contest=contest,
+                description='contest-attachment-simple',
+                content=ContentFile(b'content-of-conatt-simple', name='conatt.txt'),
+            ),
+            b'content-of-conatt-simple',
             'conatt.txt',
-            'problem-attachment',
+        )
+        cb = (
+            ContestAttachment.objects.create(
+                contest=contest,
+                description='contest-attachment-pub-date',
+                content=ContentFile(b'content-of-conatt-pub', name='conatt-pub.txt'),
+                pub_date=get_time(19),
+            ),
+            b'content-of-conatt-pub',
+            'conatt-pub.txt',
+        )
+        problem = Problem.objects.get()
+        pa = (
+            ProblemAttachment.objects.create(
+                problem=problem,
+                description='problem-attachment',
+                content=ContentFile(b'content-of-probatt', name='probatt.txt'),
+            ),
+            b'content-of-probatt',
             'probatt.txt',
-            'round-attachment',
+        )
+        round = Round.objects.get(pk=1)
+        ra = (
+            ContestAttachment.objects.create(
+                contest=contest,
+                description='round-attachment',
+                content=ContentFile(b'content-of-roundatt-simple', name='roundatt.txt'),
+                round=round,
+            ),
+            b'content-of-roundatt-simple',
             'roundatt.txt',
-        ]:
-            self.assertContains(response, part)
-        response = self.client.get(
-            reverse(
-                'contest_attachment',
-                kwargs={'contest_id': contest.id, 'attachment_id': ca.id},
-            )
         )
-        self.assertStreamingEqual(response, b'content-of-conatt')
-        response = self.client.get(
-            reverse(
-                'problem_attachment',
-                kwargs={'contest_id': contest.id, 'attachment_id': pa.id},
-            )
+        ra[0].save()
+        rb = (
+            ContestAttachment.objects.create(
+                contest=contest,
+                description='round-attachment-pub-date-before',
+                content=ContentFile(b'content-of-roundatt-before', name='roundatt-before.txt'),
+                round=round,
+                pub_date=get_time(19),
+            ),
+            b'content-of-roundatt-before',
+            'roundatt-before.txt',
         )
-        self.assertStreamingEqual(response, b'content-of-probatt')
-        response = self.client.get(
-            reverse(
-                'contest_attachment',
-                kwargs={'contest_id': contest.id, 'attachment_id': ra.id},
-            )
+        rc = (
+            ContestAttachment.objects.create(
+                contest=contest,
+                description='round-attachment-pub-date-after',
+                content=ContentFile(b'content-of-roundatt-after', name='roundatt-after.txt'),
+                round=round,
+                pub_date=get_time(22),
+            ),
+            b'content-of-roundatt-after',
+            'roundatt-after.txt',
         )
-        self.assertStreamingEqual(response, b'content-of-roundatt')
 
-        with fake_time(datetime(2011, 7, 10, tzinfo=timezone.utc)):
-            response = self.client.get(
-                reverse('contest_files', kwargs={'contest_id': contest.id})
-            )
+        def get_attachment_urlpattern_name(att):
+            if type(att) is ContestAttachment:
+                return 'contest_attachment'
+            assert type(att) is ProblemAttachment
+            return 'problem_attachment'
+
+        def check(visible, invisible):
+            list_url = reverse('contest_files', kwargs={'contest_id': contest.id})
+            self.assertTrue(self.client.login(username='test_user'))
+
+            # File list
+            response = self.client.get(list_url)
             self.assertEqual(response.status_code, 200)
-            for part in ['contest-attachment', 'conatt.txt']:
-                self.assertContains(response, part)
-            for part in [
-                'problem-attachment',
-                'probatt.txt',
-                'round-attachment',
-                'roundatt.txt',
-            ]:
-                self.assertNotContains(response, part)
-            response = self.client.get(
-                reverse(
-                    'contest_attachment',
-                    kwargs={'contest_id': contest.id, 'attachment_id': ca.id},
-                )
-            )
-            self.assertStreamingEqual(response, b'content-of-conatt')
-            check_not_accessible(
-                self,
-                'problem_attachment',
-                kwargs={'contest_id': contest.id, 'attachment_id': pa.id},
-            )
-            check_not_accessible(
-                self,
-                'contest_attachment',
-                kwargs={'contest_id': contest.id, 'attachment_id': ra.id},
-            )
+            for (att, content, name) in visible:
+                self.assertContains(response, name)
+                self.assertContains(response, att.description)
+            for (att, content, name) in invisible:
+                self.assertNotContains(response, name)
+                self.assertNotContains(response, att.description)
+            for f in response.context['files']:
+                self.assertEqual(f['admin_only'], False)
 
-    def test_pub_date(self):
-        contest = Contest.objects.get()
-        ca = ContestAttachment(
-            contest=contest,
-            description='contest-attachment',
-            content=ContentFile(b'content-null', name='conatt-null-date.txt'),
-            pub_date=None,
-        )
-        ca.save()
-        cb = ContestAttachment(
-            contest=contest,
-            description='contest-attachment',
-            content=ContentFile(b'content-visible', name='conatt-visible.txt'),
-            pub_date=datetime(2011, 7, 10, 0, 0, 0, tzinfo=timezone.utc),
-        )
-        cb.save()
-        cc = ContestAttachment(
-            contest=contest,
-            description='contest-attachment',
-            content=ContentFile(b'content-hidden', name='conatt-hidden.txt'),
-            pub_date=datetime(2011, 7, 10, 1, 0, 0, tzinfo=timezone.utc),
-        )
-        cc.save()
-
-        def check_visibility(*should_be_visible):
-            response = self.client.get(
-                reverse('contest_files', kwargs={'contest_id': contest.id})
-            )
-            for name in [
-                'conatt-null-date.txt',
-                'conatt-visible.txt',
-                'conatt-hidden.txt',
-            ]:
-                if name in should_be_visible:
-                    self.assertContains(response, name)
-                else:
-                    self.assertNotContains(response, name)
-
-        def check_accessibility(should_be_accesible, should_not_be_accesible):
-            for (id, content) in should_be_accesible:
+            # Actual accessibility
+            for (att, content, name) in visible:
                 response = self.client.get(
                     reverse(
-                        'contest_attachment',
-                        kwargs={'contest_id': contest.id, 'attachment_id': id},
+                        get_attachment_urlpattern_name(att),
+                        kwargs={'contest_id': contest.id, 'attachment_id': att.id},
                     )
                 )
                 self.assertStreamingEqual(response, content)
-            for id in should_not_be_accesible:
+            for (att, content, name) in invisible:
                 check_not_accessible(
                     self,
-                    'contest_attachment',
-                    kwargs={'contest_id': contest.id, 'attachment_id': id},
+                    get_attachment_urlpattern_name(att),
+                    kwargs={'contest_id': contest.id, 'attachment_id': att.id},
                 )
 
-        with fake_time(datetime(2011, 7, 10, 0, 30, 0, tzinfo=timezone.utc)):
-            self.assertTrue(self.client.login(username='test_user'))
-            check_visibility('conatt-null-date.txt', 'conatt-visible.txt')
-            check_accessibility(
-                [(ca.id, b'content-null'), (cb.id, b'content-visible')], [cc.id]
-            )
+            # File list again, but as an admin
             self.assertTrue(self.client.login(username='test_admin'))
-            check_visibility(
-                'conatt-null-date.txt', 'conatt-visible.txt', 'conatt-hidden.txt'
-            )
-            check_accessibility(
-                [
-                    (ca.id, b'content-null'),
-                    (cb.id, b'content-visible'),
-                    (cc.id, b'content-hidden'),
-                ],
-                [],
-            )
+            response = self.client.get(list_url)
+            self.assertEqual(response.status_code, 200)
+            for (att, content, name) in visible + invisible:
+                self.assertContains(response, name)
+                self.assertContains(response, att.description)
+            invisible_names = set([f[2] for f in invisible])
+            for f in response.context['files']:
+                self.assertEqual(f['admin_only'], f['name'] in invisible_names)
+
+            # Actual accessibility as an admin
+            for (att, content, name) in visible + invisible:
+                response = self.client.get(
+                    reverse(
+                        get_attachment_urlpattern_name(att),
+                        kwargs={'contest_id': contest.id, 'attachment_id': att.id},
+                    )
+                )
+                self.assertStreamingEqual(response, content)
+
+        # Now, therefore far later than all of the dates
+        check([ca, cb, pa, ra, rb, rc], [])
+        # Before all dates
+        with fake_time(get_time(18)):
+            check([ca,], [cb, pa, ra, rb, rc])
+        # Before the round start, but after the pub_dates before it
+        with fake_time(get_time(20)):
+            check([ca, cb], [pa, ra, rb, rc])
+        # After the round start, but before the last pub_date
+        with fake_time(get_time(21)):
+            check([ca, cb, pa, ra, rb], [rc])
+        # After the last pub_date
+        with fake_time(get_time(23)):
+            check([ca, cb, pa, ra, rb, rc], [])
 
 
 class TestRoundExtension(TestCase, SubmitFileMixin):

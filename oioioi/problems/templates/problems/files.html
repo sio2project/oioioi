@@ -20,7 +20,7 @@
                 </thead>
                 <tbody>
                     {% for file in files %}
-                        <tr {% if not file.pub_date or file.pub_date > request.timestamp %} class="text-muted" {% endif %}>
+                        <tr {% if file.admin_only %} class="text-muted" {% endif %}>
                             {% if add_category_field %}
                                 <td>{{ file.category }}</td>
                             {% endif %}

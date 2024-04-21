@@ -1,14 +1,20 @@
 /// <reference types="cypress" />
 
+import { v4 as uuidv4 } from "uuid";
+
 context("Simple user operations", () => {
     before(() => {
         cy.visit("/");
         cy.hideDjangoToolbar();
-        cy.enLang()
+        cy.enLang();
     });
 
     it("Register new user", () => {
         cy.fixture("credentials").then((data) => {
+            // Unique username is required, because deleting a user prevents
+            // registering a new account with the same username, which
+            // breaks this test if ran multiple times
+            data.user.username = getUniqueUsername();
             registerNewUser(data.user);
             checkIfCanLogIn(data.user);
             tryRemovingUser(data.user, false);
@@ -20,15 +26,19 @@ context("Simple user operations", () => {
         cy.fixture("credentials").then((data) => {
             checkIfCanLogIn(data.admin);
         });
-    })
+    });
 });
+
+const getUniqueUsername = () => {
+    return "test_username_" + uuidv4().substring(20).replaceAll('-', '_');
+};
 
 const registerNewUser = (user_info: OIOIOI.User) => {
     visitRegistrationSite();
     cy.get('.oioioi-form__container').within(() => {
         fillRegistrationForm(user_info);
         cy.get('button[type="submit"]').first().click();
-    })
+    });
 };
 
 const visitRegistrationSite = () => {
