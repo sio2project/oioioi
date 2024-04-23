@@ -99,6 +99,10 @@ class Contest(models.Model):
         verbose_name=_("enable editor"),
         default=False
     )
+    show_contest_rules = models.BooleanField(
+        verbose_name=_("show contest rules"),
+        default=True
+    )
     is_archived = models.BooleanField(
         verbose_name=_("is archived"),
         default=False

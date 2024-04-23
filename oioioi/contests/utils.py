@@ -259,6 +259,13 @@ def visible_rounds(request, no_admin=False):
         request, r, no_admin=no_admin,
     )]
 
+@make_request_condition
+@request_cached
+def are_rules_visible(request):
+    return (
+        hasattr(request, 'contest')
+        and request.contest.show_contest_rules
+    )
 
 @request_cached
 def get_number_of_rounds(request):
