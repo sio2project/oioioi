@@ -3642,6 +3642,7 @@ class TestRulesVisibility(TestCase):
         
             self._change_controller(public_results=True)
             response = self._set_results_dates(url, self.visibility_dates[1])
+            print(response.content)
             self.assertContains(response, "In round Round 1, your results will be visible after 2012-08-15 20:27:58" \
                                 " and the public ranking will be visible after 2013-04-20 21:37:13.")
 

@@ -54,18 +54,16 @@
         </li>
     {% endif %}
     {% for round in results_visibility %}
-        {% translate round.results as results %}
         {% if round.results != round.ranking %}
             <li class="list-group-item">
-                {% translate round.ranking as ranking %}
-                {% blocktrans with round.name as name and results as r_results and ranking as public %}
-                    In round {{ name }}, your results will be visible {{ r_results }} and the public ranking will be visible {{ public }}.
+                {% blocktrans with round.name as name and round.results as results and round.ranking as ranking %}
+                    In round {{ name }}, your results will be visible {{ results }} and the public ranking will be visible {{ ranking }}.
                 {% endblocktrans %}
             </li>
         {% else %}
             <li class="list-group-item">
-                {% blocktrans with round.name as name and results as r_results %}
-                    In round {{ name }}, your results as well as public ranking will be visible {{ r_results }}.
+                {% blocktrans with round.name as name and round.results as results %}
+                    In round {{ name }}, your results as well as public ranking will be visible {{ results }}.
                 {% endblocktrans %}
             </li>
         {% endif %}

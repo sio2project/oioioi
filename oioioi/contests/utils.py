@@ -324,8 +324,7 @@ def get_problems_sumbmission_limit(request):
     return sorted(limits)
 
 
-@request_cached
-def get_results_visibility(request):
+def get_results_dates(request):
     """Returns the results visibility for each round in the contest"""
     rtimes = rounds_times(request, request.contest)
 
@@ -333,21 +332,11 @@ def get_results_visibility(request):
     for r in rtimes.keys():
         results_date = rtimes[r].results_date()
         public_results_date = rtimes[r].public_results_date()
- 
-        if results_date is None or results_date <= request.timestamp:
-            results_visibility = _('immediately')
-        else:
-            results_visibility = _(f'after {results_date.strftime("%Y-%m-%d %H:%M:%S")}')
-
-        if public_results_date is None or public_results_date <= request.timestamp:
-            public_results_visibility = _('immediately')
-        else:
-            public_results_visibility = _(f'after {public_results_date.strftime("%Y-%m-%d %H:%M:%S")}')
 
         dates.append({
             'name' : r.name,
-            'results' : results_visibility,
-            'ranking' : public_results_visibility
+            'results_date' : results_date,
+            'ranking_date' : public_results_date
         })
 
     return dates
