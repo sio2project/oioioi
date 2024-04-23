@@ -18,6 +18,7 @@ from oioioi.contests.utils import (
     has_any_visible_problem_instance,
     is_contest_archived,
     is_contest_basicadmin,
+    are_rules_visible
 )
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.dashboard.forms import DashboardMessageForm
@@ -31,7 +32,7 @@ top_links_registry.register(
     'contest_rules',
     _("Rules"),
     lambda request: reverse('contest_rules', kwargs={'contest_id': request.contest.id}),
-    condition=None,
+    condition=are_rules_visible,
     order=100,
 )
 

@@ -216,13 +216,15 @@ class ContestAdmin(admin.ModelAdmin):
             'id',
             'controller_name',
             'default_submissions_limit',
-            'contact_email',
+            'contact_email'
         ]
         if settings.USE_ACE_EDITOR:
             fields.append('enable_editor')
 
         if request.user.is_superuser:
             fields += ['judging_priority', 'judging_weight']
+
+        fields += ['show_contest_rules']
         return fields
 
     def get_fieldsets(self, request, obj=None):
