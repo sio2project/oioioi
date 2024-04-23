@@ -3428,71 +3428,71 @@ class TestRulesVisibility(TestCase):
 
     # left to fill in when added, in order of the controllers above
     scoring_descriptions = [
-        "The submissions are scored on a set of groups of test cases. Each group is worth a certain number of points.\n\
-        The score is a sum of the scores of all groups. The ranking is determined by the total score.\n\
+        "The submissions are scored on a set of groups of test cases. Each group is worth a certain number of points.<br>\
+        The score is a sum of the scores of all groups. The ranking is determined by the total score.<br>\
         The full scoring is available after the results date for the round.",
 
-        "The solutions are judged on real-time.\n\
-        The submission is correct if it passes all the test cases.\n\
-        Participants are ranked by the number of solved problems.\n\
-        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
-        The lower the total time, the higher the rank.\n\
-        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        "The solutions are judged on real-time.<br>\
+        The submission is correct if it passes all the test cases.<br>\
+        Participants are ranked by the number of solved problems.<br>\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>\
+        The lower the total time, the higher the rank.<br>\
+        Compilation errors and system errors are not considered as an incorrect submission.<br>\
         The ranking is frozen 60 minutes before the end of the round.",
 
-        "The solutions are judged on real-time.\n\
-        The submission is correct if it passes all the test cases.\n\
-        Participants are ranked by the number of solved problems.\n\
-        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
-        The lower the total time, the higher the rank.\n\
-        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        "The solutions are judged on real-time.<br>\
+        The submission is correct if it passes all the test cases.<br>\
+        Participants are ranked by the number of solved problems.<br>\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>\
+        The lower the total time, the higher the rank.<br>\
+        Compilation errors and system errors are not considered as an incorrect submission.<br>\
         The ranking is frozen 60 minutes before the end of the round.",
 
-        "The solutions are judged on real-time.\n\
-        The submission is correct if it passes all the test cases.\n\
-        Participants are ranked by the number of solved problems.\n\
-        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
-        The lower the total time, the higher the rank.\n\
-        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        "The solutions are judged on real-time.<br>\
+        The submission is correct if it passes all the test cases.<br>\
+        Participants are ranked by the number of solved problems.<br>\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>\
+        The lower the total time, the higher the rank.<br>\
+        Compilation errors and system errors are not considered as an incorrect submission.<br>\
         The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds.",
 
-        "The submissions are scored from 0 to 100 points.\n\
+        "The submissions are scored from 0 to 100 points.<br>\
         The participant can submit to finished rounds, but a multiplier is applied to the score of such submissions.",
 
-        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.\n\
-        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n\
-        The score for a group of test cases is the minimum score for any of the test cases.\n\
-        The ranking is determined by the total score.\n\
-        Until the end of the contest, participants can only see scoring of their submissions on example test cases.\n\
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.<br>\
+        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>\
+        The score for a group of test cases is the minimum score for any of the test cases.<br>\
+        The ranking is determined by the total score.<br>\
+        Until the end of the contest, participants can only see scoring of their submissions on example test cases.<br>\
         Full scoring is available after the end of the contest.",
 
-        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.\n\
-        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n\
-        The score for a group of test cases is the minimum score for any of the test cases.\n\
-        The ranking is determined by the total score.\n\
-        Until the end of the contest, participants can only see scoring of their submissions on example test cases.\n\
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.<br>\
+        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>\
+        The score for a group of test cases is the minimum score for any of the test cases.<br>\
+        The ranking is determined by the total score.<br>\
+        Until the end of the contest, participants can only see scoring of their submissions on example test cases.<br>\
         Full scoring is available after the end of the contest.",
 
-        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.\n\
-        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n\
-        The score for a group of test cases is the minimum score for any of the test cases.\n\
-        The ranking is determined by the total score.\n\
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.<br>\
+        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>\
+        The score for a group of test cases is the minimum score for any of the test cases.<br>\
+        The ranking is determined by the total score.<br>\
         Full scoring of the submissions can be revealed during the contest.",
 
         '',
         '',
-        "The submissions are judged on real-time. All problems have 10 test groups, each worth 1 point.\n\
-        If any of the tests in a group fails, the group is worth 0 points.\n\
-        The ranking is determined by the total score.\n\
-        The full scoring is available after the end of the round.\n\
+        "The submissions are judged on real-time. All problems have 10 test groups, each worth 1 point.<br>\
+        If any of the tests in a group fails, the group is worth 0 points.<br>\
+        The ranking is determined by the total score.<br>\
+        The full scoring is available after the end of the round.<br>\
         The ranking is determined by the total score and number of 10-score submissions, 9-score, 8-score etc.",
 
-        "The solutions are judged on real-time.\n\
-        The submission is correct if it passes all the test cases.\n\
-        Participants are ranked by the number of solved problems.\n\
-        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
-        The lower the total time, the higher the rank.\n\
-        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        "The solutions are judged on real-time.<br>\
+        The submission is correct if it passes all the test cases.<br>\
+        Participants are ranked by the number of solved problems.<br>\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>\
+        The lower the total time, the higher the rank.<br>\
+        Compilation errors and system errors are not considered as an incorrect submission.<br>\
         The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds." 
     ]
 
@@ -3550,7 +3550,6 @@ class TestRulesVisibility(TestCase):
             contest = Contest.objects.get()
             contest.controller_name = c
             contest.save()
-
             self.assertTrue(self.client.login(username='test_user'))
             url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
             response = self.client.get(url, follow=True)

@@ -60,6 +60,7 @@ from oioioi.contests.utils import (
     get_contest_dates,
     get_problems_sumbmission_limit,
     get_results_visibility,
+    are_rules_visible,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -109,7 +110,7 @@ def get_contest_permissions(request, response):
 @menu_registry.register_decorator(
     _("Rules"), lambda request: reverse('contest_rules'), order=90
 )
-@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest & are_rules_visible)
 def contest_rules_view(request):
     no_of_rounds = get_number_of_rounds(request)
     contest_dates = get_contest_dates(request)

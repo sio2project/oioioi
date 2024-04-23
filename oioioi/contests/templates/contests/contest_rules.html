@@ -7,13 +7,6 @@
 {% block main-content %}
 <h1>{% trans "Rules" %}</h1>
 <ul class="list-group list-group-light">
-    {% if scoring_type %}
-        <li class="list-group-item">
-            {% blocktrans %}
-                The scoring and contest type is "{{ scoring_type }}".
-            {% endblocktrans %}
-        </li>
-    {% endif %}
     {% if no_of_rounds %}
         <li class="list-group-item">
             {% blocktrans with no_of_rounds as number and no_of_rounds|pluralize as fix %}
@@ -50,6 +43,13 @@
         <li class="list-group-item">
             {% blocktrans %}
                 There are no submission limits in this contest.
+            {% endblocktrans %}
+        </li>
+    {% endif %}
+    {% if scoring_type %}
+        <li class="list-group-item">
+            {% blocktrans with scoring_type|linebreaksbr as scoring_description %}
+                {{ scoring_description }}
             {% endblocktrans %}
         </li>
     {% endif %}
