@@ -114,7 +114,7 @@ class PARegistrationController(ParticipantsController):
 class PAContestController(ProgrammingContestController):
     description = _("Algorithmic Engagements")
     create_forum = True
-    scoring_description = (
+    scoring_description = _(
         "The submissions are judged on real-time. All problems have 10 test groups, each worth 1 point.\n\
         If any of the tests in a group fails, the group is worth 0 points.\n\
         The ranking is determined by the total score.\n\
@@ -294,7 +294,7 @@ class PADivCRankingController(PARankingController):
 
 class PAFinalsContestController(ACMContestController):
     description = _("Algorithmic Engagements finals")
-    scoring_description = (
+    scoring_description = _(
         "The solutions are judged on real-time.\n\
         The submission is correct if it passes all the test cases.\n\
         Participants are ranked by the number of solved problems.\n\

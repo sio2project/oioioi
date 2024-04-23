@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
@@ -334,14 +335,14 @@ def get_results_visibility(request):
         public_results_date = rtimes[r].public_results_date()
  
         if results_date is None or results_date <= request.timestamp:
-            results_visibility = 'immediately'
+            results_visibility = _('immediately')
         else:
-            results_visibility = f'after {results_date.strftime("%Y-%m-%d %H:%M:%S")}'
+            results_visibility = _(f'after {results_date.strftime("%Y-%m-%d %H:%M:%S")}')
 
         if public_results_date is None or public_results_date <= request.timestamp:
-            public_results_visibility = 'immediately'
+            public_results_visibility = _('immediately')
         else:
-            public_results_visibility = f'after {public_results_date.strftime("%Y-%m-%d %H:%M:%S")}'
+            public_results_visibility = _(f'after {public_results_date.strftime("%Y-%m-%d %H:%M:%S")}')
 
         dates.append({
             'name' : r.name,

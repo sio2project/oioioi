@@ -33,7 +33,7 @@ IGNORED_STATUSES = ['CE', 'SE', '?']
 class ACMContestController(ProgrammingContestController):
     description = _("ACM style contest")
     create_forum = False
-    scoring_description = (
+    scoring_description = _(
         "The solutions are judged on real-time.\n\
         The submission is correct if it passes all the test cases.\n\
         Participants are ranked by the number of solved problems.\n\
@@ -204,7 +204,7 @@ class ACMContestController(ProgrammingContestController):
 
 class ACMOpenContestController(ACMContestController):
     description = _("ACM style contest (open)")
-    scoring_description = (
+    scoring_description = _(
         "The solutions are judged on real-time.\n\
         The submission is correct if it passes all the test cases.\n\
         Participants are ranked by the number of solved problems.\n\

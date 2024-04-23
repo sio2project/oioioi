@@ -902,7 +902,7 @@ class ProgrammingProblemController(ProblemController):
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
-    scoring_description = (
+    scoring_description = _(
         "The submissions are scored on a set of groups of test cases. Each group is worth a certain number of points.\n\
         The score is a sum of the scores of all groups. The ranking is determined by the total score.\n\
         The full scoring is available after the results date for the round."

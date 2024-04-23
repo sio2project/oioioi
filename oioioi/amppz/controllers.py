@@ -10,7 +10,7 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer
 class AMPPZContestController(ACMContestController):
     description = _("AMPPZ")
     create_forum = False
-    scoring_description = (
+    scoring_description = _(
         "The solutions are judged on real-time.\n\
         The submission is correct if it passes all the test cases.\n\
         Participants are ranked by the number of solved problems.\n\
