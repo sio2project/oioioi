@@ -115,7 +115,10 @@ def contest_rules_view(request):
     contest_dates = get_contest_dates(request)
     submission_limit = get_problems_sumbmission_limit(request)
     results_visibility = get_results_visibility(request)
-    scoring_type = request.contest.controller.description
+    try:
+        scoring_description = request.contest.controller.scoring_description
+    except AttributeError:
+        scoring_description = None
 
     if contest_dates[0] != -1:
         contest_start_date = contest_dates[0]
@@ -143,7 +146,7 @@ def contest_rules_view(request):
             'contest_end_date' : contest_end_date,
             'submission_limit' : submission_limit,
             'results_visibility' : results_visibility,
-            'scoring_type' : scoring_type,
+            'scoring_type' : scoring_description,
         },
     )
 

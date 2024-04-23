@@ -3426,19 +3426,74 @@ class TestRulesVisibility(TestCase):
         'oioioi.pa.controllers.PAFinalsContestController'            
     ]
 
-    descriptions = [
-        'Simple programming contest',
-        'ACM style contest',
-        'ACM style contest (open)',
-        'AMPPZ',
-        'Master of Programming',
-        'Polish Olympiad in Informatics - Online',
-        'Polish Olympiad in Informatics - Onsite',
-        'Polish Olympiad in Informatics - Onsite - Finals',
-        'Baltic Olympiad in Informatics',
-        'Baltic Olympiad in Informatics - online',
-        'Algorithmic Engagements',
-        'Algorithmic Engagements finals'
+    # left to fill in when added, in order of the controllers above
+    scoring_descriptions = [
+        "The submissions are scored on a set of groups of test cases. Each group is worth a certain number of points.\n\
+        The score is a sum of the scores of all groups. The ranking is determined by the total score.\n\
+        The full scoring is available after the results date for the round.",
+
+        "The solutions are judged on real-time.\n\
+        The submission is correct if it passes all the test cases.\n\
+        Participants are ranked by the number of solved problems.\n\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
+        The lower the total time, the higher the rank.\n\
+        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        The ranking is frozen 60 minutes before the end of the round.",
+
+        "The solutions are judged on real-time.\n\
+        The submission is correct if it passes all the test cases.\n\
+        Participants are ranked by the number of solved problems.\n\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
+        The lower the total time, the higher the rank.\n\
+        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        The ranking is frozen 60 minutes before the end of the round.",
+
+        "The solutions are judged on real-time.\n\
+        The submission is correct if it passes all the test cases.\n\
+        Participants are ranked by the number of solved problems.\n\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
+        The lower the total time, the higher the rank.\n\
+        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds.",
+
+        "The submissions are scored from 0 to 100 points.\n\
+        The participant can submit to finished rounds, but a multiplier is applied to the score of such submissions.",
+
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.\n\
+        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n\
+        The score for a group of test cases is the minimum score for any of the test cases.\n\
+        The ranking is determined by the total score.\n\
+        Until the end of the contest, participants can only see scoring of their submissions on example test cases.\n\
+        Full scoring is available after the end of the contest.",
+
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.\n\
+        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n\
+        The score for a group of test cases is the minimum score for any of the test cases.\n\
+        The ranking is determined by the total score.\n\
+        Until the end of the contest, participants can only see scoring of their submissions on example test cases.\n\
+        Full scoring is available after the end of the contest.",
+
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.\n\
+        If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n\
+        The score for a group of test cases is the minimum score for any of the test cases.\n\
+        The ranking is determined by the total score.\n\
+        Full scoring of the submissions can be revealed during the contest.",
+
+        '',
+        '',
+        "The submissions are judged on real-time. All problems have 10 test groups, each worth 1 point.\n\
+        If any of the tests in a group fails, the group is worth 0 points.\n\
+        The ranking is determined by the total score.\n\
+        The full scoring is available after the end of the round.\n\
+        The ranking is determined by the total score and number of 10-score submissions, 9-score, 8-score etc.",
+
+        "The solutions are judged on real-time.\n\
+        The submission is correct if it passes all the test cases.\n\
+        Participants are ranked by the number of solved problems.\n\
+        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
+        The lower the total time, the higher the rank.\n\
+        Compilation errors and system errors are not considered as an incorrect submission.\n\
+        The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds." 
     ]
 
     visibility_dates = [
@@ -3503,7 +3558,7 @@ class TestRulesVisibility(TestCase):
             self.assertContains(response, "Rules")
         
     def test_contest_type(self):
-        for c, d in zip(self.controller_names, self.descriptions):
+        for c, d in zip(self.controller_names, self.scoring_descriptions):
             contest = Contest.objects.get()
             contest.controller_name = c
             contest.save()
