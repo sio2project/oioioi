@@ -371,7 +371,7 @@ def get_results_visibility(request):
             ranking = _('after %(date)s') % {"date": public_results_date.strftime("%Y-%m-%d %H:%M:%S")}
 
         dates.append({
-            'name' : rtimes[r].contest.name,
+            'name' : r.name,
             'results' : results,
             'ranking' : ranking
         })
