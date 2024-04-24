@@ -18,6 +18,7 @@ from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.files.uploadedfile import SimpleUploadedFile, TemporaryUploadedFile
 from django.core.handlers.wsgi import WSGIRequest
+from django.core.management import call_command
 from django.forms import ValidationError
 from django.forms.fields import CharField, IntegerField
 from django.http import HttpResponse, HttpResponseRedirect
@@ -76,6 +77,13 @@ if not getattr(settings, 'TESTS', False):
     sys.exit(1)
 
 basedir = os.path.dirname(__file__)
+
+
+class TestMigrations(TestCase):
+    # This only works if pytest is ran with `--migrations`, which is the case
+    # in github workflow files. Otherwise the test seemingly always passes.
+    def test_missing_migrations(self):
+        call_command('makemigrations', '--check')
 
 
 class TestPermsTemplateTags(TestCase):
