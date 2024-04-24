@@ -11,13 +11,13 @@ class AMPPZContestController(ACMContestController):
     description = _("AMPPZ")
     create_forum = False
     scoring_description = _(
-        "The solutions are judged on real-time.\n\
-        The submission is correct if it passes all the test cases.\n\
-        Participants are ranked by the number of solved problems.\n\
-        In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n\
-        The lower the total time, the higher the rank.\n\
-        Compilation errors and system errors are not considered as an incorrect submission.\n\
-        The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds."
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.\n"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n"
+        "The lower the total time, the higher the rank.\n"
+        "Compilation errors and system errors are not considered as an incorrect submission.\n"
+        "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds."
         )
 
     def get_round_freeze_time(self, round):

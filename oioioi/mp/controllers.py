@@ -99,8 +99,8 @@ class MPContestController(ProgrammingContestController):
     description = _("Master of Programming")
     create_forum = False
     scoring_description = _(
-        "The submissions are scored from 0 to 100 points.\n\
-        The participant can submit to finished rounds, but a multiplier is applied to the score of such submissions."
+        "The submissions are scored from 0 to 100 points.\n"
+        "The participant can submit to finished rounds, but a multiplier is applied to the score of such submissions."
         )
 
     show_email_in_participants_data = True

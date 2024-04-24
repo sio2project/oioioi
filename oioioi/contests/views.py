@@ -59,8 +59,9 @@ from oioioi.contests.utils import (
     get_number_of_rounds,
     get_contest_dates,
     get_problems_sumbmission_limit,
-    get_results_dates,
+    get_results_visibility,
     are_rules_visible,
+    get_scoring_desription,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -113,57 +114,18 @@ def get_contest_permissions(request, response):
 @enforce_condition(contest_exists & can_enter_contest & are_rules_visible)
 def contest_rules_view(request):
     no_of_rounds = get_number_of_rounds(request)
-
-    try:
-        scoring_description = request.contest.controller.scoring_description
-    except AttributeError:
-        scoring_description = None
-
-    results_dates = get_results_dates(request)
-    results_visibility = list()
-    for r in results_dates:
-        if r['results_date'] is None or r['results_date'] <= request.timestamp:
-            results = _('immediately')
-        else:
-            results = _('after %(date)s') % {"date": r['results_date'].strftime("%Y-%m-%d %H:%M:%S")}
-
-        if r['ranking_date'] is None or r['ranking_date'] <= request.timestamp:
-            ranking = _('immediately')
-        else:
-            ranking = _('after %(date)s') % {"date": r['ranking_date'].strftime("%Y-%m-%d %H:%M:%S")}
-
-        results_visibility.append({
-            'name' : r['name'],
-            'results' : results,
-            'ranking' : ranking
-        })
-
+    scoring_description = get_scoring_desription(request)
+    results_visibility = get_results_visibility(request)
     contest_dates = get_contest_dates(request)
-    if contest_dates[0] != -1:
-        contest_start_date = contest_dates[0]
-    else :
-        contest_start_date = None
-
-    if contest_dates[1] != -1:
-        contest_end_date = contest_dates[1]
-    else :
-        contest_end_date = None
-
     submission_limit = get_problems_sumbmission_limit(request)
-    if len(submission_limit) == 1 and (submission_limit[0] == None 
-        or submission_limit[0] == 0):
-        submission_limit = None
-    elif 0 in submission_limit:
-        submission_limit.remove(0)
-        submission_limit.append('or no limit of')
 
     return TemplateResponse(
         request,
         'contests/contest_rules.html',
         {
             'no_of_rounds' : no_of_rounds,
-            'contest_start_date' : contest_start_date,
-            'contest_end_date' : contest_end_date,
+            'contest_start_date' : contest_dates[0],
+            'contest_end_date' : contest_dates[1],
             'submission_limit' : submission_limit,
             'results_visibility' : results_visibility,
             'scoring_type' : scoring_description,

@@ -293,21 +293,33 @@ def get_contest_dates(request):
     if starts and None not in starts:  
         min_start = min(starts)  
     else:  
-        min_start = -1
+        min_start = None
 
     if ends and None not in ends:  
-        max_end = max(ends)  
+        max_end = max(ends)
     else:  
-        max_end = -1  
-        
+        max_end = None
 
     return min_start, max_end
 
 
+def get_scoring_desription(request):
+    """Returns the scoring description of the current contest.
+    """
+    if (hasattr(request.contest.controller, 'scoring_description') and 
+            request.contest.controller.scoring_description is not None):
+        return request.contest.controller.scoring_description
+    else:
+        return None
+
+
 @request_cached
 def get_problems_sumbmission_limit(request):
-    """Returns the list of distinct submission limits in the current contest.
+    """Returns the upper and lower submission limit in the current contest.
+    If there is one limit for all problems, it returns a list with one element.
+    If there are no problems in the contest, it returns the default limit.
     """
+    controller = request.contest.controller
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
         .prefetch_related('round')
@@ -318,13 +330,29 @@ def get_problems_sumbmission_limit(request):
     
     limits = set()
     for p in queryset:
-        limits.add(p.submissions_limit)
+        limits.add(controller.get_submissions_limit(request, p, noadmin=True))
 
-    return sorted(limits)
+    if len(limits) == 1:
+        if None in limits:
+            return None
+        elif 0 in limits:
+            return [_('infinity')]
+        else:
+            return [limits.pop()]
+    elif len(limits) > 1:
+        if 0 in limits:
+            limits.remove(0)
+            max_limit = _('infinity')
+        else:
+            max_limit = max(limits)
+
+        min_limit = min(limits)
+
+    return [min_limit, max_limit]
 
 
-def get_results_dates(request):
-    """Returns the results visibility for each round in the contest"""
+def get_results_visibility(request):
+    """Returns the results ad ranking visibility for each round in the contest"""
     rtimes = rounds_times(request, request.contest)
 
     dates = list()
@@ -332,10 +360,20 @@ def get_results_dates(request):
         results_date = rtimes[r].results_date()
         public_results_date = rtimes[r].public_results_date()
 
+        if results_date is None or results_date <= request.timestamp:
+            results = _('immediately')
+        else:
+            results = _('after %(date)s') % {"date": results_date.strftime("%Y-%m-%d %H:%M:%S")}
+
+        if public_results_date is None or public_results_date <= request.timestamp:
+            ranking = _('immediately')
+        else:
+            ranking = _('after %(date)s') % {"date": public_results_date.strftime("%Y-%m-%d %H:%M:%S")}
+
         dates.append({
-            'name' : r.name,
-            'results_date' : results_date,
-            'ranking_date' : public_results_date
+            'name' : rtimes[r].contest.name,
+            'results' : results,
+            'ranking' : ranking
         })
 
     return dates
