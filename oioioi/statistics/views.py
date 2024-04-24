@@ -27,6 +27,7 @@ from oioioi.questions.models import Message
 from oioioi.statistics.controllers import statistics_categories
 from oioioi.evalmgr.models import QueuedJob
 from oioioi.statistics.utils import any_statistics_avaiable, can_see_stats, render_head
+from oioioi.testrun.models import TestRunConfig
 
 
 def links(request):
@@ -190,13 +191,31 @@ def monitoring_view(request):
 
     submissions_info = Submission.objects.filter(problem_instance__contest=request.contest).values('kind').annotate(total=Count('kind')).order_by()
 
-    tests_info = defaultdict(list)
+    tests_info = defaultdict(lambda: defaultdict(lambda: {
+        'problem_name': None,
+        'testrun_config': None,
+        'tests': list(),
+        'submissions_limit': None,
+    }))
     tests_qs = Test.objects.filter(problem_instance__contest=request.contest)
-    tests_limits = (tests_qs.values('memory_limit', 'time_limit', 'problem_instance', 'problem_instance__round__name', 'problem_instance__short_name')
+    tests_limits = (tests_qs.values('memory_limit', 'time_limit', 'problem_instance', 'problem_instance__round__name',
+                                    'problem_instance__short_name', 'problem_instance',
+                                    'problem_instance__submissions_limit')
                     .annotate(count=Count('problem_instance'))
                     .order_by('problem_instance', 'memory_limit', 'time_limit'))
+
     for t_info in tests_limits:
-        tests_info[t_info['problem_instance__round__name']].append(t_info)
+        tests_info[t_info['problem_instance__round__name']][t_info['problem_instance']]['tests'].append(t_info)
+        tests_info[t_info['problem_instance__round__name']][t_info['problem_instance']]['problem_name'] = \
+            t_info['problem_instance__short_name']
+        tests_info[t_info['problem_instance__round__name']][t_info['problem_instance']]['submissions_limit'] = \
+            t_info['problem_instance__submissions_limit']
+
+    testrunconfig_qs = TestRunConfig.objects.filter(problem_instance__contest=request.contest)
+    for trc in testrunconfig_qs:
+        tests_info[trc.problem_instance.round][trc.problem_instance.id]['testrun_config'] = trc
+
+    tests_info = dict({r: dict(t) for r, t in tests_info.items()})
 
     return TemplateResponse(
         request,
@@ -212,7 +231,7 @@ def monitoring_view(request):
             'unanswered_questions': unanswered_questions,
             'oldest_unanswered_question': oldest_unanswered_question_date,
             'submissions_info': submissions_info,
-            'tests_info': dict(tests_info),
+            'tests_info': tests_info,
             'sys_error_count': sys_error_count,
         },
     )
