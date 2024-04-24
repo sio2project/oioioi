@@ -308,7 +308,6 @@ def get_contest_dates(request):
 def get_problems_sumbmission_limit(request):
     """Returns the list of distinct submission limits in the current contest.
     """
-    controller = request.contest.controller
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
         .prefetch_related('round')
@@ -319,7 +318,7 @@ def get_problems_sumbmission_limit(request):
     
     limits = set()
     for p in queryset:
-        limits.add(controller.get_submissions_limit(request, p))
+        limits.add(p.submissions_limit)
 
     return sorted(limits)
 
