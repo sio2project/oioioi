@@ -119,7 +119,7 @@ class GetContestProblems(views.APIView):
                 ).data
                 serialized["submissions_left"] = problem_stmt[4]
                 serialized["can_submit"] = problem_stmt[6]
-                serialized["statement_ext"] = query_statement(
+                serialized["statement_extension"] = query_statement(
                     problem_stmt[0].problem
                 ).extension
                 data.append(serialized)
