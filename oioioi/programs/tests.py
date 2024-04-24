@@ -1013,19 +1013,19 @@ class TestScorers(TestCase):
     t_results_ok_perc = (
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 0, 'result_percentage': 99},
+            {'result_code': 'OK', 'time_used': 0, 'result_percentage': (99, 1)},
         ),
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 50},
+            {'result_code': 'OK', 'time_used': 75, 'result_percentage': (50, 1)},
         ),
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 0},
+            {'result_code': 'OK', 'time_used': 75, 'result_percentage': (0, 1)},
         ),
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 99, 'result_percentage': 1},
+            {'result_code': 'OK', 'time_used': 99, 'result_percentage': (1, 1)},
         ),
     )
 
