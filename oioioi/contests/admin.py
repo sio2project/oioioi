@@ -685,6 +685,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         'user__last_name',
         'problem_instance__problem__legacy_name',
         'problem_instance__short_name',
+        'problem_instance__problem__names__name',
     ]
 
     class Media:
@@ -729,23 +730,6 @@ class SubmissionAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = [re_path(r'^rejudge/$', self.rejudge_view)]
         return urls + super(SubmissionAdmin, self).get_urls()
-
-    def get_search_results(self, request, queryset, search_term):
-        matched_problems = set(
-            problem_name.problem.pk
-            for problem_name in ProblemName.objects.filter(name__icontains=search_term)
-        )
-        queryset, _ = super(SubmissionAdmin, self).get_search_results(
-            request, queryset, search_term
-        )
-        contest_filtered = self.get_queryset(request)
-        queryset |= contest_filtered.filter(
-            problem_instance__problem__in=matched_problems
-        )
-
-        queryset = queryset.order_by('-id')
-
-        return queryset, True
 
     def rejudge_view(self, request):
         tests = request.POST.getlist('tests', [])
