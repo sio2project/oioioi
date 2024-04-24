@@ -92,10 +92,6 @@ class GetContestProblems(views.APIView):
             .prefetch_related('round')
         )
 
-        # problems = [pi for pi in problem_instances if controller.can_see_problem(request, pi)]
-        # serializer = ProblemSerializer(problems, many=True)
-        # return Response(serializer.data,)
-
         # Problem statements in order
         # 0) problem instance
         # 1) statement_visible
@@ -171,8 +167,14 @@ class GetProblemIdView(views.APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 
+# This is a base class for submitting a solution for contests and problemsets.
+# It lacks get_problem_instance, as it's specific to problem source.
 class SubmitSolutionView(views.APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (
+        IsAuthenticated,
+        CanEnterContest,
+    )
+
     parser_classes = (MultiPartParser,)
 
     def get_problem_instance(self, **kwargs):
@@ -201,10 +203,6 @@ class SubmitSolutionView(views.APIView):
 
 
 class SubmitContestSolutionView(SubmitSolutionView):
-    permission_classes = (
-        IsAuthenticated,
-        CanEnterContest,
-    )
     schema = AutoSchema(
         [
             make_path_coreapi_schema(
