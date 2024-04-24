@@ -3546,7 +3546,6 @@ class TestRulesVisibility(TestCase):
             )
         contest.save()
     
-    @pytest.mark.skip(reason="I want to test one test only")
     def test_dashboard_view(self):
         for c in self.controller_names:
             contest = Contest.objects.get()
@@ -3558,7 +3557,6 @@ class TestRulesVisibility(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, "Rules")
         
-    @pytest.mark.skip(reason="I want to test one test only")
     def test_contest_type(self):
         for c, d in zip(self.controller_names, self.scoring_descriptions):
             contest = Contest.objects.get()
@@ -3570,7 +3568,6 @@ class TestRulesVisibility(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, d)
 
-    @pytest.mark.skip(reason="I want to test one test only")
     def test_no_of_rounds(self):
         for c in self.controller_names:
             contest = Contest.objects.get()
@@ -3584,7 +3581,6 @@ class TestRulesVisibility(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, "The contest has 1 round.")
 
-    @pytest.mark.skip(reason="I want to test one test only")
     def test_problem_limits(self):
         for c in self.controller_names:
             contest = Contest.objects.get()
@@ -3605,7 +3601,6 @@ class TestRulesVisibility(TestCase):
             response = self._set_problem_limits(url, [10, 10, 10])
             self.assertContains(response, "There is a limit of 10 submissions for each problem.")
 
-    @pytest.mark.skip(reason="I want to test one test only")
     def test_contest_dates(self):
         times = [
             fake_time(datetime(2012, 8, 5, 12, 37, 45, tzinfo=timezone.utc)),
@@ -3643,13 +3638,11 @@ class TestRulesVisibility(TestCase):
 
         with fake_time(datetime(2012, 8, 4, 13, 46, 37, tzinfo=timezone.utc)):
             response = self._set_results_dates(url, self.visibility_dates[0])
-            print(response.content)
             self.assertContains(response, "In round Round 1, your results as well as " \
                                 "public ranking will be visible after 2012-08-15 20:27:58.")
         
             self._change_controller(public_results=True)
             response = self._set_results_dates(url, self.visibility_dates[1])
-            print(response.content)
             self.assertContains(response, "In round Round 1, your results will be visible after 2012-08-15 20:27:58" \
                                 " and the public ranking will be visible after 2013-04-20 21:37:13.")
 
