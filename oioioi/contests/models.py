@@ -515,6 +515,44 @@ class Submission(models.Model):
         valid_kinds.remove(self.kind)
         return export_entries(submission_kinds, valid_kinds)
 
+    def get_display_type(self):
+        if self.status == 'INI_OK' or self.status == 'OK':
+            submission_report = SubmissionReport.objects.filter(
+                submission=self
+            ).first()
+            score_report = ScoreReport.objects.filter(
+                submission_report=submission_report
+            ).first()
+
+            try:
+                score_percentage = (
+                    float(score_report.score.to_int()) / score_report.max_score.to_int()
+                )
+
+                if score_percentage < 0.25:
+                    display_type = 'OK0'
+                elif score_percentage < 0.5:
+                    display_type = 'OK25'
+                elif score_percentage < 0.75:
+                    display_type = 'OK50'
+                elif score_percentage < 1.0:
+                    display_type = 'OK75'
+                else:
+                    display_type = 'OK100'
+
+            except ZeroDivisionError:
+                display_type = 'IGN'
+
+            # If by any means there is no 'score' or 'max_score' field then
+            # we just treat the submission as without them
+            except AttributeError:
+                display_type = self.status
+
+        else:
+            display_type = self.status
+
+        return display_type
+
     def __str__(self):
         return (
             f"Submission({self.id}, {self.problem_instance.problem.name}, {self.user.username if self.user else None}, {self.date}, {self.kind}, {self.status})"
