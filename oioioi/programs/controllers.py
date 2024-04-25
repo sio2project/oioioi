@@ -383,8 +383,10 @@ class ProgrammingProblemController(ProblemController):
             report = SubmissionReport.objects.filter(submission=submission, status="ACTIVE", kind="NORMAL").get()
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.score = score_report.score
+            submission.max_score = score_report.max_score
         except SubmissionReport.DoesNotExist:
             submission.score = None
+            submission.max_score = None
 
         submission.save()
 

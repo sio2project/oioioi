@@ -483,6 +483,7 @@ class Submission(models.Model):
     date = models.DateTimeField(default=timezone.now, blank=True, verbose_name=_("date"), db_index=True)
     kind = EnumField(submission_kinds, default="NORMAL", verbose_name=_("kind"))
     score = ScoreField(blank=True, null=True, verbose_name=_("score"))
+    max_score = ScoreField(blank=True, null=True, verbose_name=_("max score"))
     status = EnumField(submission_statuses, default="?", verbose_name=_("status"))
     comment = models.TextField(blank=True, verbose_name=_("comment"))
 
@@ -516,32 +517,23 @@ class Submission(models.Model):
         return export_entries(submission_kinds, valid_kinds)
 
     def get_display_type(self):
-        if self.status == 'INI_OK' or self.status == 'OK':
-            submission_report = SubmissionReport.objects.filter(
-                submission=self
-            ).first()
-            score_report = ScoreReport.objects.filter(
-                submission_report=submission_report
-            ).first()
-
+        if self.status == "INI_OK" or self.status == "OK":
             try:
-                score_percentage = (
-                    float(score_report.score.to_int()) / score_report.max_score.to_int()
-                )
+                score_percentage = float(self.score.to_int()) / self.max_score.to_int()
 
                 if score_percentage < 0.25:
-                    display_type = 'OK0'
+                    display_type = "OK0"
                 elif score_percentage < 0.5:
-                    display_type = 'OK25'
+                    display_type = "OK25"
                 elif score_percentage < 0.75:
-                    display_type = 'OK50'
+                    display_type = "OK50"
                 elif score_percentage < 1.0:
-                    display_type = 'OK75'
+                    display_type = "OK75"
                 else:
-                    display_type = 'OK100'
+                    display_type = "OK100"
 
             except ZeroDivisionError:
-                display_type = 'IGN'
+                display_type = "IGN"
 
             # If by any means there is no 'score' or 'max_score' field then
             # we just treat the submission as without them

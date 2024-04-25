@@ -284,12 +284,14 @@ class QuizProblemController(ProblemController):
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.status = score_report.status
             submission.score = score_report.score
+            submission.max_score = score_report.max_score
         except SubmissionReport.DoesNotExist:
             if SubmissionReport.objects.filter(submission=submission, status="ACTIVE", kind="FAILURE"):
                 submission.status = "SE"
             else:
                 submission.status = "?"
             submission.score = None
+            submission.max_score = None
 
         submission.save()
 
