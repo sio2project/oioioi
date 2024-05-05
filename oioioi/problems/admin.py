@@ -296,6 +296,7 @@ class OriginTagLocalizationInline(BaseTagLocalizationInline):
 
 class OriginTagAdmin(BaseTagAdmin):
     inlines = (OriginTagLocalizationInline,)
+    exclude = ['problems']
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
@@ -336,6 +337,7 @@ class OriginInfoValueLocalizationInline(BaseTagLocalizationInline):
 class OriginInfoValueAdmin(admin.ModelAdmin):
     form = OriginInfoValueForm
     inlines = (OriginInfoValueLocalizationInline,)
+    exclude = ['problems']
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
