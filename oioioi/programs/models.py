@@ -306,7 +306,8 @@ class TestReport(models.Model):
     max_score = ScoreField(null=True, blank=True)
     time_used = models.IntegerField(blank=True)
     output_file = FileField(upload_to=make_output_filename, null=True, blank=True)
-    result_percentage = models.FloatField(null=True, blank=True)
+    result_percentage_numerator = models.IntegerField(null=True, blank=True)
+    result_percentage_denominator = models.IntegerField(null=True, blank=True)
 
     test = models.ForeignKey(Test, blank=True, null=True, on_delete=models.SET_NULL)
     test_name = models.CharField(max_length=30)
