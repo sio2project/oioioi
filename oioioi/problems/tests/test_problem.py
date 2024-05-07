@@ -193,6 +193,7 @@ class TestProblemPackageAdminView(TestCase):
     fixtures = [
         'test_users',
         'test_contest',
+        'test_permissions',
         'test_problem_packages',
         'test_problem_instance',
         'test_two_empty_contests',
@@ -220,6 +221,21 @@ class TestProblemPackageAdminView(TestCase):
         self.assertNotContains(response, 'Edit problem')
         # Not visible, because the problem instances's contest is 'c', not 'c1'
         self.assertNotContains(response, 'Model solutions')
+
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    def test_navbar_links(self):
+        for _ in range(0, 2):
+            url = reverse('my_submissions', kwargs={'contest_id': 'c'})
+            for login in ['test_admin', 'test_contest_admin']:
+                self.assertTrue(self.client.login(username=login))
+                self.assertContains(self.client.get(url), 'Problem packages', 2)
+            # Outside of contests there is only the System Administration menu.
+            url = reverse('noncontest:select_contest')
+            self.assertNotContains(self.client.get(url), 'Problem packages')
+            self.assertTrue(self.client.login(username='test_admin'))
+            self.assertContains(self.client.get(url), 'Problem packages', 2)
+            # It shouldn't matter whether there are packages with errors.
+            ProblemPackage.objects.all().delete()
 
     def test_problem_info_brace(self):
         self.assertTrue(self.client.login(username='test_admin'))

@@ -1,3 +1,4 @@
+import sys
 from importlib import import_module
 
 from django.conf import settings
@@ -35,17 +36,27 @@ if settings.DEBUG:
         re_path(r'^__debug__/', include(debug_toolbar.urls)),
     ]
 
+def try_to_import_module(name):
+    try:
+        return import_module(name)
+    except ModuleNotFoundError:
+        pass
+    except ImportError as e:
+        if settings.DEBUG:
+            print(e, file=sys.stderr)
+    return None
+
 for app in settings.INSTALLED_APPS:
     if app.startswith('oioioi.'):
-        try:
-            # Django imports views lazily, and since there are some decorators
-            # that have to run, all views need to be imported at startup
-            import_module(app + '.views')
-            urls_module = import_module(app + '.urls')
-            if hasattr(urls_module, 'urlpatterns'):
-                urlpatterns += getattr(urls_module, 'urlpatterns')
-        except ImportError:
-            pass
+        # Django imports views lazily, and since there are some decorators
+        # that have to run, all views need to be imported at startup.
+        try_to_import_module(app + '.views')
+        # Controllers should be imported at startup, because they register
+        # mixins.
+        try_to_import_module(app + '.controllers')
+        urls_module = try_to_import_module(app + '.urls')
+        if hasattr(urls_module, 'urlpatterns'):
+            urlpatterns += getattr(urls_module, 'urlpatterns')
 
 urlpatterns.extend(
     [

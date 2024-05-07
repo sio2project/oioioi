@@ -1,5 +1,4 @@
 # coding: utf-8
-from importlib import import_module
 
 import django.dispatch
 from django.conf import settings
@@ -15,15 +14,6 @@ from oioioi.contests.models import Contest
 # Check if database settings are correct.
 setup_check()
 captcha_check()
-
-for app in settings.INSTALLED_APPS:
-    if app.startswith('oioioi.'):
-        try:
-            # Controllers should be imported at startup, because they register
-            # mixins
-            import_module(app + '.controllers')
-        except ImportError:
-            pass
 
 import logging
 
