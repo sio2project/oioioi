@@ -900,6 +900,17 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 1)
 
+    def test_round_dates(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
+                self.assertTrue(self.client.login(username=user))
+                response = self.client.get(url)
+                self.assertContains(response, "(31 Jul 2011, 20:27 - )")
+                self.assertContains(response, "(31 Jul 2012, 20:27 - 21:27)")
+                self.assertContains(response, "(30 Jul 2012, 20:27 - 31 Jul 2012, 21:27)")
+                
 
 class TestMultilingualStatements(TestCase, TestStreamingMixin):
     fixtures = [
