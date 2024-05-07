@@ -71,6 +71,24 @@
             "date_joined": "2012-07-31T20:27:58.768Z"
         }
     },
+    {
+        "pk": 1107,
+        "model": "auth.user",
+        "fields": {
+            "username": "test_contest_owner",
+            "first_name": "Test",
+            "last_name": "Contest owner",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "test_personal_data@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
   {
     "pk": 1,
     "model": "contests.contestpermission",
@@ -111,6 +129,17 @@
       "permission": "contests.contest_basicadmin",
       "user": [
         "test_contest_basicadmin"
+      ],
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.contestpermission",
+    "fields": {
+      "permission": "contests.contest_owner",
+      "user": [
+        "test_contest_owner"
       ],
       "contest": "c"
     }

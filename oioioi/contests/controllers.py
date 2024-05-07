@@ -154,15 +154,12 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
             if not hasattr(backend, 'filter_for_perm'):
                 continue
             filt |= (
-                backend.filter_for_perm(Contest, 'contests.contest_admin', request.user)
+                backend.filter_for_perm(Contest, 'contests.contest_basicadmin', request.user)
                 | backend.filter_for_perm(
                     Contest, 'contests.contest_observer', request.user
                 )
                 | backend.filter_for_perm(
                     Contest, 'contests.personal_data', request.user
-                )
-                | backend.filter_for_perm(
-                    Contest, 'contests.contest_basicadmin', request.user
                 )
             )
         return filt

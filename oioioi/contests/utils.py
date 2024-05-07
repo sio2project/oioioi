@@ -309,6 +309,17 @@ def administered_contests(request):
 
 @make_request_condition
 @request_cached
+def is_contest_owner(request):
+    """Checks if the user is the owner of the current contest.
+    This permission level allows full access to all contest functionality
+    and additionally permits managing contest permissions for a given contest
+    with the exception of contest ownerships.
+    """
+    return request.user.has_perm('contests.contest_owner', request.contest)
+
+
+@make_request_condition
+@request_cached
 def is_contest_admin(request):
     """Checks if the user is the contest admin of the current contest.
     This permission level allows full access to all contest functionality.
@@ -317,12 +328,8 @@ def is_contest_admin(request):
 
 
 def can_admin_contest(user, contest):
-    """Checks if the user should be allowed on the admin pages of the contest.
-    This is the same level of permissions as is_contest_basicadmin.
-    """
-    return user.has_perm('contests.contest_admin', contest) or user.has_perm(
-        'contests.contest_basicadmin', contest
-    )
+    """Checks if the user should be allowed on the admin pages of the contest."""
+    return user.has_perm('contests.contest_basicadmin', contest)
 
 
 @make_request_condition
