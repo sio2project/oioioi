@@ -2,5 +2,7 @@
 {% load i18n %}
 
 {% block object-tools-items %}
+{% if show_add_button %}
 <a class="btn btn-sm btn-outline-success" href="{% url 'oioioiadmin:problems_problem_add' %}">{% trans "Add problem" %}</a>
+{% endif %}
 {% endblock %}

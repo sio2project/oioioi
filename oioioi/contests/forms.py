@@ -106,7 +106,7 @@ class ProblemInstanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
         super(ProblemInstanceForm, self).__init__(*args, **kwargs)
-        if instance:
+        if instance and not instance.contest.is_archived:
             self.fields['round'].queryset = instance.contest.round_set
             self.fields['round'].required = True
 
