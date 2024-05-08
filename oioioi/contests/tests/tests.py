@@ -941,6 +941,16 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 1)
 
+    def test_rules_visibility(self):
+        contest = Contest.objects.get()
+        contest.controller_name = 'oioioi.oi.controllers.ProgrammingContestController'
+        contest.save()
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "The contest has 4 rounds.")
+
 
 class TestMultilingualStatements(TestCase, TestStreamingMixin):
     fixtures = [
@@ -2343,6 +2353,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, "User Menu")
 
         self.assertContains(response, "Dashboard")
+        self.assertContains(response, "Rules")
         self.assertContains(response, "Problems")
         self.assertContains(response, "Downloads")
         self.assertContains(response, "Submit")
@@ -2361,7 +2372,7 @@ class TestPermissionsBasicAdmin(TestCase):
         pos2 = html.find('</div', pos)
         self.assertNotEqual(pos2, -1)
 
-        self.assertEqual(html[pos:pos2].count('list-group-item'), 16)
+        self.assertEqual(html[pos:pos2].count('list-group-item'), 18)
 
     def test_usermenu_files(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -3710,6 +3721,276 @@ class TestOpenRegistration(TestCase):
         available_from = now - timedelta(hours=1)
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, 'CONFIG', available_from, available_to)
+
+class TestRulesVisibility(TestCase):
+    fixtures = [
+        'test_users',
+        'test_participant',
+        'test_contest',
+        'test_full_package',
+        'test_three_problem_instances.json'
+    ]
+
+    controller_names = [
+        'oioioi.acm.controllers.ACMContestController',
+        'oioioi.acm.controllers.ACMOpenContestController',
+        'oioioi.amppz.controllers.AMPPZContestController',
+        'oioioi.mp.controllers.MPContestController',
+        'oioioi.oi.controllers.OIContestController',
+        'oioioi.oi.controllers.OIOnsiteContestController',
+        'oioioi.oi.controllers.OIFinalOnsiteContestController',
+        'oioioi.oi.controllers.BOIOnsiteContestController',
+        'oioioi.oi.controllers.BOIOnlineContestController',
+        'oioioi.pa.controllers.PAContestController',
+        'oioioi.pa.controllers.PAFinalsContestController',
+        'oioioi.programs.controllers.ProgrammingContestController'         
+    ]
+
+    # left to fill in when added, in order of the controllers above
+    scoring_descriptions = [
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.<br>"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>"
+        "The lower the total time, the higher the rank.<br>"
+        "Compilation errors and system errors are not considered as an incorrect submission.<br>"
+        "The ranking is frozen 60 minutes before the end of the round.",
+
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.<br>"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>"
+        "The lower the total time, the higher the rank.<br>"
+        "Compilation errors and system errors are not considered as an incorrect submission.<br>"
+        "The ranking is frozen 60 minutes before the end of the round.",
+
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.<br>"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>"
+        "The lower the total time, the higher the rank.<br>"
+        "Compilation errors and system errors are not considered as an incorrect submission.<br>"
+        "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds.",
+
+        "The submissions are scored from 0 to 100 points.<br>"
+        "The participant can submit to finished rounds, but a multiplier is applied to the score of such submissions.",
+
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
+        "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>"
+        "The score for a group of test cases is the minimum score for any of the test cases.<br>"
+        "The ranking is determined by the total score.<br>"
+        "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
+        "Full scoring is available after the end of the contest.",
+
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
+        "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>"
+        "The score for a group of test cases is the minimum score for any of the test cases.<br>"
+        "The ranking is determined by the total score.<br>"
+        "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
+        "Full scoring is available after the end of the contest.",
+
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
+        "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>"
+        "The score for a group of test cases is the minimum score for any of the test cases<br>."
+        "The ranking is determined by the total score.<br>"
+        "Full scoring of the submissions can be revealed during the contest.",
+
+        '',
+
+        '',
+
+        "The submissions are judged on real-time. All problems have 10 test groups, each worth 1 point. "
+        "If any of the tests in a group fails, the group is worth 0 points.<br>"
+        "The full scoring is available after the end of the round."
+        "The ranking is determined by the total score and number of 10-score submissions, 9-score, 8-score etc.",
+
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.<br>"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.<br>"
+        "The lower the total time, the higher the rank.<br>"
+        "Compilation errors and system errors are not considered as an incorrect submission.<br>"
+        "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds.",
+
+        "The submissions are scored on a set of groups of test cases. Each group is worth a certain number of points.<br>"
+        "The score is a sum of the scores of all groups. The ranking is determined by the total score.<br>"
+        "The full scoring is available after the results date for the round."
+    ]
+
+    visibility_dates = [
+        [
+            datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc),
+            None
+        ],
+        [
+            datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), 
+            datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)
+        ],
+        [
+            None,
+            None
+        ]
+    ]
+
+    def _set_problem_limits(self, url, limits_list):
+        for i in range(len(limits_list)):
+            problem = ProblemInstance.objects.get(pk=i+1)
+            problem.submissions_limit = limits_list[i]
+            problem.save()
+        
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        return response
+    
+    def _set_results_dates(self, url, dates):
+        round = Round.objects.get()
+        round.results_date = dates[0]
+        round.public_results_date = dates[1]
+        round.save()
+
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        return response
+
+    def _change_controller(self, public_results=False):
+        contest = Contest.objects.get()
+        if public_results:
+            contest.controller_name = (
+                'oioioi.contests.tests.tests.ContestWithPublicResultsController'
+            )
+        else:
+            contest.controller_name = (
+                'oioioi.programs.controllers.ProgrammingContestController'
+            )
+        contest.save()
+    
+    def test_dashboard_view(self):
+        for c in self.controller_names:
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+            self.assertTrue(self.client.login(username='test_user'))
+            url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "Rules")
+        
+    def test_contest_type(self):
+        for c, d in zip(self.controller_names, self.scoring_descriptions):
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+            self.assertTrue(self.client.login(username='test_user'))
+            url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, d)
+
+    def test_no_of_rounds(self):
+        for c in self.controller_names:
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+
+            # a bigger number of rounds is tested in TestManyRounds::test_rules_visibility
+            self.assertTrue(self.client.login(username='test_user'))
+            url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "The contest has 1 round.")
+
+    def test_problem_limits(self):
+        for c in self.controller_names:
+            contest = Contest.objects.get()
+            contest.controller_name = c
+            contest.save()
+
+            self.assertTrue(self.client.login(username='test_user'))
+            url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+            response = self._set_problem_limits(url, [0, 0, 0])
+            self.assertContains(response, "There is a limit of infinity submissions for each problem.")
+
+            response = self._set_problem_limits(url, [0, 10, 0])
+            self.assertContains(response, "There is a limit of 10 to infinity submissions, depending on a problem.")
+
+            response = self._set_problem_limits(url, [20, 10, 0])
+            self.assertContains(response, "There is a limit of 10 to infinity submissions, depending on a problem.")
+
+            response = self._set_problem_limits(url, [10, 10, 10])
+            self.assertContains(response, "There is a limit of 10 submissions for each problem.")
+
+    def test_contest_dates(self):
+        times = [
+            fake_time(datetime(2012, 8, 5, 12, 37, 45, tzinfo=timezone.utc)),
+            fake_time(datetime(2012, 8, 15, 15, 16, 18, tzinfo=timezone.utc))
+        ]
+
+        for t in times:
+            with t:
+                for c in self.controller_names:
+                    contest = Contest.objects.get()
+                    contest.controller_name = c
+                    contest.save()
+                    
+                    round = Round.objects.get()
+                    round.end_date = None
+                    round.save()
+
+                    self.assertTrue(self.client.login(username='test_user'))
+                    url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+                    response = self.client.get(url, follow=True)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertContains(response, "The contest starts on 2011-07-31 20:27:58.")
+
+                    round.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=timezone.utc)
+                    round.save()
+                    response = self.client.get(url, follow=True)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertContains(response, "The contest starts on 2011-07-31 20:27:58 and ends on 2012-08-10 00:00:00.")
+
+    def test_ranking_visibility(self):
+        # here we don't check for individual contests, as it would be hard to get the separate_public_results()
+        # from the specific controller, and the only thing that utimately matters is separate_public_results setting
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('contest_rules', kwargs={'contest_id': 'c'})
+
+        with fake_time(datetime(2012, 8, 4, 13, 46, 37, tzinfo=timezone.utc)):
+            response = self._set_results_dates(url, self.visibility_dates[0])
+            self.assertContains(response, "In round Round 1, your results as well as " \
+                                "public ranking will be visible after 2012-08-15 20:27:58.")
+        
+            self._change_controller(public_results=True)
+            response = self._set_results_dates(url, self.visibility_dates[1])
+            self.assertContains(response, "In round Round 1, your results will be visible after 2012-08-15 20:27:58" \
+                                " and the public ranking will be visible after 2013-04-20 21:37:13.")
+
+            response = self._set_results_dates(url, self.visibility_dates[2])
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+
+        with fake_time(datetime(2012, 12, 24, 11, 23, 56, tzinfo=timezone.utc)):
+            response = self._set_results_dates(url, self.visibility_dates[0])
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+        
+            self._change_controller(public_results=True)
+            response = self._set_results_dates(url, self.visibility_dates[1])
+            self.assertContains(response, "In round Round 1, your results will be visible immediately" \
+                                " and the public ranking will be visible after 2013-04-20 21:37:13.")
+
+            response = self._set_results_dates(url, self.visibility_dates[2])
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+
+        with fake_time(datetime(2014, 8, 26, 11, 23, 56, tzinfo=timezone.utc)):
+            response = self._set_results_dates(url, self.visibility_dates[0])
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+        
+            self._change_controller(public_results=True)
+            response = self._set_results_dates(url, self.visibility_dates[1])
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+
+            response = self._set_results_dates(url, self.visibility_dates[2])
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
 
 class PublicMessageContestController(ProgrammingContestController):

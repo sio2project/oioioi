@@ -61,13 +61,13 @@ class TestRunProblemControllerMixin(object):
         environ['check_outputs'] = False
         environ['report_kinds'] = ['TESTRUN']
 
-    def get_submissions_limit(self, request, problem_instance, kind='NORMAL'):
+    def get_submissions_limit(self, request, problem_instance, kind='NORMAL', noadmin=False):
         if kind != 'TESTRUN':
             return super(TestRunProblemControllerMixin, self).get_submissions_limit(
-                request, problem_instance, kind
+                request, problem_instance, kind, noadmin
             )
 
-        if can_admin_problem(request, problem_instance.problem):
+        if can_admin_problem(request, problem_instance.problem) and not noadmin:
             return None
 
         if hasattr(problem_instance, 'test_run_config'):

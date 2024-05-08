@@ -139,6 +139,14 @@ class OIContestController(ProgrammingContestController):
     description = _("Polish Olympiad in Informatics - Online")
     create_forum = True
     show_email_in_participants_data = True
+    scoring_description = _(
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
+        "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n"
+        "The score for a group of test cases is the minimum score for any of the test cases.\n"
+        "The ranking is determined by the total score.\n"
+        "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
+        "Full scoring is available after the end of the contest."
+        )
 
     def fill_evaluation_environ(self, environ, submission):
         super(OIContestController, self).fill_evaluation_environ(environ, submission)
@@ -206,6 +214,14 @@ class OIContestController(ProgrammingContestController):
 
 class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")
+    scoring_description = _(
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
+        "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n"
+        "The score for a group of test cases is the minimum score for any of the test cases.\n"
+        "The ranking is determined by the total score.\n"
+        "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
+        "Full scoring is available after the end of the contest."
+        )
 
 
 OIOnsiteContestController.mix_in(OnsiteContestControllerMixin)
@@ -214,6 +230,13 @@ OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)
 
 class OIFinalOnsiteContestController(OIOnsiteContestController):
     description = _("Polish Olympiad in Informatics - Onsite - Finals")
+    scoring_description = _(
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
+        "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.\n"
+        "The score for a group of test cases is the minimum score for any of the test cases\n."
+        "The ranking is determined by the total score.\n"
+        "Full scoring of the submissions can be revealed during the contest."
+        )
 
     def can_see_submission_score(self, request, submission):
         return True
