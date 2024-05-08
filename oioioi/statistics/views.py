@@ -1,4 +1,6 @@
 from collections import defaultdict
+from datetime import datetime, timedelta
+from pprint import pprint
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
@@ -11,7 +13,7 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions, ContestAttachment, \
-    Submission, SubmissionReport
+    Submission, SubmissionReport, RoundTimeExtension
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
@@ -157,6 +159,18 @@ def monitoring_view(request):
     permissions_info = get_permissions_info(request)
     attachments_info = get_attachments_info(request)
     tests_info = get_tests_info(request)
+
+    def is_rte_active(rte):
+        print(rte)
+        return rte['round__end_date'] + timedelta(minutes=rte['extra_time']) >= request.timestamp
+
+    round_time_extensions = (RoundTimeExtension.objects.filter(round__contest=request.contest.id)
+                             .values("round__name", "round__end_date", "extra_time")
+                             .annotate(count=Count('extra_time'))
+                             .order_by('extra_time'))
+
+    active_rtes = list(filter(is_rte_active, round_time_extensions))
+
     return TemplateResponse(
         request,
         'statistics/monitoring.html',
@@ -172,6 +186,7 @@ def monitoring_view(request):
             'submissions_info': submissions_info,
             'tests_info': tests_info,
             'sys_error_count': sys_error_count,
+            'round_time_extensions': active_rtes,
         },
     )
 
@@ -216,6 +231,9 @@ def get_permissions_info(request):
     }
     permissions_info['Participant'] = Participant.objects.filter(contest_id=request.contest.id).count()
     return permissions_info
+
+
+
 
 
 def get_tests_info(request):
