@@ -61,6 +61,7 @@ class RoundSerializer(serializers.ModelSerializer):
         return True
 
 
+# This is a partial serializer and it serves as a base for the API response.
 class ProblemSerializer(serializers.ModelSerializer):
 
     class Meta:

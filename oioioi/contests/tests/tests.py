@@ -3242,6 +3242,18 @@ class TestAPIProblemsetSubmit(TestAPISubmitBase):
         self._assertSubmitted(response, 2)
 
 
+class TestAPIContestList(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_submission']
+
+    def test_rights(self):
+        contest_list = reverse('api_contest_list')
+        request_anon = self.client.get(contest_list)
+        self.assertEqual(403, request_anon.status_code)
+
+        self.client.force_authenticate(user=User.objects.get(username='test_user2'))
+
+
+
 class TestManyRoundsNoEnd(TestCase):
     fixtures = [
         'test_users',
