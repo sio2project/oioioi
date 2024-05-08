@@ -113,10 +113,7 @@ def show_problem_attachment_view(request, attachment_id):
 def _get_package(request, package_id, contest_perm=None):
     package = get_object_or_404(ProblemPackage, id=package_id)
     if package.contest:
-        has_perm = request.user.has_perm(contest_perm, package.contest) or (
-            contest_perm == 'contests.contest_basicadmin'
-            and request.user.has_perm('contests.contest_admin', package.contest)
-        )
+        has_perm = request.user.has_perm(contest_perm, package.contest)
     elif package.problem:
         has_perm = can_admin_problem(request, package.problem)
     else:
@@ -142,6 +139,9 @@ def download_package_traceback_view(request, package_id):
 
 
 def add_or_update_problem(request, contest, template):
+    if contest and contest.is_archived:
+        raise PermissionDenied
+    
     if 'problem' in request.GET:
         existing_problem = get_object_or_404(Problem, id=request.GET['problem'])
         if (
@@ -612,6 +612,11 @@ def problemset_add_to_contest_view(request, site_key):
         raise Http404
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
+    administered = [
+        contest
+        for contest in administered
+        if not contest.is_archived
+    ]
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append(
         {
@@ -677,7 +682,7 @@ def get_report_row_begin_HTML_view(request, submission_id):
 @transaction.non_atomic_requests
 def problemset_add_or_update_problem_view(request):
     if not can_add_to_problemset(request):
-        if request.contest:
+        if request.contest and not request.contest.is_archived:
             url = (
                 reverse('add_or_update_problem')
                 + '?'

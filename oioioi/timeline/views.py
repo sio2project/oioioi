@@ -13,7 +13,7 @@ from oioioi.base.permissions import enforce_condition
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Round
-from oioioi.contests.utils import contest_exists, is_contest_admin
+from oioioi.contests.utils import contest_exists, is_contest_admin, is_contest_archived
 
 
 def _get_date_id(registry_item):
@@ -52,7 +52,7 @@ def _translate_field(field, obj):
     _("Timeline"),
     lambda request: reverse('timeline_view', kwargs={'contest_id': request.contest.id}),
 )
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_admin & ~is_contest_archived)
 def timeline_view(request):
     registry = date_registry.tolist(request.contest.id)
     group_registry = _make_group_registry(registry)

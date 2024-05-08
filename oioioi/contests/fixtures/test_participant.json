@@ -1,0 +1,11 @@
+[
+  {
+    "pk": 1,
+    "model": "participants.participant",
+    "fields": {
+      "status": "ACTIVE",
+      "user": 1001,
+      "contest": "c"
+    }
+  }
+]

@@ -5,10 +5,11 @@ from django.db.models import Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
-from oioioi.base.utils import request_cached
+from oioioi.base.utils import request_cached, request_cached_complex
 from oioioi.base.utils.public_message import get_public_message
 from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
@@ -72,12 +73,15 @@ class RoundTimes(object):
             )
 
         return current_datetime >= self.show_results
+    
+    def results_date(self):
+        return self.show_results
 
     def public_results_visible(self, current_datetime):
         """Returns True if the results of the round have already been made
         public
 
-        It the contest's controller makes no distinction between personal
+        If the contest's controller makes no distinction between personal
         and public results, this function returns the same as
         :meth:'results_visible'.
 
@@ -90,6 +94,12 @@ class RoundTimes(object):
             return False
 
         return current_datetime >= self.show_public_results
+    
+    def public_results_date(self):
+        if not self.contest.controller.separate_public_results():
+            return self.results_date()
+
+        return self.show_public_results
 
     def get_start(self):
         return self.start
@@ -230,22 +240,144 @@ def submittable_problem_instances(request):
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
 
-@request_cached
-def visible_problem_instances(request):
+@request_cached_complex
+def visible_problem_instances(request, no_admin=False):
     controller = request.contest.controller
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
         .select_related('problem')
         .prefetch_related('round')
     )
-    return [pi for pi in queryset if controller.can_see_problem(request, pi)]
+    return [pi for pi in queryset if controller.can_see_problem(
+        request, pi, no_admin=no_admin,
+    )]
+
+
+@request_cached_complex
+def visible_rounds(request, no_admin=False):
+    controller = request.contest.controller
+    queryset = Round.objects.filter(contest=request.contest)
+    return [r for r in queryset if controller.can_see_round(
+        request, r, no_admin=no_admin,
+    )]
+
+@make_request_condition
+@request_cached
+def are_rules_visible(request):
+    return (
+        hasattr(request, 'contest')
+        and request.contest.show_contest_rules
+    )
+
+@request_cached
+def get_number_of_rounds(request):
+    """Returns the number of rounds in the current contest.
+    """ 
+    return Round.objects.filter(contest=request.contest).count()
+
+
+def get_contest_dates(request):
+    """Returns the end_date of the latest round and the start_date
+    of the earliest round.
+    """ 
+    rtimes = rounds_times(request, request.contest)
+
+    ends = [
+        rt.get_end()
+        for rt in rtimes.values()
+    ]
+    starts = [
+        rt.get_start()
+        for rt in rtimes.values()
+    ]
+
+    if starts and None not in starts:  
+        min_start = min(starts)  
+    else:  
+        min_start = None
+
+    if ends and None not in ends:  
+        max_end = max(ends)
+    else:  
+        max_end = None
+
+    return min_start, max_end
+
+
+def get_scoring_desription(request):
+    """Returns the scoring description of the current contest.
+    """
+    if (hasattr(request.contest.controller, 'scoring_description') and 
+            request.contest.controller.scoring_description is not None):
+        return request.contest.controller.scoring_description
+    else:
+        return None
 
 
 @request_cached
-def visible_rounds(request):
+def get_problems_sumbmission_limit(request):
+    """Returns the upper and lower submission limit in the current contest.
+    If there is one limit for all problems, it returns a list with one element.
+    If there are no problems in the contest, it returns the default limit.
+    """
     controller = request.contest.controller
-    queryset = Round.objects.filter(contest=request.contest)
-    return [r for r in queryset if controller.can_see_round(request, r)]
+    queryset = (
+        ProblemInstance.objects.filter(contest=request.contest)
+        .prefetch_related('round')
+    )
+
+    if queryset is None or not queryset.exists():
+        return [Contest.objects.get(id=request.contest.id).default_submissions_limit]
+    
+    limits = set()
+    for p in queryset:
+        limits.add(controller.get_submissions_limit(request, p, noadmin=True))
+
+    if len(limits) == 1:
+        if None in limits:
+            return None
+        elif 0 in limits:
+            return [_('infinity')]
+        else:
+            return [limits.pop()]
+    elif len(limits) > 1:
+        if 0 in limits:
+            limits.remove(0)
+            max_limit = _('infinity')
+        else:
+            max_limit = max(limits)
+
+        min_limit = min(limits)
+
+    return [min_limit, max_limit]
+
+
+def get_results_visibility(request):
+    """Returns the results ad ranking visibility for each round in the contest"""
+    rtimes = rounds_times(request, request.contest)
+
+    dates = list()
+    for r in rtimes.keys():
+        results_date = rtimes[r].results_date()
+        public_results_date = rtimes[r].public_results_date()
+
+        if results_date is None or results_date <= request.timestamp:
+            results = _('immediately')
+        else:
+            results = _('after %(date)s') % {"date": results_date.strftime("%Y-%m-%d %H:%M:%S")}
+
+        if public_results_date is None or public_results_date <= request.timestamp:
+            ranking = _('immediately')
+        else:
+            ranking = _('after %(date)s') % {"date": public_results_date.strftime("%Y-%m-%d %H:%M:%S")}
+
+        dates.append({
+            'name' : r.name,
+            'results' : results,
+            'ranking' : ranking
+        })
+
+    return dates
 
 
 def aggregate_statuses(statuses):
@@ -304,14 +436,15 @@ def administered_contests(request):
     ]
 
 
+@make_request_condition
 @request_cached
-def administered_unarchived_contests(request):
-    """Returns a list of unarchived contests for which the logged
-    user has contest_admin permission for.
+def is_contest_owner(request):
+    """Checks if the user is the owner of the current contest.
+    This permission level allows full access to all contest functionality
+    and additionally permits managing contest permissions for a given contest
+    with the exception of contest ownerships.
     """
-    return [
-        contest for contest in administered_contests(request) if not contest.is_archived
-    ]
+    return request.user.has_perm('contests.contest_owner', request.contest)
 
 
 @make_request_condition
@@ -324,12 +457,8 @@ def is_contest_admin(request):
 
 
 def can_admin_contest(user, contest):
-    """Checks if the user should be allowed on the admin pages of the contest.
-    This is the same level of permissions as is_contest_basicadmin.
-    """
-    return user.has_perm('contests.contest_admin', contest) or user.has_perm(
-        'contests.contest_basicadmin', contest
-    )
+    """Checks if the user should be allowed on the admin pages of the contest."""
+    return user.has_perm('contests.contest_basicadmin', contest)
 
 
 @make_request_condition

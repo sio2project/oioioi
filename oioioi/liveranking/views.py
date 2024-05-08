@@ -15,7 +15,7 @@ def _ranking_settings(contest, round_id):
     return {
         'contest': contest,
         'round': round,
-        'bomb_penalty': 20 * 60,
+        'bomb_penalty': contest.controller.get_penalty_time(),
         'freeze_time': 60 * 60 * 4,
         'round_length': 60 * 60 * 5,
         'max_refresh_rate': 1000,
