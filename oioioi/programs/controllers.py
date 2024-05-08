@@ -728,7 +728,9 @@ class ProgrammingProblemController(ProblemController):
 
         picontroller = problem_instance.controller
 
-        allow_download_out = picontroller.can_generate_user_out(request, report)
+        pcontroller = problem_instance.problem.controller
+
+        allow_download_out = picontroller.can_generate_user_out(request, report) and pcontroller.can_generate_user_out(request, report)
         allow_test_comments = picontroller.can_see_test_comments(request, report)
         all_outs_generated = allow_download_out
 
