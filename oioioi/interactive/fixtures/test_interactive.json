@@ -1,0 +1,41 @@
+[
+    {
+        "model": "contests.probleminstance",
+        "pk": 1,
+        "fields": {
+            "contest": null,
+            "round": null,
+            "problem": 1,
+            "short_name": "abc_main",
+            "submissions_limit": 10,
+            "needs_rejudge": false
+        }
+    },
+    {
+        "model": "contests.probleminstance",
+        "pk": 2,
+        "fields": {
+            "contest": "c",
+            "round": 1,
+            "problem": 1,
+            "short_name": "abc",
+            "submissions_limit": 10,
+            "needs_rejudge": false
+        }
+    },
+    {
+        "model": "problems.problem",
+        "pk": 1,
+        "fields": {
+            "legacy_name": "Test interactive",
+            "short_name": "abc",
+            "controller_name": "oioioi.interactive.controllers.InteractiveProblemController",
+            "contest": "c",
+            "author": 1000,
+            "visibility": "FR",
+            "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend",
+            "ascii_name": "abc",
+            "main_problem_instance": 1
+        }
+    }
+]
