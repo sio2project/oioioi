@@ -3491,8 +3491,8 @@ msgid "Choose round"
 msgstr ""
 
 #: exportszu/forms.py:13 plagiarism/forms.py:25
-msgid "Only final submissions"
-msgstr "Nur letzte Vorlagen"
+msgid "Only submissions used for final scores"
+msgstr ""
 
 #: exportszu/templates/exportszu/export_submissions.html:8
 msgid ""
