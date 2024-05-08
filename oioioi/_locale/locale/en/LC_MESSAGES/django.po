@@ -2863,8 +2863,8 @@ msgid "Choose round"
 msgstr "Choose round"
 
 #: exportszu/forms.py:13 plagiarism/forms.py:25
-msgid "Only submissions used for final scores"
-msgstr "Only submissions used for final scores"
+msgid "Only submissions used for final scoring"
+msgstr "Only submissions used for final scoring"
 
 #: filetracker/management/commands/collectgarbage.py:15
 msgid "Delete all orphaned files older than specified number of days."

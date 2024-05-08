@@ -3567,7 +3567,7 @@ msgid "Choose round"
 msgstr "Wybierz rundę"
 
 #: exportszu/forms.py:13 plagiarism/forms.py:25
-msgid "Only submissions used for final scores"
+msgid "Only submissions used for final scoring"
 msgstr "Tylko zgłoszenia użyte w ostatecznych wynikach"
 
 #: exportszu/templates/exportszu/export_submissions.html:8
