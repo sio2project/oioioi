@@ -5,6 +5,11 @@
 
 {% block main-content %}
     {% for header in headers %}{{ header }}{% endfor %}
+    {% if contest.is_archived %}
+        <div class="alert alert-warning">
+            {% trans "This contest is archived." %}
+        </div>
+    {% endif %}
     <h1>{{ contest }}</h1>
     {% for fragment in fragments %}{{ fragment }}{% endfor %}
 {% endblock %}

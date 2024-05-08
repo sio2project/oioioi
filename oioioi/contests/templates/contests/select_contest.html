@@ -25,6 +25,9 @@
                                href="{% url 'default_contest_view' contest_id=contest.id %}">
                                 {{ contest.name }}
                             </a>
+                            {% if contest.is_archived %}
+                                <span class="badge badge-warning">{% trans "Archived" %}</span>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

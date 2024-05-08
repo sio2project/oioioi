@@ -46,6 +46,7 @@ from oioioi.contests.utils import (
     contest_exists,
     get_submission_or_error,
     has_any_submittable_problem,
+    is_contest_archived,
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
@@ -55,6 +56,12 @@ from oioioi.contests.utils import (
     get_files_message,
     get_submissions_message,
     get_submit_message,
+    get_number_of_rounds,
+    get_contest_dates,
+    get_problems_sumbmission_limit,
+    get_results_visibility,
+    are_rules_visible,
+    get_scoring_desription,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -102,6 +109,31 @@ def get_contest_permissions(request, response):
 
 
 @menu_registry.register_decorator(
+    _("Rules"), lambda request: reverse('contest_rules'), order=90
+)
+@enforce_condition(contest_exists & can_enter_contest & are_rules_visible)
+def contest_rules_view(request):
+    no_of_rounds = get_number_of_rounds(request)
+    scoring_description = get_scoring_desription(request)
+    results_visibility = get_results_visibility(request)
+    contest_dates = get_contest_dates(request)
+    submission_limit = get_problems_sumbmission_limit(request)
+
+    return TemplateResponse(
+        request,
+        'contests/contest_rules.html',
+        {
+            'no_of_rounds' : no_of_rounds,
+            'contest_start_date' : contest_dates[0],
+            'contest_end_date' : contest_dates[1],
+            'submission_limit' : submission_limit,
+            'results_visibility' : results_visibility,
+            'scoring_type' : scoring_description,
+        },
+    )
+
+
+@menu_registry.register_decorator(
     _("Problems"), lambda request: reverse('problems_list'), order=100
 )
 @enforce_condition(contest_exists & can_enter_contest)
@@ -144,7 +176,7 @@ def problems_list_view(request):
                 ),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
-                controller.can_submit(request, pi),
+                controller.can_submit(request, pi) and not is_contest_archived(request),
             )
             for pi in problem_instances
         ],
@@ -245,7 +277,7 @@ def problem_statement_zip_view(request, problem_instance, statement_id, path):
 @menu_registry.register_decorator(
     _("Submit"), lambda request: reverse('submit'), order=300
 )
-@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest & ~is_contest_archived)
 @enforce_condition(
     has_any_submittable_problem, template='contests/nothing_to_submit.html'
 )
@@ -325,6 +357,7 @@ def my_submissions_view(request):
             'submissions': submissions,
             'show_scores': show_scores,
             'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
+            'is_contest_archived': is_contest_archived(request),
             'message': get_submissions_message(request),
             'is_admin': is_contest_basicadmin(request),
         },
@@ -474,23 +507,37 @@ def change_submission_kind_view(request, submission_id, kind):
 )
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def contest_files_view(request):
+    is_admin = is_contest_basicadmin(request)
     additional_files = attachment_registry.to_list(request=request)
-    contest_files = (
-        ContestAttachment.objects.filter(contest=request.contest)
-        .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request)))
-        .select_related('round')
-    )
-    if not is_contest_basicadmin(request):
-        contest_files = contest_files.filter(
-            Q(pub_date__isnull=True) | Q(pub_date__lte=request.timestamp)
-        )
 
-    round_file_exists = contest_files.filter(round__isnull=False).exists()
-    problem_instances = visible_problem_instances(request)
-    problem_ids = [pi.problem_id for pi in problem_instances]
+    contest_files = ContestAttachment.objects.filter(
+        contest=request.contest,
+    ).filter(
+        Q(round__isnull=True) | Q(round__in=visible_rounds(request))
+    ).select_related('round')
+    contest_files_without_admin = contest_files.filter(
+        Q(pub_date__isnull=True) | Q(pub_date__lte=request.timestamp),
+    )
+    if is_admin:
+        contest_files_without_admin = contest_files_without_admin.filter(
+            Q(round__isnull=True) | Q(round__in=visible_rounds(request, no_admin=True))
+        )
+    else:
+        contest_files = contest_files_without_admin
+    contest_files_without_admin = set(contest_files_without_admin)
+
+    problem_ids = [pi.problem_id for pi in visible_problem_instances(request)]
+    if is_admin:
+        problem_ids_without_admin = {
+            pi.problem_id for pi in visible_problem_instances(request, no_admin=True)
+        }
+    else:
+        problem_ids_without_admin = set(problem_ids)
     problem_files = ProblemAttachment.objects.filter(
         problem_id__in=problem_ids
     ).select_related('problem')
+
+    round_file_exists = contest_files.filter(round__isnull=False).exists()
     add_category_field = round_file_exists or problem_files.exists()
     rows = [
         {
@@ -502,6 +549,7 @@ def contest_files_view(request):
                 kwargs={'contest_id': request.contest.id, 'attachment_id': cf.id},
             ),
             'pub_date': cf.pub_date,
+            'admin_only': cf not in contest_files_without_admin,
         }
         for cf in contest_files
     ]
@@ -515,19 +563,11 @@ def contest_files_view(request):
                 kwargs={'contest_id': request.contest.id, 'attachment_id': pf.id},
             ),
             'pub_date': None,
+            'admin_only': pf.problem_id not in problem_ids_without_admin,
         }
         for pf in problem_files
     ]
-    rows += [
-        {
-            'category': af.get('category'),
-            'name': af.get('name'),
-            'description': af.get('description'),
-            'link': af.get('link'),
-            'pub_date': af.get('pub_date'),
-        }
-        for af in additional_files
-    ]
+    rows += additional_files
     rows.sort(key=itemgetter('name'))
     return TemplateResponse(
         request,
@@ -761,3 +801,21 @@ def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
         'contests/reattach_problem_confirm.html',
         {'problem_instance': problem_instance, 'destination_contest': contest},
     )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def confirm_archive_contest(request):
+    if request.method == 'POST':
+        contest = request.contest
+        contest.is_archived = True
+        contest.save()
+        return redirect('default_contest_view', contest_id=contest.id)
+    return TemplateResponse(request, 'contests/confirm_archive_contest.html')
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def unarchive_contest(request):
+    contest = request.contest
+    contest.is_archived = False
+    contest.save()
+    return redirect('default_contest_view', contest_id=contest.id)

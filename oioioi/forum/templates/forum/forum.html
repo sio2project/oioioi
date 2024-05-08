@@ -15,10 +15,12 @@
                     href="{% url 'edit_forum_new_post_message' %}">
                     {% trans "Edit new post message" %}
                 </a>
-                <a role="button" class="btn btn-sm btn-outline-secondary"
-                    href="{% url 'oioioiadmin:forum_category_add' %}">
-                    {% trans "Add new category" %}
-                </a>
+                {% if not is_contest_archived %}
+                    <a role="button" class="btn btn-sm btn-outline-secondary"
+                        href="{% url 'oioioiadmin:forum_category_add' %}">
+                        {% trans "Add new category" %}
+                    </a>
+                {% endif %}
                 {% if not is_locked %}
                     <a role="button" class="btn btn-sm btn-outline-secondary" href="#"
                         data-post-url="{% url 'forum_lock' contest_id=contest.id %}">

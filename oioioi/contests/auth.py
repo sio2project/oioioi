@@ -26,6 +26,8 @@ class ContestPermissionsAuthBackend(object):
             if user.is_superuser:
                 return Q_always_true()
             query = Q(contestpermission__permission=perm, contestpermission__user=user)
+            if perm == 'contests.contest_admin':
+                query |= self.filter_for_perm(obj_class, 'contests.contest_owner', user)
             if perm == 'contests.contest_basicadmin':
                 query |= self.filter_for_perm(obj_class, 'contests.contest_admin', user)
             return query
@@ -36,6 +38,10 @@ class ContestPermissionsAuthBackend(object):
             return False
         if obj is None or not isinstance(obj, Contest):
             return False
+        if perm == 'contests.contest_admin' and self.has_perm(
+            user_obj, 'contests.contest_owner', obj
+        ):
+            return True
         if perm == 'contests.contest_basicadmin' and self.has_perm(
             user_obj, 'contests.contest_admin', obj
         ):

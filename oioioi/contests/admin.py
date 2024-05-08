@@ -21,6 +21,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
+from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.base.utils.filters import ProblemNameListFilter
 from oioioi.base.utils.user_selection import UserSelectionField
@@ -44,11 +45,15 @@ from oioioi.contests.models import (
     RoundTimeExtension,
     Submission,
     SubmissionReport,
+    contest_permissions,
     submission_kinds,
 )
 from oioioi.contests.utils import (
     can_admin_contest,
+    get_inline_for_contest,
+    is_contest_owner,
     is_contest_admin,
+    is_contest_archived,
     is_contest_basicadmin,
     is_contest_observer,
 )
@@ -214,13 +219,15 @@ class ContestAdmin(admin.ModelAdmin):
             'id',
             'controller_name',
             'default_submissions_limit',
-            'contact_email',
+            'contact_email'
         ]
         if settings.USE_ACE_EDITOR:
             fields.append('enable_editor')
 
         if request.user.is_superuser:
             fields += ['judging_priority', 'judging_weight']
+
+        fields += ['show_contest_rules']
         return fields
 
     def get_fieldsets(self, request, obj=None):
@@ -231,6 +238,10 @@ class ContestAdmin(admin.ModelAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
+            if obj.is_archived:
+                return list(self.readonly_fields) + \
+                    [field.name for field in obj._meta.fields] + \
+                    [field.name for field in obj._meta.many_to_many]
             return self.readonly_fields + ['id', 'controller_name']
         return []
 
@@ -238,6 +249,12 @@ class ContestAdmin(admin.ModelAdmin):
         if obj:
             return {}
         return self.prepopulated_fields
+
+    def get_inlines(self, request, obj):
+        inlines = []
+        for inline in self.inlines:
+            inlines.append(get_inline_for_contest(inline, obj))
+        return inlines
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
@@ -302,6 +319,12 @@ class ContestAdmin(admin.ModelAdmin):
             request, object_id, form_url, extra_context
         )
 
+    def render_change_form(self, request, context, add=False, change=False, form_url='', obj=None):
+        if not add:
+            context.update({'show_unarchive': obj.is_archived})
+            context.update({'show_archive': not obj.is_archived})
+        return super().render_change_form(request, context, add, change, form_url, obj)
+
     def delete_selected_contests(self, modeladmin, request, queryset):
         # Redirect to contest-unprefixed view, just in case we deleted the current contest.
         return delete_selected(
@@ -363,10 +386,19 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return is_contest_basicadmin(request)
 
     def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return self.has_change_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return is_contest_basicadmin(request)
+        return super(ProblemInstanceAdmin, self).has_view_permission(request, obj)
 
     def _problem_change_href(self, instance):
         came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
@@ -476,6 +508,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return result
 
     def actions_field(self, instance):
+        request = self._request_local.request
+        if is_contest_archived(request):
+            return _("Unarchive the contest to change this problem.")
         return make_html_links(self.inline_actions(instance))
 
     actions_field.short_description = _("Actions")
@@ -547,6 +582,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         )
 
         return qs
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_add_button'] = not is_contest_archived(request)
+        return super(ProblemInstanceAdmin, self).changelist_view(
+            request, extra_context=extra_context
+        )
 
 
 contest_site.contest_register(ProblemInstance, ProblemInstanceAdmin)
@@ -648,6 +690,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         'user__last_name',
         'problem_instance__problem__legacy_name',
         'problem_instance__short_name',
+        'problem_instance__problem__names__name',
     ]
 
     class Media:
@@ -692,23 +735,6 @@ class SubmissionAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = [re_path(r'^rejudge/$', self.rejudge_view)]
         return urls + super(SubmissionAdmin, self).get_urls()
-
-    def get_search_results(self, request, queryset, search_term):
-        matched_problems = set(
-            problem_name.problem.pk
-            for problem_name in ProblemName.objects.filter(name__icontains=search_term)
-        )
-        queryset, _ = super(SubmissionAdmin, self).get_search_results(
-            request, queryset, search_term
-        )
-        contest_filtered = self.get_queryset(request)
-        queryset |= contest_filtered.filter(
-            problem_instance__problem__in=matched_problems
-        )
-
-        queryset = queryset.order_by('-id')
-
-        return queryset, True
 
     def rejudge_view(self, request):
         tests = request.POST.getlist('tests', [])
@@ -956,13 +982,24 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__last_name']
 
     def has_add_permission(self, request):
+        if is_contest_archived(request):
+            return False
         return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
         return self.has_change_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return is_contest_admin(request)
+        return super().has_view_permission(request, obj)
 
     def user_login(self, instance):
         if not instance.user:
@@ -1026,7 +1063,6 @@ class ContestPermissionAdminForm(ModelForm):
 
 
 class ContestPermissionAdmin(admin.ModelAdmin):
-    list_display = ['permission', 'user', 'user_full_name']
     list_display_links = ['user']
     ordering = ['permission', 'user']
     form = ContestPermissionAdminForm
@@ -1038,6 +1074,33 @@ class ContestPermissionAdmin(admin.ModelAdmin):
 
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
+
+    def get_list_display(self, request):
+        fields = ['permission', 'user', 'user_full_name',]
+        if not request.contest:
+            fields.append('contest')
+        return fields
+
+    def has_add_permission(self, request):
+        return is_contest_owner(request)
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.is_superuser:
+            return True
+        if not request.contest:
+            return False
+        if obj is None:
+            return is_contest_owner(request)
+        # Contest owners can't manage other contests' permissions
+        # and other contest owners.
+        return (
+            is_contest_owner(request) and
+            request.contest == obj.contest and
+            obj.permission != 'contests.contest_owner'
+        )
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
     def get_queryset(self, request):
         qs = super(ContestPermissionAdmin, self).get_queryset(request)
@@ -1056,11 +1119,28 @@ class ContestPermissionAdmin(admin.ModelAdmin):
             db_field, request, **kwargs
         )
 
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'permission':
+            # Contest owners musn't manage other contest owners
+            if not request.user.is_superuser:
+                kwargs['choices'] = [
+                    i for i in contest_permissions
+                    if i[0] != 'contests.contest_owner'
+                ]
+        return super(ContestPermissionAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
+
 
 contest_site.register(ContestPermission, ContestPermissionAdmin)
 admin.system_admin_menu_registry.register(
     'contestspermission_admin',
     _("Contest rights"),
     lambda request: reverse('oioioiadmin:contests_contestpermission_changelist'),
+    order=50,
+)
+contest_admin_menu_registry.register(
+    'contestspermission_admin',
+    _("Contest rights"),
+    lambda request: reverse('oioioiadmin:contests_contestpermission_changelist'),
+    is_contest_owner & ~is_superuser,
     order=50,
 )

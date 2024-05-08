@@ -1,3 +1,4 @@
+import sys
 from importlib import import_module
 
 from django.conf import settings
@@ -76,6 +77,7 @@ def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
 
 c_patterns = [
     re_path(r'^$', views.default_contest_view, name='default_contest_view'),
+    re_path(r'^rules/$', views.contest_rules_view, name='contest_rules'),
     re_path(r'^p/$', views.problems_list_view, name='problems_list'),
     re_path(
         r'^p/(?P<problem_instance>[a-z0-9_-]+)/$',
@@ -148,6 +150,8 @@ c_patterns = [
         name='user_info_redirect',
     ),
     re_path(r'^admin/', admin.contest_site.urls),
+    re_path(r'^archive/confirm$', views.confirm_archive_contest, name='confirm_archive_contest'),
+    re_path(r'^unarchive/$', views.unarchive_contest, name='unarchive_contest'),
 ]
 
 nonc_patterns = [
@@ -219,8 +223,11 @@ for app in settings.INSTALLED_APPS:
             # patterns defined in the global urls.py are an exception
             if hasattr(urls_module, 'urlpatterns'):
                 neutral_patterns += getattr(urls_module, 'urlpatterns')
-        except ImportError:
+        except ModuleNotFoundError:
             pass
+        except ImportError as e:
+            if settings.DEBUG:
+                print(e, file=sys.stderr)
 
 # We actually use make_patterns here, but we don't pass the globs, because
 # the algorithm in oioioi.urls has yet to capture all urls, including ours.
