@@ -77,6 +77,7 @@ def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
 
 c_patterns = [
     re_path(r'^$', views.default_contest_view, name='default_contest_view'),
+    re_path(r'^rules/$', views.contest_rules_view, name='contest_rules'),
     re_path(r'^p/$', views.problems_list_view, name='problems_list'),
     re_path(
         r'^p/(?P<problem_instance>[a-z0-9_-]+)/$',

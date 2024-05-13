@@ -56,6 +56,12 @@ from oioioi.contests.utils import (
     get_files_message,
     get_submissions_message,
     get_submit_message,
+    get_number_of_rounds,
+    get_contest_dates,
+    get_problems_sumbmission_limit,
+    get_results_visibility,
+    are_rules_visible,
+    get_scoring_desription,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -100,6 +106,31 @@ def get_contest_permissions(request, response):
     response['is_contest_admin'] = is_contest_admin(request)
     response['is_contest_basicadmin'] = is_contest_basicadmin(request)
     return response
+
+
+@menu_registry.register_decorator(
+    _("Rules"), lambda request: reverse('contest_rules'), order=90
+)
+@enforce_condition(contest_exists & can_enter_contest & are_rules_visible)
+def contest_rules_view(request):
+    no_of_rounds = get_number_of_rounds(request)
+    scoring_description = get_scoring_desription(request)
+    results_visibility = get_results_visibility(request)
+    contest_dates = get_contest_dates(request)
+    submission_limit = get_problems_sumbmission_limit(request)
+
+    return TemplateResponse(
+        request,
+        'contests/contest_rules.html',
+        {
+            'no_of_rounds' : no_of_rounds,
+            'contest_start_date' : contest_dates[0],
+            'contest_end_date' : contest_dates[1],
+            'submission_limit' : submission_limit,
+            'results_visibility' : results_visibility,
+            'scoring_type' : scoring_description,
+        },
+    )
 
 
 @menu_registry.register_decorator(

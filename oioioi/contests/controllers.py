@@ -619,11 +619,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return 'IGNORED'
         return 'NORMAL'
 
-    def get_submissions_limit(self, request, problem_instance, kind='NORMAL'):
-        if is_contest_basicadmin(request):
+    def get_submissions_limit(self, request, problem_instance, kind='NORMAL', noadmin=False):
+        if is_contest_basicadmin(request) and not noadmin:
             return None
         return problem_instance.problem.controller.get_submissions_limit(
-            request, problem_instance, kind
+            request, problem_instance, kind, noadmin
         )
 
     def get_submissions_left(self, request, problem_instance, kind=None):
