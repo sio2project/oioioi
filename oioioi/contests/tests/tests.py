@@ -774,7 +774,6 @@ class TestMySubmissions(TestCase):
         self.assertEqual(len(ini_ok), 1)
         self.assertEqual(len(ini_err), 1)
 
-from django.utils.translation import activate
 
 class TestManyRounds(TestsUtilsMixin, TestCase):
     fixtures = [
