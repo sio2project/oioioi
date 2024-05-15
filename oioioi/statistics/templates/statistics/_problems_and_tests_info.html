@@ -10,7 +10,8 @@
                 <tr>
                     <th> Problem </th>
                     <th> Sumbissions limit </th>
-                    <th> Testrun</th>
+                    <th> Testrun </th>
+                    <th> Solved </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -18,6 +19,7 @@
                     <td>{{ problem_info.problem_name }}</td>
                     <td>{{ problem_info.submissions_limit }}</td>
                     <td>{% if problem_info.testrun_config %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}</td>
+                    <td>{{ problem_info.solved }}
                 </tr>
                 {% if problem_info.testrun_config %}
                     <tr><td colspan="3"><table class="table table-sm table-bordered">

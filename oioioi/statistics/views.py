@@ -8,12 +8,13 @@ from django.http import Http404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.db.models import F
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ContestPermission, contest_permissions, ContestAttachment, \
-    Submission, SubmissionReport, RoundTimeExtension
+    Submission, SubmissionReport, RoundTimeExtension, ScoreReport
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
@@ -161,7 +162,6 @@ def monitoring_view(request):
     tests_info = get_tests_info(request)
 
     def is_rte_active(rte):
-        print(rte)
         return rte['round__end_date'] + timedelta(minutes=rte['extra_time']) >= request.timestamp
 
     round_time_extensions = (RoundTimeExtension.objects.filter(round__contest=request.contest.id)
@@ -242,6 +242,7 @@ def get_tests_info(request):
         'testrun_config': None,
         'tests': list(),
         'submissions_limit': None,
+        'solved': False,
     }))
     tests_qs = Test.objects.filter(problem_instance__contest=request.contest)
     tests_limits = (tests_qs.values('memory_limit', 'time_limit', 'problem_instance', 'problem_instance__round__name',
@@ -261,5 +262,14 @@ def get_tests_info(request):
     for trc in testrunconfig_qs:
         tests_info[trc.problem_instance.round][trc.problem_instance.id]['testrun_config'] = trc
 
+    solved_qs = ScoreReport.objects.filter(submission_report__submission__problem_instance__contest=request.contest,
+                                            submission_report__kind='NORMAL',
+                                            submission_report__submission__kind='NORMAL',
+                                            score = F('max_score'))
+
+    for s in solved_qs:
+        tests_info[s.submission_report.submission.problem_instance.round.name][s.submission_report.submission.problem_instance.id]['solved'] = True
+
     tests_info = dict({r: dict(t) for r, t in tests_info.items()})
+
     return tests_info
