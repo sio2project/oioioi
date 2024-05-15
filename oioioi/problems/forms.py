@@ -184,10 +184,11 @@ class OriginInfoValueForm(forms.ModelForm):
         category = self.cleaned_data['category']
         parent_tag = category.parent_tag
         instance.parent_tag = parent_tag
-        problems = self.cleaned_data.get('problems').prefetch_related('origintag_set')
-        for problem in problems:
-            if parent_tag not in problem.origintag_set.all():
-                parent_tag.problems.add(problem)
+        if 'problems' in self.cleaned_data:
+            problems = self.cleaned_data.get('problems').prefetch_related('origintag_set')
+            for problem in problems:
+                if parent_tag not in problem.origintag_set.all():
+                    parent_tag.problems.add(problem)
 
         if commit:
             instance.save()
