@@ -941,6 +941,30 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 1)
 
+    def test_round_dates(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
+                self.assertTrue(self.client.login(username=user))
+                response = self.client.get(url)
+                self.assertContains(response, "(31 July 2011, 20:27 - )")
+                self.assertContains(response, "(31 July 2012, 20:27 - 21:27)")
+                self.assertContains(response, "(30 July 2012, 20:27 - 31 July 2012, 21:27)")
+
+    def test_polish_round_dates(self):
+        self.client.cookies['lang'] = 'pl'
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
+                self.assertTrue(self.client.login(username=user))
+                response = self.client.get(url)
+                self.assertContains(response, "(31 lipca 2011, 20:27 - )")
+                self.assertContains(response, "(31 lipca 2012, 20:27 - 21:27)")
+                self.assertContains(response, "(30 lipca 2012, 20:27 - 31 lipca 2012, 21:27)")
+        self.client.cookies['lang'] = 'en'
+
     def test_rules_visibility(self):
         contest = Contest.objects.get()
         contest.controller_name = 'oioioi.oi.controllers.ProgrammingContestController'
