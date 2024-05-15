@@ -62,18 +62,8 @@ def show_submission_source_view(request, submission_id):
     source_file = get_submission_source_file_or_error(request, submission_id)
     raw_source, decode_error = decode_str(source_file.read())
     filename = source_file.file.name
+    extension = filename.split('.')[-1]
     is_source_safe = False
-    try:
-        lexer = guess_lexer_for_filename(filename, raw_source)
-        formatter = HtmlFormatter(
-            linenos=True, line_number_chars=3, cssclass='syntax-highlight'
-        )
-        formatted_source = highlight(raw_source, lexer, formatter)
-        formatted_source_css = HtmlFormatter().get_style_defs('.syntax-highlight')
-        is_source_safe = True
-    except ClassNotFound:
-        formatted_source = raw_source
-        formatted_source_css = ''
     download_url = reverse(
         'download_submission_source', kwargs={'submission_id': submission_id}
     )
@@ -82,12 +72,11 @@ def show_submission_source_view(request, submission_id):
         'programs/source.html',
         {
             'raw_source': raw_source,
-            'source': formatted_source,
-            'css': formatted_source_css,
             'is_source_safe': is_source_safe,
             'download_url': download_url,
             'decode_error': decode_error,
             'submission_id': submission_id,
+            'extension': extension,
         },
     )
 
