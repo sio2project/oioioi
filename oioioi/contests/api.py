@@ -4,8 +4,9 @@ from django.utils.timezone import now
 
 from oioioi.base.utils import request_cached
 from oioioi.base.utils.api import make_path_coreapi_schema
+from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
-from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.contests.serializers import (
     ContestSerializer,
     ProblemSerializer,
@@ -123,6 +124,67 @@ class GetContestProblems(views.APIView):
                 data.append(serialized)
 
         return Response(data)
+
+# id submita
+# liczba pkt
+# data
+# is_truncated max 20 i info czy jest więcej na stronie
+
+class GetUserProblemSubmissions(views.APIView):
+    permission_classes = (
+        IsAuthenticated,
+        CanEnterContest,
+    )
+
+    schema = AutoSchema(
+        [
+            make_path_coreapi_schema(
+                name='contest_id',
+                title="Contest id",
+                description="Id of the contest to which the problem you want to "
+                "query belongs. You can find this id after /c/ in urls "
+                "when using SIO 2 web interface.",
+            ),
+            make_path_coreapi_schema(
+                name='problem_short_name',
+                title="Problem short name",
+                description="Short name of the problem you want to query. "
+                "You can find it for example the in first column "
+                "of the problem list when using SIO 2 web interface.",
+            ),
+        ]
+    )
+
+    def get(self, request, contest_id, problem_short_name):
+        contest = get_object_or_404(Contest, id=contest_id)
+        problem_instance = get_object_or_404(
+            ProblemInstance, contest=contest, problem__short_name=problem_short_name
+        )
+        problem = problem_instance.problem
+
+        last_20_submits = (
+            Submission.objects.filter(user=request.user)
+            .order_by('-date')
+            .select_related(
+                'problem_instance',
+                'problem_instance__contest',
+                'problem_instance__round',
+                'problem_instance__problem',
+            )[:20]
+        )
+        submissions = [submission_template_context(request, s) for s in last_20_submits]
+        submissions_data = []
+        for submission in submissions:
+            score = submission['submission'].score
+            submissions_data.append({
+                'id': submission['submission'].id,
+                'score': score.to_int() if score else None,
+                'date': submission['submission'].date,
+            })
+
+
+
+        return Response(submissions_data, status=status.HTTP_200_OK)
 
 
 class GetProblemIdView(views.APIView):

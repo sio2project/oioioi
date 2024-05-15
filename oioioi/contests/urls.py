@@ -204,9 +204,14 @@ if settings.USE_API:
             name='api_contest_submit',
         ),
         re_path(
-            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)$',
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)/$',
             api.GetProblemIdView.as_view(),
             name='api_contest_get_problem_id',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submissions/(?P<problem_short_name>[a-z0-9_-]+)/$',
+            api.GetUserProblemSubmissions.as_view(),
+            name='api_contest_get_user_problem_submissions',
         ),
         re_path(r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
             api.GetContestRounds.as_view()
