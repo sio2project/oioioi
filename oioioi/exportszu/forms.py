@@ -10,7 +10,7 @@ class ExportSubmissionsForm(forms.Form):
         label=_("Choose round"),
     )
     only_final = forms.BooleanField(
-        label=_("Only final submissions"), required=False, initial=True
+        label=_("Only submissions used for final scoring"), required=False, initial=True
     )
 
     def __init__(self, request, *args, **kwargs):
