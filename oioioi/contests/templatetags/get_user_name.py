@@ -4,6 +4,8 @@ from django.template.loader import render_to_string
 
 from oioioi.base.utils import get_user_display_name
 from oioioi.contests.utils import can_see_personal_data, is_contest_basicadmin
+from oioioi.forum.utils import is_forum_moderator
+from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 
@@ -51,6 +53,13 @@ class PublicNameUserInfoLinkNode(UserInfoLinkNode):
 class FullNameUserInfoLinkNode(UserInfoLinkNode):
     def _get_user_name(self, context, user):
         return get_user_display_name(user)
+    
+
+class NamePermissionsUserInfoLinkNode(UserInfoLinkNode):
+    def _get_user_name(self, context, user):
+        if is_forum_moderator(context['request'], user):
+            return get_user_display_name(user) + _(" (moderator)")
+        return get_user_display_name(user)
 
 
 def _get_name(parser, token, tag_name):
@@ -77,3 +86,8 @@ def public_name(parser, token):
 def full_name(parser, token):
     (user, asvar) = _get_name(parser, token, "full_name")
     return FullNameUserInfoLinkNode(user, asvar)
+
+@register.tag
+def name_with_permissions(parser, token):
+    (user, asvar) = _get_name(parser, token, "name_with_permissions")
+    return NamePermissionsUserInfoLinkNode(user, asvar)

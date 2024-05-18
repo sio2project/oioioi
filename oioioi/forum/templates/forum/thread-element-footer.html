@@ -36,7 +36,7 @@
     </span>
 {% endif %}
 
-| {% full_name post.author %}
+| {% name_with_permissions post.author %}
 
 {% if is_admin %}
     {% if post.is_author_banned %}
@@ -93,7 +93,7 @@
         |
         <span class="text-danger">
             {% if is_admin and post.reported_by %}
-                {% full_name post.reported_by as reporter_name %}
+                {% name_with_permissions post.reported_by as reporter_name %}
                 {% blocktrans trimmed %} This post was reported by {{ reporter_name }}. {% endblocktrans %}
                 <abbr title="{{ post.report_reason }}">{% trans "Reason" %}</abbr>
                 {% if post.is_reporter_banned %}

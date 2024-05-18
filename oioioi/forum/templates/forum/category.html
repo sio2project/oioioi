@@ -63,7 +63,7 @@
                     <td>
                         {% if t.last_post != None %}
                         <small>
-                            {% full_name t.last_post.author as author_link %}
+                            {% name_with_permissions t.last_post.author as author_link %}
                             {% blocktrans with date=t.last_post.add_date author=author_link last_id=t.last_post.id %}
                                 <a href="{{ thread_link }}#forum-post-{{ last_id }}">{{ date }}</a>, by {{ author }}
                             {% endblocktrans %}

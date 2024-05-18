@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.base.utils.public_message import get_public_message
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_admin, can_admin_contest
 from oioioi.forum.models import (
     Ban,
     Category,
@@ -215,3 +215,7 @@ def get_new_post_message(request):
         NewPostMessage,
         'forum_new_post_message',
     )
+
+def is_forum_moderator(request, user):
+    request.user = user
+    return can_admin_contest(user, request.contest)
