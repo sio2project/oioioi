@@ -260,7 +260,7 @@ def get_tests_info(request):
 
     testrunconfig_qs = TestRunConfig.objects.filter(problem_instance__contest=request.contest)
     for trc in testrunconfig_qs:
-        tests_info[trc.problem_instance.round][trc.problem_instance.id]['testrun_config'] = trc
+        tests_info[trc.problem_instance.round.name][trc.problem_instance.id]['testrun_config'] = trc
 
     solved_qs = ScoreReport.objects.filter(submission_report__submission__problem_instance__contest=request.contest,
                                             submission_report__kind='NORMAL',
