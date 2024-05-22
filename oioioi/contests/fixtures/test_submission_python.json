@@ -1,0 +1,279 @@
+[
+  {
+    "pk": 1,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "INITIAL",
+      "submission": 1,
+      "creation_date": "2012-08-03T22:07:29.547Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 1,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": null,
+      "submission_report": 1,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "RE",
+      "comment": null,
+      "score": "int:0000000000000000034",
+      "submission_report": 2,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforround",
+    "fields": {
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "round": 1
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforcontest",
+    "fields": {
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.programsubmission",
+    "fields": {
+      "source_file": "data:submissions/c/1.py:data:submissions/c/2.py:YSwgYiA9IGlucHV0KCkuc3BsaXQoKQoKcHJpbnQoaW50KGEpICsgaW50KGIpKQ==",
+      "source_length": 46
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.compilationreport",
+    "fields": {
+      "status": "OK",
+      "compiler_output": "",
+      "submission_report": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "programs.compilationreport",
+    "fields": {
+      "status": "OK",
+      "compiler_output": "",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 1,
+      "time_used": 1,
+      "test_group": "0",
+      "score": "int:0000000000000000000",
+      "test_name": "0",
+      "test": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 1,
+      "time_used": 1,
+      "test_group": "1ocen",
+      "score": "int:0000000000000000000",
+      "test_name": "1ocen",
+      "test": 4
+    }
+  },
+  {
+    "pk": 3,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 2,
+      "time_used": 1,
+      "test_group": "1",
+      "score": "int:0000000000000000005",
+      "test_name": "1a",
+      "test": 2
+    }
+  },
+  {
+    "pk": 4,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 2,
+      "time_used": 1,
+      "test_group": "3",
+      "score": "int:0000000000000000034",
+      "test_name": "3",
+      "test": 6
+    }
+  },
+  {
+    "pk": 5,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "WA",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 2,
+      "time_used": 0,
+      "test_group": "2",
+      "score": "int:0000000000000000000",
+      "test_name": "2",
+      "test": 5
+    }
+  },
+  {
+    "pk": 6,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "RE",
+      "comment": "program exited with code 1",
+      "test_time_limit": 100,
+      "submission_report": 2,
+      "time_used": 0,
+      "test_group": "1",
+      "score": "int:0000000000000000000",
+      "test_name": "1b",
+      "test": 3
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "0",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "1ocen",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 1
+    }
+  },
+  {
+    "pk": 3,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "RE",
+      "group": "1",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 4,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "0",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 5,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "3",
+      "score": "int:0000000000000000034",
+      "max_score": "int:0000000000000000034",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 6,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "1ocen",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 7,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "WA",
+      "group": "2",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
+      "submission_report": 2
+    }
+  }
+]
