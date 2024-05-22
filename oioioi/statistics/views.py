@@ -145,8 +145,10 @@ def monitoring_view(request):
     q_size = QueuedJob.objects.filter(submission__problem_instance__contest=request.contest).count()
     q_size_global = QueuedJob.objects.count()
     sys_error_count = (
-        SubmissionReport.objects.filter(status='ACTIVE', failurereport__isnull=False).count()
-        + SubmissionReport.objects.filter(status='ACTIVE', testreport__status='SE').count()
+        SubmissionReport.objects.filter(status='ACTIVE', failurereport__isnull=False,
+                                        submission__problem_instance__contest=request.contest).count()
+        + SubmissionReport.objects.filter(status='ACTIVE', testreport__status='SE',
+                                          submission__problem_instance__contest=request.contest).count()
     )
 
     unanswered_questions = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest).count())
