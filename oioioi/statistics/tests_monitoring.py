@@ -19,6 +19,7 @@ class TestContestMonitoringViews(TestCase):
         'test_extra_rounds',
         'test_extra_problem',
         'test_permissions',
+        'test_messages',
     ]
 
     def setUp(self):
@@ -27,16 +28,29 @@ class TestContestMonitoringViews(TestCase):
         self.request.contest = Contest.objects.get()
         self.request.timestamp = datetime.now().replace(tzinfo=timezone.utc)
 
-    def test_submission_types(self):
+    def test_permissions_info(self):
         contest = Contest.objects.get()
         url = reverse('monitoring', kwargs={'contest_id': contest.id})
 
-        # Without StatisticsConfig model
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
-
-            f = open("monitoring_page.html", "a")
+            self.assertRegex(str(response.content), r"Admin</td>... *<td>1")
+            self.assertRegex(str(response.content), r"Basic Admin</td>... *<td>1")
+            self.assertRegex(str(response.content), r"Observer</td>... *<td>1")
+            self.assertRegex(str(response.content), r"Personal Data</td>... *<td>1")
+            self.assertRegex(str(response.content), r"Participant</td>... *<td>0")
+            f = open("monitoring_page.html", "w")
             f.write(str(response.content))
             f.close()
+
+    def test_round_times(self):
+        contest = Contest.objects.get()
+        url = reverse('monitoring', kwargs={'contest_id': contest.id})
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        with fake_time(datetime(2015, 7, 5, tzinfo=timezone.utc)):
+            response = self.client.get(url)
+            self.assertRegex(str(response.content), r"Past round(</td>.{0,50}<td>.{0,50}){2}Started")
+            self.assertRegex(str(response.content), r"Past round(</td>.{0,50}<td>.{0,50}){4}Finished")
 
