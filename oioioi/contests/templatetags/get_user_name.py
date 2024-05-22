@@ -53,13 +53,6 @@ class PublicNameUserInfoLinkNode(UserInfoLinkNode):
 class FullNameUserInfoLinkNode(UserInfoLinkNode):
     def _get_user_name(self, context, user):
         return get_user_display_name(user)
-    
-
-class NamePermissionsUserInfoLinkNode(UserInfoLinkNode):
-    def _get_user_name(self, context, user):
-        if is_forum_moderator(context['request'], user):
-            return get_user_display_name(user) + _(" (moderator)")
-        return get_user_display_name(user)
 
 
 def _get_name(parser, token, tag_name):
@@ -87,7 +80,30 @@ def full_name(parser, token):
     (user, asvar) = _get_name(parser, token, "full_name")
     return FullNameUserInfoLinkNode(user, asvar)
 
+
+class BadgeNode(Node):
+    '''
+    Returns a badge for a user if they are a moderator.
+    '''
+    def __init__(self, target_user, asvar):
+        self.target_user = Variable(target_user)
+        self.asvar = asvar
+    
+    def render(self, context):
+        user = self.target_user.resolve(context)
+        if is_forum_moderator(context['request'], user):
+            badge = _(" (moderator)")
+        else:
+            badge = ""
+
+        if self.asvar:
+            context[self.asvar] = str(badge)
+            return ""
+        else:
+            return str(badge)
+
+
 @register.tag
-def name_with_permissions(parser, token):
-    (user, asvar) = _get_name(parser, token, "name_with_permissions")
-    return NamePermissionsUserInfoLinkNode(user, asvar)
+def user_badge(parser, token):
+    (user, asvar) = _get_name(parser, token, "user_badge")
+    return BadgeNode(user, asvar)
