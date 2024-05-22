@@ -879,7 +879,3 @@ REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
     'anon': '1000/day',
     'user': '1000/hour'
 }
-REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = [
-    'rest_framework.authentication.BasicAuthentication',
-    'rest_framework.authentication.SessionAuthentication',
-]
