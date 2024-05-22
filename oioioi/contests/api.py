@@ -23,6 +23,7 @@ from oioioi.problems.models import Problem, ProblemInstance
 from oioioi.base.permissions import enforce_condition, not_anonymous
 
 from oioioi.problems.utils import query_statement
+from oioioi.programs.utils import decode_str, get_submission_source_file_or_error
 from rest_framework import permissions, status, views
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
@@ -173,12 +174,23 @@ class GetUserProblemSubmissions(views.APIView):
         submissions = [submission_template_context(request, s) for s in last_20_submits]
         submissions_data = {'submissions': []}
         for submission_entry in submissions:
-            score = submission_entry['submission'].score
+            print(">>> CODE", submission_entry['submission'].comment)
+            score = (
+                submission_entry['submission'].score
+                if submission_entry['can_see_score']
+                else None
+            )
+            status = (
+                submission_entry['submission'].status
+                if submission_entry['can_see_status']
+                else None
+            )
             submissions_data['submissions'].append(
                 {
                     'id': submission_entry['submission'].id,
-                    'score': score.to_int() if score else None,
                     'date': submission_entry['submission'].date,
+                    'score': score.to_int() if score else None,
+                    'status': status,
                 }
             )
         submissions_data['is_truncated_to_20'] = len(user_problem_submits) > 20
@@ -191,57 +203,32 @@ class GetUserProblemSubmissionCode(views.APIView):
         CanEnterContest,
     )
 
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
-                name='contest_id',
-                title="Contest id",
-                description="Id of the contest to which the problem you want to "
-                "query belongs. You can find this id after /c/ in urls "
-                "when using SIO 2 web interface.",
-            ),
-            make_path_coreapi_schema(
-                name='problem_short_name',
-                title="Problem short name",
-                description="Short name of the problem you want to query. "
-                "You can find it for example the in first column "
-                "of the problem list when using SIO 2 web interface.",
-            ),
-        ]
-    )
+    # schema = AutoSchema(
+    #     [
+    #         make_path_coreapi_schema(
+    #             name='contest_id',
+    #             title="Contest id",
+    #             description="Id of the contest to which the problem you want to "
+    #             "query belongs. You can find this id after /c/ in urls "
+    #             "when using SIO 2 web interface.",
+    #         ),
+    #         # make_path_coreapi_schema(
+    #         #     name='problem_short_name',
+    #         #     title="Problem short name",
+    #         #     description="Short name of the problem you want to query. "
+    #         #     "You can find it for example the in first column "
+    #         #     "of the problem list when using SIO 2 web interface.",
+    #         # ),
+    #     ]
+    # )
 
-    def get(self, request, contest_id, problem_short_name):
+    def get(self, request, contest_id, submission_id):
         pass
-        # contest = get_object_or_404(Contest, id=contest_id)
-        # problem_instance = get_object_or_404(
-        #     ProblemInstance, contest=contest, problem__short_name=problem_short_name
-        # )
-        # problem = problem_instance.problem
-
-        # user_problem_submits = (
-        #     Submission.objects.filter(user=request.user)
-        #     .order_by('-date')
-        #     .select_related(
-        #         'problem_instance',
-        #         'problem_instance__contest',
-        #         'problem_instance__round',
-        #         'problem_instance__problem',
-        #     )
-        # )
-        # last_20_submits = user_problem_submits[:20]
-        # submissions = [submission_template_context(request, s) for s in last_20_submits]
-        # submissions_data = {'submissions': []}
-        # for submission_entry in submissions:
-        #     score = submission_entry['submission'].score
-        #     submissions_data['submissions'].append(
-        #         {
-        #             'id': submission_entry['submission'].id,
-        #             'score': score.to_int() if score else None,
-        #             'date': submission_entry['submission'].date,
-        #         }
-        #     )
-        # submissions_data['is_truncated_to_20'] = len(user_problem_submits) > 20
-        # return Response(submissions_data, status=status.HTTP_200_OK)
+        contest = get_object_or_404(Contest, id=contest_id)
+        submission = get_object_or_404(Submission, user=request.user, id=submission_id)
+        source_file = get_submission_source_file_or_error(request, int(submission_id))
+        raw_source, decode_error = decode_str(source_file.read())
+        return Response(raw_source, status=status.HTTP_200_OK)
 
 
 class GetProblemIdView(views.APIView):

@@ -150,7 +150,11 @@ c_patterns = [
         name='user_info_redirect',
     ),
     re_path(r'^admin/', admin.contest_site.urls),
-    re_path(r'^archive/confirm$', views.confirm_archive_contest, name='confirm_archive_contest'),
+    re_path(
+        r'^archive/confirm$',
+        views.confirm_archive_contest,
+        name='confirm_archive_contest',
+    ),
     re_path(r'^unarchive/$', views.unarchive_contest, name='unarchive_contest'),
 ]
 
@@ -193,11 +197,7 @@ neutral_patterns = [
 if settings.USE_API:
     nonc_patterns += [
         # the contest information is managed manually and added after api prefix
-        re_path(
-            r'^api/contest_list',
-            api.contest_list,
-            name="api_contest_list"
-        ),
+        re_path(r'^api/contest_list', api.contest_list, name="api_contest_list"),
         re_path(
             r'^api/c/(?P<contest_name>[a-z0-9_-]+)/submit/(?P<problem_short_name>[a-z0-9_-]+)$',
             api.SubmitContestSolutionView.as_view(),
@@ -216,13 +216,15 @@ if settings.USE_API:
         re_path(
             r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_code/(?P<submission_id>[a-z0-9_-]+)/$',
             api.GetUserProblemSubmissionCode.as_view(),
-            name='api_contest_get_user_problem_submissions',
+            name='api_contest_get_user_problem_submission_code',
         ),
-        re_path(r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
-            api.GetContestRounds.as_view()
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
+            api.GetContestRounds.as_view(),
         ),
-        re_path(r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_list/$',
-            api.GetContestProblems.as_view()
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_list/$',
+            api.GetContestProblems.as_view(),
         ),
         re_path(
             r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',
