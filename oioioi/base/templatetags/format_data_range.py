@@ -1,10 +1,13 @@
+from django.utils.timezone import template_localtime
 from django import template
 from django.utils import formats
 
 register = template.Library()
 
-@register.simple_tag
-def format_data_range(start, end):
+@register.simple_tag(takes_context=True)
+def format_data_range(context, start, end):
+    start = template_localtime(start, context.use_tz) if start is not None else None
+    end = template_localtime(end, context.use_tz) if end is not None else None
     if start is not None and end is not None:
         if start.year == end.year and start.month == end.month and start.day == end.day:
             day = formats.date_format(start, "j E Y")
