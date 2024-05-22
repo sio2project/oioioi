@@ -36,7 +36,7 @@
     </span>
 {% endif %}
 
-| {% full_name post.author %} <b>{% user_badge post.author %}</b>
+| {% full_name post.author %} <span class="badge badge-secondary">{% user_badge post.author %}</span>
 
 {% if is_admin %}
     {% if post.is_author_banned %}
@@ -95,7 +95,7 @@
             {% if is_admin and post.reported_by %}
                 {% full_name post.reported_by as reporter_name %}
                 {% user_badge post.reported_by as reporter_badge %}
-                {% blocktrans trimmed %} This post was reported by {{ reporter_name }} <b>{{ reporter_badge }}</b>. {% endblocktrans %}
+                {% blocktrans trimmed %} This post was reported by {{ reporter_name }} <span class="badge badge-secondary">{{ reporter_badge }}</span>. {% endblocktrans %}
                 <abbr title="{{ post.report_reason }}">{% trans "Reason" %}</abbr>
                 {% if post.is_reporter_banned %}
                     | {% trans "Reporter was banned." %}
