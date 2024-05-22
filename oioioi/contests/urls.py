@@ -213,6 +213,11 @@ if settings.USE_API:
             api.GetUserProblemSubmissions.as_view(),
             name='api_contest_get_user_problem_submissions',
         ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_code/(?P<submission_id>[a-z0-9_-]+)/$',
+            api.GetUserProblemSubmissionCode.as_view(),
+            name='api_contest_get_user_problem_submissions',
+        ),
         re_path(r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
             api.GetContestRounds.as_view()
         ),

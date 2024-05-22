@@ -156,10 +156,11 @@ class GetUserProblemSubmissions(views.APIView):
         problem_instance = get_object_or_404(
             ProblemInstance, contest=contest, problem__short_name=problem_short_name
         )
-        problem = problem_instance.problem
 
         user_problem_submits = (
-            Submission.objects.filter(user=request.user)
+            Submission.objects.filter(
+                user=request.user, problem_instance=problem_instance
+            )
             .order_by('-date')
             .select_related(
                 'problem_instance',
@@ -210,11 +211,12 @@ class GetUserProblemSubmissionCode(views.APIView):
     )
 
     def get(self, request, contest_id, problem_short_name):
-        contest = get_object_or_404(Contest, id=contest_id)
-        problem_instance = get_object_or_404(
-            ProblemInstance, contest=contest, problem__short_name=problem_short_name
-        )
-        problem = problem_instance.problem
+        pass
+        # contest = get_object_or_404(Contest, id=contest_id)
+        # problem_instance = get_object_or_404(
+        #     ProblemInstance, contest=contest, problem__short_name=problem_short_name
+        # )
+        # problem = problem_instance.problem
 
         # user_problem_submits = (
         #     Submission.objects.filter(user=request.user)
