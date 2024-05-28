@@ -17,6 +17,7 @@ from oioioi.contests.utils import (
     is_contest_admin,
     is_contest_basicadmin,
 )
+from oioioi.encdec.models import LanguageOverrideForEncdecTest
 from oioioi.problems.models import (
     AlgorithmTagProposal,
     DifficultyTagProposal,
@@ -171,7 +172,10 @@ def update_tests_from_main_pi(problem_instance, source_instance=None):
     if problem_instance == source_instance:
         return
 
+    # Whosoever wrote this code should be flunked from the databases by the dean himself
     for test in problem_instance.test_set.all():
+        test.delete()
+    for test in problem_instance.encdectest_set.all():
         test.delete()
     for test in source_instance.test_set.all():
         test_pk = test.pk
@@ -185,6 +189,22 @@ def update_tests_from_main_pi(problem_instance, source_instance=None):
                 test=test,
                 time_limit=override.time_limit,
                 memory_limit=override.memory_limit,
+                language=override.language,
+            )
+    for test in source_instance.encdectest_set.all():
+        test_pk = test.pk
+        test.id = None
+        test.pk = None
+        test.problem_instance = problem_instance
+        test.save()
+        assiociated_overrides = LanguageOverrideForEncdecTest.objects.filter(test=test_pk)
+        for override in assiociated_overrides:
+            LanguageOverrideForEncdecTest.objects.create(
+                test=test,
+                encoder_time_limit=override.encoder_time_limit,
+                decoder_time_limit=override.decoder_time_limit,
+                encoder_memory_limit=override.encoder_memory_limit,
+                decoder_memory_limit=override.decoder_memory_limit,
                 language=override.language,
             )
 
