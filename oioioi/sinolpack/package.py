@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 import zipfile
+from enum import Enum
 
 import chardet
 import six
@@ -59,6 +60,11 @@ DEFAULT_MEMORY_LIMIT = 66000
 TASK_PRIORITY = 500
 C_EXTRA_ARGS = ['-Wall', '-Wno-unused-result', '-Werror']
 PAS_EXTRA_ARGS = ['-Ci', '-Cr', '-Co', '-gl']
+
+
+class TaskType(Enum):
+    STANDARD = 'standard'
+    INTERACTIVE = 'interactive'
 
 
 def _stringify_keys(dictionary):
@@ -143,7 +149,7 @@ class SinolPackage(object):
         self.restrict_html = (
             settings.SINOLPACK_RESTRICT_HTML and not settings.USE_SINOLPACK_MAKEFILES
         )
-        self.task_type = 'standard'
+        self.task_type = TaskType.STANDARD
 
     def identify(self):
         return self._find_main_dir() is not None
@@ -386,8 +392,8 @@ class SinolPackage(object):
 
     def _get_controller_name(self):
         return {
-            'standard': 'oioioi.sinolpack.controllers.SinolProblemController',
-            'interactive': 'oioioi.interactive.controllers.InteractiveProblemController',
+            TaskType.STANDARD: 'oioioi.sinolpack.controllers.SinolProblemController',
+            TaskType.INTERACTIVE: 'oioioi.interactive.controllers.InteractiveProblemController',
         }[self.task_type]
 
     def _extract_and_process_package(self):
@@ -441,7 +447,7 @@ class SinolPackage(object):
         self._process_statements()
         self._generate_tests()
         self._process_checkers()
-        if self.task_type == 'interactive':
+        if self.task_type == TaskType.INTERACTIVE:
             self._process_interactive_checkers()
         self._process_model_solutions()
         self._process_attachments()
@@ -466,7 +472,7 @@ class SinolPackage(object):
     @_describe_processing_error
     def _detect_task_type(self):
         if any(map(lambda name: self.short_name + 'soc' in name, self.archive.filenames())):
-            self.task_type = 'interactive'
+            self.task_type = TaskType.INTERACTIVE
 
     @_describe_processing_error
     def _detect_full_name(self):
@@ -729,7 +735,7 @@ class SinolPackage(object):
         self._verify_time_limits(sum_of_time_limits)
 
         self._verify_inputs(created_tests)
-        if self.task_type == 'standard':
+        if self.task_type == TaskType.STANDARD:
             self._generate_test_outputs(created_tests, outs_to_make)
         self._validate_tests(created_tests)
         self._delete_non_existing_tests(created_tests)
@@ -866,7 +872,7 @@ class SinolPackage(object):
         :raises: :class:`~oioioi.problems.package.ProblemPackageError`
         """
         for instance in created_tests:
-            if self.task_type == 'standard' and not instance.output_file:
+            if self.task_type == TaskType.STANDARD and not instance.output_file:
                 raise ProblemPackageError(
                     _("Missing out file for test %s") % instance.name
                 )
