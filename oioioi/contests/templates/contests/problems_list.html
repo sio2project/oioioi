@@ -72,7 +72,7 @@
                                 {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
                                 <a href="{{ link }}">
                                 {% endif %}
-                                    {% if result.score == result.submission_report.score_report.max_score %}
+                                    {% if result.submission_report.score_report.score == result.submission_report.score_report.max_score %}
                                         <div class="badge badge-success"> {{ result.score }}</div>
                                     {% elif result.score > 0 %}
                                         <div class="badge badge-warning"> {{ result.score }}</div>
