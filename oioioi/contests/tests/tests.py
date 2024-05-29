@@ -77,6 +77,8 @@ from oioioi.teachers.views import (
 )
 from rest_framework.test import APITestCase
 
+from oioioi.testspackages.models import TestsPackage
+
 
 class TestModels(TestCase):
     def test_fields_autogeneration(self):
@@ -1626,6 +1628,36 @@ class TestAttachments(TestCase, TestStreamingMixin):
         # After the last pub_date
         with fake_time(get_time(23)):
             check([ca, cb, pa, ra, rb, rc], [])
+
+    def test_attachments_order(self):
+        contest = Contest.objects.get()
+        problem = Problem.objects.get()
+        list_url = reverse('contest_files', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        tp = TestsPackage.objects.create(
+            problem=problem,
+            name='test-package',
+        )
+        pa = ProblemAttachment.objects.create(
+            problem=problem,
+            description='problem-attachment',
+            content=ContentFile(b'content-of-pa', name='pa.txt'),
+        )
+        ca = ContestAttachment.objects.create(
+            contest=contest,
+            description='contest-attachment',
+            content=ContentFile(b'content-of-ca', name='ca.txt'),
+        )
+
+        response = self.client.get(list_url)
+        self.assertContains(response, 'test-package')
+        tp_pos = response.content.find(b'test-package')
+        self.assertContains(response, 'problem-attachment')
+        pa_pos = response.content.find(b'problem-attachment')
+        self.assertContains(response, 'contest-attachment')
+        ca_pos = response.content.find(b'contest-attachment')
+        self.assertTrue(ca_pos < pa_pos < tp_pos)
 
 
 class TestRoundExtension(TestCase, SubmitFileMixin):
