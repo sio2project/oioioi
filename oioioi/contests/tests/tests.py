@@ -75,9 +75,8 @@ from oioioi.simpleui.views import (
 from oioioi.teachers.views import (
     contest_dashboard_redirect as teachers_contest_dashboard,
 )
-from rest_framework.test import APITestCase
-
 from oioioi.testspackages.models import TestsPackage
+from rest_framework.test import APITestCase
 
 
 class TestModels(TestCase):
