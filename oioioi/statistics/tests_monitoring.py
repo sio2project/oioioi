@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance
-from oioioi.statistics.views import get_permissions_info, get_rounds_info
+from oioioi.statistics.views import get_permissions_info, get_rounds_info, get_attachments_info
 
 
 class TestContestMonitoringViews(TestCase):
@@ -22,7 +22,7 @@ class TestContestMonitoringViews(TestCase):
         'test_permissions',
         'test_messages',
         'test_second_user_messages',
-        'test_submission_list_with_syserr'
+        'test_contest_attachment',
     ]
 
     def setUp(self):
@@ -48,7 +48,6 @@ class TestContestMonitoringViews(TestCase):
             f.close()
 
     def test_round_info(self):
-        contest = Contest.objects.get()
         with fake_time(datetime(2015, 7, 5, tzinfo=timezone.utc)):
             self.assertTrue(self.client.login(username='test_admin'))
             rounds_info = get_rounds_info(self.request)
@@ -71,4 +70,16 @@ class TestContestMonitoringViews(TestCase):
 
 
     def test_attachments_info(self):
-        pass
+        self.assertTrue(self.client.login(username='test_admin'))
+        attachments_info = get_attachments_info(self.request)
+        f = open("xd.html", "w")
+        for ai in attachments_info:
+            if ai.description == 'published attachment':
+                f.write('xd1')
+                ai.pub_date_relative == 'Published'
+            if ai.description == 'unpublished attachment':
+                f.write(f'\n{ai.pub_date_relative} {ai.pub_date} {self.request.timestamp}\n')
+                f.write('xd2')
+                ai.pub_date_relative == ''
+        f.close()
+
