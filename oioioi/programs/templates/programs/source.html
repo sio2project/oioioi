@@ -24,7 +24,7 @@
         {% trans "Copy to clipboard" %}
     </button>
 
-    {% if extension == 'cpp' or extension == 'cc' %}
+    {% if extension == 'cpp' or extension == 'cc' or extension == 'c' %}
         <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
 
         <button class="btn btn-outline-secondary" id="format_btn" style="margin-bottom: 3px" onclick="format_cpp_code()">
