@@ -1,11 +1,8 @@
 import difflib
 
-# Workaround for race condition in fnmatchcase which is used by pygments
-import fnmatch
 import logging
 import os
 import shutil
-import sys
 import tempfile
 import zipfile
 
@@ -18,12 +15,6 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
-from pygments import highlight
-
-# pylint: disable=no-name-in-module
-from pygments.formatters import HtmlFormatter
-from pygments.lexers import guess_lexer_for_filename
-from pygments.util import ClassNotFound
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import jsonify, strip_num_or_hash
@@ -51,8 +42,6 @@ from oioioi.programs.utils import (
     get_submission_source_file_or_error,
     get_submittable_languages,
 )
-
-fnmatch._MAXCACHE = sys.maxsize
 
 logger = logging.getLogger(__name__)
 
