@@ -153,7 +153,7 @@ def monitoring_view(request):
 
     unanswered_questions = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest).count())
     oldest_unanswered_question = (Message.objects.filter(kind='QUESTION', message=None, contest=request.contest)
-                                  .order_by('pub_date').first())
+                                  .order_by('date').first())
     oldest_unanswered_question_date = oldest_unanswered_question.date if oldest_unanswered_question else None
 
     submissions_info = (Submission.objects.filter(problem_instance__contest=request.contest).values('kind')
