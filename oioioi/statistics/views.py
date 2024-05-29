@@ -147,7 +147,7 @@ def monitoring_view(request):
     sys_error_count = (
         SubmissionReport.objects.filter(status='ACTIVE', failurereport__isnull=False,
                                         submission__problem_instance__contest=request.contest).count()
-        + SubmissionReport.objects.filter(status='ACTIVE', testreport__status='SE',
+        + SubmissionReport.objects.filter(status='ACTIVE', scorereport__status='SE',
                                           submission__problem_instance__contest=request.contest).count()
     )
 
