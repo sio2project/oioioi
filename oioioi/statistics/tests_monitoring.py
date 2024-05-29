@@ -22,6 +22,7 @@ class TestContestMonitoringViews(TestCase):
         'test_permissions',
         'test_messages',
         'test_second_user_messages',
+        'test_submission_list_with_syserr'
     ]
 
     def setUp(self):
@@ -33,8 +34,8 @@ class TestContestMonitoringViews(TestCase):
     def test_permissions_info(self):
         contest = Contest.objects.get()
         url = reverse('monitoring', kwargs={'contest_id': contest.id})
-
         self.assertTrue(self.client.login(username='test_admin'))
+
         with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertRegex(str(response.content), r"Admin</td>... *<td>1")
@@ -58,4 +59,16 @@ class TestContestMonitoringViews(TestCase):
                 if ri['name'] == 'Future round':
                     self.assertTrue(ri['start_relative'] == '360 days, 20:27:58')
 
+    def test_questions_info(self):
+        contest = Contest.objects.get()
+        url = reverse('monitoring', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_admin'))
+        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
+            response = self.client.get(url)
+            self.assertRegex(str(response.content), r"Unanswered questions</td>... *<td>2")
+            self.assertRegex(str(response.content), r"Oldest unanswered question</td>... *<td>2012-09-07 13:14:24")
+            self.assertRegex(str(response.content), r"Submissions with system errors</td>... *<td>2")
+
+
     def test_attachments_info(self):
+        pass

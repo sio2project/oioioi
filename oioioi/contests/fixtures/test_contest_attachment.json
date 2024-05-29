@@ -1,0 +1,14 @@
+[
+  {
+    "pk": 1,
+    "model": "contests.contestattachment",
+    "fields": {
+      "contest": "c",
+      "description": "test attachment",
+      "content": "",
+      "Round": 1,
+      "score": "int:0000000000000000034",
+      "pub_date": "2014-01-31T17:18:19.768Z"
+    }
+  }
+]
