@@ -36,16 +36,13 @@ class TestContestMonitoringViews(TestCase):
         url = reverse('monitoring', kwargs={'contest_id': contest.id})
         self.assertTrue(self.client.login(username='test_admin'))
 
-        with fake_time(datetime(2015, 8, 5, tzinfo=timezone.utc)):
+        with fake_time(datetime(2014, 8, 5, tzinfo=timezone.utc)):
             response = self.client.get(url)
             self.assertRegex(str(response.content), r"Admin</td>... *<td>1")
             self.assertRegex(str(response.content), r"Basic Admin</td>... *<td>1")
             self.assertRegex(str(response.content), r"Observer</td>... *<td>1")
             self.assertRegex(str(response.content), r"Personal Data</td>... *<td>1")
             self.assertRegex(str(response.content), r"Participant</td>... *<td>0")
-            f = open("monitoring_page.html", "w")
-            f.write(str(response.content))
-            f.close()
 
     def test_round_info(self):
         with fake_time(datetime(2015, 7, 5, tzinfo=timezone.utc)):
@@ -72,14 +69,9 @@ class TestContestMonitoringViews(TestCase):
     def test_attachments_info(self):
         self.assertTrue(self.client.login(username='test_admin'))
         attachments_info = get_attachments_info(self.request)
-        f = open("xd.html", "w")
         for ai in attachments_info:
             if ai.description == 'published attachment':
-                f.write('xd1')
-                ai.pub_date_relative == 'Published'
+                self.assertTrue(ai.pub_date_relative == 'Published')
             if ai.description == 'unpublished attachment':
-                f.write(f'\n{ai.pub_date_relative} {ai.pub_date} {self.request.timestamp}\n')
-                f.write('xd2')
-                ai.pub_date_relative == ''
-        f.close()
+                self.assertTrue(ai.pub_date_relative != 'Published')
 
