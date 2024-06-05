@@ -23,6 +23,7 @@ from oioioi.problems.models import Problem, ProblemInstance
 from oioioi.base.permissions import enforce_condition, not_anonymous
 
 from oioioi.problems.utils import query_statement
+from oioioi.programs.models import ProgramSubmission
 from oioioi.programs.utils import decode_str, get_submission_source_file_or_error
 from rest_framework import permissions, status, views
 from rest_framework.parsers import MultiPartParser
@@ -180,7 +181,7 @@ class GetUserProblemSubmissions(views.APIView):
                 if submission_entry['can_see_score']
                 else None
             )
-            status = (
+            submission_status = (
                 submission_entry['submission'].status
                 if submission_entry['can_see_status']
                 else None
@@ -190,7 +191,7 @@ class GetUserProblemSubmissions(views.APIView):
                     'id': submission_entry['submission'].id,
                     'date': submission_entry['submission'].date,
                     'score': score.to_int() if score else None,
-                    'status': status,
+                    'status': submission_status,
                 }
             )
         submissions_data['is_truncated_to_20'] = len(user_problem_submits) > 20
@@ -221,9 +222,17 @@ class GetUserProblemSubmissionCode(views.APIView):
     )
 
     def get(self, request, contest_id, submission_id):
+        # Make sure user made this submission, not somebody else.
+        submission = get_object_or_404(ProgramSubmission, id=submission_id)
+        if submission.user != request.user:
+            raise Http404("Submission not found.")
+
         source_file = get_submission_source_file_or_error(request, int(submission_id))
         raw_source, decode_error = decode_str(source_file.read())
-        return Response(raw_source, status=status.HTTP_200_OK)
+        return Response(
+            {"code_language": source_file.name.split('.')[-1], "code": raw_source},
+            status=status.HTTP_200_OK,
+        )
 
 
 class GetProblemIdView(views.APIView):

@@ -221,10 +221,12 @@ if settings.USE_API:
         re_path(
             r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
             api.GetContestRounds.as_view(),
+            name='api_round_list',
         ),
         re_path(
             r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_list/$',
             api.GetContestProblems.as_view(),
+            name='api_problem_list',
         ),
         re_path(
             r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',
