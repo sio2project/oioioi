@@ -4144,7 +4144,7 @@ class TestScoreBadges(TestCase):
         return problem_row.find_all('td')[2].a.div.attrs['class']
 
     def test_score_badge(self):
-        contest = Contest.objects.get(id="c")
+        contest = Contest.objects.get()
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
 
         self.assertTrue(self.client.login(username='test_user'))
