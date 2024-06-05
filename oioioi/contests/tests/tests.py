@@ -1,6 +1,7 @@
 # pylint: disable=abstract-method
 from __future__ import print_function
 
+import bs4
 import os
 import re
 from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
@@ -4127,3 +4128,31 @@ class TestContestArchived(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(403, response.status_code)
+
+class TestScoreBadges(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_three_problem_instances',
+        'test_full_package',
+        'test_three_submissions',
+    ]
+
+    def _get_badge_for_problem(self, content, problem):
+        soup = bs4.BeautifulSoup(content, 'html.parser')
+        print(content.decode('utf-8'))
+        problem_row = soup.find('td', string=problem).parent
+        return problem_row.find_all('td')[2].a.div.attrs['class']
+
+    def test_score_badge(self):
+        contest = Contest.objects.get(id="c")
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'zad1'))
+        self.assertIn('badge-warning', self._get_badge_for_problem(response.content, 'zad2'))
+        self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'zad3'))
+
