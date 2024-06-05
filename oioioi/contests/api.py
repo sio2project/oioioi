@@ -175,7 +175,6 @@ class GetUserProblemSubmissions(views.APIView):
         submissions = [submission_template_context(request, s) for s in last_20_submits]
         submissions_data = {'submissions': []}
         for submission_entry in submissions:
-            print(">>> CODE", submission_entry['submission'].comment)
             score = (
                 submission_entry['submission'].score
                 if submission_entry['can_see_score']
@@ -230,7 +229,7 @@ class GetUserProblemSubmissionCode(views.APIView):
         source_file = get_submission_source_file_or_error(request, int(submission_id))
         raw_source, decode_error = decode_str(source_file.read())
         return Response(
-            {"code_language": source_file.name.split('.')[-1], "code": raw_source},
+            {"lang": source_file.name.split('.')[-1], "code": raw_source},
             status=status.HTTP_200_OK,
         )
 
