@@ -203,29 +203,24 @@ class GetUserProblemSubmissionCode(views.APIView):
         CanEnterContest,
     )
 
-    # schema = AutoSchema(
-    #     [
-    #         make_path_coreapi_schema(
-    #             name='contest_id',
-    #             title="Contest id",
-    #             description="Id of the contest to which the problem you want to "
-    #             "query belongs. You can find this id after /c/ in urls "
-    #             "when using SIO 2 web interface.",
-    #         ),
-    #         # make_path_coreapi_schema(
-    #         #     name='problem_short_name',
-    #         #     title="Problem short name",
-    #         #     description="Short name of the problem you want to query. "
-    #         #     "You can find it for example the in first column "
-    #         #     "of the problem list when using SIO 2 web interface.",
-    #         # ),
-    #     ]
-    # )
+    schema = AutoSchema(
+        [
+            make_path_coreapi_schema(
+                name='contest_id',
+                title="Name of the contest",
+                description="Id of the contest to which the problem you want to "
+                "query belongs. You can find this id after /c/ in urls "
+                "when using SIO 2 web interface.",
+            ),
+            make_path_coreapi_schema(
+                name='submission_id',
+                title="Submission id",
+                description="You can query submission ID list at problem_submissions endpoint.",
+            ),
+        ]
+    )
 
     def get(self, request, contest_id, submission_id):
-        pass
-        contest = get_object_or_404(Contest, id=contest_id)
-        submission = get_object_or_404(Submission, user=request.user, id=submission_id)
         source_file = get_submission_source_file_or_error(request, int(submission_id))
         raw_source, decode_error = decode_str(source_file.read())
         return Response(raw_source, status=status.HTTP_200_OK)
