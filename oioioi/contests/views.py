@@ -539,6 +539,7 @@ def contest_files_view(request):
 
     round_file_exists = contest_files.filter(round__isnull=False).exists()
     add_category_field = round_file_exists or problem_files.exists()
+    all_rows = []
     rows = [
         {
             'category': cf.round if cf.round else '',
@@ -553,7 +554,10 @@ def contest_files_view(request):
         }
         for cf in contest_files
     ]
-    rows += [
+    rows.sort(key=itemgetter('name'))
+    all_rows += rows
+
+    rows = [
         {
             'category': pf.problem,
             'name': pf.download_name,
@@ -567,12 +571,15 @@ def contest_files_view(request):
         }
         for pf in problem_files
     ]
-    rows += additional_files
+    rows.sort(key=itemgetter('name'))
+    all_rows += rows
+    additional_files.sort(key=itemgetter('name'))
+    all_rows += additional_files
     return TemplateResponse(
         request,
         'contests/files.html',
         {
-            'files': rows,
+            'files': all_rows,
             'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100),
             'add_category_field': add_category_field,
             'show_pub_dates': True,
