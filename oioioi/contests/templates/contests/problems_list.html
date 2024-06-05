@@ -74,7 +74,7 @@
                                 {% endif %}
                                     {% if result.submission_report.score_report.score == result.submission_report.score_report.max_score %}
                                         <div class="badge badge-success"> {{ result.score }}</div>
-                                    {% elif result.submission_report.score > 0 %}
+                                    {% elif result.submission_report.score_report.score > 0 %}
                                         <div class="badge badge-warning"> {{ result.score }}</div>
                                     {% else %}
                                         <div class="badge badge-danger"> {{ result.score }}</div>
