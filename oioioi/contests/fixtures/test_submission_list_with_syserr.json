@@ -91,10 +91,10 @@
     "pk": 3,
     "model": "contests.scorereport",
     "fields": {
-      "status": "OK",
+      "status": "SE",
       "comment": null,
       "score": null,
-      "submission_report": null,
+      "submission_report": 3,
       "max_score": "int:0000000000000000000"
     }
   },
@@ -186,7 +186,7 @@
     "pk": 1,
     "model": "programs.testreport",
     "fields": {
-      "status": "OK",
+      "status": "SE",
       "comment": "",
       "test_time_limit": 10000,
       "submission_report": 1,
