@@ -42,4 +42,4 @@ class ZeusProblemAdminMixin(object):
 
     def __init__(self, *args, **kwargs):
         super(ZeusProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = [ZeusProblemDataInline] + self.inlines
+        self.inlines = tuple(self.inlines) + (ZeusProblemDataInline,)
