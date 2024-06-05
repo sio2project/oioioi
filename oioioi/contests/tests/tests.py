@@ -4140,7 +4140,6 @@ class TestScoreBadges(TestCase):
 
     def _get_badge_for_problem(self, content, problem):
         soup = bs4.BeautifulSoup(content, 'html.parser')
-        print(content.decode('utf-8'))
         problem_row = soup.find('td', string=problem).parent
         return problem_row.find_all('td')[2].a.div.attrs['class']
 
