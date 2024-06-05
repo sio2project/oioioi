@@ -568,7 +568,6 @@ def contest_files_view(request):
         for pf in problem_files
     ]
     rows += additional_files
-    rows.sort(key=itemgetter('name'))
     return TemplateResponse(
         request,
         'contests/files.html',

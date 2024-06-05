@@ -75,6 +75,7 @@ from oioioi.simpleui.views import (
 from oioioi.teachers.views import (
     contest_dashboard_redirect as teachers_contest_dashboard,
 )
+from oioioi.testspackages.models import TestsPackage
 from rest_framework.test import APITestCase
 
 
@@ -1638,6 +1639,38 @@ class TestAttachments(TestCase, TestStreamingMixin):
         # After the last pub_date
         with fake_time(get_time(23)):
             check([ca, cb, pa, ra, rb, rc], [])
+
+    def test_attachments_order(self):
+        contest = Contest.objects.get()
+        problem = Problem.objects.get()
+        list_url = reverse('contest_files', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        # Models have names that would make them sorted in a wrong order with old sorting.
+        TestsPackage.objects.create(
+            problem=problem,
+            name='A-test-package',
+
+        )
+        ProblemAttachment.objects.create(
+            problem=problem,
+            description='problem-attachment',
+            content=ContentFile(b'content-of-pa', name='B-pa.txt'),
+        )
+        ContestAttachment.objects.create(
+            contest=contest,
+            description='contest-attachment',
+            content=ContentFile(b'content-of-ca', name='C-ca.txt'),
+        )
+
+        response = self.client.get(list_url)
+        self.assertContains(response, 'A-test-package')
+        tp_pos = response.content.find(b'A-test-package')
+        self.assertContains(response, 'problem-attachment')
+        pa_pos = response.content.find(b'problem-attachment')
+        self.assertContains(response, 'contest-attachment')
+        ca_pos = response.content.find(b'contest-attachment')
+        self.assertTrue(ca_pos < pa_pos < tp_pos)
 
 
 class TestRoundExtension(TestCase, SubmitFileMixin):
