@@ -231,6 +231,7 @@ class TestContestMonitoringViews(TestCase):
         'test_messages',
         'test_second_user_messages',
         'test_contest_attachment',
+        'test_submission_list_with_syserr',
     ]
 
     def setUp(self):
