@@ -966,6 +966,18 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
                 self.assertContains(response, "(30 lipca 2012, 20:27 - 31 lipca 2012, 21:27)")
         self.client.cookies['lang'] = 'en'
 
+    @override_settings(TIME_ZONE='Europe/Warsaw')
+    def test_round_dates_with_other_timezone(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
+                self.assertTrue(self.client.login(username=user))
+                response = self.client.get(url)
+                self.assertContains(response, "(31 July 2011, 22:27 - )")
+                self.assertContains(response, "(31 July 2012, 22:27 - 23:27)")
+                self.assertContains(response, "(30 July 2012, 22:27 - 31 July 2012, 23:27)")
+
     def test_rules_visibility(self):
         contest = Contest.objects.get()
         contest.controller_name = 'oioioi.oi.controllers.ProgrammingContestController'
