@@ -48,10 +48,16 @@ logger = logging.getLogger(__name__)
 
 @enforce_condition(~contest_exists | can_enter_contest)
 def show_submission_source_view(request, submission_id):
+    def get_prismjs_extension(extension):
+        if extension == "cc":
+            return "cpp"
+        return extension
+
     source_file = get_submission_source_file_or_error(request, submission_id)
     raw_source, decode_error = decode_str(source_file.read())
     filename = source_file.file.name
     extension = filename.split('.')[-1]
+    prismjs_extension = get_prismjs_extension(extension)
     is_source_safe = False
     download_url = reverse(
         'download_submission_source', kwargs={'submission_id': submission_id}
@@ -66,6 +72,7 @@ def show_submission_source_view(request, submission_id):
             'decode_error': decode_error,
             'submission_id': submission_id,
             'extension': extension,
+            'prismjs_extension': prismjs_extension,
         },
     )
 

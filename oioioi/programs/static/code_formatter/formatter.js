@@ -3,7 +3,6 @@ import init, { format, version } from "./clang-format.js";
 // clang-format
 async function cpp_code_formatter(source) {
     await init();
-    console.log(version());
     const formatted = format(
         source,
         "main.cc",

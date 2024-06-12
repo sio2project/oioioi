@@ -35,7 +35,7 @@
 
     <pre hidden id="raw_source">{{ raw_source }}</pre>
     
-    <pre id="visible_source" class="language-cpp"><code class="nohighlight">{{raw_source}}</code></pre>
+    <pre id="visible_source" class="language-{{ prismjs_extension }} line-numbers"><code class="nohighlight">{{raw_source}}</code></pre>
 
     <script type="application/javascript" src="{% static 'common/clipboard.js' %}"></script>
 {% endblock %}
