@@ -1,3 +1,4 @@
+import bs4
 import re
 from datetime import datetime, timezone  # pylint: disable=E0611
 
@@ -145,3 +146,25 @@ class TestACMRanking(TestCase):
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()
         self.assertEqual(contest.controller.get_safe_exec_mode(), 'cpu')
+
+
+class TestACMScores(TestCase):
+    fixtures = ['acm_test_full_contest']
+
+    def _get_badge_for_problem(self, content, problem):
+        soup = bs4.BeautifulSoup(content, 'html.parser')
+        problem_row = soup.find('td', string=problem).parent
+        return problem_row.find_all('td')[3].a.div.attrs['class']
+
+    def test_score_badge(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+
+        with fake_timezone_now(datetime(2013, 12, 14, 20, 40, tzinfo=timezone.utc)):
+            self.assertTrue(self.client.login(username='test_user'))
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+
+        self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'A'))
+        self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'sum'))
+        self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'test'))
