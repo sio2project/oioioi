@@ -968,7 +968,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
     @override_settings(TIME_ZONE='Europe/Warsaw')
     def test_round_dates_with_other_timezone(self):
-        contest = Contest.objects.get()    
+        contest = Contest.objects.get()
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
         with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
             for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
@@ -1649,28 +1649,40 @@ class TestAttachments(TestCase, TestStreamingMixin):
         # Models have names that would make them sorted in a wrong order with old sorting.
         TestsPackage.objects.create(
             problem=problem,
-            name='A-test-package',
-
+            name='A-2-test-package',
+        )
+        TestsPackage.objects.create(
+            problem=problem,
+            name='A-1-test-package',
         )
         ProblemAttachment.objects.create(
             problem=problem,
             description='problem-attachment',
-            content=ContentFile(b'content-of-pa', name='B-pa.txt'),
+            content=ContentFile(b'content-of-pa', name='B-2-pa.txt'),
+        )
+        ProblemAttachment.objects.create(
+            problem=problem,
+            description='problem-attachment',
+            content=ContentFile(b'content-of-pa', name='B-1-pa.txt'),
         )
         ContestAttachment.objects.create(
             contest=contest,
             description='contest-attachment',
-            content=ContentFile(b'content-of-ca', name='C-ca.txt'),
+            content=ContentFile(b'content-of-ca', name='C-2-ca.txt'),
+        )
+        ContestAttachment.objects.create(
+            contest=contest,
+            description='contest-attachment',
+            content=ContentFile(b'content-of-ca', name='C-1-ca.txt'),
         )
 
         response = self.client.get(list_url)
-        self.assertContains(response, 'A-test-package')
-        tp_pos = response.content.find(b'A-test-package')
-        self.assertContains(response, 'problem-attachment')
-        pa_pos = response.content.find(b'problem-attachment')
-        self.assertContains(response, 'contest-attachment')
-        ca_pos = response.content.find(b'contest-attachment')
-        self.assertTrue(ca_pos < pa_pos < tp_pos)
+        last = 0
+        for name in ['C-1-ca.txt', 'C-2-ca.txt', 'B-1-pa.txt', 'B-2-pa.txt', 'A-1-test-package', 'A-2-test-package']:
+            self.assertContains(response, name)
+            pos = response.content.find(name.encode())
+            self.assertTrue(pos > last)
+            last = pos
 
 
 class TestRoundExtension(TestCase, SubmitFileMixin):
