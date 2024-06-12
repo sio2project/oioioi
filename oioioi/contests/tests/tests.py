@@ -3606,9 +3606,9 @@ class TestAPIProblemsetSubmit(TestAPISubmitBase):
 # API endpoints to test:
 # [] ProblemList
 # [] ProblemSubmissionCode
-# [] ProblemSubmissions
-# [] RoundList
-# [] ContestList
+# [] ProblemSubmissionList
+# [...] RoundList
+# [x] ContestList
 
 
 class TestAPIContestList(TestCase):
