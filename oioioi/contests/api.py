@@ -19,6 +19,7 @@ from oioioi.contests.utils import (
     get_problem_statements,
     visible_contests,
 )
+from oioioi.default_settings import MIDDLEWARE
 from oioioi.problems.models import Problem, ProblemInstance
 from oioioi.base.permissions import enforce_condition, not_anonymous
 
@@ -45,6 +46,12 @@ def contest_list(request):
 class CanEnterContest(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         return can_enter_contest(request)
+
+
+class UnsafeApiAllowed(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # TODO: Is that ok?
+        return 'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware' in MIDDLEWARE
 
 
 class GetContestRounds(views.APIView):
@@ -129,10 +136,7 @@ class GetContestProblems(views.APIView):
 
 
 class GetUserProblemSubmissions(views.APIView):
-    permission_classes = (
-        IsAuthenticated,
-        CanEnterContest,
-    )
+    permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
 
     schema = AutoSchema(
         [
@@ -198,10 +202,7 @@ class GetUserProblemSubmissions(views.APIView):
 
 
 class GetUserProblemSubmissionCode(views.APIView):
-    permission_classes = (
-        IsAuthenticated,
-        CanEnterContest,
-    )
+    permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
 
     schema = AutoSchema(
         [
@@ -228,6 +229,12 @@ class GetUserProblemSubmissionCode(views.APIView):
 
         source_file = get_submission_source_file_or_error(request, int(submission_id))
         raw_source, decode_error = decode_str(source_file.read())
+        if decode_error:
+            return Response(
+                'Error during decoding the source code.',
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
         return Response(
             {"lang": source_file.name.split('.')[-1], "code": raw_source},
             status=status.HTTP_200_OK,
@@ -279,10 +286,7 @@ class GetProblemIdView(views.APIView):
 # This is a base class for submitting a solution for contests and problemsets.
 # It lacks get_problem_instance, as it's specific to problem source.
 class SubmitSolutionView(views.APIView):
-    permission_classes = (
-        IsAuthenticated,
-        CanEnterContest,
-    )
+    permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
 
     parser_classes = (MultiPartParser,)
 
