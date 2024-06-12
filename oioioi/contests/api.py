@@ -135,7 +135,7 @@ class GetContestProblems(views.APIView):
         return Response(data)
 
 
-class GetUserProblemSubmissions(views.APIView):
+class GetUserProblemSubmissionList(views.APIView):
     permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
 
     schema = AutoSchema(
@@ -216,7 +216,7 @@ class GetUserProblemSubmissionCode(views.APIView):
             make_path_coreapi_schema(
                 name='submission_id',
                 title="Submission id",
-                description="You can query submission ID list at problem_submissions endpoint.",
+                description="You can query submission ID list at problem_submission_list endpoint.",
             ),
         ]
     )

@@ -3603,6 +3603,14 @@ class TestAPIProblemsetSubmit(TestAPISubmitBase):
         self._assertSubmitted(response, 2)
 
 
+# API endpoints to test:
+# [] ProblemList
+# [] ProblemSubmissionCode
+# [] ProblemSubmissions
+# [] RoundList
+# [] ContestList
+
+
 class TestAPIContestList(TestCase):
     fixtures = [
         'test_users',
