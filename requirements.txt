@@ -1,3 +1,6 @@
+# Pinned versions of requirements
+-r requirements_pinned.txt
+
 # These dependencies need to be installed from external sources,
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
