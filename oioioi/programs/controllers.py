@@ -753,6 +753,11 @@ class ProgrammingProblemController(ProblemController):
                         signals_to_explain.add(signal)
                     except ValueError:
                         pass
+                if test.result_percentage_numerator and test.result_percentage_denominator:
+                    test.result_percentage = f"""{round(
+                        test.result_percentage_numerator / test.result_percentage_denominator,
+                        2
+                    ):g}"""
 
             tests_records = [
                 {'display_type': get_report_display_type(request, test), 'test': test}
