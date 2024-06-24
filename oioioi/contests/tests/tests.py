@@ -3604,36 +3604,90 @@ class TestAPIProblemsetSubmit(TestAPISubmitBase):
 
 
 # API endpoints to test:
-# [] ProblemList
+# [x] ProblemList
 # [] ProblemSubmissionCode
 # [] ProblemSubmissionList
-# [...] RoundList
+# [x] RoundList
 # [x] ContestList
 
 
 class TestAPIContestList(TestCase):
     fixtures = [
         'test_users',
+        'test_participant',
         'test_contest',
-        'test_submission',
-        'test_problem_instance',
     ]
 
-    def test_rights_anon(self):
-        contest_list = reverse('api_contest_list')
-        request_anon = self.client.get(contest_list)
+    def test(self):
+        contest_list_endpoint = reverse('api_contest_list')
+        request_anon = self.client.get(contest_list_endpoint)
         self.assertEqual(403, request_anon.status_code)
 
-        self.client.force_authenticate(user=User.objects.get(username='test_user2'))
-
-    def test_rights_logged_in(self):
-        contest_list = reverse('api_contest_list')
-        self.client.force_authenticate(user=User.objects.get(username='test_user1'))
-        request_auth = self.client.get(contest_list)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(contest_list_endpoint)
         self.assertEqual(200, request_auth.status_code)
 
 
 class TestAPIRoundList(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+    ]
+
+    def test(self):
+        contest_id = Contest.objects.get(pk='c').id
+        round_list_endpoint = reverse('api_round_list', args=(contest_id))
+        request_anon = self.client.get(round_list_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(round_list_endpoint)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()[0]
+        self.assertEqual(1, len(json_data))
+
+        json_data_0 = json_data[0]
+        self.assertEqual('Round 1', json_data_0['name'])
+        self.assertEqual(None, json_data_0['end_date'])
+        self.assertTrue(json_data_0['is_active'])
+        self.assertFalse(json_data_0['is_trial'])
+
+
+class TestAPIProblemList(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
+
+    def test(self):
+        contest_id = Contest.objects.get(pk='c').id
+        problem_list_endpoint = reverse('api_problem_list', args=(contest_id))
+        request_anon = self.client.get(problem_list_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(problem_list_endpoint)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()
+        self.assertEqual(1, len(json_data))
+
+        json_data_0 = json_data[0]
+        self.assertEqual(1, json_data_0['id'])
+        self.assertEqual('zad1', json_data_0['short_name'])
+        self.assertEqual(1, json_data_0['round'])
+        self.assertEqual(10, json_data_0['submissions_limit'])
+        self.assertEqual(1, json_data_0['round'])
+        self.assertEqual('Sumżyce', json_data_0['full_name'])
+        self.assertEqual(10, json_data_0['submissions_left'])
+        self.assertTrue(json_data_0['can_submit'])
+        self.assertEqual('.pdf', json_data_0['statement_extension'])
+
+
+class TestAPIProblemSubmissionList(TestCase):
     fixtures = [
         'test_users',
         'test_contest',
@@ -3642,11 +3696,26 @@ class TestAPIRoundList(TestCase):
         'test_submission',
     ]
 
-    def test_rights_anon(self):
+
+    def test(self):
         contest_id = Contest.objects.get(pk='c').id
-        round_list = reverse('api_round_list', kwargs={'contest_id': contest_id})
-        request = self.client.get(round_list)
-        print(request)
+        # problem_short_name = Submission.objects.get(pk=1)
+        print(contest_id, 'zad1')
+        submission_list_endpoint = reverse(
+                'api_contest_get_user_problem_submission_list',
+                args=(contest_id, 'zad1')
+        )
+        request_anon = self.client.get(submission_list_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(submission_list_endpoint)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()
+        print(json_data)
+        json_data_0 = json_data[0]
+        self.assertTrue(False)
 
 
 class TestManyRoundsNoEnd(TestCase):
