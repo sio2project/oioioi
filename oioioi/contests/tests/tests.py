@@ -1,6 +1,7 @@
 # pylint: disable=abstract-method
 from __future__ import print_function
 
+import bs4
 import os
 import re
 from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
@@ -59,7 +60,6 @@ from oioioi.contests.utils import (
     rounds_times,
 )
 from oioioi.dashboard.contest_dashboard import unregister_contest_dashboard_view
-from oioioi.default_settings import MIDDLEWARE
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import (
     Problem,
@@ -76,6 +76,7 @@ from oioioi.simpleui.views import (
 from oioioi.teachers.views import (
     contest_dashboard_redirect as teachers_contest_dashboard,
 )
+from oioioi.testspackages.models import TestsPackage
 from rest_framework.test import APITestCase
 
 
@@ -255,6 +256,7 @@ class TestSubmissionListOrder(TestCase):
         self.assertTrue(test_first_index < test_second_index, error_msg)
 
 
+
 # TODO: expand this TestCase
 @override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestSubmissionListFilters(TestCase):
@@ -317,13 +319,9 @@ class TestSubmissionListFilters(TestCase):
         self.assertContains(response, '0 submissions')
         response = self.client.get(self.url, {'pi': 'Zadanie z tłumaczeniami'})
         self.assertContains(response, '1 submission')
-        response = self.client.get(
-            self.url, {'pi': 'Zadanie z tłumaczeniami', 'q': 'Zadanie'}
-        )
+        response = self.client.get(self.url, {'pi': 'Zadanie z tłumaczeniami', 'q': 'Zadanie'})
         self.assertContains(response, '1 submission')
-        response = self.client.get(
-            self.url, {'pi': 'Zadanie z tłumaczeniami', 'q': 'Sumżyce'}
-        )
+        response = self.client.get(self.url, {'pi': 'Zadanie z tłumaczeniami', 'q': 'Sumżyce'})
         self.assertContains(response, '0 submissions')
 
 
@@ -945,6 +943,42 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 1)
 
+    def test_round_dates(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
+                self.assertTrue(self.client.login(username=user))
+                response = self.client.get(url)
+                self.assertContains(response, "(31 July 2011, 20:27 - )")
+                self.assertContains(response, "(31 July 2012, 20:27 - 21:27)")
+                self.assertContains(response, "(30 July 2012, 20:27 - 31 July 2012, 21:27)")
+
+    def test_polish_round_dates(self):
+        self.client.cookies['lang'] = 'pl'
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
+                self.assertTrue(self.client.login(username=user))
+                response = self.client.get(url)
+                self.assertContains(response, "(31 lipca 2011, 20:27 - )")
+                self.assertContains(response, "(31 lipca 2012, 20:27 - 21:27)")
+                self.assertContains(response, "(30 lipca 2012, 20:27 - 31 lipca 2012, 21:27)")
+        self.client.cookies['lang'] = 'en'
+
+    @override_settings(TIME_ZONE='Europe/Warsaw')
+    def test_round_dates_with_other_timezone(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2024, 1, 1, tzinfo=timezone.utc)):
+            for user in ['test_admin', 'test_contest_admin', 'test_user', 'test_observer']:
+                self.assertTrue(self.client.login(username=user))
+                response = self.client.get(url)
+                self.assertContains(response, "(31 July 2011, 22:27 - )")
+                self.assertContains(response, "(31 July 2012, 22:27 - 23:27)")
+                self.assertContains(response, "(30 July 2012, 22:27 - 31 July 2012, 23:27)")
+
     def test_rules_visibility(self):
         contest = Contest.objects.get()
         contest.controller_name = 'oioioi.oi.controllers.ProgrammingContestController'
@@ -1514,9 +1548,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
             ContestAttachment.objects.create(
                 contest=contest,
                 description='round-attachment-pub-date-before',
-                content=ContentFile(
-                    b'content-of-roundatt-before', name='roundatt-before.txt'
-                ),
+                content=ContentFile(b'content-of-roundatt-before', name='roundatt-before.txt'),
                 round=round,
                 pub_date=get_time(19),
             ),
@@ -1527,9 +1559,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
             ContestAttachment.objects.create(
                 contest=contest,
                 description='round-attachment-pub-date-after',
-                content=ContentFile(
-                    b'content-of-roundatt-after', name='roundatt-after.txt'
-                ),
+                content=ContentFile(b'content-of-roundatt-after', name='roundatt-after.txt'),
                 round=round,
                 pub_date=get_time(22),
             ),
@@ -1550,17 +1580,17 @@ class TestAttachments(TestCase, TestStreamingMixin):
             # File list
             response = self.client.get(list_url)
             self.assertEqual(response.status_code, 200)
-            for att, content, name in visible:
+            for (att, content, name) in visible:
                 self.assertContains(response, name)
                 self.assertContains(response, att.description)
-            for att, content, name in invisible:
+            for (att, content, name) in invisible:
                 self.assertNotContains(response, name)
                 self.assertNotContains(response, att.description)
             for f in response.context['files']:
                 self.assertEqual(f['admin_only'], False)
 
             # Actual accessibility
-            for att, content, name in visible:
+            for (att, content, name) in visible:
                 response = self.client.get(
                     reverse(
                         get_attachment_urlpattern_name(att),
@@ -1568,7 +1598,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
                     )
                 )
                 self.assertStreamingEqual(response, content)
-            for att, content, name in invisible:
+            for (att, content, name) in invisible:
                 check_not_accessible(
                     self,
                     get_attachment_urlpattern_name(att),
@@ -1579,7 +1609,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(list_url)
             self.assertEqual(response.status_code, 200)
-            for att, content, name in visible + invisible:
+            for (att, content, name) in visible + invisible:
                 self.assertContains(response, name)
                 self.assertContains(response, att.description)
             invisible_names = set([f[2] for f in invisible])
@@ -1587,7 +1617,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
                 self.assertEqual(f['admin_only'], f['name'] in invisible_names)
 
             # Actual accessibility as an admin
-            for att, content, name in visible + invisible:
+            for (att, content, name) in visible + invisible:
                 response = self.client.get(
                     reverse(
                         get_attachment_urlpattern_name(att),
@@ -1600,12 +1630,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
         check([ca, cb, pa, ra, rb, rc], [])
         # Before all dates
         with fake_time(get_time(18)):
-            check(
-                [
-                    ca,
-                ],
-                [cb, pa, ra, rb, rc],
-            )
+            check([ca,], [cb, pa, ra, rb, rc])
         # Before the round start, but after the pub_dates before it
         with fake_time(get_time(20)):
             check([ca, cb], [pa, ra, rb, rc])
@@ -1615,6 +1640,50 @@ class TestAttachments(TestCase, TestStreamingMixin):
         # After the last pub_date
         with fake_time(get_time(23)):
             check([ca, cb, pa, ra, rb, rc], [])
+
+    def test_attachments_order(self):
+        contest = Contest.objects.get()
+        problem = Problem.objects.get()
+        list_url = reverse('contest_files', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        # Models have names that would make them sorted in a wrong order with old sorting.
+        TestsPackage.objects.create(
+            problem=problem,
+            name='A-2-test-package',
+        )
+        TestsPackage.objects.create(
+            problem=problem,
+            name='A-1-test-package',
+        )
+        ProblemAttachment.objects.create(
+            problem=problem,
+            description='problem-attachment',
+            content=ContentFile(b'content-of-pa', name='B-2-pa.txt'),
+        )
+        ProblemAttachment.objects.create(
+            problem=problem,
+            description='problem-attachment',
+            content=ContentFile(b'content-of-pa', name='B-1-pa.txt'),
+        )
+        ContestAttachment.objects.create(
+            contest=contest,
+            description='contest-attachment',
+            content=ContentFile(b'content-of-ca', name='C-2-ca.txt'),
+        )
+        ContestAttachment.objects.create(
+            contest=contest,
+            description='contest-attachment',
+            content=ContentFile(b'content-of-ca', name='C-1-ca.txt'),
+        )
+
+        response = self.client.get(list_url)
+        last = 0
+        for name in ['C-1-ca.txt', 'C-2-ca.txt', 'B-1-pa.txt', 'B-2-pa.txt', 'A-1-test-package', 'A-2-test-package']:
+            self.assertContains(response, name)
+            pos = response.content.find(name.encode())
+            self.assertTrue(pos > last)
+            last = pos
 
 
 class TestRoundExtension(TestCase, SubmitFileMixin):
@@ -1709,7 +1778,7 @@ class TestPermissions(TestCase):
         request = factory.request()
         request.contest = self.contest
         request.user = user
-        request.timestamp = timestamp or self.during
+        request.timestamp = timestamp or self.during 
         return request
 
     def setUp(self):
@@ -1759,22 +1828,15 @@ class TestPermissions(TestCase):
                 self.assertEqual(f(request), f in perms)
 
         check_perms(self.superuser, all_funlist)
-        check_perms(
-            self.cowner,
-            [
-                is_contest_owner,
-                is_contest_admin,
-                is_contest_basicadmin,
-                can_enter_contest,
-            ],
-        )
+        check_perms(self.cowner, [
+            is_contest_owner,
+            is_contest_admin,
+            is_contest_basicadmin,
+            can_enter_contest,
+        ])
         check_perms(
             self.cadmin,
-            [
-                is_contest_admin,
-                is_contest_basicadmin,
-                can_enter_contest,
-            ],
+            [is_contest_admin, is_contest_basicadmin, can_enter_contest,],
         )
         check_perms(self.badmin, [is_contest_basicadmin, can_enter_contest])
         check_perms(self.observer, [is_contest_observer, can_enter_contest])
@@ -1787,14 +1849,11 @@ class TestPermissions(TestCase):
                 self.assertEqual(user.has_perm(p, self.contest), p in perms)
 
         check_perms(self.superuser, self.perms_list)
-        check_perms(
-            self.cowner,
-            [
-                'contests.contest_owner',
-                'contests.contest_admin',
-                'contests.contest_basicadmin',
-            ],
-        )
+        check_perms(self.cowner, [
+            'contests.contest_owner',
+            'contests.contest_admin',
+            'contests.contest_basicadmin',
+        ])
         check_perms(
             self.cadmin,
             ['contests.contest_admin', 'contests.contest_basicadmin'],
@@ -1860,18 +1919,11 @@ class TestPermissions(TestCase):
         )
         # Only superusers and contest owners should see these pages
         for u in (
-            self.observer,
-            self.cadmin,
-            self.badmin,
-            self.pdata,
-            self.user,
+            self.observer, self.cadmin, self.badmin, self.pdata, self.user,
         ):
             self.client.force_login(u)
             for url in (
-                list_url,
-                add_url,
-                list_url_nocontest,
-                add_url_nocontest,
+                list_url, add_url, list_url_nocontest, add_url_nocontest,
             ):
                 self.assertEqual(self.client.get(url).status_code, 403)
 
@@ -1969,9 +2021,7 @@ class TestPermissions(TestCase):
                 tmp_perm.save()
                 change_url = reverse(
                     'noncontest:oioioiadmin:contests_contestpermission_change',
-                    kwargs={
-                        'object_id': tmp_perm.id,
-                    },
+                    kwargs={'object_id': tmp_perm.id,},
                 )
                 self.try_post_perm(
                     change_url,
@@ -1988,15 +2038,13 @@ class TestPermissions(TestCase):
             'post': 'yes',
             'action': 'delete_selected',
             '_selected_action': ContestPermission.objects.get(
-                permission='contests.contest_owner'
-            ).id,
+                permission='contests.contest_owner').id,
         }
         data_admin = {
             'post': 'yes',
             'action': 'delete_selected',
             '_selected_action': ContestPermission.objects.get(
-                permission='contests.contest_admin'
-            ).id,
+                permission='contests.contest_admin').id,
         }
         data_different_contest = {
             'post': 'yes',
@@ -2025,54 +2073,42 @@ class TestPermissions(TestCase):
             follow=True,
         )
         self.assertEqual(resp.status_code, 403)
-        self.assertEqual(
-            ContestPermission.objects.filter(id=perm_different_contest.id).count(), 1
-        )
+        self.assertEqual(ContestPermission.objects.filter(
+            id=perm_different_contest.id).count(), 1)
 
-        self.assertEqual(
-            ContestPermission.objects.filter(
-                permission='contests.contest_admin'
-            ).count(),
-            1,
-        )
+        self.assertEqual(ContestPermission.objects.filter(
+            permission='contests.contest_admin').count(), 1)
         resp = self.client.post(list_url, data_admin)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            ContestPermission.objects.filter(
-                permission='contests.contest_admin'
-            ).count(),
-            0,
-        )
+        self.assertEqual(ContestPermission.objects.filter(
+            permission='contests.contest_admin').count(), 0)
 
         self.client.force_login(self.superuser)
         resp = self.client.post(list_url, data_different_contest, follow=True)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(
-            ContestPermission.objects.filter(id=perm_different_contest.id).count(), 1
-        )
+        self.assertEqual(ContestPermission.objects.filter(
+            id=perm_different_contest.id).count(), 1)
 
         resp = self.client.post(
             list_url_another_contest,
             data_different_contest,
         )
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            ContestPermission.objects.filter(id=perm_different_contest.id).count(), 0
-        )
+        self.assertEqual(ContestPermission.objects.filter(
+            id=perm_different_contest.id).count(), 0)
 
         resp = self.client.post(list_url, data_owner)
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            ContestPermission.objects.filter(
-                permission='contests.contest_owner'
-            ).count(),
-            0,
-        )
+        self.assertEqual(ContestPermission.objects.filter(
+            permission='contests.contest_owner').count(), 0)
 
     def test_menu(self):
         unregister_contest_dashboard_view(simpleui_contest_dashboard)
         unregister_contest_dashboard_view(teachers_contest_dashboard)
-        url = reverse('default_contest_view', kwargs={'contest_id': self.contest.id})
+        url = reverse(
+            'default_contest_view',
+            kwargs={'contest_id': self.contest.id}
+        )
 
         self.client.force_login(self.cadmin)
         response = self.client.get(url, follow=True)
@@ -3512,7 +3548,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
             'api_contest_submit',
             {'contest_name': contest.id, 'problem_short_name': pi.short_name},
             *args,
-            **kwargs,
+            **kwargs
         )
 
     def test_simple_submission(self):
@@ -3867,9 +3903,7 @@ def set_registration_availability(rvc, enabled, available_from=None, available_t
     rvc.save()
 
 
-def check_registration(
-    self, expected_status_code, availability, available_from=None, available_to=None
-):
+def check_registration(self, expected_status_code, availability, available_from=None, available_to=None):
     contest = Contest.objects.get()
     contest.controller_name = 'oioioi.oi.controllers.OIContestController'
     contest.save()
@@ -3885,7 +3919,10 @@ def check_registration(
 
 
 class TestOpenRegistration(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = [
+        'test_users',
+        'test_contest'
+    ]
 
     def test_open_registration(self):
         check_registration(self, 200, 'YES')
@@ -3911,14 +3948,13 @@ class TestOpenRegistration(TestCase):
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, 'CONFIG', available_from, available_to)
 
-
 class TestRulesVisibility(TestCase):
     fixtures = [
         'test_users',
         'test_participant',
         'test_contest',
         'test_full_package',
-        'test_three_problem_instances.json',
+        'test_three_problem_instances.json'
     ]
 
     controller_names = [
@@ -3933,7 +3969,7 @@ class TestRulesVisibility(TestCase):
         'oioioi.oi.controllers.BOIOnlineContestController',
         'oioioi.pa.controllers.PAContestController',
         'oioioi.pa.controllers.PAFinalsContestController',
-        'oioioi.programs.controllers.ProgrammingContestController',
+        'oioioi.programs.controllers.ProgrammingContestController'         
     ]
 
     # left to fill in when added, in order of the controllers above
@@ -3945,6 +3981,7 @@ class TestRulesVisibility(TestCase):
         "The lower the total time, the higher the rank.<br>"
         "Compilation errors and system errors are not considered as an incorrect submission.<br>"
         "The ranking is frozen 60 minutes before the end of the round.",
+
         "The solutions are judged on real-time. "
         "The submission is correct if it passes all the test cases.<br>"
         "Participants are ranked by the number of solved problems. "
@@ -3952,6 +3989,7 @@ class TestRulesVisibility(TestCase):
         "The lower the total time, the higher the rank.<br>"
         "Compilation errors and system errors are not considered as an incorrect submission.<br>"
         "The ranking is frozen 60 minutes before the end of the round.",
+
         "The solutions are judged on real-time. "
         "The submission is correct if it passes all the test cases.<br>"
         "Participants are ranked by the number of solved problems. "
@@ -3959,31 +3997,39 @@ class TestRulesVisibility(TestCase):
         "The lower the total time, the higher the rank.<br>"
         "Compilation errors and system errors are not considered as an incorrect submission.<br>"
         "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds.",
+
         "The submissions are scored from 0 to 100 points.<br>"
         "The participant can submit to finished rounds, but a multiplier is applied to the score of such submissions.",
+
         "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
         "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>"
         "The score for a group of test cases is the minimum score for any of the test cases.<br>"
         "The ranking is determined by the total score.<br>"
         "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
         "Full scoring is available after the end of the contest.",
+
         "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
         "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>"
         "The score for a group of test cases is the minimum score for any of the test cases.<br>"
         "The ranking is determined by the total score.<br>"
         "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
         "Full scoring is available after the end of the contest.",
+
         "The solutions are judged with sio2jail. They can be scored from 0 to 100 points. "
         "If the submission runs for longer than half of the time limit, the points for this test are linearly decreased to 0.<br>"
         "The score for a group of test cases is the minimum score for any of the test cases<br>."
         "The ranking is determined by the total score.<br>"
         "Full scoring of the submissions can be revealed during the contest.",
+
         '',
+
         '',
+
         "The submissions are judged on real-time. All problems have 10 test groups, each worth 1 point. "
         "If any of the tests in a group fails, the group is worth 0 points.<br>"
         "The full scoring is available after the end of the round."
         "The ranking is determined by the total score and number of 10-score submissions, 9-score, 8-score etc.",
+
         "The solutions are judged on real-time. "
         "The submission is correct if it passes all the test cases.<br>"
         "Participants are ranked by the number of solved problems. "
@@ -3991,31 +4037,38 @@ class TestRulesVisibility(TestCase):
         "The lower the total time, the higher the rank.<br>"
         "Compilation errors and system errors are not considered as an incorrect submission.<br>"
         "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds.",
+
         "The submissions are scored on a set of groups of test cases. Each group is worth a certain number of points.<br>"
         "The score is a sum of the scores of all groups. The ranking is determined by the total score.<br>"
-        "The full scoring is available after the results date for the round.",
+        "The full scoring is available after the results date for the round."
     ]
 
     visibility_dates = [
-        [datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), None],
         [
             datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc),
-            datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc),
+            None
         ],
-        [None, None],
+        [
+            datetime(2012, 8, 15, 20, 27, 58, tzinfo=timezone.utc), 
+            datetime(2013, 4, 20, 21, 37, 13, tzinfo=timezone.utc)
+        ],
+        [
+            None,
+            None
+        ]
     ]
 
     def _set_problem_limits(self, url, limits_list):
         for i in range(len(limits_list)):
-            problem = ProblemInstance.objects.get(pk=i + 1)
+            problem = ProblemInstance.objects.get(pk=i+1)
             problem.submissions_limit = limits_list[i]
             problem.save()
-
+        
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
         return response
-
+    
     def _set_results_dates(self, url, dates):
         round = Round.objects.get()
         round.results_date = dates[0]
@@ -4038,7 +4091,7 @@ class TestRulesVisibility(TestCase):
                 'oioioi.programs.controllers.ProgrammingContestController'
             )
         contest.save()
-
+    
     def test_dashboard_view(self):
         for c in self.controller_names:
             contest = Contest.objects.get()
@@ -4049,7 +4102,7 @@ class TestRulesVisibility(TestCase):
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, "Rules")
-
+        
     def test_contest_type(self):
         for c, d in zip(self.controller_names, self.scoring_descriptions):
             contest = Contest.objects.get()
@@ -4083,31 +4136,21 @@ class TestRulesVisibility(TestCase):
             self.assertTrue(self.client.login(username='test_user'))
             url = reverse('contest_rules', kwargs={'contest_id': 'c'})
             response = self._set_problem_limits(url, [0, 0, 0])
-            self.assertContains(
-                response, "There is a limit of infinity submissions for each problem."
-            )
+            self.assertContains(response, "There is a limit of infinity submissions for each problem.")
 
             response = self._set_problem_limits(url, [0, 10, 0])
-            self.assertContains(
-                response,
-                "There is a limit of 10 to infinity submissions, depending on a problem.",
-            )
+            self.assertContains(response, "There is a limit of 10 to infinity submissions, depending on a problem.")
 
             response = self._set_problem_limits(url, [20, 10, 0])
-            self.assertContains(
-                response,
-                "There is a limit of 10 to infinity submissions, depending on a problem.",
-            )
+            self.assertContains(response, "There is a limit of 10 to infinity submissions, depending on a problem.")
 
             response = self._set_problem_limits(url, [10, 10, 10])
-            self.assertContains(
-                response, "There is a limit of 10 submissions for each problem."
-            )
+            self.assertContains(response, "There is a limit of 10 submissions for each problem.")
 
     def test_contest_dates(self):
         times = [
             fake_time(datetime(2012, 8, 5, 12, 37, 45, tzinfo=timezone.utc)),
-            fake_time(datetime(2012, 8, 15, 15, 16, 18, tzinfo=timezone.utc)),
+            fake_time(datetime(2012, 8, 15, 15, 16, 18, tzinfo=timezone.utc))
         ]
 
         for t in times:
@@ -4116,7 +4159,7 @@ class TestRulesVisibility(TestCase):
                     contest = Contest.objects.get()
                     contest.controller_name = c
                     contest.save()
-
+                    
                     round = Round.objects.get()
                     round.end_date = None
                     round.save()
@@ -4125,18 +4168,13 @@ class TestRulesVisibility(TestCase):
                     url = reverse('contest_rules', kwargs={'contest_id': 'c'})
                     response = self.client.get(url, follow=True)
                     self.assertEqual(response.status_code, 200)
-                    self.assertContains(
-                        response, "The contest starts on 2011-07-31 20:27:58."
-                    )
+                    self.assertContains(response, "The contest starts on 2011-07-31 20:27:58.")
 
                     round.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=timezone.utc)
                     round.save()
                     response = self.client.get(url, follow=True)
                     self.assertEqual(response.status_code, 200)
-                    self.assertContains(
-                        response,
-                        "The contest starts on 2011-07-31 20:27:58 and ends on 2012-08-10 00:00:00.",
-                    )
+                    self.assertContains(response, "The contest starts on 2011-07-31 20:27:58 and ends on 2012-08-10 00:00:00.")
 
     def test_ranking_visibility(self):
         # here we don't check for individual contests, as it would be hard to get the separate_public_results()
@@ -4146,66 +4184,39 @@ class TestRulesVisibility(TestCase):
 
         with fake_time(datetime(2012, 8, 4, 13, 46, 37, tzinfo=timezone.utc)):
             response = self._set_results_dates(url, self.visibility_dates[0])
-            self.assertContains(
-                response,
-                "In round Round 1, your results as well as "
-                "public ranking will be visible after 2012-08-15 20:27:58.",
-            )
-
+            self.assertContains(response, "In round Round 1, your results as well as " \
+                                "public ranking will be visible after 2012-08-15 20:27:58.")
+        
             self._change_controller(public_results=True)
             response = self._set_results_dates(url, self.visibility_dates[1])
-            self.assertContains(
-                response,
-                "In round Round 1, your results will be visible after 2012-08-15 20:27:58"
-                " and the public ranking will be visible after 2013-04-20 21:37:13.",
-            )
+            self.assertContains(response, "In round Round 1, your results will be visible after 2012-08-15 20:27:58" \
+                                " and the public ranking will be visible after 2013-04-20 21:37:13.")
 
             response = self._set_results_dates(url, self.visibility_dates[2])
-            self.assertContains(
-                response,
-                "In round Round 1, your results as well as public ranking will be visible immediately.",
-            )
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
         with fake_time(datetime(2012, 12, 24, 11, 23, 56, tzinfo=timezone.utc)):
             response = self._set_results_dates(url, self.visibility_dates[0])
-            self.assertContains(
-                response,
-                "In round Round 1, your results as well as public ranking will be visible immediately.",
-            )
-
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+        
             self._change_controller(public_results=True)
             response = self._set_results_dates(url, self.visibility_dates[1])
-            self.assertContains(
-                response,
-                "In round Round 1, your results will be visible immediately"
-                " and the public ranking will be visible after 2013-04-20 21:37:13.",
-            )
+            self.assertContains(response, "In round Round 1, your results will be visible immediately" \
+                                " and the public ranking will be visible after 2013-04-20 21:37:13.")
 
             response = self._set_results_dates(url, self.visibility_dates[2])
-            self.assertContains(
-                response,
-                "In round Round 1, your results as well as public ranking will be visible immediately.",
-            )
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
         with fake_time(datetime(2014, 8, 26, 11, 23, 56, tzinfo=timezone.utc)):
             response = self._set_results_dates(url, self.visibility_dates[0])
-            self.assertContains(
-                response,
-                "In round Round 1, your results as well as public ranking will be visible immediately.",
-            )
-
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
+        
             self._change_controller(public_results=True)
             response = self._set_results_dates(url, self.visibility_dates[1])
-            self.assertContains(
-                response,
-                "In round Round 1, your results as well as public ranking will be visible immediately.",
-            )
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
             response = self._set_results_dates(url, self.visibility_dates[2])
-            self.assertContains(
-                response,
-                "In round Round 1, your results as well as public ranking will be visible immediately.",
-            )
+            self.assertContains(response, "In round Round 1, your results as well as public ranking will be visible immediately.")
 
 
 class PublicMessageContestController(ProgrammingContestController):
@@ -4242,6 +4253,7 @@ class TestSubmitMessage(TestPublicMessage):
     edit_viewname = 'edit_submit_message'
     viewname = 'submit'
     controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
+
 
 
 class TestContestArchived(TestCase):
@@ -4305,3 +4317,30 @@ class TestContestArchived(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(403, response.status_code)
+
+class TestScoreBadges(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_three_problem_instances',
+        'test_full_package',
+        'test_three_submissions',
+    ]
+
+    def _get_badge_for_problem(self, content, problem):
+        soup = bs4.BeautifulSoup(content, 'html.parser')
+        problem_row = soup.find('td', string=problem).parent
+        return problem_row.find_all('td')[2].a.div.attrs['class']
+
+    def test_score_badge(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'zad1'))
+        self.assertIn('badge-warning', self._get_badge_for_problem(response.content, 'zad2'))
+        self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'zad3'))
+
