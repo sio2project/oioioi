@@ -14,7 +14,7 @@ from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import gettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, system_admin_menu_registry
-from oioioi.base.permissions import is_superuser, make_request_condition
+from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
@@ -296,6 +296,7 @@ class OriginTagLocalizationInline(BaseTagLocalizationInline):
 
 class OriginTagAdmin(BaseTagAdmin):
     inlines = (OriginTagLocalizationInline,)
+    exclude = ['problems']
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
@@ -336,6 +337,7 @@ class OriginInfoValueLocalizationInline(BaseTagLocalizationInline):
 class OriginInfoValueAdmin(admin.ModelAdmin):
     form = OriginInfoValueForm
     inlines = (OriginInfoValueLocalizationInline,)
+    exclude = ['problems']
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
@@ -539,20 +541,6 @@ class BaseProblemAdmin(admin.MixinsAdmin):
 admin.site.register(Problem, BaseProblemAdmin)
 
 
-@make_request_condition
-def pending_packages(request):
-    return ProblemPackage.objects.filter(status__in=['?', 'ERR']).exists()
-
-
-@make_request_condition
-def pending_contest_packages(request):
-    if not request.contest:
-        return False
-    return ProblemPackage.objects.filter(
-        contest=request.contest, status__in=['?', 'ERR']
-    ).exists()
-
-
 class ProblemPackageAdmin(admin.ModelAdmin):
     list_display = [
         'contest',
@@ -680,7 +668,6 @@ system_admin_menu_registry.register(
     'problempackage_change',
     _("Problem packages"),
     lambda request: reverse('oioioiadmin:problems_problempackage_changelist'),
-    condition=pending_packages,
     order=70,
 )
 
@@ -732,7 +719,7 @@ contest_admin_menu_registry.register(
     'problempackage_change',
     _("Problem packages"),
     lambda request: reverse('oioioiadmin:problems_contestproblempackage_changelist'),
-    condition=((~is_superuser) & pending_contest_packages),
+    condition=~is_superuser,
     order=70,
 )
 

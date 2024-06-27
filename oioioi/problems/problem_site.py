@@ -134,9 +134,9 @@ def check_for_downloads(request, problem):
 
 @problem_site_tab(_("Downloads"), key='files', order=200, condition=check_for_downloads)
 def problem_site_files(request, problem):
-    additional_files = attachment_registry_problemset.to_list(
+    additional_files = sorted(attachment_registry_problemset.to_list(
         request=request, problem=problem
-    )
+    ), key=itemgetter('name'))
     files_qs = ProblemAttachment.objects.filter(problem=problem.id)
     files = sorted(
         [
@@ -150,6 +150,7 @@ def problem_site_files(request, problem):
                         'attachment_id': f.id,
                     },
                 ),
+                'admin_only': False,
             }
             for f in files_qs
         ],

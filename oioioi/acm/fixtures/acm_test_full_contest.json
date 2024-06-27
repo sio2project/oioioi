@@ -364,6 +364,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 1
   }
 },
@@ -374,6 +375,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 2
   }
 },
@@ -384,6 +386,7 @@
     "status": "CE",
     "comment": null,
     "score": null,
+    "max_score": "bool:accepted",
     "submission_report": 3
   }
 },
@@ -394,6 +397,7 @@
     "status": "WA",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 4
   }
 },
@@ -404,6 +408,7 @@
     "status": "CE",
     "comment": null,
     "score": null,
+    "max_score": "bool:accepted",
     "submission_report": 5
   }
 },
@@ -414,6 +419,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 6
   }
 },
@@ -424,6 +430,7 @@
     "status": "WA",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 7
   }
 },
@@ -434,6 +441,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 8
   }
 },
@@ -444,6 +452,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 9
   }
 },
@@ -454,6 +463,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 10
   }
 },
@@ -464,6 +474,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 11
   }
 },
@@ -474,6 +485,7 @@
     "status": "WA",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 12
   }
 },
@@ -484,6 +496,7 @@
     "status": "MLE",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 13
   }
 },
@@ -494,6 +507,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 14
   }
 },
@@ -504,6 +518,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 15
   }
 },
@@ -514,6 +529,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 16
   }
 },
@@ -524,6 +540,7 @@
     "status": "WA",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 17
   }
 },
@@ -534,6 +551,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 18
   }
 },
@@ -544,6 +562,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 19
   }
 },
@@ -554,6 +573,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 20
   }
 },
@@ -564,6 +584,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 21
   }
 },
@@ -574,6 +595,7 @@
     "status": "WA",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 22
   }
 },
@@ -584,6 +606,7 @@
     "status": "WA",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 23
   }
 },
@@ -594,6 +617,7 @@
     "status": "CE",
     "comment": null,
     "score": null,
+    "max_score": "bool:accepted",
     "submission_report": 24
   }
 },
@@ -604,6 +628,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 25
   }
 },
@@ -614,6 +639,7 @@
     "status": "WA",
     "comment": null,
     "score": "bool:rejected",
+    "max_score": "bool:accepted",
     "submission_report": 26
   }
 },
@@ -624,6 +650,7 @@
     "status": "OK",
     "comment": null,
     "score": "bool:accepted",
+    "max_score": "bool:accepted",
     "submission_report": 27
   }
 },

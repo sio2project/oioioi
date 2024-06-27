@@ -1,7 +1,7 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 {% load pagination_tags %}
-
+{% load format_data_range %}
 {% block title %}{% trans "Problems" %}{% endblock %}
 
 {% block main-content %}
@@ -38,9 +38,7 @@
                             <tr class="problemlist-subheader">
                                 <td colspan={{ table_columns }}>
                                     <strong>{{ pi.round }}</strong>
-                                    {% if round_time.get_end %}
-                                        <em>({{ round_time.get_end|date:"j E Y, H:i" }})</em>
-                                    {% endif %}
+                                    <em> {% format_data_range round_time.get_start round_time.get_end %} </em>
                                 </td>
                             </tr>
                         {% endifchanged %}
@@ -74,9 +72,9 @@
                                 {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
                                 <a href="{{ link }}">
                                 {% endif %}
-                                    {% if result.score == result.submission_report.score_report.max_score %}
+                                    {% if result.submission_report.score_report.score == result.submission_report.score_report.max_score %}
                                         <div class="badge badge-success"> {{ result.score }}</div>
-                                    {% elif result.score > 0 %}
+                                    {% elif result.submission_report.score_report.score > 0 %}
                                         <div class="badge badge-warning"> {{ result.score }}</div>
                                     {% else %}
                                         <div class="badge badge-danger"> {{ result.score }}</div>

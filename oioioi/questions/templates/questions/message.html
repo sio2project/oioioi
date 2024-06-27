@@ -49,7 +49,7 @@
 {% if is_admin %}
 <script type="text/javascript">
     var alertText = '<div class="alert alert-info" id="alert_%id%">' +
-        '<h4>{% trans "New answer available" %}' + '</h4><p>' + '%content%' + '</p>' +
+        '<h4>{% trans "New answer available" %}' + '</h4><p class="oioioi-message__body">' + '%content%' + '</p>' +
         '<p><button type="button" class="btn btn-info" onclick="new_answer_reload_page()">' +
         '{% trans "Reload page" %}' + '</button> ' +
         '<button type="button" class="btn btn-info" onclick="dismissNewMessageAlert(%id%)">' +

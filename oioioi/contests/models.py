@@ -99,6 +99,10 @@ class Contest(models.Model):
         verbose_name=_("enable editor"),
         default=False
     )
+    show_contest_rules = models.BooleanField(
+        verbose_name=_("show contest rules"),
+        default=True
+    )
     is_archived = models.BooleanField(
         verbose_name=_("is archived"),
         default=False
@@ -669,6 +673,7 @@ class RoundTimeExtension(models.Model):
 
 
 contest_permissions = EnumRegistry()
+contest_permissions.register('contests.contest_owner', _("Owner"))
 contest_permissions.register('contests.contest_admin', _("Admin"))
 contest_permissions.register('contests.contest_basicadmin', _("Basic Admin"))
 contest_permissions.register('contests.contest_observer', _("Observer"))
