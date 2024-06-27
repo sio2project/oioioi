@@ -3673,8 +3673,8 @@ class TestAPIRoundList(TestCase):
         request_auth = self.client.get(round_list_endpoint)
         self.assertEqual(200, request_auth.status_code)
 
-        json_data = request_auth.json()[0]
-        self.assertEqual(7, len(json_data))
+        json_data = request_auth.json()
+        self.assertEqual(1, len(json_data))
 
         json_data_0 = json_data[0]
         self.assertEqual('Round 1', json_data_0['name'])
