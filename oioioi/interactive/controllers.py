@@ -16,7 +16,7 @@ class InteractiveProblemController(ProgrammingProblemController):
 
         environ['task_type_suffix'] = '-interactive-exec'
 
-    def can_generate_user_out(self, request, submission_report):
+    def user_outs_exist(self):
         return False
 
     def allow_test_runs(self, request):
