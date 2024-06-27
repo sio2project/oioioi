@@ -159,7 +159,6 @@ class GetUserProblemSubmissionList(views.APIView):
 
     def get(self, request, contest_id, problem_short_name):
         contest = get_object_or_404(Contest, id=contest_id)
-        print(contest_id, problem_short_name)
         problem_instance = get_object_or_404(
             ProblemInstance, contest=contest, problem__short_name=problem_short_name
         )

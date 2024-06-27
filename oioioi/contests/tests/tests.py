@@ -59,6 +59,7 @@ from oioioi.contests.utils import (
     rounds_times,
 )
 from oioioi.dashboard.contest_dashboard import unregister_contest_dashboard_view
+from oioioi.default_settings import MIDDLEWARE
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import (
     Problem,
@@ -3603,14 +3604,6 @@ class TestAPIProblemsetSubmit(TestAPISubmitBase):
         self._assertSubmitted(response, 2)
 
 
-# API endpoints to test:
-# [x] ProblemList
-# [] ProblemSubmissionCode
-# [] ProblemSubmissionList
-# [x] RoundList
-# [x] ContestList
-
-
 class TestAPIContestList(TestCase):
     fixtures = [
         'test_users',
@@ -3696,14 +3689,18 @@ class TestAPIProblemSubmissionList(TestCase):
         'test_submission',
     ]
 
-
     def test(self):
-        contest_id = Contest.objects.get(pk='c').id
-        # problem_short_name = Submission.objects.get(pk=1)
-        print(contest_id, 'zad1')
+        pi = ProblemInstance.objects.get(pk=1)
+        # It is really important, that ProblemInstance.short_name matches
+        # Problem.short_name, as otherwise this endpoint does not work.
+        # Situation, where it doesn't match is only possible in test.
+        pi.short_name = pi.problem.short_name
+        pi.save()
         submission_list_endpoint = reverse(
-                'api_contest_get_user_problem_submission_list',
-                args=(contest_id, 'zad1')
+            'api_user_problem_submission_list', args=(
+                pi.contest.id,
+                pi.problem.short_name
+            )
         )
         request_anon = self.client.get(submission_list_endpoint)
 
@@ -3713,9 +3710,42 @@ class TestAPIProblemSubmissionList(TestCase):
         self.assertEqual(200, request_auth.status_code)
 
         json_data = request_auth.json()
-        print(json_data)
-        json_data_0 = json_data[0]
-        self.assertTrue(False)
+        self.assertFalse(json_data['is_truncated_to_20'])
+        self.assertEqual(len(json_data['submissions']), 1)
+        self.assertEqual(json_data['submissions'][0]['id'], 1)
+        self.assertEqual(json_data['submissions'][0]['score'], 34)
+        self.assertEqual(json_data['submissions'][0]['status'], 'OK')
+
+
+class TestAPIProblemSubmissionCode(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_submission_source',
+    ]
+
+    def test(self):
+        pi = ProblemInstance.objects.get(pk=1)
+        # A submission of a file `submission.cpp`
+        submission_code_endpoint = reverse(
+            'api_user_problem_submission_code', args=(
+                pi.contest.id,
+                1
+            )
+        )
+        request_anon = self.client.get(submission_code_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(submission_code_endpoint, follow=True)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()
+        self.assertEqual(json_data['lang'], 'cpp');
+        self.assertTrue('#include <iostream>' in json_data['code']);
 
 
 class TestManyRoundsNoEnd(TestCase):

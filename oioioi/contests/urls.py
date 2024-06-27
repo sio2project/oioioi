@@ -211,12 +211,12 @@ if settings.USE_API:
         re_path(
             r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_list/(?P<problem_short_name>[a-z0-9_-]+)/$',
             api.GetUserProblemSubmissionList.as_view(),
-            name='api_contest_get_user_problem_submission_list',
+            name='api_user_problem_submission_list',
         ),
         re_path(
             r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_code/(?P<submission_id>[a-z0-9_-]+)/$',
             api.GetUserProblemSubmissionCode.as_view(),
-            name='api_contest_get_user_problem_submission_code',
+            name='api_user_problem_submission_code',
         ),
         re_path(
             r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
