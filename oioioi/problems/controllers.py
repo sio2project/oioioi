@@ -727,3 +727,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             message += gettext_noop("The score is %(score)s.")
 
         return message
+
+    def user_outs_exist(self):
+        return True
+
+    def allow_test_runs(self, request):
+        return True

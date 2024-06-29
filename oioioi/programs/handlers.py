@@ -277,7 +277,7 @@ def run_tests(env, kind=None, **kwargs):
             not_to_judge.append(test_name)
             continue
         job = test_env.copy()
-        job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
+        job['job_type'] = (env.get('exec_mode', '') + env.get('task_type_suffix', '-exec')).lstrip('-')
         if kind == 'INITIAL' or kind == 'EXAMPLE':
             job['task_priority'] = EXAMPLE_TEST_TASK_PRIORITY
         elif env['submission_kind'] == 'TESTRUN':
@@ -292,6 +292,8 @@ def run_tests(env, kind=None, **kwargs):
         if env.get('save_outputs'):
             job.setdefault('out_file', _make_filename(env, test_name + '.out'))
             job['upload_out'] = True
+        if env.get('interactor_file'):
+            job['interactor_file'] = env['interactor_file']
         job['untrusted_checker'] = env['untrusted_checker']
         jobs[test_name] = job
     extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})
