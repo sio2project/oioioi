@@ -118,7 +118,6 @@ def _remove_from_zip(zipfname, *filenames):
 
 
 class SinolPackage(object):
-    controller_name = 'oioioi.sinolpack.controllers.SinolProblemController'
     package_backend_name = 'oioioi.sinolpack.package.SinolPackageBackend'
 
     def __init__(self, path, original_filename=None):
@@ -391,6 +390,8 @@ class SinolPackage(object):
         )
 
     def _get_controller_name(self):
+        if hasattr(self, 'controller_name'):
+            return self.controller_name
         return {
             TaskType.STANDARD: 'oioioi.sinolpack.controllers.SinolProblemController',
             TaskType.INTERACTIVE: 'oioioi.interactive.controllers.InteractiveProblemController',
