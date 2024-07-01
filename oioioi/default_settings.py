@@ -453,7 +453,9 @@ SUBMITTABLE_LANGUAGES = {
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_LANGUAGES.
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
-                          'Java': ['java'], 'Python': ['py'], 'Output-only': ['txt', 'out']}
+                          'Java': ['java'], 'Python': ['py'],
+                          'Output-only': ['txt', 'out', 'zip', 'tar', 'tar.gz',
+                                          'tar.bz2', 'tgz', 'tz2']}
 
 # This setting specifies which compilers are available in sioworkers.
 # By default that means ones defined here:
