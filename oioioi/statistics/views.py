@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.db.models import F
+from humanize import naturaldelta
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
@@ -198,13 +199,13 @@ def get_rounds_info(request):
     for round_, rt in rounds_times(request, request.contest).items():
         round_time_info = {'name': str(round_), 'start': rt.start or _("Not set")}
         if rt.start:
-            round_time_info['start_relative'] = str(rt.start - request.timestamp)[:-7] if rt.is_future(
+            round_time_info['start_relative'] = naturaldelta(rt.start - request.timestamp) if rt.is_future(
                 request.timestamp) else _("Started")
         else:
             round_time_info['start_relative'] = _("Not set")
         round_time_info['end'] = rt.end or _("Not set")
         if rt.end:
-            round_time_info['end_relative'] = str(rt.end - request.timestamp)[:-7] if not rt.is_past(
+            round_time_info['end_relative'] = naturaldelta(rt.end - request.timestamp) if not rt.is_past(
                 request.timestamp) else _("Finished")
         else:
             round_time_info['end_relative'] = _("Not set")
@@ -217,7 +218,7 @@ def get_attachments_info(request):
     for attachment in attachments:
         pub_date_relative = None
         if attachment.pub_date:
-            pub_date_relative = str(attachment.pub_date - request.timestamp)[:-7] \
+            pub_date_relative = naturaldelta(attachment.pub_date - request.timestamp) \
                 if attachment.pub_date > request.timestamp else _("Published")
         setattr(attachment, 'pub_date_relative', pub_date_relative)
     return attachments

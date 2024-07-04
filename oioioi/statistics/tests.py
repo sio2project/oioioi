@@ -262,7 +262,7 @@ class TestContestMonitoringViews(TestCase):
                     self.assertTrue(ri['start_relative'] == 'Started')
                     self.assertTrue(ri['end_relative'] == 'Finished')
                 if ri['name'] == 'Future round':
-                    self.assertTrue(ri['start_relative'] == '360 days, 20:27:58')
+                    self.assertTrue(ri['start_relative'] == '11 months')
 
     def test_questions_info(self):
         contest = Contest.objects.get()
