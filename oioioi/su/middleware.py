@@ -67,6 +67,10 @@ class SuAuthenticationMiddleware(object):
                 ):
                     return redirect('contest_dashboard', contest_id=original_contest_id)
 
+                # Contest admin shouldn't be able to access urls in two_factor namespace.
+                if 'two_factor' in url.namespaces:
+                    return redirect('contest_dashboard', contest_id=original_contest_id)
+
                 if (
                     not is_su_reset_url and
                     getattr(settings, 'ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS', True) and request.method != 'GET'
