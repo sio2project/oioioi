@@ -6,7 +6,9 @@ from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
-from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY
+from oioioi.contests.models import Contest
+from oioioi.participants.models import Participant
+from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY, SU_REAL_USER_IS_SUPERUSER, SU_ORIGINAL_CONTEST
 from oioioi.su.utils import get_user, su_to_user
 
 
@@ -216,3 +218,134 @@ class TestSwitchingUsers(TestCase):
         self.assertEqual(False, response['is_superuser'])
         self.assertEqual('test_admin', response['real_user'])
         self.assertEqual('test_user', response['user'])
+
+
+@override_settings(CONTEST_ADMINS_CAN_SU=True)
+class TestContestAdminsSu(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_permissions']
+
+    def _test_su_visibility(self, contest, expected):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(expected, 'Login as user' in response.content.decode())
+
+    def _add_user_to_contest(self, username):
+        contest = Contest.objects.get()
+        p = Participant()
+        p.user = User.objects.get(username=username)
+        p.contest = contest
+        p.save()
+
+    def _do_su(self, username, backend, expected_fail):
+        contest = Contest.objects.get()
+        user = User.objects.get(username=username)
+        response = self.client.post(
+            reverse('su', kwargs={'contest_id': contest.id}),
+            {
+                'user': username,
+                'backend': backend,
+            }
+        )
+        if expected_fail:
+            self.assertEqual(400, response.status_code)
+        else:
+            self.assertEqual(302, response.status_code)
+            session = self.client.session
+            self.assertEqual(user.id, session[SU_UID_SESSION_KEY])
+            self.assertEqual(backend, session[SU_BACKEND_SESSION_KEY])
+            self.assertFalse(session[SU_REAL_USER_IS_SUPERUSER])
+            self.assertEqual(contest.id, session[SU_ORIGINAL_CONTEST])
+
+    @override_settings(CONTEST_ADMINS_CAN_SU=False)
+    def test_su_unavailable(self):
+        contest = Contest.objects.get()
+        self._test_su_visibility(contest, False)
+
+    def test_su_available(self):
+        contest = Contest.objects.get()
+        self._test_su_visibility(contest, True)
+
+    def test_users_list(self):
+        # Tests if contest admin can only see hints with participants of the contest.
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        contest = Contest.objects.get()
+        self._add_user_to_contest('test_user')
+
+        response = self.client.get(
+            reverse('get_suable_users', kwargs={'contest_id': contest.id}),
+            {'substr': 'te'}
+        )
+        response = response.json()
+        self.assertListEqual(
+            [
+                'test_user (Test User)',
+            ],
+            response,
+        )
+
+    def test_su(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        contest = Contest.objects.get()
+        self._add_user_to_contest('test_user')
+
+        # Should fail because this user is not in the contest.
+        self._do_su('test_user2', 'django.contrib.auth.backends.ModelBackend', True)
+
+        # Should work because this user is in the contest.
+        self._do_su('test_user', 'django.contrib.auth.backends.ModelBackend', False)
+
+        # Su-ed contest admin shouldn't be able to go to urls outside the contest.
+        second_contest = Contest.objects.create(
+            id='c2',
+            controller_name='oioioi.programs.controllers.ProgrammingContestController',
+            name='Test contest',
+        )
+        urls = [
+            reverse('contest_dashboard', kwargs={'contest_id': second_contest.id}),
+            reverse('select_contest', kwargs={'contest_id': None}),
+        ]
+        for url in urls:
+            response = self.client.get(url)
+            print(response, url)
+            self.assertEqual(302, response.status_code)
+            self.assertEqual(
+                reverse('contest_dashboard', kwargs={'contest_id': contest.id}),
+                response.url
+            )
+
+        # Contest admin should be able to reset su.
+        response = self.client.post(reverse('su_reset'))
+        self.assertEqual(302, response.status_code)
+        session = self.client.session
+        self.assertNotIn(SU_UID_SESSION_KEY, session)
+        self.assertNotIn(SU_BACKEND_SESSION_KEY, session)
+        self.assertNotIn(SU_REAL_USER_IS_SUPERUSER, session)
+        self.assertNotIn(SU_ORIGINAL_CONTEST, session)
+
+        # The user is not a contest admin in the second contest.
+        self._test_su_visibility(second_contest, False)
+
+    def _test_post(self, can_post):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self._add_user_to_contest('test_user')
+        self._do_su('test_user', 'django.contrib.auth.backends.ModelBackend', False)
+        contest = Contest.objects.get()
+        response = self.client.post(reverse('contest_dashboard', kwargs={'contest_id': contest.id}))
+        if can_post:
+            self.assertEqual(200, response.status_code)
+        else:
+            self.assertEqual(302, response.status_code)
+            self.assertEqual(
+                reverse('su_method_not_allowed', kwargs={'contest_id': contest.id}),
+                response.url
+            )
+
+    @override_settings(ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS=True)
+    def test_cant_post(self):
+        self._test_post(False)
+
+    @override_settings(ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS=False)
+    def test_can_post(self):
+        self._test_post(True)

@@ -9,6 +9,8 @@ from django.views.decorators.http import require_POST
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
+from oioioi.contests.utils import is_contest_basicadmin, contest_exists
+from oioioi.participants.models import Participant
 from oioioi.status.registry import status_registry
 from oioioi.su.forms import SuForm
 from oioioi.su.middleware import REDIRECTION_AFTER_SU_KEY
@@ -17,10 +19,11 @@ from oioioi.su.utils import (
     is_under_su,
     reset_to_real_user,
     su_to_user,
+    can_contest_admins_su,
 )
 
 
-@enforce_condition(is_superuser)
+@enforce_condition(is_superuser | (can_contest_admins_su & contest_exists & is_contest_basicadmin))
 @require_POST
 def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
     form = SuForm(request.POST)
@@ -37,6 +40,10 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
 
     user = form.cleaned_data['user']
     if is_under_su(request):
+        raise SuspiciousOperation
+    if not is_superuser(request) and not Participant.objects.filter(
+        user=user, contest=request.contest
+    ).exists():
         raise SuspiciousOperation
 
     su_to_user(request, user, form.cleaned_data['backend'])
@@ -63,9 +70,16 @@ def su_reset_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NA
     return safe_redirect(request, next_page)
 
 
-@enforce_condition(is_superuser)
+@enforce_condition(is_superuser | (can_contest_admins_su & contest_exists & is_contest_basicadmin))
 def get_suable_users_view(request):
-    users = User.objects.filter(is_superuser=False, is_active=True)
+    if not is_superuser(request):
+        users = User.objects.filter(
+            participant__contest_id=request.contest.id,
+            is_active=True,
+            is_superuser=False,
+        )
+    else:
+        users = User.objects.filter(is_superuser=False, is_active=True)
     return get_user_hints_view(request, 'substr', users)
 
 
@@ -78,3 +92,7 @@ def get_su_status(request, response):
         response['sync_time'] = min(10000, response.get('sync_time', 10000))
 
     return response
+
+
+def method_not_allowed_view(request):
+    return TemplateResponse(request, 'su/method-not-allowed.html')

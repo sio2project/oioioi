@@ -13,3 +13,5 @@
 
 SU_UID_SESSION_KEY = 'su_effective_user_id'
 SU_BACKEND_SESSION_KEY = 'su_effective_backend'
+SU_REAL_USER_IS_SUPERUSER = 'su_real_user_is_superuser'
+SU_ORIGINAL_CONTEST = 'su_original_contest'
