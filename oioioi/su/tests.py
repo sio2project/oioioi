@@ -308,7 +308,6 @@ class TestContestAdminsSu(TestCase):
         ]
         for url in urls:
             response = self.client.get(url)
-            print(response, url)
             self.assertEqual(302, response.status_code)
             self.assertEqual(
                 reverse('contest_dashboard', kwargs={'contest_id': contest.id}),
