@@ -6,7 +6,14 @@ from django.urls import resolve
 
 from oioioi.base.utils.middleware import was_response_generated_by_exception
 from oioioi.contests.current_contest import contest_re
-from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY, SU_REAL_USER_IS_SUPERUSER, SU_ORIGINAL_CONTEST
+from oioioi.su import (
+    SU_BACKEND_SESSION_KEY,
+    SU_UID_SESSION_KEY,
+    SU_REAL_USER_IS_SUPERUSER,
+    SU_ORIGINAL_CONTEST,
+    BLOCKED_URL_NAMESPACES,
+    BLOCKED_URLS
+)
 from oioioi.su.utils import get_user
 
 REDIRECTION_AFTER_SU_KEY = "redirection_after_su"
@@ -67,8 +74,10 @@ class SuAuthenticationMiddleware(object):
                 ):
                     return redirect('contest_dashboard', contest_id=original_contest_id)
 
-                # Contest admin shouldn't be able to access urls in two_factor namespace.
-                if 'two_factor' in url.namespaces:
+                for ns in url.namespaces:
+                    if ns in BLOCKED_URL_NAMESPACES:
+                        return redirect('contest_dashboard', contest_id=original_contest_id)
+                if url.url_name in BLOCKED_URLS:
                     return redirect('contest_dashboard', contest_id=original_contest_id)
 
                 if (
