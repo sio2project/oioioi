@@ -238,7 +238,7 @@ class TestContestAdminsSu(TestCase):
         p.contest = contest
         p.save()
 
-    def _do_su(self, username, backend, expected_fail):
+    def _do_su(self, username, backend, expected_fail, fail_code=400):
         contest = Contest.objects.get()
         user = User.objects.get(username=username)
         response = self.client.post(
@@ -249,7 +249,7 @@ class TestContestAdminsSu(TestCase):
             }
         )
         if expected_fail:
-            self.assertEqual(400, response.status_code)
+            self.assertEqual(fail_code, response.status_code)
         else:
             self.assertEqual(302, response.status_code)
             session = self.client.session
@@ -348,3 +348,37 @@ class TestContestAdminsSu(TestCase):
     @override_settings(ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS=False)
     def test_can_post(self):
         self._test_post(True)
+
+    def test_blocked_accounts(self):
+        # Tests if contest admins can't su to superusers and other contest admins.
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        contest = Contest.objects.get()
+        self._add_user_to_contest('test_admin')
+        self._add_user_to_contest('test_contest_admin')
+
+        for username in ['test_admin', 'test_contest_admin']:
+            response = self.client.get(
+                reverse('get_suable_users', kwargs={'contest_id': contest.id}),
+                {'substr': username[:2]}
+            )
+            response = response.json()
+            self.assertNotIn(username, response)
+
+        self._do_su('test_contest_admin', 'django.contrib.auth.backends.ModelBackend', True)
+
+        # Shows the su form with an error message that switching to superuser is forbidden.
+        self._do_su('test_admin', 'django.contrib.auth.backends.ModelBackend', True, 200)
+        session = self.client.session
+        self.assertNotIn(SU_UID_SESSION_KEY, session)
+        self.assertNotIn(SU_BACKEND_SESSION_KEY, session)
+        self.assertNotIn(SU_REAL_USER_IS_SUPERUSER, session)
+        self.assertNotIn(SU_ORIGINAL_CONTEST, session)
+
+    def superusers_cant_su(self):
+        # Tests if superusers switched to contest admins can't switch to other contest admins.
+        self.assertTrue(self.client.login(username='test_admin'))
+        contest = Contest.objects.get()
+        self._add_user_to_contest('test_contest_admin')
+        self._add_user_to_contest('test_contest_basicadmin')
+        self._do_su('test_contest_admin', 'django.contrib.auth.backends.ModelBackend', False)
+        self._do_su('test_contest_basicadmin', 'django.contrib.auth.backends.ModelBackend', True)
