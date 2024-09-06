@@ -196,6 +196,7 @@ INSTALLED_APPS = (
     # 'oioioi.problemsharing',
     # 'oioioi.usergroups',
     # 'oioioi.usercontests',
+    # 'oioioi.welcomepage',
 ) + INSTALLED_APPS
 
 # If set to locations of flite and sox executables, enables audio playback
@@ -580,5 +581,3 @@ ZEUS_INSTANCES = {
 
 # Experimental
 # USE_ACE_EDITOR = False
-
-
