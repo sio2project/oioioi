@@ -1,3 +1,4 @@
+from oioioi.base.main_page import unregister_main_page_view
 from oioioi.base.tests import TestCase
 from django.urls import reverse
 
@@ -8,6 +9,8 @@ class TestWelcomePage(TestCase):
     fixtures = ['test_users']
 
     def test_button_visibility(self):
+        WelcomePageMessage.objects.create(language='en', content='Welcome to OIOIOI!')
+
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('welcome_page'))
         self.assertEqual(response.status_code, 200)
@@ -24,7 +27,7 @@ class TestWelcomePage(TestCase):
     def test_no_message(self):
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('welcome_page'))
-        self.assertContains(response, 'There is no welcome message available')
+        self.assertEqual(response.status_code, 403)
 
     def test_message(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -40,3 +43,18 @@ class TestWelcomePage(TestCase):
             response = self.client.get(reverse('welcome_page'))
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, msg)
+
+    def test_one_language(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        msg = 'Welcome to OIOIOI!'
+        WelcomePageMessage.objects.create(language='en', content=msg)
+
+        self.client.cookies['lang'] = 'en'
+        response = self.client.get(reverse('welcome_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, msg)
+
+        self.client.cookies['lang'] = 'pl'
+        response = self.client.get(reverse('welcome_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, msg)
