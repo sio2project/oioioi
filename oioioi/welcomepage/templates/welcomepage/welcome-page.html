@@ -5,13 +5,7 @@
 
 {% block content %}
 
-{% if welcome_page_msg %}
-    {{ welcome_page_msg.render_content }}
-{% else %}
-    <div class="text-center">
-        <h1>{% trans "There is no welcome message available" %}</h1>
-    </div>
-{% endif %}
+{{ welcome_page_msg.render_content }}
 
 <div class="text-center">
     {% if show_edit_button %}
