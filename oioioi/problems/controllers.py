@@ -150,7 +150,6 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         environ['is_rejudge'] = is_rejudge
         if submission.programsubmission:
             user_lang = None
-            print(submission.programsubmission.user_language_code)
             for code, lang in settings.LANGUAGES:
                 if code == submission.programsubmission.user_language_code:
                     user_lang = lang.lower()
