@@ -148,6 +148,15 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         environ = create_environ()
         environ['extra_args'] = extra_args or {}
         environ['is_rejudge'] = is_rejudge
+        if submission.programsubmission:
+            user_lang = None
+            print(submission.programsubmission.user_language_code)
+            for code, lang in settings.LANGUAGES:
+                if code == submission.programsubmission.user_language_code:
+                    user_lang = lang.lower()
+                    break
+            if user_lang:
+                environ['user_language'] = user_lang
         picontroller = submission.problem_instance.controller
 
         picontroller.fill_evaluation_environ(environ, submission)

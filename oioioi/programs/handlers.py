@@ -289,6 +289,7 @@ def run_tests(env, kind=None, **kwargs):
         job['check_output'] = env.get('check_outputs', True)
         if env.get('checker'):
             job['chk_file'] = env['checker']
+        job['checker_language'] = env.get('user_language', 'polish')
         if env.get('save_outputs'):
             job.setdefault('out_file', _make_filename(env, test_name + '.out'))
             job['upload_out'] = True

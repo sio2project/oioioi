@@ -261,6 +261,8 @@ class ProgramSubmission(Submission):
     source_length = models.IntegerField(
         verbose_name=_("Source code length"), blank=True, null=True
     )
+    # Stores the language used by the user in the moment of submitting the solution
+    user_language_code = models.CharField(max_length=6, verbose_name=_("User language code"), blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.source_file:
