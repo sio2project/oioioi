@@ -72,13 +72,13 @@ class SuAuthenticationMiddleware(object):
                     not nonoioioi_namespace and
                     (contest_id is None or contest_id != original_contest_id)
                 ):
-                    return redirect('contest_dashboard', contest_id=original_contest_id)
+                    return redirect('su_url_not_allowed', contest_id=original_contest_id)
 
                 for ns in url.namespaces:
                     if ns in BLOCKED_URL_NAMESPACES:
-                        return redirect('contest_dashboard', contest_id=original_contest_id)
+                        return redirect('su_url_not_allowed', contest_id=original_contest_id)
                 if url.url_name in BLOCKED_URLS:
-                    return redirect('contest_dashboard', contest_id=original_contest_id)
+                    return redirect('su_url_not_allowed', contest_id=original_contest_id)
 
                 if (
                     not is_su_reset_url and

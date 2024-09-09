@@ -121,3 +121,7 @@ def get_su_status(request, response):
 
 def method_not_allowed_view(request):
     return TemplateResponse(request, 'su/method-not-allowed.html')
+
+
+def url_not_allowed_view(request):
+    return TemplateResponse(request, 'su/url-not-allowed.html')

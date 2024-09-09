@@ -310,7 +310,7 @@ class TestContestAdminsSu(TestCase):
             response = self.client.get(url)
             self.assertEqual(302, response.status_code)
             self.assertEqual(
-                reverse('contest_dashboard', kwargs={'contest_id': contest.id}),
+                reverse('su_url_not_allowed', kwargs={'contest_id': contest.id}),
                 response.url
             )
 

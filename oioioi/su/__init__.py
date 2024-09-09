@@ -19,5 +19,7 @@ SU_ORIGINAL_CONTEST = 'su_original_contest'
 BLOCKED_URLS = [
     'api_token', 'api_regenerate_key',
     'submitservice_view_user_token', 'submitservice_clear_user_token',
+    'edit_profile', 'delete_profile',
+    'auth_password_change', 'aut_password_done',
 ]
-BLOCKED_URL_NAMESPACES = ['two_factor']
+BLOCKED_URL_NAMESPACES = ['two_factor', 'oioioiadmin']
