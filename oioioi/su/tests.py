@@ -389,3 +389,18 @@ class TestContestAdminsSu(TestCase):
         self._add_user_to_contest('test_contest_basicadmin')
         self._do_su('test_contest_admin', 'django.contrib.auth.backends.ModelBackend', False)
         self._do_su('test_contest_basicadmin', 'django.contrib.auth.backends.ModelBackend', True)
+
+    def user_becomes_superuser(self):
+        # Test if being switched to a user which then becomes a superuser resets the user.
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        contest = Contest.objects.get()
+        self._add_user_to_contest('test_user')
+        self._do_su('test_user', 'django.contrib.auth.backends.ModelBackend', False)
+
+        user = User.objects.get(username='test_user')
+        user.is_superuser = True
+        user.save()
+
+        response = self.client.get(reverse('contest_dashboard', kwargs={'contest_id': contest.id}))
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('index'), response.url)
