@@ -61,6 +61,7 @@ from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
+from oioioi.welcomepage.views import welcome_page_view
 
 if not getattr(settings, 'TESTS', False):
     print(
@@ -163,6 +164,7 @@ class TestIndexNoContest(TestCase):
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_no_contest(self):
+        unregister_main_page_view(welcome_page_view)
         unregister_main_page_view(szkopul_main_page)
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/')
