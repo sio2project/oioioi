@@ -224,6 +224,13 @@ class TestSwitchingUsers(TestCase):
 class TestContestAdminsSu(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_permissions']
 
+    def setUp(self):
+        super().setUp()
+        c = Contest.objects.get()
+        # Use a controller with participant registration.
+        c.controller_name = 'oioioi.oi.controllers.OIOnsiteContestController'
+        c.save()
+
     def _test_su_visibility(self, contest, expected):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
         url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})

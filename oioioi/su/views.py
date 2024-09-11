@@ -44,12 +44,12 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
         raise SuspiciousOperation
 
     # Don't allow contest admins to switch to users that are not participants of the contest
-    if not is_superuser(request) and not Participant.objects.filter(
-        user=user,
-        contest=request.contest,
-        user__is_active=True,
-        user__is_superuser=False,
-    ).exists():
+    if (
+        not is_superuser(request) and
+        request.contest.controller.registration_controller().filter_users_with_accessible_personal_data(
+            User.objects.filter(id=user.id)
+        ).count() == 0
+    ):
         raise SuspiciousOperation
 
     # Don't allow contest admins to switch to other contest admins
@@ -97,12 +97,12 @@ def get_suable_users_view(request):
         ).select_related("user")
         contest_admins = [cp.user.id for cp in cps]
 
-        users = User.objects.filter(
-            participant__contest_id=request.contest.id,
-            is_active=True,
-            is_superuser=False,
-        ).exclude(id__in=contest_admins)
-
+        users = request.contest.controller.registration_controller().filter_users_with_accessible_personal_data(
+            User.objects.filter(
+                is_active=True,
+                is_superuser=False,
+            ).exclude(id__in=contest_admins)
+        )
     else:
         users = User.objects.filter(is_superuser=False, is_active=True)
     return get_user_hints_view(request, 'substr', users)
