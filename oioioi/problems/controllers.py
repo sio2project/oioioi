@@ -148,7 +148,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         environ = create_environ()
         environ['extra_args'] = extra_args or {}
         environ['is_rejudge'] = is_rejudge
-        if submission.programsubmission:
+        if hasattr(submission, 'programsubmission'):
             user_lang = None
             for code, lang in settings.LANGUAGES:
                 if code == submission.programsubmission.user_language_code:
