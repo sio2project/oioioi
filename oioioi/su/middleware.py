@@ -14,7 +14,7 @@ from oioioi.su import (
     BLOCKED_URL_NAMESPACES,
     BLOCKED_URLS
 )
-from oioioi.su.utils import get_user
+from oioioi.su.utils import get_user, reset_to_real_user
 
 REDIRECTION_AFTER_SU_KEY = "redirection_after_su"
 
@@ -55,7 +55,8 @@ class SuAuthenticationMiddleware(object):
             if not request.session.get(SU_REAL_USER_IS_SUPERUSER, True):
                 # Might happen when switching to a user which then becomes a superuser.
                 if request.user.is_superuser:
-                    return redirect('su_reset')
+                    reset_to_real_user(request)
+                    return redirect('index')
 
                 original_contest_id = request.session.get(SU_ORIGINAL_CONTEST)
                 contest_id = None
