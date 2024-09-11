@@ -53,6 +53,10 @@ class SuAuthenticationMiddleware(object):
             )
             # Check if the user is contest admin.
             if not request.session.get(SU_REAL_USER_IS_SUPERUSER, True):
+                # Might happen when switching to a user which then becomes a superuser.
+                if request.user.is_superuser:
+                    return redirect('su_reset')
+
                 original_contest_id = request.session.get(SU_ORIGINAL_CONTEST)
                 contest_id = None
                 m = contest_re.match(request.path)
