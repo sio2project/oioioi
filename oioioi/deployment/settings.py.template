@@ -581,3 +581,9 @@ ZEUS_INSTANCES = {
 
 # Experimental
 # USE_ACE_EDITOR = False
+
+# If set to True, contest admins will be able to log in as participants of contests they admin.
+CONTEST_ADMINS_CAN_SU = False
+
+# If set to False, contest admins switched to a participant will be able to make any type of request.
+ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS = True

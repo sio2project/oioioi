@@ -13,3 +13,13 @@
 
 SU_UID_SESSION_KEY = 'su_effective_user_id'
 SU_BACKEND_SESSION_KEY = 'su_effective_backend'
+SU_REAL_USER_IS_SUPERUSER = 'su_real_user_is_superuser'
+SU_ORIGINAL_CONTEST = 'su_original_contest'
+
+BLOCKED_URLS = [
+    'api_token', 'api_regenerate_key',
+    'submitservice_view_user_token', 'submitservice_clear_user_token',
+    'edit_profile', 'delete_profile',
+    'auth_password_change', 'auth_password_done',
+]
+BLOCKED_URL_NAMESPACES = ['two_factor', 'oioioiadmin']
