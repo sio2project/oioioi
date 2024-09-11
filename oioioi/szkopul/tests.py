@@ -7,10 +7,12 @@ from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import NoReverseMatch, reverse
 
+from oioioi.base.main_page import unregister_main_page_view
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.problems.models import Problem
+from oioioi.welcomepage.views import welcome_page_view
 
 
 class TestMainPageView(TestCase):
@@ -22,6 +24,10 @@ class TestMainPageView(TestCase):
         'test_problem_instance',
         'test_submission',
     ]
+
+    def setUp(self):
+        super(TestMainPageView, self).setUp()
+        unregister_main_page_view(welcome_page_view)
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_navbar_links(self):
