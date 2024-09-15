@@ -17,6 +17,8 @@ from oioioi.programs.models import (
     ModelProgramSubmission,
     ProgramSubmission,
     ReportActionsConfig,
+    CheckerFormatForContest,
+    CheckerFormatForProblem,
 )
 
 
@@ -215,3 +217,16 @@ def get_submittable_languages():
     for _, lang_config in submittable_languages.items():
         lang_config.setdefault('type', 'main')
     return submittable_languages
+
+
+def get_checker_format(problem_instance):
+    try:
+        return CheckerFormatForProblem.objects.get(problem_instance=problem_instance).format
+    except CheckerFormatForProblem.DoesNotExist:
+        if problem_instance.contest:
+            try:
+                return CheckerFormatForContest.objects.get(contest=problem_instance.contest).format
+            except CheckerFormatForContest.DoesNotExist:
+                return getattr(settings, 'DEFAULT_CHECKER_FORMAT', 'abbreviated')
+        else:
+            return getattr(settings, 'DEFAULT_CHECKER_FORMAT', 'abbreviated')

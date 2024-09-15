@@ -463,3 +463,44 @@ def check_compilers_config():
 
 
 check_compilers_config()
+
+
+CheckerFormat = EnumRegistry()
+CheckerFormat.register('terse', _("Terse"))
+CheckerFormat.register('abbreviated', _("Abbreviated"))
+
+
+class CheckerFormatForContest(models.Model):
+    """Overrides the default checker's format (abbreviated) for a contest."""
+
+    contest = models.OneToOneField(
+        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
+    )
+    format = EnumField(
+        CheckerFormat,
+        verbose_name=_("format"),
+        help_text=_("Format of the checker output for this contest. "
+                    "Abbreviated describes the output difference, while "
+                    "Terse doesn't give any details.")
+    )
+
+    class Meta(object):
+        verbose_name = _("checker format for contest")
+        verbose_name_plural = _("checker formats for contests")
+        ordering = ('contest',)
+        unique_together = ('contest', 'format')
+
+
+class CheckerFormatForProblem(models.Model):
+    """Overrides the default checker's format (abbreviated) for a problem."""
+
+    problem_instance = models.OneToOneField(
+        ProblemInstance, verbose_name=_("problem instance"), on_delete=models.CASCADE
+    )
+    format = EnumField(CheckerFormat, verbose_name=_("format"))
+
+    class Meta(object):
+        verbose_name = _("checker format for problem")
+        verbose_name_plural = _("checker formats for problems")
+        ordering = ('problem_instance',)
+        unique_together = ('problem_instance', 'format')

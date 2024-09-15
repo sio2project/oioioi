@@ -24,6 +24,7 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.evalmgr.tasks import create_environ, delay_environ
 from oioioi.problems.models import ProblemStatistics, UserStatistics
 from oioioi.problems.utils import can_admin_problem
+from oioioi.programs.utils import get_checker_format
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +157,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                     break
             if user_lang:
                 environ['user_language'] = user_lang
+            else:
+                environ['user_language'] = 'english'
+            environ['checker_format'] = environ['user_language'] + '_' + get_checker_format(submission.problem_instance)
         picontroller = submission.problem_instance.controller
 
         picontroller.fill_evaluation_environ(environ, submission)
