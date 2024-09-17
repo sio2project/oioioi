@@ -201,6 +201,9 @@ class ACMContestController(ProgrammingContestController):
     def get_default_safe_exec_mode(self):
         return 'cpu'
 
+    def display_score_change(self):
+        return False
+
 
 class ACMOpenContestController(ACMContestController):
     description = _("ACM style contest (open)")
