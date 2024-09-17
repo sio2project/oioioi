@@ -122,23 +122,24 @@ class MPContestController(ProgrammingContestController):
             return score * ssm.multiplier
         return None
 
-    def update_user_result_for_problem(self, result):
-        """Submissions sent during the round are scored as normal.
-        Submissions sent while the round was over but SubmissionScoreMultiplier was active
-        are scored with given multiplier.
-        """
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
         submissions = Submission.objects.filter(
-            problem_instance=result.problem_instance,
-            user=result.user,
+            problem_instance=problem_instance,
+            user=user,
             kind='NORMAL',
             score__isnull=False,
         )
+        if before:
+            if include_current:
+                submissions = submissions.filter(date__lte=before)
+            else:
+                submissions = submissions.filter(date__lt=before)
 
         best_submission = None
         best_submission_score = None
         try:
             ssm = SubmissionScoreMultiplier.objects.get(
-                contest=result.problem_instance.contest
+                contest=problem_instance.contest
             )
         except SubmissionScoreMultiplier.DoesNotExist:
             ssm = None
@@ -148,17 +149,37 @@ class MPContestController(ProgrammingContestController):
             if not best_submission or (score and best_submission_score < score):
                 best_submission = submission
                 best_submission_score = score
+        return best_submission
 
-        try:
-            report = SubmissionReport.objects.get(
-                submission=best_submission, status='ACTIVE', kind='NORMAL'
-            )
-        except SubmissionReport.DoesNotExist:
-            report = None
+    def update_user_result_for_problem(self, result):
+        """Submissions sent during the round are scored as normal.
+        Submissions sent while the round was over but SubmissionScoreMultiplier was active
+        are scored with given multiplier.
+        """
+        best_submission = self.get_last_scored_submission(result.user, result.problem_instance)
+        if best_submission:
+            try:
+                ssm = SubmissionScoreMultiplier.objects.get(
+                    contest=result.problem_instance.contest
+                )
+            except SubmissionScoreMultiplier.DoesNotExist:
+                ssm = None
+            best_submission_score = self._get_score_for_submission(best_submission, ssm)
 
-        result.score = best_submission_score
-        result.status = best_submission.status if best_submission else None
-        result.submission_report = report
+            try:
+                report = SubmissionReport.objects.get(
+                    submission=best_submission, status='ACTIVE', kind='NORMAL'
+                )
+            except SubmissionReport.DoesNotExist:
+                report = None
+
+            result.score = best_submission_score
+            result.status = best_submission.status if best_submission else None
+            result.submission_report = report
+        else:
+            result.score = None
+            result.status = None
+            result.submission_report = None
 
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Contest admin can always submit.

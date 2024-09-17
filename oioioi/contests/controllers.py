@@ -708,6 +708,10 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         problem = submission.problem_instance.problem
         problem.controller.update_submission_score(submission)
 
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
+        problem = problem_instance.problem
+        return problem.controller.get_last_scored_submission(user, problem_instance, before, include_current)
+
     def update_user_result_for_problem(self, result):
         problem = result.problem_instance.problem
         problem.controller.update_user_result_for_problem(result)

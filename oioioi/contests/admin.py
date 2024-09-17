@@ -852,16 +852,28 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def score_diff_display(self, instance):
         contest_controller = instance.problem_instance.contest.controller
+        pi_controller = instance.problem_instance.controller
         if not contest_controller.display_score_change() or instance.kind != 'NORMAL':
             return format_html('<span class="text-secondary">-</span>')
 
-        previous_submission = Submission.objects.filter(
-            user=instance.user,
-            problem_instance=instance.problem_instance,
-            kind='NORMAL',
-            date__lt=instance.date,
-        ).order_by('-date').first()
-        return contest_controller.render_score_change(previous_submission, instance)
+        try:
+            previous_submission = pi_controller.get_last_scored_submission(
+                instance.user,
+                instance.problem_instance,
+                before=instance.date,
+            )
+        except Submission.DoesNotExist:
+            previous_submission = None
+        try:
+            curr_submission = pi_controller.get_last_scored_submission(
+                instance.user,
+                instance.problem_instance,
+                before=instance.date,
+                include_current=True,
+            )
+        except Submission.DoesNotExist:
+            curr_submission = None
+        return contest_controller.render_score_change(previous_submission, curr_submission)
 
     score_diff_display.short_description = _("Score change")
     score_diff_display.admin_order_field = 'score'
