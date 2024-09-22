@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, UserResultForProblem
+from oioioi.contests.tests.tests import TestScoreDiffDisplay
 from oioioi.mp.score import FloatScore
 
 
@@ -96,3 +97,17 @@ class TestSubmissionScoreMultiplier(TestCase):
         for urfp in UserResultForProblem.objects.all():
             res = self._create_result(urfp.user, urfp.problem_instance)
             self.assertEqual(res.score, urfp.score)
+
+
+class TestScoreDiffMPContest(TestScoreDiffDisplay):
+    contest_controller = 'oioioi.mp.controllers.MPContestController'
+
+    def test(self):
+        self._create_submission(FloatScore(25.5), '+25.5')
+        s1 = self._create_submission(FloatScore(50), '+24.5')
+        s2 = self._create_submission(FloatScore(100), '+50.0')
+        self._create_submission(FloatScore(0), '0')
+        s1.kind = 'IGNORED'
+        s1.save()
+        self.assertEqual(self._get_score_diff(s1), '-')
+        self.assertEqual(self._get_score_diff(s2), '+74.5')

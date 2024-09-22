@@ -145,6 +145,12 @@ class ACMContestController(ProgrammingContestController):
             result.status = None
             return None
 
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
+        """This function is not implemented for ACM contests because score difference
+        isn't shown for ACM contests.
+        """
+        raise NotImplementedError
+
     def update_user_result_for_problem(self, result):
         submissions = (
             Submission.objects.filter(
@@ -200,6 +206,9 @@ class ACMContestController(ProgrammingContestController):
 
     def get_default_safe_exec_mode(self):
         return 'cpu'
+
+    def display_score_change(self):
+        return False
 
 
 class ACMOpenContestController(ACMContestController):

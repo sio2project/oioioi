@@ -174,16 +174,24 @@ class OIContestController(ProgrammingContestController):
     def should_confirm_submission_receipt(self, request, submission):
         return submission.kind == 'NORMAL' and request.user == submission.user
 
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
+        submissions = (
+            Submission.objects.filter(problem_instance=problem_instance)
+            .filter(user=user)
+            .filter(score__isnull=False)
+            .exclude(status='CE')
+            .filter(kind='NORMAL')
+        )
+        if before:
+            if include_current:
+                submissions = submissions.filter(date__lte=before)
+            else:
+                submissions = submissions.filter(date__lt=before)
+        return submissions.latest()
+
     def update_user_result_for_problem(self, result):
         try:
-            latest_submission = (
-                Submission.objects.filter(problem_instance=result.problem_instance)
-                .filter(user=result.user)
-                .filter(score__isnull=False)
-                .exclude(status='CE')
-                .filter(kind='NORMAL')
-                .latest()
-            )
+            latest_submission = self.get_last_scored_submission(result.user, result.problem_instance)
             try:
                 report = SubmissionReport.objects.get(
                     submission=latest_submission, status='ACTIVE', kind='NORMAL'
@@ -241,18 +249,27 @@ class OIFinalOnsiteContestController(OIOnsiteContestController):
     def can_see_submission_score(self, request, submission):
         return True
 
-    def update_user_result_for_problem(self, result):
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
         submissions = (
-            Submission.objects.filter(problem_instance=result.problem_instance)
-            .filter(user=result.user)
+            Submission.objects.filter(problem_instance=problem_instance)
+            .filter(user=user)
             .filter(score__isnull=False)
             .exclude(status='CE')
             .filter(kind='NORMAL')
         )
-
+        if before:
+            if include_current:
+                submissions = submissions.filter(date__lte=before)
+            else:
+                submissions = submissions.filter(date__lt=before)
         if submissions:
-            max_submission = submissions.order_by('-score')[0]
+            return submissions.order_by('-score')[0]
+        return None
 
+    def update_user_result_for_problem(self, result):
+        max_submission = self.get_last_scored_submission(result.user, result.problem_instance)
+
+        if max_submission:
             try:
                 report = SubmissionReport.objects.get(
                     submission=max_submission, status='ACTIVE', kind='NORMAL'
@@ -281,23 +298,30 @@ class BOIOnsiteContestController(OIOnsiteContestController):
         super(BOIOnsiteContestController, self).reveal_score(request, submission)
         self.update_user_results(submission.user, submission.problem_instance)
 
-    def update_user_result_for_problem(self, result):
-        try:
-            submissions = (
-                Submission.objects.filter(problem_instance=result.problem_instance)
-                .filter(user=result.user)
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
+        submissions = (
+                Submission.objects.filter(problem_instance=problem_instance)
+                .filter(user=user)
                 .filter(score__isnull=False)
                 .exclude(status='CE')
                 .filter(kind='NORMAL')
             )
+        if before:
+            if include_current:
+                submissions = submissions.filter(date__lte=before)
+            else:
+                submissions = submissions.filter(date__lt=before)
+        chosen_submission = submissions.latest()
+        revealed = submissions.filter(revealed__isnull=False)
+        if revealed:
+            max_revealed = revealed.order_by('-score')[0]
+            if max_revealed.score > chosen_submission.score:
+                chosen_submission = max_revealed
+        return chosen_submission
 
-            chosen_submission = submissions.latest()
-
-            revealed = submissions.filter(revealed__isnull=False)
-            if revealed:
-                max_revealed = revealed.order_by('-score')[0]
-                if max_revealed.score > chosen_submission.score:
-                    chosen_submission = max_revealed
+    def update_user_result_for_problem(self, result):
+        try:
+            chosen_submission = self.get_last_scored_submission(result.user, result.problem_instance)
 
             try:
                 report = SubmissionReport.objects.get(

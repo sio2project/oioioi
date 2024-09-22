@@ -68,7 +68,7 @@ from oioioi.problems.models import (
     ProblemStatement,
 )
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.models import ModelProgramSubmission, Test
+from oioioi.programs.models import ModelProgramSubmission, Test, ProgramSubmission
 from oioioi.programs.tests import SubmitFileMixin
 from oioioi.simpleui.views import (
     contest_dashboard_redirect as simpleui_contest_dashboard,
@@ -4200,3 +4200,65 @@ class TestScoreBadges(TestCase):
         self.assertIn('badge-warning', self._get_badge_for_problem(response.content, 'zad2'))
         self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'zad3'))
 
+
+class TestScoreDiffDisplay(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
+
+    contest_controller = 'oioioi.contests.controllers.ContestController'
+
+    def _change_contest_controller(self, controller_name):
+        contest = Contest.objects.get()
+        contest.controller_name = controller_name
+        contest.save()
+
+    def _get_score_diff(self, submission):
+        contest = Contest.objects.get()
+        url = reverse('oioioiadmin:contests_submission_changelist', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        soup = bs4.BeautifulSoup(response.content, 'html.parser')
+        submissions_table = soup.find('table', {'id': 'result_list'})
+        tbody = submissions_table.find('tbody')
+        for tr in tbody.find_all('tr'):
+            s_id = tr.find('th', {'class': 'field-id'}).text
+            if s_id == str(submission.id):
+                return tr.find('td', {'class': 'field-score_diff_display'}).text
+
+    def _create_submission(self, score, expected_diff):
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        user = User.objects.get(username='test_admin')
+        ps = ProgramSubmission.objects.create(
+            source_file=ContentFile(b'int main() {}', name='main.cpp'),
+            problem_instance=problem_instance,
+            user=user,
+            score=score,
+            status='OK',
+        )
+        ps.save()
+        self.assertEqual(expected_diff, self._get_score_diff(ps))
+        return ps
+
+    def setUp(self):
+        self.client.force_login(User.objects.get(username='test_admin'))
+        self._change_contest_controller(self.contest_controller)
+        Submission.objects.all().delete()
+
+
+class TestScoreDiffSimpleContest(TestScoreDiffDisplay):
+    contest_controller = 'oioioi.programs.controllers.ProgrammingContestController'
+
+    def test(self):
+        self._create_submission(IntegerScore(25), '+25')
+        s1 = self._create_submission(IntegerScore(50), '+25')
+        s2 = self._create_submission(IntegerScore(100), '+50')
+        self._create_submission(IntegerScore(0), '-100')
+        s1.kind = 'IGNORED'
+        s1.save()
+        self.assertEqual(self._get_score_diff(s2), '+75')
+        self.assertEqual(self._get_score_diff(s1), '-')

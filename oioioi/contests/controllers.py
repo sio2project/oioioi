@@ -9,6 +9,7 @@ from django.db import transaction
 from django.db.models import Subquery
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext_noop
@@ -707,6 +708,10 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         problem = submission.problem_instance.problem
         problem.controller.update_submission_score(submission)
 
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
+        problem = problem_instance.problem
+        return problem.controller.get_last_scored_submission(user, problem_instance, before, include_current)
+
     def update_user_result_for_problem(self, result):
         problem = result.problem_instance.problem
         problem.controller.update_user_result_for_problem(result)
@@ -973,6 +978,36 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def show_default_fields(self, problem_instance):
         return problem_instance.problem.controller.show_default_fields(problem_instance)
+
+    def display_score_change(self):
+        """
+        Whether to display score change for a submission in submissions admin.
+        """
+        return True
+
+    def _calculate_score_change(self, before, after):
+        """
+        Calculate score difference between two scores.
+        """
+        if before is None or after is None:
+            return after
+        cls = type(before)
+        return cls(after.value - before.value)
+
+    def render_score_change(self, previous_submission, current_submission):
+        """
+        Calculates and renders score change between two submissions.
+        """
+        prev_score = previous_submission.score if previous_submission else None
+        curr_score = current_submission.score if current_submission else None
+        diff = self._calculate_score_change(prev_score, curr_score)
+        if diff is None:
+            return format_html('<span class="text-secondary">-</span>')
+        if diff.value == 0:
+            return format_html('<span class="text-secondary">0</span>')
+        if diff.value > 0:
+            return format_html('<span class="text-success">+{}</span>', diff.value)
+        return format_html('<span class="text-danger">{}</span>', diff.value)
 
 
 class PastRoundsHiddenContestControllerMixin(object):
