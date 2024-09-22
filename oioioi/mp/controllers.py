@@ -122,7 +122,7 @@ class MPContestController(ProgrammingContestController):
             return score * ssm.multiplier
         return None
 
-    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False, ssm=None):
         submissions = Submission.objects.filter(
             problem_instance=problem_instance,
             user=user,
@@ -137,12 +137,13 @@ class MPContestController(ProgrammingContestController):
 
         best_submission = None
         best_submission_score = None
-        try:
-            ssm = SubmissionScoreMultiplier.objects.get(
-                contest=problem_instance.contest
-            )
-        except SubmissionScoreMultiplier.DoesNotExist:
-            ssm = None
+        if ssm is None:
+            try:
+                ssm = SubmissionScoreMultiplier.objects.get(
+                    contest=problem_instance.contest
+                )
+            except SubmissionScoreMultiplier.DoesNotExist:
+                ssm = None
 
         for submission in submissions:
             score = self._get_score_for_submission(submission, ssm)
@@ -156,14 +157,14 @@ class MPContestController(ProgrammingContestController):
         Submissions sent while the round was over but SubmissionScoreMultiplier was active
         are scored with given multiplier.
         """
-        best_submission = self.get_last_scored_submission(result.user, result.problem_instance)
+        try:
+            ssm = SubmissionScoreMultiplier.objects.get(
+                contest=result.problem_instance.contest
+            )
+        except SubmissionScoreMultiplier.DoesNotExist:
+            ssm = None
+        best_submission = self.get_last_scored_submission(result.user, result.problem_instance, ssm=ssm)
         if best_submission:
-            try:
-                ssm = SubmissionScoreMultiplier.objects.get(
-                    contest=result.problem_instance.contest
-                )
-            except SubmissionScoreMultiplier.DoesNotExist:
-                ssm = None
             best_submission_score = self._get_score_for_submission(best_submission, ssm)
 
             try:
