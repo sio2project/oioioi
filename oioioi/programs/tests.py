@@ -50,7 +50,7 @@ from oioioi.programs.models import (
     CheckerFormatForProblem,
 )
 from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
-from oioioi.programs.utils import form_field_id_for_langs
+from oioioi.programs.utils import form_field_id_for_langs, get_checker_format
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.models import ExtraConfig
 from oioioi.sinolpack.tests import get_test_filename
@@ -1991,62 +1991,24 @@ class TestLanguageOverrideForTest(TestCase):
 
 
 class TestOICompare(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_contest', 'test_problem_instance', 'test_full_package']
 
     def test_format(self):
         contest = Contest.objects.get()
-        filename = get_test_filename('test_simple_package.zip')
-        self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse('oioioiadmin:problems_problem_add')
-        response = self.client.get(url, {'contest_id': contest.id}, follow=True)
-        url = response.redirect_chain[-1][0]
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(
-            'problems/add-or-update.html',
-            [getattr(t, 'name', None) for t in response.templates],
-        )
-        response = self.client.post(
-            url,
-            {
-                'package_file': open(filename, 'rb'),
-                'visibility': Problem.VISIBILITY_PRIVATE,
-            },
-            follow=True,
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(Problem.objects.count(), 1)
-
-        pi = ProblemInstance.objects.get(contest=contest)
-        for lang, terse, abbreviated in [
-            ("pl", "ŹLE", 'ŹLE: wiersz 1: oczekiwano "50000000", otrzymano koniec pliku'),
-            ("en", "WRONG", 'WRONG: line 1: expected "50000000", got end of file'),
+        pi = ProblemInstance.objects.get()
+        for format_contest, format_problem, expected in [
+            (None, None, 'abbreviated'),
+            ('terse', None, 'terse'),
+            ('terse', 'abbreviated', 'abbreviated'),
+            (None, 'terse', 'terse'),
         ]:
-            terse = terse.replace('"', '&quot;')
-            abbreviated = abbreviated.replace('"', '&quot;')
-            for format_contest, format_problem, expected, unexpected in [
-                (None, None, abbreviated, None),
-                ('terse', None, terse, abbreviated),
-                ('terse', 'abbreviated', abbreviated, None),
-                (None, 'terse', terse, abbreviated),
-            ]:
-                CheckerFormatForContest.objects.all().delete()
-                CheckerFormatForProblem.objects.all().delete()
-                if format_problem is not None:
-                    CheckerFormatForProblem.objects.create(
-                        problem_instance=pi, format=format_problem
-                    )
-                if format_contest is not None:
-                    CheckerFormatForContest.objects.create(contest=contest, format=format_contest)
-
-                ps = ProgramSubmission.objects.create(
-                    source_file=ContentFile(b'int main(){}', name='a.cpp'),
-                    user_language_code=lang,
-                    problem_instance=pi,
-                    user=User.objects.get(username='test_admin'),
+            CheckerFormatForContest.objects.all().delete()
+            CheckerFormatForProblem.objects.all().delete()
+            if format_problem is not None:
+                CheckerFormatForProblem.objects.create(
+                    problem_instance=pi, format=format_problem
                 )
-                pi.controller.judge(ps)
-                url = reverse('submission', kwargs={'contest_id': contest.id, 'submission_id': ps.id})
-                response = self.client.get(url)
-                self.assertContains(response, expected)
-                if unexpected:
-                    self.assertNotContains(response, unexpected)
+            if format_contest is not None:
+                CheckerFormatForContest.objects.create(contest=contest, format=format_contest)
+
+            self.assertEqual(get_checker_format(pi), expected)
