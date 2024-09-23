@@ -46,9 +46,11 @@ from oioioi.programs.models import (
     LanguageOverrideForTest,
     TestReport,
     check_compilers_config,
+    CheckerFormatForContest,
+    CheckerFormatForProblem,
 )
 from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
-from oioioi.programs.utils import form_field_id_for_langs
+from oioioi.programs.utils import form_field_id_for_langs, get_checker_format
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.models import ExtraConfig
 from oioioi.sinolpack.tests import get_test_filename
@@ -544,7 +546,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         NotificationHandler.send_notification = fake_send_notification
 
         submission = Submission.objects.get(pk=1)
-        
+
         environ = create_environ()
         environ['extra_args'] = {}
         environ['is_rejudge'] = False
@@ -1986,3 +1988,27 @@ class TestLanguageOverrideForTest(TestCase):
         self.assertEqual(
             env_with_tests['tests']['1a']['exec_mem_limit'], tests[1].memory_limit
         )
+
+
+class TestOICompare(TestCase):
+    fixtures = ['test_contest', 'test_problem_instance', 'test_full_package']
+
+    def test_format(self):
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        for format_contest, format_problem, expected in [
+            (None, None, 'abbreviated'),
+            ('terse', None, 'terse'),
+            ('terse', 'abbreviated', 'abbreviated'),
+            (None, 'terse', 'terse'),
+        ]:
+            CheckerFormatForContest.objects.all().delete()
+            CheckerFormatForProblem.objects.all().delete()
+            if format_problem is not None:
+                CheckerFormatForProblem.objects.create(
+                    problem_instance=pi, format=format_problem
+                )
+            if format_contest is not None:
+                CheckerFormatForContest.objects.create(contest=contest, format=format_contest)
+
+            self.assertEqual(get_checker_format(pi), expected)
