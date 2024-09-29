@@ -1,0 +1,519 @@
+[
+  {
+    "pk": 1,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_ERR",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000000",
+      "user": 1001,
+      "date": "2012-06-03T22:08:07.516Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "INITIAL",
+      "submission": 1,
+      "creation_date": "2012-08-03T22:07:29.547Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 1,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "INITIAL",
+      "submission": 2,
+      "creation_date": "2012-08-03T22:08:29.547Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 2,
+      "creation_date": "2012-08-03T22:08:39.662Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "SE",
+      "comment": null,
+      "score": null,
+      "submission_report": 1,
+      "max_score": "int:0000000000000000000"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "RE",
+      "comment": null,
+      "score": "int:0000000000000000034",
+      "submission_report": 2,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "SE",
+      "comment": null,
+      "score": null,
+      "submission_report": 3,
+      "max_score": "int:0000000000000000000"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "RE",
+      "comment": null,
+      "score": "int:0000000000000000034",
+      "submission_report": 4,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforround",
+    "fields": {
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "round": 1
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforcontest",
+    "fields": {
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.programsubmission",
+    "fields": {
+      "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K",
+      "source_length": 279
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.compilationreport",
+    "fields": {
+      "status": "OK",
+      "compiler_output": "ld: warning: option -s is obsolete and being ignored\n",
+      "submission_report": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "programs.compilationreport",
+    "fields": {
+      "status": "OK",
+      "compiler_output": "ld: warning: option -s is obsolete and being ignored\n",
+      "submission_report": 2
+    }
+  },
+    {
+    "pk": 3,
+    "model": "programs.compilationreport",
+    "fields": {
+      "status": "OK",
+      "compiler_output": "ld: warning: option -s is obsolete and being ignored\n",
+      "submission_report": 3
+    }
+  },
+  {
+    "pk": 4,
+    "model": "programs.compilationreport",
+    "fields": {
+      "status": "OK",
+      "compiler_output": "ld: warning: option -s is obsolete and being ignored\n",
+      "submission_report": 4
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "SE",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 1,
+      "time_used": 1,
+      "test_group": "0",
+      "score": "int:0000000000000000000",
+      "test_name": "0",
+      "test": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 1,
+      "time_used": 1,
+      "test_group": "1ocen",
+      "score": "int:0000000000000000000",
+      "test_name": "1ocen",
+      "test": 4
+    }
+  },
+  {
+    "pk": 3,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 2,
+      "time_used": 1,
+      "test_group": "1",
+      "score": "int:0000000000000000005",
+      "test_name": "1a",
+      "test": 2
+    }
+  },
+  {
+    "pk": 4,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 2,
+      "time_used": 1,
+      "test_group": "3",
+      "score": "int:0000000000000000034",
+      "test_name": "3",
+      "test": 6
+    }
+  },
+  {
+    "pk": 5,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "WA",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 2,
+      "time_used": 0,
+      "test_group": "2",
+      "score": "int:0000000000000000000",
+      "test_name": "2",
+      "test": 5
+    }
+  },
+  {
+    "pk": 6,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "RE",
+      "comment": "program exited with code 1",
+      "test_time_limit": 100,
+      "submission_report": 2,
+      "time_used": 0,
+      "test_group": "1",
+      "score": "int:0000000000000000000",
+      "test_name": "1b",
+      "test": 3
+    }
+  },
+  {
+    "pk": 7,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "WA",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 3,
+      "time_used": 1,
+      "test_group": "0",
+      "score": "int:0000000000000000000",
+      "test_name": "0",
+      "test": 1
+    }
+  },
+  {
+    "pk": 8,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 3,
+      "time_used": 1,
+      "test_group": "1ocen",
+      "score": "int:0000000000000000000",
+      "test_name": "1ocen",
+      "test": 4
+    }
+  },
+  {
+    "pk": 9,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 4,
+      "time_used": 1,
+      "test_group": "1",
+      "score": "int:0000000000000000005",
+      "test_name": "1a",
+      "test": 2
+    }
+  },
+  {
+    "pk": 10,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "OK",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 4,
+      "time_used": 1,
+      "test_group": "3",
+      "score": "int:0000000000000000034",
+      "test_name": "3",
+      "test": 6
+    }
+  },
+  {
+    "pk": 11,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "WA",
+      "comment": "",
+      "test_time_limit": 10000,
+      "submission_report": 4,
+      "time_used": 0,
+      "test_group": "2",
+      "score": "int:0000000000000000000",
+      "test_name": "2",
+      "test": 5
+    }
+  },
+  {
+    "pk": 12,
+    "model": "programs.testreport",
+    "fields": {
+      "status": "RE",
+      "comment": "program exited with code 1",
+      "test_time_limit": 100,
+      "submission_report": 4,
+      "time_used": 0,
+      "test_group": "1",
+      "score": "int:0000000000000000000",
+      "test_name": "1b",
+      "test": 3
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "0",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "1ocen",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 1
+    }
+  },
+  {
+    "pk": 3,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "RE",
+      "group": "1",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 4,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "0",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 5,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "3",
+      "score": "int:0000000000000000034",
+      "max_score": "int:0000000000000000034",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 6,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "1ocen",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 7,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "WA",
+      "group": "2",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
+      "submission_report": 2
+    }
+  },
+  {
+    "pk": 8,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "WA",
+      "group": "0",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 3
+    }
+  },
+  {
+    "pk": 9,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "1ocen",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 3
+    }
+  },
+  {
+    "pk": 10,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "RE",
+      "group": "1",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
+      "submission_report": 4
+    }
+  },
+  {
+    "pk": 11,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "0",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 4
+    }
+  },
+  {
+    "pk": 12,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "3",
+      "score": "int:0000000000000000034",
+      "max_score": "int:0000000000000000034",
+      "submission_report": 4
+    }
+  },
+  {
+    "pk": 13,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "OK",
+      "group": "1ocen",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
+      "submission_report": 4
+    }
+  },
+  {
+    "pk": 14,
+    "model": "programs.groupreport",
+    "fields": {
+      "status": "WA",
+      "group": "2",
+      "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
+      "submission_report": 4
+    }
+  }
+]

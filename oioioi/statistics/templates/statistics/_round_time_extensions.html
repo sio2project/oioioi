@@ -1,0 +1,24 @@
+{% load i18n pagination_tags %}
+{% if rounds_times %}
+<div class="table-responsive-md">
+    <h4> {% trans "Round time extensions" %} </h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th> {% trans "Round" %} </th>
+                <th> {% trans "Extra time" %} </th>
+                <th> {% trans "Count" %} </th>
+            </tr>
+        </thead>
+     <tbody>
+        {% for rte in round_time_extensions%}
+            <tr>
+                <td>{{ rte.round__name }}</td>
+                <td>{{ rte.extra_time }}</td>
+                <td>{{ rte.count }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endif %}
