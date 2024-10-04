@@ -17,3 +17,10 @@ class Interactor(models.Model):
     class Meta(object):
         verbose_name = _("interactive executable file")
         verbose_name_plural = _("interactive executable files"),
+
+
+class InteractiveTaskInfo(models.Model):
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
+    num_processes = models.IntegerField(
+        verbose_name=_("number of user's processes to run"), default=1
+    )
