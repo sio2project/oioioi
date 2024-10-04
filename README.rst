@@ -15,13 +15,13 @@ You can manually use docker files to create images containing our services.
 
 To run the infrastructure simply::
 
-  "OIOIOI_VERSION=<oioioi_version>" docker-compose up
+  "OIOIOI_VERSION=<oioioi_version>" docker compose up
 
 Make sure to change default superuser password, same as in the automatic method.
 
 To start additional number of workers::
 
-  "OIOIOI_VERSION=<oioioi_version>" docker-compose up --scale worker=<number>
+  "OIOIOI_VERSION=<oioioi_version>" docker compose up --scale worker=<number>
 
 as described `in Docker docs`_.
 
@@ -51,12 +51,12 @@ experimental features enabled.
 
 Prepare the image with::
 
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml build
+    OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml build
 
 Then you can start oioioi with::
 
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up -d
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml exec web python3 manage.py runserver 0.0.0.0:8000
+    OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml up -d
+    OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml exec web python3 manage.py runserver 0.0.0.0:8000
 
 to start the infrastructure in the development mode. Current dirrectory with the source code will be bound to /sio2/oioioi/ inside the running container.
 
@@ -76,8 +76,8 @@ Running tests on Docker
 For testing purposes we use test.sh script located in oioioi directory. Note it's not the same directory
 you are connected to after using docker exec -it “web” /bin/bash. The default container id that you should use for running tests is "web"::
 
-    docker-compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh
-    docker-compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
+    docker compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh
+    docker compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
 
 Running static code analysis tools locally (requires Docker)
 ~~~~~~~~~~~~~~~~~~~~~~~
