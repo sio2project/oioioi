@@ -1,0 +1,51 @@
+{% extends "participants/registration.html" %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript">
+let $month, $day, $year, $self_consent, $parent_consent;
+
+function get18thBirthday() {
+    return new Date($year.val() * 1 + 18, $month.val() * 1 - 1, $day.val(), 0, 0, 0, 0)
+}
+
+function update() {
+    console.log("Upadate: ", $year.val(), "; ", $month.val(), ", ", $day.val());
+    if($year.val() == 0 || $month.val() == 0 || $day.val() == 0) {
+        console.log("No values");
+        {#$self_consent.prop("disabled", true);#}
+        $parent_consent.prop("disabled", true);
+    }
+    else if(new Date().getTime() > get18thBirthday()) {
+        console.log("dorosły : ", new Date(), get18thBirthday());
+        {#$self_consent.prop("disabled", false);#}
+        {#$self_consent.parent().parent().removeClass("hidden");#}
+        $parent_consent.prop("disabled", true);
+        $parent_consent.parent().addClass("hidden");
+    }
+    else {
+        console.log("dziecko : ", new Date(), get18thBirthday());
+        {#$self_consent.prop("disabled", true);#}
+        {#$self_consent.parent().parent().addClass("hidden");#}
+        $parent_consent.prop("disabled", false);
+        $parent_consent.parent().removeClass("hidden");
+    }
+}
+
+$(document).ready(function() {
+    console.log("Document ready!");
+    $month = $("#id_birthday_month");
+    $day = $("#id_birthday_day");
+    $year = $("#id_birthday_year");
+    {#$self_consent = $("#id_adult_consent");#}
+    $parent_consent = $("#id_parent_consent");
+
+    update();
+
+    console.log($month, $day, $year);
+    $month.change(update);
+    $day.change(update);
+    $year.change(update);
+});
+</script>
+{% endblock scripts %}

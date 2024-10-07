@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from oioioi.oi import views
 
@@ -14,4 +14,14 @@ urlpatterns = [
         views.choose_school_view,
         name='choose_school',
     ),
+    re_path(
+        r'^oi/consent/(?P<participant_id>[0-9]+)/$',
+        views.consent_view,
+        name='view_consent',
+    ),
+]
+
+contest_patterns = [
+    re_path(r'^register/oicities/$', views.cities_view),
+    re_path(r'^register/oischools/$', views.schools_view),
 ]

@@ -1,17 +1,59 @@
-{% load i18n %}
+{% load i18n static %}
+
+{% block head %}
+<link href="{% static 'css/select2.min.css' %}" rel="stylesheet" />
+<script src="{% static 'js/select2.min.js' %}"></script>
+
+{% endblock head %}
+
+{% block styles %}
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+</style>
+{% endblock styles %}
+
 {% for suffix, opts, selected in options %}
 <p>
 <select name="{{ attr.name }}{{ suffix }}" id="{{ attr.id }}{{ suffix }}">
-    {% for value, option in opts %}
-        <option value="{{ value }}" {% if value == selected %}selected{% endif %}>
-            {{ option }}
-        </option>
-    {% endfor %}
+    {% include "forms/school_select_options_form.html" with options=opts %}
 </select>
 </p>
 {% endfor %}
-{% if show_add_new %}
+{% if is_contest_with_coordinator %}
+    {% if is_coordinator %}
+        {% blocktrans %}
+            If you can not find your school on the list or
+            school information is incorrect, please
+            contact the organizer <a href="mailto:zapisy@oij.edu.pl">zapisy@oij.edu.pl</a>.
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans %}
+            Only schools with approved coordinators are shown.
+            If you can not find your school on the list, please contact your coordinator.
+        {% endblocktrans %}
+    {% endif %}
+{% else %}
     {% blocktrans %}
-        If you can not find your school on the list, please <button type="submit" class="btn btn-xs btn-link" name="_add_school">add it</button>.
+        If you can not find your school on the list or
+        school information is incorrect, please
+        contact the organizer.
     {% endblocktrans %}
 {% endif %}
+
+<div id="school_info_wrapper"></div>
+
+{% block script %}
+<script>
+    $(document).ready(function() {
+        $('#id_school_province').select2();
+    });
+    $(document).ready(function() {
+        $('#id_school_city').select2();
+    });
+    $(document).ready(function() {
+        $('#id_school').select2();
+    });
+</script>
+{% endblock script %}

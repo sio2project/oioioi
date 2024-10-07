@@ -61,8 +61,15 @@ CLASS_TYPES = [
 ]
 
 
+class SchoolType(models.Model):
+    name = models.CharField(
+        max_length=255, validators=[validate_whitespaces], verbose_name=_("name")
+    )
+
 
 class School(models.Model):
+    rspo = models.PositiveIntegerField(blank=True, null=True, unique=True)
+    type = models.ForeignKey(SchoolType, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
         max_length=255, validators=[validate_whitespaces], verbose_name=_("name")
     )
