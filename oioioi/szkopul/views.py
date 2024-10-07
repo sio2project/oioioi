@@ -7,7 +7,7 @@ from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import visible_contests
+from oioioi.contests.utils import can_admin_contest, is_contest_basicadmin, is_contest_observer, visible_contests
 from oioioi.problems.utils import filter_my_all_visible_submissions
 
 from oioioi.base.navbar_links import navbar_links_registry
