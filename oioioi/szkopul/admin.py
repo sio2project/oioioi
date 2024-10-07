@@ -21,6 +21,7 @@ class MAPCourseRegistrationParticipantAdmin(ParticipantAdmin):
         'school_name',
         'school_city',
         'school_province',
+        'map_registered',
     ]
     inlines = tuple(ParticipantAdmin.inlines) + (MAPCourseRegistrationInline,)
     readonly_fields = ['user']

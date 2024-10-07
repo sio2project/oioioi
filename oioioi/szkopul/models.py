@@ -32,6 +32,9 @@ class MAPCourseRegistration(RegistrationModel):
     class_type = models.CharField(
         max_length=7, choices=CLASS_TYPES, verbose_name=_("class")
     )
+    map_registered = models.BooleanField(
+        verbose_name='Zarejestrowałem/am się do projektu MAP <a href="https://rekrutacja.map.org.pl/" target="_blank">rekrutacja.map.org.pl</a>',
+    )
     parent_consent = models.FileField(
         verbose_name="Zdjęcie/skan formularza zgody rodziców w przypadku bycia niepełnoletnim",
         upload_to=make_consent_filename,
