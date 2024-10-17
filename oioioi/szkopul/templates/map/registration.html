@@ -1,51 +1,39 @@
-{% extends "participants/registration.html" %}
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block styles %}
+    {{ block.super }}
+    {{ form.media.css }}
+{% endblock %}
 
 {% block scripts %}
-{{ block.super }}
-<script type="text/javascript">
-let $month, $day, $year, $self_consent, $parent_consent;
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
 
-function get18thBirthday() {
-    return new Date($year.val() * 1 + 18, $month.val() * 1 - 1, $day.val(), 0, 0, 0, 0)
-}
+{% block title %}Zarejestruj się na kurs{% endblock %}
 
-function update() {
-    console.log("Upadate: ", $year.val(), "; ", $month.val(), ", ", $day.val());
-    if($year.val() == 0 || $month.val() == 0 || $day.val() == 0) {
-        console.log("No values");
-        {#$self_consent.prop("disabled", true);#}
-        $parent_consent.prop("disabled", true);
-    }
-    else if(new Date().getTime() > get18thBirthday()) {
-        console.log("dorosły : ", new Date(), get18thBirthday());
-        {#$self_consent.prop("disabled", false);#}
-        {#$self_consent.parent().parent().removeClass("hidden");#}
-        $parent_consent.prop("disabled", true);
-        $parent_consent.parent().addClass("hidden");
-    }
-    else {
-        console.log("dziecko : ", new Date(), get18thBirthday());
-        {#$self_consent.prop("disabled", true);#}
-        {#$self_consent.parent().parent().addClass("hidden");#}
-        $parent_consent.prop("disabled", false);
-        $parent_consent.parent().removeClass("hidden");
-    }
-}
+{% block main-content %}
+<h2>Zarejestruj się na kurs</h2>
 
-$(document).ready(function() {
-    console.log("Document ready!");
-    $month = $("#id_birthday_month");
-    $day = $("#id_birthday_day");
-    $year = $("#id_birthday_year");
-    {#$self_consent = $("#id_adult_consent");#}
-    $parent_consent = $("#id_parent_consent");
+<p>
+    Kurs jest otwarty dla wszystkich. 
+    Uczniowie szkół średnich, do których adresowany jest projekt MAP, muszą dokonać dodatkowej rejestracji w projekcie, która dostępna jest pod adresem <a href="https://rekrutacja.map.org.pl/" target="_blank">rekrutacja.map.org.pl</a>. Tylko tak zarejestrowani uczestnicy kursu będą mogli wziąć udział w turnieju!
+</p>
 
-    update();
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Submit" %}
+        </button>
+        {% if can_unregister %}
+            <a role="button" class="btn btn-danger float-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
+                {% trans "Deregister" %}
+            </a>
+        {% endif %}
+    </div>
+</form>
 
-    console.log($month, $day, $year);
-    $month.change(update);
-    $day.change(update);
-    $year.change(update);
-});
-</script>
-{% endblock scripts %}
+{% endblock %}
