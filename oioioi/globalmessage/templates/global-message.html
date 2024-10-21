@@ -18,14 +18,14 @@
         }
         $globalMsgClose.style.display = "";
         const globalMsgData = localStorage.getItem("globalmessage_dismissed");
-        if (globalMsgData === $globalMsgRoot.dataset.start) {
+        if (globalMsgData === $globalMsgRoot.dataset.updated) {
             $globalMsgRoot.style.display = "none";
         }
         $globalMsgClose.addEventListener("click", (e) => {
             $globalMsgRoot.style.display = "none";
             localStorage.setItem(
                 "globalmessage_dismissed",
-                $globalMsgRoot.dataset.start,
+                $globalMsgRoot.dataset.updated,
             );
         });
     })();

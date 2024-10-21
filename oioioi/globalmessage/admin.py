@@ -1,10 +1,11 @@
+from django.forms import ModelForm
+from django.http import HttpRequest
 from django.urls import re_path, reverse
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
 from oioioi.globalmessage.models import GlobalMessage
-
 
 class GlobalMessageAdmin(admin.ModelAdmin):
     fieldsets = [
@@ -32,6 +33,10 @@ class GlobalMessageAdmin(admin.ModelAdmin):
         ]
 
         return custom_urls + urls
+
+    def save_model(self, request: HttpRequest, obj: GlobalMessage, form: ModelForm, change: bool) -> None:
+        obj.updated = request.timestamp
+        return super().save_model(request, obj, form, change)
 
 
 admin.site.register(GlobalMessage, GlobalMessageAdmin)

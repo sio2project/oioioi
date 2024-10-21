@@ -17,11 +17,11 @@ def global_message_processor(request):
         return {
             'extra_body_global_message': render_to_string(
                 'global-message-user.html',
-                {'global_message': message, 'start': message.start.strftime('%s')},
+                {'global_message': message, 'updated': message.updated.strftime('%s')},
             ),
             'extra_admin_global_message': render_to_string(
                 'global-message-admin.html',
-                {'global_message': message, 'start': message.start.strftime('%s')},
+                {'global_message': message, 'updated': message.updated.strftime('%s')},
             ),
         }
 
