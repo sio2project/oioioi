@@ -712,6 +712,8 @@ class SubmissionAdmin(admin.ModelAdmin):
         ]
         if request.contest:
             list_display.remove('contest_display')
+            if request.contest.controller.display_score_change():
+                list_display.append('score_diff_display')
         return list_display
 
     def get_list_display_links(self, request, list_display):
@@ -847,6 +849,34 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     score_display.short_description = _("Score")
     score_display.admin_order_field = 'score_with_nulls_smallest'
+
+    def score_diff_display(self, instance):
+        contest_controller = instance.problem_instance.contest.controller
+        pi_controller = instance.problem_instance.controller
+        if not contest_controller.display_score_change() or instance.kind != 'NORMAL':
+            return format_html('<span class="text-secondary">-</span>')
+
+        try:
+            previous_submission = pi_controller.get_last_scored_submission(
+                instance.user,
+                instance.problem_instance,
+                before=instance.date,
+            )
+        except Submission.DoesNotExist:
+            previous_submission = None
+        try:
+            curr_submission = pi_controller.get_last_scored_submission(
+                instance.user,
+                instance.problem_instance,
+                before=instance.date,
+                include_current=True,
+            )
+        except Submission.DoesNotExist:
+            curr_submission = None
+        return contest_controller.render_score_change(previous_submission, curr_submission)
+
+    score_diff_display.short_description = _("Score change")
+    score_diff_display.admin_order_field = 'score'
 
     def contest_display(self, instance):
         return instance.problem_instance.contest

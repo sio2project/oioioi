@@ -12,6 +12,8 @@ from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, ProblemInstance, Round
+from oioioi.contests.scores import IntegerScore
+from oioioi.contests.tests.tests import TestScoreDiffDisplay
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.oi.management.commands import import_schools
 from oioioi.oi.models import OIRegistration, School
@@ -616,3 +618,31 @@ class TestUserInfo(TestCase):
                     self.assertContains(response, reg_data[k])
                 else:
                     self.assertNotContains(response, reg_data[k], status_code=403)
+
+
+class TestScoreDiffOIContest(TestScoreDiffDisplay):
+    contest_controller = 'oioioi.oi.controllers.OIContestController'
+
+    def test(self):
+        self._create_submission(IntegerScore(25), '+25')
+        s1 = self._create_submission(IntegerScore(50), '+25')
+        s2 = self._create_submission(IntegerScore(100), '+50')
+        self._create_submission(IntegerScore(0), '-100')
+        s1.kind = 'IGNORED'
+        s1.save()
+        self.assertEqual(self._get_score_diff(s2), '+75')
+        self.assertEqual(self._get_score_diff(s1), '-')
+
+
+class TestScoreDiffOIFinalsContest(TestScoreDiffDisplay):
+    contest_controller = 'oioioi.oi.controllers.OIFinalOnsiteContestController'
+
+    def test(self):
+        self._create_submission(IntegerScore(25), '+25')
+        s1 = self._create_submission(IntegerScore(50), '+25')
+        s2 = self._create_submission(IntegerScore(100), '+50')
+        self._create_submission(IntegerScore(0), '0')
+        s1.kind = 'IGNORED'
+        s1.save()
+        self.assertEqual(self._get_score_diff(s2), '+75')
+        self.assertEqual(self._get_score_diff(s1), '-')

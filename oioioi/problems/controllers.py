@@ -250,6 +250,23 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return ()
 
+    def get_last_scored_submission(self, user, problem_instance, before=None, include_current=False):
+        """Helper function for :meth:`update_user_result_for_problem`
+        to get the last scored submission.
+        """
+        submissions = (
+            Submission.objects.filter(problem_instance=problem_instance)
+            .filter(user=user)
+            .filter(score__isnull=False)
+            .filter(kind='NORMAL')
+        )
+        if before:
+            if include_current:
+                submissions = submissions.filter(date__lte=before)
+            else:
+                submissions = submissions.filter(date__lt=before)
+        return submissions.latest()
+
     def update_user_result_for_problem(self, result):
         """Updates a :class:`~oioioi.contests.models.UserResultForProblem`.
 
@@ -260,13 +277,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         Saving the ``result`` is a responsibility of the caller.
         """
         try:
-            latest_submission = (
-                Submission.objects.filter(problem_instance=result.problem_instance)
-                .filter(user=result.user)
-                .filter(score__isnull=False)
-                .filter(kind='NORMAL')
-                .latest()
-            )
+            latest_submission = self.get_last_scored_submission(result.user, result.problem_instance)
             try:
                 report = SubmissionReport.objects.get(
                     submission=latest_submission, status='ACTIVE', kind='NORMAL'
