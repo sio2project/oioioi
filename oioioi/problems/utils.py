@@ -411,6 +411,7 @@ def filter_my_all_visible_submissions(request, queryset):
 
     result = Submission.objects.none()
     resolved = set()
+    prev_contest = request.contest
 
     for submission in queryset:
         pi = submission.problem_instance
@@ -434,5 +435,8 @@ def filter_my_all_visible_submissions(request, queryset):
             request, current_queryset
         )
         result = result.union(current_queryset)
+        if hasattr(request, '_cache'): # Delete cache so that e.g. `is_contest_basicadmin` doesn't return wrong results
+            delattr(request, '_cache')
+    request.contest = prev_contest
 
     return result
