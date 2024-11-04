@@ -772,3 +772,11 @@ class SubmitMessage(models.Model):
     class Meta(object):
         verbose_name = _("new submission message")
         verbose_name_plural = _("new submission messages")
+
+class SubmissionMessage(models.Model):
+    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
+    content = models.TextField(verbose_name=_("message"), blank=True)
+
+    class Meta(object):
+        verbose_name = _("submission message")
+        verbose_name_plural = _("submission messages")

@@ -126,6 +126,11 @@ c_patterns = [
         views.edit_submissions_message_view,
         name='edit_submissions_message',
     ),
+    re_path(
+        r'^submission_edit_message/$',
+        views.edit_submission_message_view,
+        name='edit_submission_message',
+    ),
     re_path(r'^files/$', views.contest_files_view, name='contest_files'),
     re_path(
         r'^files_edit_message/$',

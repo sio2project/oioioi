@@ -390,3 +390,9 @@ class SubmitMessageForm(PublicMessageForm):
     class Meta(object):
         model = SubmitMessage
         fields = ['content']
+
+
+class SubmissionMessageForm(PublicMessageForm):
+    class Meta(object):
+        model = SubmitMessage
+        fields = ['content']

@@ -44,6 +44,7 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
+    SubmissionMessage,
 )
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import make_empty_contest_formset
@@ -4079,6 +4080,7 @@ class PublicMessageContestController(ProgrammingContestController):
     files_message = 'Test public message'
     submissions_message = 'Test public message'
     submit_message = 'Test public message'
+    submission_message = 'Test public message'
 
 
 class TestFilesMessage(TestPublicMessage):
@@ -4110,6 +4112,26 @@ class TestSubmitMessage(TestPublicMessage):
     viewname = 'submit'
     controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
 
+
+class TestSubmissionMessage(TestPublicMessage):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
+    model = SubmissionMessage
+    button_viewname = 'my_submissions'
+    edit_viewname = 'edit_submission_message'
+    viewname = 'submission'
+    controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
+
+    def setUp(self):
+        super().setUp()
+        contest = Contest.objects.get()
+        submission = Submission.objects.get()
+        self.viewname_kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
 
 
 class TestContestArchived(TestCase):
@@ -4199,4 +4221,3 @@ class TestScoreBadges(TestCase):
         self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'zad1'))
         self.assertIn('badge-warning', self._get_badge_for_problem(response.content, 'zad2'))
         self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'zad3'))
-
