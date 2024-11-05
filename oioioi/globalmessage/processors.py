@@ -16,10 +16,12 @@ def global_message_processor(request):
     if message.visible(time):
         return {
             'extra_body_global_message': render_to_string(
-                'global-message-user.html', {'global_message': message}
+                'global-message-user.html',
+                {'global_message': message, 'updated': message.updated.strftime('%s')},
             ),
             'extra_admin_global_message': render_to_string(
-                'global-message-admin.html', {'global_message': message}
+                'global-message-admin.html',
+                {'global_message': message, 'updated': message.updated.strftime('%s')},
             ),
         }
 
