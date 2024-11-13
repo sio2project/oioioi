@@ -1,8 +1,0 @@
-{% load get_user_name %}
-
-<span class="reaction-list">
-    {% for reaction in reactions|slice:":10" %}
-        {% full_name reaction.author %}{% if forloop.last == False %},{% endif %}
-    {% endfor %}
-</span>
-    

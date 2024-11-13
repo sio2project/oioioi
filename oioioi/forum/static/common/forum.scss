@@ -15,11 +15,3 @@
   margin-top: -$oioioi-navbar-height;
   margin-bottom: $oioioi-navbar-height;
 }
-
-.reaction-list {
-  display: none;
-}
-
-.reaction-symbol:hover + .reaction-list {
-  display: inline;
-}

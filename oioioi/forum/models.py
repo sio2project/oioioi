@@ -255,13 +255,7 @@ class Post(models.Model):
             return False
 
         return Ban.is_banned(self.thread.category.forum, self.reported_by)
-
-    def get_upvotes(self):
-        return self.reactions.filter(type_of_reaction='UPVOTE')
-
-    def get_downvotes(self):
-        return self.reactions.filter(type_of_reaction='DOWNVOTE')
-
+        
 
 post_reaction_types = EnumRegistry(
     entries=[
