@@ -255,7 +255,7 @@ class Post(models.Model):
             return False
 
         return Ban.is_banned(self.thread.category.forum, self.reported_by)
-        
+
 
 post_reaction_types = EnumRegistry(
     entries=[
