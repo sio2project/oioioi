@@ -16,6 +16,6 @@ def format_reactions(post, rtype):
   ])
 
   if(post.reactions.filter(type_of_reaction=rtype).count() > max_count):
-    output +=  _(' and others')
+    output += ' ' +  _('and others.')
 
   return output
