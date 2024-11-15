@@ -15,7 +15,9 @@ def format_reactions(post, rtype):
     post.reactions.filter(type_of_reaction=rtype).select_related('author')[:max_count]
   ])
 
-  if(post.reactions.filter(type_of_reaction=rtype).count() > max_count):
+  count = post.upvotes_count if rtype == 'UPVOTE' else post.downvotes_count
+  
+  if(count > max_count):
     output += ' ' +  _('and others.')
 
   return output
