@@ -70,35 +70,22 @@ def get_round_context(request, round_pk):
         pi for pi in queryset if controller.can_see_problem(request, pi)
     ]
 
-    for pi in visible_problem_instances:
-        problem_instances[pi.pk] = {}
-        problem_instances[pi.pk]['problem_instance'] = pi
-        problem_instances[pi.pk]['submission_count'] = 0
-        problem_instances[pi.pk]['question_count'] = 0
-        problem_instances[pi.pk]['solved_count'] = 0
-        problem_instances[pi.pk]['tried_solving_count'] = 0
-        problem_instances[pi.pk]['users_with_score'] = defaultdict(int)
-        problem_instances[pi.pk]['max_score'] = 0
-
     end_date = request.timestamp
     start_date = end_date - timedelta(days=RECENT_ACTIVITY_DAYS)
 
     last_week = [start_date, end_date]
 
-    questions = Message.objects.filter(round=selected_round, date__range=last_week)
-
-    for question in questions:
-        if question.problem_instance is not None:
-            problem_instance = problem_instances[question.problem_instance.pk]
-            problem_instance['question_count'] += 1
-
-    submissions = Submission.objects.filter(
-        problem_instance__round=selected_round, date__range=last_week
-    )
-
-    for submission in submissions:
-        problem_instance = problem_instances[submission.problem_instance.pk]
-        problem_instance['submission_count'] += 1
+    for pi in visible_problem_instances:
+        problem_instances[pi.pk] = {}
+        problem_instances[pi.pk]['problem_instance'] = pi
+        problem_instances[pi.pk]['submission_count'] = Submission.objects.filter(
+            problem_instance__round=selected_round, date__range=last_week, problem_instance=pi).count()
+        problem_instances[pi.pk]['question_count'] = Message.objects.filter(
+            round=selected_round, date__range=last_week,  problem_instance=pi).count()
+        problem_instances[pi.pk]['solved_count'] = 0
+        problem_instances[pi.pk]['tried_solving_count'] = 0
+        problem_instances[pi.pk]['users_with_score'] = defaultdict(int)
+        problem_instances[pi.pk]['max_score'] = 0
 
     results = UserResultForProblem.objects.filter(
         problem_instance__round=selected_round, submission_report__isnull=False
