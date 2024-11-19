@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load check_perm %}
 {% load get_user_name %}
-{% load format_reactions %}
+{% load display_reacted_by %}
 
 {% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_edit_url %}
 {% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_delete_url %}
@@ -21,7 +21,7 @@
 
         <span 
             class="{% if post.user_upvoted %} text-success {% else %} text-muted {% endif %}"
-            data-toggle="tooltip" title="{% format_reactions post "UPVOTE" %}"
+            data-toggle="tooltip" title="{% display_reacted_by post "UPVOTE" %}"
         >
             <i class="fa-solid fa-plus"></i> {{ post.upvotes_count }}
         </span>
@@ -36,7 +36,7 @@
 
         <span 
             class="{% if post.user_downvoted %} text-danger {% else %} text-muted {% endif %}"
-            data-toggle="tooltip" title="{% format_reactions post "DOWNVOTE" %}"
+            data-toggle="tooltip" title="{% display_reacted_by post "DOWNVOTE" %}"
         >
             <i class="fa-solid fa-minus"></i> {{ post.downvotes_count }}
         </span>

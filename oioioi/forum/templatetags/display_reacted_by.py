@@ -6,16 +6,16 @@ from django.conf import settings
 register = template.Library()
 
 @register.simple_tag
-def format_reactions(post, rtype):
-  max_count = getattr(settings, 'FORUM_REACTIONS_TO_DISPLAY', 10)
+def display_reacted_by(post, rtype):
+  # post needs to be queried with prefetch_reacted_by
 
   output = ', '.join([
     get_user_display_name(reaction.author)
-    for reaction in 
-    post.reactions.filter(type_of_reaction=rtype).select_related('author')[:max_count]
+    for reaction in getattr(post, rtype.lower() + 'd_by')
   ])
 
-  count = post.upvotes_count if rtype == 'UPVOTE' else post.downvotes_count
+  count = getattr(post, rtype.lower() + 's_count')
+  max_count = getattr(settings, 'FORUM_REACTIONS_TO_DISPLAY', 10)
   
   if(count > max_count):
     output += ' ' +  _('and others.')
