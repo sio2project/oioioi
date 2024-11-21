@@ -23,6 +23,7 @@ from oioioi.contests.utils import (
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
+    get_submission_message,
 )
 from oioioi.evalmgr.tasks import (
     add_before_placeholder,
@@ -702,6 +703,7 @@ class ProgrammingProblemController(ProblemController):
                     submission
                 ),
                 'can_admin': can_admin,
+                'message': get_submission_message(request),
             },
         )
 
