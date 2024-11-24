@@ -53,6 +53,7 @@ from oioioi.contests.utils import administered_contests, is_contest_basicadmin
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
 from oioioi.problems.models import (
+    AggregatedAlgorithmTagProposal,
     AlgorithmTag,
     AlgorithmTagLocalization,
     AlgorithmTagProposal,
@@ -1272,6 +1273,12 @@ def save_proposals_view(request):
                 problem=problem, tag=algorithm_tag, user=user
             )
             algorithm_tag_proposal.save()
+            aggregated_algorithm_tag_proposal = AggregatedAlgorithmTagProposal.objects.get_or_create(
+                problem=problem, tag=algorithm_tag
+            )[0]
+            aggregated_algorithm_tag_proposal.amout += 1
+            aggregated_algorithm_tag_proposal.save()
+
 
         difficulty_tag_localization = DifficultyTagLocalization.objects.filter(
             full_name=difficulty, language=get_language()
