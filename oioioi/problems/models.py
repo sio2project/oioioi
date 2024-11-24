@@ -2,14 +2,16 @@ import logging
 import os.path
 from contextlib import contextmanager
 from traceback import format_exception
+from xml.dom import ValidationErr
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import validate_slug
 from django.db import models, transaction
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.encoding import force_str
@@ -959,6 +961,45 @@ class AlgorithmTagProposal(models.Model):
         verbose_name = _("algorithm tag proposal")
         verbose_name_plural = _("algorithm tag proposals")
 
+
+@receiver(post_save, sender=AlgorithmTagProposal)
+def increase_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
+    problem = instance.problem
+    tag = instance.tag
+    
+    aggregated_algorithm_tag_proposal = AggregatedAlgorithmTagProposal.objects.get_or_create(
+        problem=problem, tag=tag
+    )[0]
+    
+    aggregated_algorithm_tag_proposal.amount += 1
+    aggregated_algorithm_tag_proposal.save()
+
+
+@receiver(post_delete, sender=AlgorithmTagProposal)
+def decrease_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
+    problem = instance.problem
+    tag = instance.tag
+    
+    try:
+        aggregated_algorithm_tag_proposal = AggregatedAlgorithmTagProposal.objects.get(problem=problem, tag=tag)
+        aggregated_algorithm_tag_proposal.amount -= 1
+        
+        if aggregated_algorithm_tag_proposal.amount == 0:
+            aggregated_algorithm_tag_proposal.delete()
+        else:
+            try:
+                aggregated_algorithm_tag_proposal.save()
+            except ValidationError as e:
+                raise RuntimeError(
+                    f"AggregatedAlgorithmTagProposal and deleted AlgorithmTagProposal "
+                    f"were out of sync - likely AggregatedAlgorithmTagProposal.amount "
+                    f"decreased below 0. ValidationError: {str(e)}"
+                )
+    except AggregatedAlgorithmTagProposal.DoesNotExist:
+        raise RuntimeError(
+            "AggregatedAlgorithmTagProposal corresponding to deleted AlgorithmTagProposal "
+            "does not exist."
+        )
 
 
 class AggregatedAlgorithmTagProposal(models.Model):
