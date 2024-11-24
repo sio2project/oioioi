@@ -967,16 +967,17 @@ def increase_aggregated_algorithm_tag_proposal(sender, instance, created, **kwar
     problem = instance.problem
     tag = instance.tag
     
-    aggregated_algorithm_tag_proposal = AggregatedAlgorithmTagProposal.objects.get_or_create(
-        problem=problem, tag=tag
-    )[0]
-    
-    aggregated_algorithm_tag_proposal.amount += 1
-    aggregated_algorithm_tag_proposal.save()
+    if created:
+        aggregated_algorithm_tag_proposal = AggregatedAlgorithmTagProposal.objects.get_or_create(
+            problem=problem, tag=tag
+        )[0]
+        
+        aggregated_algorithm_tag_proposal.amount += 1
+        aggregated_algorithm_tag_proposal.save()
 
 
 @receiver(post_delete, sender=AlgorithmTagProposal)
-def decrease_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
+def decrease_aggregated_algorithm_tag_proposal(sender, instance, **kwargs):
     problem = instance.problem
     tag = instance.tag
     
