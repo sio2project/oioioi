@@ -958,3 +958,18 @@ class AlgorithmTagProposal(models.Model):
     class Meta(object):
         verbose_name = _("algorithm tag proposal")
         verbose_name_plural = _("algorithm tag proposals")
+
+
+
+class AggregatedAlgorithmTagProposal(models.Model):
+    problem = models.ForeignKey('Problem', on_delete=models.CASCADE)
+    tag = models.ForeignKey('AlgorithmTag', on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return str(self.problem.name) + u' -- ' + str(self.tag.name) + u' -- ' + str(self.amount)
+
+    class Meta:
+        verbose_name = _("aggregated algorithm tag proposal")
+        verbose_name_plural = _("aggregated algorithm tag proposals")
+        unique_together = ('problem', 'tag')
