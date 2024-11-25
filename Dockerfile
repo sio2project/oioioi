@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.10
 
 ENV PYTHONUNBUFFERED 1
 
@@ -54,7 +54,7 @@ USER oioioi
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
 ENV BERKELEYDB_DIR /usr
-RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user psycopg2-binary==2.9.10 twisted uwsgi
 RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
