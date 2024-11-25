@@ -9,8 +9,10 @@
 <ul class="list-group list-group-light">
     {% if no_of_rounds %}
         <li class="list-group-item">
-            {% blocktrans with no_of_rounds as number and no_of_rounds|pluralize as fix %}
-                The contest has {{ number }} round{{ fix }}.
+            {% blocktrans count no_of_rounds as number %}
+                The contest has {{ number }} round.
+            {% plural %}
+                The contest has {{ number }} rounds.
             {% endblocktrans %}
         </li>
     {% endif %}
