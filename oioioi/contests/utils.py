@@ -614,6 +614,7 @@ def get_submission_message(request):
 def is_contest_archived(request):
     return (
         hasattr(request, 'contest')
+        and hasattr(request.contest, 'is_archived')
         and request.contest.is_archived
     )
 
