@@ -23,6 +23,7 @@ from oioioi.contests.utils import (
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
+    is_contest_archived,
     get_submission_message,
 )
 from oioioi.evalmgr.tasks import (
@@ -703,6 +704,7 @@ class ProgrammingProblemController(ProblemController):
                     submission
                 ),
                 'can_admin': can_admin,
+                'is_contest_archived': is_contest_archived(request),
                 'message': get_submission_message(request),
             },
         )

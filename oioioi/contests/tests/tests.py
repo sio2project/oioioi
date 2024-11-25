@@ -4166,6 +4166,21 @@ class TestContestArchived(TestCase):
         self.assertContains(response, "This contest is archived.")
         self.assertNotContains(response, "Submit")
 
+    def test_submissions_view(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('my_submissions', kwargs={'contest_id': 'c'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Submit")
+        
+    def test_submission_view(self):
+        contest = Contest.objects.get()
+        submission = Submission.objects.get(pk=1)
+        self.assertTrue(self.client.login(username='test_user'))
+        kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertNotContains(response, "Submit")
+
     def test_submission_list_visibility(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('my_submissions', kwargs={'contest_id': 'c'})
