@@ -145,6 +145,7 @@ class TestSaveProposals(TestCase):
         user = User.objects.get(username='test_admin')
 
         self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
+        self.assertEqual(AggregatedAlgorithmTagProposal.object.count(), 0)
         self.assertEqual(DifficultyTagProposal.objects.count(), 0)
 
         response = self.client.post(
@@ -158,6 +159,7 @@ class TestSaveProposals(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AlgorithmTagProposal.objects.count(), 2)
+        self.assertEqual(AggregatedAlgorithmTagProposal.object.count(), 2)
         self.assertEqual(DifficultyTagProposal.objects.count(), 1)
         self.assertTrue(
             AlgorithmTagProposal.objects.filter(
@@ -171,9 +173,80 @@ class TestSaveProposals(TestCase):
                 user=user,
             ).exists()
         )
+        self.assertEquals(
+            AggregatedAlgorithmTagProposal.objects.get(
+                problem=problem, tag=AlgorithmTag.objects.get(name='dp')
+            ).amount, 1
+        )
+        self.assertEquals(
+            AggregatedAlgorithmTagProposal.objects.get(
+                problem=problem,
+                tag=AlgorithmTag.objects.get(name='knapsack'),
+            ).amount, 1
+        )
         self.assertTrue(
             DifficultyTagProposal.objects.filter(
                 problem=problem, tag=DifficultyTag.objects.get(name='easy'), user=user
+            ).exists()
+        )
+
+        problem = Problem.object.get(pk=0)
+        user = User.objects.get(username='test_user')
+
+        response = self.client.post(
+            self.url,
+            {
+                'tags[]': ["Longest common increasing subsequence", "Dynamic programming", "Greedy"],
+                'difficulty': '  \t    \r\n MEDIUM   \t     \n  ',
+                'user': 'test_user',
+                'problem': '0',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 5)
+        self.assertEqual(AggregatedAlgorithmTagProposal.object.count(), 4)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 2)
+        self.assertTrue(
+            AlgorithmTagProposal.objects.filter(
+                problem=problem, tag=AlgorithmTag.objects.get(name='lcis'), user=user
+            ).exists()
+        )
+        self.assertTrue(
+            AlgorithmTagProposal.objects.filter(
+                problem=problem, tag=AlgorithmTag.objects.get(name='dp'), user=user
+            ).exists()
+        )
+        self.assertTrue(
+            AlgorithmTagProposal.objects.filter(
+                problem=problem,
+                tag=AlgorithmTag.objects.get(name='greedy'),
+                user=user,
+            ).exists()
+        )
+        self.assertEquals(
+            AggregatedAlgorithmTagProposal.objects.get(
+                problem=problem, tag=AlgorithmTag.objects.get(name='greedy')
+            ).amount, 1
+        )
+        self.assertEquals(
+            AggregatedAlgorithmTagProposal.objects.get(
+                problem=problem, tag=AlgorithmTag.objects.get(name='lcis')
+            ).amount, 1
+        )
+        self.assertEquals(
+            AggregatedAlgorithmTagProposal.objects.get(
+                problem=problem, tag=AlgorithmTag.objects.get(name='dp')
+            ).amount, 2
+        )
+        self.assertEquals(
+            AggregatedAlgorithmTagProposal.objects.get(
+                problem=problem,
+                tag=AlgorithmTag.objects.get(name='knapsack'),
+            ).amount, 1
+        )
+        self.assertTrue(
+            DifficultyTagProposal.objects.filter(
+                problem=problem, tag=DifficultyTag.objects.get(name='medium'), user=user
             ).exists()
         )
 
