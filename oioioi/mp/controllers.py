@@ -104,6 +104,14 @@ class MPRegistrationController(ParticipantsController):
         ).exists()
 
 
+class MP2025RegistrationController(MPRegistrationController):
+    @property
+    def form_class(self):
+        from oioioi.mp.forms import MP2025RegistrationForm
+
+        return MP2025RegistrationForm
+
+
 class MPContestController(ProgrammingContestController):
     description = _("Master of Programming")
     create_forum = False
@@ -277,3 +285,16 @@ class MP2024ContestController(MPContestController):
         result.score = FloatScore(best_score)
         result.status = best_submission_overall.status
         result.submission_report = report
+
+
+class MP2025ContestController(MP2024ContestController):
+    description = _("Master of Programming 2025")
+
+    def fill_evaluation_environ(self, environ, submission):
+        super(MPContestController, self).fill_evaluation_environ(environ, submission)
+
+        environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
+        environ['test_scorer'] = 'oioioi.programs.utils.threshold_linear_test_scorer'
+
+    def registration_controller(self):
+        return MP2025RegistrationController(self.contest)
