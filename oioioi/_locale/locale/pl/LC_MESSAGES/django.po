@@ -4311,10 +4311,6 @@ msgstr "Dodaj wiadomość"
 msgid "Add thread"
 msgstr "Dodaj temat"
 
-#: forum/templatetags/format_reactions.py:19
-msgid "and others."
-msgstr "i inni."
-
 #: forum/utils.py:118
 msgid ""
 "You are banned on this forum. You can't add, edit or report posts. To appeal"
