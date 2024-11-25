@@ -9,6 +9,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.db.models import Count
 
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.contests.controllers import (
@@ -75,13 +76,23 @@ def get_round_context(request, round_pk):
 
     last_week = [start_date, end_date]
 
+    submission_counts = Submission.objects.filter(
+        problem_instance__round=selected_round, date__range=last_week
+    ).values('problem_instance').annotate(submission_count=Count('id'))
+
+    submission_dict = { item['problem_instance']: item['submission_count'] for item in submission_counts }
+
+    question_counts = Message.objects.filter(
+        round=selected_round, date__range=last_week
+    ).values('problem_instance').annotate(question_count=Count('id'))
+
+    question_dict = { item['problem_instance']: item['question_count'] for item in question_counts }
+
     for pi in visible_problem_instances:
         problem_instances[pi.pk] = {}
         problem_instances[pi.pk]['problem_instance'] = pi
-        problem_instances[pi.pk]['submission_count'] = Submission.objects.filter(
-            problem_instance__round=selected_round, date__range=last_week, problem_instance=pi).count()
-        problem_instances[pi.pk]['question_count'] = Message.objects.filter(
-            round=selected_round, date__range=last_week,  problem_instance=pi).count()
+        problem_instances[pi.pk]['submission_count'] = submission_dict.get(pi.pk, 0)
+        problem_instances[pi.pk]['question_count'] = question_dict.get(pi.pk, 0)
         problem_instances[pi.pk]['solved_count'] = 0
         problem_instances[pi.pk]['tried_solving_count'] = 0
         problem_instances[pi.pk]['users_with_score'] = defaultdict(int)
