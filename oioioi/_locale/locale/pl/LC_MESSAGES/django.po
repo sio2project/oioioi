@@ -3046,7 +3046,7 @@ msgid_plural ""
 "            "
 msgstr[0] "\nKonkurs ma %(number)s rundę."
 msgstr[1] "\nKonkurs ma %(number)s rundy."
-msgstr[2] "\n Konkurs ma %(number)s rund."
+msgstr[2] "\nKonkurs ma %(number)s rund."
 msgstr[3] "\nKonkurs ma %(number)s rund."
 
 #: contests/templates/contests/contest_rules.html:21
