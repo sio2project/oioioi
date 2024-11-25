@@ -29,6 +29,7 @@ from oioioi.contests.forms import (
     FilesMessageForm,
     SubmissionsMessageForm,
     SubmitMessageForm,
+    SubmissionMessageForm,
 )
 from oioioi.contests.models import (
     Contest,
@@ -62,6 +63,7 @@ from oioioi.contests.utils import (
     get_results_visibility,
     are_rules_visible,
     get_scoring_desription,
+    get_submission_message,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -378,6 +380,23 @@ def edit_submissions_message_view(request):
         request,
         'public_message/edit.html',
         {'form': form, 'title': _("Edit submissions message")},
+    )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def edit_submission_message_view(request):
+    instance = get_submission_message(request)
+    if request.method == 'POST':
+        form = SubmissionMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('my_submissions', contest_id=request.contest.id)
+    else:
+        form = SubmissionMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit submission message")},
     )
 
 

@@ -21,6 +21,7 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
+    SubmissionMessage,
 )
 
 
@@ -597,6 +598,14 @@ def get_submit_message(request):
         request,
         SubmitMessage,
         'submit_message',
+    )
+
+
+def get_submission_message(request):
+    return get_public_message(
+        request,
+        SubmissionMessage,
+        'submission_message',
     )
 
 
