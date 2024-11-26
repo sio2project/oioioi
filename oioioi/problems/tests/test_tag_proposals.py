@@ -7,6 +7,8 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from oioioi.base.tests import TestCase
 from oioioi.problems.models import (
+    AggregatedAlgorithmTagProposal,
+    AggregatedDifficultyTagProposal,
     AlgorithmTag,
     AlgorithmTagProposal,
     DifficultyTag,
@@ -145,8 +147,9 @@ class TestSaveProposals(TestCase):
         user = User.objects.get(username='test_admin')
 
         self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
-        self.assertEqual(AggregatedAlgorithmTagProposal.object.count(), 0)
+        self.assertEqual(AggregatedAlgorithmTagProposal.objects.count(), 0)
         self.assertEqual(DifficultyTagProposal.objects.count(), 0)
+        self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 0)
 
         response = self.client.post(
             self.url,
@@ -159,8 +162,9 @@ class TestSaveProposals(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AlgorithmTagProposal.objects.count(), 2)
-        self.assertEqual(AggregatedAlgorithmTagProposal.object.count(), 2)
+        self.assertEqual(AggregatedAlgorithmTagProposal.objects.count(), 2)
         self.assertEqual(DifficultyTagProposal.objects.count(), 1)
+        self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 1)
         self.assertTrue(
             AlgorithmTagProposal.objects.filter(
                 problem=problem, tag=AlgorithmTag.objects.get(name='dp'), user=user
@@ -173,12 +177,12 @@ class TestSaveProposals(TestCase):
                 user=user,
             ).exists()
         )
-        self.assertEquals(
+        self.assertEqual(
             AggregatedAlgorithmTagProposal.objects.get(
                 problem=problem, tag=AlgorithmTag.objects.get(name='dp')
             ).amount, 1
         )
-        self.assertEquals(
+        self.assertEqual(
             AggregatedAlgorithmTagProposal.objects.get(
                 problem=problem,
                 tag=AlgorithmTag.objects.get(name='knapsack'),
@@ -188,6 +192,11 @@ class TestSaveProposals(TestCase):
             DifficultyTagProposal.objects.filter(
                 problem=problem, tag=DifficultyTag.objects.get(name='easy'), user=user
             ).exists()
+        )
+        self.assertEqual(
+            AggregatedDifficultyTagProposal.objects.get(
+                problem=problem, tag=DifficultyTag.objects.get(name='easy'), user=user
+            ).amount, 1
         )
 
         problem = Problem.object.get(pk=0)
@@ -204,8 +213,9 @@ class TestSaveProposals(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AlgorithmTagProposal.objects.count(), 5)
-        self.assertEqual(AggregatedAlgorithmTagProposal.object.count(), 4)
+        self.assertEqual(AggregatedAlgorithmTagProposal.objects.count(), 4)
         self.assertEqual(DifficultyTagProposal.objects.count(), 2)
+        self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 2)
         self.assertTrue(
             AlgorithmTagProposal.objects.filter(
                 problem=problem, tag=AlgorithmTag.objects.get(name='lcis'), user=user
@@ -223,22 +233,22 @@ class TestSaveProposals(TestCase):
                 user=user,
             ).exists()
         )
-        self.assertEquals(
+        self.assertEqual(
             AggregatedAlgorithmTagProposal.objects.get(
                 problem=problem, tag=AlgorithmTag.objects.get(name='greedy')
             ).amount, 1
         )
-        self.assertEquals(
+        self.assertEqual(
             AggregatedAlgorithmTagProposal.objects.get(
                 problem=problem, tag=AlgorithmTag.objects.get(name='lcis')
             ).amount, 1
         )
-        self.assertEquals(
+        self.assertEqual(
             AggregatedAlgorithmTagProposal.objects.get(
                 problem=problem, tag=AlgorithmTag.objects.get(name='dp')
             ).amount, 2
         )
-        self.assertEquals(
+        self.assertEqual(
             AggregatedAlgorithmTagProposal.objects.get(
                 problem=problem,
                 tag=AlgorithmTag.objects.get(name='knapsack'),
@@ -248,6 +258,49 @@ class TestSaveProposals(TestCase):
             DifficultyTagProposal.objects.filter(
                 problem=problem, tag=DifficultyTag.objects.get(name='medium'), user=user
             ).exists()
+        )
+        self.assertEqual(
+            AggregatedDifficultyTagProposal.objects.get(
+                problem=problem, tag=DifficultyTag.objects.get(name='medium')
+            ).amount, 1
+        )
+        self.assertEqual(
+            AggregatedDifficultyTagProposal.objects.get(
+                problem=problem, tag=DifficultyTag.objects.get(name='easy')
+            ).amount, 1
+        )
+
+        problem = Problem.object.get(pk=0)
+        user = User.objects.get(username='test_user2')
+
+        response = self.client.post(
+            self.url,
+            {
+                'tags[]': [],
+                'difficulty': ' medium  \n  ',
+                'user': 'test_user2',
+                'problem': '0',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 5)
+        self.assertEqual(AggregatedAlgorithmTagProposal.objects.count(), 4)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 3)
+        self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 2)
+        self.assertTrue(
+            DifficultyTagProposal.objects.filter(
+                problem=problem, tag=DifficultyTag.objects.get(name='medium'), user=user
+            ).exists()
+        )
+        self.assertEqual(
+            AggregatedDifficultyTagProposal.objects.get(
+                problem=problem, tag=DifficultyTag.objects.get(name='medium')
+            ).amount, 2
+        )
+        self.assertEqual(
+            AggregatedDifficultyTagProposal.objects.get(
+                problem=problem, tag=DifficultyTag.objects.get(name='easy')
+            ).amount, 1
         )
 
         invalid_query_data = [
