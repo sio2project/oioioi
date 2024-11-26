@@ -193,8 +193,8 @@ class MPContestController(ProgrammingContestController):
 
 class MPRankingController(DefaultRankingController):
     """Changes to Default Ranking:
-    1. Sum column is just after User column
-    2. Rounds with earlier start_date are more to the left
+    1. Rounds with earlier start_date are more to the left.
+    2. Users with 0 points aren't listed.
     """
 
     description = _("MP style ranking")
@@ -211,11 +211,6 @@ class MPRankingController(DefaultRankingController):
 
     def _filter_pis_for_ranking(self, partial_key, queryset):
         return queryset.order_by("-round__start_date")
-
-    def _render_ranking_page(self, key, data, page):
-        request = self._fake_request(page)
-        data['is_admin'] = self.is_admin_key(key)
-        return render_to_string('mp/ranking.html', context=data, request=request)
 
     def _allow_zero_score(self):
         return False

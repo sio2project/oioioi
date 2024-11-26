@@ -1,0 +1,20 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+{{ welcome_page_msg.render_content }}
+
+<div class="text-center">
+    {% if show_edit_button %}
+        <div class="form-group">
+            <a href="{% url 'edit_welcome_page' %}" class="btn btn-primary mt-3">
+                {% trans "Edit message" %}
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

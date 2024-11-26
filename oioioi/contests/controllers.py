@@ -6,7 +6,7 @@ from django.contrib import auth
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Subquery
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -295,8 +295,7 @@ class PublicContestRegistrationController(RegistrationController):
 
     def filter_users_with_accessible_personal_data(self, queryset):
         submissions = Submission.objects.filter(problem_instance__contest=self.contest)
-        authors = [s.user for s in submissions]
-        return [q for q in queryset if q in authors]
+        return queryset.filter(id__in=Subquery(submissions.values('user_id')))
 
 
 class ContestControllerContext(object):

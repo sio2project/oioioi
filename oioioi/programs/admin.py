@@ -31,6 +31,8 @@ from oioioi.programs.models import (
     ProgramsConfig,
     ReportActionsConfig,
     Test,
+    CheckerFormatForContest,
+    CheckerFormatForProblem,
 )
 
 
@@ -447,3 +449,38 @@ class LanguageListFilter(SimpleListFilter):
             return queryset.filter(condition)
         else:
             return queryset
+
+
+class CheckerFormatForContestInline(admin.StackedInline):
+    model = CheckerFormatForContest
+    category = _("Advanced")
+
+
+class CheckerFormatForProblemInline(admin.StackedInline):
+    model = CheckerFormatForProblem
+    category = _("Advanced")
+
+
+class CheckerFormatOverrideContestAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.CheckerFormatForContest` to an admin
+    panel.
+    """
+    def __init__(self, *args, **kwargs):
+        super(CheckerFormatOverrideContestAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = tuple(self.inlines) + (CheckerFormatForContestInline,)
+
+
+ContestAdmin.mix_in(CheckerFormatOverrideContestAdminMixin)
+
+
+class CheckerFormatOverrideProblemAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.CheckerFormatForProblem` to an admin
+    panel.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(CheckerFormatOverrideProblemAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = tuple(self.inlines) + (CheckerFormatForProblemInline,)
+
+
+ProblemInstanceAdmin.mix_in(CheckerFormatOverrideProblemAdminMixin)

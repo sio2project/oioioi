@@ -6,7 +6,7 @@
 #
 # system:
 #   docker
-#   docker-compose
+#   docker compose (V2)
 
 
 # This script was created in order to help the users
@@ -19,7 +19,7 @@ import os
 import sys
 from shlex import quote
 
-BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
+BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker compose" + \
                       " -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [

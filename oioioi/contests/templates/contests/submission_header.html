@@ -49,11 +49,13 @@
         {% endif %}
         {% block controls_buttons %}
         {% if contest %}
-            <a role="button"
-                class="btn btn-sm btn-outline-secondary"
-                href= "{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
-                <i class="fa-regular fa-circle-up"></i>
-                {% trans "Submit another" %}
+            {% if not is_contest_archived %}
+                <a role="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    href= "{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
+                    <i class="fa-regular fa-circle-up"></i>
+                    {% trans "Submit another" %}
+            {% endif %}
             </a>
         {% else %}
             {% if submission.submission.problem_instance.problem.problemsite %}
@@ -69,6 +71,7 @@
     </div>
     <h1 class="float-left">{% trans "Submission" %} {{ submission.submission.id }}</h1>
 </div>
+{% include "public_message/show.html" %}
 {% endblock %}
 
 {% block submission_details %}
