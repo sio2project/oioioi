@@ -887,6 +887,62 @@ class DifficultyTagProposal(models.Model):
         verbose_name_plural = _("difficulty proposals")
 
 
+
+@receiver(post_save, sender=DifficultyTagProposal)
+def increase_aggregated_difficulty_tag_proposal(sender, instance, created, **kwargs):
+    problem = instance.problem
+    tag = instance.tag
+    
+    if created:
+        aggregated_difficulty_tag_proposal = AggregatedDifficultyTagProposal.objects.get_or_create(
+            problem=problem, tag=tag
+        )[0]
+        
+        aggregated_difficulty_tag_proposal.amount += 1
+        aggregated_difficulty_tag_proposal.save()
+
+
+@receiver(post_delete, sender=DifficultyTagProposal)
+def decrease_aggregated_difficulty_tag_proposal(sender, instance, **kwargs):
+    problem = instance.problem
+    tag = instance.tag
+    
+    try:
+        aggregated_difficulty_tag_proposal = AggregatedDifficultyTagProposal.objects.get(problem=problem, tag=tag)
+        aggregated_difficulty_tag_proposal.amount -= 1
+        
+        if aggregated_difficulty_tag_proposal.amount == 0:
+            aggregated_difficulty_tag_proposal.delete()
+        else:
+            try:
+                aggregated_difficulty_tag_proposal.save()
+            except ValidationError as e:
+                raise RuntimeError(
+                    f"AggregatedDifficultyTagProposal and deleted DifficultyTagProposal "
+                    f"were out of sync - likely AggregatedDifficultyTagProposal.amount "
+                    f"decreased below 0. ValidationError: {str(e)}"
+                )
+    except AggregatedDifficultyTagProposal.DoesNotExist:
+        raise RuntimeError(
+            "AggregatedDifficultyTagProposal corresponding to deleted DifficultyTagProposal "
+            "does not exist."
+        )
+
+
+class AggregatedDifficultyTagProposal(models.Model):
+    problem = models.ForeignKey('Problem', on_delete=models.CASCADE)
+    tag = models.ForeignKey('DifficultyTag', on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return str(self.problem.name) + u' -- ' + str(self.tag.name) + u' -- ' + str(self.amount)
+
+    class Meta:
+        verbose_name = _("aggregated difficulty tag proposal")
+        verbose_name_plural = _("aggregated difficulty tag proposals")
+        unique_together = ('problem', 'tag')
+
+
 @_localized('full_name')
 
 class AlgorithmTag(models.Model):
