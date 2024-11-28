@@ -15,7 +15,6 @@ from oioioi.problems.models import (
     DifficultyTagProposal,
     Problem,
 )
-from oioioi.problems.tests.utilities import AssertContainsOnlyMixin
 
 
 class TestAlgorithmTagsProposalHintsBase(TestCase):
