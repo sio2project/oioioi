@@ -195,18 +195,18 @@ class TestSaveProposals(TestCase):
         )
         self.assertEqual(
             AggregatedDifficultyTagProposal.objects.get(
-                problem=problem, tag=DifficultyTag.objects.get(name='easy'), user=user
+                problem=problem, tag=DifficultyTag.objects.get(name='easy')
             ).amount, 1
         )
 
-        problem = Problem.object.get(pk=0)
+        problem = Problem.objects.get(pk=0)
         user = User.objects.get(username='test_user')
 
         response = self.client.post(
             self.url,
             {
                 'tags[]': ["Longest common increasing subsequence", "Dynamic programming", "Greedy"],
-                'difficulty': '  \t    \r\n MEDIUM   \t     \n  ',
+                'difficulty': '  \t    \r\n Medium   \t     \n  ',
                 'user': 'test_user',
                 'problem': '0',
             },
@@ -270,23 +270,28 @@ class TestSaveProposals(TestCase):
             ).amount, 1
         )
 
-        problem = Problem.object.get(pk=0)
+        problem = Problem.objects.get(pk=0)
         user = User.objects.get(username='test_user2')
 
         response = self.client.post(
             self.url,
             {
-                'tags[]': [],
-                'difficulty': ' medium  \n  ',
+                'tags[]': ["Greedy"],
+                'difficulty': ' Medium  \n  ',
                 'user': 'test_user2',
                 'problem': '0',
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(AlgorithmTagProposal.objects.count(), 5)
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 6)
         self.assertEqual(AggregatedAlgorithmTagProposal.objects.count(), 4)
         self.assertEqual(DifficultyTagProposal.objects.count(), 3)
         self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 2)
+        self.assertEqual(
+            AggregatedAlgorithmTagProposal.objects.get(
+                problem=problem, tag=AlgorithmTag.objects.get(name='greedy')
+            ).amount, 2
+        )
         self.assertTrue(
             DifficultyTagProposal.objects.filter(
                 problem=problem, tag=DifficultyTag.objects.get(name='medium'), user=user
