@@ -2,7 +2,6 @@ import logging
 import os.path
 from contextlib import contextmanager
 from traceback import format_exception
-from xml.dom import ValidationErr
 
 from django.conf import settings
 from django.contrib.auth.models import User
