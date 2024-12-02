@@ -13,7 +13,7 @@ build:
     - libpq-dev
     - libdb-dev
   tools:
-    python: "3.8"
+    python: "3.10"
   jobs:
     pre_create_environment:
     - echo "Command run at 'pre_create_environment' step"
