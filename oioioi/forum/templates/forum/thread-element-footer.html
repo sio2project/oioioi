@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load check_perm %}
 {% load get_user_name %}
+{% load user_badge %}
 
 {% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_edit_url %}
 {% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_delete_url %}

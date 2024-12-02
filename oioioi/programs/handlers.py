@@ -295,6 +295,8 @@ def run_tests(env, kind=None, **kwargs):
             job['upload_out'] = True
         if env.get('interactor_file'):
             job['interactor_file'] = env['interactor_file']
+        if env.get('num_processes'):
+            job['num_processes'] = env['num_processes']
         job['untrusted_checker'] = env['untrusted_checker']
         jobs[test_name] = job
     extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})

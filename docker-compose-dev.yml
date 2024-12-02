@@ -1,5 +1,3 @@
-version: '2.4'
-# https://github.com/docker/cli/issues/1293
 services:
   db:
     image: library/postgres:12.2
@@ -27,6 +25,7 @@ services:
     # - "7887:7887"
     volumes:
       - .:/sio2/oioioi
+      - filetracker-data-dev:/sio2/deployment/media
 #      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
     depends_on:
@@ -50,3 +49,4 @@ services:
     stop_grace_period: 1m
 volumes:
   postgress-data-dev:
+  filetracker-data-dev:
