@@ -411,7 +411,7 @@ def visible_contests_query(request):
                 controller.registration_controller().visible_contests_query(request)
             )
             visible_query = visible_query.union(subquery, all=False)
-        return set(visible_query)
+        return visible_query
     visible_query = Q_always_false()
     for controller_name in used_controllers():
         controller_class = import_string(controller_name)
@@ -434,6 +434,7 @@ def visible_contests_queryset(request, filter_value):
     contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))    
     return set(contests)
 
+# why is there no `can_admin_contest_query`?
 @request_cached
 def administered_contests(request):
     """Returns a list of contests for which the logged
@@ -583,6 +584,7 @@ def best_round_to_display(request, allow_past_rounds=False):
 
 @make_request_condition
 def has_any_contest(request):
+    # holy shit.
     contests = [contest for contest in administered_contests(request)]
     return len(contests) > 0
 

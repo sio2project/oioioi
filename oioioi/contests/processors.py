@@ -1,10 +1,13 @@
 from django.conf import settings
 from django.utils.functional import lazy
+from django.utils.module_loading import import_string
+from django.db.models import Q
 
 from oioioi.base.utils import request_cached
+from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import Contest, ContestView
-from oioioi.contests.utils import visible_contests
-
+from oioioi.contests.utils import visible_contests, visible_contests_queryset
+from oioioi.contests.utils import used_controllers
 
 def register_current_contest(request):
     """A template context processor which makes the current contest available
@@ -33,11 +36,15 @@ def recent_contests(request):
             if c is not None and c != request.contest
         ]
     else:
-        c_views = ContestView.objects.filter(user=request.real_user).select_related(
-            'contest'
-        )
-        c_views = c_views[: getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
-        return [cv.contest for cv in c_views if cv.contest in visible_contests(request)]
+        visible_query = visible_contests_queryset(request)
+        c_views = (
+            Contest.objects.filter(contestview__user=request.real_user)
+            .filter(visible_query)
+            .order_by('-contestview__timestamp')
+            .only("id", "name")
+            .distinct()
+        )[: getattr(settings, "NUM_RECENT_CONTESTS", 5)]
+        return list(c_views)
 
 
 def register_recent_contests(request):
