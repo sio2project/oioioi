@@ -13,6 +13,19 @@
     }
   },
   {
+    "pk": 2,
+    "model": "contest.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000035",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
     "pk": 1,
     "model": "contests.submissionreport",
     "fields": {

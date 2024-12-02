@@ -8,5 +8,15 @@
       "short_name": "zad1",
       "contest": "c"
     }
+  },
+  {
+    "pk": 2,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "zad2",
+      "contest": "c"
+    }
   }
 ]

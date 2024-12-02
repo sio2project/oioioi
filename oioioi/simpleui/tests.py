@@ -4,8 +4,10 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from oioioi.base.tests import TestCase
+from oioioi.contests.controllers import ContestControllerContext
 from oioioi.contests.models import (
     Contest,
     ContestPermission,
@@ -16,6 +18,7 @@ from oioioi.contests.models import (
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
+from oioioi.simpleui.views import get_round_context
 
 
 def change_contest_type(contest):
@@ -34,6 +37,23 @@ class TestContestDashboard(TestCase):
         'test_submission',
     ]
     compile_flags = re.M | re.S
+
+    def test_get_round_context(self):
+        # Create request object
+        contest = Contest.objects.get(pk='c')
+        request = ContestControllerContext(contest, timezone.now(), True)
+
+        round = Round.objects.filter(contest=contest).first()
+
+        problem_instances = get_round_context(request, round)['problem_instances']
+        first_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
+        second_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 2][0]
+        self.assertEqual(first_instance['submission_count'], 2)
+        self.assertEqual(second_instance['submission_count'], 0)
+
+        self.assertEqual(first_instance['question_count'], 3)
+        self.assertEqual(second_instance['question_count'], 0)
+
 
     def test_contest_dashboard(self):
         user = User.objects.get(username='test_user')
