@@ -60,7 +60,7 @@ RUN pip3 install --user bsddb3==6.2.7
 WORKDIR /sio2/oioioi
 
 COPY --chown=oioioi:oioioi setup.py requirements.txt ./
-RUN pip3 install -r requirements.txt --user "filetracker[server]>=2.2.0,<3.0"
+RUN pip3 install -r requirements.txt --user filetracker[server]
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user
 
