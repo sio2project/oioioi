@@ -64,7 +64,7 @@ requirements = [
     # Used in quizzes module for adding new quizzes.
     "django-nested-admin>=4.0,<4.1",
     # SIO2 dependencies:
-    "filetracker[server]>=2.2.0,<3.0",
+    "filetracker>=2.2.0,<3.0",
     "django-simple-captcha>=0.5,<=0.5.18",
     "phonenumbers>=8.13,<8.14",
     "pdfminer.six==20221105",
