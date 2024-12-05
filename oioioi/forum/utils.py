@@ -1,9 +1,8 @@
 from django.db import models, transaction
-from django.db.models import Max, Min, Prefetch
+from django.db.models import Max, Min
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
 from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached
@@ -220,14 +219,3 @@ def get_new_post_message(request):
 def is_forum_moderator(request, user):
     request.user = user
     return can_admin_contest(user, request.contest)
-
-def prefetch_reacted_by(qs, rtype):
-    max_count = getattr(settings, 'FORUM_REACTIONS_TO_DISPLAY', 10)
-
-    return qs.prefetch_related(
-        Prefetch(
-            'reactions', 
-            queryset=PostReaction.objects.filter(type_of_reaction=rtype).select_related('author')[:max_count], 
-            to_attr=(rtype.lower() + 'd_by')
-        )
-    )

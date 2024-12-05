@@ -43,7 +43,6 @@ from oioioi.forum.utils import (
     move_category,
     get_forum_message,
     get_new_post_message,
-    prefetch_reacted_by,
 )
 
 
@@ -148,9 +147,7 @@ def thread_view(request, category_id, thread_id):
 
     posts = thread.post_set.select_related('author').order_by('add_date').all()
     posts = annotate_posts_with_current_user_reactions(request, posts)
-    posts = prefetch_reacted_by(posts, 'DOWNVOTE')
-    posts = prefetch_reacted_by(posts, 'UPVOTE')
-    
+
     context = {
         'forum': forum,
         'category': category,
