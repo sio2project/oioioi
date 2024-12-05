@@ -21,6 +21,7 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
+    SubmissionMessage,
 )
 
 
@@ -600,11 +601,20 @@ def get_submit_message(request):
     )
 
 
+def get_submission_message(request):
+    return get_public_message(
+        request,
+        SubmissionMessage,
+        'submission_message',
+    )
+
+
 @make_request_condition
 @request_cached
 def is_contest_archived(request):
     return (
         hasattr(request, 'contest')
+        and (request.contest is not None)
         and request.contest.is_archived
     )
 
