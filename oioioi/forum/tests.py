@@ -402,6 +402,31 @@ class TestLatestPosts(TestCase):
             posts_on_last_page,
         )
 
+    def test_reaction_display(self):
+        p = Post(
+            thread=self.thread,
+            content='test',
+            author=self.user,
+        )
+        p.save()
+
+        PostReaction(
+            post_id=p.id, 
+            type_of_reaction='UPVOTE',
+            author=self.user
+        ).save()
+
+        response = self.client.get(self.url, follow=True)
+        self.assertNotContains(response, 'post_reactions')
+        self.assertNotContains(response, 'title="Test User"')
+
+        self.cat.reactions_enabled = True
+        self.cat.save()
+
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(response, 'post_reactions')
+        self.assertContains(response, 'title="Test User"')
+
 
 class TestPost(TestCase):
     fixtures = ['test_users', 'test_contest']
