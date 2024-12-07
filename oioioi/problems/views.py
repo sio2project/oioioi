@@ -466,7 +466,7 @@ def problemset_generate_view(request, page_title, problems, view_type):
 
     difficulty_tags = DifficultyTag.objects.filter(
         name__in=request.GET.getlist('difficulty')
-    )
+    ).order_by("name")
 
     return TemplateResponse(
         request,
@@ -553,7 +553,7 @@ def problem_site_view(request, site_key):
     )
     difficulty_options = (
         tag.full_name
-        for tag in DifficultyTagLocalization.objects.filter(language=get_language())
+        for tag in DifficultyTagLocalization.objects.filter(language=get_language()).order_by("full_name")
     )
     context = {
         'problem': problem,
