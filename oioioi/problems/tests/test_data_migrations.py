@@ -12,7 +12,12 @@ from oioioi.problems.models import (
     AlgorithmTag,
     DifficultyTag,
 )
-from oioioi.problems.migrations.0033_populate_aggregated_tag_proposals import populate_aggregated_tag_proposals
+import importlib
+
+# Dynamically import the function applying data migration for AggregatedTagProposals.
+# This is necessary, since the name of the migration file causes a syntax error when imported normally.
+migration_module = importlib.import_module('oioioi.problems.migrations.0033_populate_aggregated_tag_proposals')
+populate_aggregated_tag_proposals = getattr(migration_module, 'populate_aggregated_tag_proposals')
 
 class PopulateAggregatedTagProposalsTest(TestCase):
     fixtures = [
