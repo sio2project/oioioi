@@ -34,9 +34,9 @@ class PopulateAggregatedTagProposalsTest(TestCase):
         self.algorithm_tag2 = AlgorithmTag.objects.get(pk=2)
         self.difficulty_tag1 = DifficultyTag.objects.get(pk=1)
         self.difficulty_tag2 = DifficultyTag.objects.get(pk=2)
-        self.user1 = User.objects.get(pk=1)
-        self.user2 = User.objects.get(pk=2)
-        self.user3 = User.objects.get(pk=3)
+        self.user1 = User.objects.get(pk=1000)
+        self.user2 = User.objects.get(pk=1001)
+        self.user3 = User.objects.get(pk=1002)
 
         DifficultyTagProposal.objects.bulk_create([
             DifficultyTagProposal(problem=self.problem1, tag=self.difficulty_tag1, user=self.user1),
