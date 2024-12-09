@@ -20,7 +20,7 @@ migration_module = importlib.import_module('oioioi.problems.migrations.0033_popu
 populate_aggregated_tag_proposals = getattr(migration_module, 'populate_aggregated_tag_proposals')
 
 def _get_tag_amounts(aggregated_model, problem):
-    """Returns a dictionary mapping tag names to their amounts for a given problem."""
+    """Returns a dictionary mapping tags to their amounts for a given problem."""
     return {
         proposal.tag: proposal.amount 
         for proposal in aggregated_model.objects.filter(problem=problem)
