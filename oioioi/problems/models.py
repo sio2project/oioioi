@@ -887,36 +887,6 @@ class DifficultyTagProposal(models.Model):
 
 
 
-@receiver(post_save, sender=DifficultyTagProposal)
-def increase_aggregated_difficulty_tag_proposal(sender, instance, created, **kwargs):
-    if created:
-        with transaction.atomic():
-            AggregatedDifficultyTagProposal.objects.filter(
-                problem=instance.problem,
-                tag=instance.tag
-            ).update(amount=models.F('amount') + 1) \
-            or \
-            AggregatedDifficultyTagProposal.objects.create(
-                problem=instance.problem,
-                tag=instance.tag,
-                amount=1
-            )
-
-
-@receiver(post_delete, sender=DifficultyTagProposal)
-def decrease_aggregated_difficulty_tag_proposal(sender, instance, **kwargs):
-    with transaction.atomic():
-        AggregatedDifficultyTagProposal.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
-        or \
-        AggregatedDifficultyTagProposal.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).delete()
-
-
 class AggregatedDifficultyTagProposal(models.Model):
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE)
     tag = models.ForeignKey('DifficultyTag', on_delete=models.CASCADE)
@@ -1006,35 +976,6 @@ class AlgorithmTagProposal(models.Model):
         verbose_name_plural = _("algorithm tag proposals")
 
 
-@receiver(post_save, sender=AlgorithmTagProposal)
-def increase_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
-    if created:
-        with transaction.atomic():
-            AggregatedAlgorithmTagProposal.objects.filter(
-                problem=instance.problem,
-                tag=instance.tag
-            ).update(amount=models.F('amount') + 1) \
-            or \
-            AggregatedAlgorithmTagProposal.objects.create(
-                problem=instance.problem,
-                tag=instance.tag,
-                amount=1
-            )
-
-
-@receiver(post_delete, sender=AlgorithmTagProposal)
-def decrease_aggregated_algorithm_tag_proposal(sender, instance, **kwargs):
-    with transaction.atomic():
-        AggregatedAlgorithmTagProposal.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
-        or \
-        AggregatedAlgorithmTagProposal.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).delete()
-
 
 class AggregatedAlgorithmTagProposal(models.Model):
     problem = models.ForeignKey('Problem', on_delete=models.CASCADE)
@@ -1048,3 +989,48 @@ class AggregatedAlgorithmTagProposal(models.Model):
         verbose_name = _("aggregated algorithm tag proposal")
         verbose_name_plural = _("aggregated algorithm tag proposals")
         unique_together = ('problem', 'tag')
+
+
+def increase_aggregated_tag_proposal(sender, instance, created, aggregated_model, **kwargs):
+    if created:
+        with transaction.atomic():
+            aggregated_model.objects.filter(
+                problem=instance.problem,
+                tag=instance.tag
+            ).update(amount=models.F('amount') + 1) \
+            or \
+            aggregated_model.objects.create(
+                problem=instance.problem,
+                tag=instance.tag,
+                amount=1
+            )
+
+@receiver(post_save, sender=AlgorithmTagProposal)
+def increase_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
+    increase_aggregated_tag_proposal(sender, instance, created, AggregatedAlgorithmTagProposal, **kwargs)
+
+@receiver(post_save, sender=DifficultyTagProposal)
+def increase_aggregated_difficulty_tag_proposal(sender, instance, created, **kwargs):
+    increase_aggregated_tag_proposal(sender, instance, created, AggregatedDifficultyTagProposal, **kwargs)
+
+
+def decrease_aggregated_tag_proposal(sender, instance, aggregated_model, **kwargs):
+    with transaction.atomic():
+        aggregated_model.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
+        or \
+        aggregated_model.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).delete()
+
+
+@receiver(post_delete, sender=AlgorithmTagProposal)
+def decrease_aggregated_algorithm_tag_proposal(sender, instance, **kwargs):
+    decrease_aggregated_tag_proposal(sender, instance, AggregatedAlgorithmTagProposal, **kwargs)
+
+@receiver(post_delete, sender=DifficultyTagProposal)
+def decrease_aggregated_difficulty_tag_proposal(sender, instance, **kwargs):
+    decrease_aggregated_tag_proposal(sender, instance, AggregatedDifficultyTagProposal, **kwargs)
