@@ -25,7 +25,8 @@ BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker compose" + \
 RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
-    ("down", "Stop and remove all SIO2 containers", "down", True),
+    ("down", "Stop and remove all SIO2 containers", "down"),
+    ("wipe", "Stop all SIO2 containers and DESTROY all data", "down -v", True),
     ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),

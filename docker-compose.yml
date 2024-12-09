@@ -1,4 +1,3 @@
-version: '3'
 services:
   db:
     image: library/postgres:12.2
@@ -18,6 +17,8 @@ services:
     depends_on:
       - db
       - broker
+    volumes:
+      - filetracker-data:/sio2/deployment/media
   worker:
     image: sio2project/oioioi:$OIOIOI_VERSION
     command: ["/sio2/oioioi/worker_init.sh"]
@@ -34,3 +35,4 @@ services:
     stop_grace_period: 1m
 volumes:
   postgress-data:
+  filetracker-data:
