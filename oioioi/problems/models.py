@@ -916,13 +916,13 @@ def decrease_aggregated_difficulty_tag_proposal(sender, instance, **kwargs):
             try:
                 aggregated_difficulty_tag_proposal.save()
             except ValidationError as e:
-                raise RuntimeError(
-                    f"AggregatedDifficultyTagProposal and deleted DifficultyTagProposal "
-                    f"were out of sync - likely AggregatedDifficultyTagProposal.amount "
-                    f"decreased below 0. ValidationError: {str(e)}"
+                logger.exception(
+                    "AggregatedDifficultyTagProposal and deleted DifficultyTagProposal "
+                    "were out of sync - likely AggregatedDifficultyTagProposal.amount "
+                    "decreased below 0."
                 )
     except AggregatedDifficultyTagProposal.DoesNotExist:
-        raise RuntimeError(
+        logger.exception(
             "AggregatedDifficultyTagProposal corresponding to deleted DifficultyTagProposal "
             "does not exist."
         )
@@ -1046,13 +1046,13 @@ def decrease_aggregated_algorithm_tag_proposal(sender, instance, **kwargs):
             try:
                 aggregated_algorithm_tag_proposal.save()
             except ValidationError as e:
-                raise RuntimeError(
-                    f"AggregatedAlgorithmTagProposal and deleted AlgorithmTagProposal "
-                    f"were out of sync - likely AggregatedAlgorithmTagProposal.amount "
-                    f"decreased below 0. ValidationError: {str(e)}"
+                logger.exception(
+                    "AggregatedAlgorithmTagProposal and deleted AlgorithmTagProposal "
+                    "were out of sync - likely AggregatedAlgorithmTagProposal.amount "
+                    "decreased below 0."
                 )
     except AggregatedAlgorithmTagProposal.DoesNotExist:
-        raise RuntimeError(
+        logger.exception(
             "AggregatedAlgorithmTagProposal corresponding to deleted AlgorithmTagProposal "
             "does not exist."
         )
