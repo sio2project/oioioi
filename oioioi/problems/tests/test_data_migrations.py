@@ -22,7 +22,7 @@ populate_aggregated_tag_proposals = getattr(migration_module, 'populate_aggregat
 def _get_tag_amounts(aggregated_model, problem):
     """Returns a dictionary mapping tags to their amounts for a given problem."""
     return {
-        proposal.tag: proposal.amount 
+        proposal.tag: proposal.amount
         for proposal in aggregated_model.objects.filter(problem=problem)
     }
 
@@ -89,4 +89,3 @@ class PopulateAggregatedTagProposalsTest(TestCase):
             _get_tag_amounts(AggregatedDifficultyTagProposal, self.problem2),
             {self.difficulty_tag2: 1}
         )
-        

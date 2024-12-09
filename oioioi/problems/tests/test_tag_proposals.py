@@ -136,7 +136,7 @@ class TestAlgorithmTagsProposalHintsPolish(TestAlgorithmTagsProposalHintsBase):
 def _get_tag_name_amounts(aggregated_model, problem):
     """Returns a dictionary mapping tag names to their amounts for a given problem."""
     return {
-        proposal.tag.name: proposal.amount 
+        proposal.tag.name: proposal.amount
         for proposal in aggregated_model.objects.filter(problem=problem)
     }
 
