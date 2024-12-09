@@ -26,6 +26,12 @@ def change_contest_type(contest):
     contest.controller_name = 'oioioi.contests.tests.PrivateContestController'
     contest.save()
 
+def get_contest_problem_instances():
+    contest = Contest.objects.get(pk='c')
+    request = ContestControllerContext(contest, django_timezone.now(), True)
+    round = Round.objects.filter(contest=contest).first()
+    return get_round_context(request, round.pk)['selected_round']['problem_instances']
+
 
 class TestContestDashboard(TestCase):
     fixtures = [
@@ -41,26 +47,18 @@ class TestContestDashboard(TestCase):
 
     def test_get_round_context(self):
         with fake_timezone_now(datetime(2012, 9, 8, 11, tzinfo=timezone.utc)):
-            contest = Contest.objects.get(pk='c')
-            request = ContestControllerContext(contest, django_timezone.now(), True)
-            round = Round.objects.filter(contest=contest).first()
+            problem_instances = get_contest_problem_instances();
 
-            problem_instances = get_round_context(request, round.pk)['selected_round']['problem_instances']
-
-            first_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
-            self.assertEqual(first_instance['submission_count'], 0)
-            self.assertEqual(first_instance['question_count'], 2)
+            instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
+            self.assertEqual(instance['submission_count'], 0)
+            self.assertEqual(instance['question_count'], 2)
 
         with fake_timezone_now(datetime(2012, 6, 4, 11, tzinfo=timezone.utc)):
-            contest = Contest.objects.get(pk='c')
-            request = ContestControllerContext(contest, django_timezone.now(), True)
-            round = Round.objects.filter(contest=contest).first()
+            problem_instances = get_contest_problem_instances();
 
-            problem_instances = get_round_context(request, round.pk)['selected_round']['problem_instances']
-
-            first_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
-            self.assertEqual(first_instance['submission_count'], 1)
-            self.assertEqual(first_instance['question_count'], 0)
+            instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
+            self.assertEqual(instance['submission_count'], 1)
+            self.assertEqual(instance['question_count'], 0)
 
     def test_contest_dashboard(self):
         user = User.objects.get(username='test_user')
