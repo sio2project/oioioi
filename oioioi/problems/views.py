@@ -1147,7 +1147,7 @@ def get_problem_hints(query, view_type, user):
             'trigger': 'problem',
             'name': problem.name,
             'category': _("Problems"),
-            'url': f'/problemset/problem/{problem.problemsite.url_key}/site/?key=statement'
+            'url': reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
         }
         for problem in problems[: getattr(settings, 'NUM_HINTS', 10)]
     ]
