@@ -889,43 +889,30 @@ class DifficultyTagProposal(models.Model):
 
 @receiver(post_save, sender=DifficultyTagProposal)
 def increase_aggregated_difficulty_tag_proposal(sender, instance, created, **kwargs):
-    problem = instance.problem
-    tag = instance.tag
-    
     if created:
-        aggregated_difficulty_tag_proposal = AggregatedDifficultyTagProposal.objects.get_or_create(
-            problem=problem, tag=tag
-        )[0]
-        
-        aggregated_difficulty_tag_proposal.amount += 1
-        aggregated_difficulty_tag_proposal.save()
+        AggregatedDifficultyTagProposal.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).update(amount=models.F('amount') + 1) \
+        or \
+        AggregatedDifficultyTagProposal.objects.create(
+            problem=instance.problem,
+            tag=instance.tag,
+            amount=1
+        )
 
 
 @receiver(post_delete, sender=DifficultyTagProposal)
 def decrease_aggregated_difficulty_tag_proposal(sender, instance, **kwargs):
-    problem = instance.problem
-    tag = instance.tag
-    
-    try:
-        aggregated_difficulty_tag_proposal = AggregatedDifficultyTagProposal.objects.get(problem=problem, tag=tag)
-        aggregated_difficulty_tag_proposal.amount -= 1
-        
-        if aggregated_difficulty_tag_proposal.amount == 0:
-            aggregated_difficulty_tag_proposal.delete()
-        else:
-            try:
-                aggregated_difficulty_tag_proposal.save()
-            except ValidationError as e:
-                logger.exception(
-                    "AggregatedDifficultyTagProposal and deleted DifficultyTagProposal "
-                    "were out of sync - likely AggregatedDifficultyTagProposal.amount "
-                    "decreased below 0."
-                )
-    except AggregatedDifficultyTagProposal.DoesNotExist:
-        logger.exception(
-            "AggregatedDifficultyTagProposal corresponding to deleted DifficultyTagProposal "
-            "does not exist."
-        )
+    AggregatedDifficultyTagProposal.objects.filter(
+        problem=instance.problem,
+        tag=instance.tag
+    ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
+    or \
+    AggregatedDifficultyTagProposal.objects.filter(
+        problem=instance.problem,
+        tag=instance.tag
+    ).delete()
 
 
 class AggregatedDifficultyTagProposal(models.Model):
@@ -1019,43 +1006,30 @@ class AlgorithmTagProposal(models.Model):
 
 @receiver(post_save, sender=AlgorithmTagProposal)
 def increase_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
-    problem = instance.problem
-    tag = instance.tag
-    
     if created:
-        aggregated_algorithm_tag_proposal = AggregatedAlgorithmTagProposal.objects.get_or_create(
-            problem=problem, tag=tag
-        )[0]
-        
-        aggregated_algorithm_tag_proposal.amount += 1
-        aggregated_algorithm_tag_proposal.save()
+        AggregatedAlgorithmTagProposal.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).update(amount=models.F('amount') + 1) \
+        or \
+        AggregatedAlgorithmTagProposal.objects.create(
+            problem=instance.problem,
+            tag=instance.tag,
+            amount=1
+        )
 
 
 @receiver(post_delete, sender=AlgorithmTagProposal)
 def decrease_aggregated_algorithm_tag_proposal(sender, instance, **kwargs):
-    problem = instance.problem
-    tag = instance.tag
-    
-    try:
-        aggregated_algorithm_tag_proposal = AggregatedAlgorithmTagProposal.objects.get(problem=problem, tag=tag)
-        aggregated_algorithm_tag_proposal.amount -= 1
-        
-        if aggregated_algorithm_tag_proposal.amount == 0:
-            aggregated_algorithm_tag_proposal.delete()
-        else:
-            try:
-                aggregated_algorithm_tag_proposal.save()
-            except ValidationError as e:
-                logger.exception(
-                    "AggregatedAlgorithmTagProposal and deleted AlgorithmTagProposal "
-                    "were out of sync - likely AggregatedAlgorithmTagProposal.amount "
-                    "decreased below 0."
-                )
-    except AggregatedAlgorithmTagProposal.DoesNotExist:
-        logger.exception(
-            "AggregatedAlgorithmTagProposal corresponding to deleted AlgorithmTagProposal "
-            "does not exist."
-        )
+    AggregatedAlgorithmTagProposal.objects.filter(
+        problem=instance.problem,
+        tag=instance.tag
+    ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
+    or \
+    AggregatedAlgorithmTagProposal.objects.filter(
+        problem=instance.problem,
+        tag=instance.tag
+    ).delete()
 
 
 class AggregatedAlgorithmTagProposal(models.Model):
