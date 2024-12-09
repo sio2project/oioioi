@@ -890,29 +890,31 @@ class DifficultyTagProposal(models.Model):
 @receiver(post_save, sender=DifficultyTagProposal)
 def increase_aggregated_difficulty_tag_proposal(sender, instance, created, **kwargs):
     if created:
-        AggregatedDifficultyTagProposal.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).update(amount=models.F('amount') + 1) \
-        or \
-        AggregatedDifficultyTagProposal.objects.create(
-            problem=instance.problem,
-            tag=instance.tag,
-            amount=1
-        )
+        with transaction.atomic():
+            AggregatedDifficultyTagProposal.objects.filter(
+                problem=instance.problem,
+                tag=instance.tag
+            ).update(amount=models.F('amount') + 1) \
+            or \
+            AggregatedDifficultyTagProposal.objects.create(
+                problem=instance.problem,
+                tag=instance.tag,
+                amount=1
+            )
 
 
 @receiver(post_delete, sender=DifficultyTagProposal)
 def decrease_aggregated_difficulty_tag_proposal(sender, instance, **kwargs):
-    AggregatedDifficultyTagProposal.objects.filter(
-        problem=instance.problem,
-        tag=instance.tag
-    ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
-    or \
-    AggregatedDifficultyTagProposal.objects.filter(
-        problem=instance.problem,
-        tag=instance.tag
-    ).delete()
+    with transaction.atomic():
+        AggregatedDifficultyTagProposal.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
+        or \
+        AggregatedDifficultyTagProposal.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).delete()
 
 
 class AggregatedDifficultyTagProposal(models.Model):
@@ -1007,29 +1009,31 @@ class AlgorithmTagProposal(models.Model):
 @receiver(post_save, sender=AlgorithmTagProposal)
 def increase_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
     if created:
-        AggregatedAlgorithmTagProposal.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).update(amount=models.F('amount') + 1) \
-        or \
-        AggregatedAlgorithmTagProposal.objects.create(
-            problem=instance.problem,
-            tag=instance.tag,
-            amount=1
-        )
+        with transaction.atomic():
+            AggregatedAlgorithmTagProposal.objects.filter(
+                problem=instance.problem,
+                tag=instance.tag
+            ).update(amount=models.F('amount') + 1) \
+            or \
+            AggregatedAlgorithmTagProposal.objects.create(
+                problem=instance.problem,
+                tag=instance.tag,
+                amount=1
+            )
 
 
 @receiver(post_delete, sender=AlgorithmTagProposal)
 def decrease_aggregated_algorithm_tag_proposal(sender, instance, **kwargs):
-    AggregatedAlgorithmTagProposal.objects.filter(
-        problem=instance.problem,
-        tag=instance.tag
-    ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
-    or \
-    AggregatedAlgorithmTagProposal.objects.filter(
-        problem=instance.problem,
-        tag=instance.tag
-    ).delete()
+    with transaction.atomic():
+        AggregatedAlgorithmTagProposal.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
+        or \
+        AggregatedAlgorithmTagProposal.objects.filter(
+            problem=instance.problem,
+            tag=instance.tag
+        ).delete()
 
 
 class AggregatedAlgorithmTagProposal(models.Model):
