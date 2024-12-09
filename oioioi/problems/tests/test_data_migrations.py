@@ -19,6 +19,13 @@ import importlib
 migration_module = importlib.import_module('oioioi.problems.migrations.0033_populate_aggregated_tag_proposals')
 populate_aggregated_tag_proposals = getattr(migration_module, 'populate_aggregated_tag_proposals')
 
+def _get_tag_amounts(aggregated_model, problem):
+    """Returns a dictionary mapping tag names to their amounts for a given problem."""
+    return {
+        proposal.tag: proposal.amount 
+        for proposal in aggregated_model.objects.filter(problem=problem)
+    }
+
 class PopulateAggregatedTagProposalsTest(TestCase):
     fixtures = [
         'test_users',
@@ -56,50 +63,30 @@ class PopulateAggregatedTagProposalsTest(TestCase):
         ])
 
     def test_populate_aggregated_tag_proposals(self):
-        AggregatedDifficultyTagProposal.objects.filter(problem=self.problem1).delete()
         AggregatedAlgorithmTagProposal.objects.filter(problem=self.problem2).delete()
+        AggregatedDifficultyTagProposal.objects.filter(problem=self.problem1).delete()
 
         populate_aggregated_tag_proposals(apps, None)
 
         self.assertEqual(AlgorithmTagProposal.objects.count(), 7)
-        self.assertEqual(DifficultyTagProposal.objects.count(), 4)
-
         self.assertEqual(AggregatedAlgorithmTagProposal.objects.count(), 4)
         self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=self.problem1, tag=self.algorithm_tag1
-            ).amount, 2
+            _get_tag_amounts(AggregatedAlgorithmTagProposal, self.problem1),
+            {self.algorithm_tag1: 2, self.algorithm_tag2: 1}
         )
         self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=self.problem1, tag=self.algorithm_tag2
-            ).amount, 1
-        )
-        self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=self.problem2, tag=self.algorithm_tag1
-            ).amount, 1
-        )
-        self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=self.problem2, tag=self.algorithm_tag2
-            ).amount, 3
+            _get_tag_amounts(AggregatedAlgorithmTagProposal, self.problem2),
+            {self.algorithm_tag1: 1, self.algorithm_tag2: 3}
         )
 
+        self.assertEqual(DifficultyTagProposal.objects.count(), 4)
         self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 3)
         self.assertEqual(
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=self.problem1, tag=self.difficulty_tag1
-            ).amount, 2
+            _get_tag_amounts(AggregatedDifficultyTagProposal, self.problem1),
+            {self.difficulty_tag1: 2, self.difficulty_tag2: 1}
         )
         self.assertEqual(
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=self.problem1, tag=self.difficulty_tag2
-            ).amount, 1
-        )
-        self.assertEqual(     
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=self.problem2, tag=self.difficulty_tag2
-            ).amount, 1
+            _get_tag_amounts(AggregatedDifficultyTagProposal, self.problem2),
+            {self.difficulty_tag2: 1}
         )
         

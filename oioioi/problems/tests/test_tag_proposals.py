@@ -132,6 +132,14 @@ class TestAlgorithmTagsProposalHintsPolish(TestAlgorithmTagsProposalHintsBase):
         self.assertNotContains(response, 'lcis')
 
 
+
+def _get_tag_name_amounts(aggregated_model, problem):
+    """Returns a dictionary mapping tag names to their amounts for a given problem."""
+    return {
+        proposal.tag.name: proposal.amount 
+        for proposal in aggregated_model.objects.filter(problem=problem)
+    }
+
 class TestSaveProposals(TestCase):
     fixtures = [
         'test_users',
@@ -177,15 +185,8 @@ class TestSaveProposals(TestCase):
             ).exists()
         )
         self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=problem, tag=AlgorithmTag.objects.get(name='dp')
-            ).amount, 1
-        )
-        self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=problem,
-                tag=AlgorithmTag.objects.get(name='knapsack'),
-            ).amount, 1
+            _get_tag_name_amounts(AggregatedAlgorithmTagProposal, problem),
+            {'dp': 1, 'knapsack': 1},
         )
         self.assertTrue(
             DifficultyTagProposal.objects.filter(
@@ -193,9 +194,8 @@ class TestSaveProposals(TestCase):
             ).exists()
         )
         self.assertEqual(
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=problem, tag=DifficultyTag.objects.get(name='easy')
-            ).amount, 1
+            _get_tag_name_amounts(AggregatedDifficultyTagProposal, problem),
+            {'easy': 1},
         )
 
         problem = Problem.objects.get(pk=0)
@@ -233,25 +233,8 @@ class TestSaveProposals(TestCase):
             ).exists()
         )
         self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=problem, tag=AlgorithmTag.objects.get(name='greedy')
-            ).amount, 1
-        )
-        self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=problem, tag=AlgorithmTag.objects.get(name='lcis')
-            ).amount, 1
-        )
-        self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=problem, tag=AlgorithmTag.objects.get(name='dp')
-            ).amount, 2
-        )
-        self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=problem,
-                tag=AlgorithmTag.objects.get(name='knapsack'),
-            ).amount, 1
+            _get_tag_name_amounts(AggregatedAlgorithmTagProposal, problem),
+            {'dp': 2, 'knapsack': 1, 'greedy': 1, 'lcis': 1},
         )
         self.assertTrue(
             DifficultyTagProposal.objects.filter(
@@ -259,14 +242,8 @@ class TestSaveProposals(TestCase):
             ).exists()
         )
         self.assertEqual(
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=problem, tag=DifficultyTag.objects.get(name='medium')
-            ).amount, 1
-        )
-        self.assertEqual(
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=problem, tag=DifficultyTag.objects.get(name='easy')
-            ).amount, 1
+            _get_tag_name_amounts(AggregatedDifficultyTagProposal, problem),
+            {'easy': 1, 'medium': 1},
         )
 
         problem = Problem.objects.get(pk=0)
@@ -287,9 +264,8 @@ class TestSaveProposals(TestCase):
         self.assertEqual(DifficultyTagProposal.objects.count(), 3)
         self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 2)
         self.assertEqual(
-            AggregatedAlgorithmTagProposal.objects.get(
-                problem=problem, tag=AlgorithmTag.objects.get(name='greedy')
-            ).amount, 2
+            _get_tag_name_amounts(AggregatedAlgorithmTagProposal, problem),
+            {'dp': 2, 'knapsack': 1, 'greedy': 2, 'lcis': 1},
         )
         self.assertTrue(
             DifficultyTagProposal.objects.filter(
@@ -297,14 +273,8 @@ class TestSaveProposals(TestCase):
             ).exists()
         )
         self.assertEqual(
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=problem, tag=DifficultyTag.objects.get(name='medium')
-            ).amount, 2
-        )
-        self.assertEqual(
-            AggregatedDifficultyTagProposal.objects.get(
-                problem=problem, tag=DifficultyTag.objects.get(name='easy')
-            ).amount, 1
+            _get_tag_name_amounts(AggregatedDifficultyTagProposal, problem),
+            {'easy': 1, 'medium': 2},
         )
 
         invalid_query_data = [
