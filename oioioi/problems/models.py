@@ -1015,16 +1015,24 @@ def increase_aggregated_difficulty_tag_proposal(sender, instance, created, **kwa
 
 
 def decrease_aggregated_tag_proposal(sender, instance, aggregated_model, **kwargs):
-    with transaction.atomic():
-        aggregated_model.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
-        or \
-        aggregated_model.objects.filter(
-            problem=instance.problem,
-            tag=instance.tag
-        ).delete()
+    try:
+        with transaction.atomic():
+            aggregated_model.objects.filter(
+                problem=instance.problem,
+                tag=instance.tag
+            ).filter(amount__gt=1).update(amount=models.F('amount') - 1) \
+            or \
+            aggregated_model.objects.filter(
+                problem=instance.problem,
+                tag=instance.tag
+            ).delete()
+
+    except Exception as e:
+        logger.exception(
+            "Error decreasing aggregated tag proposal for problem %s and tag %s.",
+            instance.problem,
+            instance.tag
+        )
 
 
 @receiver(post_delete, sender=AlgorithmTagProposal)
