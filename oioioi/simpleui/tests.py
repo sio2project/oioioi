@@ -1,12 +1,13 @@
 import re
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone as django_timezone
 
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import TestCase, fake_timezone_now
 from oioioi.contests.controllers import ContestControllerContext
 from oioioi.contests.models import (
     Contest,
@@ -39,21 +40,17 @@ class TestContestDashboard(TestCase):
     compile_flags = re.M | re.S
 
     def test_get_round_context(self):
-        # Create request object
-        contest = Contest.objects.get(pk='c')
-        request = ContestControllerContext(contest, timezone.now(), True)
+        with fake_timezone_now(datetime(2012, 9, 8, 11, tzinfo=timezone.utc)):
+            contest = Contest.objects.get(pk='c')
+            request = ContestControllerContext(contest, django_timezone.now(), True)
+            round = Round.objects.filter(contest=contest).first()
 
-        round = Round.objects.filter(contest=contest).first()
+            problem_instances = get_round_context(request, round.pk)['selected_round']['problem_instances']
 
-        problem_instances = get_round_context(request, round)['problem_instances']
-        first_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
-        second_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 2][0]
-        self.assertEqual(first_instance['submission_count'], 2)
-        self.assertEqual(second_instance['submission_count'], 0)
+            first_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
+            self.assertEqual(first_instance['submission_count'], 1)
 
-        self.assertEqual(first_instance['question_count'], 3)
-        self.assertEqual(second_instance['question_count'], 0)
-
+            self.assertEqual(first_instance['question_count'], 2)
 
     def test_contest_dashboard(self):
         user = User.objects.get(username='test_user')

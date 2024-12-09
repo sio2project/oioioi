@@ -14,7 +14,7 @@
   },
   {
     "pk": 2,
-    "model": "contest.submission",
+    "model": "contests.submission",
     "fields": {
       "status": "OK",
       "problem_instance": 1,
@@ -22,7 +22,7 @@
       "comment": "",
       "score": "int:0000000000000000035",
       "user": 1001,
-      "date": "2012-06-03T22:07:07.516Z"
+      "date": "2012-09-07T13:16:23.524Z"
     }
   },
   {
