@@ -15,23 +15,27 @@ def populate_aggregated_tag_proposals(apps, schema_editor):
         DifficultyTagProposal.objects.values('problem', 'tag')
         .annotate(amount=models.Count('id'))
     )
-    for entry in difficulty_data:
-        AggregatedDifficultyTagProposal.objects.create(
+    AggregatedDifficultyTagProposal.objects.bulk_create([
+        AggregatedDifficultyTagProposal(
             problem_id=entry['problem'],
             tag_id=entry['tag'],
             amount=entry['amount']
         )
+        for entry in difficulty_data
+    ])
 
     algorithm_data = (
         AlgorithmTagProposal.objects.values('problem', 'tag')
         .annotate(amount=models.Count('id'))
     )
-    for entry in algorithm_data:
-        AggregatedAlgorithmTagProposal.objects.create(
+    AggregatedAlgorithmTagProposal.objects.bulk_create([
+        AggregatedAlgorithmTagProposal(
             problem_id=entry['problem'],
             tag_id=entry['tag'],
             amount=entry['amount']
         )
+        for entry in algorithm_data
+    ])
 
 class Migration(migrations.Migration):
 
