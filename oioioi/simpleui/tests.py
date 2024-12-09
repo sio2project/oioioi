@@ -48,9 +48,19 @@ class TestContestDashboard(TestCase):
             problem_instances = get_round_context(request, round.pk)['selected_round']['problem_instances']
 
             first_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
-            self.assertEqual(first_instance['submission_count'], 1)
-
+            self.assertEqual(first_instance['submission_count'], 0)
             self.assertEqual(first_instance['question_count'], 2)
+
+        with fake_timezone_now(datetime(2012, 6, 4, 11, tzinfo=timezone.utc)):
+            contest = Contest.objects.get(pk='c')
+            request = ContestControllerContext(contest, django_timezone.now(), True)
+            round = Round.objects.filter(contest=contest).first()
+
+            problem_instances = get_round_context(request, round.pk)['selected_round']['problem_instances']
+
+            first_instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
+            self.assertEqual(first_instance['submission_count'], 1)
+            self.assertEqual(first_instance['question_count'], 0)
 
     def test_contest_dashboard(self):
         user = User.objects.get(username='test_user')
