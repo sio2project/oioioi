@@ -50,8 +50,7 @@ class CanEnterContest(permissions.BasePermission):
 
 class UnsafeApiAllowed(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        # TODO: Is that ok?
-        return 'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware' not in MIDDLEWARE
+        return not any('IpDnsAuthMiddleware' in x for x in MIDDLEWARE)
 
 
 class GetContestRounds(views.APIView):
