@@ -58,14 +58,14 @@ Then you can start oioioi with::
     OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml up -d
     OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml exec web python3 manage.py runserver 0.0.0.0:8000
 
-to start the infrastructure in the development mode. Current dirrectory with the source code will be bound to /sio2/oioioi/ inside the running container.
+to start the infrastructure in the development mode. Current directory with the source code will be bound to /sio2/oioioi/ inside the running container.
 
 oioioi web interface will be available at localhost:8000, and the user admin with password admin will be created.
 
 Additionally you can bind config files and logs folder to the host::
 
     id=$(docker create sio2project/oioioi-dev)  #Create oioioi container
-    docker cp $id:/sio2/deployment deployment  #Copy initial deployment folder from oioioi contanier
+    docker cp $id:/sio2/deployment deployment  #Copy initial deployment folder from oioioi container
     docker rm -v $id  #Remove unneeded container
 
 Remember to also uncomment the appropriate volume binding in the web service description in the docker-compose-dev.yml.
@@ -152,7 +152,7 @@ Testing
 OIOIOI has a big suite of unit tests. You can run them in following way:
 
 * ``test.sh`` - a simple test runner, use from virtualenv
-* ``tox [path/to/module[::TestClass[::test_method]]] [-- arg1 arg2 ...]`` - runs pytest in isolated environemnt
+* ``tox [path/to/module[::TestClass[::test_method]]] [-- arg1 arg2 ...]`` - runs pytest in isolated environment
 
 Supported args:
 
