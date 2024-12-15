@@ -33,6 +33,20 @@ def tag_label(tag):
 
 
 @register.simple_tag
+def aggregated_tag_label(aggregated_tag):
+    prefix = get_tag_prefix(aggregated_tag)
+    return format_html(
+        u'<a title="{tooltip}" class="badge tag-label tag-label-{cls}" href="{href}" '
+        '>{name} | {amount}</a>',
+        tooltip=getattr(aggregated_tag.tag, 'full_name', aggregated_tag.tag.name),
+        name=get_tag_name(aggregated_tag.tag),
+        cls=prefix,
+        amount=str(aggregated_tag.amount),
+        href="?" + prefix + "=" + aggregated_tag.tag.name,
+    )
+
+
+@register.simple_tag
 def origininfo_label(info):
     prefix = get_tag_prefix(info)
     return format_html(
