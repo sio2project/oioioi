@@ -23,10 +23,6 @@ def get_tag_name(tag):
         'OriginInfoValue': tag.name,
         'AlgorithmTag': tag.name,
         'DifficultyTag': tag.full_name,
-        'AlgorithmTagProposal': tag.tag.name,
-        'DifficultyTagProposal': tag.tag.name,
-        'AggregatedAlgorithmTagProposal': tag.tag.name,
-        'AggregatedDifficultyTagProposal': tag.tag.name,
     }
 
     return prefixes[tag.__class__.__name__]
