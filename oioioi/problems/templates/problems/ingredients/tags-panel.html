@@ -17,7 +17,7 @@
         <hr class="separator">
         <h4 class="text-center item-title">{% trans "Users algorithms proposals" %}</h4>
         {% for proposal in algorithm_tag_proposals %}
-            {% tag_label proposal.tag %}
+            {% aggregated_tag_label proposal %}
         {% endfor %}
     {% endif %}
 
@@ -25,7 +25,7 @@
         <hr class="separator">
         <h4 class="text-center item-title">{% trans "Users difficulty proposals" %}</h4>
         {% for proposal in difficulty_tag_proposals %}
-            {% tag_label proposal.tag %}
+            {% aggregated_tag_label proposal %}
         {% endfor %}
     {% endif %}
 

@@ -28,6 +28,8 @@ from oioioi.problems.forms import PackageFileReuploadForm, ProblemStatementRepla
 from oioioi.problems.models import (
     AlgorithmTagProposal,
     DifficultyTagProposal,
+    AggregatedAlgorithmTagProposal,
+    AggregatedDifficultyTagProposal,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -250,10 +252,10 @@ def problem_site_settings(request, problem):
     model_solutions = generate_model_solutions_context(request, problem_instance)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
     algorithm_tag_proposals = (
-        AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+        AggregatedAlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-amount')[:25]
     )
     difficulty_tag_proposals = (
-        DifficultyTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+        AggregatedDifficultyTagProposal.objects.all().filter(problem=problem).order_by('-amount')[:25]
     )
 
     return TemplateResponse(
