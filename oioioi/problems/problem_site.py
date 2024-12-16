@@ -35,6 +35,7 @@ from oioioi.problems.models import (
 )
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (
+    can_add_tags,
     can_admin_problem,
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
@@ -269,6 +270,29 @@ def problem_site_settings(request, problem):
             'difficulty_tag_proposals': difficulty_tag_proposals,
             'can_admin_problem': can_admin_problem(request, problem),
             'extra_actions': extra_actions,
+        },
+    )
+
+@problem_site_tab(_("Tags"), key='tags', order=600, condition=can_add_tags)
+def problem_site_tags(request, problem):
+    package = ProblemPackage.objects.filter(problem=problem).first()
+    algorithm_tag_proposals = (
+        AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+    )
+    difficulty_tag_proposals = (
+        DifficultyTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+    )
+
+    return TemplateResponse(
+        request,
+        'problems/tags.html',
+        {
+            'site_key': problem.problemsite.url_key,
+            'problem': problem,
+            'package': package if package and package.package_file else None,
+            'algorithm_tag_proposals': algorithm_tag_proposals,
+            'difficulty_tag_proposals': difficulty_tag_proposals,
+            'can_admin_problem': can_admin_problem(request, problem),
         },
     )
 

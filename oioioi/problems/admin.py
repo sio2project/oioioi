@@ -284,7 +284,7 @@ class BaseTagAdmin(admin.ModelAdmin):
     form=OriginTagThroughForm,
     verbose_name=_("origin tag"),
     verbose_name_plural=_("origin tags"),
-    has_permission_func=lambda self, request, obj=None: request.user.is_superuser,
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
 )
 class OriginTagInline(admin.StackedInline):
     pass
@@ -324,7 +324,7 @@ admin.site.register(OriginInfoCategory, OriginInfoCategoryAdmin)
     form=OriginInfoValueThroughForm,
     verbose_name=_("origin information"),
     verbose_name_plural=_("additional origin information"),
-    has_permission_func=lambda self, request, obj=None: request.user.is_superuser,
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
 )
 class OriginInfoValueInline(admin.StackedInline):
     pass
@@ -403,6 +403,10 @@ class AlgorithmTagAdmin(BaseTagAdmin):
 admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
+def isTagInline(inline):
+    return inline in (AlgorithmTagInline, OriginTagInline, DifficultyTagInline, OriginInfoValueInline)
+
+
 class ProblemAdmin(admin.ModelAdmin):
     inlines = (
         DifficultyTagInline,
@@ -437,10 +441,10 @@ class ProblemAdmin(admin.ModelAdmin):
         if obj is None:
             return self.get_queryset(request).exists()
         else:
-            return can_admin_problem(request, obj)
+            return can_admin_problem(request, obj) or request.user.has_perm("problems.can_add_tags")
 
     def has_delete_permission(self, request, obj=None):
-        return self.has_change_permission(request, obj)
+        return can_admin_problem(request, obj)
 
     def redirect_to_list(self, request, problem):
         if problem.contest:
@@ -480,7 +484,7 @@ class ProblemAdmin(admin.ModelAdmin):
             combined = queryset.none()
         else:
             combined = request.user.problem_set.all()
-        if request.user.has_perm('problems.problems_db_admin'):
+        if request.user.has_perm('problems.problems_db_admin') or request.user.has_perm('problems.can_add_tags'):
             combined |= queryset.filter(contest__isnull=True)
         if is_contest_basicadmin(request):
             combined |= queryset.filter(contest=request.contest)
@@ -502,10 +506,15 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
-        extra_context['categories'] = sorted(
-            set([getattr(inline, 'category', None) for inline in self.inlines])
-        )
-        extra_context['no_category'] = NO_CATEGORY
+        extra_context['categories'] = set()
+        for inline in self.inlines:
+            if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):
+                extra_context['categories'].add(getattr(inline, 'category', None))
+            elif isTagInline(inline) and request.user.has_perm("problems.can_add_tags"):
+                extra_context['categories'].add(getattr(inline, 'category', None))
+
+        if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):   
+            extra_context['no_category'] = NO_CATEGORY
         return super(ProblemAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context
         )
