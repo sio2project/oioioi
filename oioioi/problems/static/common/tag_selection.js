@@ -59,6 +59,10 @@ function init_search_selection(id) {
             minLength: 2,
             fitToElement: true,
             autoSelect: false,
+            followLinkOnSelect: true,
+            itemLink: function(item) {
+                return item.url;
+            },
             matcher: function(item) {
                 // Bug fix: backspace on empty input matched last results.
                 if(!input.val()) {
