@@ -274,9 +274,27 @@ def _update_queryset_if_problems(db_field, **kwargs):
 class BaseTagLocalizationInline(admin.StackedInline):
     formset = LocalizationFormset
 
+    def has_add_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
 
 class BaseTagAdmin(admin.ModelAdmin):
     filter_horizontal = ('problems',)
+
+    def has_add_permission(self, request, obj=None):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
 
 
 @tag_inline(
@@ -354,6 +372,7 @@ admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
     form=DifficultyTagThroughForm,
     verbose_name=_("Difficulty Tag"),
     verbose_name_plural=_("Difficulty Tags"),
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
 )
 class DifficultyTagInline(admin.StackedInline):
     pass
@@ -381,6 +400,7 @@ admin.site.register(DifficultyTag, DifficultyTagAdmin)
     form=AlgorithmTagThroughForm,
     verbose_name=_("Algorithm Tag"),
     verbose_name_plural=_("Algorithm Tags"),
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
 )
 class AlgorithmTagInline(admin.StackedInline):
     pass
@@ -403,7 +423,7 @@ class AlgorithmTagAdmin(BaseTagAdmin):
 admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
-def isTagInline(inline):
+def isInlineTag(inline):
     return inline in (AlgorithmTagInline, OriginTagInline, DifficultyTagInline, OriginInfoValueInline)
 
 
@@ -510,7 +530,7 @@ class ProblemAdmin(admin.ModelAdmin):
         for inline in self.inlines:
             if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):
                 extra_context['categories'].add(getattr(inline, 'category', None))
-            elif isTagInline(inline) and request.user.has_perm("problems.can_add_tags"):
+            elif isInlineTag(inline) and request.user.has_perm("problems.can_add_tags"):
                 extra_context['categories'].add(getattr(inline, 'category', None))
 
         if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):   

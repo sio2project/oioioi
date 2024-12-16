@@ -250,12 +250,6 @@ def problem_site_settings(request, problem):
     )
     model_solutions = generate_model_solutions_context(request, problem_instance)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
-    algorithm_tag_proposals = (
-        AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
-    )
-    difficulty_tag_proposals = (
-        DifficultyTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
-    )
 
     return TemplateResponse(
         request,
@@ -266,8 +260,6 @@ def problem_site_settings(request, problem):
             'administered_recent_contests': administered_recent_contests,
             'package': package if package and package.package_file else None,
             'model_solutions': model_solutions,
-            'algorithm_tag_proposals': algorithm_tag_proposals,
-            'difficulty_tag_proposals': difficulty_tag_proposals,
             'can_admin_problem': can_admin_problem(request, problem),
             'extra_actions': extra_actions,
         },
@@ -275,7 +267,6 @@ def problem_site_settings(request, problem):
 
 @problem_site_tab(_("Tags"), key='tags', order=600, condition=can_add_tags)
 def problem_site_tags(request, problem):
-    package = ProblemPackage.objects.filter(problem=problem).first()
     algorithm_tag_proposals = (
         AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
     )
@@ -289,7 +280,6 @@ def problem_site_tags(request, problem):
         {
             'site_key': problem.problemsite.url_key,
             'problem': problem,
-            'package': package if package and package.package_file else None,
             'algorithm_tag_proposals': algorithm_tag_proposals,
             'difficulty_tag_proposals': difficulty_tag_proposals,
             'can_admin_problem': can_admin_problem(request, problem),
