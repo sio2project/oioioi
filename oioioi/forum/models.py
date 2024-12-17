@@ -6,6 +6,7 @@ from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+from django.conf import settings
 
 from django.utils.translation import gettext_lazy as _
 
@@ -192,21 +193,25 @@ class Post(models.Model):
     class PostsWithReactionsSummaryManager(models.Manager):
         def get_queryset(self):
             qs = super(Post.PostsWithReactionsSummaryManager, self).get_queryset()
-            for field_name, rtype in [
-                ('upvotes_count', 'UPVOTE'),
-                ('downvotes_count', 'DOWNVOTE'),
-            ]:
-                # In Django >=2.0 it can can be simplified with Count(filter=Q(...))
+
+            for rtype, attr_name in POST_REACTION_TO_COUNT_ATTR.items():
                 reaction_count_agg = {
-                    field_name: models.Sum(
-                        models.Case(
-                            models.When(reactions__type_of_reaction=rtype, then=1),
-                            default=0,
-                            output_field=models.IntegerField(),
-                        )
+                    attr_name: models.Count(
+                        'reactions', 
+                        filter=models.Q(reactions__type_of_reaction=rtype)
                     )
                 }
                 qs = qs.annotate(**reaction_count_agg)
+
+            max_count = getattr(settings, 'FORUM_REACTIONS_TO_DISPLAY', 10)
+            for rtype, attr_name in POST_REACTION_TO_PREFETCH_ATTR.items():
+                qs = qs.prefetch_related(
+                    models.Prefetch(
+                        'reactions', 
+                        to_attr=attr_name,
+                        queryset=PostReaction.objects.filter(type_of_reaction=rtype).select_related('author')[:max_count], 
+                    )
+                )
 
             return qs
 
@@ -256,6 +261,15 @@ class Post(models.Model):
 
         return Ban.is_banned(self.thread.category.forum, self.reported_by)
 
+POST_REACTION_TO_COUNT_ATTR = {
+    "UPVOTE": "upvotes_count",
+    "DOWNVOTE": "downvotes_count",
+}
+
+POST_REACTION_TO_PREFETCH_ATTR = {
+    "UPVOTE": "upvoted_by",
+    "DOWNVOTE": "downvoted_by",
+}
 
 post_reaction_types = EnumRegistry(
     entries=[
