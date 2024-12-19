@@ -80,6 +80,12 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Sum')
 
         self.assertTrue(self.client.login(username='test_user'))
+
+        # Users with problem.problems_db_admin can only see problems with visibility set to public.
+        problem = Problem.objects.get()
+        problem.visibility = Problem.VISIBILITY_PUBLIC
+        problem.save()
+
         check_not_accessible(self, url)
 
         user = User.objects.get(username='test_user')
