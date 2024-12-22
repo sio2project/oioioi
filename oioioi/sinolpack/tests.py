@@ -109,7 +109,7 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
 
-    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    @override_settings(CONTEST_MODE=ContestMode.neutral, USE_SINOLPACK_MAKEFILES=False)
     def test_single_file_replacement(self):
         filename = get_test_filename('test_simple_package.zip')
         old_statement = 'tst/doc/tstzad.pdf'

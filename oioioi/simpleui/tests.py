@@ -1,11 +1,14 @@
 import re
+from datetime import datetime, timezone  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils import timezone as django_timezone
 
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import TestCase, fake_timezone_now
+from oioioi.contests.controllers import ContestControllerContext
 from oioioi.contests.models import (
     Contest,
     ContestPermission,
@@ -16,11 +19,18 @@ from oioioi.contests.models import (
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
+from oioioi.simpleui.views import get_round_context
 
 
 def change_contest_type(contest):
     contest.controller_name = 'oioioi.contests.tests.PrivateContestController'
     contest.save()
+
+def get_contest_problem_instances():
+    contest = Contest.objects.get(pk='c')
+    request = ContestControllerContext(contest, django_timezone.now(), True)
+    round = Round.objects.filter(contest=contest).first()
+    return get_round_context(request, round.pk)['selected_round']['problem_instances']
 
 
 class TestContestDashboard(TestCase):
@@ -34,6 +44,21 @@ class TestContestDashboard(TestCase):
         'test_submission',
     ]
     compile_flags = re.M | re.S
+
+    def test_get_round_context(self):
+        with fake_timezone_now(datetime(2012, 9, 8, 11, tzinfo=timezone.utc)):
+            problem_instances = get_contest_problem_instances();
+
+            instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
+            self.assertEqual(instance['submission_count'], 0)
+            self.assertEqual(instance['question_count'], 2)
+
+        with fake_timezone_now(datetime(2012, 6, 4, 11, tzinfo=timezone.utc)):
+            problem_instances = get_contest_problem_instances();
+
+            instance = [inst for inst in problem_instances if inst['problem_instance'].pk == 1][0]
+            self.assertEqual(instance['submission_count'], 1)
+            self.assertEqual(instance['question_count'], 0)
 
     def test_contest_dashboard(self):
         user = User.objects.get(username='test_user')
