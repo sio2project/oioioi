@@ -219,7 +219,9 @@ class TestProblemsetFilters(TestCase):
             self.assertEqual(response.status_code, 200)
 
             for problem in self.problems:
+                problemTag = f"<td>{problem}</td>"
+
                 if problem in filtered:
-                    self.assertContains(response, problem)
+                    self.assertContains(response, problemTag, html=True)
                 else:
-                    self.assertNotContains(response, problem)
+                    self.assertNotContains(response, problemTag, html=True)
