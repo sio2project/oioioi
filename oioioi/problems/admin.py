@@ -362,7 +362,15 @@ class OriginInfoValueAdmin(admin.ModelAdmin):
         return super(OriginInfoValueAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
+    
+    def has_add_permission(self, request, obj=None):
+        return request.user.has_perm("problems.can_add_tags")
 
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm("problems.can_add_tags")
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.has_perm("problems.can_add_tags")
 
 admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
 
