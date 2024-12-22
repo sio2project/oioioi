@@ -423,11 +423,13 @@ class AlgorithmTagAdmin(BaseTagAdmin):
 admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
-def isInlineTag(inline):
-    return inline in (AlgorithmTagInline, OriginTagInline, DifficultyTagInline, OriginInfoValueInline)
-
-
 class ProblemAdmin(admin.ModelAdmin):
+    tag_inlines = (
+        DifficultyTagInline,
+        AlgorithmTagInline,
+        OriginTagInline,
+        OriginInfoValueInline,
+    )
     inlines = (
         DifficultyTagInline,
         AlgorithmTagInline,
@@ -526,18 +528,20 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
-        extra_context['categories'] = set()
-        for inline in self.inlines:
-            if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):
-                extra_context['categories'].add(getattr(inline, 'category', None))
-            elif isInlineTag(inline) and request.user.has_perm("problems.can_add_tags"):
-                extra_context['categories'].add(getattr(inline, 'category', None))
-
+        extra_context['categories'] = sorted(
+            set([getattr(inline, 'category', None) for inline in self.get_inlines(request, None)])
+        )
         if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):   
             extra_context['no_category'] = NO_CATEGORY
         return super(ProblemAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context
         )
+    def get_inlines(self, request, obj):
+        if request.user.is_superuser:
+            return super().get_inlines(request, obj) + self.inlines
+        elif request.user.has_perm('problems.can_add_tags'):
+            return self.tag_inlines
+        
 
 
 class BaseProblemAdmin(admin.MixinsAdmin):
