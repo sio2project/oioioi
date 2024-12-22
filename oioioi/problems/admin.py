@@ -275,26 +275,26 @@ class BaseTagLocalizationInline(admin.StackedInline):
     formset = LocalizationFormset
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return request.user.has_perm("problems.can_add_tags")
 
     def has_change_permission(self, request, obj=None):
-        return True
-
+        return request.user.has_perm("problems.can_add_tags")
+    
     def has_delete_permission(self, request, obj=None):
-        return True
+        return request.user.has_perm("problems.can_add_tags")
 
 
 class BaseTagAdmin(admin.ModelAdmin):
     filter_horizontal = ('problems',)
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return request.user.has_perm("problems.can_add_tags")
 
     def has_change_permission(self, request, obj=None):
-        return True
+        return request.user.has_perm("problems.can_add_tags")
 
     def has_delete_permission(self, request, obj=None):
-        return True
+        return request.user.has_perm("problems.can_add_tags")
 
 
 @tag_inline(
@@ -537,10 +537,12 @@ class ProblemAdmin(admin.ModelAdmin):
             request, object_id, form_url, extra_context=extra_context
         )
     def get_inlines(self, request, obj):
-        if request.user.is_superuser:
+        if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):
             return super().get_inlines(request, obj) + self.inlines
         elif request.user.has_perm('problems.can_add_tags'):
             return self.tag_inlines
+        else:
+            return ()
         
 
 
