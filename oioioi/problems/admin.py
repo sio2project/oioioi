@@ -302,6 +302,7 @@ class BaseTagAdmin(admin.ModelAdmin):
     form=OriginTagThroughForm,
     verbose_name=_("origin tag"),
     verbose_name_plural=_("origin tags"),
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser,
 )
 class OriginTagInline(admin.StackedInline):
     pass
@@ -341,6 +342,7 @@ admin.site.register(OriginInfoCategory, OriginInfoCategoryAdmin)
     form=OriginInfoValueThroughForm,
     verbose_name=_("origin information"),
     verbose_name_plural=_("additional origin information"),
+    has_permission_func=lambda self, request, obj=None: request.user.is_superuser,
 )
 class OriginInfoValueInline(admin.StackedInline):
     pass
@@ -462,6 +464,8 @@ class ProblemAdmin(admin.ModelAdmin):
             return can_modify_tags(request, obj)
 
     def has_delete_permission(self, request, obj=None):
+        if obj is None:
+            return self.get_queryset(request).exists()
         return can_admin_problem(request, obj)
 
     def redirect_to_list(self, request, problem):
