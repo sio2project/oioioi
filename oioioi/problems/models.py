@@ -155,7 +155,7 @@ class Problem(models.Model):
         verbose_name = _("problem")
         verbose_name_plural = _("problems")
         permissions = (
-            ('can_add_tags', _("Can add tags")),
+            ('can_modify_tags', _("Can modify tags")),
             ('problems_db_admin', _("Can administer the problems database")),
             ('problem_admin', _("Can administer the problem")),
         )

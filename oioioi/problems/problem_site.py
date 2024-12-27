@@ -35,7 +35,7 @@ from oioioi.problems.models import (
 )
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (
-    can_add_tags,
+    can_modify_tags,
     can_admin_problem,
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
@@ -265,7 +265,7 @@ def problem_site_settings(request, problem):
         },
     )
 
-@problem_site_tab(_("Tags"), key='tags', order=600, condition=can_add_tags)
+@problem_site_tab(_("Tags"), key='tags', order=600, condition=can_modify_tags)
 def problem_site_tags(request, problem):
     algorithm_tag_proposals = (
         AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]

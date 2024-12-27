@@ -71,14 +71,16 @@ def can_admin_problem(request, problem):
     return False
 
 
-def can_add_tags(request, problem):
+def can_modify_tags(request, problem):
     """Checks if the user can add tags to the problem.
 
-    The user can admin the given problem if user can admin problem or user has can_add_tags permission
-
-    The caller should guarantee that any of the given arguments is not None.
+    The user can modify tags if user can admin problem or user has can_modify_tags permission
     """
-    return request.user.has_perm('problems.can_add_tags') or can_admin_problem(request, problem)
+    if request.user.has_perm('problems.can_modify_tags'):
+        return True
+    if problem is None:
+        return False
+    return can_admin_problem(request, problem)
 
 
 def can_admin_instance_of_problem(request, problem):

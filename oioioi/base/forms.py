@@ -270,7 +270,7 @@ class OioioiUserChangeForm(UserChangeForm):
         super(OioioiUserChangeForm, self).__init__(*args, **kwargs)
         adjust_username_field(self)
         adjust_name_fields(self)
-        self.fields['user_permissions'].queryset = Permission.objects.filter(codename='can_add_tags')
+        self.fields['user_permissions'].queryset = Permission.objects.filter(codename='can_modify_tags')
 
 
 class OioioiPasswordResetForm(PasswordResetForm):

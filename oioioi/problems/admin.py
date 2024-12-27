@@ -55,7 +55,7 @@ from oioioi.problems.models import (
     ProblemSite,
     ProblemStatement,
 )
-from oioioi.problems.utils import can_add_problems, can_admin_problem
+from oioioi.problems.utils import can_add_problems, can_admin_problem, can_modify_tags
 
 logger = logging.getLogger(__name__)
 
@@ -275,26 +275,26 @@ class BaseTagLocalizationInline(admin.StackedInline):
     formset = LocalizationFormset
 
     def has_add_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
     
     def has_delete_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
 
 class BaseTagAdmin(admin.ModelAdmin):
     filter_horizontal = ('problems',)
 
     def has_add_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
 
 @tag_inline(
@@ -302,7 +302,7 @@ class BaseTagAdmin(admin.ModelAdmin):
     form=OriginTagThroughForm,
     verbose_name=_("origin tag"),
     verbose_name_plural=_("origin tags"),
-    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
+    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj)
 )
 class OriginTagInline(admin.StackedInline):
     pass
@@ -342,7 +342,7 @@ admin.site.register(OriginInfoCategory, OriginInfoCategoryAdmin)
     form=OriginInfoValueThroughForm,
     verbose_name=_("origin information"),
     verbose_name_plural=_("additional origin information"),
-    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
+    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj),
 )
 class OriginInfoValueInline(admin.StackedInline):
     pass
@@ -364,13 +364,13 @@ class OriginInfoValueAdmin(admin.ModelAdmin):
         )
     
     def has_add_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        return request.user.has_perm("problems.can_add_tags")
+        return can_modify_tags(request, obj)
 
 admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
 
@@ -380,7 +380,7 @@ admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
     form=DifficultyTagThroughForm,
     verbose_name=_("Difficulty Tag"),
     verbose_name_plural=_("Difficulty Tags"),
-    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
+    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj),
 )
 class DifficultyTagInline(admin.StackedInline):
     pass
@@ -408,7 +408,7 @@ admin.site.register(DifficultyTag, DifficultyTagAdmin)
     form=AlgorithmTagThroughForm,
     verbose_name=_("Algorithm Tag"),
     verbose_name_plural=_("Algorithm Tags"),
-    has_permission_func=lambda self, request, obj=None: request.user.is_superuser or request.user.has_perm("problems.can_add_tags"),
+    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj),
 )
 class AlgorithmTagInline(admin.StackedInline):
     pass
@@ -471,7 +471,7 @@ class ProblemAdmin(admin.ModelAdmin):
         if obj is None:
             return self.get_queryset(request).exists()
         else:
-            return can_admin_problem(request, obj) or request.user.has_perm("problems.can_add_tags")
+            return can_modify_tags(request, obj)
 
     def has_delete_permission(self, request, obj=None):
         return can_admin_problem(request, obj)
@@ -514,7 +514,7 @@ class ProblemAdmin(admin.ModelAdmin):
             combined = queryset.none()
         else:
             combined = request.user.problem_set.all()
-        if request.user.has_perm('problems.problems_db_admin') or request.user.has_perm('problems.can_add_tags'):
+        if request.user.has_perm('problems.problems_db_admin') or can_modify_tags(request, None):
             combined |= queryset.filter(contest__isnull=True)
         if is_contest_basicadmin(request):
             combined |= queryset.filter(contest=request.contest)
@@ -547,7 +547,7 @@ class ProblemAdmin(admin.ModelAdmin):
     def get_inlines(self, request, obj):
         if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):
             return super().get_inlines(request, obj) + self.inlines
-        elif request.user.has_perm('problems.can_add_tags'):
+        elif can_modify_tags(request, obj):
             return self.tag_inlines
         else:
             return ()
