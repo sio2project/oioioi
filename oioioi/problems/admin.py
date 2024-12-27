@@ -302,7 +302,6 @@ class BaseTagAdmin(admin.ModelAdmin):
     form=OriginTagThroughForm,
     verbose_name=_("origin tag"),
     verbose_name_plural=_("origin tags"),
-    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj)
 )
 class OriginTagInline(admin.StackedInline):
     pass
@@ -342,7 +341,6 @@ admin.site.register(OriginInfoCategory, OriginInfoCategoryAdmin)
     form=OriginInfoValueThroughForm,
     verbose_name=_("origin information"),
     verbose_name_plural=_("additional origin information"),
-    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj),
 )
 class OriginInfoValueInline(admin.StackedInline):
     pass
@@ -363,14 +361,6 @@ class OriginInfoValueAdmin(admin.ModelAdmin):
             db_field, request, **kwargs
         )
     
-    def has_add_permission(self, request, obj=None):
-        return can_modify_tags(request, obj)
-
-    def has_change_permission(self, request, obj=None):
-        return can_modify_tags(request, obj)
-
-    def has_delete_permission(self, request, obj=None):
-        return can_modify_tags(request, obj)
 
 admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
 
@@ -435,8 +425,6 @@ class ProblemAdmin(admin.ModelAdmin):
     tag_inlines = (
         DifficultyTagInline,
         AlgorithmTagInline,
-        OriginTagInline,
-        OriginInfoValueInline,
     )
     inlines = (
         DifficultyTagInline,
@@ -540,13 +528,15 @@ class ProblemAdmin(admin.ModelAdmin):
         extra_context['categories'] = sorted(
             set([getattr(inline, 'category', None) for inline in self.get_inlines(request, problem)])
         )
-        if can_admin_problem(request, problem):   
+        if problem is not None and can_admin_problem(request, problem):   
+            extra_context['no_category'] = NO_CATEGORY
+        if request.user.has_perm('problems.problems_db_admin'):
             extra_context['no_category'] = NO_CATEGORY
         return super(ProblemAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context
         )
     def get_inlines(self, request, obj):
-        if can_admin_problem(request, obj):
+        if obj is not None and can_admin_problem(request, obj):
             return super().get_inlines(request, obj)
         elif can_modify_tags(request, obj):
             return self.tag_inlines
