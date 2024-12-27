@@ -535,18 +535,19 @@ class ProblemAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        problem = self.get_object(request, unquote(object_id))
         extra_context = extra_context or {}
         extra_context['categories'] = sorted(
-            set([getattr(inline, 'category', None) for inline in self.get_inlines(request, None)])
+            set([getattr(inline, 'category', None) for inline in self.get_inlines(request, problem)])
         )
-        if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):   
+        if can_admin_problem(request, problem):   
             extra_context['no_category'] = NO_CATEGORY
         return super(ProblemAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context
         )
     def get_inlines(self, request, obj):
-        if request.user.is_superuser or request.user.has_perm('problems.problems_db_admin'):
-            return super().get_inlines(request, obj) + self.inlines
+        if can_admin_problem(request, obj):
+            return super().get_inlines(request, obj)
         elif can_modify_tags(request, obj):
             return self.tag_inlines
         else:
