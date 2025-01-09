@@ -761,7 +761,7 @@ class TestPost(TestCase):
         self.client.post(upvote_url, follow=True)
 
         response = self.client.get(self.thread_url, follow=True)
-        self.assertContains(response, 'Test User, Test User 2')
+        self.assertContains(response, 'Test User 2, Test User')
 
     @override_settings(FORUM_REACTIONS_TO_DISPLAY=2)
     def test_reacted_by_many_users(self):
@@ -779,7 +779,7 @@ class TestPost(TestCase):
         self.client.post(upvote_url, follow=True)
 
         response = self.client.get(self.thread_url, follow=True)
-        self.assertContains(response, 'Test User, Test User 2 and others')
+        self.assertContains(response, 'Test User 3, Test User 2 and others')
 
 class TestBan(TestCase):
     fixtures = ['test_users', 'test_contest']
