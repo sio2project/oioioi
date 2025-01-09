@@ -2,6 +2,7 @@
 import bleach
 from collections import OrderedDict
 
+from django.contrib.auth.models import Permission
 from captcha.fields import CaptchaField, CaptchaTextInput
 from django import forms
 from django.conf import settings
@@ -269,6 +270,7 @@ class OioioiUserChangeForm(UserChangeForm):
         super(OioioiUserChangeForm, self).__init__(*args, **kwargs)
         adjust_username_field(self)
         adjust_name_fields(self)
+        self.fields['user_permissions'].queryset = Permission.objects.filter(codename='can_modify_tags')
 
 
 class OioioiPasswordResetForm(PasswordResetForm):

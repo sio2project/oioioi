@@ -15,6 +15,7 @@ from django.utils.encoding import force_str
 from django.utils.html import escape
 from django.utils.text import capfirst
 from django.utils.translation import gettext_lazy as _
+from django import forms
 
 from oioioi.base.forms import OioioiUserChangeForm, OioioiUserCreationForm
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
@@ -356,13 +357,19 @@ class OioioiUserAdmin(UserAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_("Personal info"), {'fields': ('first_name', 'last_name', 'email')}),
-        (_("Permissions"), {'fields': ('is_active', 'is_superuser', 'groups')}),
+        (_("Permissions"), {'fields': ('is_active', 'is_superuser', 'user_permissions', 'groups')}),
         (_("Important dates"), {'fields': ('last_login', 'date_joined')}),
     )
     list_filter = ['is_superuser', 'is_active']
     list_display = ['username', 'email', 'first_name', 'last_name', 'is_active']
-    filter_horizontal = ()
+    filter_horizontal = ('user_permissions',)
     actions = ['activate_user']
+
+    # Overriding the formfield_for_manytomany method to ensure we render the field as checkboxes
+    def formfield_for_manytomany(self, db_field, request=None, **kwargs):
+        if db_field.name == 'user_permissions':
+            kwargs['widget'] = forms.CheckboxSelectMultiple()
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def activate_user(self, request, qs):
         qs.update(is_active=True)
