@@ -209,7 +209,10 @@ class Post(models.Model):
                     models.Prefetch(
                         'reactions', 
                         to_attr=attr_name,
-                        queryset=PostReaction.objects.filter(type_of_reaction=rtype).select_related('author')[:max_count], 
+                        queryset=PostReaction.objects
+                                .filter(type_of_reaction=rtype)
+                                .order_by('-pk')
+                                .select_related('author')[:max_count], 
                     )
                 )
 
@@ -281,6 +284,9 @@ post_reaction_types = EnumRegistry(
 
 class PostReaction(models.Model):
     """PostReaction - represents a reaction to a post on the forum."""
+
+    class Meta(object):
+        ordering = ['-pk']
 
     post = models.ForeignKey(
         Post,
