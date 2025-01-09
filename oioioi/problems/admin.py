@@ -480,8 +480,10 @@ class ProblemAdmin(admin.ModelAdmin):
             combined = queryset.none()
         else:
             combined = request.user.problem_set.all()
+        if request.user.is_superuser:
+            return queryset
         if request.user.has_perm('problems.problems_db_admin'):
-            combined |= queryset.filter(contest__isnull=True)
+            combined |= queryset.filter(visibility=Problem.VISIBILITY_PUBLIC)
         if is_contest_basicadmin(request):
             combined |= queryset.filter(contest=request.contest)
         return combined
