@@ -285,9 +285,6 @@ post_reaction_types = EnumRegistry(
 class PostReaction(models.Model):
     """PostReaction - represents a reaction to a post on the forum."""
 
-    class Meta(object):
-        ordering = ['-pk']
-
     post = models.ForeignKey(
         Post,
         verbose_name=_("post"),
