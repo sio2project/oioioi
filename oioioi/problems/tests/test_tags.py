@@ -2,7 +2,7 @@
 
 import urllib.parse
 
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
 from oioioi.base.tests import TestCase
@@ -181,9 +181,7 @@ class TestSaveProposals(TestCase):
 
     def test_save_proposals_view(self):
         problem = Problem.objects.get(pk=0)
-        user = User.objects.get(username='test_user')
-        permission = Permission.objects.get(codename='can_modify_tags')  
-        user.user_permissions.add(permission)
+        user = User.objects.get(username='test_admin')
 
         self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
         self.assertEqual(DifficultyTagProposal.objects.count(), 0)
@@ -193,7 +191,7 @@ class TestSaveProposals(TestCase):
             {
                 'tags[]': ["Dynamic programming", "Knapsack problem"],
                 'difficulty': '  \r    \t\n        Easy   \n     \t  ',
-                'user': 'test_user',
+                'user': 'test_admin',
                 'problem': '0',
             },
         )
@@ -222,23 +220,23 @@ class TestSaveProposals(TestCase):
             {},
             {
                 'difficulty': 'Easy',
-                'user': 'test_user',
+                'user': 'test_admin',
                 'problem': '0',
             },
             {
                 'tags[]': ["Dynamic programming", "Knapsack problem"],
-                'user': 'test_user',
-                'problem': '0',
-            },
-            {
-                'tags[]': ["Dynamic programming", "Knapsack problem"],
-                'difficulty': 'Easy',
+                'user': 'test_admin',
                 'problem': '0',
             },
             {
                 'tags[]': ["Dynamic programming", "Knapsack problem"],
                 'difficulty': 'Easy',
-                'user': 'test_user',
+                'problem': '0',
+            },
+            {
+                'tags[]': ["Dynamic programming", "Knapsack problem"],
+                'difficulty': 'Easy',
+                'user': 'test_admin',
             },
         ]
 
