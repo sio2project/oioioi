@@ -23,6 +23,7 @@ from oioioi.contests.models import (
     SubmitMessage,
     SubmissionMessage,
 )
+from oioioi.programs.models import ProgramsConfig
 
 
 class RoundTimes(object):
@@ -647,3 +648,39 @@ def get_inline_for_contest(inline, contest):
             return True
 
     return ArchivedInlineWrapper
+
+def create_programs_config_after_change_if_needed(request):
+    """Called before changing an existing contest.
+    """
+    if not request.POST:
+        return
+
+    execution_mode = request.POST.get('programs_config-0-execution_mode', None)
+
+    if (
+        not hasattr(request.contest, 'programs_config') and
+        execution_mode is not None and execution_mode != 'AUTO'
+    ):
+        ProgramsConfig.objects.create(contest=request.contest)
+
+
+def create_programs_config_after_add_if_needed(request):
+    """Called after creating a new contest.
+    """
+    if not request.POST:
+        return
+
+    execution_mode = request.POST.get('programs_config-0-execution_mode', None)
+    requested_contest_id = request.POST.get('id', None)
+
+    if (
+        requested_contest_id and
+        execution_mode is not None and
+        execution_mode != 'AUTO'
+    ):
+        try:
+            contest = Contest.objects.get(id=requested_contest_id) # The contest object must already exist in database
+        except Contest.DoesNotExist:
+            return
+
+        ProgramsConfig.objects.create(contest=contest, execution_mode=execution_mode)

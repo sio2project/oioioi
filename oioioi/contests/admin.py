@@ -56,10 +56,12 @@ from oioioi.contests.utils import (
     is_contest_archived,
     is_contest_basicadmin,
     is_contest_observer,
+    create_programs_config_after_add_if_needed,
+    create_programs_config_after_change_if_needed
 )
 from oioioi.problems.models import ProblemName, ProblemPackage, ProblemSite
 from oioioi.problems.utils import can_admin_problem
-from oioioi.programs.models import Test, TestReport
+from oioioi.programs.models import ProgramsConfig, Test, TestReport
 
 
 class ContestProxyAdminSite(admin.AdminSite):
@@ -304,13 +306,21 @@ class ContestAdmin(admin.ModelAdmin):
 
     def add_view(self, request, form_url='', extra_context=None):
         extra_context = self._get_extra_context(extra_context)
-        return super(ContestAdmin, self).add_view(request, form_url, extra_context)
+
+        ret = super(ContestAdmin, self).add_view(request, form_url, extra_context)
+
+        create_programs_config_after_add_if_needed(request)
+
+        return ret
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = self._get_extra_context(extra_context)
         # The contest's edit view uses request.contest, so editing a contest
         # when a different contest is active would produce weird results.
         contest_id = unquote(object_id)
+
+        create_programs_config_after_change_if_needed(request)
+
         if not request.contest or request.contest.id != contest_id:
             return redirect(
                 'oioioiadmin:contests_contest_change', object_id, contest_id=contest_id
