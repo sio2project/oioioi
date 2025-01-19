@@ -649,38 +649,46 @@ def get_inline_for_contest(inline, contest):
 
     return ArchivedInlineWrapper
 
-def create_programs_config_after_change_if_needed(request):
-    """Called before changing an existing contest.
-    """
-    if not request.POST:
-        return
 
-    execution_mode = request.POST.get('programs_config-0-execution_mode', None)
-
-    if (
-        not hasattr(request.contest, 'programs_config') and
-        execution_mode is not None and execution_mode != 'AUTO'
-    ):
-        ProgramsConfig.objects.create(contest=request.contest)
+def extract_programs_config_execution_mode(request):
+    return request.POST.get('programs_config-0-execution_mode', None)
 
 
 def create_programs_config_after_add_if_needed(request):
-    """Called after creating a new contest.
+    """Called after creating a new contest,
+    as the contest object must already exist in database
     """
-    if not request.POST:
+    if request.method != 'POST':
         return
 
-    execution_mode = request.POST.get('programs_config-0-execution_mode', None)
+    execution_mode = extract_programs_config_execution_mode(request)
+    # Retrieve the contest id from request, as current contest `request.contest` is not the created one
     requested_contest_id = request.POST.get('id', None)
 
     if (
         requested_contest_id and
-        execution_mode is not None and
+        execution_mode and
         execution_mode != 'AUTO'
     ):
         try:
-            contest = Contest.objects.get(id=requested_contest_id) # The contest object must already exist in database
+            contest = Contest.objects.get(id=requested_contest_id)
         except Contest.DoesNotExist:
             return
 
         ProgramsConfig.objects.create(contest=contest, execution_mode=execution_mode)
+
+
+def create_programs_config_after_change_if_needed(request):
+    """Called before changing an existing contest.
+    """
+    if request.method != 'POST':
+        return
+
+    execution_mode = extract_programs_config_execution_mode(request)
+
+    if (
+        not hasattr(request.contest, 'programs_config') and
+        execution_mode and
+        execution_mode != 'AUTO'
+    ):
+        ProgramsConfig.objects.create(contest=request.contest)
