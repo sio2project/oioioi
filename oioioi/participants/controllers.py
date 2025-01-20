@@ -22,6 +22,7 @@ from oioioi.participants.models import (
     RegistrationModel,
     TermsAcceptedPhrase,
 )
+from oioioi.contests.models import RegistrationStatus
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
@@ -208,6 +209,16 @@ class ParticipantsController(RegistrationController):
         except RegistrationAvailabilityConfig.DoesNotExist:
             auditLogger.warning("RegistrationAvailabilityConfig does not exist for contest %s", request.contest)
             return True
+
+    def registration_status(self, request):
+        if is_contest_archived(request):
+            return RegistrationStatus.CLOSED
+        try:
+            rvc = RegistrationAvailabilityConfig.objects.get(contest=request.contest)
+            return rvc.registration_status(request.timestamp)
+        except RegistrationAvailabilityConfig.DoesNotExist:
+            auditLogger.warning("RegistrationAvailabilityConfig does not exist for contest %s", request.contest)
+            return RegistrationStatus.OPEN
 
 
 class OpenParticipantsController(ParticipantsController):
