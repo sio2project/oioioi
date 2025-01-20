@@ -28,6 +28,8 @@ from oioioi.problems.forms import PackageFileReuploadForm, ProblemStatementRepla
 from oioioi.problems.models import (
     AlgorithmTagProposal,
     DifficultyTagProposal,
+    AggregatedAlgorithmTagProposal,
+    AggregatedDifficultyTagProposal,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -268,10 +270,10 @@ def problem_site_settings(request, problem):
 @problem_site_tab(_("Tags"), key='tags', order=600, condition=can_modify_tags)
 def problem_site_tags(request, problem):
     algorithm_tag_proposals = (
-        AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+        AggregatedAlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-amount')[:25]
     )
     difficulty_tag_proposals = (
-        DifficultyTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
+        AggregatedDifficultyTagProposal.objects.all().filter(problem=problem).order_by('-amount')[:25]
     )
 
     return TemplateResponse(
