@@ -93,6 +93,7 @@ from oioioi.problems.utils import (
     show_proposal_form,
 )
 from oioioi.programs.models import ModelSolution
+from oioioi.problems.models import ProblemSite
 from unidecode import unidecode
 
 
@@ -1130,7 +1131,6 @@ def get_algorithm_and_difficulty_tag_hints(query):
 
     return result
 
-
 @uniquefy('name')
 def get_problem_hints(query, view_type, user):
     problems = _get_problems_by_query(query)
@@ -1147,6 +1147,7 @@ def get_problem_hints(query, view_type, user):
             'trigger': 'problem',
             'name': problem.name,
             'category': _("Problems"),
+            'url': reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
         }
         for problem in problems[: getattr(settings, 'NUM_HINTS', 10)]
     ]
