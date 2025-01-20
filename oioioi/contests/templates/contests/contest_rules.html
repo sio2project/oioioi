@@ -9,7 +9,7 @@
 <ul class="list-group list-group-light">
     {% if no_of_rounds %}
         <li class="list-group-item">
-            {% blocktrans count no_of_rounds as number %}
+            {% blocktrans count number=no_of_rounds %}
                 The contest has {{ number }} round.
             {% plural %}
                 The contest has {{ number }} rounds.
