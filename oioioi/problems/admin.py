@@ -55,7 +55,7 @@ from oioioi.problems.models import (
     ProblemSite,
     ProblemStatement,
 )
-from oioioi.problems.utils import can_add_problems, can_admin_problem
+from oioioi.problems.utils import can_add_problems, can_admin_problem, can_modify_tags
 
 logger = logging.getLogger(__name__)
 
@@ -274,9 +274,27 @@ def _update_queryset_if_problems(db_field, **kwargs):
 class BaseTagLocalizationInline(admin.StackedInline):
     formset = LocalizationFormset
 
+    def has_add_permission(self, request, obj=None):
+        return can_modify_tags(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        return can_modify_tags(request, obj)
+    
+    def has_delete_permission(self, request, obj=None):
+        return can_modify_tags(request, obj)
+
 
 class BaseTagAdmin(admin.ModelAdmin):
     filter_horizontal = ('problems',)
+
+    def has_add_permission(self, request, obj=None):
+        return can_modify_tags(request, obj)
+
+    def has_change_permission(self, request, obj=None):
+        return can_modify_tags(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return can_modify_tags(request, obj)
 
 
 @tag_inline(
@@ -344,7 +362,7 @@ class OriginInfoValueAdmin(admin.ModelAdmin):
         return super(OriginInfoValueAdmin, self).formfield_for_manytomany(
             db_field, request, **kwargs
         )
-
+    
 
 admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
 
@@ -354,6 +372,7 @@ admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
     form=DifficultyTagThroughForm,
     verbose_name=_("Difficulty Tag"),
     verbose_name_plural=_("Difficulty Tags"),
+    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj),
 )
 class DifficultyTagInline(admin.StackedInline):
     pass
@@ -381,6 +400,7 @@ admin.site.register(DifficultyTag, DifficultyTagAdmin)
     form=AlgorithmTagThroughForm,
     verbose_name=_("Algorithm Tag"),
     verbose_name_plural=_("Algorithm Tags"),
+    has_permission_func=lambda self, request, obj=None: can_modify_tags(request, obj),
 )
 class AlgorithmTagInline(admin.StackedInline):
     pass
@@ -404,6 +424,10 @@ admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
 
 
 class ProblemAdmin(admin.ModelAdmin):
+    tag_inlines = (
+        DifficultyTagInline,
+        AlgorithmTagInline,
+    )
     inlines = (
         DifficultyTagInline,
         AlgorithmTagInline,
@@ -437,10 +461,12 @@ class ProblemAdmin(admin.ModelAdmin):
         if obj is None:
             return self.get_queryset(request).exists()
         else:
-            return can_admin_problem(request, obj)
+            return can_modify_tags(request, obj)
 
     def has_delete_permission(self, request, obj=None):
-        return self.has_change_permission(request, obj)
+        if obj is None:
+            return self.get_queryset(request).exists()
+        return can_admin_problem(request, obj)
 
     def redirect_to_list(self, request, problem):
         if problem.contest:
@@ -482,7 +508,7 @@ class ProblemAdmin(admin.ModelAdmin):
             combined = request.user.problem_set.all()
         if request.user.is_superuser:
             return queryset
-        if request.user.has_perm('problems.problems_db_admin'):
+        if request.user.has_perm('problems.problems_db_admin') or request.user.has_perm('problems.can_modify_tags'):
             combined |= queryset.filter(visibility=Problem.VISIBILITY_PUBLIC)
         if is_contest_basicadmin(request):
             combined |= queryset.filter(contest=request.contest)
@@ -503,14 +529,26 @@ class ProblemAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        problem = self.get_object(request, unquote(object_id))
         extra_context = extra_context or {}
         extra_context['categories'] = sorted(
-            set([getattr(inline, 'category', None) for inline in self.inlines])
+            set([getattr(inline, 'category', None) for inline in self.get_inlines(request, problem)])
         )
-        extra_context['no_category'] = NO_CATEGORY
+        if problem is not None and can_admin_problem(request, problem):   
+            extra_context['no_category'] = NO_CATEGORY
+        if request.user.has_perm('problems.problems_db_admin'):
+            extra_context['no_category'] = NO_CATEGORY
         return super(ProblemAdmin, self).change_view(
             request, object_id, form_url, extra_context=extra_context
         )
+    def get_inlines(self, request, obj):
+        if obj is not None and can_admin_problem(request, obj):
+            return super().get_inlines(request, obj)
+        elif can_modify_tags(request, obj):
+            return self.tag_inlines
+        else:
+            return ()
+        
 
 
 class BaseProblemAdmin(admin.MixinsAdmin):
