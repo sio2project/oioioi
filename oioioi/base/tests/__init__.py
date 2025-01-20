@@ -4,6 +4,7 @@ from contextlib import contextmanager
 
 import pytest
 import urllib.parse
+from unittest import mock
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
@@ -42,6 +43,15 @@ class _AssertNumQueriesLessThanContext(CaptureQueriesContext):
 
 
 class TestCase(DjangoTestCase):
+
+    def setUp(self):
+        csrf_patch = mock.patch(
+            'django.middleware.csrf.get_token', 
+            mock.Mock(return_value='deterministicToken')
+        )
+
+        csrf_patch.start()
+        self.addCleanup(csrf_patch.stop)
 
     # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L236
     def assertNumQueriesLessThan(self, num, *args, **kwargs):
