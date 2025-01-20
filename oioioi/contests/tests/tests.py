@@ -1428,6 +1428,56 @@ class TestContestAdmin(TestCase):
         '''
         # pylint: enable=pointless-string-statement
 
+    def test_programs_config_creation(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        # Test programs config after adding contest
+        url = reverse('oioioiadmin:contests_contest_add')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        post_data = make_empty_contest_formset()
+        post_data.update(
+            {
+                'name': 'cname',
+                'id': 'cid',
+                'start_date_0': '2012-02-03',
+                'start_date_1': '04:05:06',
+                'end_date_0': '2012-02-04',
+                'end_date_1': '05:06:07',
+                'results_date_0': '2012-02-05',
+                'results_date_1': '06:07:08',
+                'controller_name': 'oioioi.programs.controllers.ProgrammingContestController',
+                'is_archived': 'False',
+                'programs_config-0-execution_mode': 'cpu'
+            }
+        )
+
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contest.objects.count(), 1)
+        contest = Contest.objects.get()
+        self.assertEqual(contest.programs_config.execution_mode, 'cpu')
+
+        # Test programs config after changing contest
+        # url = reverse('oioioiadmin:contests_contest_change',
+        #               args=(quote('cid'),))
+        url = '/c/cid/admin/contests/contest/cid/change/'
+
+        post_data.update(
+            {
+                'programs_config-0-id': contest.programs_config.id,
+                'programs_config-0-contest': 'cid',
+                'programs_config-0-execution_mode': 'sio2jail'
+            }
+        )
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contest.objects.count(), 1)
+        contest = Contest.objects.get()
+        from oioioi.programs.models import ProgramsConfig
+        self.assertEqual(contest.programs_config.execution_mode, 'sio2jail')
+
     def test_admin_permissions(self):
         url = reverse('oioioiadmin:contests_contest_changelist')
 
