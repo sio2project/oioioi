@@ -59,10 +59,18 @@ class OIRegistrationController(ParticipantsController):
     def can_register(self, request):
         return super().is_registration_open(request)
 
+    def get_registration_status(self, request):
+        return super().registration_status(request)
+
     def can_unregister(self, request, participant):
         return False
 
     def registration_view(self, request):
+
+        registration_status = self.get_registration_status(request)
+        if registration_status == 'NOT OPEN YET':
+            return TemplateResponse(request, 'contests/registration_not_open_yet.html')
+
         participant = self._get_participant_for_form(request)
 
         if 'oi_oiregistrationformdata' in request.session:

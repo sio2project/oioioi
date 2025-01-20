@@ -405,12 +405,24 @@ class RegistrationAvailabilityConfig(models.Model):
             return self.registration_available_from <= timestamp <= self.registration_available_to
         return False
 
+    def registration_status(self, timestamp):
+        if self.enabled == 'YES':
+            return 'OPEN'
+        if self.enabled == 'CONFIG':
+            if self.registration_available_from <= timestamp <= self.registration_available_to:
+                return 'OPEN'
+            elif self.registration_available_to < timestamp:
+                return 'CLOSED'
+            elif timestamp < self.registration_available_to:
+                return 'NOT OPEN YET'
+        return 'CLOSED'
+
     def clean(self):
         if self.enabled == 'CONFIG':
             if self.registration_available_from is None or self.registration_available_to is None:
                 raise ValidationError(_("If registration availability is set to Configuration, then "
                                         "'Available from' and 'Available to' must be set."))
-            if self.available_from > self.registration_available_to:
+            if self.registration_available_from > self.registration_available_to:
                 raise ValidationError(_("'Available from' must be before 'available to'."))
 
 

@@ -3760,7 +3760,7 @@ def set_registration_availability(rvc, enabled, available_from=None, available_t
     rvc.save()
 
 
-def check_registration(self, expected_status_code, availability, available_from=None, available_to=None):
+def check_registration(self, expected_status_code, availability, available_from=None, available_to=None, expected_template=None):
     contest = Contest.objects.get()
     contest.controller_name = 'oioioi.oi.controllers.OIContestController'
     contest.save()
@@ -3773,6 +3773,8 @@ def check_registration(self, expected_status_code, availability, available_from=
     set_registration_availability(rvc, availability, available_from, available_to)
     response = self.client.get(url)
     self.assertEqual(expected_status_code, response.status_code)
+    if expected_template == 'registration_not_open_yet':
+        self.assertTemplateUsed(response, 'contests/registration_not_open_yet.html')
 
 
 class TestOpenRegistration(TestCase):
@@ -3797,7 +3799,7 @@ class TestOpenRegistration(TestCase):
         now = datetime.utcnow()
         available_from = now + timedelta(hours=1)
         available_to = now + timedelta(days=1)
-        check_registration(self, 403, 'CONFIG', available_from, available_to)
+        check_registration(self, 200, 'CONFIG', available_from, available_to, 'registration_not_open_yet')
 
     def test_configured_registration_closed_after(self):
         now = datetime.utcnow()
