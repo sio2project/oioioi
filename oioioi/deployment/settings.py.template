@@ -33,7 +33,7 @@ TEMPLATES[0]['APP_DIRS'] = False
 # PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com/'
 
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web', '0.0.0.0']
+ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 
 # The server to be run. Options are:
 # 'django' - django's http server
