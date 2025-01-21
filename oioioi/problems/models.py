@@ -834,6 +834,7 @@ class DifficultyTag(models.Model):
     class Meta(object):
         verbose_name = _("difficulty tag")
         verbose_name_plural = _("difficulty tags")
+        ordering = ["pk"]
 
     def __str__(self):
         return str(self.name)
