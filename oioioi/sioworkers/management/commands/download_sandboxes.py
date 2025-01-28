@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import os.path
+from subprocess import check_output
 
 import urllib.error
 import urllib.parse
@@ -59,8 +60,8 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help="Enabling this options means that you agree to the license "
-            "terms and conditions, so no license prompt will be "
-            "displayed",
+                 "terms and conditions, so no license prompt will be "
+                 "displayed",
         )
         parser.add_argument(
             '-q',
@@ -69,6 +70,14 @@ class Command(BaseCommand):
             default=False,
             action='store_true',
             help="Disables wget interactive progress bars",
+        )
+        parser.add_argument(
+            '-p',
+            '--script-path',
+            metavar='FILEPATH',
+            dest='script_path',
+            default=None,
+            help="Path to script that downloads the sandboxes",
         )
         parser.add_argument(
             'sandboxes', type=str, nargs='*', help='List of sandboxes to be downloaded'
@@ -92,72 +101,35 @@ class Command(BaseCommand):
             break
 
     def handle(self, *args, **options):
-        print("--- Downloading Manifest ...", file=self.stdout)
-        try:
-            manifest_url = options['manifest_url']
-            manifest = (
-                urllib.request.urlopen(manifest_url).read().decode('utf-8')
-            )
-            manifest = manifest.strip().splitlines()
-        except Exception as e:
-            raise CommandError("Error downloading manifest: %s" % (e,))
+        if not options.get('script_path'):
+            raise CommandError("You must specify a script path")
 
-        print("--- Looking for license ...", file=self.stdout)
-        try:
-            license_url = urllib.parse.urljoin(manifest_url, 'LICENSE')
-            license = (
-                urllib.request.urlopen(license_url).read().decode('utf-8')
-            )
-            if not options['license_agreement']:
-                self.display_license(license)
-        except urllib.error.HTTPError as e:
-            if e.code != 404:
-                raise
+        license_agreement = ""
+        if options['license_agreement']:
+            license_agreement = "-y"
+        cache_dir = "-c "
+        if options['cache_dir']:
+            cache_dir += options['cache_dir']
 
+        args_str = " ".join(args)
+        manifest_output = check_output(
+            f"{options['script_path']} -m {options['manifest_url']} -d {options['download_dir']} --wget {options['wget']} -q {license_agreement} {cache_dir} {args_str}",
+            shell=True, text=True)
+        if manifest_output == "":
+            raise CommandError(f"Manifest output cannot be empty")
+
+        manifest = manifest_output.strip().splitlines()
         args = options['sandboxes']
         if not args:
             args = manifest
 
-        print("--- Preparing ...", file=self.stdout)
-        urls = []
-        cached_args = []
-        for arg in args:
-            basename = arg + '.tar.gz'
-            if options['cache_dir']:
-                path = os.path.join(options['cache_dir'], basename)
-                if os.path.isfile(path):
-                    cached_args.append(arg)
-                    continue
-            if arg not in manifest:
-                raise CommandError(
-                    "Sandbox '%s' not available (not in Manifest)" % (arg,)
-                )
-            urls.append(urllib.parse.urljoin(manifest_url, basename))
+        print("--- Preparing to save sandboxes to the Filetracker ...", file=self.stdout)
+        cached_args = [
+            arg for arg in args
+            if options['cache_dir'] and os.path.isfile(os.path.join(options['cache_dir'], arg + '.tar.gz'))
+        ]
 
         filetracker = get_client()
-
-        download_dir = options['download_dir']
-        if not os.path.exists(download_dir):
-            os.makedirs(download_dir)
-
-        try:
-            execute([options['wget'], '--version'])
-        except ExecuteError:
-            raise CommandError(
-                "Wget not working. Please specify a working "
-                "Wget binary using --wget option."
-            )
-
-        if len(urls) > 0:
-            print("--- Downloading sandboxes ...", file=self.stdout)
-
-            quiet_flag = ['-nv'] if options['quiet'] else []
-            execute(
-                [options['wget'], '-N', '--no-check-certificate', '-i', '-'] + quiet_flag,
-                stdin='\n'.join(urls).encode('utf-8'),
-                capture_output=False,
-                cwd=download_dir,
-            )
 
         print("--- Saving sandboxes to the Filetracker ...", file=self.stdout)
         for arg in args:
@@ -165,14 +137,13 @@ class Command(BaseCommand):
             if arg in cached_args:
                 local_file = os.path.join(options['cache_dir'], basename)
             else:
-                local_file = os.path.join(download_dir, basename)
-            print(" ", basename, file=self.stdout)
+                local_file = os.path.join(options['download_dir'], basename)
             filetracker.put_file('/sandboxes/' + basename, local_file)
             if arg not in cached_args:
                 os.unlink(local_file)
 
         try:
-            os.rmdir(download_dir)
+            os.rmdir(options['download_dir'])
         except OSError:
             print(
                 "--- Done, but couldn't remove the downloads directory.",
