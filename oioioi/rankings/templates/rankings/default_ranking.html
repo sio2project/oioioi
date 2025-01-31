@@ -9,6 +9,7 @@
                 <tr>
                     <th class="text-right">#</th>
                     <th>{% trans "User" %}</th>
+                    <th class="text-right">{% trans "Sum" %}</th>
                     {% for pi, statement_visible in problem_instances %}
                         {% if statement_visible %}
                             {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
@@ -19,7 +20,6 @@
                             {% if statement_visible %}</a>{% endif %}
                         </th>
                     {% endfor %}
-                    <th class="text-right">{% trans "Sum" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +27,7 @@
                     <tr id="ranking_row_{{ row.user.id }}" class="{% block row-classes %}{% endblock %}">
                         <td class="text-right">{{ row.place }}</td>
                         <td class="user-cell">{% public_name row.user %}</td>
+                        <td class="text-right sum-cell">{{ row.sum }}</td>
                         {% for result in row.results %}
                             <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round
                                                  {% else %} {{ result.score|result_color_class }}{% endif %}">
@@ -36,7 +37,6 @@
                                 </span>
                             </td>
                         {% endfor %}
-                        <td class="text-right">{{ row.sum }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

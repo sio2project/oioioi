@@ -11,7 +11,7 @@ from django.forms.widgets import Media
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, get_language_from_request
 
 from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.utils.inputs import narrow_input_field
@@ -23,6 +23,8 @@ from oioioi.contests.utils import (
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
+    is_contest_archived,
+    get_submission_message,
 )
 from oioioi.evalmgr.tasks import (
     add_before_placeholder,
@@ -529,6 +531,7 @@ class ProgrammingProblemController(ProblemController):
                 ),
             ),
             date=request.timestamp,
+            user_language_code=get_language_from_request(request),
         )
 
         file = form_data['file']
@@ -701,6 +704,8 @@ class ProgrammingProblemController(ProblemController):
                     submission
                 ),
                 'can_admin': can_admin,
+                'is_contest_archived': is_contest_archived(request),
+                'message': get_submission_message(request),
             },
         )
 
@@ -727,8 +732,9 @@ class ProgrammingProblemController(ProblemController):
         group_reports = dict((g.group, g) for g in group_reports)
 
         picontroller = problem_instance.controller
+        pcontroller = problem_instance.problem.controller
 
-        allow_download_out = picontroller.can_generate_user_out(request, report)
+        allow_download_out = pcontroller.user_outs_exist() and picontroller.can_generate_user_out(request, report)
         allow_test_comments = picontroller.can_see_test_comments(request, report)
         all_outs_generated = allow_download_out
 

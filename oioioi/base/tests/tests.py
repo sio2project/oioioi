@@ -61,6 +61,7 @@ from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
+from oioioi.welcomepage.views import welcome_page_view
 
 if not getattr(settings, 'TESTS', False):
     print(
@@ -163,6 +164,7 @@ class TestIndexNoContest(TestCase):
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_no_contest(self):
+        unregister_main_page_view(welcome_page_view)
         unregister_main_page_view(szkopul_main_page)
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/')
@@ -1607,7 +1609,7 @@ class TestPublicMessage(TestCase):
         self.assertEqual(response.status_code, 302)
 
         # Check if message is visible
-        self.assertTrue(self.client.login(username='test_user2'))
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse(self.viewname, kwargs=viewname_kwargs)
         response = self.client.get(url)
         self.assertContains(response, 'Test public message')
@@ -1621,7 +1623,7 @@ class TestPublicMessage(TestCase):
         contest.save()
         viewname_kwargs = getattr(self, 'viewname_kwargs', {'contest_id': contest.id})
 
-        self.assertTrue(self.client.login(username='test_user2'))
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse(self.viewname, kwargs=viewname_kwargs)
         response = self.client.get(url)
         self.assertContains(response, 'Test public message')
@@ -1636,7 +1638,7 @@ class TestPublicMessage(TestCase):
         response = self.client.get(url)
         self.assertContains(response, edit_url)
 
-        self.assertTrue(self.client.login(username='test_user2'))
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertNotContains(response, edit_url)
 
@@ -1644,11 +1646,17 @@ class TestPublicMessage(TestCase):
     def test_add_message(self):
         if hasattr(self, 'model'):
             self.add_message()
+        else:
+            self.skipTest("model not defined")
 
     def test_contest_controller(self):
         if hasattr(self, 'controller_name'):
             self.contest_controller()
+        else:
+            self.skipTest("controller_name not defined")
 
     def test_button_visibility(self):
         if hasattr(self, 'button_viewname') and hasattr(self, 'edit_viewname'):
             self.button_visibility()
+        else:
+            self.skipTest("button_viewname or edit_viewname not defined")

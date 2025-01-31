@@ -4,12 +4,11 @@
     {% blocktrans %}
     Use this option only when you have to quickly replace problem statement.
     Note that the changes are temporary and don't alter the problem package.
-    If you need permanent changes use the
+    If you need permanent changes, use the option
     {% endblocktrans %}
     <a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}?key=manage_files_problem_package">
-        {% trans "Manage package files" %}
+        {% trans "Manage package files" %}.
     </a>
-    {% trans "option" %}.
 </p>
 <form enctype="multipart/form-data" method="post">
 

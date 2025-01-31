@@ -1,0 +1,31 @@
+{% extends "base-with-menu.html" %}
+{% load i18n static %}
+
+{% block title %}Edit welcome page content{% endblock %}
+
+{% block main-content %}
+<h2>Edit welcome page content</h2>
+<form style="max-width: initial;" method="POST">
+    {% csrf_token %}
+    {% include "ingredients/translation-formset.html" %}
+    <div class="form-group">
+        <a href="{% url 'delete_welcome_page' %}" class="btn btn-danger">
+            {% trans "Delete all messages" %}
+        </a>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Save" %}
+        </button>
+    </div>
+
+</form>
+
+<script type="text/javascript" src="{% static 'welcomepage/textfield-tab.js' %}"></script>
+<script>
+    new TranslationFormset({
+        requiredFieldsSelector: '[id*="content"]'
+    });
+</script>
+{% endblock %}

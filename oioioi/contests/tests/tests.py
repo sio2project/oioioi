@@ -44,6 +44,7 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
+    SubmissionMessage,
 )
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import make_empty_contest_formset
@@ -4223,6 +4224,7 @@ class PublicMessageContestController(ProgrammingContestController):
     files_message = 'Test public message'
     submissions_message = 'Test public message'
     submit_message = 'Test public message'
+    submission_message = 'Test public message'
 
 
 class TestFilesMessage(TestPublicMessage):
@@ -4255,6 +4257,26 @@ class TestSubmitMessage(TestPublicMessage):
     controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
 
 
+class TestSubmissionMessage(TestPublicMessage):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
+    model = SubmissionMessage
+    button_viewname = 'my_submissions'
+    edit_viewname = 'edit_submission_message'
+    viewname = 'submission'
+    controller_name = 'oioioi.contests.tests.tests.PublicMessageContestController'
+
+    def setUp(self):
+        super().setUp()
+        contest = Contest.objects.get()
+        submission = Submission.objects.get()
+        self.viewname_kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
+
 
 class TestContestArchived(TestCase):
     fixtures = [
@@ -4286,6 +4308,21 @@ class TestContestArchived(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "This contest is archived.")
+        self.assertNotContains(response, "Submit")
+
+    def test_submissions_view(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('my_submissions', kwargs={'contest_id': 'c'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Submit")
+        
+    def test_submission_view(self):
+        contest = Contest.objects.get()
+        submission = Submission.objects.get(pk=1)
+        self.assertTrue(self.client.login(username='test_user'))
+        kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
+        response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertNotContains(response, "Submit")
 
     def test_submission_list_visibility(self):
@@ -4343,4 +4380,3 @@ class TestScoreBadges(TestCase):
         self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'zad1'))
         self.assertIn('badge-warning', self._get_badge_for_problem(response.content, 'zad2'))
         self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'zad3'))
-

@@ -3,6 +3,7 @@
 {% load check_perm %}
 {% load get_user_name %}
 {% load pagination_tags %}
+{% load user_badge %}
 
 {% block title %}{% trans "Category" %}: {{ category.name }}{% endblock %}
 
@@ -64,8 +65,9 @@
                         {% if t.last_post != None %}
                         <small>
                             {% full_name t.last_post.author as author_link %}
-                            {% blocktrans with date=t.last_post.add_date author=author_link last_id=t.last_post.id %}
-                                <a href="{{ thread_link }}#forum-post-{{ last_id }}">{{ date }}</a>, by {{ author }}
+                            {% user_badge t.last_post.author as author_badge %}
+                            {% blocktrans with date=t.last_post.add_date author=author_link last_id=t.last_post.id badge=author_badge %}
+                                <a href="{{ thread_link }}#forum-post-{{ last_id }}">{{ date }}</a>, by {{ author }} <span class="badge badge-secondary">{{ badge }}</span>
                             {% endblocktrans %}
                         </small>
                         {% endif %}

@@ -95,6 +95,30 @@ class TestFinalSubmissionsWithUserDataCollector(TestCase):
         self.assertEqual(submissions, [1, 2])
 
 
+class TestBestScoreIsFinalSubmissionsWithUserDataCollector(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest_best_score_is_final',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submissions_best_score_is_final',
+    ]
+
+    def test_default(self):
+        contest = Contest.objects.get(id="c")
+        collector = SubmissionsWithUserDataCollector(contest)
+        submission_data_list = collector.collect_list()
+        submissions = [s.submission_id for s in submission_data_list]
+        self.assertEqual(submissions, [2])
+
+    def test_not_only_final(self):
+        contest = Contest.objects.get(id="c")
+        collector = SubmissionsWithUserDataCollector(contest, only_final=False)
+        submission_data_list = collector.collect_list()
+        submissions = [s.submission_id for s in submission_data_list]
+        self.assertEqual(submissions, [1, 2])
+
+
 INDEX_HEADER = (
     'submission_id,user_id,username,first_name,last_name,city,'
     'school,school_city,problem_short_name,score\r\n'

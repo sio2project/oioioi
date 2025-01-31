@@ -1,0 +1,20 @@
+{% extends "simple-centered.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "SU - Method not allowed" %}{% endblock %}
+
+{% block content %}
+
+<div class="text-center mt-3">
+    <h3>
+        {% blocktrans %}
+            Sorry, this OIOIOI instance only allows GET requests for contest admins using su.
+        {% endblocktrans %}
+    </h3>
+    <a href="{% url 'contest_dashboard' %}" class="btn btn-primary mt-3">
+        {% trans "Return to the contest" %}
+    </a>
+</div>
+
+{% endblock %}

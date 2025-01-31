@@ -1,0 +1,200 @@
+[
+    {
+      "pk": 1,
+      "model": "contests.submission",
+      "fields": {
+        "status": "OK",
+        "problem_instance": 1,
+        "kind": "NORMAL",
+        "comment": "",
+        "score": "int:0000000000000000100",
+        "user": 1001,
+        "date": "2012-06-03T22:07:07.516Z"
+      }
+    },
+    {
+      "pk": 1,
+      "model": "contests.submissionreport",
+      "fields": {
+        "status": "ACTIVE",
+        "kind": "INITIAL",
+        "submission": 1,
+        "creation_date": "2012-08-03T22:07:29.547Z"
+      }
+    },
+    {
+      "pk": 2,
+      "model": "contests.submissionreport",
+      "fields": {
+        "status": "ACTIVE",
+        "kind": "NORMAL",
+        "submission": 1,
+        "creation_date": "2012-08-03T22:07:39.662Z"
+      }
+    },
+    {
+      "pk": 1,
+      "model": "contests.scorereport",
+      "fields": {
+        "status": "OK",
+        "comment": null,
+        "score": null,
+        "submission_report": 1,
+        "max_score": "int:0000000000000000100"
+      }
+    },
+    {
+      "pk": 2,
+      "model": "contests.scorereport",
+      "fields": {
+        "status": "OK",
+        "comment": null,
+        "score": "int:0000000000000000100",
+        "submission_report": 2,
+        "max_score": "int:0000000000000000100"
+      }
+    },
+    {
+        "pk": 2,
+        "model": "contests.submission",
+        "fields": {
+          "status": "OK",
+          "problem_instance": 2,
+          "kind": "NORMAL",
+          "comment": "",
+          "score": "int:000000000000000034",
+          "user": 1001,
+          "date": "2012-06-03T22:07:07.516Z"
+        }
+      },
+      {
+        "pk": 3,
+        "model": "contests.submissionreport",
+        "fields": {
+          "status": "ACTIVE",
+          "kind": "INITIAL",
+          "submission": 2,
+          "creation_date": "2012-08-03T22:07:29.547Z"
+        }
+      },
+      {
+        "pk": 4,
+        "model": "contests.submissionreport",
+        "fields": {
+          "status": "ACTIVE",
+          "kind": "NORMAL",
+          "submission": 2,
+          "creation_date": "2012-08-03T22:07:39.662Z"
+        }
+      },
+      {
+        "pk": 3,
+        "model": "contests.scorereport",
+        "fields": {
+          "status": "OK",
+          "comment": null,
+          "score": null,
+          "submission_report": 3,
+          "max_score": "int:0000000000000000100"
+        }
+      },
+      {
+        "pk": 4,
+        "model": "contests.scorereport",
+        "fields": {
+          "status": "RE",
+          "comment": null,
+          "score": "int:0000000000000000034",
+          "submission_report": 4,
+          "max_score": "int:0000000000000000100"
+        }
+      },
+      {
+        "pk": 3,
+        "model": "contests.submission",
+        "fields": {
+          "status": "WA",
+          "problem_instance": 3,
+          "kind": "NORMAL",
+          "comment": "",
+          "score": "int:0000000000000000000",
+          "user": 1001,
+          "date": "2012-06-03T22:07:07.516Z"
+        }
+      },
+      {
+        "pk": 5,
+        "model": "contests.submissionreport",
+        "fields": {
+          "status": "ACTIVE",
+          "kind": "INITIAL",
+          "submission": 3,
+          "creation_date": "2012-08-03T22:07:29.547Z"
+        }
+      },
+      {
+        "pk": 6,
+        "model": "contests.submissionreport",
+        "fields": {
+          "status": "ACTIVE",
+          "kind": "NORMAL",
+          "submission": 3,
+          "creation_date": "2012-08-03T22:07:39.662Z"
+        }
+      },
+      {
+        "pk": 5,
+        "model": "contests.scorereport",
+        "fields": {
+          "status": "OK",
+          "comment": null,
+          "score": null,
+          "submission_report": 5,
+          "max_score": "int:0000000000000000100"
+        }
+      },
+      {
+        "pk": 6,
+        "model": "contests.scorereport",
+        "fields": {
+          "status": "WA",
+          "comment": null,
+          "score": "int:0000000000000000000",
+          "submission_report": 6,
+          "max_score": "int:0000000000000000100"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.userresultforproblem",
+        "fields": {
+          "status": "OK",
+          "problem_instance": 1,
+          "score": "int:0000000000000000100",
+          "user": 1001,
+          "submission_report": 2
+        }
+      },
+      {
+        "pk": 2,
+        "model": "contests.userresultforproblem",
+        "fields": {
+          "status": "OK",
+          "problem_instance": 2,
+          "score": "int:0000000000000000034",
+          "user": 1001,
+          "submission_report": 4
+        }
+      },
+      {
+        "pk": 3,
+        "model": "contests.userresultforproblem",
+        "fields": {
+          "status": "WA",
+          "problem_instance": 3,
+          "score": "int:0000000000000000000",
+          "user": 1001,
+          "submission_report": 6
+        }
+      }
+]

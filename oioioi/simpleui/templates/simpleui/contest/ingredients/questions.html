@@ -34,7 +34,7 @@
             </td>
             {% if is_admin %}
                 <td>
-                    <span class="badge {% if record.needs_reply %}badge-danger{% else %}badge-secondary{% endif %}">
+                    <span class="badge {% if record.needs_reply %}badge-danger{% elif msg.kind == 'PUBLIC' %}badge-secondary{% elif msg.kind == 'PRIVATE' %}badge-light{% else %}badge-primary{% endif %}">
                         {{ msg.kind }}
                     </span>
                 </td>

@@ -29,6 +29,7 @@ from oioioi.contests.forms import (
     FilesMessageForm,
     SubmissionsMessageForm,
     SubmitMessageForm,
+    SubmissionMessageForm,
 )
 from oioioi.contests.models import (
     Contest,
@@ -62,6 +63,7 @@ from oioioi.contests.utils import (
     get_results_visibility,
     are_rules_visible,
     get_scoring_desription,
+    get_submission_message,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -381,6 +383,23 @@ def edit_submissions_message_view(request):
     )
 
 
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def edit_submission_message_view(request):
+    instance = get_submission_message(request)
+    if request.method == 'POST':
+        form = SubmissionMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('my_submissions', contest_id=request.contest.id)
+    else:
+        form = SubmissionMessageForm(request, instance=instance)
+    return TemplateResponse(
+        request,
+        'public_message/edit.html',
+        {'form': form, 'title': _("Edit submission message")},
+    )
+
+
 @enforce_condition(not_anonymous)
 def all_submissions_view(request):
     submissions = []
@@ -539,7 +558,7 @@ def contest_files_view(request):
 
     round_file_exists = contest_files.filter(round__isnull=False).exists()
     add_category_field = round_file_exists or problem_files.exists()
-    rows = [
+    rows = sorted([
         {
             'category': cf.round if cf.round else '',
             'name': cf.download_name,
@@ -552,8 +571,9 @@ def contest_files_view(request):
             'admin_only': cf not in contest_files_without_admin,
         }
         for cf in contest_files
-    ]
-    rows += [
+    ], key=itemgetter('name'))
+
+    rows += sorted([
         {
             'category': pf.problem,
             'name': pf.download_name,
@@ -566,9 +586,8 @@ def contest_files_view(request):
             'admin_only': pf.problem_id not in problem_ids_without_admin,
         }
         for pf in problem_files
-    ]
-    rows += additional_files
-    rows.sort(key=itemgetter('name'))
+    ], key=itemgetter('name'))
+    rows += sorted(additional_files, key=itemgetter('name'))
     return TemplateResponse(
         request,
         'contests/files.html',
