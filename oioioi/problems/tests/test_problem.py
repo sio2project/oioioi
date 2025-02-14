@@ -429,14 +429,47 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Settings')
         response = self.client.get(url)
         self.assertContains(response, 'Add to contest')
-        self.assertContains(response, 'Current tags')
         self.assertContains(response, 'Edit problem')
         self.assertContains(response, 'Edit tests')
         self.assertContains(response, 'Reupload problem')
         self.assertContains(response, 'Model solutions')
+        self.assertContains(response, 'Medium')
+
+    @override_settings(LANGUAGE_CODE='en')
+    def test_tags_tab_admin(self):
+        problemsite_url = self._get_site_urls()['statement']
+        url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=tags'
+
+        response = self.client.get(problemsite_url)
+        self.assertNotContains(response, 'Tags')
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(problemsite_url)
+        self.assertContains(response, 'Tags')
+        response = self.client.get(url)
+        self.assertContains(response, 'Current tags')
         self.assertContains(response, 'dp')
         self.assertContains(response, 'lcis')
-        self.assertContains(response, 'Medium')
+
+    @override_settings(LANGUAGE_CODE='en')
+    def test_tags_tab_user_with_permission(self):
+        problemsite_url = self._get_site_urls()['statement']
+        url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=tags'
+
+        response = self.client.get(problemsite_url)
+        self.assertNotContains(response, 'Tags')
+
+        user = User.objects.get(username='test_user')
+        permission = Permission.objects.get(codename='can_modify_tags')  
+        user.user_permissions.add(permission)
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(problemsite_url)
+        self.assertContains(response, 'Tags')
+        response = self.client.get(url)
+        self.assertContains(response, 'Current tags')
+        self.assertContains(response, 'dp')
+        self.assertContains(response, 'lcis')
 
     def test_statement_replacement(self):
         url = (
