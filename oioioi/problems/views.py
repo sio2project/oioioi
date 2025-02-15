@@ -142,7 +142,7 @@ def download_package_traceback_view(request, package_id):
 def add_or_update_problem(request, contest, template):
     if contest and contest.is_archived:
         raise PermissionDenied
-    
+
     if 'problem' in request.GET:
         existing_problem = get_object_or_404(Problem, id=request.GET['problem'])
         if (
@@ -670,7 +670,7 @@ def get_report_row_begin_HTML_view(request, submission_id):
     return TemplateResponse(
         request,
         'contests/my_submission_table_base_row_begin.html',
-        { 
+        {
             'record': submission_template_context(request, submission),
             'show_scores': json.loads(request.POST.get('show_scores', "false")),
             'can_admin': can_admin_problem_instance(request, submission.problem_instance) and
