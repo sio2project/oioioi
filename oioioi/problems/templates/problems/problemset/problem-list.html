@@ -112,6 +112,9 @@
                             {% for tag in problem.difficultytag_set.all %}
                                 {% tag_label tag %}
                             {% endfor %}
+                            {% for tag in problem.aggregatedalgorithmtagproposal_set.all %}
+                                {% aggregated_tag_label tag %}
+                            {% endfor %}
                         </td>
                     {% endif %}
 
