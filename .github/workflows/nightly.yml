@@ -32,4 +32,4 @@ jobs:
 
     - name: Run tests
       run: |
-        ./test.sh --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v
+        ./test.sh -n auto --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v

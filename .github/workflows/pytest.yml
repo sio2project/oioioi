@@ -43,4 +43,4 @@ jobs:
 
     - name: Run tests
       run: |
-        ./test.sh --migrations
+        ./test.sh -n auto --migrations
