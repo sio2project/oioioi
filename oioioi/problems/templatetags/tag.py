@@ -25,11 +25,10 @@ def prefetch_tags(problems):
 
     for problem in problems:
         algo_tag_pks = set(problem.algorithmtag_set.all().values_list('pk', flat=True))
-        if hasattr(problem, 'top_tag_proposals'):
-            problem.top_tag_proposals = [
-                proposal for proposal in problem.top_tag_proposals
-                if proposal.tag.pk not in algo_tag_pks
-            ]
+        problem.top_tag_proposals = [
+            proposal for proposal in problem.top_tag_proposals
+            if proposal.tag.pk not in algo_tag_pks
+        ]
 
     return u''
 
