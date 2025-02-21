@@ -102,7 +102,7 @@
                                 {% tag_label tag %}
                             {% endfor %}
                             <div class="aggregated-proposals" style="display: none;">
-                                {% for tag in problem.aggregatedalgorithmtagproposal_set.all %}
+                                {% for tag in problem.top_tag_proposals %}
                                     {% aggregated_tag_label tag %}
                                 {% endfor %}
                             </div>
