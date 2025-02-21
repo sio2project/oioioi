@@ -649,15 +649,19 @@ def get_inline_for_contest(inline, contest):
 
     return ArchivedInlineWrapper
 
+# The whole section below requires refactoring,
+# may include refactoring the models of `Contest`, `ProgramsConfig` and `TermsAcceptedPhrase`
 
 def extract_programs_config_execution_mode(request):
     return request.POST.get('programs_config-0-execution_mode', None)
 
 
-def create_programs_config_after_add_if_needed(request):
+def create_programs_config_after_add(request):
     """Called after creating a new contest,
     as the contest object must already exist in database
     """
+    print(len(ProgramsConfig.objects.all()))
+    print(ProgramsConfig.objects.all().values_list('contest', 'execution_mode'))
     if request.method != 'POST':
         return
 
@@ -677,10 +681,11 @@ def create_programs_config_after_add_if_needed(request):
 
         ProgramsConfig.objects.create(contest=contest, execution_mode=execution_mode)
 
-
-def create_programs_config_after_change_if_needed(request):
+def create_programs_config_after_change(request):
     """Called before changing an existing contest.
     """
+    print(len(ProgramsConfig.objects.all()))
+    print(ProgramsConfig.objects.all().values_list('contest', 'execution_mode'))
     if request.method != 'POST':
         return
 
@@ -691,4 +696,21 @@ def create_programs_config_after_change_if_needed(request):
         execution_mode and
         execution_mode != 'AUTO'
     ):
-        ProgramsConfig.objects.create(contest=request.contest)
+        ProgramsConfig.objects.create(contest=request.contest, execution_mode=execution_mode)
+
+
+def create_terms_accepted_phrase_after_add(request):
+    pass
+
+
+def create_terms_accepted_phrase_after_change(request):
+    pass
+
+def update_contest_attributes_after_add(request):
+    create_programs_config_after_add(request)
+    create_terms_accepted_phrase_after_add(request)
+
+
+def update_contest_attributes_after_change(request):
+    create_programs_config_after_change(request)
+    create_terms_accepted_phrase_after_change(request)
