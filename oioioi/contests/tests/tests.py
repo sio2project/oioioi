@@ -1476,7 +1476,7 @@ class TestContestAdmin(TestCase):
                       kwargs={'contest_id': contest_id, 'object_id': contest_id})
         post_data.update(
             {
-                'programs_config-0-id': contest.programs_config.id,
+                'programs_config-0-id': programs_config.id,
                 'programs_config-0-contest': contest_id,
                 'programs_config-0-execution_mode': 'cpu',
             }
@@ -1486,7 +1486,7 @@ class TestContestAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Contest.objects.count(), 1)
         self.assertEqual(ProgramsConfig.objects.count(), 1)
-        programs_config = ProgramsConfig.objects.get()
+        programs_config.refresh_from_db()
         self.assertEqual(programs_config.contest, contest)
         self.assertEqual(programs_config.execution_mode, 'cpu')
         '''
@@ -1520,10 +1520,8 @@ class TestContestAdmin(TestCase):
         )
 
         response = self.client.post(url, post_data, follow=True)
-        print(response.context['adminform'].form.errors)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Contest.objects.count(), 1)
-        contest = Contest.objects.get()
 
         url = reverse('oioioiadmin:contests_contest_change',
                       kwargs={'contest_id': contest_id, 'object_id': contest_id})
@@ -1535,7 +1533,7 @@ class TestContestAdmin(TestCase):
                 'terms_accepted_phrase-MIN_NUM_FORMS': '0',
                 'terms_accepted_phrase-MAX_NUM_FORMS': '1',
                 'terms_accepted_phrase-0-id': '',
-                'terms_accepted_phrase-0-contest': contest.id
+                'terms_accepted_phrase-0-contest': contest_id
             }
         )
 
@@ -1543,7 +1541,7 @@ class TestContestAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Contest.objects.count(), 1)
-        contest.refresh_from_db()
+        contest = Contest.objects.get()
 
         self.assertEqual(TermsAcceptedPhrase.objects.count(), 1)
         terms_accepted_phrase = TermsAcceptedPhrase.objects.get()
