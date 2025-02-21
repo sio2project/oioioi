@@ -27,7 +27,7 @@ def prefetch_tags(problems):
         algo_tag_pks = set(problem.algorithmtag_set.all().values_list('pk', flat=True))
         problem.top_tag_proposals = [
             proposal for proposal in problem.top_tag_proposals
-            if proposal.tag.pk not in algo_tag_pks
+            if proposal.tag.pk not in algo_tag_pks and proposal.amount > 1
         ]
 
     return u''
