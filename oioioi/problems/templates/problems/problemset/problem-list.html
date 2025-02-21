@@ -101,6 +101,11 @@
                             {% for tag in problem.algorithmtag_set.all %}
                                 {% tag_label tag %}
                             {% endfor %}
+                            <div class="aggregated-proposals" style="display: none;">
+                                {% for tag in problem.aggregatedalgorithmtagproposal_set.all %}
+                                    {% aggregated_tag_label tag %}
+                                {% endfor %}
+                            </div>
                             {% for tag in problem.origintag_set.all %}
                                 {% tag_label tag %}
                                 {% for info in problem.origininfovalue_set.all %}
@@ -112,11 +117,6 @@
                             {% for tag in problem.difficultytag_set.all %}
                                 {% tag_label tag %}
                             {% endfor %}
-                            <div class="aggregated-proposals" style="display: none;">
-                                {% for tag in problem.aggregatedalgorithmtagproposal_set.all %}
-                                    {% aggregated_tag_label tag %}
-                                {% endfor %}
-                            </div>
                         </td>
 
                         <script type="text/javascript">
@@ -126,7 +126,7 @@
                                     var proposals = document.querySelectorAll(".aggregated-proposals");
                                     function toggleProposals() {
                                         proposals.forEach(function(div){
-                                            div.style.display = checkbox.checked ? "block" : "none";
+                                            div.style.display = checkbox.checked ? "inline-block" : "none";
                                         });
                                     }
                                     checkbox.addEventListener("change", toggleProposals);
