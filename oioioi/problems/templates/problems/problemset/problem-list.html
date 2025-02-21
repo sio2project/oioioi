@@ -118,23 +118,23 @@
                                 {% endfor %}
                             </div>
                         </td>
-                    {% endif %}
 
-                    <script type="text/javascript">
-                        document.addEventListener("DOMContentLoaded", function(){
-                            var checkbox = document.getElementById("show-tag-proposals");
-                            if (checkbox) {
-                                var proposals = document.querySelectorAll(".aggregated-proposals");
-                                function toggleProposals() {
-                                    proposals.forEach(function(div){
-                                        div.style.display = checkbox.checked ? "block" : "none";
-                                    });
+                        <script type="text/javascript">
+                            document.addEventListener("DOMContentLoaded", function(){
+                                var checkbox = document.getElementById("show-tag-proposals");
+                                if (checkbox) {
+                                    var proposals = document.querySelectorAll(".aggregated-proposals");
+                                    function toggleProposals() {
+                                        proposals.forEach(function(div){
+                                            div.style.display = checkbox.checked ? "block" : "none";
+                                        });
+                                    }
+                                    checkbox.addEventListener("change", toggleProposals);
+                                    toggleProposals(); // on page load
                                 }
-                                checkbox.addEventListener("change", toggleProposals);
-                                toggleProposals(); // on page load
-                            }
-                        });
-                    </script>
+                            });
+                        </script>
+                    {% endif %}
 
                     {% if show_statistics %}
                         {% comment %}
