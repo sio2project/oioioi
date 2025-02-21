@@ -16,15 +16,20 @@ def prefetch_tags(problems):
         'origintag_set__localizations',
         'origininfovalue_set__localizations',
         'origininfovalue_set__parent_tag__localizations',
-    )
-    prefetch_related_objects(
-        problems,
         Prefetch(
             'aggregatedalgorithmtagproposal_set',
             queryset=AggregatedAlgorithmTagProposal.objects.order_by('-amount')[:2],
             to_attr='top_tag_proposals'
         )
     )
+
+    for problem in problems:
+        algo_tag_pks = set(problem.algorithmtag_set.all().values_list('pk', flat=True))
+        if hasattr(problem, 'top_tag_proposals'):
+            problem.top_tag_proposals = [
+                proposal for proposal in problem.top_tag_proposals
+                if proposal.tag.pk not in algo_tag_pks
+            ]
 
     return u''
 
