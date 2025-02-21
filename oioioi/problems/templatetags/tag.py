@@ -18,7 +18,7 @@ def prefetch_tags(problems):
         'origininfovalue_set__parent_tag__localizations',
         Prefetch(
             'aggregatedalgorithmtagproposal_set',
-            queryset=AggregatedAlgorithmTagProposal.objects.order_by('-amount')[:2],
+            queryset=AggregatedAlgorithmTagProposal.objects.order_by('-amount')[:3],
             to_attr='top_tag_proposals'
         )
     )
