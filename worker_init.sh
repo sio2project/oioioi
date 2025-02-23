@@ -10,7 +10,6 @@ sudo apt install -y proot
 mkdir -pv /sio2/deployment/logs/database
 
 echo "LOG: Launching worker at `hostname`"
-export FILETRACKER_URL="http://web:9999"
 exec python3 $(which twistd) --nodaemon --pidfile=/home/oioioi/worker.pid \
         -l /sio2/deployment/logs/worker`hostname`.log worker \
         --can-run-cpu-exec \
