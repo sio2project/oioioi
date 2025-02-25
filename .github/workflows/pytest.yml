@@ -23,7 +23,6 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y curl libpq-dev libdb-dev
-        sudo apt-get install -y fp-compiler fp-units-base fp-units-math
         sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-pstricks texlive-luatex
 
     - name: Install pip dependencies
