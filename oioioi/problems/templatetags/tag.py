@@ -11,6 +11,7 @@ register = Library()
 def prefetch_tags(problems):
     max_tag_proposals_shown = getattr(problems, 'PROBSET_SHOWN_TAG_PROPOSALS_LIMIT', 3)
     min_amount_to_consider_tag = getattr(problems, 'PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL', 10)
+
     prefetch_related_objects(
         problems,
         'difficultytag_set',
@@ -20,7 +21,9 @@ def prefetch_tags(problems):
         'origininfovalue_set__parent_tag__localizations',
         Prefetch(
             'aggregatedalgorithmtagproposal_set',
-            queryset=AggregatedAlgorithmTagProposal.objects.order_by('-amount')[:max_tag_proposals_shown],
+            queryset=AggregatedAlgorithmTagProposal.objects.filter(
+                amount__gte=min_amount_to_consider_tag
+            ).order_by('-amount')[:max_tag_proposals_shown],
             to_attr='top_tag_proposals'
         )
     )
@@ -29,7 +32,7 @@ def prefetch_tags(problems):
         algo_tag_pks = set(problem.algorithmtag_set.all().values_list('pk', flat=True))
         problem.top_tag_proposals = [
             proposal for proposal in problem.top_tag_proposals
-            if proposal.tag.pk not in algo_tag_pks and proposal.amount >= min_amount_to_consider_tag
+            if proposal.tag.pk not in algo_tag_pks
         ]
 
     return u''
