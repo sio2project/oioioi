@@ -32,11 +32,10 @@ jobs:
         cd rst
         make html
 
-    - name: Archive HTML documentation
-      uses: actions/upload-artifact@v4
+    - name: Upload HTML artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        path: |
-          rst/build/html
+        path: rst/build/html
 
   deploy:
     needs: build
