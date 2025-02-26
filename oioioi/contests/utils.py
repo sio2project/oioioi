@@ -656,68 +656,47 @@ def extract_programs_config_execution_mode(request):
     return request.POST.get('programs_config-0-execution_mode', None)
 
 
-def create_programs_config_after_add(request):
-    """Called after creating a new contest,
-    as the contest object must already exist in database
+def create_programs_config(request, adding):
+    """Creates ProgramsConfig for a given contest if needed.
+    If contest is being added, then `adding` should be `True`, else `False`
     """
-    # Retrieve the contest id from request, as current contest `request.contest` is not the created one
     requested_contest_id = request.POST.get('id', None)
     execution_mode = extract_programs_config_execution_mode(request)
 
     if (
-        requested_contest_id and
         execution_mode and
         execution_mode != 'AUTO'
     ):
-        ProgramsConfig.objects.create(contest_id=requested_contest_id, execution_mode=execution_mode)
+        if adding and requested_contest_id:
+            ProgramsConfig.objects.create(contest_id=requested_contest_id, execution_mode=execution_mode)
+        elif not hasattr(request.contest, 'programs_config'):
+            ProgramsConfig.objects.create(contest_id=request.contest.id, execution_mode=execution_mode)
 
-def create_programs_config_after_change(request):
-    """Called before changing an existing contest.
-    """
-    execution_mode = extract_programs_config_execution_mode(request)
-
-    if (
-        not hasattr(request.contest, 'programs_config') and
-        execution_mode and
-        execution_mode != 'AUTO'
-    ):
-        ProgramsConfig.objects.create(contest_id=request.contest.id, execution_mode=execution_mode)
 
 def extract_terms_accepted_phrase_text(request):
     return request.POST.get('terms_accepted_phrase-0-text', None)
 
 
-def create_terms_accepted_phrase_after_add(request):
-    # Retrieve the contest id from request, as current contest `request.contest` is not the created one
+def create_terms_accepted_phrase(request, adding):
+    """Creates TermsAcceptedPhrase for a given contest if needed.
+    If contest is being added, then `adding` should be `True`, else `False`
+    """
+
     requested_contest_id = request.POST.get('id', None)
     text = extract_terms_accepted_phrase_text(request)
 
-    if requested_contest_id and text:
-        TermsAcceptedPhrase.objects.create(contest_id=requested_contest_id, text=text)
+    if text:
+        if adding and requested_contest_id:
+            TermsAcceptedPhrase.objects.create(contest_id=requested_contest_id, text=text)
+        elif not hasattr(request.contest, 'terms_accepted_phrase'):
+            TermsAcceptedPhrase.objects.create(contest_id=request.contest.id, text=text)
 
 
-def create_terms_accepted_phrase_after_change(request):
-    text = extract_terms_accepted_phrase_text(request)
-
-    if not hasattr(request.contest, 'terms_accepted_phrase') and text:
-        TermsAcceptedPhrase.objects.create(contest_id=request.contest.id, text=text)
-
-
-def create_contest_attributes_after_add(request):
-    """Called to create certain attributes of contest object after adding it that would not be created automatically.
-    Creates attributes are ProgramsConfig and TermsAcceptedPhrase
-    """
-    if request.method != 'POST':
-        return
-    create_programs_config_after_add(request)
-    create_terms_accepted_phrase_after_add(request)
-
-
-def create_contest_attributes_after_change(request):
+def create_contest_attributes(request, adding):
     """Called to create certain attributes of contest object after modifying it that would not be created automatically.
     Creates attributes are ProgramsConfig and TermsAcceptedPhrase
     """
     if request.method != 'POST':
         return
-    create_programs_config_after_change(request)
-    create_terms_accepted_phrase_after_change(request)
+    create_programs_config(request, adding)
+    create_terms_accepted_phrase(request, adding)
