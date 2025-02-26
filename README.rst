@@ -144,7 +144,7 @@ Documentation for developers:
 * `Developer's Reference`_
 
 .. _Developer's Guide: CONTRIBUTING.rst
-.. _Developer's Reference: http://oioioi.readthedocs.io/en/latest/
+.. _Developer's Reference: https://oioioi.github.io/oioioi/
 
 Testing
 -------
