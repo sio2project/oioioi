@@ -658,7 +658,10 @@ def extract_programs_config_execution_mode(request):
 
 def create_programs_config(request, adding):
     """Creates ProgramsConfig for a given contest if needed.
-    If contest is being added, then `adding` should be `True`, else `False`
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
     """
     requested_contest_id = request.POST.get('id', None)
     execution_mode = extract_programs_config_execution_mode(request)
@@ -679,7 +682,10 @@ def extract_terms_accepted_phrase_text(request):
 
 def create_terms_accepted_phrase(request, adding):
     """Creates TermsAcceptedPhrase for a given contest if needed.
-    If contest is being added, then `adding` should be `True`, else `False`
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
     """
 
     requested_contest_id = request.POST.get('id', None)
@@ -695,6 +701,10 @@ def create_terms_accepted_phrase(request, adding):
 def create_contest_attributes(request, adding):
     """Called to create certain attributes of contest object after modifying it that would not be created automatically.
     Creates attributes are ProgramsConfig and TermsAcceptedPhrase
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
     """
     if request.method != 'POST':
         return
