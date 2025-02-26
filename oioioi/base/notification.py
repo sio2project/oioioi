@@ -22,7 +22,7 @@ class NotificationHandler(logging.StreamHandler):
     """
 
     # Example usage may be found in external documentation.
-    # Link: http://oioioi.readthedocs.org/en/latest/sections/notifications.html
+    # Link: https://oioioi.github.io/oioioi/sections/notifications.html
 
     loaded_notifications = False
 

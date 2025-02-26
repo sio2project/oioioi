@@ -1,2 +1,0 @@
-This fake package is installed on readthedocs, because otherwise
-the setup phase fails due to missing bsddb3 native libraries.
