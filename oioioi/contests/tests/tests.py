@@ -2173,11 +2173,13 @@ class TestPermissionsBasicAdmin(TestCase):
             'oioioi.programs.controllers.ProgrammingContestController'
         )
         self.contest.save()
+
+        unregister_contest_dashboard_view(simpleui_contest_dashboard)
+        unregister_contest_dashboard_view(teachers_contest_dashboard)
+
         super().setUp()
 
     def test_dashboard(self):
-        unregister_contest_dashboard_view(simpleui_contest_dashboard)
-        unregister_contest_dashboard_view(teachers_contest_dashboard)
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
         url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
         response = self.client.get(url, follow=True)
@@ -3641,6 +3643,150 @@ class TestAPIProblemsetSubmit(TestAPISubmitBase):
         self._assertSubmitted(response, 2)
 
 
+class TestAPIContestList(TestCase):
+    fixtures = [
+        'test_users',
+        'test_participant',
+        'test_contest',
+    ]
+
+    def test(self):
+        contest_list_endpoint = reverse('api_contest_list')
+        request_anon = self.client.get(contest_list_endpoint)
+        self.assertEqual(403, request_anon.status_code)
+
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(contest_list_endpoint)
+        self.assertEqual(200, request_auth.status_code)
+
+
+class TestAPIRoundList(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+    ]
+
+    def test(self):
+        contest_id = Contest.objects.get(pk='c').id
+        round_list_endpoint = reverse('api_round_list', args=(contest_id))
+        request_anon = self.client.get(round_list_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(round_list_endpoint)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()
+        self.assertEqual(1, len(json_data))
+
+        json_data_0 = json_data[0]
+        self.assertEqual('Round 1', json_data_0['name'])
+        self.assertEqual(None, json_data_0['end_date'])
+        self.assertTrue(json_data_0['is_active'])
+        self.assertFalse(json_data_0['is_trial'])
+
+
+class TestAPIProblemList(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+    ]
+
+    def test(self):
+        contest_id = Contest.objects.get(pk='c').id
+        problem_list_endpoint = reverse('api_problem_list', args=(contest_id))
+        request_anon = self.client.get(problem_list_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(problem_list_endpoint)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()
+        self.assertEqual(1, len(json_data))
+
+        json_data_0 = json_data[0]
+        self.assertEqual(1, json_data_0['id'])
+        self.assertEqual('zad1', json_data_0['short_name'])
+        self.assertEqual(1, json_data_0['round'])
+        self.assertEqual(10, json_data_0['submissions_limit'])
+        self.assertEqual(1, json_data_0['round'])
+        self.assertEqual('Sumżyce', json_data_0['full_name'])
+        self.assertEqual(10, json_data_0['submissions_left'])
+        self.assertTrue(json_data_0['can_submit'])
+        self.assertEqual('.pdf', json_data_0['statement_extension'])
+
+
+class TestAPIProblemSubmissionList(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
+
+    def test(self):
+        pi = ProblemInstance.objects.get(pk=1)
+        # It is really important, that ProblemInstance.short_name matches
+        # Problem.short_name, as otherwise this endpoint does not work.
+        # Situation, where it doesn't match is only possible in test.
+        pi.short_name = pi.problem.short_name
+        pi.save()
+        submission_list_endpoint = reverse(
+            'api_user_problem_submission_list', args=(
+                pi.contest.id,
+                pi.problem.short_name
+            )
+        )
+        request_anon = self.client.get(submission_list_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(submission_list_endpoint)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()
+        self.assertFalse(json_data['is_truncated_to_20'])
+        self.assertEqual(len(json_data['submissions']), 1)
+        self.assertEqual(json_data['submissions'][0]['id'], 1)
+        self.assertEqual(json_data['submissions'][0]['score'], 34)
+        self.assertEqual(json_data['submissions'][0]['status'], 'OK')
+
+
+class TestAPIProblemSubmissionCode(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+        'test_submission_source',
+    ]
+
+    def test(self):
+        pi = ProblemInstance.objects.get(pk=1)
+        # A submission of a file `submission.cpp`
+        submission_code_endpoint = reverse(
+            'api_user_problem_submission_code', args=(
+                pi.contest.id,
+                1
+            )
+        )
+        request_anon = self.client.get(submission_code_endpoint)
+
+        self.assertEqual(401, request_anon.status_code)
+        self.assertTrue(self.client.login(username='test_user'))
+        request_auth = self.client.get(submission_code_endpoint, follow=True)
+        self.assertEqual(200, request_auth.status_code)
+
+        json_data = request_auth.json()
+        self.assertEqual(json_data['lang'], 'cpp');
+        self.assertTrue('#include <iostream>' in json_data['code']);
+
+
 class TestManyRoundsNoEnd(TestCase):
     fixtures = [
         'test_users',
@@ -3760,7 +3906,7 @@ def set_registration_availability(rvc, enabled, available_from=None, available_t
     rvc.save()
 
 
-def check_registration(self, expected_status_code, availability, available_from=None, available_to=None):
+def check_registration(self, expected_status_code, availability, available_from=None, available_to=None, expected_template=None):
     contest = Contest.objects.get()
     contest.controller_name = 'oioioi.oi.controllers.OIContestController'
     contest.save()
@@ -3773,6 +3919,8 @@ def check_registration(self, expected_status_code, availability, available_from=
     set_registration_availability(rvc, availability, available_from, available_to)
     response = self.client.get(url)
     self.assertEqual(expected_status_code, response.status_code)
+    if expected_template == 'registration_not_open_yet':
+        self.assertTemplateUsed(response, 'contests/registration_not_open_yet.html')
 
 
 class TestOpenRegistration(TestCase):
@@ -3797,7 +3945,7 @@ class TestOpenRegistration(TestCase):
         now = datetime.utcnow()
         available_from = now + timedelta(hours=1)
         available_to = now + timedelta(days=1)
-        check_registration(self, 403, 'CONFIG', available_from, available_to)
+        check_registration(self, 200, 'CONFIG', available_from, available_to, 'registration_not_open_yet')
 
     def test_configured_registration_closed_after(self):
         now = datetime.utcnow()
