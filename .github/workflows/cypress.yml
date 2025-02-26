@@ -28,9 +28,8 @@ jobs:
           python easy_toolbox.py up --no-input
 
       - name: Wait for migrations
-        uses: whatnick/wait-action@master
-        with:
-          time: 30s
+        run: |
+          docker compose logs -f | grep -m 1 "Init Finished"
 
       - name: Apply CyPress settings
         run: |

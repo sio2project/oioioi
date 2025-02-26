@@ -2173,11 +2173,13 @@ class TestPermissionsBasicAdmin(TestCase):
             'oioioi.programs.controllers.ProgrammingContestController'
         )
         self.contest.save()
+
+        unregister_contest_dashboard_view(simpleui_contest_dashboard)
+        unregister_contest_dashboard_view(teachers_contest_dashboard)
+
         super().setUp()
 
     def test_dashboard(self):
-        unregister_contest_dashboard_view(simpleui_contest_dashboard)
-        unregister_contest_dashboard_view(teachers_contest_dashboard)
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
         url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
         response = self.client.get(url, follow=True)
