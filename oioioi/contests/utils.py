@@ -21,6 +21,8 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
+    UserResultForProblem,
+    SubmissionMessage,
 )
 
 
@@ -600,11 +602,20 @@ def get_submit_message(request):
     )
 
 
+def get_submission_message(request):
+    return get_public_message(
+        request,
+        SubmissionMessage,
+        'submission_message',
+    )
+
+
 @make_request_condition
 @request_cached
 def is_contest_archived(request):
     return (
         hasattr(request, 'contest')
+        and (request.contest is not None)
         and request.contest.is_archived
     )
 
@@ -637,3 +648,47 @@ def get_inline_for_contest(inline, contest):
             return True
 
     return ArchivedInlineWrapper
+
+
+def get_problem_statements(request, controller, problem_instances):
+    # Problem statements in order
+    # 1) problem instance
+    # 2) statement_visible
+    # 3) round end time
+    # 4) user result
+    # 5) number of submissions left
+    # 6) submissions_limit
+    # 7) can_submit
+    # Sorted by (start_date, end_date, round name, problem name)
+    return sorted(
+        [
+            (
+                pi,
+                controller.can_see_statement(request, pi),
+                controller.get_round_times(request, pi.round),
+                # Because this view can be accessed by an anynomous user we can't
+                # use `user=request.user` (it would cause TypeError). Surprisingly
+                # using request.user.id is ok since for AnynomousUser id is set
+                # to None.
+                next(
+                    (
+                        r
+                        for r in UserResultForProblem.objects.filter(
+                            user__id=request.user.id, problem_instance=pi
+                        )
+                        if r
+                        and r.submission_report
+                        and controller.can_see_submission_score(
+                            request, r.submission_report.submission
+                        )
+                    ),
+                    None,
+                ),
+                pi.controller.get_submissions_left(request, pi),
+                pi.controller.get_submissions_limit(request, pi),
+                controller.can_submit(request, pi) and not is_contest_archived(request),
+            )
+            for pi in problem_instances
+        ],
+        key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name, p[0].short_name),
+    )

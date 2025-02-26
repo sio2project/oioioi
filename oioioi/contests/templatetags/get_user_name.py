@@ -4,8 +4,6 @@ from django.template.loader import render_to_string
 
 from oioioi.base.utils import get_user_display_name
 from oioioi.contests.utils import can_see_personal_data, is_contest_basicadmin
-from oioioi.forum.utils import is_forum_moderator
-from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 
@@ -79,31 +77,3 @@ def public_name(parser, token):
 def full_name(parser, token):
     (user, asvar) = _get_name(parser, token, "full_name")
     return FullNameUserInfoLinkNode(user, asvar)
-
-
-class BadgeNode(Node):
-    '''
-    Returns a badge for a user if they are a moderator.
-    '''
-    def __init__(self, target_user, asvar):
-        self.target_user = Variable(target_user)
-        self.asvar = asvar
-    
-    def render(self, context):
-        user = self.target_user.resolve(context)
-        if is_forum_moderator(context['request'], user):
-            badge = _(" (moderator)")
-        else:
-            badge = ""
-
-        if self.asvar:
-            context[self.asvar] = str(badge)
-            return ""
-        else:
-            return str(badge)
-
-
-@register.tag
-def user_badge(parser, token):
-    (user, asvar) = _get_name(parser, token, "user_badge")
-    return BadgeNode(user, asvar)

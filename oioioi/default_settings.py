@@ -865,9 +865,19 @@ FORUM_PAGE_SIZE = 15
 FORUM_THREADS_PER_PAGE = 30
 FORUM_POSTS_PER_PAGE = 30
 FORUM_POST_MAX_LENGTH = 20000
+FORUM_REACTIONS_TO_DISPLAY = 10
 
 # Check seems to be broken. https://stackoverflow.com/a/65578574
 SILENCED_SYSTEM_CHECKS = ['admin.E130']
 
 # Experimental
 USE_ACE_EDITOR = False
+
+REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = [
+    'rest_framework.throttling.AnonRateThrottle',
+    'rest_framework.throttling.UserRateThrottle'
+]
+REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
+    'anon': '1000/day',
+    'user': '1000/hour'
+}

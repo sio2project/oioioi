@@ -126,6 +126,11 @@ c_patterns = [
         views.edit_submissions_message_view,
         name='edit_submissions_message',
     ),
+    re_path(
+        r'^submission_edit_message/$',
+        views.edit_submission_message_view,
+        name='edit_submission_message',
+    ),
     re_path(r'^files/$', views.contest_files_view, name='contest_files'),
     re_path(
         r'^files_edit_message/$',
@@ -193,15 +198,36 @@ neutral_patterns = [
 if settings.USE_API:
     nonc_patterns += [
         # the contest information is managed manually and added after api prefix
+        re_path(r'^api/contest_list', api.contest_list, name="api_contest_list"),
         re_path(
             r'^api/c/(?P<contest_name>[a-z0-9_-]+)/submit/(?P<problem_short_name>[a-z0-9_-]+)$',
             api.SubmitContestSolutionView.as_view(),
             name='api_contest_submit',
         ),
         re_path(
-            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)$',
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)/$',
             api.GetProblemIdView.as_view(),
             name='api_contest_get_problem_id',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_list/(?P<problem_short_name>[a-z0-9_-]+)/$',
+            api.GetUserProblemSubmissionList.as_view(),
+            name='api_user_problem_submission_list',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_code/(?P<submission_id>[a-z0-9_-]+)/$',
+            api.GetUserProblemSubmissionCode.as_view(),
+            name='api_user_problem_submission_code',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
+            api.GetContestRounds.as_view(),
+            name='api_round_list',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_list/$',
+            api.GetContestProblems.as_view(),
+            name='api_problem_list',
         ),
         re_path(
             r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',

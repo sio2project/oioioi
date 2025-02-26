@@ -93,6 +93,7 @@ from oioioi.problems.utils import (
     show_proposal_form,
 )
 from oioioi.programs.models import ModelSolution
+from oioioi.problems.models import ProblemSite
 from unidecode import unidecode
 
 
@@ -141,7 +142,7 @@ def download_package_traceback_view(request, package_id):
 def add_or_update_problem(request, contest, template):
     if contest and contest.is_archived:
         raise PermissionDenied
-    
+
     if 'problem' in request.GET:
         existing_problem = get_object_or_404(Problem, id=request.GET['problem'])
         if (
@@ -669,7 +670,7 @@ def get_report_row_begin_HTML_view(request, submission_id):
     return TemplateResponse(
         request,
         'contests/my_submission_table_base_row_begin.html',
-        { 
+        {
             'record': submission_template_context(request, submission),
             'show_scores': json.loads(request.POST.get('show_scores', "false")),
             'can_admin': can_admin_problem_instance(request, submission.problem_instance) and
@@ -1130,7 +1131,6 @@ def get_algorithm_and_difficulty_tag_hints(query):
 
     return result
 
-
 @uniquefy('name')
 def get_problem_hints(query, view_type, user):
     problems = _get_problems_by_query(query)
@@ -1147,6 +1147,7 @@ def get_problem_hints(query, view_type, user):
             'trigger': 'problem',
             'name': problem.name,
             'category': _("Problems"),
+            'url': reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
         }
         for problem in problems[: getattr(settings, 'NUM_HINTS', 10)]
     ]

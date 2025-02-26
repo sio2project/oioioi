@@ -24,7 +24,7 @@
             {% else %}
                 {{ field | add_class:"form-check-input" }}
             {% endif %}
-            <label class="form-check-label">
+            <label class="form-check-label" for="id_{{ field.name }}">
                  {{ field.label }}
             </label>
         </div>
@@ -90,4 +90,3 @@
         </script>
     {% endfor %}
 {% endif %}
-

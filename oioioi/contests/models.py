@@ -24,6 +24,7 @@ from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField
 from oioioi.contests.problem_instance_controller import ProblemInstanceController
 from oioioi.filetracker.fields import FileField
+from enum import Enum
 
 
 def make_contest_filename(instance, filename):
@@ -357,6 +358,10 @@ registration_availability_options.register('YES', _("Open"))
 registration_availability_options.register('NO', _("Closed"))
 registration_availability_options.register('CONFIG', _("Configuration"))
 
+class RegistrationStatus(Enum):
+    OPEN = 1
+    CLOSED = 2
+    NOT_OPEN_YET = 3
 
 @date_registry.register(
     'registration_available_from', name_generator=(lambda obj: _("Make registration available"))
@@ -405,12 +410,25 @@ class RegistrationAvailabilityConfig(models.Model):
             return self.registration_available_from <= timestamp <= self.registration_available_to
         return False
 
+
+    def registration_status(self, timestamp):
+        if self.enabled == 'YES':
+            return RegistrationStatus.OPEN
+        if self.enabled == 'CONFIG':
+            if self.registration_available_from <= timestamp <= self.registration_available_to:
+                return RegistrationStatus.OPEN
+            elif self.registration_available_to < timestamp:
+                return RegistrationStatus.CLOSED
+            elif timestamp < self.registration_available_to:
+                return RegistrationStatus.NOT_OPEN_YET
+        return RegistrationStatus.CLOSED
+
     def clean(self):
         if self.enabled == 'CONFIG':
             if self.registration_available_from is None or self.registration_available_to is None:
                 raise ValidationError(_("If registration availability is set to Configuration, then "
                                         "'Available from' and 'Available to' must be set."))
-            if self.available_from > self.registration_available_to:
+            if self.registration_available_from > self.registration_available_to:
                 raise ValidationError(_("'Available from' must be before 'available to'."))
 
 
@@ -772,3 +790,11 @@ class SubmitMessage(models.Model):
     class Meta(object):
         verbose_name = _("new submission message")
         verbose_name_plural = _("new submission messages")
+
+class SubmissionMessage(models.Model):
+    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
+    content = models.TextField(verbose_name=_("message"), blank=True)
+
+    class Meta(object):
+        verbose_name = _("submission message")
+        verbose_name_plural = _("submission messages")

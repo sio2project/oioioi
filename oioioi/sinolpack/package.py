@@ -28,7 +28,7 @@ from oioioi.filetracker.utils import (
     filetracker_to_django_file,
     stream_file,
 )
-from oioioi.interactive.models import Interactor
+from oioioi.interactive.models import Interactor, InteractiveTaskInfo
 from oioioi.problems.models import (
     Problem,
     ProblemAttachment,
@@ -394,7 +394,7 @@ class SinolPackage(object):
             return self.controller_name
         return {
             TaskType.STANDARD: 'oioioi.sinolpack.controllers.SinolProblemController',
-            TaskType.INTERACTIVE: 'oioioi.interactive.controllers.InteractiveProblemController',
+            TaskType.INTERACTIVE: 'oioioi.sinolpack.controllers.SinolInteractiveProblemController',
         }[self.task_type]
 
     def _extract_and_process_package(self):
@@ -469,6 +469,16 @@ class SinolPackage(object):
             instance.config = ''
         instance.save()
         self.config = instance.parsed_config
+        if self.task_type == TaskType.INTERACTIVE:
+            self._process_interactive_config()
+
+    @_describe_processing_error
+    def _process_interactive_config(self):
+        instance, _ = InteractiveTaskInfo.objects.get_or_create(problem=self.problem)
+        if 'num_processes' in self.config:
+            instance.num_processes = self.config['num_processes']
+        instance.save()
+
 
     @_describe_processing_error
     def _detect_task_type(self):
@@ -784,7 +794,7 @@ class SinolPackage(object):
         outs_to_make = []
         scored_groups = set()
 
-        if self.use_make and not self.config.get('no_outgen', False):
+        if self.task_type != TaskType.INTERACTIVE and self.use_make and not self.config.get('no_outgen', False):
             self._find_and_compile('', command='outgen')
 
         for order, test in enumerate(sorted(all_items, key=naturalsort_key)):

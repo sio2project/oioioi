@@ -1,6 +1,8 @@
 {% load i18n %}
 {% load check_perm %}
 {% load get_user_name %}
+{% load display_reacted_by %}
+{% load user_badge %}
 
 {% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_edit_url %}
 {% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id as forum_post_delete_url %}
@@ -17,9 +19,14 @@
         {% if can_interact_with_users %}
             <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=upvote">
         {% endif %}
-        <span class="{% if post.user_upvoted %} text-success {% else %} text-muted {% endif %}">
+
+        <span 
+            class="{% if post.user_upvoted %} text-success {% else %} text-muted {% endif %}"
+            data-toggle="tooltip" title="{% display_reacted_by post "UPVOTE" %}"
+        >
             <i class="fa-solid fa-plus"></i> {{ post.upvotes_count }}
         </span>
+
         {% if can_interact_with_users %}
             </a>
         {% endif %}
@@ -27,9 +34,14 @@
         {% if can_interact_with_users %}
             <a href="#" data-post-url="{{ forum_post_toggle_reaction_url }}?reaction=downvote">
         {% endif %}
-        <span class="{% if post.user_downvoted %} text-danger {% else %} text-muted {% endif %}">
+
+        <span 
+            class="{% if post.user_downvoted %} text-danger {% else %} text-muted {% endif %}"
+            data-toggle="tooltip" title="{% display_reacted_by post "DOWNVOTE" %}"
+        >
             <i class="fa-solid fa-minus"></i> {{ post.downvotes_count }}
         </span>
+
         {% if can_interact_with_users %}
             </a>
         {% endif %}

@@ -15,6 +15,7 @@ from oioioi.base.utils import is_ajax
 from oioioi.base.utils.archive import Archive
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import ScoreReport, Submission, SubmissionReport
+from oioioi.contests.utils import get_submission_message
 from oioioi.evalmgr.tasks import extend_after_placeholder
 from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.controllers import (
@@ -283,6 +284,7 @@ class TestRunContestControllerMixin(object):
                 'submission': submission_template_context(request, sbm_testrun),
                 'supported_extra_args': self.get_supported_extra_args(submission),
                 'input_is_zip': is_zipfile(sbm_testrun.input_file.read_using_cache()),
+                'message': get_submission_message(submission),
             },
         )
 

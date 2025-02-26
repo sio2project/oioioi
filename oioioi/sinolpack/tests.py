@@ -109,7 +109,7 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
 
-    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    @override_settings(CONTEST_MODE=ContestMode.neutral, USE_SINOLPACK_MAKEFILES=False)
     def test_single_file_replacement(self):
         filename = get_test_filename('test_simple_package.zip')
         old_statement = 'tst/doc/tstzad.pdf'
@@ -695,8 +695,7 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         for test in tests:
             test_report = TestReport.objects.get(test=test, submission_report__submission=s1)
             self.assertEqual(test_report.status, 'WA')
-            # HACK: Temporary Fix, just to silent this broken test, to be repaired later
-            self.assertIn(test_report.comment, ['', 'solution exited prematurely'])
+            self.assertIn(test_report.comment, 'solution exited prematurely')
 
         s2 = ModelProgramSubmission.objects.get(model_solution=sol_re)
         for test in tests:
