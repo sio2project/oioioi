@@ -660,27 +660,20 @@ def create_programs_config_after_add(request):
     """Called after creating a new contest,
     as the contest object must already exist in database
     """
-
-    execution_mode = extract_programs_config_execution_mode(request)
     # Retrieve the contest id from request, as current contest `request.contest` is not the created one
     requested_contest_id = request.POST.get('id', None)
+    execution_mode = extract_programs_config_execution_mode(request)
 
     if (
         requested_contest_id and
         execution_mode and
         execution_mode != 'AUTO'
     ):
-        try:
-            contest = Contest.objects.get(id=requested_contest_id)
-        except Contest.DoesNotExist:
-            return
-
-        ProgramsConfig.objects.create(contest=contest, execution_mode=execution_mode)
+        ProgramsConfig.objects.create(contest_id=requested_contest_id, execution_mode=execution_mode)
 
 def create_programs_config_after_change(request):
     """Called before changing an existing contest.
     """
-
     execution_mode = extract_programs_config_execution_mode(request)
 
     if (
@@ -688,10 +681,11 @@ def create_programs_config_after_change(request):
         execution_mode and
         execution_mode != 'AUTO'
     ):
-        ProgramsConfig.objects.create(contest=request.contest, execution_mode=execution_mode)
+        ProgramsConfig.objects.create(contest_id=request.contest.id, execution_mode=execution_mode)
 
 def extract_terms_accepted_phrase_text(request):
     return request.POST.get('terms_accepted_phrase-0-text', None)
+
 
 def create_terms_accepted_phrase_after_add(request):
     # Retrieve the contest id from request, as current contest `request.contest` is not the created one
@@ -699,24 +693,19 @@ def create_terms_accepted_phrase_after_add(request):
     text = extract_terms_accepted_phrase_text(request)
 
     if requested_contest_id and text:
-        try:
-            contest = Contest.objects.get(id=requested_contest_id)
-        except Contest.DoesNotExist:
-            return
-
-        TermsAcceptedPhrase.objects.create(contest=contest, text=text)
+        TermsAcceptedPhrase.objects.create(contest_id=requested_contest_id, text=text)
 
 
 def create_terms_accepted_phrase_after_change(request):
     text = extract_terms_accepted_phrase_text(request)
 
     if not hasattr(request.contest, 'terms_accepted_phrase') and text:
-        TermsAcceptedPhrase.objects.create(contest=request.contest, text=text)
+        TermsAcceptedPhrase.objects.create(contest_id=request.contest.id, text=text)
 
 
-def update_contest_attributes_after_add(request):
-    """Called to update certain attributes of contest object after adding it that would not be updated automatically.
-    Updated attributes are ProgramsConfig and TermsAcceptedPhrase
+def create_contest_attributes_after_add(request):
+    """Called to create certain attributes of contest object after adding it that would not be created automatically.
+    Creates attributes are ProgramsConfig and TermsAcceptedPhrase
     """
     if request.method != 'POST':
         return
@@ -724,9 +713,9 @@ def update_contest_attributes_after_add(request):
     create_terms_accepted_phrase_after_add(request)
 
 
-def update_contest_attributes_after_change(request):
-    """Called to update certain attributes of contest object after modifying it that would not be updated automatically.
-    Updated attributes are ProgramsConfig and TermsAcceptedPhrase
+def create_contest_attributes_after_change(request):
+    """Called to create certain attributes of contest object after modifying it that would not be created automatically.
+    Creates attributes are ProgramsConfig and TermsAcceptedPhrase
     """
     if request.method != 'POST':
         return
