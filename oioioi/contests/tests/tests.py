@@ -1434,11 +1434,10 @@ class TestContestAdmin(TestCase):
 
         # Test programs config after adding contest
         url = reverse('oioioiadmin:contests_contest_add')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
 
         contest_id = 'cid'
         post_data = make_empty_contest_formset()
+
         post_data.update(
             {
                 'name': 'cname',
@@ -1468,14 +1467,12 @@ class TestContestAdmin(TestCase):
         self.assertEqual(programs_config.execution_mode, 'sio2jail')
 
         # Test programs config after changing contest
-        # TODO: Fix me
-        # The last assertion doesn't pass for some reason that I was not able to determine
-        # The issue seems to be related with the test itself, as manual tests show that the feature works as intended
-        '''
         url = reverse('oioioiadmin:contests_contest_change', 
                       kwargs={'contest_id': contest_id, 'object_id': contest_id})
+
         post_data.update(
             {
+                'name': 'cname2',
                 'programs_config-0-id': programs_config.id,
                 'programs_config-0-contest': contest_id,
                 'programs_config-0-execution_mode': 'cpu',
@@ -1484,21 +1481,19 @@ class TestContestAdmin(TestCase):
 
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
+        contest = Contest.objects.get()
+        self.assertEqual(contest.name, 'cname2')
         self.assertEqual(Contest.objects.count(), 1)
         self.assertEqual(ProgramsConfig.objects.count(), 1)
-        programs_config.refresh_from_db()
+        programs_config = ProgramsConfig.objects.get()
         self.assertEqual(programs_config.contest, contest)
         self.assertEqual(programs_config.execution_mode, 'cpu')
-        '''
 
     def test_terms_accepted_phrase_creation(self):
         self.assertTrue(self.client.login(username='test_admin'))
 
-        # Test programs config after adding contest
+        # Test phrase after adding contest
         url = reverse('oioioiadmin:contests_contest_add')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-
         contest_id = 'cid'
         post_data = make_empty_contest_formset()
         post_data.update(
@@ -1538,7 +1533,6 @@ class TestContestAdmin(TestCase):
         )
 
         response = self.client.post(url, post_data, follow=True)
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Contest.objects.count(), 1)
         contest = Contest.objects.get()
