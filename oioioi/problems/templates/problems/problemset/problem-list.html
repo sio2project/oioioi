@@ -74,7 +74,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% prefetch_tags problems %}
+                {% prefetch_tags problems max_tag_proposals_shown min_proposals_per_tag %}
                 {% for problem in problems %}
                 <tr>
                     <td>{{ problem.short_name }}</td>

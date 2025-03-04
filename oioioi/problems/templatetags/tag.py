@@ -8,10 +8,7 @@ register = Library()
 
 
 @register.simple_tag
-def prefetch_tags(problems):
-    max_tag_proposals_shown = getattr(problems, 'PROBSET_SHOWN_TAG_PROPOSALS_LIMIT', 3)
-    min_amount_to_consider_tag = getattr(problems, 'PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL', 10)
-
+def prefetch_tags(problems, max_proposals_shown, min_proposals_per_tag):
     prefetch_related_objects(
         problems,
         'difficultytag_set',
@@ -22,8 +19,8 @@ def prefetch_tags(problems):
         Prefetch(
             'aggregatedalgorithmtagproposal_set',
             queryset=AggregatedAlgorithmTagProposal.objects.filter(
-                amount__gte=min_amount_to_consider_tag
-            ).order_by('-amount')[:max_tag_proposals_shown],
+                amount__gte=min_proposals_per_tag
+            ).order_by('-amount')[:max_proposals_shown],
             to_attr='top_tag_proposals'
         )
     )
