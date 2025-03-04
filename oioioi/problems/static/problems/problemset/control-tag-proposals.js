@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function(){
-    var checkbox = document.getElementById("show-tag-proposals");
+    var checkbox = document.getElementById("show-tag-proposals-checkbox");
     if (checkbox) {
         var proposals = document.querySelectorAll(".aggregated-proposals");
         function toggleProposals() {
