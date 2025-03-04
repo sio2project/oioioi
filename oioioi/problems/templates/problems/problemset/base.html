@@ -11,6 +11,7 @@
 <div class="container">
     {% include 'problems/ingredients/problemset-menu.html' %}
 
+    {% if show_filters or show_search_bar %}
     <div class="row search-row">
         {% if show_filters %}
             <ul class="nav nav-pills filter-bar">
@@ -84,6 +85,7 @@
         </form>
         {% endif %}
     </div>
+    {% endif %}
 
     {% if show_tags %}
     <div class="row tag-proposal-checkbox-row">
