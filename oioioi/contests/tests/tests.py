@@ -69,8 +69,9 @@ from oioioi.problems.models import (
     ProblemStatement,
 )
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.models import ModelProgramSubmission, Test
+from oioioi.programs.models import ModelProgramSubmission, Test, ProgramsConfig
 from oioioi.programs.tests import SubmitFileMixin
+from oioioi.participants.models import TermsAcceptedPhrase
 from oioioi.simpleui.views import (
     contest_dashboard_redirect as simpleui_contest_dashboard,
 )
@@ -1427,6 +1428,120 @@ class TestContestAdmin(TestCase):
         self.assertContains(response, "Start date should be before end date.")
         '''
         # pylint: enable=pointless-string-statement
+
+    def test_programs_config_creation(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        # Test programs config after adding contest
+        url = reverse('oioioiadmin:contests_contest_add')
+
+        contest_id = 'cid'
+        post_data = make_empty_contest_formset()
+
+        post_data.update(
+            {
+                'name': 'cname',
+                'id': contest_id,
+                'start_date_0': '2012-02-03',
+                'start_date_1': '04:05:06',
+                'end_date_0': '2012-02-04',
+                'end_date_1': '05:06:07',
+                'results_date_0': '2012-02-05',
+                'results_date_1': '06:07:08',
+                'controller_name': 'oioioi.programs.controllers.ProgrammingContestController',
+                'is_archived': 'False',
+                'judging_priority': '10',
+                'judging_weight': '1',
+                'programs_config-0-execution_mode': 'sio2jail',
+                '_save': 'Save'
+            }
+        )
+
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contest.objects.count(), 1)
+        contest = Contest.objects.get()
+        self.assertEqual(ProgramsConfig.objects.count(), 1)
+        programs_config = ProgramsConfig.objects.get()
+        self.assertEqual(programs_config.contest, contest)
+        self.assertEqual(programs_config.execution_mode, 'sio2jail')
+
+        # Test programs config after changing contest
+        url = reverse('oioioiadmin:contests_contest_change', 
+                      kwargs={'contest_id': contest_id, 'object_id': contest_id})
+
+        post_data.update(
+            {
+                'name': 'cname2',
+                'programs_config-0-id': programs_config.id,
+                'programs_config-0-contest': contest_id,
+                'programs_config-0-execution_mode': 'cpu',
+            }
+        )
+
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        contest = Contest.objects.get()
+        self.assertEqual(contest.name, 'cname2')
+        self.assertEqual(Contest.objects.count(), 1)
+        self.assertEqual(ProgramsConfig.objects.count(), 1)
+        programs_config = ProgramsConfig.objects.get()
+        self.assertEqual(programs_config.contest, contest)
+        self.assertEqual(programs_config.execution_mode, 'cpu')
+
+    def test_terms_accepted_phrase_creation(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        # Test phrase after adding contest
+        url = reverse('oioioiadmin:contests_contest_add')
+        contest_id = 'cid'
+        post_data = make_empty_contest_formset()
+        post_data.update(
+            {
+                'name': 'cname',
+                'id': contest_id,
+                'start_date_0': '2012-02-03',
+                'start_date_1': '04:05:06',
+                'end_date_0': '2012-02-04',
+                'end_date_1': '05:06:07',
+                'results_date_0': '2012-02-05',
+                'results_date_1': '06:07:08',
+                'controller_name': 'oioioi.oi.controllers.OIContestController',
+                'is_archived': 'False',
+                'judging_priority': '10',
+                'judging_weight': '1',
+                '_save': 'Save'
+            }
+        )
+
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contest.objects.count(), 1)
+
+        url = reverse('oioioiadmin:contests_contest_change',
+                      kwargs={'contest_id': contest_id, 'object_id': contest_id})
+        post_data.update(
+            {
+                'terms_accepted_phrase-0-text': 'TEST PHRASE',
+                'terms_accepted_phrase-TOTAL_FORMS': '1',
+                'terms_accepted_phrase-INITIAL_FORMS': '0',
+                'terms_accepted_phrase-MIN_NUM_FORMS': '0',
+                'terms_accepted_phrase-MAX_NUM_FORMS': '1',
+                'terms_accepted_phrase-0-id': '',
+                'terms_accepted_phrase-0-contest': contest_id
+            }
+        )
+
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contest.objects.count(), 1)
+        contest = Contest.objects.get()
+
+        self.assertEqual(TermsAcceptedPhrase.objects.count(), 1)
+        terms_accepted_phrase = TermsAcceptedPhrase.objects.get()
+        self.assertEqual(terms_accepted_phrase.contest, contest)
+        self.assertEqual(terms_accepted_phrase.text, 'TEST PHRASE')
+
 
     def test_admin_permissions(self):
         url = reverse('oioioiadmin:contests_contest_changelist')

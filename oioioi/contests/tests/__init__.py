@@ -62,11 +62,11 @@ def make_empty_contest_formset():
         ('usergroupranking_set', 0, 0, 0, 1000),
         ('contestlink_set', 0, 0, 0, 1000),
         ('messagenotifierconfig_set', 0, 0, 0, 1000),
-        ('mail_submission_config', 1, 0, 0, 1),
+        ('mail_submission_config', 0, 0, 0, 1),
         ('prizegiving_set', 0, 0, 0, 1000),
         ('prize_set', 0, 0, 0, 1000),
-        ('teamsconfig', 1, 0, 0, 1),
-        ('problemstatementconfig', 1, 0, 0, 1),
+        ('teamsconfig', 0, 0, 0, 1),
+        ('problemstatementconfig', 0, 0, 0, 1),
         ('rankingvisibilityconfig', 0, 0, 0, 1),
         ('registrationavailabilityconfig', 0, 0, 0, 1),
         ('balloonsdeliveryaccessdata', 1, 0, 0, 1),
@@ -76,8 +76,9 @@ def make_empty_contest_formset():
         ('disqualifications_config', 1, 0, 0, 1),
         ('contesticon_set', 0, 0, 0, 1000),
         ('contestlogo', 1, 0, 0, 1),
-        ('programs_config', 1, 0, 0, 1),
+        ('programs_config', 1, 1, 0, 1),
         ('contestcompiler_set', 0, 0, 0, 1000),
+        ('checkerformatforcontest', 0, 0, 0, 1)
     )
     data = dict()
     for (name, total, initial, min_num, max_num) in formsets:

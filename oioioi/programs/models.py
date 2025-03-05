@@ -43,6 +43,12 @@ class ProgramsConfig(models.Model):
         ),
     )
 
+    def __str__(self):
+        return "Programs config"
+
+    def __repr__(self):
+        return _("Programs config")
+
     class Meta(object):
         verbose_name = _("programs configuration")
         verbose_name_plural = _("programs configurations")
