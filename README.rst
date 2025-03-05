@@ -27,6 +27,12 @@ as described `in Docker docs`_.
 
 .. _in Docker docs: https://docs.docker.com/compose/reference/up/
 
+Docker image
+============
+.. _official Docker image: https://github.com/sio2project/oioioi/pkgs/container/oioioi
+
+An `official Docker image`_ for oioioi is available on the GitHub Container Registry.
+
 Docker (for development)
 ~~~~~~~~~~~~~~~~~~~~~~~
 

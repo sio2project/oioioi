@@ -14,10 +14,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
       args:
         - "oioioi_uid=${OIOIOI_UID}"
       extra_hosts:
         - "web:127.0.0.1"
+    environment:
+      OIOIOI_DB_ENGINE: 'django.db.backends.postgresql'
+      RABBITMQ_HOST: 'broker'
+      RABBITMQ_PORT: '5672'
+      RABBITMQ_USER: 'oioioi'
+      RABBITMQ_PASSWORD: 'oioioi'
+      FILETRACKER_LISTEN_ADDR: '0.0.0.0'
+      FILETRACKER_LISTEN_PORT: '9999'
+      FILETRACKER_URL: 'http://web:9999'
+      DATABASE_HOST: 'db'
+      DATABASE_PORT: '5432'
     ports:
     # web server
       - "8000:8000"
