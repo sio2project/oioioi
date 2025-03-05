@@ -8,14 +8,19 @@
 .search-row {
   display: flex;
   justify-content: space-evenly;
+  margin: 4rem 0 2rem 0;
 }
 
 .search-bar {
-  margin: 5rem 0 4rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .filter-bar {
-  margin: 5rem 0 4rem 0;
+  margin: 0 0 1rem 0;
+}
+
+.tag-proposal-checkbox-row {
+  margin: 2rem 0 2rem 0;
 }
 
 .tabbed-content {

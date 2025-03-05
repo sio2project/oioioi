@@ -1,13 +1,14 @@
-from django.db.models import prefetch_related_objects
+from django.db.models import Prefetch, prefetch_related_objects
 from django.template import Library
 from django.utils.html import format_html
 from oioioi.base.utils.tags import get_tag_name, get_tag_prefix
+from oioioi.problems.models import AggregatedAlgorithmTagProposal
 
 register = Library()
 
 
 @register.simple_tag
-def prefetch_tags(problems):
+def prefetch_tags(problems, max_proposals_shown, min_proposals_per_tag):
     prefetch_related_objects(
         problems,
         'difficultytag_set',
@@ -15,7 +16,22 @@ def prefetch_tags(problems):
         'origintag_set__localizations',
         'origininfovalue_set__localizations',
         'origininfovalue_set__parent_tag__localizations',
+        Prefetch(
+            'aggregatedalgorithmtagproposal_set',
+            queryset=AggregatedAlgorithmTagProposal.objects.filter(
+                amount__gte=min_proposals_per_tag
+            ).order_by('-amount')[:max_proposals_shown],
+            to_attr='top_tag_proposals'
+        )
     )
+
+    for problem in problems:
+        algo_tag_pks = set(problem.algorithmtag_set.all().values_list('pk', flat=True))
+        problem.top_tag_proposals = [
+            proposal for proposal in problem.top_tag_proposals
+            if proposal.tag.pk not in algo_tag_pks
+        ]
+
     return u''
 
 
