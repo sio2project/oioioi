@@ -33,7 +33,7 @@ RUN apt-get update && \
 # This is placed here to avoid redownloading package on uid change
 ARG oioioi_uid=1234
 
-#Bash as shell, setup folders, create oioioi user
+# Bash as shell, setup folders, create oioioi user
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh && \
     mkdir -pv /sio2/oioioi && \
     mkdir -pv /sio2/sandboxes && \
@@ -72,20 +72,23 @@ WORKDIR /sio2/deployment
 
 RUN mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
+# The stage below is independent of base and can be built in parallel to optimize build time.
 FROM python:3.10 AS development-sandboxes
 
 ENV DOWNLOAD_DIR=/sio2/sandboxes
 ENV MANIFEST_URL=https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest
 
+# Download the file and invalidate the cache if the Manifest checksum changes.
+ADD $MANIFEST_URL /sio2/Manifest
+
 RUN apt-get update && \
     apt-get install -y curl wget bash && \
     apt-get clean
 
-ADD $MANIFEST_URL /sio2/Manifest
-
 COPY download_sandboxes.sh /download_sandboxes.sh
 RUN chmod +x /download_sandboxes.sh
 
+# Run script to download sandbox data from the given Manifest.
 RUN ./download_sandboxes.sh -q -y -d $DOWNLOAD_DIR -m $MANIFEST_URL
 
 FROM base AS development
@@ -95,5 +98,5 @@ RUN chmod +x /sio2/oioioi/download_sandboxes.sh
 
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
     /sio2/oioioi/wait-for-it.sh -t 60 "127.0.0.1:9999" && \
-    ./manage.py download_sandboxes -q -y -c /sio2/sandboxes -p /sio2/oioioi/download_sandboxes.sh && \
+    ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes && \
     ./manage.py supervisor stop all
