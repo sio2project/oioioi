@@ -218,7 +218,11 @@
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" name="member" value="{{ member.id }}" {% if member_type == 'teacher' and member == user %}disabled{% endif %}>
-                                        {{ member.get_full_name }} ({{member}})
+                                        {% if member.get_full_name != "" %}
+                                            {{ member.get_full_name }}
+                                        {% else %}
+                                            {{ member.username }}
+                                        {% endif %}
                                     </label>
                                 </div>
                             </div>
