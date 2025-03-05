@@ -150,7 +150,7 @@ Documentation for developers:
 * `Developer's Reference`_
 
 .. _Developer's Guide: CONTRIBUTING.rst
-.. _Developer's Reference: https://oioioi.github.io/oioioi/
+.. _Developer's Reference: https://sio2project.github.io/oioioi/
 
 Testing
 -------
