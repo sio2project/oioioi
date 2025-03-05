@@ -9,4 +9,6 @@ if [ "$1" == "--dev" ]; then
     ./manage.py loaddata ../oioioi/extra/dbdata/default_admin.json
 fi
 
+echo "Init Finished"
+
 exec ./manage.py supervisor --logfile=/sio2/deployment/logs/supervisor.log
