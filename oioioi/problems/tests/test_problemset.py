@@ -60,12 +60,23 @@ class TestTagProposalsOnProbset(TestCase):
     ]
 
     @override_settings(PROBLEM_TAGS_VISIBLE=True, PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
-    def test_tag_proposals(self):
+    def test_base(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('problemset_main')
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
+
         self.assertContains(response, 'show-tag-proposals-checkbox')
+
+        # Check if any tag proposals are present
+        self.assertContains(response, 'aggregated-proposals')
+        self.assertContains(response, 'tag-label-algorithm-proposal')
+
+        # Check for specific tag proposals
+        self.assertContains(response, 'greedy |')
+        self.assertNotContains(response, 'knapsack |')
+        self.assertNotContains(response, 'dp |')
+        self.assertNotContains(response, 'lcis |')
 
 
 class TestAddToProblemsetPermissions(TestCase):
