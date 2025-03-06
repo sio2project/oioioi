@@ -92,7 +92,7 @@
                                             {% for group_member in group_members|slice:":23" %}
                                                 <li>
                                                     {% if group_member.first_name or group_member.last_name %}
-                                                        {{ group_member.last_name|add:" " |add:group_member.first_name }}
+                                                        {{ group_member.first_name|add:" " |add:group_member.last_name }}
                                                     {% else %}
                                                         {{ group_member.username }}
                                                     {% endif %}
