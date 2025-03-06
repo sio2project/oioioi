@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
-from oioioi.problems.models import Problem
+from oioioi.problems.models import AlgorithmTag, AlgorithmTagThrough, Problem
 
 
 class TestProblemsetPage(TestCase):
@@ -60,23 +60,49 @@ class TestTagProposalsOnProbset(TestCase):
     ]
 
     @override_settings(PROBLEM_TAGS_VISIBLE=True, PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
-    def test_base(self):
+    def test_default(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('problemset_main')
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, 'show-tag-proposals-checkbox')
-
-        # Check if any tag proposals are present
         self.assertContains(response, 'aggregated-proposals')
         self.assertContains(response, 'tag-label-algorithm-proposal')
 
-        # Check for specific tag proposals
         self.assertContains(response, 'greedy |')
         self.assertNotContains(response, 'knapsack |')
         self.assertNotContains(response, 'dp |')
         self.assertNotContains(response, 'lcis |')
+
+    def test_no_proposals(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, 'show-tag-proposals-checkbox')
+        self.assertNotContains(response, 'aggregated-proposals')
+        self.assertNotContains(response, 'tag-label-algorithm-proposal')
+
+    @override_settings(PROBLEM_TAGS_VISIBLE=True, PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
+    def test_duplicate_tag(self):
+        AlgorithmTagThrough.objects.create(
+            problem=Problem.objects.get(pk=2),
+            tag=AlgorithmTag.objects.get(pk=4),
+        )
+
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'show-tag-proposals-checkbox')
+        self.assertNotContains(response, 'aggregated-proposals')
+        self.assertNotContains(response, 'tag-label-algorithm-proposal')
+        self.assertNotContains(response, 'greedy |')
+
+
 
 
 class TestAddToProblemsetPermissions(TestCase):
