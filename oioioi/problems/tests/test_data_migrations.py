@@ -32,6 +32,7 @@ class PopulateAggregatedTagProposalsTest(TestCase):
         'test_problem_search',
         'test_algorithm_tags',
         'test_difficulty_tags',
+        'test_aggregated_tag_proposals.json',
     ]
 
     def setUp(self):
@@ -41,26 +42,6 @@ class PopulateAggregatedTagProposalsTest(TestCase):
         self.algorithm_tag2 = AlgorithmTag.objects.get(pk=2)
         self.difficulty_tag1 = DifficultyTag.objects.get(pk=1)
         self.difficulty_tag2 = DifficultyTag.objects.get(pk=2)
-        self.user1 = User.objects.get(pk=1000)
-        self.user2 = User.objects.get(pk=1001)
-        self.user3 = User.objects.get(pk=1002)
-
-        DifficultyTagProposal.objects.bulk_create([
-            DifficultyTagProposal(problem=self.problem1, tag=self.difficulty_tag1, user=self.user1),
-            DifficultyTagProposal(problem=self.problem1, tag=self.difficulty_tag1, user=self.user2),
-            DifficultyTagProposal(problem=self.problem1, tag=self.difficulty_tag2, user=self.user3),
-            DifficultyTagProposal(problem=self.problem2, tag=self.difficulty_tag2, user=self.user2),
-        ])
-
-        AlgorithmTagProposal.objects.bulk_create([
-            AlgorithmTagProposal(problem=self.problem1, tag=self.algorithm_tag1, user=self.user1),
-            AlgorithmTagProposal(problem=self.problem1, tag=self.algorithm_tag2, user=self.user1),
-            AlgorithmTagProposal(problem=self.problem1, tag=self.algorithm_tag1, user=self.user3),
-            AlgorithmTagProposal(problem=self.problem2, tag=self.algorithm_tag2, user=self.user1),
-            AlgorithmTagProposal(problem=self.problem2, tag=self.algorithm_tag1, user=self.user2),
-            AlgorithmTagProposal(problem=self.problem2, tag=self.algorithm_tag2, user=self.user2),
-            AlgorithmTagProposal(problem=self.problem2, tag=self.algorithm_tag2, user=self.user3),
-        ])
 
     def test_populate_aggregated_tag_proposals(self):
         AggregatedAlgorithmTagProposal.objects.filter(problem=self.problem2).delete()
