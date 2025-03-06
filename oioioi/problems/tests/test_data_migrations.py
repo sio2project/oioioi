@@ -38,8 +38,8 @@ class PopulateAggregatedTagProposalsTest(TestCase):
     def setUp(self):
         self.problem1 = Problem.objects.get(pk=1)
         self.problem2 = Problem.objects.get(pk=2)
-        self.algorithm_tag1 = AlgorithmTag.objects.get(pk=1)
-        self.algorithm_tag2 = AlgorithmTag.objects.get(pk=2)
+        self.algorithm_tag1 = AlgorithmTag.objects.get(pk=3)
+        self.algorithm_tag2 = AlgorithmTag.objects.get(pk=4)
         self.difficulty_tag1 = DifficultyTag.objects.get(pk=1)
         self.difficulty_tag2 = DifficultyTag.objects.get(pk=2)
 

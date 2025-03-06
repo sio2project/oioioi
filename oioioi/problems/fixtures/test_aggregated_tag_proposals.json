@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "problem": 1,
-            "tag": 1,
+            "tag": 3,
             "user": 1000
         }
     },
@@ -13,7 +13,7 @@
         "pk": 2,
         "fields": {
             "problem": 1,
-            "tag": 2,
+            "tag": 4,
             "user": 1000
         }
     },
@@ -22,7 +22,7 @@
         "pk": 3,
         "fields": {
             "problem": 1,
-            "tag": 1,
+            "tag": 3,
             "user": 1002
         }
     },
@@ -31,7 +31,7 @@
         "pk": 4,
         "fields": {
             "problem": 2,
-            "tag": 2,
+            "tag": 4,
             "user": 1000
         }
     },
@@ -40,7 +40,7 @@
         "pk": 5,
         "fields": {
             "problem": 2,
-            "tag": 1,
+            "tag": 3,
             "user": 1001
         }
     },
@@ -49,7 +49,7 @@
         "pk": 6,
         "fields": {
             "problem": 2,
-            "tag": 2,
+            "tag": 4,
             "user": 1001
         }
     },
@@ -58,7 +58,7 @@
         "pk": 7,
         "fields": {
             "problem": 2,
-            "tag": 2,
+            "tag": 4,
             "user": 1002
         }
     },
