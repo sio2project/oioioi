@@ -49,13 +49,24 @@ class TestProblemsetPage(TestCase):
         )
         self.assertContains(response, 'Add to contest', count=Problem.objects.count())
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
+
+class TestTagProposalsOnProbset(TestCase):
+    fixtures = [
+        'test_users',
+        'test_problem_search',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+        'test_aggregated_tag_proposals.json',
+    ]
+
+    @override_settings(PROBLEM_TAGS_VISIBLE=True, PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
     def test_tag_proposals(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('problemset_main')
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'show-tag-proposals-checkbox')
+
 
 class TestAddToProblemsetPermissions(TestCase):
     fixtures = ['test_users']
