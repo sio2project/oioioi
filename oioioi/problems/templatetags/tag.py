@@ -52,8 +52,8 @@ def tag_label(tag):
 def aggregated_tag_label(aggregated_tag):
     prefix = get_tag_prefix(aggregated_tag)
     return format_html(
-        '<a title="{tooltip}" class="badge tag-label tag-label-{cls}" href="{href}" '
-        '>{name} | {amount}</a>',
+        '<a title="{tooltip}" class="badge tag-label tag-label-{cls} position-relative" href="{href}">'
+        '{name} <span class="tag-proposal-amount badge">{amount}</span></a>',
         tooltip=getattr(aggregated_tag.tag, 'full_name', aggregated_tag.tag.name),
         name=get_tag_name(aggregated_tag.tag),
         cls=prefix,
