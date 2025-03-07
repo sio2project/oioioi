@@ -94,7 +94,7 @@
                                 Skip rendering the div if there are no top tag proposals
                                 so it does not generate a whitespace between other tags.
                             {% endcomment %}
-                            {% if problem.top_tag_proposals %}
+                            {% if show_tag_proposals and problem.top_tag_proposals %}
                                 <div class="aggregated-proposals" style="display: none;">
                                     {% for tag in problem.top_tag_proposals %}
                                         {% aggregated_tag_label tag %}

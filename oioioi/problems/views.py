@@ -424,6 +424,7 @@ def problemset_generate_view(request, page_title, problems, view_type):
         request
     )
     show_tags = settings.PROBLEM_TAGS_VISIBLE
+    show_tag_proposals = settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET
     max_tag_proposals_shown = settings.PROBSET_SHOWN_TAG_PROPOSALS_LIMIT
     min_proposals_per_tag = settings.PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL
     show_statistics = settings.PROBLEM_STATISTICS_AVAILABLE
@@ -484,6 +485,7 @@ def problemset_generate_view(request, page_title, problems, view_type):
             'algorithm_tags': request.GET.getlist('algorithm'),
             'difficulty_tags': difficulty_tags,
             'show_tags': show_tags,
+            'show_tag_proposals': show_tag_proposals,
             'max_tag_proposals_shown': max_tag_proposals_shown,
             'min_proposals_per_tag': min_proposals_per_tag,
             'show_statistics': show_statistics,
