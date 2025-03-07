@@ -56,11 +56,48 @@ class TestTagProposalsOnProbset(TestCase):
         'test_problem_search',
         'test_algorithm_tags',
         'test_difficulty_tags',
-        'test_aggregated_tag_proposals.json',
+        'test_aggregated_tag_proposals',
     ]
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True, PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
-    def test_default(self):
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=False,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=False,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_tags_not_visible(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, 'class="badge tag-label')
+        self.assertNotContains(response, 'show-tag-proposals-checkbox')
+        self.assertNotContains(response, 'aggregated-proposals')
+        self.assertNotContains(response, 'tag-label-algorithm-proposal')
+
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=True,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=False,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_tag_proposals_not_visible(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'class="badge tag-label')
+        self.assertNotContains(response, 'show-tag-proposals-checkbox')
+        self.assertNotContains(response, 'aggregated-proposals')
+        self.assertNotContains(response, 'tag-label-algorithm-proposal')
+        self.assertNotContains(response, 'greedy<span class="tag-proposal-amount')
+
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=True,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=True,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_tag_proposals_visible(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('problemset_main')
         response = self.client.get(url, follow=True)
@@ -75,18 +112,12 @@ class TestTagProposalsOnProbset(TestCase):
         self.assertNotContains(response, 'dp<span class="tag-proposal-amount')
         self.assertNotContains(response, 'lcis<span class="tag-proposal-amount')
 
-    def test_no_proposals(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('problemset_main')
-        response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-        self.assertNotContains(response, 'show-tag-proposals-checkbox')
-        self.assertNotContains(response, 'aggregated-proposals')
-        self.assertNotContains(response, 'tag-label-algorithm-proposal')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=True, PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
-    def test_duplicate_tag(self):
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=True,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=True,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_duplicate_tag_proposal(self):
         AlgorithmTagThrough.objects.create(
             problem=Problem.objects.get(pk=2),
             tag=AlgorithmTag.objects.get(pk=4),
