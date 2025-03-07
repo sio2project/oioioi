@@ -11,6 +11,7 @@
 <div class="container">
     {% include 'problems/ingredients/problemset-menu.html' %}
 
+    {% if show_filters or show_search_bar %}
     <div class="row search-row">
         {% if show_filters %}
             <ul class="nav nav-pills filter-bar">
@@ -77,14 +78,25 @@
                         {% include "problems/problemset/search-tag.html" with input_name="origin" input_value=tag|add:"_"|add:info input_text=info input_attr="readonly" input_script=delete_me %}
                     {% endfor %}
                 </div>
-                {% endfor a%}
+                {% endfor %}
 
             {% endwith %}
             </div>
         </form>
         {% endif %}
-
     </div>
+    {% endif %}
+
+    {% if show_tags and show_tag_proposals %}
+    <div class="row tag-proposal-checkbox-row">
+        <div class="col-12 text-center">
+            <label class="form-check-label">
+                <input id="show-tag-proposals-checkbox" class="form-check-input" type="checkbox" value="">
+                {% trans "Show tags proposed by users" %}
+            </label>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 
