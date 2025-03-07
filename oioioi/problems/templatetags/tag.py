@@ -3,6 +3,7 @@ from django.template import Library
 from django.utils.html import format_html
 from oioioi.base.utils.tags import get_tag_name, get_tag_prefix
 from oioioi.problems.models import AggregatedAlgorithmTagProposal
+from django.utils.translation import gettext as _
 
 register = Library()
 
@@ -50,15 +51,22 @@ def tag_label(tag):
 
 @register.simple_tag
 def aggregated_tag_label(aggregated_tag):
-    prefix = get_tag_prefix(aggregated_tag)
+    amount = aggregated_tag.amount
+    tag = aggregated_tag.tag
+
+    full_prefix = get_tag_prefix(aggregated_tag)
+    tag_prefix = get_tag_prefix(tag)
+
+    tag_tooltip = getattr(tag, 'full_name', tag.name)
+    times_text = _("1 time") if amount == 1 else _(f"{amount} times")
     return format_html(
         '<a title="{tooltip}" class="badge tag-label tag-label-{cls} position-relative" href="{href}">'
-        '{name} <span class="tag-proposal-amount badge">{amount}</span></a>',
-        tooltip=getattr(aggregated_tag.tag, 'full_name', aggregated_tag.tag.name),
-        name=get_tag_name(aggregated_tag.tag),
-        cls=prefix,
-        amount=str(aggregated_tag.amount),
-        href="?" + prefix + "=" + aggregated_tag.tag.name,
+        '{name}<span class="tag-proposal-amount badge">{amount}</span></a>',
+        tooltip=_(f"{tag_tooltip} — proposed {times_text}"),
+        name=get_tag_name(tag),
+        cls=full_prefix,
+        amount=str(amount),
+        href="?" + tag_prefix + "=" + tag.name,
     )
 
 

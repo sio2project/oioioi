@@ -70,10 +70,10 @@ class TestTagProposalsOnProbset(TestCase):
         self.assertContains(response, 'aggregated-proposals')
         self.assertContains(response, 'tag-label-algorithm-proposal')
 
-        self.assertContains(response, 'greedy |')
-        self.assertNotContains(response, 'knapsack |')
-        self.assertNotContains(response, 'dp |')
-        self.assertNotContains(response, 'lcis |')
+        self.assertContains(response, 'greedy<span class="tag-proposal-amount')
+        self.assertNotContains(response, 'knapsack<span class="tag-proposal-amount')
+        self.assertNotContains(response, 'dp<span class="tag-proposal-amount')
+        self.assertNotContains(response, 'lcis<span class="tag-proposal-amount')
 
     def test_no_proposals(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -100,7 +100,7 @@ class TestTagProposalsOnProbset(TestCase):
         self.assertContains(response, 'show-tag-proposals-checkbox')
         self.assertNotContains(response, 'aggregated-proposals')
         self.assertNotContains(response, 'tag-label-algorithm-proposal')
-        self.assertNotContains(response, 'greedy |')
+        self.assertNotContains(response, 'greedy<span class="tag-proposal-amount')
 
 
 
