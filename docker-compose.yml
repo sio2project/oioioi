@@ -11,6 +11,17 @@ services:
   web:
     image: sio2project/oioioi:$OIOIOI_VERSION
     command: ["/sio2/oioioi/oioioi_init.sh"]
+    environment:
+      OIOIOI_DB_ENGINE: 'django.db.backends.postgresql'
+      RABBITMQ_HOST: 'broker'
+      RABBITMQ_PORT: '5672'
+      RABBITMQ_USER: 'oioioi'
+      RABBITMQ_PASSWORD: 'oioioi'
+      FILETRACKER_LISTEN_ADDR: '0.0.0.0'
+      FILETRACKER_LISTEN_PORT: '9999'
+      FILETRACKER_URL: 'http://web:9999'
+      DATABASE_HOST: 'db'
+      DATABASE_PORT: '5432'
     ports:
       - "8000:8000"
     stop_grace_period: 3m
