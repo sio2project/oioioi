@@ -343,7 +343,14 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_ACTIVATION_DAYS = 7
 
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
-DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": 'oioioi.filetracker.storage.FiletrackerStorage',
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 FILETRACKER_SERVER_ENABLED = True
 FILETRACKER_LISTEN_ADDR = os.getenv('FILETRACKER_LISTEN_ADDR', '127.0.0.1')

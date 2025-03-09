@@ -95,7 +95,7 @@ class School(models.Model):
 
     class Meta(object):
         unique_together = ('name', 'postal_code')
-        index_together = (('city', 'is_active'), ('province', 'is_active'))
+        indexes = [models.Index(fields=("city", "is_active")), models.Index(fields=("province", "is_active"))]
         ordering = ['province', 'city', 'address', 'name']
 
     def __str__(self):

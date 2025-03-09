@@ -595,7 +595,7 @@ class SubmissionReport(models.Model):
     class Meta(object):
         get_latest_by = 'creation_date'
         ordering = ('-creation_date',)
-        index_together = (('submission', 'creation_date'),)
+        indexes = [models.Index(fields=("submission", "creation_date"))]
 
 
 class ScoreReport(models.Model):
@@ -723,7 +723,7 @@ class ContestView(models.Model):
 
     class Meta(object):
         unique_together = ('user', 'contest')
-        index_together = [['user', 'timestamp']]
+        indexes = [models.Index(fields=["user", "timestamp"])]
         get_latest_by = 'timestamp'
         ordering = ('-timestamp',)
 
