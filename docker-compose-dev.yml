@@ -1,3 +1,8 @@
+x-common-envs: &common-envs
+ FILETRACKER_URL: 'http://web:9999'
+ DATABASE_HOST: 'db'
+ DATABASE_PORT: '5432'
+
 services:
   db:
     image: library/postgres:12.2
@@ -27,9 +32,7 @@ services:
       RABBITMQ_PASSWORD: 'oioioi'
       FILETRACKER_LISTEN_ADDR: '0.0.0.0'
       FILETRACKER_LISTEN_PORT: '9999'
-      FILETRACKER_URL: 'http://web:9999'
-      DATABASE_HOST: 'db'
-      DATABASE_PORT: '5432'
+      <<: *common-envs
     ports:
     # web server
       - "8000:8000"
@@ -46,6 +49,7 @@ services:
   worker:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/worker_init.sh"]
+    environment: *common-envs
     volumes:
       - .:/sio2/oioioi
     stop_grace_period: 1m
