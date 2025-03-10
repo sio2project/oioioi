@@ -49,7 +49,9 @@ services:
   worker:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/worker_init.sh"]
-    environment: *common-envs
+    environment:
+      WEB_URL: "web:8000"
+      <<: *common-envs
     volumes:
       - .:/sio2/oioioi
     stop_grace_period: 1m
