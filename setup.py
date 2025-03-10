@@ -54,7 +54,7 @@ requirements = [
     "bleach>=6.0,<6.1",
     "chardet>=5.1,<5.2",
     "django-gravatar2>=1.4,<1.5",
-    "django-mptt>=0.14,<0.15",
+    "django-mptt>=0.16,<0.17",
     "mistune<2.0",   # 2.0 is breaking
     "pika>=1.3,<1.4",
     "Unidecode>=1.3,<1.4",

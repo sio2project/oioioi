@@ -5,7 +5,7 @@ x-common-envs: &common-envs
 
 services:
   db:
-    image: library/postgres:12.2
+    image: library/postgres:14.17
     environment:
       POSTGRES_USER: "oioioi"
       POSTGRES_PASSWORD: "password"
