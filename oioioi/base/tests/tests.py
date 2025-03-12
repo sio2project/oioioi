@@ -1454,7 +1454,7 @@ class TestUserDeactivationLogout(TestCase):
         self.user.is_active = False
         self.user.save()
 
-        self.client.get(self.profile_index, follow=True)
+        self.client.post(self.profile_index, follow=True)
         # At this point we should check if user is deactivated and log him out.
         self.assert_logged(False)
 

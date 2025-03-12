@@ -120,7 +120,7 @@ class Problem(models.Model):
     @cached_property
     def name(self):
         problem_name = ProblemName.objects.filter(
-            problem=self, language=get_language()
+            problem=self.pk, language=get_language()
         ).first()
         return problem_name.name if problem_name else self.legacy_name
 
