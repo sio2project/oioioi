@@ -32,7 +32,7 @@ class PopulateAggregatedTagProposalsTest(TestCase):
         'test_problem_search',
         'test_algorithm_tags',
         'test_difficulty_tags',
-        'test_aggregated_tag_proposals.json',
+        'test_aggregated_tag_proposals',
     ]
 
     def setUp(self):
