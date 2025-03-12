@@ -286,7 +286,6 @@ INSTALLED_APPS = (
     'oioioi.quizzes',
     'oioioi._locale',
     'oioioi.interactive',
-    'oioioi.oauth',
 
     'djsupervisor',
     'registration',
@@ -314,7 +313,6 @@ INSTALLED_APPS = (
 
     'nested_admin',
     'coreapi',
-    'oauth2_provider',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -844,10 +842,9 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES':(
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }

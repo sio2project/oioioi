@@ -62,6 +62,8 @@ INSTALLED_APPS = (
     'oioioi.usercontests',
     'oioioi.mp',
     'oioioi.welcomepage',
+    'oauth2_provider',
+    'oioioi.oauth',
 ) + INSTALLED_APPS
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
@@ -124,4 +126,17 @@ STATIC_ROOT = ''
 LOGGING['loggers']['django.db.backends.schema'] = {
     'handlers': ['console'],
     'level': 'INFO',
+}
+
+REST_FRAMEWORK = {
+   'DEFAULT_RENDERER_CLASSES': (
+       'rest_framework.renderers.JSONRenderer',
+       'rest_framework.renderers.BrowsableAPIRenderer',
+   ),
+   'DEFAULT_AUTHENTICATION_CLASSES':(
+       'rest_framework.authentication.TokenAuthentication',
+       'rest_framework.authentication.SessionAuthentication',
+       'oauth2_provider.contrib.rest_framework.OAuth2Authentication'
+   ),
+   'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }

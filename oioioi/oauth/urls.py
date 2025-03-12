@@ -3,6 +3,13 @@ from django.conf import settings
 from django.contrib import admin as django_admin
 from django.views import i18n
 from django.urls import include, re_path
+from .middleware import (
+    AdminApplicationList,
+    AdminApplicationRegistration,
+    AdminApplicationUpdate,
+    AdminApplicationDelete,
+    AdminApplicationDetail,
+)
 
 app_name = 'oauth'
 
@@ -15,11 +22,11 @@ oauth2_endpoint_views = [
 if settings.DEBUG:
     # OAuth2 Application Management endpoints
     oauth2_endpoint_views += [
-        re_path(r'^applications/', oauth2_views.ApplicationList.as_view(), name="list"),
-        re_path(r'^applications/register/', oauth2_views.ApplicationRegistration.as_view(), name="register"),
-        re_path(r'^applications/<pk>/', oauth2_views.ApplicationDetail.as_view(), name="detail"),
-        re_path(r'^applications/<pk>/delete/', oauth2_views.ApplicationDelete.as_view(), name="delete"),
-        re_path(r'^applications/<pk>/update/', oauth2_views.ApplicationUpdate.as_view(), name="update"),
+        re_path(r'^applications/register/', AdminApplicationRegistration.as_view(), name="register"),
+        re_path(r'^applications/(?P<pk>\d+)/', AdminApplicationDetail.as_view(), name="detail"),
+        re_path(r'^applications/(?P<pk>\d+)/delete/', AdminApplicationDelete.as_view(), name="delete"),
+        re_path(r'^applications/(?P<pk>\d+)/update/', AdminApplicationUpdate.as_view(), name="update"),
+        re_path(r'^applications/', AdminApplicationList.as_view(), name="list"),
     ]
 
     oauth2_endpoint_views += [
