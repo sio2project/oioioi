@@ -123,7 +123,7 @@ class ModelAdmin(
 
         if request.POST:  # The user has already confirmed the deletion.
             obj_display = force_str(obj)
-            self.log_deletion(request, obj, obj_display)
+            self.log_deletions(request, (obj,))
             self.delete_model(request, obj)
             self.message_user(
                 request,
@@ -212,9 +212,7 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
             raise PermissionDenied
         n = queryset.count()
         if n:
-            for obj in queryset:
-                obj_display = force_str(obj)
-                modeladmin.log_deletion(request, obj, obj_display)
+            modeladmin.log_deletions(request, queryset)
             queryset.delete()
             message_text = _("Successfully deleted %(count)d %(items)s.") % {
                 "count": n,
