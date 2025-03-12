@@ -66,7 +66,7 @@ def aggregated_tag_label(aggregated_tag):
     tag_prefix = get_tag_prefix(tag)
 
     tag_tooltip = getattr(tag, 'full_name', tag.name)
-    times_text = ngettext("1 time", "%(count)d times", amount)
+    times_text = ngettext("1 time", "%(count)d times", amount) % {'count': amount}
     return format_html(
         '<a title="{tooltip}" class="badge tag-label tag-label-{cls} position-relative" href="{href}">'
         '{name}<span class="tag-proposal-amount badge">{amount}</span></a>',
