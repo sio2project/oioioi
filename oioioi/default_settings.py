@@ -162,8 +162,10 @@ PROBLEMSET_LINK_VISIBLE = True
 # Set to true to show tags on the list of problems
 PROBLEM_TAGS_VISIBLE = False
 
-# Values only relevant when PROBLEM_TAGS_VISIBLE is set to True
+# Only relevant with PROBLEM_TAGS_VISIBLE set to True
 SHOW_TAG_PROPOSALS_IN_PROBLEMSET = False
+
+# Only relevant with SHOW_TAG_PROPOSALS_IN_PROBLEMSET set to True
 PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 3
 PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL = 10
 
