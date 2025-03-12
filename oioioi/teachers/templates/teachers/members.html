@@ -90,9 +90,7 @@
                                     {% if group_members %}
                                         <ul class="usergroup-user-list">
                                             {% for group_member in group_members|slice:":23" %}
-                                                <li>
-                                                    {{ group_member.get_full_name|default:group_member.username }}
-                                                </li>
+                                                <li> {{ group_member.get_full_name|default:group_member.username }} </li>
                                             {% endfor %}
 
                                             {% if group_members.count > 23 %}
