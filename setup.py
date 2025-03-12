@@ -22,7 +22,7 @@ if os.getuid() == 0:  # root
 # All modules in the newest versions at the time of upgrade to Django 4.2
 # unless specified otherwise.
 requirements = [
-    "Django>=4.2,<4.3",
+    "Django==5.1.7",
     "pytz>=2023.3,<2023.4",
     "SQLAlchemy<2.1.0",
     "beautifulsoup4>=4.12,<4.13",
