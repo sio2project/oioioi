@@ -68,7 +68,7 @@
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" name="member" value="{{ member.id }}">
-                            {{ member.get_full_name }}
+                            {{ member.get_full_name|default:member.username }}
                         </label>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" name="owner" value="{{ owner.id }}" {% if owner == user %}disabled{% endif %}>
-                            {{ owner.get_full_name }}
+                            {{ owner.get_full_name|default:owner.username }}
                         </label>
                     </div>
                 </div>
