@@ -1,3 +1,5 @@
+import Clipboard from "clipboard";
+
 $(window).on("load", function() {
     new Clipboard('.btn-copy')
         .on('success', function (e) {

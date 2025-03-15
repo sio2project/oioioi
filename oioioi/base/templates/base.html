@@ -12,17 +12,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         {% include "ingredients/head-favicon.html" %}
 
-        <script src="{% static 'vendor.js' %}"></script>
-
+        {% comment %}
+        Load jQuery here because inlined scripts in some views depends on it.
+        {% endcomment %}
         {% compress js %}
-            <script src="{{ STATIC_URL }}fontawesomefree/js/all.min.js"></script>
+            <script src="{% static 'jquery.js' %}"></script>
+            <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
             {% common_scripts %}
         {% endcompress %}
 
         {% block styles %}
             {% compress css %}
-                <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}scss/style.scss">
-                <link href="{{ STATIC_URL }}fontawesomefree/css/all.min.css" rel="stylesheet" type="text/css">
+                <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/style.scss' %}">
+                <link rel="stylesheet" type="text/x-scss" href="{% static 'highlight.js/scss/vs.scss' %}">
+                <link rel="stylesheet" type="text/css" href="{% static 'fontawesomefree/css/all.min.css' %}">
                 {% common_styles %}
             {% endcompress %}
         {% endblock %}
@@ -111,30 +114,14 @@
             {% endblock %}
         </div>
         {% block scripts %}
-            <script type="text/javascript">const oioioi_base_url = "{{ base_url|escapejs }}";</script>
-            <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
+            <script>const oioioi_base_url = "{{ base_url | escapejs }}";</script>
+            <script src="{% url 'javascript_catalog' %}"></script>
             {% compress js %}
-                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-typeahead.js"></script>
+                <script src="{% static 'index.js' %}"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/utils.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/csrf_link_protect.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/language-picker.js"></script>
                 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.storageapi.min.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-table-responsive-dropdown-fix.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-async-collapsible.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/menu.js"></script>
-                <script type="text/javascript">
-                    $(function () {
-                        $("[data-toggle='tooltip']").tooltip();
-                    });
-                </script>
-                <script>hljs.initHighlightingOnLoad();</script>
-                <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard.min.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard-setup.js"></script>
             {% endcompress %}
-            <script type="text/javascript" async
-                    src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-            </script>
+            <script async src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
        {% endblock %}
     </body>
 </html>
