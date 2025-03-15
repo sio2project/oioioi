@@ -1,3 +1,5 @@
+import moment from 'moment-timezone/builds/moment-timezone-with-data-10-year-range';
+
 /*jshint multistr: true */
 $(document).ready(function() {
     window.init_timeline = function(
@@ -113,7 +115,7 @@ If you want to split a date group, click the corresponding \
         }
 
         function set_gradient($datebox, color_id) {
-            color_string = get_gradient(color_id) + ')';
+            var color_string = get_gradient(color_id) + ')';
             $.each(GRADIENT_STRINGS, function() {
                 $datebox.css('background-image', this + color_string);
             });
@@ -141,7 +143,7 @@ If you want to split a date group, click the corresponding \
 
         function set_width($datebox) {
             let width = $datebox.find('.oioioi-timeline__date-title').width();
-            new_width = Math.max(parseInt($datebox.css('min-width'), 10),
+            var new_width = Math.max(parseInt($datebox.css('min-width'), 10),
                 INPUT_WIDTH + width);
             $datebox.css('width', new_width);
         }
@@ -546,7 +548,7 @@ If you want to split a date group, click the corresponding \
             // Ctrl+z or ESC
             if ((e.which === 'z'.charCodeAt(0) &&
                     (evtobj.ctrlKey || evtobj.metaKey)) ||
-                    e.which === jQuery.ui.keyCode.ESCAPE) {
+                    e.which === 27) {
                 e.preventDefault();
                 var $datebox = $(e.target)
                     .parents('.oioioi-timeline__datebox');
@@ -682,7 +684,7 @@ If you want to split a date group, click the corresponding \
             $timeline.find('input').keypress(function(e) {
                 // we don't want Enter keypress to cause form submission
                 // let it update datebox layout instead
-                if (e.which === jQuery.ui.keyCode.ENTER) {
+                if (e.which === 13) {
                     e.preventDefault();
                     $(e.target).trigger('change');
                     change_date_handler();

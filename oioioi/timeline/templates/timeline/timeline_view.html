@@ -1,22 +1,20 @@
 {% extends "base-with-menu.html" %}
-{% load i18n compress %}
+{% load i18n compress static %}
 
 {% block styles %}
 {{ block.super }}
 {% compress css %}
-    <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.css" />
-    <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}timeline/timeline.scss" />
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.css' %}" />
+    <link rel="stylesheet" type="text/x-scss" href="{% static 'timeline/timeline.scss' %}" />
 {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
 {{ block.super }}
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/moment.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/pl.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}jquery-ui/jquery-ui.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}timeline/timeline.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}moment/moment-timezone-with-data-2012-2022.min.js"></script>
+<script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/moment.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/pl.js' %}"></script>
+<script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'timeline.js' %}"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'), '{{ server_timezone }}');

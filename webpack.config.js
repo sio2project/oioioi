@@ -4,6 +4,7 @@ module.exports = {
   entry: {
     jquery: './oioioi/base/static/js/jquery.js',
     index: './oioioi/base/static/js/index.js',
+    timeline: './oioioi/timeline/static/timeline/timeline.js',
   },
   output: {
     filename: '[name].js',
@@ -11,5 +12,6 @@ module.exports = {
   },
   externals: {
     jquery: 'jQuery',
+    moment: 'moment'
   },
 };

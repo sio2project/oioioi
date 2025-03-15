@@ -12,6 +12,3 @@ oioioi/portals/static/portals/tree.jquery.js
 
 oioioi/liveranking/static/liveranking/js/d3*.js
 oioioi/liveranking/static/liveranking/js/jq*.js
-
-oioioi/timeline/static/jquery-ui/*.js
-oioioi/timeline/static/moment/*.js

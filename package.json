@@ -17,6 +17,7 @@
     "clipboard": "^2.0.11",
     "highlight.js": "^11.11.1",
     "jquery": "^1.12.4",
-    "js-cookie": "^3.0.5"
+    "js-cookie": "^3.0.5",
+    "moment-timezone": "^0.5.47"
   }
 }

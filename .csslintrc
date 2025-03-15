@@ -10,6 +10,5 @@
         "oioioi/base/static/bootstrap-datetimepicker-oioioi",
         "oioioi/base/static/bootstrap-markdown",
         "oioioi/portals/static/portals/jqtree.css",
-        "oioioi/timeline/static/jquery-ui"
     ]
 }
