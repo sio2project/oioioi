@@ -14,9 +14,9 @@
 <script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/moment.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/pl.js' %}"></script>
 <script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'timeline.js' %}"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
+<script src="{% static 'timeline.bundle.js' %}"></script>
+<script>
+    $(function() {
         init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'), '{{ server_timezone }}');
     });
 </script>

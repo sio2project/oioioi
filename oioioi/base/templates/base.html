@@ -16,7 +16,7 @@
         Load jQuery here because inlined scripts in some views depends on it.
         {% endcomment %}
         {% compress js %}
-            <script src="{% static 'jquery.js' %}"></script>
+            <script src="{% static 'jquery.bundle.js' %}"></script>
             <script src="{% static 'fontawesomefree/js/all.min.js' %}"></script>
             {% common_scripts %}
         {% endcompress %}
@@ -115,7 +115,7 @@
         {% block scripts %}
             <script>const oioioi_base_url = "{{ base_url | escapejs }}";</script>
             <script src="{% url 'javascript_catalog' %}"></script>
-            <script src="{% static 'index.js' %}"></script>
+            <script src="{% static 'index.bundle.js' %}"></script>
             <script async src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
        {% endblock %}
     </body>
