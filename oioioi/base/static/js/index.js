@@ -1,6 +1,10 @@
 import "bootstrap"
 import "bootstrap-3-typeahead"
 
+// https://github.com/webpack-contrib/expose-loader/issues/188
+import Cookies from "js-cookie"
+window.Cookies = Cookies
+
 import "./utils"
 import "./csrf_link_protect"
 import "./language-picker"

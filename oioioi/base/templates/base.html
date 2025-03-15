@@ -116,11 +116,7 @@
         {% block scripts %}
             <script>const oioioi_base_url = "{{ base_url | escapejs }}";</script>
             <script src="{% url 'javascript_catalog' %}"></script>
-            {% compress js %}
-                <script src="{% static 'index.js' %}"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.storageapi.min.js"></script>
-            {% endcompress %}
+            <script src="{% static 'index.js' %}"></script>
             <script async src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
        {% endblock %}
     </body>
