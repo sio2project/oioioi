@@ -1181,9 +1181,11 @@ def get_search_hints_view(request, view_type):
 
     result = []
     result.extend(list(get_problem_hints(query, view_type, request.user)))
-    result.extend(get_algorithm_and_difficulty_tag_hints(query))
-    result.extend(get_nonselected_origintag_hints(query))
-    result.extend(get_origininfovalue_hints(query))
+
+    if settings.PROBLEM_TAGS_VISIBLE or request.user.is_superuser:
+        result.extend(get_algorithm_and_difficulty_tag_hints(query))
+        result.extend(get_nonselected_origintag_hints(query))
+        result.extend(get_origininfovalue_hints(query))
 
     # Convert category names in results from lazy translation to strings,
     # since jsonify throws error if given lazy translation objects.
