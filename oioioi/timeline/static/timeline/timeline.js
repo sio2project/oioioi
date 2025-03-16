@@ -135,7 +135,7 @@ If you want to split a date group, click the corresponding \
         $datebox
             .children('.date')
             .data('DateTimePicker')
-            .setDate(new_date);
+            .date(new_date);
     }
 
     function set_width($datebox) {
