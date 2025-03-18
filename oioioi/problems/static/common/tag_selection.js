@@ -119,7 +119,7 @@ function init_search_selection(id) {
                     const value = item.value || item.name;
 
                     // Only create new search tag if it doesn't exist yet
-                    const tag = $(".search-tag-text:contains('" + value + "')");
+                    const tag = $("input[name='" + item.prefix + "'][value='" + value + "']");
                     if (tag.length === 0) {
                         const tag = value.split('_')[0];
 
