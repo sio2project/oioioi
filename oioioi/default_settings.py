@@ -162,6 +162,13 @@ PROBLEMSET_LINK_VISIBLE = True
 # Set to true to show tags on the list of problems
 PROBLEM_TAGS_VISIBLE = False
 
+# Only relevant with PROBLEM_TAGS_VISIBLE set to True
+SHOW_TAG_PROPOSALS_IN_PROBLEMSET = False
+
+# Only relevant with SHOW_TAG_PROPOSALS_IN_PROBLEMSET set to True
+PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 3
+PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL = 10
+
 # Enables problem statistics at the cost of some per-submission performance hit.
 # Set to True if you want to see statistics in the Problemset and problem sites.
 # After enabling you should use ./manage.py recalculate_statistics

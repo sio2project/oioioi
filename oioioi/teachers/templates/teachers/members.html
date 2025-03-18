@@ -86,11 +86,10 @@
                             </div>
                             <div id="collapse{{ usergroup.id }}" class="collapse usergroup-body">
                                 <div>
-                                    {% call_method_with_arguments usergroup.members 'values' 'first_name' 'last_name' as group_members %}
-                                    {% if group_members %}
+                                    {% if usergroup.members.count %}
                                         <ul class="usergroup-user-list">
-                                            {% for group_member in group_members|slice:":23" %}
-                                                <li> {{ group_member.first_name }} {{ group_member.last_name }} </li>
+                                            {% for member in usergroup.members.all|slice:":23" %}
+                                                <li> {{ member.get_full_name|default:member.username }} </li>
                                             {% endfor %}
 
                                             {% if group_members.count > 23 %}
@@ -218,7 +217,7 @@
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" name="member" value="{{ member.id }}" {% if member_type == 'teacher' and member == user %}disabled{% endif %}>
-                                        {{ member.get_full_name }}
+                                        {{ member.get_full_name|default:member.username }}
                                     </label>
                                 </div>
                             </div>
