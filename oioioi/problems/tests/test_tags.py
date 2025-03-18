@@ -159,7 +159,39 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
     def get_query_url(self, parameters):
         return self.url + '?' + urllib.parse.urlencode(parameters)
 
-    @override_settings(LANGUAGE_CODE="en")
+    @override_settings(LANGUAGE_CODE="en", PROBLEM_TAGS_VISIBLE=False)
+    def test_search_no_hints_tags(self):
+        self.client.get('/c/c/')
+
+        response = self.client.get(self.get_query_url({'q': 'najdłuższy'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'easy'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'Mediu'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'PROGRA'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'dYNAM'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'dp'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q': 'increasing'}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+    @override_settings(LANGUAGE_CODE="en", PROBLEM_TAGS_VISIBLE=True)
     def test_search_hints_tags_basic(self):
         self.client.get('/c/c/')
 
@@ -191,6 +223,7 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['lcis'])
 
+    @override_settings(LANGUAGE_CODE="en", PROBLEM_TAGS_VISIBLE=True)
     def test_search_hints_origininfo(self):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': 'pa_'})
@@ -209,7 +242,7 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['origintag', 'round', 'year'])
 
-    @override_settings(LANGUAGE_CODE="en")
+    @override_settings(LANGUAGE_CODE="en") # PROBLEM_TAGS_VISIBLE=True
     def test_category_hints(self):
         self.client.get('/c/c/')
         response = self.client.get(
@@ -218,7 +251,7 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['pa_r1', 'pa_r2'])
 
-    @override_settings(LANGUAGE_CODE="en")
+    @override_settings(LANGUAGE_CODE="en") # PROBLEM_TAGS_VISIBLE=True
     def test_selected_origintag_hints_en(self):
         self.client.get('/c/c/')
         response = self.client.get(
@@ -236,7 +269,7 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
         self.assertNotContains(response, 'pa_2011')
         self.assertNotContains(response, 'pa_2012')
 
-    @override_settings(LANGUAGE_CODE="pl")
+    @override_settings(LANGUAGE_CODE="pl") # PROBLEM_TAGS_VISIBLE=True
     def test_selected_origintag_hints_pl(self):
         self.client.get('/c/c/')
         response = self.client.get(
