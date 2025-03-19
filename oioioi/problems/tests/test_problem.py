@@ -740,6 +740,7 @@ class TestProblemSearchPermissions(TestCase, AssertContainsOnlyMixin):
         self.assert_contains_only(response, self.task_names)
 
 
+@override_settings(PROBLEM_TAGS_VISIBLE=True)
 class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
     fixtures = ['test_problem_search']
     url = reverse('problemset_main')
