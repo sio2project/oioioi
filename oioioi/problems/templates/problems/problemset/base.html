@@ -62,25 +62,26 @@
                 </span>
             </div>
             <div id="tag-row">
+            {% if show_tags %}
             {% with delete_me="this.parentNode.parentNode.remove()" %}
 
                 {% include "problems/problemset/search-tag.html" with input_class="collapse" input_attr="disabled" %}
                 {% for tag in difficulty_tags %}
-                    {% include "problems/problemset/search-tag.html" with input_name="difficulty" input_text=tag.full_name input_attr="readonly" input_script=delete_me %}
+                    {% include "problems/problemset/search-tag.html" with input_name="difficulty" input_value=tag input_text=tag.full_name input_attr="readonly" input_script=delete_me %}
                 {% endfor %}
                 {% for tag in algorithm_tags %}
-                    {% include "problems/problemset/search-tag.html" with input_name="algorithm" input_text=tag input_attr="readonly" input_script=delete_me %}
+                    {% include "problems/problemset/search-tag.html" with input_name="algorithm" input_value=tag input_text=tag input_attr="readonly" input_script=delete_me %}
                 {% endfor %}
                 {% for tag, origininfo in origin_tags.items %}
                 <div id="origintag-group-{{ tag }}" class="origintag-group">
-                    {% include "problems/problemset/search-tag.html" with input_name="origin" input_text=tag input_attr="readonly" input_script="this.parentNode.parentNode.parentNode.remove()" %}
+                    {% include "problems/problemset/search-tag.html" with input_name="origin" input_value=tag input_text=tag input_attr="readonly" input_script="this.parentNode.parentNode.parentNode.remove()" %}
                     {% for info in origininfo %}
                         {% include "problems/problemset/search-tag.html" with input_name="origin" input_value=tag|add:"_"|add:info input_text=info input_attr="readonly" input_script=delete_me %}
                     {% endfor %}
                 </div>
                 {% endfor %}
-
             {% endwith %}
+            {% endif %}
             </div>
         </form>
         {% endif %}
