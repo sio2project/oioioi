@@ -1267,9 +1267,9 @@ class TestLoginChange(TestCase):
             # The html strings underneath may change with any django upgrade.
             self.assertContains(
                 response,
-                '<input type="text" id="id_username" name="username" '
-                'value="%s" class="form-control" '
-                'maxlength="150" required />' % l,
+                '<input type="text" name="username" value="%s" '
+                'maxlength="150" class="form-control" required="" '
+                'aria-describedby="id_username_helptext" id="id_username">' % l,
                 html=True,
             )
 
@@ -1286,9 +1286,9 @@ class TestLoginChange(TestCase):
             response = self.client.get(self.url_edit_profile)
             self.assertContains(
                 response,
-                '<input type="text" id="id_username" name="username" '
-                'value="valid_user" class="form-control" '
-                'maxlength="150" readonly required />',
+                '<input type="text" name="username" value="valid_user" '
+                'maxlength="150" readonly="" class="form-control" required="" '
+                'aria-describedby="id_username_helptext" id="id_username">',
                 html=True,
             )
 
@@ -1300,9 +1300,9 @@ class TestLoginChange(TestCase):
             response = self.client.get(self.url_edit_profile)
             self.assertContains(
                 response,
-                '<input type="text" id="id_username" name="username" '
-                'value="%s" class="form-control" '
-                'maxlength="150" readonly required />' % l,
+                '<input type="text" name="username" value="%s" '
+                'maxlength="150" readonly="" class="form-control" required="" '
+                'aria-describedby="id_username_helptext" id="id_username">' % l,
                 html=True,
             )
 
