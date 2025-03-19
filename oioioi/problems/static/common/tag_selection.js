@@ -116,7 +116,7 @@ function init_search_selection(id) {
                 } else if (item.trigger !== 'problem') {
                     // At this point for anything other than a problem we
                     // want to create a search tag
-                    const value = item.value; // IS THIS CHANGE GOOD?
+                    const value = item.value;
 
                     // Only create new search tag if it doesn't exist yet
                     const tag = $("input[name='" + item.prefix + "'][value='" + value + "']");
