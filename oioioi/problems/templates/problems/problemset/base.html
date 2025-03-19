@@ -62,6 +62,7 @@
                 </span>
             </div>
             <div id="tag-row">
+            {% if show_tags %}
             {% with delete_me="this.parentNode.parentNode.remove()" %}
 
                 {% include "problems/problemset/search-tag.html" with input_class="collapse" input_attr="disabled" %}
@@ -79,8 +80,8 @@
                     {% endfor %}
                 </div>
                 {% endfor %}
-
             {% endwith %}
+            {% endif %}
             </div>
         </form>
         {% endif %}
