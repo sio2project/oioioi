@@ -4,6 +4,8 @@ import sys
 
 from oioioi.base.utils.finders import find_executable_path
 
+from pathlib import Path
+
 if sys.version_info < (2, 6):
     raise RuntimeError("OIOIOI needs at least Python 2.6")
 
@@ -14,6 +16,8 @@ from django.contrib.messages import constants as messages
 from django.utils.translation import gettext_lazy as _
 
 import oioioi
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLATION_CONFIG_VERSION = 49
 
@@ -888,3 +892,8 @@ REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
     'anon': '1000/day',
     'user': '1000/hour'
 }
+
+STATICFILES_DIRS = [
+    BASE_DIR / "dist_webpack",
+    BASE_DIR / "node_modules"
+]
