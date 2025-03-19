@@ -53,6 +53,7 @@ class TestAlgorithmTagLabel(TestCase):
             self.assertEqual(response.status_code, 404)
 
 
+@override_settings(PROBLEM_TAGS_VISIBLE=True)
 class TestProblemSearchOrigin(TestCase, AssertContainsOnlyMixin):
     fixtures = ['test_problem_search_origin']
     url = reverse('problemset_main')
@@ -67,7 +68,6 @@ class TestProblemSearchOrigin(TestCase, AssertContainsOnlyMixin):
         '3_pa_2012_r1',
     ]
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_search_origintag(self):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'origin': 'pa'})
@@ -78,7 +78,6 @@ class TestProblemSearchOrigin(TestCase, AssertContainsOnlyMixin):
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, [])
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_search_origininfovalue(self):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'origin': ['pa_r1']})
@@ -89,7 +88,6 @@ class TestProblemSearchOrigin(TestCase, AssertContainsOnlyMixin):
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['3_pa_2011_r1', '3_pa_2012_r1'])
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_search_origininfovalue_invalid(self):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'origin': ['r1']})
@@ -101,7 +99,6 @@ class TestProblemSearchOrigin(TestCase, AssertContainsOnlyMixin):
         response = self.client.get(self.url, {'origin': ['pa_2011_r1']})
         self.assertEqual(response.status_code, 404)
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_search_origininfovalue_multiple(self):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'origin': ['pa_2011', 'pa_r1']})
