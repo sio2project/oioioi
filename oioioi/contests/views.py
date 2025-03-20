@@ -838,3 +838,14 @@ def unarchive_contest(request):
     contest.is_archived = False
     contest.save()
     return redirect('default_contest_view', contest_id=contest.id)
+
+def filter_contests_view(request, filter_value=""):
+    contests = visible_contests(request)
+    contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
+    context = {
+        'contests' : contests,
+        'filter' : filter_value,
+    }  
+    return TemplateResponse(
+        request, 'contests/select_contest.html', context
+    )
