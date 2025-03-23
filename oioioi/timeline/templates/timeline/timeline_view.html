@@ -11,10 +11,11 @@
 
 {% block scripts %}
 {{ block.super }}
-<script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/moment.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/pl.js' %}"></script>
-<script type="text/javascript" src="{% static 'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js' %}"></script>
-<script src="{% static 'timeline.bundle.js' %}"></script>
+<script src="{% static 'bootstrap-datetimepicker-oioioi/moment.min.js' %}"></script>
+<script src="{% static 'bootstrap-datetimepicker-oioioi/pl.js' %}"></script>
+<script src="{% static 'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'moment/moment-timezone-with-data-2012-2022.min.js' %}"></script>
+<script src="{% static 'timeline/timeline.js' %}"></script>
 <script>
     $(function() {
         init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'), '{{ server_timezone }}');
