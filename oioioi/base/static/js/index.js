@@ -1,20 +1,15 @@
 import "bootstrap"
 import "bootstrap-3-typeahead"
 
-// https://github.com/webpack-contrib/expose-loader/issues/188
-import Cookies from "js-cookie"
-window.Cookies = Cookies
+//https://github.com/webpack-contrib/expose-loader/issues/188
+import 'fix.js!=!expose-loader?exposes=Cookies|default!js-cookie';
 
 import "./utils"
 import "./csrf_link_protect"
 import "./language-picker"
 import "./bootstrap-async-collapsible"
 import "./bootstrap-table-responsive-dropdown-fix"
-import "./menu"
-import "./highlight"
+import "./bootstrap-tooltip-setup"
+import "./menu-setup"
+import "./highlight-setup"
 import "./clipboard-setup"
-
-// No idea
-$(function () {
-    $("[data-toggle='tooltip']").tooltip();
-});
