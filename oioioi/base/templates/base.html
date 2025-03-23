@@ -15,8 +15,9 @@
         {% comment %}
         Load jQuery here because inlined scripts in some views depends on it.
         {% endcomment %}
+        <script src="{% static 'jquery.bundle.js' %}"></script>
+
         {% compress js %}
-            <script src="{% static 'jquery.bundle.js' %}"></script>
             {% common_scripts %}
         {% endcompress %}
 
