@@ -21,7 +21,7 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import (
     ProblemInstance,
     ProblemStatementConfig,
-    RankingVisibilityConfig, RegistrationAvailabilityConfig,
+    RankingVisibilityConfig, RegistrationAvailabilityConfig, LimitsVisibilityConfig,
 )
 from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin
 from oioioi.problems.forms import (
@@ -34,7 +34,7 @@ from oioioi.problems.forms import (
     ProblemNameInlineFormSet,
     ProblemSiteForm,
     ProblemStatementConfigForm,
-    RankingVisibilityConfigForm, RegistrationAvailabilityConfigForm,
+    RankingVisibilityConfigForm, RegistrationAvailabilityConfigForm, LimitsVisibilityConfigForm,
 )
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -116,6 +116,35 @@ class RankingVisibilityConfigAdminMixin(object):
 
 
 ContestAdmin.mix_in(RankingVisibilityConfigAdminMixin)
+
+
+class LimitsVisibilityConfigInline(admin.TabularInline):
+    model = LimitsVisibilityConfig
+    extra = 1
+    form = LimitsVisibilityConfigForm
+    category = _("Advanced")
+
+    def has_add_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+
+class LimitsVisibilityConfigAdminMixin(object):
+    """Adds :class:`~oioioi.contests.models.LimitsVisibilityConfig` to an admin
+    panel.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(LimitsVisibilityConfigAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = tuple(self.inlines) + (LimitsVisibilityConfigInline,)
+
+
+ContestAdmin.mix_in(LimitsVisibilityConfigAdminMixin)
 
 
 class RegistrationAvailabilityConfigInline(admin.TabularInline):
