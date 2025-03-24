@@ -793,3 +793,6 @@ def get_problem_statements(request, controller, problem_instances):
         ],
         key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name, p[0].short_name),
     )
+
+def stringify_problems_limits(raw_limits):
+    pass
