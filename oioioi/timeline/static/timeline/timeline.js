@@ -1,4 +1,3 @@
-/*jshint multistr: true */
 $(document).ready(function() {
     window.init_timeline = function(
             lang_code, $timeline_form, server_timezone) {

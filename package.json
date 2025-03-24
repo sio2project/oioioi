@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": "true",
   "scripts": {
-    "lint": "eslint oioioi",
+    "lint": "eslint",
     "build": "webpack --mode production",
     "dev": "webpack --mode development --watch"
   },
   "devDependencies": {
-    "@eslint/js": "^9.22.0",
-    "eslint": "^9.22.0",
+    "@eslint/js": "^9.23.0",
+    "eslint": "^9.23.0",
     "expose-loader": "^5.0.1",
     "globals": "^16.0.0",
     "webpack": "^5.98.0",
