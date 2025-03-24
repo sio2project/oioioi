@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext_noop
+from django.db.models import Min, Max
 
 from oioioi.base.utils import (
     ObjectWithMixins,
@@ -21,8 +22,10 @@ from oioioi.base.utils import (
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.contests.models import (
     Contest,
+    ProblemInstance,
     ProblemStatementConfig,
     RankingVisibilityConfig,
+    LimitsVisibilityConfig,
     Round,
     RoundTimeExtension,
     ScoreReport,
@@ -42,7 +45,9 @@ from oioioi.contests.utils import (
     rounds_times,
     visible_problem_instances,
 )
+from oioioi.newsfeed import default_app_config
 from oioioi.problems.controllers import ProblemController
+from oioioi.programs.models import Test
 
 logger = logging.getLogger(__name__)
 
@@ -586,6 +591,19 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     def default_can_see_statement(self, request_or_context, problem_instance):
         return True
 
+    def can_see_problems_limits(self, request):
+        context = self.make_context(request)
+        lvc = LimitsVisibilityConfig.objects.filter(contest=context.contest)
+        if lvc.exists() and lvc[0].visible == 'YES':
+            return True
+        elif lvc.exits() and lvc[0].visible == 'NO':
+            return False
+        else:
+            return self.default_can_see_problems_limits(request)
+
+    def default_can_see_problems_limits(self, request):
+        return False
+
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Determines if the current user is allowed to submit a solution for
         the given problem.
@@ -640,6 +658,22 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return problem_instance.problem.controller.is_submissions_limit_exceeded(
             request, problem_instance, kind
         )
+
+    def get_problems_limits(self, request):
+        """Returns a dictionary containing data about time and memory limits for a given ProblemInstance:
+            ProblemInstance_ID -> (min_time_limit, max_time_limit, min_memory_limit, max_memory_limit)
+        """
+        instances = ProblemInstance.objects.filter(contest=request.contest).annotate(
+            min_time=Min("test_set__time_limit"),
+            max_time=Max("test_set__time_limit"),
+            min_memory=Min("test_set__memory_limit"),
+            max_memory=Max("test_set__memory_limit")
+        ).values("id", "min_time", "max_time", "min_memory", "max_memory")
+
+        instances_to_limits = {instance['id']: (instance['min_time'], instance['max_time'], instance['min_memory'], instance['max_memory'])
+                      for instance in instances}
+
+        return instances_to_limits
 
     def adjust_submission_form(self, request, form, problem_instance):
         # by default delegate to ProblemController
