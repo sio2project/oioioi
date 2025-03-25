@@ -748,7 +748,7 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         'Prywatne',
         'Zadanko',
         'Żółć',
-        'Znacznik',
+        'Znacznik_zadanie',
         'Algorytm',
         'Trudność',
         'Bajtocja',
