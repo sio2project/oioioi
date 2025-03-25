@@ -378,6 +378,7 @@ class TestProblemStatisticsDisplay(TestCase):
             self._assert_rows_sorted(rows, order_by=i, desc=True)
 
     # Check that the query and the ordering are correctly preserved in links
+    @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_statistics_sorting_with_query(self):
         self.assertTrue(self.client.login(username='test_user'))
 
