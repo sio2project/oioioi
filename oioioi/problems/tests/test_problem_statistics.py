@@ -382,7 +382,7 @@ class TestProblemStatisticsDisplay(TestCase):
     def test_statistics_sorting_with_query(self):
         self.assertTrue(self.client.login(username='test_user'))
 
-        col_no = 3
+        col_no = 4
         q = 'Bbbb'
         order = self.problem_columns[col_no - 1]
         url_main = reverse('problemset_main')
