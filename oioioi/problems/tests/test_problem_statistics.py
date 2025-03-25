@@ -232,9 +232,18 @@ class TestProblemStatisticsSpecialCases(TestCase):
 class TestProblemStatisticsDisplay(TestCase):
     fixtures = ['test_users', 'test_statistics_display']
 
-    problem_columns = [
+    problem_columns_without_tags = [
         'short_name',
         'name',
+        'submitted',
+        'solved_pc',
+        'avg_best_score',
+        'user_score',
+    ]
+    problem_columns_with_tags = [
+        'short_name',
+        'name',
+        'tags',
         'submitted',
         'solved_pc',
         'avg_best_score',
@@ -315,7 +324,7 @@ class TestProblemStatisticsDisplay(TestCase):
     def test_statistics_sorting(self):
         self.assertTrue(self.client.login(username='test_user'))
 
-        for i, column in enumerate(self.problem_columns):
+        for i, column in enumerate(self.problem_columns_without_tags):
             url_main = reverse('problemset_main')
             response = self.client.get(url_main, {'order_by': column})
             self.assertEqual(response.status_code, 200)
@@ -344,7 +353,7 @@ class TestProblemStatisticsDisplay(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        for column in self.problem_columns[2:]:
+        for column in self.problem_columns_without_tags[2:]:
             url_main = reverse('problemset_main')
             response = self.client.get(url_main, {'order_by': column})
             self.assertEqual(response.status_code, 200)
@@ -363,7 +372,7 @@ class TestProblemStatisticsDisplay(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        for i, column in enumerate(self.problem_columns):
+        for i, column in enumerate(self.problem_columns_without_tags):
             url_main = reverse('problemset_main')
             response = self.client.get(url_main, {'order_by': column})
             self.assertEqual(response.status_code, 200)
@@ -384,7 +393,7 @@ class TestProblemStatisticsDisplay(TestCase):
 
         col_no = 4
         q = 'Bbbb'
-        order = self.problem_columns[col_no - 1]
+        order = self.problem_columns_with_tags[col_no - 1]
         url_main = reverse('problemset_main')
 
         response = self.client.get(
