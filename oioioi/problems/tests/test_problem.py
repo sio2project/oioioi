@@ -748,7 +748,7 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         'Prywatne',
         'Zadanko',
         'Żółć',
-        'Znacznik_zadanie',
+        'Znaczn1k',
         'Algorytm',
         'Trudność',
         'Bajtocja',
@@ -798,7 +798,7 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         response = self.client.get(self.url, {'q': 'a'})
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(
-            response, ('Zadanko', 'Znacznik', 'Algorytm', 'Byteland')
+            response, ('Zadanko', 'Znaczn1k', 'Algorytm', 'Byteland')
         )
 
     def _test_search_name_localized(self, queries, exp_names):
@@ -834,7 +834,7 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': '1'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko', 'Żółć', 'Znacznik'))
+        self.assert_contains_only(response, ('Zadanko', 'Żółć', 'Znaczn1k'))
 
     def test_search_tags_basic(self):
         self.client.get('/c/c/')

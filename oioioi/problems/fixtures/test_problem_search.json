@@ -33,8 +33,8 @@
     "pk": 3,
     "model": "problems.problem",
     "fields": {
-      "legacy_name": "Znacznik_zadanie",
-      "ascii_name": "Znacznik_zadanie",
+      "legacy_name": "Znaczn1k",
+      "ascii_name": "Znaczn1k",
       "short_name": "zna1",
       "visibility": "PU"
     }
