@@ -197,7 +197,7 @@ def problems_list_view(request):
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
 
-    problems_limits = None
+    problems_limits = {}
     if show_problems_limits:
         problems_limits = stringify_problems_limits(controller.get_problems_limits(request))
 
