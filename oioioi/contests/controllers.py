@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext_noop
-from django.db.models import Min, Max
+from django.db.models import Min, Max, Q
 
 from oioioi.base.utils import (
     ObjectWithMixins,
@@ -661,17 +661,55 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def get_problems_limits(self, request):
         """Returns a dictionary containing data about time and memory limits for a given ProblemInstance:
-            ProblemInstance_ID -> (min_time_limit, max_time_limit, min_memory_limit, max_memory_limit)
+            ProblemInstanceID -> {
+                'default':  (min_time, max_time, min_memory, max_memory),
+                'cpp':      (min_time, max_time, min_memory, max_memory),
+                'py':       (min_time, max_time, min_memory, max_memory)
+            }
+            Corresponding tuples are None if no limits exist
         """
         instances = ProblemInstance.objects.filter(contest=request.contest).annotate(
-            min_time=Min("test_set__time_limit"),
-            max_time=Max("test_set__time_limit"),
-            min_memory=Min("test_set__memory_limit"),
-            max_memory=Max("test_set__memory_limit")
-        ).values("id", "min_time", "max_time", "min_memory", "max_memory")
+            min_time=Min('test_set__time_limit', filter=Q(test_set__is_active=True)),
+            max_time=Max('test_set__time_limit', filter=Q(test_set__is_active=True)),
+            min_memory=Min('test_set__memory_limit', filter=Q(test_set__is_active=True)),
+            max_memory=Max('test_set__memory_limit', filter=Q(test_set__is_active=True)),
+            cpp_min_time=Min('test_set__languageoverridefortest_set__time_limit',
+                             filter=Q(test_set__languageoverridefortest_set__language='cpp') & Q(test_set__is_active=True)),
+            cpp_max_time=Max('test_set__languageoverridefortest_set__time_limit',
+                             filter=Q(test_set__languageoverridefortest_set__language='cpp') & Q(test_set__is_active=True)),
+            cpp_min_memory=Min('test_set__languageoverridefortest_set__memory_limit',
+                               filter=Q(test_set__languageoverridefortest_set__language='cpp') & Q(test_set__is_active=True)),
+            cpp_max_memory=Max('test_set__languageoverridefortest_set__memory_limit',
+                               filter=Q(test_set__languageoverridefortest_set__language='cpp') & Q(test_set__is_active=True)),
+            py_min_time=Min('test_set__languageoverridefortest_set__time_limit',
+                            filter=Q(test_set__languageoverridefortest_set__language='py') & Q(test_set__is_active=True)),
+            py_max_time=Max('test_set__languageoverridefortest_set__time_limit',
+                            filter=Q(test_set__languageoverridefortest_set__language='py') & Q(test_set__is_active=True)),
+            py_min_memory=Min('test_set__languageoverridefortest_set__memory_limit',
+                              filter=Q(test_set__languageoverridefortest_set__language='py') & Q(test_set__is_active=True)),
+            py_max_memory=Max('test_set__languageoverridefortest_set__memory_limit',
+                              filter=Q(test_set__languageoverridefortest_set__language='py') & Q(test_set__is_active=True)),
+        ).values(
+            'id',
+            'min_time', 'max_time', 'min_memory', 'max_memory',
+            'cpp_min_time', 'cpp_max_time', 'cpp_min_memory', 'cpp_max_memory',
+            'py_min_time', 'py_max_time', 'py_min_memory', 'py_max_memory'
+        )
 
-        instances_to_limits = {instance['id']: (instance['min_time'], instance['max_time'], instance['min_memory'], instance['max_memory'])
-                      for instance in instances}
+        instances_to_limits = {
+            instance["id"]: {
+                'default':
+                    (instance["min_time"], instance["max_time"], instance["min_memory"], instance["max_memory"])
+                    if instance['cpp_min_time'] is not None else None,
+                'cpp':
+                    (instance["cpp_min_time"], instance["cpp_max_time"], instance["cpp_min_memory"], instance["cpp_max_memory"])
+                    if instance['cpp_min_time'] is not None else None,
+                'py':
+                    (instance["py_min_time"], instance["py_max_time"], instance["py_min_memory"], instance["py_max_memory"])
+                    if instance['py_min_time'] is not None else None
+            }
+            for instance in instances
+        }
 
         return instances_to_limits
 
