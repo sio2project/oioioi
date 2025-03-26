@@ -105,7 +105,7 @@ class ProblemSiteForm(forms.ModelForm):
 
 class ProblemsetSourceForm(forms.Form):
     url_key = forms.CharField(label=_("Enter problem's secret key"),
-                              help_text=("Please note that the time and memory limits will be copied\
+                              help_text=_("Please note that the time and memory limits will be copied\
                                           from the source problem. If they have been overriden\
                                           in a specific contest, these settings will not be copied.\
                                           If you want to copy the limits from a specific contest,\
