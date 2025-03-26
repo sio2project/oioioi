@@ -1,3 +1,5 @@
+{% load l10n %}
+
 {% with id=problems.div_id %}
 {% if value or id == "problemgroups" %}
 <div class="problemgroup-heading">
@@ -14,7 +16,7 @@
     {% endif %}
         {% if parent_id == "problemgroups" and problems.attempted %}
         <span class="percentage-info" >
-            {{ "[" }}{{ problems.progress_percentage_rounded }}{{ "%]" }}
+            {{ "[" }}{{ problems.progress_percentage_rounded|unlocalize }}{{ "%]" }}
         </span>
         {% endif %}
 </div>

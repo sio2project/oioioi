@@ -10,11 +10,9 @@ from oioioi.questions.models import NewsMessage, AddQuestionMessage
 
 # taken from django.contrib.admin.options.ModelAdmin
 def log_addition(request, object):
-    LogEntry.objects.log_action(
+    LogEntry.objects.log_actions(
         user_id=request.user.pk,
-        content_type_id=ContentType.objects.get_for_model(object).pk,
-        object_id=object.pk,
-        object_repr=force_str(object),
+        queryset=(object,),
         action_flag=ADDITION,
     )
 
