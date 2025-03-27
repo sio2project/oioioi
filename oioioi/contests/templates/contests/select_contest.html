@@ -42,7 +42,6 @@
             </thead>
             <tbody>
                 {% for contest in contests %}
-                    {% if filter == null or filter == "" or contest.school_year == filter or contest.name == filter or contest.id == filter%}
                     <tr>
                         <td>{{ contest.id }}</td>
                         <td>
@@ -55,7 +54,6 @@
                             {% endif %}
                         </td>
                     </tr>
-                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>

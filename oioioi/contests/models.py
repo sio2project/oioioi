@@ -109,7 +109,7 @@ class Contest(models.Model):
         default=False
     )
     school_year = models.CharField(
-        max_length=255, verbose_name=_("school year"),  default=""
+        max_length=10, verbose_name=_("school year"),  default=""
     )
 
     # Part of szkopul backporting.
