@@ -193,6 +193,11 @@ neutral_patterns = [
         views.reattach_problem_confirm_view,
         name='reattach_problem_confirm',
     ),
+    re_path(
+        r'^contest/query/(?P<filter_value>.+)/$', 
+        views.filter_contests_view, 
+        name='filter_contests',
+    ),
 ]
 
 if settings.USE_API:

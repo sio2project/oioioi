@@ -838,3 +838,19 @@ def unarchive_contest(request):
     contest.is_archived = False
     contest.save()
     return redirect('default_contest_view', contest_id=contest.id)
+
+def filter_contests_view(request, filter_value=""):
+    contests = visible_contests(request)
+    contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
+    filtered_contests = []
+    for contest in contests:
+        if contest.school_year == filter_value or contest.name.find(filter_value) != -1 or contest.id.find(filter_value) != -1:
+            filtered_contests.append(contest)
+    
+    context = {
+        'contests' : filtered_contests,
+        'filter' : filter_value,
+    }  
+    return TemplateResponse(
+        request, 'contests/select_contest.html', context
+    )
