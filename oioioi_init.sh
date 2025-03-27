@@ -8,9 +8,8 @@ if [ "$1" == "--dev" ]; then
     ./manage.py migrate 2>&1 | tee /sio2/deployment/logs/migrate.log
     ./manage.py loaddata ../oioioi/extra/dbdata/default_admin.json
 
-    # make sure that the development workspace also has the js built
-    npm --prefix /sio2/oioioi install 
-    npm --prefix /sio2/oioioi run build
+    # make sure that the development workspace also has the js dependencies
+    npm --prefix /sio2/oioioi ci 
 fi
 
 echo "Init Finished"

@@ -13,4 +13,7 @@ module.exports = {
   externals: {
     jquery: 'jQuery',
   },
+  stats: {
+    modules: false,
+  },
 };

@@ -116,7 +116,7 @@ Developer environment can be easily set up by running::
 
     ./easy_toolbox.py build
     ./easy_toolbox.py up
-    # wait for the scripts to finish migration (up to one minute)
+    # wait for the scripts to finish migrations and for node modules to install (up to one minute)
     ./easy_toolbox.py run
 
 For system requirements check `easy_toolbox.py`.

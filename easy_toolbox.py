@@ -27,7 +27,8 @@ RAW_COMMANDS = [
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop and remove all SIO2 containers", "down"),
     ("wipe", "Stop all SIO2 containers and DESTROY all data", "down -v", True),
-    ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
+    ("run", "Run django server and webpack", 
+     '{exec} web npx -y concurrently -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"'),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
     ("exec", "Run a command in the web container.", "{exec} web {extra_args}"),
@@ -42,7 +43,7 @@ RAW_COMMANDS = [
      "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
      '{exec} web bash -c "echo CAPTCHA_TEST_MODE=True >> settings.py"'),
-    ("webpack", "Run webpack in watch mode.", "{exec} web npm --prefix ../oioioi run dev"),
+    ("npm", "Run npm command.", "{exec} web npm --prefix ../oioioi {extra_args}"),
     ("eslint", "Run javascript linter.", "{exec} web npm --prefix ../oioioi run lint"),
 ]
 

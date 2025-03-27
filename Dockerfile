@@ -71,7 +71,7 @@ COPY --chown=oioioi:oioioi . /sio2/oioioi
 RUN oioioi-create-config /sio2/deployment
 
 # Install nodejs dependencies
-RUN npm install
+RUN npm ci
 RUN npm run build
 
 WORKDIR /sio2/deployment

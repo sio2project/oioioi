@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint",
     "build": "webpack --mode production",
-    "dev": "webpack --mode development --watch"
+    "watch": "webpack --mode development --watch"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
