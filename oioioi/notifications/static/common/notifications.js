@@ -1,4 +1,4 @@
-let notificationsClient; // jshint ignore:line
+let notificationsClient;
 
 function TranslationClient() {
     this.translationQueue = {};
