@@ -1,0 +1,159 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "legacy_name": "24_s2 1",
+      "short_name": "24_s2 1",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "legacy_name": "24_s2 2",
+      "short_name": "24_s2 2",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "zad1",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 2,
+      "round": 1,
+      "short_name": "zad2",
+      "contest": "c"
+    }
+  },
+
+
+  {
+    "model": "programs.test",
+    "pk": 1,
+    "fields": {
+      "problem_instance": 1,
+      "name": "test1",
+      "kind": "NORMAL",
+      "group": "g1",
+      "time_limit": 1000,
+      "memory_limit": 256000
+    }
+  },
+  {
+    "model": "programs.test",
+    "pk": 2,
+    "fields": {
+      "problem_instance": 1,
+      "name": "test2",
+      "kind": "NORMAL",
+      "group": "g2",
+      "time_limit": 2000,
+      "memory_limit": 512000
+    }
+  },
+
+
+  {
+    "model": "programs.test",
+    "pk": 3,
+    "fields": {
+      "problem_instance": 2,
+      "name": "test3",
+      "kind": "NORMAL",
+      "group": "g1",
+      "time_limit": 1000,
+      "memory_limit": 128000
+    }
+  },
+  {
+    "model": "programs.test",
+    "pk": 4,
+    "fields": {
+      "problem_instance": 2,
+      "name": "test4",
+      "kind": "NORMAL",
+      "group": "g2",
+      "time_limit": 2000,
+      "memory_limit": 256000
+    }
+  },
+  {
+    "model": "programs.test",
+    "pk": 5,
+    "fields": {
+      "problem_instance": 2,
+      "name": "test5",
+      "kind": "NORMAL",
+      "group": "g3",
+      "time_limit": 3000,
+      "memory_limit": 512000
+    }
+  },
+  {
+    "model": "programs.test",
+    "pk": 6,
+    "fields": {
+      "problem_instance": 2,
+      "name": "test6",
+      "kind": "NORMAL",
+      "group": "g4",
+      "time_limit": 4000,
+      "memory_limit": 1024000
+    }
+  },
+
+
+  {
+    "model": "programs.languageoverridefortest",
+    "pk": 1,
+    "fields": {
+      "test": 3,
+      "time_limit": 500,
+      "memory_limit": 64000,
+      "language": "cpp"
+    }
+  },
+  {
+    "model": "programs.languageoverridefortest",
+    "pk": 2,
+    "fields": {
+      "test": 4,
+      "time_limit": 1000,
+      "memory_limit": 128000,
+      "language": "cpp"
+    }
+  },
+
+  {
+    "model": "programs.languageoverridefortest",
+    "pk": 3,
+    "fields": {
+      "test": 5,
+      "time_limit": 5000,
+      "memory_limit": 1024000,
+      "language": "py"
+    }
+  },
+  {
+    "model": "programs.languageoverridefortest",
+    "pk": 4,
+    "fields": {
+      "test": 6,
+      "time_limit": 6000,
+      "memory_limit": 2048000,
+      "language": "py"
+    }
+  }
+]
