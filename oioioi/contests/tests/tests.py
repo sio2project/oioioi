@@ -568,6 +568,59 @@ class TestContestController(TestCase):
             )
 
 
+class TestProblemLimitsFetching(TestCase):
+    fixtures = [
+        'test_contest',
+        'test_program_tests_and_languageoverrides'
+    ]
+
+    def test_problems_limits_for_contest_view(self):
+        contest = Contest.objects.get()
+
+        class FakeRequest(object):
+            def __init__(self, timestamp, contest):
+                self.timestamp = timestamp
+                self.user = AnonymousUser()
+                self.contest = contest
+
+        limits = contest.controller.get_problems_limits(
+            FakeRequest(datetime(2011, 1, 1, tzinfo=timezone.utc), contest)
+        )
+
+        # Test defaults
+        self.assertEqual(limits[1]['default'][0], 1000)
+        self.assertEqual(limits[1]['default'][1], 2000)
+        self.assertEqual(limits[1]['default'][2], 256000)
+        self.assertEqual(limits[1]['default'][3], 512000)
+
+        self.assertEqual(limits[2]['default'][0], 1000)
+        self.assertEqual(limits[2]['default'][1], 4000)
+        self.assertEqual(limits[2]['default'][2], 128000)
+        self.assertEqual(limits[2]['default'][3], 1024000)
+
+        # Test cpp
+        self.assertEqual(limits[1]['cpp'][0], 1000)
+        self.assertEqual(limits[1]['cpp'][1], 2000)
+        self.assertEqual(limits[1]['cpp'][2], 256000)
+        self.assertEqual(limits[1]['cpp'][3], 512000)
+
+        self.assertEqual(limits[2]['cpp'][0], 500)
+        self.assertEqual(limits[2]['cpp'][1], 4000)
+        self.assertEqual(limits[2]['cpp'][2], 64000)
+        self.assertEqual(limits[2]['cpp'][3], 1024000)
+
+        # Test python
+        self.assertEqual(limits[1]['py'][0], 1000)
+        self.assertEqual(limits[1]['py'][1], 2000)
+        self.assertEqual(limits[1]['py'][2], 256000)
+        self.assertEqual(limits[1]['py'][3], 512000)
+
+        self.assertEqual(limits[2]['py'][0], 1000)
+        self.assertEqual(limits[2]['py'][1], 6000)
+        self.assertEqual(limits[2]['py'][2], 128000)
+        self.assertEqual(limits[2]['py'][3], 2048000)
+
+
 class TestContestViews(TestCase):
     fixtures = [
         'test_users',

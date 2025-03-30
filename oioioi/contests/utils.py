@@ -795,4 +795,8 @@ def get_problem_statements(request, controller, problem_instances):
     )
 
 def stringify_problems_limits(raw_limits):
+    """Returns human readable ready to render version of limits for given problem instances.
+    """
+    for pi_pk, pi_limits in raw_limits.values():
+        pass
     pass
