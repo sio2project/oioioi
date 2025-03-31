@@ -140,5 +140,27 @@
                     src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML">
             </script>
        {% endblock %}
+    
+   <script src="{{ STATIC_URL }}js/darkreader.min.js"></script>
+   <script>
+       document.addEventListener("DOMContentLoaded", function () {
+           const toggleButton = document.getElementById("dark-mode-toggle");
+
+           if (localStorage.getItem("dark-mode") === "enabled") {
+               DarkReader.enable();
+           }
+
+           toggleButton.addEventListener("click", function () {
+               if (DarkReader.isEnabled()) {
+                   DarkReader.disable();
+                   localStorage.setItem("dark-mode", "disabled");
+               } else {
+                   DarkReader.enable();
+                   localStorage.setItem("dark-mode", "enabled");
+               }
+           });
+       });
+   </script>
+    
     </body>
 </html>

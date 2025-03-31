@@ -1,15 +1,20 @@
 {% load i18n all_with_prefix %}
 <footer class="footer container-fluid">
-  <span class="text-muted">
-    <!--
+  <div class="footer-content">
+    <span class="text-muted">
+<!--
         Please make sure that the following text is visible. We are glad that
         you are using SIO2 and we simply want the other people to learn about
         this system, too. Thank you.
     -->
-    {% blocktrans trimmed %}
-      Powered by <a href="https://www.github.com/sio2project/oioioi">OIOIOI</a>,
-      from the <a href="https://github.com/sio2project">SIO2 Project</a>.
-    {% endblocktrans %}
-  </span>
+      {% blocktrans trimmed %}
+        Powered by <a href="https://www.github.com/sio2project/oioioi">OIOIOI</a>,
+        from the <a href="https://github.com/sio2project">SIO2 Project</a>.
+      {% endblocktrans %}
+    </span>
+  </div>
+  <input type="checkbox" id="dark-mode-toggle">
   {% all_with_prefix extra_footer_ %}
 </footer>
+
+
