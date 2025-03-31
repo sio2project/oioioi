@@ -19,3 +19,47 @@ body {
   height: $oioioi-footer-height;
   justify-content: center;
 }
+
+.footer-content {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#dark-mode-toggle {
+  margin-left: auto;
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 60px;
+  height: 30px;
+  border-radius: 30px;
+  background-color: #a8adad;
+  transition: all 0.5s ease-in;
+  cursor: pointer;
+  z-index: 1;
+}
+
+#dark-mode-toggle::before {
+  content: "";
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #EEE;
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  transition: all 0.5s ease-in;
+}
+
+#dark-mode-toggle:checked {
+  background: #a8adad;
+}
+
+#dark-mode-toggle:checked::before {
+  background: #333;
+  left: 32px;
+}
+
