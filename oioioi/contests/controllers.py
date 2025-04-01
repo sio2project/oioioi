@@ -666,7 +666,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 'cpp':      (min_time, max_time, min_memory, max_memory),
                 'py':       (min_time, max_time, min_memory, max_memory)
             }
-            Corresponding tuples are None if no limits exist
+            Corresponding dictionary is None if no limits exist
         """
 
         # split it to two queries
@@ -712,7 +712,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 'test__languageoverridefortest__memory_limit',
                 filter=Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
             ),
-        ).annotate(
+
             # non-overridden test limits in cpp
             cpp_min_time_non_overridden=Min(
                 'test__time_limit',
@@ -775,12 +775,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                         min(filter(None, [instance['py_min_memory'], instance['py_min_memory_non_overridden']])),
                         max(filter(None, [instance['py_max_memory'], instance['py_max_memory_non_overridden']]))
                     ),
-                }
-            else:
-                instances_to_limits[instance['id']] =  {
-                    'default': None,
-                    'cpp': None,
-                    'py': None
                 }
 
         return instances_to_limits
