@@ -94,7 +94,7 @@ LOCALE_PATHS = [
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-DATETIME_FORMAT = 'Y-m-d H:i:s'
+FORMAT_MODULE_PATH = 'oioioi.formats'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
