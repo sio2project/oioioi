@@ -59,6 +59,7 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
     rounds_times,
+    stringify_problems_limits,
 )
 from oioioi.dashboard.contest_dashboard import unregister_contest_dashboard_view
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -4864,3 +4865,48 @@ class TestContestListFiltering(TestCase):
         self.assertNotContains(response, self.c.name)
         self.assertContains(response, self.c1.name)
         self.assertContains(response, self.c2.name)
+
+
+class TestUtils(TestCase):
+
+    def test_stringify_limits(self):
+        raw_limits = {
+            '1': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (1000, 2000, 1000, 2000),
+                'py': (1000, 2000, 1000, 2000),
+            },
+            '2': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (500, 2000, 500, 1000),
+                'py': (1000, 3000, 1000, 3000),
+            },
+            '3': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (500, 2000, 500, 1000),
+                'py': (1000, 2000, 1000, 2000),
+            }
+        }
+
+        stringified = stringify_problems_limits(raw_limits)
+        print(stringified)
+        self.assertEqual(len(stringified['1']), 1)
+        self.assertEqual(stringified['1'][0][0], '')
+        self.assertEqual(stringified['1'][0][1], '1-2 s')
+        # self.assertEqual(stringified['1'][0][2], '1-2 MB')
+
+        self.assertEqual(len(stringified['2']), 2)
+        self.assertEqual(stringified['2'][0][0], 'C++:')
+        self.assertEqual(stringified['2'][0][1], '0.5-2 s')
+        # self.assertEqual(stringified['2'][0][2], '0.51-1 MB')
+        self.assertEqual(stringified['2'][1][0], 'Python:')
+        self.assertEqual(stringified['2'][1][1], '1-3 s')
+        # self.assertEqual(stringified['2'][1][2], '1-3.1 MB')
+
+        self.assertEqual(len(stringified['2']), 2)
+        self.assertEqual(stringified['2'][0][0], 'Default:')
+        self.assertEqual(stringified['2'][0][1], '1-2 s')
+        # self.assertEqual(stringified['2'][0][2], '1-2 MB')
+        self.assertEqual(stringified['2'][1][0], 'C++:')
+        self.assertEqual(stringified['2'][1][1], '0.5-2 s')
+        # self.assertEqual(stringified['2'][1][2], '0.51-1 MB')

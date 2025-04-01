@@ -795,8 +795,69 @@ def get_problem_statements(request, controller, problem_instances):
     )
 
 def stringify_problems_limits(raw_limits):
-    """Returns human readable ready to render version of limits for given problem instances.
+    """Stringifies the time and memory limits for a given set of problem instances.
+
+    This function processes a dictionary of problem instances (raw_limits), where each problem instance
+    contains limits for default, C++, and Python. The function then formats these limits into
+    human-readable strings based on the following logic:
+        - If both C++ and Python limits are the same as the default, only the default limits are shown.
+        - Else if both limits for C++ or Python differ from the default limits, those limits are formatted separately.
+        - Else if one of language's limits differ, the default and the differing language limits are shown.
+
+    Args:
+        raw_limits (dict): A dictionary of problem instances, where each key is the problem instance ID and
+        each value is another dictionary containing the following keys:
+        - 'default': A tuple (min_time, max_time, min_memory, max_memory) for the default limits.
+        - 'cpp': A tuple (min_time, max_time, min_memory, max_memory) for C++ language.
+        - 'py': A tuple (min_time, max_time, min_memory, max_memory) for Python language.
+
+    Returns:
+        dict: A dictionary of formatted limits, where each key is the problem instance ID and each value is
+              a tuple with the following format:
+              - For default-only limits: (('', time_limit, memory_limit),)
+              - For limits with both languages: (('C++:', cpp_time, cpp_memory), ('Python:', py_time, py_memory))
+              - For mixed limits (one language differs): (('Default:', time_limit, memory_limit), language_limits)
     """
-    for pi_pk, pi_limits in raw_limits.values():
-        pass
-    pass
+    def KiB_to_MB(KiBs):
+        return KiBs * 1024 / 1000000
+
+    def format_limits(pi_limits):
+        if pi_limits[0] == pi_limits[1]:  # time does not vary
+            time_limit = f'{pi_limits[0] / 1000:.2g} s'
+        else:
+            time_limit = f'{pi_limits[0] / 1000:.2g}-{pi_limits[1] / 1000:.2g} s'
+
+        if pi_limits[2] == pi_limits[3]:  # memory does not vary
+            memory_limit = f'{KiB_to_MB(pi_limits[2]):.2g} MB'
+        else:
+            memory_limit = f'{KiB_to_MB(pi_limits[2]):.2g}-{KiB_to_MB(pi_limits[3]):.2g} MB'
+
+        return time_limit, memory_limit
+
+    stringified = {}
+
+    for pi_pk, pi_limits in raw_limits.items():
+        if all(pi_limits[lang] == pi_limits['default'] for lang in ['cpp', 'py']): # language limits same as default
+            time_limit, memory_limit = format_limits(pi_limits['default'])
+            stringified[pi_pk] = (('', time_limit, memory_limit),)
+
+        elif all(pi_limits[lang] != pi_limits['default'] for lang in ['cpp', 'py']): # both languages differ
+            cpp_time, cpp_memory = format_limits(pi_limits['cpp'])
+            py_time, py_memory = format_limits(pi_limits['py'])
+            stringified[pi_pk] = (
+                ('C++:', cpp_time, cpp_memory),
+                ('Python:', py_time, py_memory)
+            )
+
+        else: # one of languages differ
+            if pi_limits['cpp'] != pi_limits['default']:
+                language_limits = ('C++:', *format_limits(pi_limits['cpp']))
+            else:
+                language_limits = ('Python:', *format_limits(pi_limits['py']))
+
+            stringified[pi_pk] = (
+                ('Default:', *format_limits(pi_limits['default'])),
+                language_limits
+            )
+
+    return stringified
