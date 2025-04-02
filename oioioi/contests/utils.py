@@ -856,7 +856,7 @@ def stringify_problems_limits(raw_limits):
                 language_limits = ('Python:', *format_limits(pi_limits['py']))
 
             stringified[pi_pk] = (
-                ('Default:', *format_limits(pi_limits['default'])),
+                (_('Default') + ':', *format_limits(pi_limits['default'])),
                 language_limits
             )
 

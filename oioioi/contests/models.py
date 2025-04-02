@@ -366,15 +366,15 @@ class LimitsVisibilityConfig(models.Model):
     visible = EnumField(
         limits_visibility_options,
         default='NO',
-        verbose_name=_("limits visibility"), # TODO add the translation
+        verbose_name=_("limits visibility"),
         help_text=_(
             "Determines whether participants can see problems' time and memory limits"
         ),
     )
 
     class Meta(object):
-        verbose_name = _("limits visibility config") # TODO add the translation
-        verbose_name_plural = _("limits visibility configs") # TODO add the translation
+        verbose_name = _("limits visibility config")
+        verbose_name_plural = _("limits visibility configs")
 
 
 registration_availability_options = EnumRegistry()

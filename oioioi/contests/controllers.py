@@ -669,7 +669,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             Corresponding dictionary is None if no limits exist
         """
 
-        # split it to two queries
         instances = ProblemInstance.objects.filter(contest=request.contest).annotate(
             # default limits
             min_time=Min('test__time_limit', filter=Q(test__is_active=True)),
