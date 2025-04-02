@@ -44,6 +44,7 @@ from oioioi.contests.utils import (
     last_break_between_rounds,
     rounds_times,
     visible_problem_instances,
+    process_instances_to_limits,
 )
 from oioioi.newsfeed import default_app_config
 from oioioi.problems.controllers import ProblemController
@@ -756,27 +757,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             'py_min_time_non_overridden', 'py_max_time_non_overridden', 'py_min_memory_non_overridden', 'py_max_memory_non_overridden'
         )
 
-        instances_to_limits = {}
-
-        for instance in instances:
-            if instance['min_time'] is not None:
-                instances_to_limits[instance['id']] = {
-                    'default': (instance['min_time'], instance['max_time'], instance['min_memory'], instance['max_memory']),
-                    'cpp': (
-                        min(filter(None, [instance['cpp_min_time'], instance['cpp_min_time_non_overridden']])),
-                        max(filter(None, [instance['cpp_max_time'], instance['cpp_max_time_non_overridden']])),
-                        min(filter(None, [instance['cpp_min_memory'], instance['cpp_min_memory_non_overridden']])),
-                        max(filter(None, [instance['cpp_max_memory'], instance['cpp_max_memory_non_overridden']]))
-                    ),
-                    'py': (
-                        min(filter(None, [instance['py_min_time'], instance['py_min_time_non_overridden']])),
-                        max(filter(None, [instance['py_max_time'], instance['py_max_time_non_overridden']])),
-                        min(filter(None, [instance['py_min_memory'], instance['py_min_memory_non_overridden']])),
-                        max(filter(None, [instance['py_max_memory'], instance['py_max_memory_non_overridden']]))
-                    ),
-                }
-
-        return instances_to_limits
+        return process_instances_to_limits(instances)
 
     def adjust_submission_form(self, request, form, problem_instance):
         # by default delegate to ProblemController
