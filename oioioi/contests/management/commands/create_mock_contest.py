@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import random
+import re
 
 from django.core.management.base import BaseCommand
 from django.db.models import Q
@@ -24,10 +25,26 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        levels = [1, 50, 3, 3]
+        def get_unique_field_value(model_class, field_name, base_value):
+            regex_pattern = base_value + r"(\d+)"
+
+            filter_kwargs = {f"{field_name}__regex": f"^{regex_pattern}"}
+
+            existing_vals = model_class.objects.filter(**filter_kwargs).values_list(field_name, flat=True)
+
+            unused = 0
+            for value in existing_vals:
+                num = int(re.search(regex_pattern, value).group(1))
+                unused = max(unused, num + 1)
+
+            return base_value + str(unused)
+
+        levels = [1, 3, 3, 3]
         problems_per_leaf = 3
         problems = []
-        ot = OriginTag(name="olympiad7")
+
+        ot_name = get_unique_field_value(OriginTag, 'name', 'olympiad')
+        ot = OriginTag(name=ot_name)
         ot.save()
         
         oics = []
@@ -52,7 +69,6 @@ class Command(BaseCommand):
                     subname = '%s_%d' % (name, j)
                     subproblems = f(i+1, subname)
                     problems += subproblems
-                    print(name, subname, i)
                     oiv = OriginInfoValue(
                         value = subname,
                         parent_tag = ot,
@@ -65,6 +81,3 @@ class Command(BaseCommand):
                 return problems
 
         probs = f(0, '')
-        print(OriginTag.objects.all())
-        print(OriginInfoCategory.objects.all())
-        print(OriginInfoValue.objects.all())
