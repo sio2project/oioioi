@@ -263,7 +263,19 @@ def filter_problems_by_query(problems, datadict):
         problems = problems.filter(pk__in=problems_matching_query)
     if algorithm_tags:
         if settings.PROBLEM_TAGS_VISIBLE and 'include_proposals' in datadict:
-            pass # TODO: implement this
+            direct_match_problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+
+            problem_list = list(problems)
+            proposal_match_problem_ids = []
+            for problem in problem_list:
+                for proposal in problem.top_tag_proposals:
+                    if proposal.tag.name in algorithm_tags:
+                        proposal_match_problem_ids.append(problem.id)
+                        break
+
+            proposal_match_problems = problems.filter(id__in=proposal_match_problem_ids)
+
+            problems = (direct_match_problems | proposal_match_problems).distinct()
         else:
             problems = problems.filter(algorithmtag__name__in=algorithm_tags)
     if difficulty_tags:
