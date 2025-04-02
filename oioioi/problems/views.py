@@ -81,6 +81,7 @@ from oioioi.problems.problem_site import (
     problem_site_tab_registry,
 )
 from oioioi.problems.problem_sources import problem_sources
+from oioioi.problems.templatetags.tag import prefetch_top_tag_proposals
 from oioioi.problems.utils import (
     can_add_to_problemset,
     can_admin_instance_of_problem,
@@ -251,16 +252,15 @@ def _get_problems_by_query(query):
     return filtered_problems.distinct()
 
 
-def search_problems_in_problemset(datadict):
+def filter_problems_by_query(problems, datadict):
     query = datadict.get('q', '')
     algorithm_tags = datadict.getlist('algorithm')
     difficulty_tags = datadict.getlist('difficulty')
     origin_tags = datadict.getlist('origin')
 
-    problems = Problem.objects.all()
-
     if query:
-        problems = _get_problems_by_query(query)
+        problems_matching_query = _get_problems_by_query(query)
+        problems = problems.filter(pk__in=problems_matching_query)
     if algorithm_tags:
         if settings.PROBLEM_TAGS_VISIBLE and 'include_proposals' in datadict:
             pass # TODO: implement this
@@ -271,7 +271,7 @@ def search_problems_in_problemset(datadict):
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
 
-    return problems
+    return None
 
 
 def generate_problemset_tabs(request):
@@ -308,10 +308,13 @@ def generate_problemset_tabs(request):
 
 
 def problemset_get_problems(request):
+    problems = Problem.objects.all()
+
     if settings.PROBLEM_TAGS_VISIBLE:
-        problems = search_problems_in_problemset(request.GET)
-    else:
-        problems = Problem.objects.all()
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET:
+            prefetch_top_tag_proposals(problems)
+
+        filter_problems_by_query(problems, request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
         # We annotate all of the statistics to assure that the display
