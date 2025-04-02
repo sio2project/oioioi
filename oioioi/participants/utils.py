@@ -7,6 +7,7 @@ from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
+from oioioi.contests.models import RegistrationStatus
 
 
 def is_contest_with_participants(contest):
@@ -54,7 +55,9 @@ def can_register(request):
     if get_participant(request) is not None:
         return False
     rcontroller = request.contest.controller.registration_controller()
-    return rcontroller.can_register(request)
+    #todo: needs adding Registration_Status to all type of contest after this delete can_register
+    #return rcontroller.registration_status(request) == RegistrationStatus.OPEN
+    return rcontroller.can_register()
 
 
 @make_request_condition

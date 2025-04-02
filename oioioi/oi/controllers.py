@@ -68,9 +68,12 @@ class OIRegistrationController(ParticipantsController):
 
     def registration_view(self, request):
 
+        #make one html - easy for latter
         registration_status = self.get_registration_status(request)
         if registration_status == RegistrationStatus.NOT_OPEN_YET:
             return TemplateResponse(request, 'contests/registration_not_open_yet.html')
+        if registration_status == RegistrationStatus.CLOSED:
+            return TemplateResponse(request, 'contests/registration_closed.html')
 
         participant = self._get_participant_for_form(request)
 
@@ -155,7 +158,7 @@ class OIContestController(ProgrammingContestController):
         "The ranking is determined by the total score.\n"
         "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
         "Full scoring is available after the end of the contest."
-        )
+    )
 
     def fill_evaluation_environ(self, environ, submission):
         super(OIContestController, self).fill_evaluation_environ(environ, submission)
@@ -220,6 +223,9 @@ class OIContestController(ProgrammingContestController):
             for i in range(1, 4)
         ]
 
+    def registration_is_enabeld(self):
+        return True
+
 
 class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")
@@ -230,7 +236,9 @@ class OIOnsiteContestController(OIContestController):
         "The ranking is determined by the total score.\n"
         "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
         "Full scoring is available after the end of the contest."
-        )
+    )
+    def registration_is_enabeld(self):
+        return False
 
 
 OIOnsiteContestController.mix_in(OnsiteContestControllerMixin)
@@ -245,7 +253,7 @@ class OIFinalOnsiteContestController(OIOnsiteContestController):
         "The score for a group of test cases is the minimum score for any of the test cases\n."
         "The ranking is determined by the total score.\n"
         "Full scoring of the submissions can be revealed during the contest."
-        )
+    )
 
     def can_see_submission_score(self, request, submission):
         return True
@@ -276,6 +284,9 @@ class OIFinalOnsiteContestController(OIOnsiteContestController):
             result.score = None
             result.status = None
             result.submission_report = None
+
+    def registration_is_enabeld(self):
+        return False
 
 
 class BOIOnsiteContestController(OIOnsiteContestController):
@@ -345,6 +356,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
 
         environ['test_scorer'] = 'oioioi.programs.utils.discrete_test_scorer'
 
+    def registration_is_enabeld(self):
+        return False
+
 
 class BOIOnlineContestController(BOIOnsiteContestController):
     description = _("Baltic Olympiad in Informatics - online")
@@ -354,4 +368,7 @@ class BOIOnlineContestController(BOIOnsiteContestController):
         return PublicContestRegistrationController(self.contest)
 
     def is_onsite(self):
+        return False
+
+    def registration_is_enabeld(self):
         return False

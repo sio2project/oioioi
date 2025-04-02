@@ -8,12 +8,28 @@
    <div class="card mb-2">
      <div class="card-header py-2">
      {% if inline_admin_formset.formset.max_num == 1 %}
-       <h5 class="mb-0">{{ inline_admin_formset.opts.verbose_name|capfirst }}</h5>
+       <h5 class="mb-0">
+           {{ inline_admin_formset.opts.verbose_name|capfirst }}
+            {% if inline_admin_formset.formset.disable_config %}
+                <div class="alert alert-danger d-inline-block ml-2 mb-0" role="alert">
+                  This type of contest does not enable registration
+                </div>
+            {% endif %}
+       </h5>
+
      {% else %}
-       <h5 class="mb-0">{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h5>
+       <h5 class="mb-0">
+           {{ inline_admin_formset.opts.verbose_name_plural|capfirst }}
+            {% if inline_admin_formset.formset.disable_config %}
+                <div class="alert alert-danger d-inline-block ml-2 mb-0" role="alert">
+                  This type of contest does not enable registration
+                </div>
+            {% endif %}
+       </h5>
      {% endif %}
      </div>
-     <div class="card-body py-2">
+     <div class="card-body py-2"
+          style="{% if inline_admin_formset.formset.disable_config %}opacity: 0.5; pointer-events:none;{% endif %}">
        {{ inline_admin_formset.formset.non_form_errors }}
        <table class="table table-sm">
          <thead class="table-borderless"><tr>
