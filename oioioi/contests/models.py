@@ -108,6 +108,9 @@ class Contest(models.Model):
         verbose_name=_("is archived"),
         default=False
     )
+    school_year = models.CharField(
+        max_length=10, verbose_name=_("school year"),  default=""
+    )
 
     # Part of szkopul backporting.
     # This is a hack for situation where contest controller is empty,
