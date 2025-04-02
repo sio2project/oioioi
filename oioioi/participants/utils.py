@@ -55,7 +55,7 @@ def can_register(request):
     if get_participant(request) is not None:
         return False
     rcontroller = request.contest.controller.registration_controller()
-    #todo: needs adding Registration_Status to all type of contest after this delete can_register
+    # td: needs adding Registration_Status to all type of contest after this delete can_register
     #return rcontroller.registration_status(request) == RegistrationStatus.OPEN
     return rcontroller.can_register()
 
