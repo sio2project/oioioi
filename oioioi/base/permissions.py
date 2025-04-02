@@ -4,6 +4,7 @@ import functools
 from django.contrib.auth.views import LogoutView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
+from django.contrib.auth import logout
 
 from oioioi.base.utils import is_ajax
 
@@ -168,7 +169,7 @@ def not_anonymous(request):
         if request.user.is_active:
             return True
         else:
-            LogoutView.as_view()(request)
+            logout(request)
             return False
     else:
         return False

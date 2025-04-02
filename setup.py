@@ -22,7 +22,7 @@ if os.getuid() == 0:  # root
 # All modules in the newest versions at the time of upgrade to Django 4.2
 # unless specified otherwise.
 requirements = [
-    "Django>=4.2,<4.3",
+    "Django==5.1.7",
     "pytz>=2023.3,<2023.4",
     "SQLAlchemy<2.1.0",
     "beautifulsoup4>=4.12,<4.13",
@@ -34,7 +34,7 @@ requirements = [
     "Celery<5.4.0",
     "coreapi>=2.3,<2.4",
     "dj-pagination>=2.5,<2.6",
-    "django-compressor>=4.3,<4.4",
+    "django-compressor>=4.5,<4.6",
     "Pygments>=2.15,<2.16",
     "django-libsass>=0.9,<0.10",
     "django-debug-toolbar",
@@ -54,7 +54,7 @@ requirements = [
     "bleach>=6.0,<6.1",
     "chardet>=5.1,<5.2",
     "django-gravatar2>=1.4,<1.5",
-    "django-mptt>=0.14,<0.15",
+    "django-mptt>=0.16,<0.17",
     "mistune<2.0",   # 2.0 is breaking
     "pika>=1.3,<1.4",
     "Unidecode>=1.3,<1.4",
