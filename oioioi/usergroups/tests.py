@@ -120,9 +120,15 @@ class TestAdmin(TestCase):
 
 
 class TestTeachersViews(TestCase):
-    fixtures = ['test_users', 'teachers', 'test_action_configs', 'test_usergroups']
+    fixtures = ['test_users', 'teachers', 'test_action_configs', 'test_usergroups', 'test_big_usergroup']
 
     def test_visibility(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('teacher_usergroups_list')
+        response = self.client.get(url)
+        self.assertContains(response, 'group 1')
+        self.assertNotContains(response, '&hellip;')
+
         self.assertTrue(self.client.login(username='test_user'))  # teacher
 
         url = reverse('teacher_usergroups_list')
@@ -130,6 +136,13 @@ class TestTeachersViews(TestCase):
         self.assertContains(response, 'User Groups', count=3)  # sidebar
         self.assertContains(response, 'Your Groups')
         self.assertContains(response, 'teacher group')
+        self.assertContains(response, 'Test User')
+        self.assertContains(response, 'no_name') # user without first and last name
+        self.assertContains(response, 'big group')
+        self.assertContains(response, 'First23 Last23')
+        self.assertNotContains(response, 'First24 Last24')
+        self.assertContains(response, '&hellip;') # big group has 25 members
+        self.assertContains(response, 'Modify group')
         self.assertNotContains(response, 'group 1')
 
         url = reverse('teacher_usergroups_add_group')
@@ -206,12 +219,12 @@ class TestTeachersViews(TestCase):
         self.assertEqual(response.status_code, 200)
         data = {'name': 'new group'}
 
-        self.assertEqual(UserGroup.objects.count(), 5)
-        self.assertEqual(ActionConfig.objects.count(), 9)
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302)
         self.assertEqual(UserGroup.objects.count(), 6)
         self.assertEqual(ActionConfig.objects.count(), 11)
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(UserGroup.objects.count(), 7)
+        self.assertEqual(ActionConfig.objects.count(), 13)
         self.assertTrue(UserGroup.objects.filter(name='new group').exists())
 
         group = UserGroup.objects.filter(name='new group').first()
@@ -227,23 +240,23 @@ class TestTeachersViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(UserGroup.objects.count(), 5)
-        self.assertEqual(ActionConfig.objects.count(), 9)
+        self.assertEqual(UserGroup.objects.count(), 6)
+        self.assertEqual(ActionConfig.objects.count(), 11)
         response = self.client.post(url)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(UserGroup.objects.count(), 4)
-        self.assertEqual(ActionConfig.objects.count(), 7)
+        self.assertEqual(UserGroup.objects.count(), 5)
+        self.assertEqual(ActionConfig.objects.count(), 9)
 
         url = reverse('delete_usergroup_confirmation', kwargs={'usergroup_id': 1004})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(UserGroup.objects.count(), 4)
-        self.assertEqual(ActionConfig.objects.count(), 7)
+        self.assertEqual(UserGroup.objects.count(), 5)
+        self.assertEqual(ActionConfig.objects.count(), 9)
         response = self.client.post(url)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(UserGroup.objects.count(), 3)
-        self.assertEqual(ActionConfig.objects.count(), 6)
+        self.assertEqual(UserGroup.objects.count(), 4)
+        self.assertEqual(ActionConfig.objects.count(), 8)
 
     def test_delete_members(self):
         self.assertTrue(self.client.login(username='test_user'))  # teacher

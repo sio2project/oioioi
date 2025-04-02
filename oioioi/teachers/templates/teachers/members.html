@@ -92,7 +92,7 @@
                                                 <li> {{ member.get_full_name|default:member.username }} </li>
                                             {% endfor %}
 
-                                            {% if group_members.count > 23 %}
+                                            {% if usergroup.members.count > 23 %}
                                                 <li> &hellip; </li>
                                             {% endif %}
                                         </ul>
