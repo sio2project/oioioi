@@ -262,7 +262,10 @@ def search_problems_in_problemset(datadict):
     if query:
         problems = _get_problems_by_query(query)
     if algorithm_tags:
-        problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+        if settings.PROBLEM_TAGS_VISIBLE and 'include_proposals' in datadict:
+            pass # TODO: implement this
+        else:
+            problems = problems.filter(algorithmtag__name__in=algorithm_tags)
     if difficulty_tags:
         problems = problems.filter(difficultytag__name__in=difficulty_tags)
     if origin_tags:
