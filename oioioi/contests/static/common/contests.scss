@@ -46,6 +46,10 @@ table.table-striped > tbody > tr.problemlist-subheader {
     margin-bottom: 4rem;
 }
 
+.name-col {
+    width: 100%;
+}
+
 .limits-row {
     background-color: transparent !important;
     border-color: transparent !important;
@@ -54,4 +58,5 @@ table.table-striped > tbody > tr.problemlist-subheader {
 
 .limits-row td {
     border: none;
+    white-space: nowrap;
 }
