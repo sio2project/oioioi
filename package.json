@@ -17,6 +17,7 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@eonasdan/tempus-dominus": "^6.10.2",
     "bootstrap": "^4.6.1",
     "bootstrap-3-typeahead": "^4.0.2",
     "bootstrap-markdown": "^2.10.0",
