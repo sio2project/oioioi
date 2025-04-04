@@ -27,9 +27,27 @@ from oioioi.problems.models import (
 # Used for creating problems with "believable" names
 WORDS = ['Whole', 'Crime', 'Eight', 'Member', 'Join', 'Man', 'Thing', 'Box', 'Friend', 'Piece', 'Good', 'Eat', 'Only', 'Save', 'About', 'Six', 'Cup', 'Yeah', 'Reveal', 'Whose', 'Remain', 'Speak', 'Card', 'Entire', 'Key', 'When', 'Sense', 'Drive', 'Where', 'Little', 'Need', 'Can', 'Bit', 'Never', 'Coach', 'Push', 'Where', 'Small', 'Remain', 'Future', 'Which', 'Around', 'Score', 'Born', 'Score', 'Remain', 'Thing', 'Tend', 'Bit', 'Tree', 'Type', 'Say', 'Two', 'Kind', 'Half', 'Truth', 'Occur', 'Wish', 'Big', 'Glass', 'Just', 'Hear', 'Lose', 'His', 'Entire', 'List', 'Year', 'Type', 'Cost', 'Bank', 'Hair', 'Try', 'Color', 'Choice', 'Former', 'Enough', 'Task', 'Fast', 'Little', 'Smile', 'Floor', 'Only', 'Fly', 'Never', 'Energy', 'Rise', 'Or', 'Recent', 'Place', 'Share', 'Book', 'Soon', 'Poor', 'Tend', 'Learn', 'Guess', 'Eat', 'Eye', 'Those', 'Full', 'Sing', 'Data', 'Me', 'Charge', 'Never', 'Grow', 'Job', 'These', 'Rock', 'Itself', 'Until', 'Seek', 'Yes', 'Soon', 'Break', 'Follow', 'Stuff', 'Good', 'Side', 'Sign', 'Either', 'Itself', 'Per', 'Spring', 'Ahead', 'Region', 'Power', 'Real', 'Wife', 'Radio', 'Walk', 'Doctor', 'Event', 'Sort', 'Film', 'Form', 'Under', 'Fast', 'Range', 'Mrs', 'Bring', 'Ago', 'Matter', 'Oil', 'Change', 'A', 'Help', 'Baby', 'Whom', 'Own', 'Loss', 'Debate', 'Seek', 'Sport', 'Wife', 'Read', 'Court', 'Land', 'Reason', 'Wrong', 'Report', 'Garden', 'Use', 'Film', 'Avoid', 'Worker', 'Civil', 'Assume', 'Our', 'First', 'Color', 'Girl', 'Second', 'Year', 'Window', 'Past', 'Kind', 'Change', 'She', 'Within', 'Page', 'Action', 'Road', 'Leader', 'Late', 'Really', 'Here', 'Far', 'Minute', 'Sense', 'Coach', 'Play', 'Return', 'Quite', 'Author', 'Fill', 'Attack', 'Thing', 'Option', 'Choose', 'This', 'Bit', 'Should', 'Result', 'Rate', 'Dog', 'Push', 'Early', 'Upon', 'Data', 'For', 'Mother', 'Poor', 'Nor', 'Reason', 'Pretty', 'Take', 'Room', 'Live', 'Design', 'See', 'Center', 'Better', 'Unit', 'Thus', 'Town', 'Space', 'End', 'Act', 'Today', 'Weight', 'They', 'Young', 'Mr', 'Reason', 'Easy', 'Affect', 'Soon', 'Thing', 'Maybe', 'Learn', 'Often', 'Agree', 'Become', 'Lose', 'There', 'Rock', 'Heavy', 'Though', 'Space', 'Total', 'Base', 'Glass', 'Visit', 'Form', 'Team', 'Choice', 'Much', 'Behind', 'Room', 'Data', 'Family', 'Hour', 'North', 'Fly', 'Right', 'Remain', 'White', 'They', 'Report', 'There', 'Song', 'Focus', 'Cover', 'Within', 'Then', 'Board', 'Her', 'Yeah', 'Last', 'By', 'Change', 'Push', 'That', 'Will', 'About', 'Until', 'Fire', 'Apply', 'Big', 'Fish', 'Have', 'Choice', 'Fund', 'Radio', 'Upon', 'Around', 'There', 'Have', 'Apply']
 
+# Helper command, which finds the the smallest natural number n, such that
+# no object from the model model_class has a field equal to [base_value]n.
+# This function is to be used for finding anyname that isn't
+# used in the database yet.
+def get_unique_field_value(model_class, field_name, base_value):
+    regex_pattern = base_value + r"(\d+)"
+
+    filter_kwargs = {f"{field_name}__regex": f"^{regex_pattern}"}
+
+    existing_vals = model_class.objects.filter(**filter_kwargs).values_list(field_name, flat=True)
+
+    unused = 0
+    for value in existing_vals:
+        num = int(re.search(regex_pattern, value).group(1))
+        unused = max(unused, num + 1)
+
+    return base_value + str(unused)
+
 class Command(BaseCommand):
     help = _(
-        "Create a mock competition with empty mock problems. "
+        "Create a mock competition with empty problems. "
         "Useful for replicating the size of the production databse in the local environment. "
         "This can be used for finding performance bottlenecks, "
         "where the number of queries grows with the number of problems in the database."
@@ -42,6 +60,7 @@ class Command(BaseCommand):
             type=int,
             action="store",
             dest="branches",
+            default=10,
             help="Number of top-level branches of the competition tree. Conceptually, this is the number of stages of the competition."
         )
 
@@ -51,7 +70,9 @@ class Command(BaseCommand):
             type=str,
             action="store",
             dest="competition_name",
-            help="Name of the mock competition which will be created."
+            help="Name of the mock competition which will be created. If a competition with this name already exists, an error will be thrown. " \
+                "If not specified, the name will be 'mock{N}', where N is the smallest number, " \
+                "such that no competition of with this name already exists."
         )
 
         parser.add_argument(
@@ -60,46 +81,38 @@ class Command(BaseCommand):
             type=int,
             action="store",
             dest="levels",
+            default=2,
             help="Number of levels of nesting of the competition."
         )
 
     @transaction.atomic
     def handle(self, *args, **options):
-        def get_unique_field_value(model_class, field_name, base_value):
-            regex_pattern = base_value + r"(\d+)"
-
-            filter_kwargs = {f"{field_name}__regex": f"^{regex_pattern}"}
-
-            existing_vals = model_class.objects.filter(**filter_kwargs).values_list(field_name, flat=True)
-
-            unused = 0
-            for value in existing_vals:
-                num = int(re.search(regex_pattern, value).group(1))
-                unused = max(unused, num + 1)
-
-            return base_value + str(unused)
-
+        # Array of branching factors for each level of the tree of problems.
         levels = [1]
         levels.append(options['branches'])
         levels += [3] * (options['levels'] - 1)
-        problems_per_leaf = 3
-        problems = []
 
+        PROBLEMS_PER_LEAF = 3
+
+        # Get the name of the origin tag competition name
         ot_name = None
-
         if options['competition_name'] is not None:
             ot_name = options['competition_name']
+            # Disallow duplicate origin tags, and raise an exception
             if OriginTag.objects.filter(name=ot_name).exists():
                 raise Exception(
                     "An origin_tag with competition name '%s' already exists, " \
                     "choose a non-duplicate name for the competition." % ot_name
                 )
         else:
-            ot_name = get_unique_field_value(OriginTag, 'name', 'olympiad')
+            # Find a unique name of the form 'mock%d'
+            ot_name = get_unique_field_value(OriginTag, 'name', 'mock')
 
+        # Create top-level origin tag for the competition.
         ot = OriginTag(name=ot_name)
         ot.save()
 
+        # Assign the name ot_name for the competiton for the default language.
         OriginTagLocalization(
             origin_tag = ot,
             language = get_language(),
@@ -107,62 +120,81 @@ class Command(BaseCommand):
             full_name = ot_name
         ).save()
         
-        oics = []
-        oivs = []
-        oiv_count = 1
-        for i in range(len(levels)):
-            oic = OriginInfoCategory(parent_tag=ot, name = 'level%d' % i, order = i)
-            oic.save()
-            oics += [oic]
-            oivs += [[]]
-            oiv_count *= levels[i]
-            for j in range(oiv_count):
-                oiv = OriginInfoValue(
-                    value = '%d_%d' % (i, j),
-                    parent_tag = ot,
-                    category = oics[i],
-                )
-                oiv.save()
-                oivs[i].append(oiv)
+        # Create a category for each level
+        categories = []
+        for level in range(len(levels)):
+            category = OriginInfoCategory(parent_tag=ot, name = 'level%d' % level, order = level)
+            category.save()
+            categories.append(category)
 
+        # Create levels[level] values for each category and store them in info_values[level]
+        info_values = [[] for i in range(len(levels))]
+        for level in range(len(levels)):
+            print(level, levels)
+            for i in range(levels[level]):
+                # Create an OriginInfoValue for each branch in the current level
+                info_value = OriginInfoValue(
+                    value = '%d_%d' % (level, i),
+                    parent_tag = ot,
+                    category = categories[level],
+                )
+                info_value.save()
+                info_values[level].append(info_value)
+
+                # Name the OriginInfoValue in the default language
                 localization = OriginInfoValueLocalization(
-                    origin_info_value = oiv,
+                    origin_info_value = info_value,
                     language = get_language(),
-                    full_value = 'Level %d - %d' % (i, j)
+                    full_value = 'Level %d - %d' % (level, i)
                 )
                 localization.save()
 
-        def f(i, name):
-            if i == len(levels):
-                problems = []
-                for i in range(problems_per_leaf):
-                    # This is at most 29, so barely below the model limit of 30 chars
+        # Recursive function for creating problem. It traverses the tree of 
+        # problems depth-first and returns all the problems in its subtree.
+        def recurse(level, name):
+            problems = []
+
+            if level == len(levels):
+                # Reached bottom level - create problems
+                for i in range(PROBLEMS_PER_LEAF):
                     words = [random.choice(WORDS), random.choice(WORDS)]
                     problem_name = 'Problem %s %s %s' % (words[0], words[1], ''.join(random.choices(string.digits, k=6)))
                     p = Problem(
+                        # The short name will be the first word in lower case
                         short_name = words[0].lower()
                     )
+                    problems.append(p)
+
                     name = ProblemName(
                         problem = p,
                         language = get_language(),
                         name = problem_name
                     )
+
                     p.save()
                     name.save()
+
+                    # Assign an empty fake problem site for a problem.
                     # Use a random ID large enough, that the Birthday Paradox won't be a problem
                     ProblemSite(problem = p, url_key = str(random.randrange(2 ** 40))).save()
+
+                    # Add the problem to the competition origin tag.
                     ot.problems.add(p)
-                    problems += [p]
                 return problems
             else:
-                problems = []
-                for j in range(levels[i]):
-                    subname = '%s_%d' % (name, j)
-                    subproblems = f(i+1, subname)
-                    oiv = oivs[i][j]
-                    problems += subproblems
-                    for p in subproblems:
-                        oiv.problems.add(p)
-                return problems
+                for i in range(levels[level]):
+                    subname = '%s_%d' % (name, i)
+                    # Recurse for each of levels[level] branches
+                    subproblems = recurse(level+1, subname)
 
-        probs = f(0, '')
+                    problems += subproblems
+
+                    # Assign each of the subproblems in the current branch to the
+                    # corresponding info_value
+                    info_value = info_values[level][i]
+                    for p in subproblems:
+                        info_value.problems.add(p)
+
+            return problems
+
+        recurse(0, '')
