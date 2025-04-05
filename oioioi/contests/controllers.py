@@ -597,7 +597,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         lvc = LimitsVisibilityConfig.objects.filter(contest=context.contest)
         if lvc.exists() and lvc[0].visible == 'YES':
             return True
-        elif lvc.exits() and lvc[0].visible == 'NO':
+        elif lvc.exists() and lvc[0].visible == 'NO':
             return False
         else:
             return self.default_can_see_problems_limits(request)
