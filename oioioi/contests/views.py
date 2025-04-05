@@ -198,8 +198,8 @@ def problems_list_view(request):
         key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name, p[0].short_name),
     )
 
-    show_submissions_limit = any([p[5] for p in problems_statements])
-    show_submit_button = any([p[6] for p in problems_statements])
+    show_submissions_limit = any([p[6] for p in problems_statements])
+    show_submit_button = any([p[7] for p in problems_statements])
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
 
