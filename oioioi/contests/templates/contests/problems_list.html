@@ -103,9 +103,9 @@
                         </td>
                         {% if show_problems_limits %}
                             <td class="text-right">
-                                <table>
-                                    {% for row in problem_limits %}
-                                        {% if row %}
+                                {% if problem_limits %}
+                                    <table>
+                                        {% for row in problem_limits %}
                                             <tr class="limits-row">
                                                 {% for entry in row %}
                                                     <td>
@@ -113,9 +113,9 @@
                                                     </td>
                                                 {% endfor %}
                                             </tr>
-                                        {% endif %}
-                                    {% endfor %}
-                                </table>
+                                        {% endfor %}
+                                    </table>
+                                {% endif %}
                             </td>
                         {% endif %}
                         {% if show_submissions_limit %}

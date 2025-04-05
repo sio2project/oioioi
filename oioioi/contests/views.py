@@ -170,7 +170,7 @@ def problems_list_view(request):
                 pi,
                 controller.can_see_statement(request, pi),
                 controller.get_round_times(request, pi.round),
-                problems_limits[pi.pk],
+                problems_limits.get(pi.pk, None),
                 # Because this view can be accessed by an anynomous user we can't
                 # use `user=request.user` (it would cause TypeError). Surprisingly
                 # using request.user.id is ok since for AnynomousUser id is set
