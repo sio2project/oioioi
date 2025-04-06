@@ -1,0 +1,24 @@
+{% load i18n pagination_tags %}
+<div class="table-responsive-md">
+    <h4> {% trans "Attachments" %} </h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+        <tr>
+            <th> {% trans "Description" %} </th>
+            <th> {% trans "Round" %} </th>
+            <th> {% trans "Publication date" %} </th>
+            <th> {% trans "Time left to publication" %} </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for attachment in attachments %}
+            <tr>
+                <td>{{ attachment.description }}</td>
+                <td>{{ attachment.round }}</td>
+                <td>{{ attachment.pub_date }}</td>
+                <td>{{ attachment.pub_date_relative }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
