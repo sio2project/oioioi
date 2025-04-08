@@ -23,6 +23,18 @@ document.addEventListener("DOMContentLoaded", function(){
             });
         }
 
+        // Intercept clicks on tag labels and origininfo labels
+        document.querySelectorAll("a.tag-label").forEach(function(link) {
+            link.addEventListener("click", function(event) {
+                if (checkbox.checked) {
+                    event.preventDefault();
+                    var url = new URL(link.href, window.location.origin);
+                    url.searchParams.set("include_proposals", "1");
+                    window.location.href = url.toString();
+                }
+            });
+        });
+
         checkbox.addEventListener("change", toggleProposals);
         toggleProposals(); // on page load
     }
