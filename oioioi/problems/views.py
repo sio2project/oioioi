@@ -262,11 +262,13 @@ def filter_problems_by_query(problems, datadict):
         problems_matching_query = _get_problems_by_query(query)
         problems = problems.filter(pk__in=problems_matching_query)
     if algorithm_tags:
-        if settings.PROBLEM_TAGS_VISIBLE and 'include_proposals' in datadict:
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and 'include_proposals' in datadict:
             direct_match_problems = problems.filter(algorithmtag__name__in=algorithm_tags)
 
             problem_list = list(problems)
             proposal_match_problem_ids = []
+
+            prefetch_top_tag_proposals(problems)
             for problem in problem_list:
                 for proposal in problem.top_tag_proposals:
                     if proposal.tag.name in algorithm_tags:
@@ -323,9 +325,6 @@ def problemset_get_problems(request):
     problems = Problem.objects.all()
 
     if settings.PROBLEM_TAGS_VISIBLE:
-        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET:
-            prefetch_top_tag_proposals(problems)
-
         filter_problems_by_query(problems, request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
