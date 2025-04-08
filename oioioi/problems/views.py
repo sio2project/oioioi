@@ -261,6 +261,10 @@ def filter_problems_by_query(problems, datadict):
     if query:
         problems_matching_query = _get_problems_by_query(query)
         problems = problems.filter(pk__in=problems_matching_query)
+    if difficulty_tags:
+        problems = problems.filter(difficultytag__name__in=difficulty_tags)
+    if origin_tags:
+        problems = filter_problems_by_origin(problems, origin_tags)
     if algorithm_tags:
         if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and 'include_proposals' in datadict:
             direct_match_problems = problems.filter(algorithmtag__name__in=algorithm_tags)
@@ -280,10 +284,6 @@ def filter_problems_by_query(problems, datadict):
             problems = (direct_match_problems | proposal_match_problems).distinct()
         else:
             problems = problems.filter(algorithmtag__name__in=algorithm_tags)
-    if difficulty_tags:
-        problems = problems.filter(difficultytag__name__in=difficulty_tags)
-    if origin_tags:
-        problems = filter_problems_by_origin(problems, origin_tags)
 
     return problems
 
