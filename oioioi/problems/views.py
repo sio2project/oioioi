@@ -492,8 +492,6 @@ def problemset_generate_view(request, page_title, problems, view_type):
         name__in=request.GET.getlist('difficulty')
     ).order_by('name')
 
-    include_proposals_in_search_results = 'include_proposals' in request.GET
-
     return TemplateResponse(
         request,
         'problems/problemset/problem-list.html',
@@ -508,7 +506,6 @@ def problemset_generate_view(request, page_title, problems, view_type):
             'difficulty_tags': difficulty_tags,
             'show_tags': show_tags,
             'show_tag_proposals': show_tag_proposals,
-            'include_proposals_in_search_results': include_proposals_in_search_results,
             'max_tag_proposals_shown': max_tag_proposals_shown,
             'min_proposals_per_tag': min_proposals_per_tag,
             'show_statistics': show_statistics,
