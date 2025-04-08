@@ -4,7 +4,7 @@ from django.utils.html import format_html
 from oioioi.base.utils.tags import get_tag_name, get_tag_prefix
 from oioioi.problems.models import AggregatedAlgorithmTagProposal
 from django.utils.translation import gettext as _, ngettext
-from oioioi.szkopul import settings
+from django.conf import settings
 
 register = Library()
 
