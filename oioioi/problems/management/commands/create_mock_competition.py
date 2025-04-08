@@ -46,11 +46,14 @@ def get_unique_field_value(model_class, field_name, base_value):
     return base_value + str(unused)
 
 class Command(BaseCommand):
-    help = _(
+    help = (
         "Create a mock competition with empty problems. "
         "Useful for replicating the size of the production databse in the local environment. "
         "This can be used for finding performance bottlenecks, "
-        "where the number of queries grows with the number of problems in the database."
+        "where the number of queries grows with the number of problems in the database. "
+        "WARNING: this operation will fill your database with a lot of rubbish data. "
+        "Only use it if you're sure that's not a problem, or use 'python manage.py dumpdata' "
+        "and 'python manage.py loaddata'."
     )
 
     def add_arguments(self, parser):
