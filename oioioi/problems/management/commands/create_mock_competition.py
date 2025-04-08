@@ -63,6 +63,7 @@ class Command(BaseCommand):
             type=int,
             action="store",
             dest="branches",
+            required=True,
             default=10,
             help="Number of top-level branches of the competition tree. Conceptually, this is the number of stages of the competition."
         )
