@@ -285,7 +285,7 @@ def filter_problems_by_query(problems, datadict):
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
 
-    return None
+    return problems
 
 
 def generate_problemset_tabs(request):
@@ -325,7 +325,7 @@ def problemset_get_problems(request):
     problems = Problem.objects.all()
 
     if settings.PROBLEM_TAGS_VISIBLE:
-        filter_problems_by_query(problems, request.GET)
+        problems = filter_problems_by_query(problems, request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
         # We annotate all of the statistics to assure that the display
