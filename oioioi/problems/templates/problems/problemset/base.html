@@ -92,7 +92,8 @@
     <div class="row tag-proposal-checkbox-row">
         <div class="col-12 text-center">
             <label class="form-check-label">
-                <input id="show-tag-proposals-checkbox" class="form-check-input" type="checkbox" value="">
+                <input id="show-tag-proposals-checkbox" class="form-check-input" type="checkbox" value=""
+                    {% if request.GET.include_proposals == "1" %}checked{% endif %}>
                 {% trans "Show tags proposed by users" %}
             </label>
         </div>
