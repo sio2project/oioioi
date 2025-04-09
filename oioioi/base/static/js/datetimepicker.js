@@ -2,9 +2,13 @@
 import { TempusDominus } from '@eonasdan/tempus-dominus'
 
 $('.datetimepicker').each(function () {
-    new TempusDominus(this ,{
+    new TempusDominus(this, {
         localization: {
             format: 'yyyy-MM-dd HH:mm',
+            locale: Cookies.get("lang") || "en",
+        },
+        display: {
+            theme: 'light',
         }
     })
 })
