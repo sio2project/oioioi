@@ -266,7 +266,7 @@ def filter_problems_by_query(problems, datadict):
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
     if algorithm_tags:
-        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and 'include_proposals' in datadict:
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict['include_proposals'] == '1':
             direct_match_problems = problems.filter(algorithmtag__name__in=algorithm_tags)
 
             problem_list = list(problems)

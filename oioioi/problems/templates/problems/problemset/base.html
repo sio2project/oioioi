@@ -55,6 +55,10 @@
                 {% endif %}
                 <script>init_search_selection('problemsite_search');</script>
 
+                {% if show_tags and show_tag_proposals %}
+                <input id="control-include_proposals" class="input" type="hidden" name="include_proposals" value="0"/>
+                {% endif %}
+
                 <span class="input-group-btn">
                 <button type="submit" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -93,7 +97,7 @@
         <div class="col-12 text-center">
             <label class="form-check-label">
                 <input id="show-tag-proposals-checkbox" class="form-check-input" type="checkbox" value=""
-                    {% if 'include_proposals' in request.GET %}checked{% endif %}>
+                    {% if request.GET.include_proposals == "1" %}checked{% endif %}>
                 {% trans "Include tags proposed by users" %}
             </label>
         </div>

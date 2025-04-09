@@ -78,7 +78,7 @@ def aggregated_tag_label(aggregated_tag):
         name=get_tag_name(tag),
         cls=full_prefix,
         amount=str(amount),
-        href="?" + tag_prefix + "=" + tag.name + "&include_proposals=",
+        href="?" + tag_prefix + "=" + tag.name + "&include_proposals=1",
     )
 
 
