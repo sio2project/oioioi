@@ -15,6 +15,9 @@ class DateTimePicker(forms.widgets.DateTimeInput):
             'all': ('@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css',)
         }
     
+    def __init__(self, attrs=None):
+        super().__init__(attrs=attrs, format='%Y-%m-%d %H:%M')
+        
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
         
