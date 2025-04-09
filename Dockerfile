@@ -66,6 +66,9 @@ RUN pip3 install -r requirements.txt --user filetracker[server]
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user
 
+# Installing node dependencies
+ENV PATH $PATH:/sio2/oioioi/node_modules/.bin
+
 COPY --chown=oioioi:oioioi package.json package-lock.json ./
 RUN npm ci
 

@@ -28,7 +28,7 @@ RAW_COMMANDS = [
     ("down", "Stop and remove all SIO2 containers", "down"),
     ("wipe", "Stop all SIO2 containers and DESTROY all data", "down -v", True),
     ("run", "Run django server and webpack", 
-     '{exec} web npx -y concurrently -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"'),
+     '{exec} web conc -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"'),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
     ("exec", "Run a command in the web container.", "{exec} web {extra_args}"),
