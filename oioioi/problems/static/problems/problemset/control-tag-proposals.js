@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function(){
                     var includeProposalsInput = document.createElement("input");
                     includeProposalsInput.type = "hidden";
                     includeProposalsInput.name = "include_proposals";
-                    includeProposalsInput.value = "1";
+                    includeProposalsInput.value = "";
                     searchForm.appendChild(includeProposalsInput);
                 }
             });
@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function(){
                 if (checkbox.checked) {
                     event.preventDefault();
                     var url = new URL(link.href, window.location.origin);
-                    url.searchParams.set("include_proposals", "1");
+                    url.searchParams.set("include_proposals", "");
                     window.location.href = url.toString();
                 }
             });
