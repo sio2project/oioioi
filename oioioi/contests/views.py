@@ -52,6 +52,7 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
     visible_contests,
+    visible_contests_queryset, 
     visible_problem_instances,
     visible_rounds,
     get_files_message,
@@ -840,16 +841,11 @@ def unarchive_contest(request):
     return redirect('default_contest_view', contest_id=contest.id)
 
 def filter_contests_view(request, filter_value=""):
-    contests = visible_contests(request)
+    contests = visible_contests_queryset(request, filter_value)
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
-    filtered_contests = []
-    for contest in contests:
-        if contest.school_year == filter_value or contest.name.find(filter_value) != -1 or contest.id.find(filter_value) != -1:
-            filtered_contests.append(contest)
     
     context = {
-        'contests' : filtered_contests,
-        'filter' : filter_value,
+        'contests' : contests,
     }  
     return TemplateResponse(
         request, 'contests/select_contest.html', context
