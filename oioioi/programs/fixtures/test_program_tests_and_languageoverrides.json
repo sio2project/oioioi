@@ -5,7 +5,8 @@
     "fields": {
       "legacy_name": "24_s2 1",
       "short_name": "24_s2 1",
-      "visibility": "PU"
+      "visibility": "PU",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
     }
   },
   {
@@ -14,26 +15,27 @@
     "fields": {
       "legacy_name": "24_s2 2",
       "short_name": "24_s2 2",
-      "visibility": "PU"
-    }
-  },
-  {
-    "pk": 1,
-    "model": "contests.probleminstance",
-    "fields": {
-      "problem": 1,
-      "round": 1,
-      "short_name": "zad1",
-      "contest": "c"
+      "visibility": "PU",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
     }
   },
   {
     "pk": 2,
     "model": "contests.probleminstance",
     "fields": {
-      "problem": 2,
+      "problem": 1,
       "round": 1,
       "short_name": "zad2",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 2,
+      "round": 1,
+      "short_name": "zad3",
       "contest": "c"
     }
   },
@@ -43,7 +45,7 @@
     "model": "programs.test",
     "pk": 1,
     "fields": {
-      "problem_instance": 1,
+      "problem_instance": 2,
       "name": "test1",
       "kind": "NORMAL",
       "group": "g1",
@@ -55,7 +57,7 @@
     "model": "programs.test",
     "pk": 2,
     "fields": {
-      "problem_instance": 1,
+      "problem_instance": 2,
       "name": "test2",
       "kind": "NORMAL",
       "group": "g2",
@@ -69,7 +71,7 @@
     "model": "programs.test",
     "pk": 3,
     "fields": {
-      "problem_instance": 2,
+      "problem_instance": 3,
       "name": "test3",
       "kind": "NORMAL",
       "group": "g1",
@@ -81,7 +83,7 @@
     "model": "programs.test",
     "pk": 4,
     "fields": {
-      "problem_instance": 2,
+      "problem_instance": 3,
       "name": "test4",
       "kind": "NORMAL",
       "group": "g2",
@@ -93,7 +95,7 @@
     "model": "programs.test",
     "pk": 5,
     "fields": {
-      "problem_instance": 2,
+      "problem_instance": 3,
       "name": "test5",
       "kind": "NORMAL",
       "group": "g3",
@@ -105,7 +107,7 @@
     "model": "programs.test",
     "pk": 6,
     "fields": {
-      "problem_instance": 2,
+      "problem_instance": 3,
       "name": "test6",
       "kind": "NORMAL",
       "group": "g4",

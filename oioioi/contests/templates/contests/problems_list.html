@@ -58,7 +58,7 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th class="name-col">{% trans "Name" %}</th>
+                    <th class="problem-name-column">{% trans "Name" %}</th>
                     {% if show_problems_limits %}
                         <th>
                             {% trans "Limits" %}
@@ -106,7 +106,7 @@
                                 {% if problem_limits %}
                                     <table>
                                         {% for row in problem_limits %}
-                                            <tr class="limits-row">
+                                            <tr class="problem-limits-row">
                                                 {% for entry in row %}
                                                     <td>
                                                         {{ entry }}

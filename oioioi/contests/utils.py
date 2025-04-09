@@ -842,7 +842,7 @@ def stringify_problems_limits(raw_limits):
               - For mixed limits (one language differs): (('Default:', time_limit, memory_limit), language_limits)
     """
     def KiB_to_MB(KiBs):
-        return KiBs * 1024 // 1000000
+        return (KiBs * 1024) // 1000000
 
     def format_limits(pi_limits):
         time_lower = f'{pi_limits[0] / 1000:.1g}'

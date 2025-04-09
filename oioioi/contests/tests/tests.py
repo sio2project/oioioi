@@ -44,7 +44,7 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
-    SubmissionMessage,
+    SubmissionMessage, LimitsVisibilityConfig,
 )
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import make_empty_contest_formset
@@ -567,60 +567,6 @@ class TestContestController(TestCase):
                 ),
                 expected_order,
             )
-
-
-class TestProblemLimitsFetching(TestCase):
-    fixtures = [
-        'test_contest',
-        'test_program_tests_and_languageoverrides'
-    ]
-
-    def test_problems_limits_for_contest_view(self):
-        contest = Contest.objects.get()
-
-        class FakeRequest(object):
-            def __init__(self, timestamp, contest):
-                self.timestamp = timestamp
-                self.user = AnonymousUser()
-                self.contest = contest
-
-        limits = contest.controller.get_problems_limits(
-            FakeRequest(datetime(2011, 1, 1, tzinfo=timezone.utc), contest)
-        )
-
-        # Test defaults
-        self.assertEqual(limits[1]['default'][0], 1000)
-        self.assertEqual(limits[1]['default'][1], 2000)
-        self.assertEqual(limits[1]['default'][2], 256000)
-        self.assertEqual(limits[1]['default'][3], 512000)
-
-        self.assertEqual(limits[2]['default'][0], 1000)
-        self.assertEqual(limits[2]['default'][1], 4000)
-        self.assertEqual(limits[2]['default'][2], 128000)
-        self.assertEqual(limits[2]['default'][3], 1024000)
-
-        # Test cpp
-        self.assertEqual(limits[1]['cpp'][0], 1000)
-        self.assertEqual(limits[1]['cpp'][1], 2000)
-        self.assertEqual(limits[1]['cpp'][2], 256000)
-        self.assertEqual(limits[1]['cpp'][3], 512000)
-
-        self.assertEqual(limits[2]['cpp'][0], 500)
-        self.assertEqual(limits[2]['cpp'][1], 4000)
-        self.assertEqual(limits[2]['cpp'][2], 64000)
-        self.assertEqual(limits[2]['cpp'][3], 1024000)
-
-        # Test python
-        self.assertEqual(limits[1]['py'][0], 1000)
-        self.assertEqual(limits[1]['py'][1], 2000)
-        self.assertEqual(limits[1]['py'][2], 256000)
-        self.assertEqual(limits[1]['py'][3], 512000)
-
-        self.assertEqual(limits[2]['py'][0], 1000)
-        self.assertEqual(limits[2]['py'][1], 6000)
-        self.assertEqual(limits[2]['py'][2], 128000)
-        self.assertEqual(limits[2]['py'][3], 2048000)
-
 
 class TestContestViews(TestCase):
     fixtures = [
@@ -4867,7 +4813,80 @@ class TestContestListFiltering(TestCase):
         self.assertContains(response, self.c2.name)
 
 
-class TestUtils(TestCase):
+class TestProblemsLimits(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_program_tests_and_languageoverrides'
+    ]
+
+    def test_limits_visibility(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_user'))
+
+        # Limits are not displayed
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Limits')
+
+        # Display limits
+        _ = LimitsVisibilityConfig.objects.create(contest=contest, visible='YES')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Limits')
+        self.assertContains(response, 'C++:')
+        self.assertContains(response, 'Python:')
+
+
+    def test_problems_limits_for_contest_view(self):
+        contest = Contest.objects.get()
+
+        class FakeRequest(object):
+            def __init__(self, timestamp, contest):
+                self.timestamp = timestamp
+                self.user = AnonymousUser()
+                self.contest = contest
+
+        limits = contest.controller.get_problems_limits(
+            FakeRequest(datetime(2011, 1, 1, tzinfo=timezone.utc), contest)
+        )
+
+        # Test defaults
+        self.assertEqual(limits[2]['default'][0], 1000)
+        self.assertEqual(limits[2]['default'][1], 2000)
+        self.assertEqual(limits[2]['default'][2], 256000)
+        self.assertEqual(limits[2]['default'][3], 512000)
+
+        self.assertEqual(limits[3]['default'][0], 1000)
+        self.assertEqual(limits[3]['default'][1], 4000)
+        self.assertEqual(limits[3]['default'][2], 128000)
+        self.assertEqual(limits[3]['default'][3], 1024000)
+
+        # Test cpp
+        self.assertEqual(limits[2]['cpp'][0], 1000)
+        self.assertEqual(limits[2]['cpp'][1], 2000)
+        self.assertEqual(limits[2]['cpp'][2], 256000)
+        self.assertEqual(limits[2]['cpp'][3], 512000)
+
+        self.assertEqual(limits[3]['cpp'][0], 500)
+        self.assertEqual(limits[3]['cpp'][1], 4000)
+        self.assertEqual(limits[3]['cpp'][2], 64000)
+        self.assertEqual(limits[3]['cpp'][3], 1024000)
+
+        # Test python
+        self.assertEqual(limits[2]['py'][0], 1000)
+        self.assertEqual(limits[2]['py'][1], 2000)
+        self.assertEqual(limits[2]['py'][2], 256000)
+        self.assertEqual(limits[2]['py'][3], 512000)
+
+        self.assertEqual(limits[3]['py'][0], 1000)
+        self.assertEqual(limits[3]['py'][1], 6000)
+        self.assertEqual(limits[3]['py'][2], 128000)
+        self.assertEqual(limits[3]['py'][3], 2048000)
+
 
     def test_stringify_limits(self):
         raw_limits = {
@@ -4877,36 +4896,81 @@ class TestUtils(TestCase):
                 'py': (1000, 2000, 1000, 2000),
             },
             '2': {
-                'default': (1000, 2000, 1000, 2000),
-                'cpp': (500, 2000, 500, 1000),
-                'py': (1000, 3000, 1000, 3000),
+                'default': (2000, 4000, 2000, 4000),
+                'cpp': (1000, 3000, 1000, 4000),
+                'py': (3000, 5000, 2000, 5000)
             },
             '3': {
                 'default': (1000, 2000, 1000, 2000),
                 'cpp': (500, 2000, 500, 1000),
+                'py': (1000, 3000, 1000, 3000),
+            },
+            '4': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (500, 2000, 2000, 3000),
                 'py': (1000, 2000, 1000, 2000),
+            },
+            '5': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (1000, 2000, 1000, 2000),
+                'py': (3000, 4000, 1000, 3000),
+            },
+            '6': {
+                'default': (1000, 2000, 500, 2000),
+                'cpp': (100, 500, 100, 200),
+                'py': (1000, 2000, 500, 2000),
             }
         }
 
         stringified = stringify_problems_limits(raw_limits)
-        print(stringified)
+
+        # Test no overrides
         self.assertEqual(len(stringified['1']), 1)
         self.assertEqual(stringified['1'][0][0], '')
         self.assertEqual(stringified['1'][0][1], '1-2 s')
         self.assertEqual(stringified['1'][0][2], '1-2 MB')
 
+        # Test two simple overrides
         self.assertEqual(len(stringified['2']), 2)
         self.assertEqual(stringified['2'][0][0], 'C++:')
-        self.assertEqual(stringified['2'][0][1], '0.5-2 s')
-        self.assertEqual(stringified['2'][0][2], '500-1000 KiB')
+        self.assertEqual(stringified['2'][0][1], '1-3 s')
+        self.assertEqual(stringified['2'][0][2], '1-4 MB')
         self.assertEqual(stringified['2'][1][0], 'Python:')
-        self.assertEqual(stringified['2'][1][1], '1-3 s')
-        self.assertEqual(stringified['2'][1][2], '1-3 MB')
+        self.assertEqual(stringified['2'][1][1], '3-5 s')
+        self.assertEqual(stringified['2'][1][2], '2-5 MB')
 
-        self.assertEqual(len(stringified['2']), 2)
-        self.assertEqual(stringified['3'][0][0], 'Default:')
-        self.assertEqual(stringified['3'][0][1], '1-2 s')
-        self.assertEqual(stringified['3'][0][2], '1-2 MB')
-        self.assertEqual(stringified['3'][1][0], 'C++:')
-        self.assertEqual(stringified['3'][1][1], '0.5-2 s')
-        self.assertEqual(stringified['3'][1][2], '500-1000 KiB')
+        # Test two overrides, one with small memory limit
+        self.assertEqual(len(stringified['3']), 2)
+        self.assertEqual(stringified['3'][0][0], 'C++:')
+        self.assertEqual(stringified['3'][0][1], '0.5-2 s')
+        self.assertEqual(stringified['3'][0][2], '500-1000 KiB')
+        self.assertEqual(stringified['3'][1][0], 'Python:')
+        self.assertEqual(stringified['3'][1][1], '1-3 s')
+        self.assertEqual(stringified['3'][1][2], '1-3 MB')
+
+        # Test one override, cpp
+        self.assertEqual(len(stringified['4']), 2)
+        self.assertEqual(stringified['4'][0][0], 'Default:')
+        self.assertEqual(stringified['4'][0][1], '1-2 s')
+        self.assertEqual(stringified['4'][0][2], '1-2 MB')
+        self.assertEqual(stringified['4'][1][0], 'C++:')
+        self.assertEqual(stringified['4'][1][1], '0.5-2 s')
+        self.assertEqual(stringified['4'][1][2], '2-3 MB')
+
+        # Test one override, python
+        self.assertEqual(len(stringified['5']), 2)
+        self.assertEqual(stringified['5'][0][0], 'Default:')
+        self.assertEqual(stringified['5'][0][1], '1-2 s')
+        self.assertEqual(stringified['5'][0][2], '1-2 MB')
+        self.assertEqual(stringified['5'][1][0], 'Python:')
+        self.assertEqual(stringified['5'][1][1], '3-4 s')
+        self.assertEqual(stringified['5'][1][2], '1-3 MB')
+
+        # Test small memory limits
+        self.assertEqual(len(stringified['6']), 2)
+        self.assertEqual(stringified['6'][0][0], 'Default:')
+        self.assertEqual(stringified['6'][0][1], '1-2 s')
+        self.assertEqual(stringified['6'][0][2], '500-2000 KiB')
+        self.assertEqual(stringified['6'][1][0], 'C++:')
+        self.assertEqual(stringified['6'][1][1], '0.1-0.5 s')
+        self.assertEqual(stringified['6'][1][2], '100-200 KiB')
