@@ -16,7 +16,7 @@
         const sub_text = '{% trans "Subscribe" %}';
         const unsub_text = '{% trans "Unsubscribe" %}';
         const sub_url = 'subscription/';
-        const token = $.cookie('csrftoken');
+        const token = Cookies.get('csrftoken');
 
         let subscribed;
 
