@@ -397,10 +397,8 @@ def used_controllers():
     by contests on this instance.
     """
     return Contest.objects.values_list('controller_name', flat=True).distinct()
-
-
-@request_cached
-def visible_contests(request):
+    
+def visible_contests_query(request):
     """Returns materialized set of contests visible to the logged in user."""
     if request.GET.get('living', 'safely') == 'dangerously':
         visible_query = Contest.objects.none()
@@ -423,8 +421,18 @@ def visible_contests(request):
         visible_query |= Q(
             controller_name=controller_name
         ) & controller.registration_controller().visible_contests_query(request)
-    return set(Contest.objects.filter(visible_query).distinct())
+    return Contest.objects.filter(visible_query).distinct()
 
+@request_cached
+def visible_contests(request):
+    contests = visible_contests_query(request)
+    return set(contests)
+
+@request_cached_complex
+def visible_contests_queryset(request, filter_value):
+    contests = visible_contests_query(request)
+    contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))    
+    return set(contests)
 
 @request_cached
 def administered_contests(request):
