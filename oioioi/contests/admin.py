@@ -206,6 +206,13 @@ class ContestAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'name']
     ordering = ['-creation_date']
 
+    """ todo: add a js to change
+    class Media:
+        js = [
+            'js/contest_admin.js',  #todo!
+        ]
+    """
+
     def has_add_permission(self, request):
         return request.user.is_superuser
 

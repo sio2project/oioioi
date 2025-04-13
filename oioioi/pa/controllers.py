@@ -74,6 +74,8 @@ class PARegistrationController(ParticipantsController):
         registration_status = self.get_registration_status(request)
         if registration_status == RegistrationStatus.NOT_OPEN_YET:
             return TemplateResponse(request, 'contests/registration_not_open_yet.html')
+        if registration_status == RegistrationStatus.CLOSED:
+            return TemplateResponse(request, 'contests/registration_closed.html')
 
         participant = self._get_participant_for_form(request)
 
