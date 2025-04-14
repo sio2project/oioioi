@@ -1,0 +1,23 @@
+[
+    {
+        "pk": 1,
+        "model": "oi.schooltype",
+        "fields": {
+         "name": "Szkoła podstawowa"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "oi.schooltype",
+        "fields": {
+         "name": "Liceum ogólnokształcące"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "oi.schooltype",
+        "fields": {
+         "name": "Technikum"
+        }
+    }
+]
