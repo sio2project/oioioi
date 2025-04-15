@@ -19,8 +19,6 @@ if os.getuid() == 0:  # root
     print("ERROR: message and edit the source at your own risk.", file=sys.stderr)
     sys.exit(2)
 
-# All modules in the newest versions at the time of upgrade to Django 4.2
-# unless specified otherwise.
 requirements = [
     "Django>=5.2,<5.3",
     "pytz>=2023.3,<2023.4",
