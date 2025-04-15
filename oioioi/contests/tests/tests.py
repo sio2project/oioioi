@@ -4499,3 +4499,30 @@ class TestScoreBadges(TestCase):
         self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'zad1'))
         self.assertIn('badge-warning', self._get_badge_for_problem(response.content, 'zad2'))
         self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'zad3'))
+
+class TestContestListFiltering(TestCase):
+    fixtures = [
+        'test_contest',
+        'test_extra_contests',
+    ]
+
+    def setUp(self):
+        self.c = Contest.objects.get(id='c')
+        self.c1 = Contest.objects.get(id='c1')   
+        self.c2 = Contest.objects.get(id='c2')
+
+        return super().setUp()
+
+    def test_simple_filter(self):
+        self.url = reverse('filter_contests', kwargs={'filter_value':'test'})
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(response, self.c.name)
+        self.assertContains(response, self.c1.name)
+        self.assertContains(response, self.c2.name)
+
+    def extra_filter(self):
+        self.url = reverse('filter_contests', kwargs={'filter_value':'ExTrA'})
+        response = self.client.get(self.url, follow=True)
+        self.assertNotContains(response, self.c.name)
+        self.assertContains(response, self.c1.name)
+        self.assertContains(response, self.c2.name)
