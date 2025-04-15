@@ -372,7 +372,7 @@ class TestErrorHandlers(TestCase):
         self.client.login = custom_login
 
     def ajax_get(self, url):
-        return self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        return self.client.get(url, headers={"x-requested-with": 'XMLHttpRequest'})
 
     def assertHtml(self, response, code):
         self.assertContains(response, '<html', status_code=code)

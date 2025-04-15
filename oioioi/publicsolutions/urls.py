@@ -1,21 +1,21 @@
-from django.urls import re_path
+from django.urls import path
 
 from oioioi.publicsolutions import views
 
 app_name = 'publicsolutions'
 
 contest_patterns = [
-    re_path(r'^solutions/$', views.list_solutions_view, name='list_solutions'),
-    re_path(
-        r'^solutions/publish/$', views.publish_solutions_view, name='publish_solutions'
+    path('solutions/', views.list_solutions_view, name='list_solutions'),
+    path(
+        'solutions/publish/', views.publish_solutions_view, name='publish_solutions'
     ),
-    re_path(
-        r'^solutions/publish/(?P<submission_id>\d+)/$',
+    path(
+        'solutions/publish/<int:submission_id>/',
         views.publish_solution_view,
         name='publish_solution',
     ),
-    re_path(
-        r'^solutions/unpublish/(?P<submission_id>\d+)/$',
+    path(
+        'solutions/unpublish/<int:submission_id>/',
         views.unpublish_solution_view,
         name='unpublish_solution',
     ),

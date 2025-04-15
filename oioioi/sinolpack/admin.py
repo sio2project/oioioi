@@ -51,13 +51,15 @@ class SinolpackExtraFilesInline(admin.StackedInline):
     def has_view_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
+    @admin.display(
+        description=_("Extra file")
+    )
     def file_link(self, instance):
         if instance.id is not None:
             href = reverse('download_extra_file', kwargs={'file_id': str(instance.id)})
             return make_html_link(href, instance.name)
         return None
 
-    file_link.short_description = _("Extra file")
 
 
 class SinolpackProblemAdminMixin(object):

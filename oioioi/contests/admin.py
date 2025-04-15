@@ -13,7 +13,8 @@ from django.forms import ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.urls import re_path, reverse
+from django.urls import path
+from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.translation import get_language
@@ -737,7 +738,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_urls(self):
-        urls = [re_path(r'^rejudge/$', self.rejudge_view)]
+        urls = [path('rejudge/', self.rejudge_view)]
         return urls + super(SubmissionAdmin, self).get_urls()
 
     def rejudge_view(self, request):

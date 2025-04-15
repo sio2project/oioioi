@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.urls import path
 from django.urls import include, re_path
 from oioioi.base import admin, api, views
 from oioioi.base.main_page import main_page_view
@@ -8,27 +9,27 @@ from two_factor.urls import urlpatterns as tf_urls
 app_name = 'base'
 
 urlpatterns = [
-    re_path(r'', include(tf_urls)),
-    re_path(r'^force_error/$', views.force_error_view, name='force_error'),
-    re_path(
-        r'^force_permission_denied/$',
+    path('', include(tf_urls)),
+    path('force_error/', views.force_error_view, name='force_error'),
+    path(
+        'force_permission_denied/',
         views.force_permission_denied_view,
         name='force_permission_denied',
     ),
-    re_path(r'^edit_profile/$', views.edit_profile_view, name='edit_profile'),
-    re_path(r'^logout/$', views.logout_view, name='logout'),
-    re_path(r'^translate/$', views.translate_view, name='translate'),
-    re_path(r'^login/$', views.login_view, name='login'),
-    re_path(r'^delete_account/$', views.delete_account_view, name='delete_account'),
-    re_path(r'^generate_key/$', views.generate_key_view, name='generate_key'),
+    path('edit_profile/', views.edit_profile_view, name='edit_profile'),
+    path('logout/', views.logout_view, name='logout'),
+    path('translate/', views.translate_view, name='translate'),
+    path('login/', views.login_view, name='login'),
+    path('delete_account/', views.delete_account_view, name='delete_account'),
+    path('generate_key/', views.generate_key_view, name='generate_key'),
     # don't include without appropriate patching! admincdocs provides its own
     # login view which can be used to bypass 2FA.
     #   re_path(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    re_path(r'^admin/logout/$', views.logout_view),
+    path('admin/logout/', views.logout_view),
 ]
 
 urlpatterns += [
-    re_path(r'^$', main_page_view, name='index'),
+    path('', main_page_view, name='index'),
 ]
 
 noncontest_patterns = [
