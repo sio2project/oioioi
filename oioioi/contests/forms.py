@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.core.validators import RegexValidator
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
 from django.forms import ValidationError
@@ -31,7 +32,7 @@ class SimpleContestForm(forms.ModelForm):
         # form should not be on the 'name' field, otherwise the 'id' field,
         # as prepopulated with 'name' in ContestAdmin model, is cleared by
         # javascript with prepopulated fields functionality.
-        fields = ['controller_name', 'name', 'id']
+        fields = ['controller_name', 'name', 'id', 'school_year']
 
     start_date = forms.SplitDateTimeField(
         label=_("Start date"), widget=widgets.AdminSplitDateTime()
@@ -41,6 +42,23 @@ class SimpleContestForm(forms.ModelForm):
     )
     results_date = forms.SplitDateTimeField(
         required=False, label=_("Results date"), widget=widgets.AdminSplitDateTime()
+    )
+
+    def validate_years(year):
+        year1 = int(year[:4])
+        year2 = int(year[5:])
+        if year1+1 != year2:
+            raise ValidationError("The selected years must be consecutive.")
+
+    school_year = forms.CharField(
+        required=False, label=_("School year"), validators=[        
+            RegexValidator(
+                regex=r'^[0-9]{4}[/][0-9]{4}$',
+                message="Enter a valid school year in the format 2021/2022.",
+                code="invalid_school_year",
+            ),
+            validate_years,
+            ]
     )
 
     def _generate_default_dates(self):
