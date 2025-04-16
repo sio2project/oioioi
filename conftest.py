@@ -12,7 +12,8 @@ def pytest_addoption(parser):
     parser.addoption(
         '--runslow', action='store_true', default=False, help="run slow tests"
     )
-    parser.addoption("--strict-template-vars", action="store_true", help="Raise errors for undefined template variables")
+    parser.addoption(
+        '--strict-template-vars', action='store_true', help="Raise errors for undefined template variables")
 
 # called for running each test
 def pytest_runtest_setup(item):
