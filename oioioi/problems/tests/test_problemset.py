@@ -170,19 +170,19 @@ class TestTagProposalSearch(TestCase):
     def test_search_min_3(self):
         self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
         self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, False, False)
-        self._try_single_search({'algorithm': 'greedy'}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
 
     @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=2)
     def test_search_min_2(self):
         self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
         self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, False)
-        self._try_single_search({'algorithm': 'greedy'}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
 
     @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1)
     def test_search_min_1(self):
         self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, True, True)
         self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, True)
-        self._try_single_search({'algorithm': 'greedy'}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
 
     @override_settings(
         PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
@@ -191,7 +191,7 @@ class TestTagProposalSearch(TestCase):
     def test_search_min_1_limit_1(self):
         self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
         self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, False)
-        self._try_single_search({'algorithm': 'greedy'}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
 
     @override_settings(
         PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
@@ -200,7 +200,7 @@ class TestTagProposalSearch(TestCase):
     def test_search_min_1_limit_0(self):
         self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, False)
         self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, False, False)
-        self._try_single_search({'algorithm': 'greedy'}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
 
 
 
