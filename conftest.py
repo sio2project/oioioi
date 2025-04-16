@@ -4,9 +4,7 @@ import pytest
 
 from oioioi.base.tests import pytest_plugin as base_plugin
 from oioioi.contests.tests import pytest_plugin as contests_plugin
-from django.template.base import Variable
-from oioioi.base.templatetags.strict_variable import StrictVariable
-
+from django.conf import settings
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -22,7 +20,7 @@ def pytest_runtest_setup(item):
 
 def pytest_configure(config):
     if config.getoption("--strict-template-vars"):
-        Variable.resolve = StrictVariable.resolve
+        settings.TEMPLATES[0]['OPTIONS']['string_if_invalid'] = '{% templatetag openvariable %} INVALID_VAR: %s {% templatetag closevariable %}'
         
 
 def pytest_collection_modifyitems(config, items):
