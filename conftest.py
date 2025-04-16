@@ -4,19 +4,25 @@ import pytest
 
 from oioioi.base.tests import pytest_plugin as base_plugin
 from oioioi.contests.tests import pytest_plugin as contests_plugin
+from django.template.base import Variable
+from oioioi.base.templatetags.strict_variable import StrictVariable
 
 
 def pytest_addoption(parser):
     parser.addoption(
         '--runslow', action='store_true', default=False, help="run slow tests"
     )
-
+    parser.addoption("--strict-template-vars", action="store_true", help="Raise errors for undefined template variables")
 
 # called for running each test
 def pytest_runtest_setup(item):
     contests_plugin.pytest_runtest_setup(item)
     base_plugin.pytest_runtest_setup(item)
 
+def pytest_configure(config):
+    if config.getoption("--strict-template-vars"):
+        Variable.resolve = StrictVariable.resolve
+        
 
 def pytest_collection_modifyitems(config, items):
     # --runslow flag: do not skip slow tests
