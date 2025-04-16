@@ -41,7 +41,7 @@ requirements = [
     "Werkzeug",
     "pytest>=7.2,<8.0",
     "pytest-cov>=4.0,<5.0",
-    "pytest-django>=4.4,<5.0",
+    "pytest-django>=4.11,<5.0",
     "pytest-html>=3.1,<4.0",
     "pytest-metadata>=3.0,<4.0",
     "pytest-xdist>=3.2,<4.0",
@@ -60,7 +60,7 @@ requirements = [
     "fontawesomefree>=6.4,<6.5",
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.
-    "django-nested-admin>=4.0,<4.1",
+    "django-nested-admin>=4.1,<4.2",
     # SIO2 dependencies:
     "filetracker>=2.2.0,<3.0",
     "django-simple-captcha>=0.5,<=0.5.18",
