@@ -14,10 +14,12 @@ def pytest_addoption(parser):
     parser.addoption(
         '--strict-template-vars', action='store_true', help="Raise errors for undefined template variables")
 
+
 # called for running each test
 def pytest_runtest_setup(item):
     contests_plugin.pytest_runtest_setup(item)
     base_plugin.pytest_runtest_setup(item)
+
 
 def pytest_configure(config):
     if config.getoption("--strict-template-vars"):
