@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import random
 import re
 import string
@@ -32,16 +30,22 @@ WORDS = ['Whole', 'Crime', 'Eight', 'Member', 'Join', 'Man', 'Thing', 'Box', 'Fr
 # This function is to be used for finding anyname that isn't
 # used in the database yet.
 def get_unique_field_value(model_class, field_name, base_value):
-    regex_pattern = base_value + r"(\d+)"
 
-    filter_kwargs = {f"{field_name}__regex": f"^{regex_pattern}"}
+    filter_kwargs = {f"{field_name}__startswith": base_value}
 
     existing_vals = model_class.objects.filter(**filter_kwargs).values_list(field_name, flat=True)
 
     unused = 0
+    regex_pattern = base_value + r"(\d+)"
     for value in existing_vals:
-        num = int(re.search(regex_pattern, value).group(1))
-        unused = max(unused, num + 1)
+        # Try to convert to number
+        try:
+            # Find the integer after base_value in the field
+            num = int(re.search(regex_pattern, value).group(1)) 
+            # Make sure unused is different than num
+            unused = max(unused, num + 1)
+        except ValueError:
+            pass
 
     return base_value + str(unused)
 
@@ -134,7 +138,6 @@ class Command(BaseCommand):
         # Create levels[level] values for each category and store them in info_values[level]
         info_values = [[] for i in range(len(levels))]
         for level in range(len(levels)):
-            print(level, levels)
             for i in range(levels[level]):
                 # Create an OriginInfoValue for each branch in the current level
                 info_value = OriginInfoValue(
