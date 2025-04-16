@@ -5,8 +5,16 @@
 
 {% block main-content %}
 <h2>
-    {% blocktrans %}Choose a contest to attach the problem to {{ problem_instance }}: {% endblocktrans %}
+    {% blocktrans %} Contest choice {% endblocktrans %}
 </h2>
+<p>
+    {% blocktrans %}Choose a contest to attach the following problems to: {% endblocktrans %}
+    <ul class="list-group d-inline-block">
+        {% for problem in problem_instances %}
+            <li class="list-group-item">{{ problem }}</li>
+        {% endfor %}
+    </ul>
+</p>
 
 <div class="table-responsive-md row">
     <div class="col-md-6">
@@ -21,7 +29,7 @@
                 {% for contest in contest_list %}
                 <tr>
                     <td>{{ contest.id }}</td>
-                    <td><a href="{% url 'reattach_problem_confirm' problem_instance.id contest.id %}">
+                    <td><a href="{% url 'reattach_problem_confirm' contest.id %}/?ids={{ problem_ids }}">
                             {{ contest.name }}
                         </a>
                         {% if contest.is_archived %}
@@ -36,7 +44,7 @@
 </div>
 {% if not full_list %}
     <a class="btn btn-outline-secondary"
-       href="{% url 'reattach_problem_contest_list' problem_instance.id 'full' %}">
+       href="{% url 'reattach_problem_contest_list' 'full' %}/?ids={{ problem_ids }}">
         {% trans "More" %}
     </a>
 {% endif %}
