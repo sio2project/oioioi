@@ -10,9 +10,9 @@
                 <div class="description">{{ fieldset.description|safe }}</div>
             {% endif %}
             {% for line in fieldset %}
-                <div class="form-group{% if line.fields|length_is:'1' and line.errors %} errors{% endif %}{% if not line.has_visible_field %} d-none{% endif %}{% for field in line %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% endfor %}">
+                <div class="form-group{% if line.fields|length == 1 and line.errors %} errors{% endif %}{% if not line.has_visible_field %} d-none{% endif %}{% for field in line %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% endfor %}">
                     {% for field in line %}
-                        <div{% if not line.fields|length_is:'1' %} class="fieldBox{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% if not field.is_readonly and field.errors %} errors{% endif %}{% if field.field.is_hidden %} d-none{% endif %}"{% elif field.is_checkbox %} class="form-check checkbox-row"{% endif %}>
+                        <div{% if not line.fields|length == 1 %} class="fieldBox{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% if not field.is_readonly and field.errors %} errors{% endif %}{% if field.field.is_hidden %} d-none{% endif %}"{% elif field.is_checkbox %} class="form-check checkbox-row"{% endif %}>
                             {% if field.is_checkbox %}
                                 {% if field.errors %}
                                     {{ field.field | add_class:"form-check-input" | add_class:"is-invalid" }}

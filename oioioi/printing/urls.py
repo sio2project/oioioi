@@ -1,9 +1,9 @@
-from django.urls import re_path
+from django.urls import path
 
 from oioioi.printing import views
 
 app_name = 'printing'
 
 contest_patterns = [
-    re_path(r'^printing/$', views.print_view, name='print_view'),
+    path('printing/', views.print_view, name='print_view'),
 ]

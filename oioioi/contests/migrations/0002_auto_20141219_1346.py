@@ -52,9 +52,10 @@ class Migration(migrations.Migration):
             name='contestview',
             unique_together=set([('user', 'contest')]),
         ),
-        migrations.AlterIndexTogether(
-            name='contestview',
-            index_together=set([('user', 'timestamp')]),
+        migrations.AddIndex(
+            model_name='contestview',
+            index=models.Index(name="contests_contestview_user_id_timestamp_a0151775_idx",
+                               fields=('user', 'timestamp')),
         ),
         migrations.AddField(
             model_name='contestpermission',

@@ -68,7 +68,7 @@ class TestTestrunViews(TestCase):
         with fake_time(datetime(2011, 8, 5, tzinfo=timezone.utc)):
             show_output = self.client.get(
                 reverse('get_testrun_input', kwargs=kwargs),
-                HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                headers={"x-requested-with": 'XMLHttpRequest'}
             )
             self.assertContains(show_output, '9 9')
             self.assertContains(show_output, 'Input')
@@ -96,7 +96,7 @@ class TestTestrunViews(TestCase):
         with fake_time(datetime(2011, 8, 5, tzinfo=timezone.utc)):
             show_output = self.client.get(
                 reverse('get_testrun_output', kwargs=kwargs),
-                HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                headers={"x-requested-with": 'XMLHttpRequest'}
             )
             self.assertContains(show_output, '18')
             self.assertContains(show_output, 'Output')
@@ -116,7 +116,7 @@ class TestTestrunViews(TestCase):
         with fake_time(datetime(2014, 8, 5, tzinfo=timezone.utc)):
             show_output = self.client.get(
                 reverse('get_testrun_output', kwargs=kwargs),
-                HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+                headers={"x-requested-with": 'XMLHttpRequest'}
             )
             self.assertContains(show_output, '18')
 

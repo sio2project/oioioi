@@ -2,6 +2,7 @@ import sys
 from importlib import import_module
 
 from django.conf import settings
+from django.urls import path
 from django.urls import include, re_path
 
 from oioioi.contests import admin, api, views
@@ -71,14 +72,14 @@ def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
 
     return [
         re_path(r'^c/[a-z0-9_-]+/', include((contests, 'contest'))),
-        re_path(r'', include((noncontests, 'noncontest'))),
+        path('', include((noncontests, 'noncontest'))),
     ] + globs
 
 
 c_patterns = [
-    re_path(r'^$', views.default_contest_view, name='default_contest_view'),
-    re_path(r'^rules/$', views.contest_rules_view, name='contest_rules'),
-    re_path(r'^p/$', views.problems_list_view, name='problems_list'),
+    path('', views.default_contest_view, name='default_contest_view'),
+    path('rules/', views.contest_rules_view, name='contest_rules'),
+    path('p/', views.problems_list_view, name='problems_list'),
     re_path(
         r'^p/(?P<problem_instance>[a-z0-9_-]+)/$',
         views.problem_statement_view,
@@ -109,65 +110,65 @@ c_patterns = [
         views.reset_tests_limits_for_probleminstance_view,
         name='reset_tests_limits_for_probleminstance',
     ),
-    re_path(r'^submit/$', views.submit_view, name='submit'),
+    path('submit/', views.submit_view, name='submit'),
     re_path(
         r'^submit/(?P<problem_instance_id>[a-z0-9_-]+)/$',
         views.submit_view,
         name='submit',
     ),
-    re_path(
-        r'^submit_edit_message/$',
+    path(
+        'submit_edit_message/',
         views.edit_submit_message_view,
         name='edit_submit_message',
     ),
-    re_path(r'^submissions/$', views.my_submissions_view, name='my_submissions'),
-    re_path(
-        r'^submissions_edit_message/$',
+    path('submissions/', views.my_submissions_view, name='my_submissions'),
+    path(
+        'submissions_edit_message/',
         views.edit_submissions_message_view,
         name='edit_submissions_message',
     ),
-    re_path(
-        r'^submission_edit_message/$',
+    path(
+        'submission_edit_message/',
         views.edit_submission_message_view,
         name='edit_submission_message',
     ),
-    re_path(r'^files/$', views.contest_files_view, name='contest_files'),
-    re_path(
-        r'^files_edit_message/$',
+    path('files/', views.contest_files_view, name='contest_files'),
+    path(
+        'files_edit_message/',
         views.edit_files_message_view,
         name='edit_files_message',
     ),
-    re_path(
-        r'^ca/(?P<attachment_id>\d+)/$',
+    path(
+        'ca/<int:attachment_id>/',
         views.contest_attachment_view,
         name='contest_attachment',
     ),
-    re_path(
-        r'^pa/(?P<attachment_id>\d+)/$',
+    path(
+        'pa/<int:attachment_id>/',
         views.problem_attachment_view,
         name='problem_attachment',
     ),
-    re_path(r'^user_hints/$', views.contest_user_hints_view, name='contest_user_hints'),
-    re_path(r'^u/(?P<user_id>\d+)$', views.user_info_view, name='user_info'),
-    re_path(
-        r'^user_info_redirect/$',
+    path('user_hints/', views.contest_user_hints_view, name='contest_user_hints'),
+    path('u/<int:user_id>', views.user_info_view, name='user_info'),
+    path(
+        'user_info_redirect/',
         views.user_info_redirect_view,
         name='user_info_redirect',
     ),
     re_path(r'^admin/', admin.contest_site.urls),
-    re_path(r'^archive/confirm$', views.confirm_archive_contest, name='confirm_archive_contest'),
-    re_path(r'^unarchive/$', views.unarchive_contest, name='unarchive_contest'),
+    path('archive/confirm', views.confirm_archive_contest, name='confirm_archive_contest'),
+    path('unarchive/', views.unarchive_contest, name='unarchive_contest'),
 ]
 
 nonc_patterns = [
-    re_path(r'^submissions/$', views.all_submissions_view, name='all_submissions'),
+    path('submissions/', views.all_submissions_view, name='all_submissions'),
 ]
 
 neutral_patterns = [
-    re_path(r'^contest/$', views.select_contest_view, name='select_contest'),
-    re_path(r'^s/(?P<submission_id>\d+)/$', views.submission_view, name='submission'),
-    re_path(
-        r'^s/(?P<submission_id>\d+)/rejudge/$',
+    path('contest/', views.select_contest_view, name='select_contest'),
+    path('s/<int:submission_id>/', views.submission_view, name='submission'),
+    path(
+        's/<int:submission_id>/rejudge/',
         views.rejudge_submission_view,
         name='rejudge_submission',
     ),
@@ -176,8 +177,8 @@ neutral_patterns = [
         views.change_submission_kind_view,
         name='change_submission_kind',
     ),
-    re_path(
-        r'^s/(?P<submission_id>\d+)/report/(?P<report_id>\d+)/$',
+    path(
+        's/<int:submission_id>/report/<int:report_id>/',
         views.report_view,
         name='report',
     ),

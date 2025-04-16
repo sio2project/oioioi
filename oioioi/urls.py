@@ -4,6 +4,7 @@ from importlib import import_module
 from django.conf import settings
 from django.contrib import admin as django_admin
 from django.views import i18n
+from django.urls import path
 from django.urls import include, re_path
 
 from oioioi.base import registration_backend
@@ -16,8 +17,8 @@ handler404 = 'oioioi.base.views.handler404'
 handler500 = 'oioioi.base.views.handler500'
 
 urlpatterns = [
-    re_path(
-        r'^jsi18n/$',
+    path(
+        'jsi18n/',
         i18n.JavaScriptCatalog.as_view(
             packages=[
                 'oioioi._locale',
@@ -25,15 +26,15 @@ urlpatterns = [
         ),
         name='javascript_catalog',
     ),
-    re_path(r'^nested_admin/', include('nested_admin.urls')),
-    re_path(r'^captcha/', include('captcha.urls')),
+    path('nested_admin/', include('nested_admin.urls')),
+    path('captcha/', include('captcha.urls')),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns += [
-        re_path(r'^__debug__/', include(debug_toolbar.urls)),
+        path('__debug__/', include(debug_toolbar.urls)),
     ]
 
 def try_to_import_module(name):

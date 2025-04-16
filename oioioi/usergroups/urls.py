@@ -1,3 +1,4 @@
+from django.urls import path
 from django.urls import re_path
 
 from oioioi.usergroups import views
@@ -5,77 +6,77 @@ from oioioi.usergroups import views
 app_name = 'usergroups'
 
 urlpatterns = [
-    re_path(
-        r'^usergroups/list/$',
+    path(
+        'usergroups/list/',
         views.GroupsListView.as_view(),
         name='teacher_usergroups_list',
     ),
-    re_path(
-        r'^usergroups/add/$',
+    path(
+        'usergroups/add/',
         views.GroupsAddView.as_view(),
         name='teacher_usergroups_add_group',
     ),
-    re_path(
-        r'^usergroups/show/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/show/<int:usergroup_id>/',
         views.GroupsDetailView.as_view(),
         name='teacher_usergroup_detail',
     ),
-    re_path(
-        r'^usergroups/addition/off/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/addition/off/<int:usergroup_id>/',
         views.set_addition_view,
         {'value': False},
         name='usergroups_disable_addition',
     ),
-    re_path(
-        r'^usergroups/addition/on/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/addition/on/<int:usergroup_id>/',
         views.set_addition_view,
         {'value': True},
         name='usergroups_enable_addition',
     ),
-    re_path(
-        r'^usergroups/addition/key/regenerate/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/addition/key/regenerate/<int:usergroup_id>/',
         views.regenerate_addition_key_view,
         name='usergroups_regenerate_addition_key',
     ),
-    re_path(
-        r'^usergroups/(?P<usergroup_id>\d+)/members/delete/$',
+    path(
+        'usergroups/<int:usergroup_id>/members/delete/',
         views.delete_members_view,
         name='usergroups_delete_members',
     ),
-    re_path(
-        r'^usergroups/delete/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/delete/<int:usergroup_id>/',
         views.GroupsDeleteView.as_view(),
         name='delete_usergroup_confirmation',
     ),
-    re_path(
-        r'^usergroups/sharing/on/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/sharing/on/<int:usergroup_id>/',
         views.set_sharing_view,
         {'value': True},
         name='usergroups_enable_sharing',
     ),
-    re_path(
-        r'^usergroups/sharing/off/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/sharing/off/<int:usergroup_id>/',
         views.set_sharing_view,
         {'value': False},
         name='usergroups_disable_sharing',
     ),
-    re_path(
-        r'^usergroups/sharing/key/regenerate/(?P<usergroup_id>\d+)/$',
+    path(
+        'usergroups/sharing/key/regenerate/<int:usergroup_id>/',
         views.regenerate_sharing_key_view,
         name='usergroups_regenerate_sharing_key',
     ),
-    re_path(
-        r'^usergroups/(?P<usergroup_id>\d+)/owners/delete/$',
+    path(
+        'usergroups/<int:usergroup_id>/owners/delete/',
         views.delete_owners_view,
         name='usergroups_delete_owners',
     ),
-    re_path(
-        r'^usergroups/attach/$',
+    path(
+        'usergroups/attach/',
         views.attach_to_contest_view,
         name='usergroup_attach_to_contest',
     ),
-    re_path(
-        r'^usergroups/(?P<usergroup_id>\d+)/detach/$',
+    path(
+        'usergroups/<int:usergroup_id>/detach/',
         views.detach_from_contest_view,
         name='usergroup_detach_from_contest',
     ),
