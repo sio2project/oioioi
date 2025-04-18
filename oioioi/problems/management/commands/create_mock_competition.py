@@ -49,6 +49,71 @@ def get_unique_field_value(model_class, field_name, base_value):
 
     return base_value + str(unused)
 
+def create_origin_tag(competition_name):
+    """Create an OriginTag for the competition_name with the name it is given or
+    a unique name starting with 'mock'
+    """
+    if competition_name is not None:
+        # Disallow duplicate origin tags, and raise an exception
+        if OriginTag.objects.filter(name=competition_name).exists():
+            raise Exception(
+                "An origin_tag with competition name '%s' already exists, " \
+                "choose a non-duplicate name for the competition." % competition_name
+            )
+    else:
+        # Find a unique name of the form 'mock%d'
+        competition_name = get_unique_field_value(OriginTag, 'name', 'mock')
+
+    # Create top-level origin tag for the competition.
+    origin_tag = OriginTag(name=competition_name)
+    origin_tag.save()
+
+    # Assign the name ot_name for the competiton for the default language.
+    OriginTagLocalization(
+        origin_tag = origin_tag,
+        language = get_language(),
+        short_name = competition_name,
+        full_name = competition_name
+    ).save()
+
+    return origin_tag
+
+def create_origin_info_categories(origin_tag, levels):
+    """Create an OriginInfoCategory for each level described by levels
+    """
+    categories = []
+    for level in range(len(levels)):
+        category = OriginInfoCategory(parent_tag=origin_tag, name = 'level%d' % level, order = level)
+        category.save()
+        categories.append(category)
+
+    return categories
+
+def create_origin_info_values(origin_tag, levels, categories):
+    """Create levels[level] values for each category
+    """
+    info_values = [[] for i in range(len(levels))]
+    for level in range(len(levels)):
+        for i in range(levels[level]):
+            # Create an OriginInfoValue for each branch in the current level
+            info_value = OriginInfoValue(
+                value = '%d_%d' % (level, i),
+                parent_tag = origin_tag,
+                category = categories[level],
+            )
+            info_value.save()
+            info_values[level].append(info_value)
+
+            # Name the OriginInfoValue in the default language
+            localization = OriginInfoValueLocalization(
+                origin_info_value = info_value,
+                language = get_language(),
+                full_value = 'Level %d - %d' % (level, i)
+            )
+            localization.save()
+
+    return info_values
+
 class Command(BaseCommand):
     help = (
         "Create a mock competition with empty problems. "
@@ -114,59 +179,9 @@ class Command(BaseCommand):
 
         PROBLEMS_PER_LEAF = 3
 
-        # Get the name of the origin tag competition name
-        ot_name = None
-        if options['competition_name'] is not None:
-            ot_name = options['competition_name']
-            # Disallow duplicate origin tags, and raise an exception
-            if OriginTag.objects.filter(name=ot_name).exists():
-                raise Exception(
-                    "An origin_tag with competition name '%s' already exists, " \
-                    "choose a non-duplicate name for the competition." % ot_name
-                )
-        else:
-            # Find a unique name of the form 'mock%d'
-            ot_name = get_unique_field_value(OriginTag, 'name', 'mock')
-
-        # Create top-level origin tag for the competition.
-        ot = OriginTag(name=ot_name)
-        ot.save()
-
-        # Assign the name ot_name for the competiton for the default language.
-        OriginTagLocalization(
-            origin_tag = ot,
-            language = get_language(),
-            short_name = ot_name,
-            full_name = ot_name
-        ).save()
-        
-        # Create a category for each level
-        categories = []
-        for level in range(len(levels)):
-            category = OriginInfoCategory(parent_tag=ot, name = 'level%d' % level, order = level)
-            category.save()
-            categories.append(category)
-
-        # Create levels[level] values for each category and store them in info_values[level]
-        info_values = [[] for i in range(len(levels))]
-        for level in range(len(levels)):
-            for i in range(levels[level]):
-                # Create an OriginInfoValue for each branch in the current level
-                info_value = OriginInfoValue(
-                    value = '%d_%d' % (level, i),
-                    parent_tag = ot,
-                    category = categories[level],
-                )
-                info_value.save()
-                info_values[level].append(info_value)
-
-                # Name the OriginInfoValue in the default language
-                localization = OriginInfoValueLocalization(
-                    origin_info_value = info_value,
-                    language = get_language(),
-                    full_value = 'Level %d - %d' % (level, i)
-                )
-                localization.save()
+        origin_tag = create_origin_tag(options['competition_name'])
+        categories = create_origin_info_categories(origin_tag, levels)
+        info_values = create_origin_info_values(origin_tag, levels, categories)
 
         # Recursive function for creating problem. It traverses the tree of 
         # problems depth-first and returns all the problems in its subtree.
@@ -198,7 +213,7 @@ class Command(BaseCommand):
                     ProblemSite(problem = p, url_key = str(random.randrange(2 ** 40))).save()
 
                     # Add the problem to the competition origin tag.
-                    ot.problems.add(p)
+                    origin_tag.problems.add(p)
                 return problems
             else:
                 for i in range(levels[level]):
