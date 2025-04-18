@@ -119,10 +119,17 @@ class Problem(models.Model):
 
     @cached_property
     def name(self):
-        problem_name = ProblemName.objects.filter(
-            problem=self, language=get_language()
-        ).first()
-        return problem_name.name if problem_name else self.legacy_name
+        # We fetch all of self.names and filter by language in Python instead of Django. 
+        # This allows us to do prefetch_related('names'), which considerably speeds up 
+        # views such as task_archive_tag_view that query many problems and their associated names
+        try:
+            for problem_name in self.names.all():
+                if problem_name.language == get_language():
+                    return problem_name.name
+        except:
+            pass
+
+        return self.legacy_name
 
     @property
     def controller(self):
