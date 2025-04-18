@@ -93,8 +93,20 @@ class Command(BaseCommand):
             help="Number of levels of nesting of the competition."
         )
 
+        parser.add_argument(
+            "-s",
+            "--seed",
+            type=int,
+            action="store",
+            dest="seed",
+            help="Random seed to use for problem name randomization."
+        )
+
     @transaction.atomic
     def handle(self, *args, **options):
+        if options['seed'] is not None:
+            random.seed(options['seed'])
+
         # Array of branching factors for each level of the tree of problems.
         levels = [1]
         levels.append(options['branches'])
