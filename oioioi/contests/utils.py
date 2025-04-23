@@ -24,7 +24,8 @@ from oioioi.contests.models import (
     UserResultForProblem,
     SubmissionMessage,
 )
-
+from oioioi.programs.models import ProgramsConfig
+from oioioi.participants.models import TermsAcceptedPhrase
 
 class RoundTimes(object):
     def __init__(
@@ -649,6 +650,67 @@ def get_inline_for_contest(inline, contest):
 
     return ArchivedInlineWrapper
 
+# The whole section below requires refactoring,
+# may include refactoring the models of `Contest`, `ProgramsConfig` and `TermsAcceptedPhrase`
+
+def extract_programs_config_execution_mode(request):
+    return request.POST.get('programs_config-0-execution_mode', None)
+
+
+def create_programs_config(request, adding):
+    """Creates ProgramsConfig for a given contest if needed.
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
+    """
+    requested_contest_id = request.POST.get('id', None)
+    execution_mode = extract_programs_config_execution_mode(request)
+
+    if (
+        execution_mode and
+        execution_mode != 'AUTO'
+    ):
+        if adding and requested_contest_id:
+            ProgramsConfig.objects.create(contest_id=requested_contest_id, execution_mode=execution_mode)
+        elif not hasattr(request.contest, 'programs_config'):
+            ProgramsConfig.objects.create(contest_id=request.contest.id, execution_mode=execution_mode)
+
+
+def extract_terms_accepted_phrase_text(request):
+    return request.POST.get('terms_accepted_phrase-0-text', None)
+
+
+def create_terms_accepted_phrase(request, adding):
+    """Creates TermsAcceptedPhrase for a given contest if needed.
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
+    """
+
+    requested_contest_id = request.POST.get('id', None)
+    text = extract_terms_accepted_phrase_text(request)
+
+    if text:
+        if adding and requested_contest_id:
+            TermsAcceptedPhrase.objects.create(contest_id=requested_contest_id, text=text)
+        elif not hasattr(request.contest, 'terms_accepted_phrase'):
+            TermsAcceptedPhrase.objects.create(contest_id=request.contest.id, text=text)
+
+
+def create_contest_attributes(request, adding):
+    """Called to create certain attributes of contest object after modifying it that would not be created automatically.
+    Creates attributes are ProgramsConfig and TermsAcceptedPhrase
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
+    """
+    if request.method != 'POST':
+        return
+    create_programs_config(request, adding)
+    create_terms_accepted_phrase(request, adding)
 
 def get_problem_statements(request, controller, problem_instances):
     # Problem statements in order

@@ -835,6 +835,7 @@ class DifficultyTag(models.Model):
     class Meta(object):
         verbose_name = _("difficulty tag")
         verbose_name_plural = _("difficulty tags")
+        ordering = ["pk"]
 
     def __str__(self):
         return str(self.name)
@@ -990,6 +991,9 @@ class AggregatedAlgorithmTagProposal(models.Model):
         verbose_name = _("aggregated algorithm tag proposal")
         verbose_name_plural = _("aggregated algorithm tag proposals")
         unique_together = ('problem', 'tag')
+        indexes = [
+            models.Index(fields=['problem']),
+        ]
 
 
 def increase_aggregated_tag_proposal(sender, instance, created, aggregated_model, **kwargs):
