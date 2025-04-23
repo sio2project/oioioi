@@ -1,5 +1,5 @@
 {% extends "base-with-menu.html" %}
-{% load i18n %}
+{% load i18n pagination_tags %}
 
 {% block title %}{% trans "Select contest" %}{% endblock %}
 
@@ -31,6 +31,7 @@
                 });
             </script>
         </div>
+        {% autopaginate contests contests_on_page %}
         <div class="table-responsive-md">
         <table class="table">
             <thead>
@@ -57,6 +58,7 @@
             </tbody>
         </table>
     </div>
+    {% paginate %}
 </article>
 
 {% endblock %}

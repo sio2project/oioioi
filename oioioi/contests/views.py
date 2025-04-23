@@ -92,6 +92,7 @@ def select_contest_view(request):
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
     context = {
         'contests': contests,
+        'contests_on_page': getattr(settings, "CONTESTS_ON_PAGE", 20)
     }
     return TemplateResponse(
         request, 'contests/select_contest.html', context
@@ -846,6 +847,7 @@ def filter_contests_view(request, filter_value=""):
     
     context = {
         'contests' : contests,
+        'contests_on_page' : getattr(settings, 'CONTESTS_ON_PAGE', 20),
     }  
     return TemplateResponse(
         request, 'contests/select_contest.html', context
