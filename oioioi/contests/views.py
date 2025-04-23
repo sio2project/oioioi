@@ -779,8 +779,9 @@ def reattach_problem_contest_list_view(request, full_list=False):
     problem_ids = request.GET.get('ids')
     if problem_ids:
         problem_ids = [int(i) for i in problem_ids.split(',') if i.isdigit()]
-    else:
-        pass # TODO
+
+    if not problem_ids:
+        raise SuspiciousOperation("Invalid problem ids")
 
     problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
 
@@ -811,8 +812,9 @@ def reattach_problem_confirm_view(request, contest_id):
     problem_ids = request.GET.get('ids')
     if problem_ids:
         problem_ids = [int(i) for i in problem_ids.split(',')]
-    else:
-        pass # TODO
+
+    if not problem_ids:
+        raise SuspiciousOperation("Invalid problem ids")
 
     problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
 
@@ -837,7 +839,7 @@ def reattach_problem_confirm_view(request, contest_id):
         'contests/reattach_problem_confirm.html',
         {
             'problem_instances': problem_instances,
-            'destination_contest': contest
+            'contest': contest
         },
     )
 

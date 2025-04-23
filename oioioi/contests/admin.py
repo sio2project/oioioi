@@ -383,10 +383,6 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     actions = ['attach_problems_to_another_contest']
 
     def attach_problems_to_another_contest(self, request, queryset):
-        print("self: ", self)
-        print("request: ", request)
-        print("queryset: ", queryset)
-
         ids = [problem.id for problem in queryset]
 
         # Attach problem ids as arguments to the URL

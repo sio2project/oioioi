@@ -3223,13 +3223,13 @@ class TestReattachingProblems(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        url = reverse('reattach_problem_contest_list', args=(pi_id, 'full'))
+        url = reverse('reattach_problem_contest_list', args=('full',)) + "/?ids={}".format(pi_id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Choose a contest to attach the problem to")
+        self.assertContains(response, "Choose a contest to attach the following problems to:")
         self.assertContains(response, '<td><a', count=Contest.objects.count())
 
-        url = reverse('reattach_problem_confirm', args=(pi_id, 'c2'))
+        url = reverse('reattach_problem_confirm', args=('c2',)) + "/?ids={}".format(pi_id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Extra test contest 2")
@@ -3256,8 +3256,8 @@ class TestReattachingProblems(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         urls = [
-            reverse('reattach_problem_contest_list', args=(pi_id,)),
-            reverse('reattach_problem_confirm', args=(pi_id, 'c1')),
+            reverse('reattach_problem_contest_list') + "/?ids={}".format(pi_id),
+            reverse('reattach_problem_confirm', args=('c1',)) + "/?ids={}".format(pi_id),
         ]
         for url in urls:
             response = self.client.get(url, follow=True)
