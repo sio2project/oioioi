@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import pytest
 from importlib import import_module, reload
 
 from captcha.models import CaptchaStore
@@ -79,7 +80,7 @@ if not getattr(settings, 'TESTS', False):
 
 basedir = os.path.dirname(__file__)
 
-
+@pytest.mark.usefixtures("require_migrations_flag")
 class TestMigrations(TestCase):
     # This only works if pytest is ran with `--migrations`, which is the case
     # in github workflow files. Otherwise the test seemingly always passes.

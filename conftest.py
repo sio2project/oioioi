@@ -38,3 +38,11 @@ def pytest_html_results_table_header(cells):
 @pytest.mark.optionalhook
 def pytest_html_results_table_row(report, cells):
     cells.pop()
+
+@pytest.fixture()
+def require_migrations_flag(request):
+    config = request.config
+    nomigrations_enabled_flag = config.getoption("nomigrations")
+
+    if nomigrations_enabled_flag:
+        pytest.skip("Test requires the --migrations flag to run.")
