@@ -272,7 +272,6 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         raise NotImplementedError
 
-
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
 
@@ -973,6 +972,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def show_default_fields(self, problem_instance):
         return problem_instance.problem.controller.show_default_fields(problem_instance)
+
+    def registration_is_enabeld(self):
+        return False
 
 
 class PastRoundsHiddenContestControllerMixin(object):

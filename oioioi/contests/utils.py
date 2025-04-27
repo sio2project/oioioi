@@ -27,15 +27,16 @@ from oioioi.contests.models import (
 from oioioi.programs.models import ProgramsConfig
 from oioioi.participants.models import TermsAcceptedPhrase
 
+
 class RoundTimes(object):
     def __init__(
-        self,
-        start,
-        end,
-        contest,
-        show_results=None,
-        show_public_results=None,
-        extra_time=0,
+            self,
+            start,
+            end,
+            contest,
+            show_results=None,
+            show_public_results=None,
+            extra_time=0,
     ):
         self.start = start
         self.end = end
@@ -75,7 +76,7 @@ class RoundTimes(object):
             )
 
         return current_datetime >= self.show_results
-    
+
     def results_date(self):
         return self.show_results
 
@@ -96,7 +97,7 @@ class RoundTimes(object):
             return False
 
         return current_datetime >= self.show_public_results
-    
+
     def public_results_date(self):
         if not self.contest.controller.separate_public_results():
             return self.results_date()
@@ -263,25 +264,27 @@ def visible_rounds(request, no_admin=False):
         request, r, no_admin=no_admin,
     )]
 
+
 @make_request_condition
 @request_cached
 def are_rules_visible(request):
     return (
-        hasattr(request, 'contest')
-        and request.contest.show_contest_rules
+            hasattr(request, 'contest')
+            and request.contest.show_contest_rules
     )
+
 
 @request_cached
 def get_number_of_rounds(request):
     """Returns the number of rounds in the current contest.
-    """ 
+    """
     return Round.objects.filter(contest=request.contest).count()
 
 
 def get_contest_dates(request):
     """Returns the end_date of the latest round and the start_date
     of the earliest round.
-    """ 
+    """
     rtimes = rounds_times(request, request.contest)
 
     ends = [
@@ -293,14 +296,14 @@ def get_contest_dates(request):
         for rt in rtimes.values()
     ]
 
-    if starts and None not in starts:  
-        min_start = min(starts)  
-    else:  
+    if starts and None not in starts:
+        min_start = min(starts)
+    else:
         min_start = None
 
-    if ends and None not in ends:  
+    if ends and None not in ends:
         max_end = max(ends)
-    else:  
+    else:
         max_end = None
 
     return min_start, max_end
@@ -309,7 +312,7 @@ def get_contest_dates(request):
 def get_scoring_desription(request):
     """Returns the scoring description of the current contest.
     """
-    if (hasattr(request.contest.controller, 'scoring_description') and 
+    if (hasattr(request.contest.controller, 'scoring_description') and
             request.contest.controller.scoring_description is not None):
         return request.contest.controller.scoring_description
     else:
@@ -330,7 +333,7 @@ def get_problems_sumbmission_limit(request):
 
     if queryset is None or not queryset.exists():
         return [Contest.objects.get(id=request.contest.id).default_submissions_limit]
-    
+
     limits = set()
     for p in queryset:
         limits.add(controller.get_submissions_limit(request, p, noadmin=True))
@@ -374,9 +377,9 @@ def get_results_visibility(request):
             ranking = _('after %(date)s') % {"date": public_results_date.strftime("%Y-%m-%d %H:%M:%S")}
 
         dates.append({
-            'name' : r.name,
-            'results' : results,
-            'ranking' : ranking
+            'name': r.name,
+            'results': results,
+            'ranking': ranking
         })
 
     return dates
@@ -461,6 +464,18 @@ def is_contest_admin(request):
 def can_admin_contest(user, contest):
     """Checks if the user should be allowed on the admin pages of the contest."""
     return user.has_perm('contests.contest_basicadmin', contest)
+
+
+@make_request_condition
+@request_cached
+def contest_has_registration(request):
+    """Check if the contests has registration config"""
+    return (
+            hasattr(request, 'contest') and (
+            not (request.contest is not None)
+            or (request.contest.controller.registration_is_enabeld())
+        )
+    )
 
 
 @make_request_condition
@@ -615,9 +630,9 @@ def get_submission_message(request):
 @request_cached
 def is_contest_archived(request):
     return (
-        hasattr(request, 'contest')
-        and (request.contest is not None)
-        and request.contest.is_archived
+            hasattr(request, 'contest')
+            and (request.contest is not None)
+            and request.contest.is_archived
     )
 
 
@@ -650,6 +665,7 @@ def get_inline_for_contest(inline, contest):
 
     return ArchivedInlineWrapper
 
+
 # The whole section below requires refactoring,
 # may include refactoring the models of `Contest`, `ProgramsConfig` and `TermsAcceptedPhrase`
 
@@ -668,8 +684,8 @@ def create_programs_config(request, adding):
     execution_mode = extract_programs_config_execution_mode(request)
 
     if (
-        execution_mode and
-        execution_mode != 'AUTO'
+            execution_mode and
+            execution_mode != 'AUTO'
     ):
         if adding and requested_contest_id:
             ProgramsConfig.objects.create(contest_id=requested_contest_id, execution_mode=execution_mode)
@@ -712,6 +728,7 @@ def create_contest_attributes(request, adding):
     create_programs_config(request, adding)
     create_terms_accepted_phrase(request, adding)
 
+
 def get_problem_statements(request, controller, problem_instances):
     # Problem statements in order
     # 1) problem instance
@@ -736,13 +753,13 @@ def get_problem_statements(request, controller, problem_instances):
                     (
                         r
                         for r in UserResultForProblem.objects.filter(
-                            user__id=request.user.id, problem_instance=pi
-                        )
+                        user__id=request.user.id, problem_instance=pi
+                    )
                         if r
-                        and r.submission_report
-                        and controller.can_see_submission_score(
-                            request, r.submission_report.submission
-                        )
+                           and r.submission_report
+                           and controller.can_see_submission_score(
+                        request, r.submission_report.submission
+                    )
                     ),
                     None,
                 ),
