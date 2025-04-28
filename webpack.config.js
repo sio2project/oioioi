@@ -6,6 +6,7 @@ module.exports = {
     index: './oioioi/base/static/js/index.js',
     datetimepicker: './oioioi/base/static/js/datetimepicker.js',
     portal_tree: './oioioi/portals/static/portals/portal_tree.js',
+    timeline: './oioioi/timeline/static/timeline/timeline.js',
   },
   output: {
     filename: '[name].bundle.js',
