@@ -12,11 +12,6 @@
 {% block scripts %}
 {{ block.super }}
 <script src="{% static 'timeline.bundle.js' %}"></script>
-<script>
-    $(function() {
-        init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'), '{{ server_timezone }}');
-    });
-</script>
 {% endblock %}
 
 {% block title %}{% trans "Timeline" %}{% endblock %}
