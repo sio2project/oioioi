@@ -4,6 +4,7 @@ import io
 
 import six
 import urllib.parse
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
@@ -21,6 +22,7 @@ from oioioi.problems.models import (
     DifficultyTag,
     DifficultyTagThrough,
     Problem,
+    ProblemName,
     ProblemAttachment,
     ProblemPackage,
     ProblemStatement,
@@ -867,3 +869,18 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         )
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ())
+
+def problem_name(problem, language):
+    problem_name = ProblemName.objects.filter(
+        problem=problem, language=language
+    ).first()
+    return problem_name.name if problem_name else problem.legacy_name
+
+class TestProblemName(TestCase):
+    fixtures = ['test_problem_search']
+
+    def test_problem_names(self):
+        for (lang_code, _) in settings.LANGUAGES:
+            with override_settings(LANGUAGE_CODE=lang_code):
+                for problem in Problem.objects.all():
+                    self.assertEqual(problem.name, problem_name(problem, lang_code))
