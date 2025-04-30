@@ -1,9 +1,9 @@
 import { TempusDominus } from '@eonasdan/tempus-dominus'
 
-window.init_timeline = function(lang_code, $timeline_form, server_timezone) {
+$(function() {
+    var $timeline_form = $('#timeline-form');
     var $timeline = $timeline_form.find('.oioioi-timeline');
 
-    var DATE_FORMAT = 'YYYY-MM-DD HH:mm';
     // the fraction of the timeline height that is taken by the gaps
     var DATE_RANGE_GAP = 1/7;
     var ONE_DAY = 24 * 60 * 60 * 1000;
@@ -122,8 +122,7 @@ If you want to split a date group, click the corresponding \
     }
 
     function set_date($datebox, new_date) {
-        $datebox.data('didSetDate', true);
-        $datebox.children('.date').data('TempusDominus').dates.setValue(new_date)
+        $datebox.children('.date').data('TempusDominus').dates.setValue(new_date, 0)
     }
 
     function set_width($datebox) {
@@ -594,14 +593,10 @@ If you want to split a date group, click the corresponding \
         $timeline
             .find('.oioioi-timeline__datebox')
             .on('change.td', function(e) {
+                if(!e.isValid)
+                    return
+
                 var $this = $(this);
-
-                // Ignore events that were triggered by set_date
-                if($this.data('didSetDate')) {
-                    $this.data('didSetDate', false);
-                    return;
-                }
-
                 var old_top = $this.offset().top;
                 set_group_date($this, e.date);
                 change_date_handler();
@@ -666,4 +661,4 @@ If you want to split a date group, click the corresponding \
     }
 
     init();
-};
+})
