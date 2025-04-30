@@ -52,6 +52,7 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
     visible_contests,
+    visible_contests_queryset, 
     visible_problem_instances,
     visible_rounds,
     get_files_message,
@@ -91,6 +92,7 @@ def select_contest_view(request):
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
     context = {
         'contests': contests,
+        'contests_on_page': getattr(settings, "CONTESTS_ON_PAGE", 20)
     }
     return TemplateResponse(
         request, 'contests/select_contest.html', context
@@ -838,3 +840,15 @@ def unarchive_contest(request):
     contest.is_archived = False
     contest.save()
     return redirect('default_contest_view', contest_id=contest.id)
+
+def filter_contests_view(request, filter_value=""):
+    contests = visible_contests_queryset(request, filter_value)
+    contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
+    
+    context = {
+        'contests' : contests,
+        'contests_on_page' : getattr(settings, 'CONTESTS_ON_PAGE', 20),
+    }  
+    return TemplateResponse(
+        request, 'contests/select_contest.html', context
+    )
