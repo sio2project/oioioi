@@ -1,4 +1,4 @@
-import { TempusDominus } from '@eonasdan/tempus-dominus'
+import { initDateTimePicker } from '../../../base/static/js/datetimepicker';
 
 $(function() {
     var $timeline_form = $('#timeline-form');
@@ -569,18 +569,7 @@ If you want to split a date group, click the corresponding \
 
         // init datepickers
         $timeline.find('.date').each(function () {
-            const picker = new TempusDominus(this, {
-                localization: {
-                    format: 'yyyy-MM-dd HH:mm',
-                    locale: Cookies.get("lang") || "en",
-                },
-                display: {
-                    theme: 'light',
-                }
-            })
-
-            // store the TempusDominus instance
-            $(this).data('TempusDominus', picker);
+            initDateTimePicker(this)
         })
         
         // connect equal dates
