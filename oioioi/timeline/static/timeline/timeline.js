@@ -526,6 +526,22 @@ If you want to split a date group, click the corresponding \
         });
     }
 
+    function custom_undo(e) {
+        // Ctrl+z or ESC
+        if (
+            (e.key === 'z' && (e.ctrlKey || e.metaKey)) ||
+            e.key === 'Escape'
+        ) {
+            e.preventDefault();
+            var $datebox = $(e.target)
+                .parents('.oioioi-timeline__datebox');
+            if ($datebox.length === 1 &&
+                    $timeline.has($datebox).length === 1) {
+                set_date($datebox, get_date($datebox));
+            }
+        }
+    }
+
     function acquire_focus($datebox) {
         $datebox.find('input').focus();
     }
@@ -647,6 +663,8 @@ If you want to split a date group, click the corresponding \
                 e.target.dispatchEvent(new Event('change'));
             }
         });
+
+        document.onkeydown = custom_undo;
     }
 
     init();
