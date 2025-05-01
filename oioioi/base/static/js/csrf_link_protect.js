@@ -12,7 +12,7 @@ $(document).ready(function() {
             }
         }
         form.append($('<input type="hidden"></input>').attr('name',
-                'csrfmiddlewaretoken').val($.cookie("csrftoken")));
+                'csrfmiddlewaretoken').val(Cookies.get("csrftoken")));
         form.appendTo('body').submit();
         event.preventDefault();
     });
