@@ -44,14 +44,14 @@ class Command(BaseCommand):
             help='Number of users to create (default: 0)'
         )
         parser.add_argument(
-            '--algorithmtags', '-at',
+            '--algotags', '-at',
             type=int,
             default=0,
             metavar='N',
             help='Number of algorithm tags to create (default: 0)'
         )
         parser.add_argument(
-            '--difficultytags', '-dt',
+            '--difftags', '-dt',
             type=int,
             default=0,
             metavar='N',
@@ -111,8 +111,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         num_problems = options['problems']
         num_users = options['users']
-        num_algotags = options['algorithmtags']
-        num_difftags = options['difficultytags']
+        num_algotags = options['algotags']
+        num_difftags = options['difftags']
         num_proposals = options['proposals']
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
@@ -199,9 +199,9 @@ class Command(BaseCommand):
             errors_found = True
         if len(created_users) != options['users']:
             errors_found = True
-        if len(created_algotags) != options['algorithmtags']:
+        if len(created_algotags) != options['algotags']:
             errors_found = True
-        if len(created_difftags) != options['difficultytags']:
+        if len(created_difftags) != options['difftags']:
             errors_found = True
         if options['proposals'] > 0:
             if not (created_problems and created_users and created_algotags) or proposals_created != options['proposals']:
@@ -227,6 +227,6 @@ class Command(BaseCommand):
         if verbosity >= 1:
             write_summary(len(created_problems), options['problems'], "Problems")
             write_summary(len(created_users), options['users'], "Users")
-            write_summary(len(created_algotags), options['algorithmtags'], "Algorithm Tags")
-            write_summary(len(created_difftags), options['difficultytags'], "Difficulty Tags")
+            write_summary(len(created_algotags), options['algotags'], "Algorithm Tags")
+            write_summary(len(created_difftags), options['difftags'], "Difficulty Tags")
             write_summary(proposals_created, options['proposals'], "Algorithm Tag Proposals")
