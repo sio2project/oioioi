@@ -170,6 +170,30 @@ class Command(BaseCommand):
             sys.stdout.write("\n")
         return created
 
+    def create_proposals(self, count, problems, users, algotags, verbosity):
+        """
+        Creates algorithm tag proposals by pairing problems, users, and algotags randomly.
+        Returns a list of created AlgorithmTagProposal objects.
+        """
+        proposals = []
+        for i in range(count):
+            problem = random.choice(problems)
+            user = random.choice(users)
+            tag = random.choice(algotags)
+            proposal = AlgorithmTagProposal(problem=problem, user=user, tag=tag)
+            proposal.save()
+            proposals.append(proposal)
+            if verbosity >= 3:
+                self.stdout.write(self.style.SUCCESS(
+                    f"Created Proposal: Problem ID {problem.id} - User {user.username} - Tag {tag.name}"
+                ))
+            elif verbosity == 2:
+                sys.stdout.write(f"Created {i+1} of {count} Algorithm Tag Proposals\r")
+                sys.stdout.flush()
+        if verbosity == 2 and proposals:
+            sys.stdout.write("\n")
+        return proposals
+
     def write_summary(self, created, expected, object_name):
         if expected == 0:
             return
@@ -287,24 +311,15 @@ class Command(BaseCommand):
                 "Not all prerequisites were created: skipping Difficulty Tag Through records."
             ))
 
-        proposals_created = 0
+        created_proposals = []
         if created_problems and created_users and created_algotags:
-            for i in range(num_proposals):
-                problem = random.choice(created_problems)
-                user = random.choice(created_users)
-                tag = random.choice(created_algotags)
-                proposal = AlgorithmTagProposal(problem=problem, user=user, tag=tag)
-                proposal.save()
-                proposals_created += 1
-                if verbosity >= 3:
-                    self.stdout.write(self.style.SUCCESS(
-                        f"Created Proposal: Problem ID {problem.id} - User {user.username} - Tag {tag.name}"
-                    ))
-                elif verbosity == 2:
-                    sys.stdout.write(f"Created {i+1} of {num_proposals} Algorithm Tag Proposals\r")
-                    sys.stdout.flush()
-            if verbosity == 2 and num_proposals:
-                sys.stdout.write("\n")
+            created_proposals = self.create_proposals(
+                count=num_proposals,
+                problems=created_problems,
+                users=created_users,
+                algotags=created_algotags,
+                verbosity=verbosity,
+            )
         elif num_proposals > 0:
             self.stderr.write(self.style.ERROR(
                 "Not all prerequisites were created: skipping Algorithm Tag Proposals."
@@ -321,7 +336,7 @@ class Command(BaseCommand):
         if len(created_difftags) != options['difftags']:
             errors_found = True
         if options['proposals'] > 0:
-            if not (created_problems and created_users and created_algotags) or proposals_created != options['proposals']:
+            if not (created_problems and created_users and created_algotags) or len(created_proposals) != options['proposals']:
                 errors_found = True
 
         overall_msg = (
@@ -338,4 +353,4 @@ class Command(BaseCommand):
             self.write_summary(len(created_difftags), options['difftags'], "Difficulty Tags")
             self.write_summary(len(created_algothrough), options['algothrough'], "Algorithm Tag Through Records")
             self.write_summary(len(created_diffthrough), options['diffthrough'], "Difficulty Tag Through Records")
-            self.write_summary(proposals_created, options['proposals'], "Algorithm Tag Proposals")
+            self.write_summary(len(created_proposals), options['proposals'], "Algorithm Tag Proposals")
