@@ -7,10 +7,11 @@ from django.contrib.auth import get_user_model
 from oioioi.problems.models import (
     Problem,
     AlgorithmTag,
-    AlgorithmTagProposal,
     DifficultyTag,
     AlgorithmTagThrough,
     DifficultyTagThrough,
+    AlgorithmTagProposal,
+    DifficultyTagProposal,
 )
 
 User = get_user_model()
@@ -79,11 +80,18 @@ class Command(BaseCommand):
             help='Number of difficulty tag through records (assigning difficulty tags to problems) to create (default: 0)'
         )
         parser.add_argument(
-            '--proposals', '-ap',
+            '--algoproposals', '-ap',
             type=int,
             default=0,
             metavar='N',
             help='Number of algorithm tag proposals to create (default: 0)'
+        )
+        parser.add_argument(
+            '--diffproposals', '-dp',
+            type=int,
+            default=0,
+            metavar='N',
+            help='Number of difficulty tag proposals to create (default: 0)'
         )
         parser.add_argument(
             '--seed', '-s',
@@ -214,12 +222,14 @@ class Command(BaseCommand):
         num_difftags = options['difftags']
         num_algothrough = options['algothrough']
         num_diffthrough = options['diffthrough']
-        num_proposals = options['proposals']
+        num_algoproposals = options['algoproposals']
+        num_diffproposals = options['diffproposals']
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
 
         if (num_problems == 0 and num_users == 0 and num_algotags == 0 and num_difftags == 0
-            and num_algothrough == 0 and num_diffthrough == 0 and num_proposals == 0):
+            and num_algothrough == 0 and num_diffthrough == 0
+            and num_algoproposals == 0 and num_diffproposals == 0):
             self.stdout.write(self.style.WARNING(
                 "No objects specified for creation. Please set one or more counts to non-zero. "
                 "See --help for usage details."
@@ -237,9 +247,13 @@ class Command(BaseCommand):
             self.errors_found = True
             raise CommandError("Assigning difficulty tags to problems requires at least one problem and one difficulty tag to be created first.")
 
-        if num_proposals > 0 and (num_problems <= 0 or num_users <= 0 or num_algotags <= 0):
+        if num_algoproposals > 0 and (num_problems <= 0 or num_users <= 0 or num_algotags <= 0):
             self.errors_found = True
-            raise CommandError("Creation of proposals requires at least one problem, one user, and one algorithm tag to be created first.")
+            raise CommandError("Creation of algorithm tag proposals requires at least one problem, one user, and one algorithm tag to be created first.")
+
+        if num_diffproposals > 0 and (num_problems <= 0 or num_users <= 0 or num_difftags <= 0):
+            self.errors_found = True
+            raise CommandError("Creation of difficulty tag proposals requires at least one problem, one user, and one difficulty tag to be created first.")
 
         created_problems = self.create_unique_objects(
             count=num_problems,
@@ -313,10 +327,10 @@ class Command(BaseCommand):
                 "Not all prerequisites were created: skipping Difficulty Tag Through records."
             ))
 
-        created_proposals = []
+        created_algoproposals = []
         if created_problems and created_users and created_algotags:
-            created_proposals = self.create_proposals(
-                count=num_proposals,
+            created_algoproposals = self.create_proposals(
+                count=num_algoproposals,
                 problems=created_problems,
                 users=created_users,
                 tags=created_algotags,
@@ -324,10 +338,27 @@ class Command(BaseCommand):
                 verbose_name="Algorithm Tag Proposal",
                 verbosity=verbosity,
             )
-        elif num_proposals > 0:
+        elif num_algoproposals > 0:
             self.errors_found = True
             self.stderr.write(self.style.ERROR(
                 "Not all prerequisites were created: skipping Algorithm Tag Proposals."
+            ))
+
+        created_diffproposals = []
+        if created_problems and created_users and created_difftags:
+            created_diffproposals = self.create_proposals(
+                count=num_diffproposals,
+                problems=created_problems,
+                users=created_users,
+                tags=created_difftags,
+                proposal_model=DifficultyTagProposal,
+                verbose_name="Difficulty Tag Proposal",
+                verbosity=verbosity,
+            )
+        elif num_diffproposals > 0:
+            self.errors_found = True
+            self.stderr.write(self.style.ERROR(
+                "Not all prerequisites were created: skipping Difficulty Tag Proposals."
             ))
 
         overall_msg = "Mock data creation complete." if not self.errors_found else "Errors occurred during mock data creation."
@@ -341,4 +372,5 @@ class Command(BaseCommand):
             self.write_summary(len(created_difftags), options['difftags'], "Difficulty Tags")
             self.write_summary(len(created_algothrough), options['algothrough'], "Algorithm Tag Through Records")
             self.write_summary(len(created_diffthrough), options['diffthrough'], "Difficulty Tag Through Records")
-            self.write_summary(len(created_proposals), options['proposals'], "Algorithm Tag Proposals")
+            self.write_summary(len(created_algoproposals), options['algoproposals'], "Algorithm Tag Proposals")
+            self.write_summary(len(created_diffproposals), options['diffproposals'], "Difficulty Tag Proposals")
