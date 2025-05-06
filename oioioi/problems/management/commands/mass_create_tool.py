@@ -254,7 +254,6 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
 
-        # Create Through records for Algorithm Tags assigned to Problems
         created_algothrough = []
         if created_problems and created_algotags and num_algothrough > 0:
             created_algothrough = self.create_through_records(
@@ -270,7 +269,6 @@ class Command(BaseCommand):
                 "Not all prerequisites were created: skipping Algorithm Tag Through records."
             ))
 
-        # Create Through records for Difficulty Tags assigned to Problems
         created_diffthrough = []
         if created_problems and created_difftags and num_diffthrough > 0:
             created_diffthrough = self.create_through_records(
@@ -286,7 +284,6 @@ class Command(BaseCommand):
                 "Not all prerequisites were created: skipping Difficulty Tag Through records."
             ))
 
-        # Create Algorithm Tag Proposals by random combination
         proposals_created = 0
         if created_problems and created_users and created_algotags:
             for i in range(num_proposals):
