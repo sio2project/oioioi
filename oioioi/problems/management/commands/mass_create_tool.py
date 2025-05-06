@@ -121,7 +121,6 @@ class Command(BaseCommand):
             if num_tags <= 0:
                 raise CommandError("Cannot create proposals when number of algorithm tags is 0")
 
-        # Create Problems using the helper function (10 random characters)
         created_problems = self.create_unique_objects(
             count=num_problems,
             candidate_prefix='auto_prob_',
@@ -132,8 +131,6 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
 
-        # Create Users using the helper function (10 random characters).
-        # Note: We use a lambda that calls create_user with additional parameters.
         created_users = self.create_unique_objects(
             count=num_users,
             candidate_prefix='auto_user_',
@@ -144,7 +141,6 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
 
-        # Create Algorithm Tags using the helper function (8 random characters)
         created_tags = self.create_unique_objects(
             count=num_tags,
             candidate_prefix='auto_tag_',
