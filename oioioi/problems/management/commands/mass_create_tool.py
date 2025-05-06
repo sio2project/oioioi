@@ -4,7 +4,7 @@ import sys
 
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
-from oioioi.problems.models import Problem, AlgorithmTag, AlgorithmTagProposal
+from oioioi.problems.models import Problem, AlgorithmTag, AlgorithmTagProposal, DifficultyTag
 
 User = get_user_model()
 
@@ -23,9 +23,9 @@ def get_unique_candidate(candidate_fn, uniqueness_fn, max_attempts=10):
 
 class Command(BaseCommand):
     help = (
-        "Creates mock problems, users, algorithm tags, and algorithm tag proposals for benchmarking. "
-        "Defaults for all counts are 0. If you specify a positive number of proposals, "
-        "you must also have >0 problems, users, and algorithm tags. "
+        "Creates mock problems, users, algorithm tags, difficulty tags, and "
+        "algorithm tag proposals for benchmarking. Defaults for all counts are 0. "
+        "If you specify a positive number of proposals, you must also have >0 problems, users, and tags."
     )
 
     def add_arguments(self, parser):
@@ -49,6 +49,13 @@ class Command(BaseCommand):
             default=0,
             metavar='N',
             help='Number of algorithm tags to create (default: 0)'
+        )
+        parser.add_argument(
+            '--difficultytags', '-dt',
+            type=int,
+            default=0,
+            metavar='N',
+            help='Number of difficulty tags to create (default: 0)'
         )
         parser.add_argument(
             '--proposals', '-ap',
@@ -104,7 +111,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         num_problems = options['problems']
         num_users = options['users']
-        num_tags = options['algorithmtags']
+        num_algotags = options['algorithmtags']
+        num_difftags = options['difficultytags']
         num_proposals = options['proposals']
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
@@ -118,7 +126,7 @@ class Command(BaseCommand):
                 raise CommandError("Cannot create proposals when number of problems is 0")
             if num_users <= 0:
                 raise CommandError("Cannot create proposals when number of users is 0")
-            if num_tags <= 0:
+            if num_algotags <= 0:
                 raise CommandError("Cannot create proposals when number of algorithm tags is 0")
 
         created_problems = self.create_unique_objects(
@@ -141,8 +149,8 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
 
-        created_tags = self.create_unique_objects(
-            count=num_tags,
+        created_algotags = self.create_unique_objects(
+            count=num_algotags,
             candidate_prefix='auto_tag_',
             random_length=8,
             uniqueness_fn=lambda s: not AlgorithmTag.objects.filter(name=s).exists(),
@@ -151,13 +159,23 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
 
+        created_difftags = self.create_unique_objects(
+            count=num_difftags,
+            candidate_prefix='auto_diff_',
+            random_length=8,
+            uniqueness_fn=lambda s: not DifficultyTag.objects.filter(name=s).exists(),
+            create_instance_fn=lambda candidate: DifficultyTag(name=candidate),
+            verbose_name="Difficulty Tag",
+            verbosity=verbosity,
+        )
+
         # Create Algorithm Tag Proposals by random combination
         proposals_created = 0
-        if created_problems and created_users and created_tags:
+        if created_problems and created_users and created_algotags:
             for i in range(num_proposals):
                 problem = random.choice(created_problems)
                 user = random.choice(created_users)
-                tag = random.choice(created_tags)
+                tag = random.choice(created_algotags)
                 proposal = AlgorithmTagProposal(problem=problem, user=user, tag=tag)
                 proposal.save()
                 proposals_created += 1
@@ -181,19 +199,15 @@ class Command(BaseCommand):
             errors_found = True
         if len(created_users) != options['users']:
             errors_found = True
-        if len(created_tags) != options['algorithmtags']:
+        if len(created_algotags) != options['algorithmtags']:
+            errors_found = True
+        if len(created_difftags) != options['difficultytags']:
             errors_found = True
         if options['proposals'] > 0:
-            if not (created_problems and created_users and created_tags) or proposals_created != options['proposals']:
+            if not (created_problems and created_users and created_algotags) or proposals_created != options['proposals']:
                 errors_found = True
 
         def write_summary(created, expected, object_name):
-            """
-            Prints a summary line for an object type.
-            Skips output if expected is 0.
-            If created equals expected, it prints a green "Created all ..." message.
-            Otherwise, it prints a yellow "Created X of Y ..." message.
-            """
             if expected == 0:
                 return
             if created == expected:
@@ -213,6 +227,6 @@ class Command(BaseCommand):
         if verbosity >= 1:
             write_summary(len(created_problems), options['problems'], "Problems")
             write_summary(len(created_users), options['users'], "Users")
-            write_summary(len(created_tags), options['algorithmtags'], "Algorithm Tags")
-            if options['proposals'] and (created_problems and created_users and created_tags):
-                write_summary(proposals_created, options['proposals'], "Algorithm Tag Proposals")
+            write_summary(len(created_algotags), options['algorithmtags'], "Algorithm Tags")
+            write_summary(len(created_difftags), options['difficultytags'], "Difficulty Tags")
+            write_summary(proposals_created, options['proposals'], "Algorithm Tag Proposals")
