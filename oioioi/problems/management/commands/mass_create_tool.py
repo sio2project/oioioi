@@ -143,7 +143,6 @@ class Command(BaseCommand):
         """
         created = []
         for i in range(count):
-            # Candidate is a tuple (problem, tag)
             candidate_fn = lambda: (random.choice(problems), random.choice(tags))
             uniqueness_fn = lambda candidate: not (
                 through_model.objects.filter(problem=candidate[0], tag=candidate[1]).exists() or
@@ -164,13 +163,13 @@ class Command(BaseCommand):
                     f"Created {verbose_name}: Problem ID {candidate[0].id} - Tag {candidate[1].name}"
                 ))
             elif verbosity == 2:
-                sys.stdout.write(f"Created {len(created)} of {count} {verbose_name}s\r")
+                sys.stdout.write(f"Created {i+1} of {count} {verbose_name}s\r")
                 sys.stdout.flush()
         if verbosity == 2 and count:
             sys.stdout.write("\n")
         return created
 
-    def create_proposals(self, count, problems, users, algotags, verbosity):
+    def create_proposals(self, count, problems, users, tags, proposal_model, verbose_name, verbosity):
         """
         Creates algorithm tag proposals by pairing problems, users, and algotags randomly.
         Returns a list of created AlgorithmTagProposal objects.
@@ -179,8 +178,8 @@ class Command(BaseCommand):
         for i in range(count):
             problem = random.choice(problems)
             user = random.choice(users)
-            tag = random.choice(algotags)
-            proposal = AlgorithmTagProposal(problem=problem, user=user, tag=tag)
+            tag = random.choice(tags)
+            proposal = proposal_model(problem=problem, user=user, tag=tag)
             proposal.save()
             proposals.append(proposal)
             if verbosity >= 3:
@@ -188,7 +187,7 @@ class Command(BaseCommand):
                     f"Created Proposal: Problem ID {problem.id} - User {user.username} - Tag {tag.name}"
                 ))
             elif verbosity == 2:
-                sys.stdout.write(f"Created {i+1} of {count} Algorithm Tag Proposals\r")
+                sys.stdout.write(f"Created {i+1} of {count} {verbose_name}s\r")
                 sys.stdout.flush()
         if verbosity == 2 and proposals:
             sys.stdout.write("\n")
@@ -317,7 +316,9 @@ class Command(BaseCommand):
                 count=num_proposals,
                 problems=created_problems,
                 users=created_users,
-                algotags=created_algotags,
+                tags=created_algotags,
+                proposal_model=AlgorithmTagProposal,
+                verbose_name="Algorithm Tag Proposal",
                 verbosity=verbosity,
             )
         elif num_proposals > 0:
