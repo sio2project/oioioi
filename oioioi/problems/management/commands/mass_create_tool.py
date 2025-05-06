@@ -4,7 +4,14 @@ import sys
 
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import get_user_model
-from oioioi.problems.models import Problem, AlgorithmTag, AlgorithmTagProposal, DifficultyTag
+from oioioi.problems.models import (
+    Problem,
+    AlgorithmTag,
+    AlgorithmTagProposal,
+    DifficultyTag,
+    AlgorithmTagThrough,
+    DifficultyTagThrough,
+)
 
 User = get_user_model()
 
@@ -24,8 +31,8 @@ def get_unique_candidate(candidate_fn, uniqueness_fn, max_attempts=10):
 class Command(BaseCommand):
     help = (
         "Allows the creation of mock data for testing purposes. "
-        "Creates Problems, Users, Algorithm Tags, Difficulty Tags, and Algorithm Tag Proposals. "
-        "Use with caution in production environments. "
+        "Creates Problems, Users, Algorithm Tags, Difficulty Tags, Algorithm Tag Proposals, and "
+        "Algorithm Tag Through and Difficulty Tag Through records to assign tags to problems. Use with caution in production environments. "
     )
 
     def add_arguments(self, parser):
@@ -56,6 +63,20 @@ class Command(BaseCommand):
             default=0,
             metavar='N',
             help='Number of difficulty tags to create (default: 0)'
+        )
+        parser.add_argument(
+            '--algothrough', '-att',
+            type=int,
+            default=0,
+            metavar='N',
+            help='Number of algorithm tag through records (assigning algorithm tags to problems) to create (default: 0)'
+        )
+        parser.add_argument(
+            '--diffthrough', '-dtt',
+            type=int,
+            default=0,
+            metavar='N',
+            help='Number of difficulty tag through records (assigning difficulty tags to problems) to create (default: 0)'
         )
         parser.add_argument(
             '--proposals', '-ap',
@@ -108,6 +129,44 @@ class Command(BaseCommand):
             sys.stdout.write("\n")
         return objs
 
+    def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
+        """
+        Creates a specified number of through-records connecting a problem and a tag.
+        Ensures that each (problem, tag) pair is unique.
+        - count: number of through records to create.
+        - problems: list of existing problems.
+        - tags: list of existing tags.
+        - through_model: the through model class to use.
+        - verbose_name: description used in output.
+        - verbosity: the current verbosity level.
+        Returns a list of created through-records.
+        """
+        created = []
+        max_attempts = count * 10
+        attempts = 0
+        while len(created) < count and attempts < max_attempts:
+            selected_problem = random.choice(problems)
+            selected_tag = random.choice(tags)
+            # Check if the combination already exists in the DB or in our local list
+            if through_model.objects.filter(problem=selected_problem, tag=selected_tag).exists() or \
+               any(r.problem == selected_problem and r.tag == selected_tag for r in created):
+                attempts += 1
+                continue
+            record = through_model(problem=selected_problem, tag=selected_tag)
+            record.save()
+            created.append(record)
+            if verbosity >= 3:
+                self.stdout.write(self.style.SUCCESS(
+                    f"Created {verbose_name}: Problem ID {selected_problem.id} - Tag {selected_tag.name}"
+                ))
+            elif verbosity == 2:
+                sys.stdout.write(f"Created {len(created)} of {count} {verbose_name}s\r")
+                sys.stdout.flush()
+            attempts += 1
+        if verbosity == 2 and count:
+            sys.stdout.write("\n")
+        return created
+
     def write_summary(self, created, expected, object_name):
         if expected == 0:
             return
@@ -124,11 +183,13 @@ class Command(BaseCommand):
         num_algotags = options['algotags']
         num_difftags = options['difftags']
         num_proposals = options['proposals']
+        num_algothrough = options['algothrough']
+        num_diffthrough = options['diffthrough']
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
 
         if (num_problems == 0 and num_users == 0 and num_algotags == 0 and
-            num_difftags == 0 and num_proposals == 0):
+            num_difftags == 0 and num_proposals == 0 and num_algothrough == 0 and num_diffthrough == 0):
             self.stdout.write(self.style.WARNING(
                 "No objects specified for creation. Please set one or more counts to non-zero. "
                 "See --help for usage details."
@@ -138,7 +199,16 @@ class Command(BaseCommand):
         if seed is not None:
             random.seed(seed)
 
-        # Validate proposals prerequisites
+        if num_algothrough > 0:
+            if num_problems <= 0 or num_algotags <= 0:
+                raise CommandError("Assigning algorithm tags to problems requires at least "
+                                   "one problem, and one algorithm tag to be created first.")
+
+        if num_diffthrough > 0:
+            if num_problems <= 0 or num_difftags <= 0:
+                raise CommandError("Assigning difficulty tags to problems requires at least "
+                                   "one problem, and one difficulty tag to be created first.")
+
         if num_proposals > 0:
             if num_problems <= 0 or num_users <= 0 or num_algotags <= 0:
                 raise CommandError("Creation of proposals requires at least one problem, "
@@ -183,6 +253,38 @@ class Command(BaseCommand):
             verbose_name="Difficulty Tag",
             verbosity=verbosity,
         )
+
+        # Create Through records for Algorithm Tags assigned to Problems
+        created_algothrough = []
+        if created_problems and created_algotags and num_algothrough > 0:
+            created_algothrough = self.create_through_records(
+                count=num_algothrough,
+                problems=created_problems,
+                tags=created_algotags,
+                through_model=AlgorithmTagThrough,
+                verbose_name="Algorithm Tag Through",
+                verbosity=verbosity,
+            )
+        elif num_algothrough > 0:
+            self.stderr.write(self.style.ERROR(
+                "Not all prerequisites were created: skipping Algorithm Tag Through records."
+            ))
+
+        # Create Through records for Difficulty Tags assigned to Problems
+        created_diffthrough = []
+        if created_problems and created_difftags and num_diffthrough > 0:
+            created_diffthrough = self.create_through_records(
+                count=num_diffthrough,
+                problems=created_problems,
+                tags=created_difftags,
+                through_model=DifficultyTagThrough,
+                verbose_name="Difficulty Tag Through",
+                verbosity=verbosity,
+            )
+        elif num_diffthrough > 0:
+            self.stderr.write(self.style.ERROR(
+                "Not all prerequisites were created: skipping Difficulty Tag Through records."
+            ))
 
         # Create Algorithm Tag Proposals by random combination
         proposals_created = 0
@@ -234,4 +336,6 @@ class Command(BaseCommand):
             self.write_summary(len(created_users), options['users'], "Users")
             self.write_summary(len(created_algotags), options['algotags'], "Algorithm Tags")
             self.write_summary(len(created_difftags), options['difftags'], "Difficulty Tags")
+            self.write_summary(len(created_algothrough), options['algothrough'], "Algorithm Tag Through Records")
+            self.write_summary(len(created_diffthrough), options['diffthrough'], "Difficulty Tag Through Records")
             self.write_summary(proposals_created, options['proposals'], "Algorithm Tag Proposals")
