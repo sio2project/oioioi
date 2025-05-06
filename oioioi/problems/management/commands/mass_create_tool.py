@@ -105,7 +105,7 @@ class Command(BaseCommand):
         """
         Creates a list of objects using get_unique_candidate.
         - count: number of objects to create.
-        - candidate_prefix: A prefix string (e.g. 'auto_prob_').
+        - candidate_prefix: A prefix string (e.g. 'prob_').
         - random_length: Number of random characters to append.
         - uniqueness_fn: Function taking candidate -> bool (should return True if candidate is unique).
         - create_instance_fn: Function taking candidate -> instance (which should be saved later).
@@ -113,6 +113,8 @@ class Command(BaseCommand):
         - verbosity: The current verbosity level.
         Returns a list of created objects.
         """
+        candidate_prefix = self.auto_prefix + candidate_prefix
+
         objs = []
         for i in range(count):
             candidate_fn = lambda: candidate_prefix + ''.join(random.choices(string.ascii_lowercase, k=random_length))
@@ -215,6 +217,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.errors_found = False
+        self.auto_prefix = "auto_"
 
         num_problems = options['problems']
         num_users = options['users']
@@ -257,7 +260,7 @@ class Command(BaseCommand):
 
         created_problems = self.create_unique_objects(
             count=num_problems,
-            candidate_prefix='auto_prob_',
+            candidate_prefix='prob_',
             random_length=10,
             uniqueness_fn=lambda s: not Problem.objects.filter(short_name=s).exists(),
             create_instance_fn=lambda candidate: Problem(short_name=candidate),
@@ -267,7 +270,7 @@ class Command(BaseCommand):
 
         created_users = self.create_unique_objects(
             count=num_users,
-            candidate_prefix='auto_user_',
+            candidate_prefix='user_',
             random_length=10,
             uniqueness_fn=lambda s: not User.objects.filter(username=s).exists(),
             create_instance_fn=lambda candidate: User.objects.create_user(username=candidate, email=f"{candidate}@example.com", password="password"),
@@ -277,7 +280,7 @@ class Command(BaseCommand):
 
         created_algotags = self.create_unique_objects(
             count=num_algotags,
-            candidate_prefix='auto_tag_',
+            candidate_prefix='algo_',
             random_length=8,
             uniqueness_fn=lambda s: not AlgorithmTag.objects.filter(name=s).exists(),
             create_instance_fn=lambda candidate: AlgorithmTag(name=candidate),
@@ -287,7 +290,7 @@ class Command(BaseCommand):
 
         created_difftags = self.create_unique_objects(
             count=num_difftags,
-            candidate_prefix='auto_diff_',
+            candidate_prefix='diff_',
             random_length=8,
             uniqueness_fn=lambda s: not DifficultyTag.objects.filter(name=s).exists(),
             create_instance_fn=lambda candidate: DifficultyTag(name=candidate),
