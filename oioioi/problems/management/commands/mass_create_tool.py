@@ -108,6 +108,16 @@ class Command(BaseCommand):
             sys.stdout.write("\n")
         return objs
 
+    def write_summary(self, created, expected, object_name):
+        if expected == 0:
+            return
+        if created == expected:
+            msg = f"Created {expected} {object_name}."
+            self.stdout.write(self.style.SUCCESS(msg))
+        else:
+            msg = f"Created {created} of {expected} {object_name}."
+            self.stdout.write(self.style.WARNING(msg))
+
     def handle(self, *args, **options):
         num_problems = options['problems']
         num_users = options['users']
@@ -212,16 +222,6 @@ class Command(BaseCommand):
             if not (created_problems and created_users and created_algotags) or proposals_created != options['proposals']:
                 errors_found = True
 
-        def write_summary(created, expected, object_name):
-            if expected == 0:
-                return
-            if created == expected:
-                msg = f"Created {expected} {object_name}."
-                self.stdout.write(self.style.SUCCESS(msg))
-            else:
-                msg = f"Created {created} of {expected} {object_name}."
-                self.stdout.write(self.style.WARNING(msg))
-
         overall_msg = (
             "Mock data creation complete" if not errors_found
             else "Errors occurred during mock data creation"
@@ -230,8 +230,8 @@ class Command(BaseCommand):
         self.stdout.write(overall_status(overall_msg))
 
         if verbosity >= 1:
-            write_summary(len(created_problems), options['problems'], "Problems")
-            write_summary(len(created_users), options['users'], "Users")
-            write_summary(len(created_algotags), options['algotags'], "Algorithm Tags")
-            write_summary(len(created_difftags), options['difftags'], "Difficulty Tags")
-            write_summary(proposals_created, options['proposals'], "Algorithm Tag Proposals")
+            self.write_summary(len(created_problems), options['problems'], "Problems")
+            self.write_summary(len(created_users), options['users'], "Users")
+            self.write_summary(len(created_algotags), options['algotags'], "Algorithm Tags")
+            self.write_summary(len(created_difftags), options['difftags'], "Difficulty Tags")
+            self.write_summary(proposals_created, options['proposals'], "Algorithm Tag Proposals")
