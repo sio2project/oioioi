@@ -117,6 +117,14 @@ class Command(BaseCommand):
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
 
+        if (num_problems == 0 and num_users == 0 and num_algotags == 0 and
+            num_difftags == 0 and num_proposals == 0):
+            self.stdout.write(self.style.WARNING(
+                "No objects specified for creation. Please set one or more counts to non-zero. "
+                "See --help for usage details."
+            ))
+            return
+
         if seed is not None:
             random.seed(seed)
 
@@ -188,7 +196,7 @@ class Command(BaseCommand):
                     sys.stdout.flush()
             if verbosity == 2 and num_proposals:
                 sys.stdout.write("\n")
-        else:
+        elif num_proposals > 0:
             self.stderr.write(self.style.ERROR(
                 "Not all prerequisites were created: skipping Algorithm Tag Proposals."
             ))
