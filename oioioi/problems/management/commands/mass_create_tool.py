@@ -121,87 +121,41 @@ class Command(BaseCommand):
             if num_tags <= 0:
                 raise CommandError("Cannot create proposals when number of algorithm tags is 0")
 
-        created_problems = []
-        created_users = []
-        created_tags = []
+        # Create Problems using the helper function (10 random characters)
+        created_problems = self.create_unique_objects(
+            count=num_problems,
+            candidate_prefix='auto_prob_',
+            random_length=10,
+            uniqueness_fn=lambda s: not Problem.objects.filter(short_name=s).exists(),
+            create_instance_fn=lambda candidate: Problem(short_name=candidate),
+            verbose_name="Problem",
+            verbosity=verbosity,
+        )
 
-        # Create Problems with unique short_name (now with 10 random characters)
-        for i in range(num_problems):
-            candidate_fn = lambda: 'auto_prob_' + ''.join(random.choices(string.ascii_lowercase, k=10))
-            try:
-                unique_short_name = get_unique_candidate(
-                    candidate_fn,
-                    lambda s: not Problem.objects.filter(short_name=s).exists()
-                )
-            except CommandError as e:
-                self.stderr.write(self.style.ERROR(
-                    f"Failed to create Problem short_name: {e}. Stopping further creation for Problems."
-                ))
-                break  # stop further problem creation
-            p = Problem(short_name=unique_short_name)
-            p.save()
-            created_problems.append(p)
-            if verbosity >= 3:
-                self.stdout.write(self.style.SUCCESS(
-                    f"Created Problem (ID: {p.id}, short_name: {unique_short_name})"
-                ))
-            elif verbosity == 2:
-                sys.stdout.write(f"Created {i+1} of {num_problems} Problems\r")
-                sys.stdout.flush()
-        if verbosity == 2 and created_problems:
-            sys.stdout.write("\n")
+        # Create Users using the helper function (10 random characters).
+        # Note: We use a lambda that calls create_user with additional parameters.
+        created_users = self.create_unique_objects(
+            count=num_users,
+            candidate_prefix='auto_user_',
+            random_length=10,
+            uniqueness_fn=lambda s: not User.objects.filter(username=s).exists(),
+            create_instance_fn=lambda candidate: User.objects.create_user(username=candidate, email=f"{candidate}@example.com", password="password"),
+            verbose_name="User",
+            verbosity=verbosity,
+        )
 
-        # Create Users with unique username (using 10 random characters)
-        for i in range(num_users):
-            candidate_fn = lambda: 'auto_user_' + ''.join(random.choices(string.ascii_lowercase, k=10))
-            try:
-                unique_username = get_unique_candidate(
-                    candidate_fn,
-                    lambda s: not User.objects.filter(username=s).exists()
-                )
-            except CommandError as e:
-                self.stderr.write(self.style.ERROR(
-                    f"Failed to create User username: {e}. Stopping further creation for Users."
-                ))
-                break  # stop further user creation
-            email = f"{unique_username}@example.com"
-            password = "password"
-            u = User.objects.create_user(username=unique_username, email=email, password=password)
-            created_users.append(u)
-            if verbosity >= 3:
-                self.stdout.write(self.style.SUCCESS(f"Created User: {unique_username}"))
-            elif verbosity == 2:
-                sys.stdout.write(f"Created {i+1} of {num_users} Users\r")
-                sys.stdout.flush()
-        if verbosity == 2 and created_users:
-            sys.stdout.write("\n")
-
-        # Create Algorithm Tags with unique name (using 8 random characters)
-        for i in range(num_tags):
-            candidate_fn = lambda: 'auto_tag_' + ''.join(random.choices(string.ascii_lowercase, k=8))
-            try:
-                unique_tag_name = get_unique_candidate(
-                    candidate_fn,
-                    lambda s: not AlgorithmTag.objects.filter(name=s).exists()
-                )
-            except CommandError as e:
-                self.stderr.write(self.style.ERROR(
-                    f"Failed to create Algorithm Tag: {e}. Stopping further creation for Algorithm Tags."
-                ))
-                break  # stop further tag creation
-            at = AlgorithmTag(name=unique_tag_name)
-            at.save()
-            created_tags.append(at)
-            if verbosity >= 3:
-                self.stdout.write(self.style.SUCCESS(f"Created Algorithm Tag: {unique_tag_name}"))
-            elif verbosity == 2:
-                sys.stdout.write(f"Created {i+1} of {num_tags} Algorithm Tags\r")
-                sys.stdout.flush()
-        if verbosity == 2 and created_tags:
-            sys.stdout.write("\n")
+        # Create Algorithm Tags using the helper function (8 random characters)
+        created_tags = self.create_unique_objects(
+            count=num_tags,
+            candidate_prefix='auto_tag_',
+            random_length=8,
+            uniqueness_fn=lambda s: not AlgorithmTag.objects.filter(name=s).exists(),
+            create_instance_fn=lambda candidate: AlgorithmTag(name=candidate),
+            verbose_name="Algorithm Tag",
+            verbosity=verbosity,
+        )
 
         # Create Algorithm Tag Proposals by random combination
-        # Only proceed if there is data available for these relations
         proposals_created = 0
         if created_problems and created_users and created_tags:
             for i in range(num_proposals):
@@ -224,7 +178,8 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(
                 "Not all prerequisites were created: skipping Algorithm Tag Proposals."
             ))
-        
+
+        # Summary
         errors_found = False
         if len(created_problems) != options['problems']:
             errors_found = True
@@ -233,7 +188,6 @@ class Command(BaseCommand):
         if len(created_tags) != options['algorithmtags']:
             errors_found = True
         if options['proposals'] > 0:
-            # Either proposals were skipped or the count didn't match.
             if not (created_problems and created_users and created_tags) or proposals_created != options['proposals']:
                 errors_found = True
 
