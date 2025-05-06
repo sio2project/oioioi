@@ -143,7 +143,8 @@ class Command(BaseCommand):
     def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
         """
         Creates a specified number of through-records connecting a problem and a tag.
-        Ensures that each (problem, tag) pair is unique.
+        For DifficultyTagThrough ensures that each problem is assigned to at most one difficulty tag.
+        For AlgorithmTagThrough ensures that each (problem, tag) pair is unique.
         - count: number of through records to create.
         - problems: list of existing problems.
         - tags: list of existing tags.
@@ -155,10 +156,16 @@ class Command(BaseCommand):
         created = []
         for i in range(count):
             candidate_fn = lambda: (random.choice(problems), random.choice(tags))
-            uniqueness_fn = lambda candidate: not (
-                through_model.objects.filter(problem=candidate[0], tag=candidate[1]).exists() or
-                any(r.problem == candidate[0] and r.tag == candidate[1] for r in created)
-            )
+            if through_model == DifficultyTagThrough:
+                uniqueness_fn = lambda candidate: not (
+                    through_model.objects.filter(problem=candidate[0]).exists() or
+                    any(r.problem == candidate[0] for r in created)
+                )
+            else:
+                uniqueness_fn = lambda candidate: not (
+                    through_model.objects.filter(problem=candidate[0], tag=candidate[1]).exists() or
+                    any(r.problem == candidate[0] and r.tag == candidate[1] for r in created)
+                )
             try:
                 candidate = get_unique_candidate(candidate_fn, uniqueness_fn)
             except CommandError as e:
