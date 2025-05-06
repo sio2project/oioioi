@@ -130,12 +130,9 @@ class Command(BaseCommand):
 
         # Validate proposals prerequisites
         if num_proposals > 0:
-            if num_problems <= 0:
-                raise CommandError("Cannot create proposals when number of problems is 0")
-            if num_users <= 0:
-                raise CommandError("Cannot create proposals when number of users is 0")
-            if num_algotags <= 0:
-                raise CommandError("Cannot create proposals when number of algorithm tags is 0")
+            if num_problems <= 0 or num_users <= 0 or num_algotags <= 0:
+                raise CommandError("Creation of proposals requires at least one problem, "
+                                   "one user, and one algorithm tag to be created first.")
 
         created_problems = self.create_unique_objects(
             count=num_problems,
