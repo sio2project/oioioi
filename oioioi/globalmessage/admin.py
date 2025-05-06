@@ -1,4 +1,5 @@
-from django.urls import re_path, reverse
+from django.urls import path
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
@@ -28,7 +29,7 @@ class GlobalMessageAdmin(admin.ModelAdmin):
         urls = super(GlobalMessageAdmin, self).get_urls()
 
         custom_urls = [
-            re_path(r'^$', self.admin_site.admin_view(self.change_view), {'object_id': pk}),
+            path('', self.admin_site.admin_view(self.change_view), {'object_id': pk}),
         ]
 
         return custom_urls + urls

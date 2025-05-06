@@ -225,7 +225,7 @@ class Post(models.Model):
         return bool(self.last_edit_date)
 
     class Meta(object):
-        index_together = (('thread', 'add_date'),)
+        indexes = [models.Index(fields=("thread", "add_date"))]
         ordering = ('add_date',)
         verbose_name = _("post")
         verbose_name_plural = _("posts")

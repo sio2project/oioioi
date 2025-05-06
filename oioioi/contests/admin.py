@@ -13,7 +13,8 @@ from django.forms import ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.urls import re_path, reverse
+from django.urls import path
+from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -752,7 +753,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_urls(self):
-        urls = [re_path(r'^rejudge/$', self.rejudge_view)]
+        urls = [path('rejudge/', self.rejudge_view)]
         return urls + super(SubmissionAdmin, self).get_urls()
 
     def rejudge_view(self, request):
@@ -933,10 +934,10 @@ class SubmissionAdmin(admin.ModelAdmin):
         )
         return queryset
 
-    def lookup_allowed(self, key, value):
+    def lookup_allowed(self, key, value, request):
         if key == 'user__username':
             return True
-        return super(SubmissionAdmin, self).lookup_allowed(key, value)
+        return super(SubmissionAdmin, self).lookup_allowed(key, value, request)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         _contest_id = None

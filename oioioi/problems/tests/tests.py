@@ -148,14 +148,14 @@ class TestNavigationBarItems(TestCase):
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_navigation_bar_items_translation(self):
         response = self.client.get(
-            reverse('problemset_main'), follow=True, HTTP_ACCEPT_LANGUAGE='en'
+            reverse('problemset_main'), follow=True, headers={"accept-language": 'en'}
         )
 
         self.assertContains(response, 'Problemset')
         self.assertContains(response, 'Task archive')
 
         response = self.client.get(
-            reverse('problemset_main'), follow=True, HTTP_ACCEPT_LANGUAGE='pl'
+            reverse('problemset_main'), follow=True, headers={"accept-language": 'pl'}
         )
 
         self.assertContains(response, 'Baza zadań')

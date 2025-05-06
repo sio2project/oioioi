@@ -91,14 +91,10 @@ LOCALE_PATHS = [
     os.path.join(os.path.dirname(oioioi.__file__), '_locale/locale-overrides'),
 ]
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
-USE_L10N = False
-
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-DATETIME_FORMAT = 'Y-m-d H:i:s'
+FORMAT_MODULE_PATH = 'oioioi.formats'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -350,7 +346,14 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_ACTIVATION_DAYS = 7
 
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
-DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": 'oioioi.filetracker.storage.FiletrackerStorage',
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 FILETRACKER_SERVER_ENABLED = True
 FILETRACKER_LISTEN_ADDR = os.getenv('FILETRACKER_LISTEN_ADDR', '127.0.0.1')
