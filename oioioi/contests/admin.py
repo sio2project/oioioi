@@ -16,6 +16,7 @@ from django.shortcuts import redirect, render
 from django.urls import re_path, reverse
 from django.utils.encoding import force_str
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
@@ -200,7 +201,7 @@ class ContestLinkInline(admin.TabularInline):
 
 class ContestAdmin(admin.ModelAdmin):
     inlines = [RoundInline, AttachmentInline, ContestLinkInline]
-    readonly_fields = ['creation_date']
+    readonly_fields = ['creation_date', 'school_year']
     prepopulated_fields = {'id': ('name',)}
     list_display = ['name', 'id', 'creation_date']
     list_display_links = ['id', 'name']
@@ -218,6 +219,7 @@ class ContestAdmin(admin.ModelAdmin):
         fields = [
             'name',
             'id',
+            'school_year',
             'controller_name',
             'default_submissions_limit',
             'contact_email'
@@ -379,6 +381,16 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     list_display = ('name_link', 'short_name_link', 'round', 'package', 'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
+    actions = ['attach_problems_to_another_contest']
+
+    def attach_problems_to_another_contest(self, request, queryset):
+        ids = [problem.id for problem in queryset]
+
+        # Attach problem ids as arguments to the URL
+        base_url = reverse('reattach_problem_contest_list')
+        query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
+
+        return redirect('%s?%s' % (base_url, query_string))
 
     def __init__(self, *args, **kwargs):
         # creating a thread local variable to store the request
@@ -428,7 +440,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse('reset_tests_limits_for_probleminstance', args=(instance.id,))
 
     def _reattach_problem_href(self, instance):
-        return reverse('reattach_problem_contest_list', args=(instance.id,))
+        base_url = reverse('reattach_problem_contest_list')
+        query_string = urlencode({'ids': instance.id})
+        # Attach problem id as an argument to the URL
+        return '%s?%s' % (base_url, query_string)
 
     def _add_or_update_href(self, instance):
         return (

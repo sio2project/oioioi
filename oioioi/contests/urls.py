@@ -182,16 +182,21 @@ neutral_patterns = [
         name='report',
     ),
     re_path(
-        r'^reattach/(?P<problem_instance_id>\d+)/contest_list/'
+        r'^reattach/contest_list/'
         '((?P<full_list>full))?',
         views.reattach_problem_contest_list_view,
         name='reattach_problem_contest_list',
     ),
     re_path(
-        r'^reattach/(?P<problem_instance_id>\d+)/'
+        r'^reattach/'
         '(?P<contest_id>[a-z0-9_-]+)/confirm',
         views.reattach_problem_confirm_view,
         name='reattach_problem_confirm',
+    ),
+    re_path(
+        r'^contest/query/(?P<filter_value>.+)/$', 
+        views.filter_contests_view, 
+        name='filter_contests',
     ),
 ]
 

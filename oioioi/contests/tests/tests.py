@@ -3210,6 +3210,7 @@ class TestReattachingProblems(TestCase):
         'test_extra_contests',
         'test_full_package',
         'test_problem_instance',
+        'test_extra_problem',
         'test_permissions',
         'test_problem_site',
     ]
@@ -3219,17 +3220,17 @@ class TestReattachingProblems(TestCase):
         c2.default_submissions_limit = 123
         c2.save()
 
-        pi_id = ProblemInstance.objects.get().id
+        pi_id = ProblemInstance.objects.get(id=1).id
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        url = reverse('reattach_problem_contest_list', args=(pi_id, 'full'))
+        url = reverse('reattach_problem_contest_list', args=('full',)) + "/?ids={}".format(pi_id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Choose a contest to attach the problem to")
+        self.assertContains(response, "Choose a contest to attach the following problems to:")
         self.assertContains(response, '<td><a', count=Contest.objects.count())
 
-        url = reverse('reattach_problem_confirm', args=(pi_id, 'c2'))
+        url = reverse('reattach_problem_confirm', args=('c2',)) + "/?ids={}".format(pi_id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Extra test contest 2")
@@ -3239,7 +3240,7 @@ class TestReattachingProblems(TestCase):
         response = self.client.post(url, data={'submit': True}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'c2')
-        self.assertEqual(ProblemInstance.objects.count(), 2)
+        self.assertEqual(ProblemInstance.objects.count(), 3)
         self.assertContains(response, ' added successfully.')
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
@@ -3251,13 +3252,57 @@ class TestReattachingProblems(TestCase):
             test.delete()
         self.assertTrue(Test.objects.count() > 0)
 
+    def test_reattaching_problems(self):
+        c2 = Contest.objects.get(id='c2')
+        c2.default_submissions_limit = 123
+        c2.save()
+
+        pi_id1 = ProblemInstance.objects.get(id=1).id
+        pi_id2 = ProblemInstance.objects.get(id=2).id
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('reattach_problem_contest_list', args=('full',)) + "/?ids={}%2C{}".format(
+            pi_id1, pi_id2)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choose a contest to attach the following problems to:")
+        self.assertContains(response, '<td><a', count=Contest.objects.count())
+        self.assertContains(response, 'zad1')
+        self.assertContains(response, 'zad-extra')
+
+        url = reverse('reattach_problem_confirm', args=('c2',)) + "/?ids={}%2C{}".format(
+            pi_id1, pi_id2)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Extra test contest 2")
+        self.assertContains(response, u'Sum\u017cyce')
+        self.assertContains(response, "Attach")
+
+        response = self.client.post(url, data={'submit': True}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'c2')
+        self.assertEqual(ProblemInstance.objects.count(), 4)
+        self.assertContains(response, ' added successfully.')
+        self.assertContains(response, u'Sum\u017cyce')
+        self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
+        for problem in ProblemInstance.objects.filter(contest__id='c2'):
+            self.assertEqual(problem.submissions_limit, 123)
+
+        for problem in Problem.objects.all():
+            for test in problem.main_problem_instance.test_set.all():
+                test.delete()
+        self.assertTrue(Test.objects.count() > 0)
+
+
+
     def test_permissions(self):
-        pi_id = ProblemInstance.objects.get().id
+        pi_id = ProblemInstance.objects.get(id=1).id
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         urls = [
-            reverse('reattach_problem_contest_list', args=(pi_id,)),
-            reverse('reattach_problem_confirm', args=(pi_id, 'c1')),
+            reverse('reattach_problem_contest_list') + "/?ids={}".format(pi_id),
+            reverse('reattach_problem_confirm', args=('c1',)) + "/?ids={}".format(pi_id),
         ]
         for url in urls:
             response = self.client.get(url, follow=True)
@@ -4499,3 +4544,30 @@ class TestScoreBadges(TestCase):
         self.assertIn('badge-success', self._get_badge_for_problem(response.content, 'zad1'))
         self.assertIn('badge-warning', self._get_badge_for_problem(response.content, 'zad2'))
         self.assertIn('badge-danger', self._get_badge_for_problem(response.content, 'zad3'))
+
+class TestContestListFiltering(TestCase):
+    fixtures = [
+        'test_contest',
+        'test_extra_contests',
+    ]
+
+    def setUp(self):
+        self.c = Contest.objects.get(id='c')
+        self.c1 = Contest.objects.get(id='c1')   
+        self.c2 = Contest.objects.get(id='c2')
+
+        return super().setUp()
+
+    def test_simple_filter(self):
+        self.url = reverse('filter_contests', kwargs={'filter_value':'test'})
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(response, self.c.name)
+        self.assertContains(response, self.c1.name)
+        self.assertContains(response, self.c2.name)
+
+    def extra_filter(self):
+        self.url = reverse('filter_contests', kwargs={'filter_value':'ExTrA'})
+        response = self.client.get(self.url, follow=True)
+        self.assertNotContains(response, self.c.name)
+        self.assertContains(response, self.c1.name)
+        self.assertContains(response, self.c2.name)
