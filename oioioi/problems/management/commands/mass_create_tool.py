@@ -111,6 +111,7 @@ class Command(BaseCommand):
             try:
                 unique_candidate = get_unique_candidate(candidate_fn, uniqueness_fn)
             except CommandError as e:
+                self.errors_found = True
                 self.stderr.write(self.style.ERROR(
                     f"Failed to create {verbose_name} candidate: {e}. Stopping further creation for {verbose_name}."
                 ))
@@ -151,6 +152,7 @@ class Command(BaseCommand):
             try:
                 candidate = get_unique_candidate(candidate_fn, uniqueness_fn)
             except CommandError as e:
+                self.errors_found = True
                 self.stderr.write(self.style.ERROR(
                     f"Failed to create {verbose_name} candidate: {e}. Stopping further creation for {verbose_name}."
                 ))
@@ -204,18 +206,20 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(msg))
 
     def handle(self, *args, **options):
+        self.errors_found = False
+
         num_problems = options['problems']
         num_users = options['users']
         num_algotags = options['algotags']
         num_difftags = options['difftags']
-        num_proposals = options['proposals']
         num_algothrough = options['algothrough']
         num_diffthrough = options['diffthrough']
+        num_proposals = options['proposals']
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
 
-        if (num_problems == 0 and num_users == 0 and num_algotags == 0 and
-            num_difftags == 0 and num_proposals == 0 and num_algothrough == 0 and num_diffthrough == 0):
+        if (num_problems == 0 and num_users == 0 and num_algotags == 0 and num_difftags == 0
+            and num_algothrough == 0 and num_diffthrough == 0 and num_proposals == 0):
             self.stdout.write(self.style.WARNING(
                 "No objects specified for creation. Please set one or more counts to non-zero. "
                 "See --help for usage details."
@@ -225,20 +229,17 @@ class Command(BaseCommand):
         if seed is not None:
             random.seed(seed)
 
-        if num_algothrough > 0:
-            if num_problems <= 0 or num_algotags <= 0:
-                raise CommandError("Assigning algorithm tags to problems requires at least "
-                                   "one problem, and one algorithm tag to be created first.")
+        if num_algothrough > 0 and (num_problems <= 0 or num_algotags <= 0):
+            self.errors_found = True
+            raise CommandError("Assigning algorithm tags to problems requires at least one problem and one algorithm tag to be created first.")
 
-        if num_diffthrough > 0:
-            if num_problems <= 0 or num_difftags <= 0:
-                raise CommandError("Assigning difficulty tags to problems requires at least "
-                                   "one problem, and one difficulty tag to be created first.")
+        if num_diffthrough > 0 and (num_problems <= 0 or num_difftags <= 0):
+            self.errors_found = True
+            raise CommandError("Assigning difficulty tags to problems requires at least one problem and one difficulty tag to be created first.")
 
-        if num_proposals > 0:
-            if num_problems <= 0 or num_users <= 0 or num_algotags <= 0:
-                raise CommandError("Creation of proposals requires at least one problem, "
-                                   "one user, and one algorithm tag to be created first.")
+        if num_proposals > 0 and (num_problems <= 0 or num_users <= 0 or num_algotags <= 0):
+            self.errors_found = True
+            raise CommandError("Creation of proposals requires at least one problem, one user, and one algorithm tag to be created first.")
 
         created_problems = self.create_unique_objects(
             count=num_problems,
@@ -291,6 +292,7 @@ class Command(BaseCommand):
                 verbosity=verbosity,
             )
         elif num_algothrough > 0:
+            self.errors_found = True
             self.stderr.write(self.style.ERROR(
                 "Not all prerequisites were created: skipping Algorithm Tag Through records."
             ))
@@ -306,6 +308,7 @@ class Command(BaseCommand):
                 verbosity=verbosity,
             )
         elif num_diffthrough > 0:
+            self.errors_found = True
             self.stderr.write(self.style.ERROR(
                 "Not all prerequisites were created: skipping Difficulty Tag Through records."
             ))
@@ -322,29 +325,13 @@ class Command(BaseCommand):
                 verbosity=verbosity,
             )
         elif num_proposals > 0:
+            self.errors_found = True
             self.stderr.write(self.style.ERROR(
                 "Not all prerequisites were created: skipping Algorithm Tag Proposals."
             ))
 
-        # Summary
-        errors_found = False
-        if len(created_problems) != options['problems']:
-            errors_found = True
-        if len(created_users) != options['users']:
-            errors_found = True
-        if len(created_algotags) != options['algotags']:
-            errors_found = True
-        if len(created_difftags) != options['difftags']:
-            errors_found = True
-        if options['proposals'] > 0:
-            if not (created_problems and created_users and created_algotags) or len(created_proposals) != options['proposals']:
-                errors_found = True
-
-        overall_msg = (
-            "Mock data creation complete" if not errors_found
-            else "Errors occurred during mock data creation"
-        )
-        overall_status = self.style.SUCCESS if not errors_found else self.style.ERROR
+        overall_msg = "Mock data creation complete." if not self.errors_found else "Errors occurred during mock data creation."
+        overall_status = self.style.SUCCESS if not self.errors_found else self.style.WARNING
         self.stdout.write(overall_status(overall_msg))
 
         if verbosity >= 1:
