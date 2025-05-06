@@ -142,27 +142,30 @@ class Command(BaseCommand):
         Returns a list of created through-records.
         """
         created = []
-        max_attempts = count * 10
-        attempts = 0
-        while len(created) < count and attempts < max_attempts:
-            selected_problem = random.choice(problems)
-            selected_tag = random.choice(tags)
-            # Check if the combination already exists in the DB or in our local list
-            if through_model.objects.filter(problem=selected_problem, tag=selected_tag).exists() or \
-               any(r.problem == selected_problem and r.tag == selected_tag for r in created):
-                attempts += 1
-                continue
-            record = through_model(problem=selected_problem, tag=selected_tag)
+        for i in range(count):
+            # Candidate is a tuple (problem, tag)
+            candidate_fn = lambda: (random.choice(problems), random.choice(tags))
+            uniqueness_fn = lambda candidate: not (
+                through_model.objects.filter(problem=candidate[0], tag=candidate[1]).exists() or
+                any(r.problem == candidate[0] and r.tag == candidate[1] for r in created)
+            )
+            try:
+                candidate = get_unique_candidate(candidate_fn, uniqueness_fn)
+            except CommandError as e:
+                self.stderr.write(self.style.ERROR(
+                    f"Failed to create {verbose_name} candidate: {e}. Stopping further creation for {verbose_name}."
+                ))
+                break
+            record = through_model(problem=candidate[0], tag=candidate[1])
             record.save()
             created.append(record)
             if verbosity >= 3:
                 self.stdout.write(self.style.SUCCESS(
-                    f"Created {verbose_name}: Problem ID {selected_problem.id} - Tag {selected_tag.name}"
+                    f"Created {verbose_name}: Problem ID {candidate[0].id} - Tag {candidate[1].name}"
                 ))
             elif verbosity == 2:
                 sys.stdout.write(f"Created {len(created)} of {count} {verbose_name}s\r")
                 sys.stdout.flush()
-            attempts += 1
         if verbosity == 2 and count:
             sys.stdout.write("\n")
         return created
