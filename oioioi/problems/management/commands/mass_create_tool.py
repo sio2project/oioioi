@@ -23,9 +23,9 @@ def get_unique_candidate(candidate_fn, uniqueness_fn, max_attempts=10):
 
 class Command(BaseCommand):
     help = (
-        "Creates mock problems, users, algorithm tags, difficulty tags, and "
-        "algorithm tag proposals for benchmarking. Defaults for all counts are 0. "
-        "If you specify a positive number of proposals, you must also have >0 problems, users, and tags."
+        "Allows the creation of mock data for testing purposes. "
+        "Creates Problems, Users, Algorithm Tags, Difficulty Tags, and Algorithm Tag Proposals. "
+        "Use with caution in production environments. "
     )
 
     def add_arguments(self, parser):
