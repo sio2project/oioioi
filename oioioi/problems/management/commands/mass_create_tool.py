@@ -224,7 +224,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.errors_found = False
-        self.auto_prefix = "auto_"
+        self.auto_prefix = "_auto_"
 
         num_problems = options['problems']
         num_users = options['users']

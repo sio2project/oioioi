@@ -16,7 +16,7 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
-        auto_prefix = "auto_"
+        auto_prefix = "_auto_"
 
         # Delete Problems
         prob_qs = Problem.objects.filter(short_name__startswith=auto_prefix)
