@@ -41,5 +41,5 @@ class Command(BaseCommand):
         diff_tag_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {diff_tag_count} Difficulty Tags"))
 
-        self.stdout.write(self.style.SUCCESS("Through, Proposal and AggregatedProposal records are deleted on cascade."))
+        self.stdout.write(self.style.SUCCESS("Through, Proposal and AggregatedProposal records are deleted on cascade, along with ProblemSites."))
         self.stdout.write(self.style.SUCCESS("Mock data removal complete"))
