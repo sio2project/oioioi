@@ -414,3 +414,18 @@ class SubmissionMessageForm(PublicMessageForm):
     class Meta(object):
         model = SubmitMessage
         fields = ['content']
+
+class RoundSelectionForm(forms.Form):
+    round = forms.ModelChoiceField(
+        queryset=Round.objects.none(),
+        label=_("Round"),
+        empty_label=_("Select round"),
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        contest = kwargs.pop('contest', None)
+        super(RoundSelectionForm, self).__init__(*args, **kwargs)
+        if contest is None:
+            raise ValueError("Contest must be provided to RoundSelectionForm.")
+        self.fields['round'].queryset = Round.objects.filter(contest=contest)

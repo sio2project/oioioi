@@ -31,11 +31,13 @@ from oioioi.contests.forms import (
     SubmissionsMessageForm,
     SubmitMessageForm,
     SubmissionMessageForm,
+    RoundSelectionForm,
 )
 from oioioi.contests.models import (
     Contest,
     ContestAttachment,
     ProblemInstance,
+    Round,
     Submission,
     SubmissionReport,
     UserResultForProblem,
@@ -844,6 +846,45 @@ def reattach_problem_confirm_view(request, contest_id):
             'contest': contest
         },
     )
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def assign_problems_to_a_round_view(request):
+    problem_ids = request.GET.get('ids')
+    if problem_ids:
+        problem_ids = [int(i) for i in problem_ids.split(',') if i.isdigit()]
+
+    if not problem_ids:
+        raise SuspiciousOperation("Invalid problem ids")
+
+    problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
+
+    if request.method == 'POST':
+
+        form = RoundSelectionForm(request.POST, contest=request.contest)
+        if form.is_valid():
+            round = form.cleaned_data['round']
+            if round.contest.id != request.contest.id:
+                raise SuspiciousOperation("Invalid round")
+            for problem_instance in problem_instances:
+                problem_instance.round = round
+                problem_instance.save()
+            messages.success(request, _("Problems assigned to the round successfully."))
+            return redirect('problems_list', contest_id=request.contest.id)
+        else:
+            messages.error(request, _("Please select a round."))
+
+    form = RoundSelectionForm(contest=request.contest)
+
+    return TemplateResponse(
+        request,
+        'contests/assign_problems_to_a_round.html',
+        {
+            'problem_instances': problem_instances,
+            'problem_ids': '%2C'.join(str(i) for i in problem_ids), # Separate the problem ids with a comma (%2C)
+            'form': form,
+        },
+    )
+
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
