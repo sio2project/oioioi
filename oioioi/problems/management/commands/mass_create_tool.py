@@ -153,18 +153,18 @@ class Command(BaseCommand):
         - verbosity: the current verbosity level.
         Returns a list of created through-records.
         """
-        created = []
+        objs = []
         for i in range(count):
             candidate_fn = lambda: (random.choice(problems), random.choice(tags))
             if through_model == DifficultyTagThrough:
                 uniqueness_fn = lambda candidate: not (
                     through_model.objects.filter(problem=candidate[0]).exists() or
-                    any(r.problem == candidate[0] for r in created)
+                    any(r.problem == candidate[0] for r in objs)
                 )
             else:
                 uniqueness_fn = lambda candidate: not (
                     through_model.objects.filter(problem=candidate[0], tag=candidate[1]).exists() or
-                    any(r.problem == candidate[0] and r.tag == candidate[1] for r in created)
+                    any(r.problem == candidate[0] and r.tag == candidate[1] for r in objs)
                 )
             try:
                 candidate = get_unique_candidate(candidate_fn, uniqueness_fn)
@@ -176,7 +176,7 @@ class Command(BaseCommand):
                 break
             record = through_model(problem=candidate[0], tag=candidate[1])
             record.save()
-            created.append(record)
+            objs.append(record)
             if verbosity >= 3:
                 self.stdout.write(self.style.SUCCESS(
                     f"Created {verbose_name}: Problem ID {candidate[0].id} - Tag {candidate[1].name}"
@@ -186,21 +186,21 @@ class Command(BaseCommand):
                 sys.stdout.flush()
         if verbosity == 2 and count:
             sys.stdout.write("\n")
-        return created
+        return objs
 
     def create_proposals(self, count, problems, users, tags, proposal_model, verbose_name, verbosity):
         """
         Creates algorithm tag proposals by pairing problems, users, and algotags randomly.
         Returns a list of created AlgorithmTagProposal objects.
         """
-        proposals = []
+        objs = []
         for i in range(count):
             problem = random.choice(problems)
             user = random.choice(users)
             tag = random.choice(tags)
             proposal = proposal_model(problem=problem, user=user, tag=tag)
             proposal.save()
-            proposals.append(proposal)
+            objs.append(proposal)
             if verbosity >= 3:
                 self.stdout.write(self.style.SUCCESS(
                     f"Created Proposal: Problem ID {problem.id} - User {user.username} - Tag {tag.name}"
@@ -208,9 +208,9 @@ class Command(BaseCommand):
             elif verbosity == 2:
                 sys.stdout.write(f"Created {i+1} of {count} {verbose_name}s\r")
                 sys.stdout.flush()
-        if verbosity == 2 and proposals:
+        if verbosity == 2 and objs:
             sys.stdout.write("\n")
-        return proposals
+        return objs
 
     def write_summary(self, created, expected, object_name):
         if expected == 0:
