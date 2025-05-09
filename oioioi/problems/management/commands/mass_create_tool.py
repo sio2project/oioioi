@@ -141,6 +141,34 @@ class Command(BaseCommand):
             sys.stdout.write("\n")
         return objs
 
+    def create_problems(self, count, verbosity):
+        """
+        Creates a list of Problems using create_unique_objects,
+        then creates associated ProblemSite objects.
+        - count: number of objects to create.
+        - candidate_prefix: A prefix string (e.g. 'prob_').
+        - random_length: Number of random characters to append.
+        - verbose_name: A description used in output.
+        - verbosity: The current verbosity level.
+        Returns a list of created objects.
+        """
+        created_problems = self.create_unique_objects(
+            count=count,
+            candidate_prefix='prob_',
+            random_length=10,
+            uniqueness_fn=lambda s: not Problem.objects.filter(short_name=s).exists(),
+            create_instance_fn=lambda candidate: Problem.create(short_name=candidate),
+            verbose_name="Problem",
+            verbosity=verbosity,
+        )
+        for problem in created_problems:
+            site = ProblemSite.objects.create(
+                problem=problem,
+                url_key=f"{problem.short_name}_site",
+            )
+            site.save()
+        return created_problems
+
     def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
         """
         Creates a specified number of through-records connecting a problem and a tag.
@@ -266,13 +294,8 @@ class Command(BaseCommand):
             self.errors_found = True
             raise CommandError("Creation of difficulty tag proposals requires at least one problem, one user, and one difficulty tag to be created first.")
 
-        created_problems = self.create_unique_objects(
+        created_problems = self.create_problems(
             count=num_problems,
-            candidate_prefix='prob_',
-            random_length=10,
-            uniqueness_fn=lambda s: not Problem.objects.filter(short_name=s).exists(),
-            create_instance_fn=lambda candidate: Problem.create(short_name=candidate),
-            verbose_name="Problem",
             verbosity=verbosity,
         )
 
