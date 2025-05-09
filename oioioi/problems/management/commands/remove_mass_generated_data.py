@@ -12,7 +12,6 @@ User = get_user_model()
 class Command(BaseCommand):
     help = (
         "Removes all mass-generated mock data created by the mass create tool. "
-        "For models which are removed on cascade, a message is output to verify the cascade deletion."
     )
 
     def handle(self, *args, **options):
