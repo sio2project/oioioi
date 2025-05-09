@@ -12,6 +12,7 @@ from oioioi.problems.models import (
     DifficultyTagThrough,
     AlgorithmTagProposal,
     DifficultyTagProposal,
+    ProblemSite,
 )
 
 User = get_user_model()
@@ -270,7 +271,7 @@ class Command(BaseCommand):
             candidate_prefix='prob_',
             random_length=10,
             uniqueness_fn=lambda s: not Problem.objects.filter(short_name=s).exists(),
-            create_instance_fn=lambda candidate: Problem(short_name=candidate, name=f"Problem {candidate}"),
+            create_instance_fn=lambda candidate: Problem.create(short_name=candidate),
             verbose_name="Problem",
             verbosity=verbosity,
         )
