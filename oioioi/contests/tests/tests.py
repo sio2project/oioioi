@@ -3314,6 +3314,161 @@ class TestReattachingProblems(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
 
+class TestAssigningProblemsToARound(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_extra_contests',
+        'test_full_package',
+        'test_problem_instance',
+        'test_extra_problem',
+        'test_permissions',
+        'test_problem_site',
+        'test_assign_to_a_round'
+    ]
+
+    def test_contest_with_no_rounds(self):
+        pi_id = ProblemInstance.objects.get(id=100).id
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/no-rounds/') # 'no-rounds' becomes the current contest
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(pi_id)
+        response = self.client.get(url, follow=True)
+
+        # In case of no rounds, the user should be redirected back to the
+        # to the probleminstance menu and a message should be displayed.
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "The contest has no rounds.")
+        self.assertContains(response, "Select problem instance to change")
+
+    def test_contest_with_one_round(self):
+        pi_id1 = ProblemInstance.objects.get(id=300).id
+        pi_id2 = ProblemInstance.objects.get(id=301).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/one-round/')  # 'one-round' becomes the current contest
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}%2C{}".format(
+            pi_id1, pi_id2
+        )
+
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choose a round to assign the following problems to")
+        self.assertContains(response, Round.objects.get(id=1).name)
+
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        # Add both problem to the round with id 1.
+        response = self.client.post(url, data={'round': 1}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 1", count=3)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 1)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 1)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'one-round')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'one-round')
+
+
+    def test_contest_with_multiple_rounds(self):
+        pi_id1 = ProblemInstance.objects.get(id=400).id
+        pi_id2 = ProblemInstance.objects.get(id=401).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/multiple-rounds/')  # 'multiple-rounds' becomes the current contest
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}%2C{}".format(
+            pi_id1, pi_id2
+        )
+
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choose a round to assign the following problems to")
+        self.assertContains(response, Round.objects.get(id=3).name)
+        self.assertContains(response, Round.objects.get(id=4).name)
+
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        # Add both problem to the round with id 1.
+        response = self.client.post(url, data={'round': 3}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 1", count=3)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 3)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 3)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'multiple-rounds')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'multiple-rounds')
+
+        # Now assign the problems to the other round.
+        response = self.client.post(url, data={'round': 4}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 2", count=3)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 4)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 4)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'multiple-rounds')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'multiple-rounds')
+
+        # Now try to assign one of the problems to the first round
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(pi_id1)
+        response = self.client.post(url, data={'round' : 3}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Problems assigned to the round")
+
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 1", count=2)
+        self.assertContains(response, "Round 2", count=1)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 3)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 4)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'multiple-rounds')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'multiple-rounds')
+
+
+
+
 
 class TestModifyContest(TestCase):
     fixtures = ['test_users']
