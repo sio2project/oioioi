@@ -856,21 +856,36 @@ def assign_problems_to_a_round_view(request):
     if not problem_ids:
         raise SuspiciousOperation("Invalid problem ids")
 
+    # Check if the contest has any rounds
+    if not request.contest.round_set.exists():
+        messages.error(request, _("The contest has no rounds."))
+        return redirect('oioioiadmin:contests_probleminstance_changelist')
+
+    # Get the problem instances we want to assign to a round
     problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
 
     if request.method == 'POST':
-
         form = RoundSelectionForm(request.POST, contest=request.contest)
-        if form.is_valid():
+        # Round is optional in the form, so we need to check if it is selected
+        if form.is_valid() and form.cleaned_data['round']:
             round = form.cleaned_data['round']
+
+            # Next, we check if the round belongs to the same contest
             if round.contest.id != request.contest.id:
                 raise SuspiciousOperation("Invalid round")
             for problem_instance in problem_instances:
                 problem_instance.round = round
                 problem_instance.save()
-            messages.success(request, _("Problems assigned to the round successfully."))
-            return redirect('problems_list', contest_id=request.contest.id)
+            messages.success(request, _("Problems assigned to the round {} successfully.".format(round.name)))
+            return safe_redirect(
+                request,
+                reverse(
+                    'oioioiadmin:contests_probleminstance_changelist',
+                    kwargs={'contest_id': request.contest.id},
+                ),
+            )
         else:
+            # If the user didn't select a round, we need to show an error message
             messages.error(request, _("Please select a round."))
 
     form = RoundSelectionForm(contest=request.contest)
@@ -884,8 +899,6 @@ def assign_problems_to_a_round_view(request):
             'form': form,
         },
     )
-
-
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def confirm_archive_contest(request):

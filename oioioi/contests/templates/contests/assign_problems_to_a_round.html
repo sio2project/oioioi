@@ -8,7 +8,7 @@
     {% blocktrans %} Round Choice {% endblocktrans %}
 </h2>
 <p>
-    {% blocktrans %}Choose the round to assign the following problems to: {% endblocktrans %}
+    {% blocktrans %}Choose a round to assign the following problems to: {% endblocktrans %}
     <ul class="list-group d-inline-block">
         {% for problem in problem_instances %}
             <li class="list-group-item">{{ problem }}</li>
@@ -19,7 +19,7 @@
 <form method="post">
     {% csrf_token %}
     <input type="hidden" name="post" value="yes" />
-    <div class="form-group">
+    <div class="form-group d-flex">
         {{ form.as_p }}
     </div>
     <div class="form-group">

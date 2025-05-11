@@ -420,7 +420,8 @@ class RoundSelectionForm(forms.Form):
         queryset=Round.objects.none(),
         label=_("Round"),
         empty_label=_("Select round"),
-        required=True,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
     def __init__(self, *args, **kwargs):
