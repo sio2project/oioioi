@@ -104,5 +104,13 @@
       "short_name": "zad5",
       "contest": "multiple-rounds"
     }
+  },
+  {
+    "pk": 402,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad5"
+    }
   }
 ]
