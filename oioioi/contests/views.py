@@ -806,7 +806,47 @@ def reattach_problem_contest_list_view(request, full_list=False):
         },
     )
 
+def _get_problem_instances_from_problem_ids(problem_ids):
+    """
+    Retrieves a list of ProblemInstance objects corresponding to a comma-separated
+    list of problem IDs, performing validation on input.
 
+    Parameters:
+        problem_ids (str): A comma-separated string of problem IDs (e.g., "1,2,3").
+                           All IDs must be unique integers.
+
+    Returns:
+        QuerySet: A Django queryset of ProblemInstance objects with the given IDs.
+
+    Raises:
+        SuspiciousOperation: If the input is empty, contains non-digit values, duplicates,
+                             or references any non-existent problem ID.
+    """
+    if not problem_ids or not isinstance(problem_ids, str):
+        raise SuspiciousOperation("Invalid problem ids")
+
+    # Check if the problem ids are valid integers
+    if any(not i.isdigit() for i in problem_ids.split(',')):
+        raise SuspiciousOperation("Invalid problem ids")
+
+    # Convert the problem ids to integers
+    problem_ids = [int(i) for i in problem_ids.split(',')]
+
+    # Check if there are any duplicates in the problem ids
+    if len(problem_ids) != len(set(problem_ids)):
+        raise SuspiciousOperation("Duplicate problem ids")
+
+    # Get the problem instances
+    problem_instances = list(ProblemInstance.objects.filter(id__in=problem_ids))
+
+    # Check if all the requested problem instances exist in the database
+    if len(problem_instances) != len(problem_ids):
+        raise SuspiciousOperation("Invalid problem ids")
+
+    return problem_instances
+
+
+# TODO: refactor this function using _get_problem_isntances_from_problem_ids
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reattach_problem_confirm_view(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
@@ -850,19 +890,21 @@ def reattach_problem_confirm_view(request, contest_id):
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def assign_problems_to_a_round_view(request):
     problem_ids = request.GET.get('ids')
-    if problem_ids:
-        problem_ids = [int(i) for i in problem_ids.split(',') if i.isdigit()]
 
-    if not problem_ids:
-        raise SuspiciousOperation("Invalid problem ids")
+    # Get the problems instances from the request
+    problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
+
+    if not request.contest:
+        raise SuspiciousOperation("Invalid contest")
 
     # Check if the contest has any rounds
     if not request.contest.round_set.exists():
         messages.error(request, _("The contest has no rounds."))
         return redirect('oioioiadmin:contests_probleminstance_changelist')
 
-    # Get the problem instances we want to assign to a round
-    problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
+    # Check if the problem instances belong to the contest in the request
+    if not all(pi.contest and pi.contest.id == request.contest.id for pi in problem_instances):
+        raise SuspiciousOperation("Invalid problem instances")
 
     if request.method == 'POST':
         form = RoundSelectionForm(request.POST, contest=request.contest)
@@ -895,7 +937,6 @@ def assign_problems_to_a_round_view(request):
         'contests/assign_problems_to_a_round.html',
         {
             'problem_instances': problem_instances,
-            'problem_ids': '%2C'.join(str(i) for i in problem_ids), # Separate the problem ids with a comma (%2C)
             'form': form,
         },
     )
