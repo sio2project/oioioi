@@ -777,35 +777,6 @@ def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
         {'probleminstance': problem_instance},
     )
 
-
-@enforce_condition(contest_exists & is_contest_basicadmin)
-def reattach_problem_contest_list_view(request, full_list=False):
-    problem_ids = request.GET.get('ids')
-    if problem_ids:
-        problem_ids = [int(i) for i in problem_ids.split(',') if i.isdigit()]
-
-    if not problem_ids:
-        raise SuspiciousOperation("Invalid problem ids")
-
-    problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
-
-    if full_list:
-        contests = Contest.objects.all()
-    else:
-        contests = recent_contests(request) or Contest.objects.all()
-
-    contests = [c for c in contests if can_admin_contest(request.user, c)]
-    return TemplateResponse(
-        request,
-        'contests/reattach_problem_contest_list.html',
-        {
-            'problem_instances': problem_instances,
-            'contest_list': contests,
-            'full_list': full_list,
-            'problem_ids': '%2C'.join(str(i) for i in problem_ids), # Separate the problem ids with a comma (%2C)
-        },
-    )
-
 def _get_problem_instances_from_problem_ids(problem_ids):
     """
     Retrieves a list of ProblemInstance objects corresponding to a comma-separated
@@ -816,7 +787,7 @@ def _get_problem_instances_from_problem_ids(problem_ids):
                            All IDs must be unique integers.
 
     Returns:
-        QuerySet: A Django queryset of ProblemInstance objects with the given IDs.
+        List: A list of ProblemInstance objects with the given IDs.
 
     Raises:
         SuspiciousOperation: If the input is empty, contains non-digit values, duplicates,
@@ -845,22 +816,88 @@ def _get_problem_instances_from_problem_ids(problem_ids):
 
     return problem_instances
 
+def _check_if_problem_instances_belong_to_contest(problem_instances, contest_id):
+    """
+    Check if all the given ProblemInstance objects belong to the specified contest.
+
+    Parameters:
+        problem_instances (list): A list of ProblemInstance objects.
+        contest (Contest): The Contest object to check against.
+
+    Returns:
+        bool: True if all ProblemInstance objects belong to the contest, False otherwise.
+    """
+    return all(pi.contest and pi.contest.id == contest_id for pi in problem_instances)
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def reattach_problem_contest_list_view(request, full_list=False):
+    """
+    Handles the view for reattaching problem instances to a contest list.
+    This view retrieves problem instances based on the provided problem IDs
+    from the request, verifies their association with the current contest,
+    and renders a template displaying a list of contests where the user has
+    administrative privileges.
+    Args:
+        request (HttpRequest): The HTTP request object containing user and query parameters.
+        full_list (bool, optional): If True, retrieves all contests. If False, retrieves
+            only recent contests or all contests if no recent contests are available.
+            Defaults to False.
+    Raises:
+        SuspiciousOperation: If the provided problem instances do not belong to the current contest.
+    """
+
+    problem_ids = request.GET.get('ids')
+
+    problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
+
+    if not _check_if_problem_instances_belong_to_contest(problem_instances, request.contest.id):
+        raise SuspiciousOperation("Invalid problem instances")
+
+    if full_list:
+        contests = Contest.objects.all()
+    else:
+        contests = recent_contests(request) or Contest.objects.all()
+
+    contests = [c for c in contests if can_admin_contest(request.user, c)]
+    return TemplateResponse(
+        request,
+        'contests/reattach_problem_contest_list.html',
+        {
+            'problem_instances': problem_instances,
+            'contest_list': contests,
+            'full_list': full_list,
+            'problem_ids': '%2C'.join(str(i) for i in problem_ids), # Separate the problem ids with a comma (%2C)
+        },
+    )
+
 
 # TODO: refactor this function using _get_problem_isntances_from_problem_ids
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reattach_problem_confirm_view(request, contest_id):
+    """"
+    Reattach problems to a contest.
+    This view allows the user to reattach problems to a contest by copying
+    the problem instances from one contest to another. The user can choose
+    whether to copy the limits of the problem instances or create new ones.
+
+    Parameters:
+        request (HttpRequest): The HTTP request object.
+        contest_id (int): The ID of the contest to which the problems will be reattached.
+    Raises:
+        SuspiciousOperation: If the contest in the request is invalid, or if the problem
+                             instances do not belong to the source contest.
+    """
     contest = get_object_or_404(Contest, id=contest_id)
     if not can_admin_contest(request.user, contest):
         raise PermissionDenied
     
     problem_ids = request.GET.get('ids')
-    if problem_ids:
-        problem_ids = [int(i) for i in problem_ids.split(',')]
 
-    if not problem_ids:
-        raise SuspiciousOperation("Invalid problem ids")
+    # Get the problems instances from the request
+    problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
 
-    problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
+    if not _check_if_problem_instances_belong_to_contest(problem_instances, request.contest.id):
+        raise SuspiciousOperation("Invalid problem instances")
 
     if request.method == 'POST':
         copied_instances = (
@@ -889,6 +926,19 @@ def reattach_problem_confirm_view(request, contest_id):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def assign_problems_to_a_round_view(request):
+    """
+    Handles the assignment of problem instances to a specific round within a contest.
+    This view retrieves problem instances based on the provided IDs in the request,
+    validates their association with the current contest, and allows the user to assign
+    them to a specific round within the contest. If the assignment is successful, the
+    user is redirected to the problem instance changelist page.
+    Args:
+        request (HttpRequest): The HTTP request object containing GET or POST data.
+    Raises:
+        SuspiciousOperation: If the contest in the request is invalid, or if the problem
+                             instances or selected round do not belong to the contest.
+    """
+
     problem_ids = request.GET.get('ids')
 
     # Get the problems instances from the request
@@ -896,6 +946,9 @@ def assign_problems_to_a_round_view(request):
 
     if not request.contest:
         raise SuspiciousOperation("Invalid contest")
+
+    if not _check_if_problem_instances_belong_to_contest(problem_instances, request.contest.id):
+        raise SuspiciousOperation("Invalid problem instances")
 
     # Check if the contest has any rounds
     if not request.contest.round_set.exists():
