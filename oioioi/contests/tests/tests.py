@@ -3522,7 +3522,7 @@ class TestAssigningProblemsToARound(TestCase):
         self.assertEqual(response.status_code, 400)
 
         # ProblemInstance which does not belong to any contest
-        url = reverse('assign_problems_to_a_round') + "?ids={}".format(400)
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(401)
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 400)
 
