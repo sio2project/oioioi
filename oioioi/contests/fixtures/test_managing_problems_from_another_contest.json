@@ -1,0 +1,105 @@
+[
+  {
+    "pk": 1103,
+    "model": "auth.user",
+    "fields": {
+      "username": "test_weak_admin",
+      "first_name": "Test",
+      "last_name": "Weak Admin",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_observer@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": "secret_contest",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Secret contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z",
+      "is_archived": "False"
+    }
+  },
+  {
+    "pk": "available_contest",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Available contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z",
+      "is_archived": "False"
+    }
+  },
+  {
+    "pk": 100,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "available_contest",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 20,
+    "model": "contests.contestpermission",
+    "fields": {
+      "permission": "contests.contest_basicadmin",
+      "user": [
+        "test_weak_admin"
+      ],
+      "contest": "available_contest"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "main_problem_instance": 1,
+      "legacy_name": "Dummy",
+      "short_name": "dum",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
+      "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad1"
+    }
+  },
+  {
+    "pk": 1000,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "contest": "secret_contest",
+      "short_name": "zad1"
+    }
+  },
+  {
+    "pk": 1001,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad2"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "123"
+    }
+  }
+]

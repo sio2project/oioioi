@@ -3294,8 +3294,6 @@ class TestReattachingProblems(TestCase):
                 test.delete()
         self.assertTrue(Test.objects.count() > 0)
 
-
-
     def test_permissions(self):
         pi_id = ProblemInstance.objects.get(id=1).id
         self.assertTrue(self.client.login(username='test_admin'))
@@ -3313,6 +3311,44 @@ class TestReattachingProblems(TestCase):
         for url in urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
+
+# Testing whether a user with admin permission for one contest
+# can manage problems belonging to another contest using
+# the problem manager interface.
+class TestManagingProblemsFromAnotherContest(TestCase):
+
+    fixtures = [
+        'test_managing_problems_from_another_contest',
+    ]
+
+    def test_managing(self):
+        self.assertTrue(self.client.login(username='test_weak_admin'))
+
+        self.client.get('/c/available_contest/') # 'available_contest' becomes the current contest
+
+        for problem_id in [1000, 1001]:
+
+            get_urls = [
+                reverse('reattach_problem_contest_list') + "?ids={}".format(problem_id),
+                reverse('reattach_problem_confirm', args=('available_contest',)) + "?ids={}".format(problem_id),
+                reverse('assign_problems_to_a_round') + "?ids={}".format(problem_id),
+            ]
+
+            for url in get_urls:
+                response = self.client.get(url, follow=True)
+                self.assertEqual(response.status_code, 400)
+
+            post_urls_and_data = [
+                (reverse('reattach_problem_confirm', args=('available_contest',)) + "?ids={}".format(problem_id), {}),
+                (reverse('assign_problems_to_a_round') + "?ids={}".format(problem_id), {'round': 100}),
+            ]
+
+            for url, data in post_urls_and_data:
+                response = self.client.post(url, data=data, follow=True)
+                self.assertEqual(response.status_code, 400)
+
+
+
 
 class TestAssigningProblemsToARound(TestCase):
     fixtures = [
