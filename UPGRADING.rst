@@ -18,8 +18,8 @@ Fast Django Migration to 5.2 (Important for Large OIOIOI Instances)
 The following migrations require removing an index (created by the deprecated ``index_together``) and creating a new one:
 
 * ``oi/migrations/0008_sync_indexes_state.py``
-* ``forum/migrations/0021_sync_indexes_state.py``
-* ``contests/migrations/0013_sync_indexes_state.py``
+* ``forum/migrations/0013_sync_indexes_state.py``
+* ``contests/migrations/0021_sync_indexes_state.py``
 
 Since dropping and then creating an index takes a long time for instances with a very large number of submissions, you can speed this up as follows:
 
