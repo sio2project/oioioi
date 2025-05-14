@@ -12,6 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
@@ -52,6 +53,7 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
     visible_contests,
+    visible_contests_queryset, 
     visible_problem_instances,
     visible_rounds,
     get_files_message,
@@ -91,6 +93,7 @@ def select_contest_view(request):
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
     context = {
         'contests': contests,
+        'contests_on_page': getattr(settings, "CONTESTS_ON_PAGE", 20)
     }
     return TemplateResponse(
         request, 'contests/select_contest.html', context
@@ -774,8 +777,15 @@ def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
-def reattach_problem_contest_list_view(request, problem_instance_id, full_list=False):
-    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
+def reattach_problem_contest_list_view(request, full_list=False):
+    problem_ids = request.GET.get('ids')
+    if problem_ids:
+        problem_ids = [int(i) for i in problem_ids.split(',') if i.isdigit()]
+
+    if not problem_ids:
+        raise SuspiciousOperation("Invalid problem ids")
+
+    problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
 
     if full_list:
         contests = Contest.objects.all()
@@ -787,27 +797,38 @@ def reattach_problem_contest_list_view(request, problem_instance_id, full_list=F
         request,
         'contests/reattach_problem_contest_list.html',
         {
-            'problem_instance': problem_instance,
+            'problem_instances': problem_instances,
             'contest_list': contests,
             'full_list': full_list,
+            'problem_ids': '%2C'.join(str(i) for i in problem_ids), # Separate the problem ids with a comma (%2C)
         },
     )
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
-def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
+def reattach_problem_confirm_view(request, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     if not can_admin_contest(request.user, contest):
         raise PermissionDenied
-    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
+    
+    problem_ids = request.GET.get('ids')
+    if problem_ids:
+        problem_ids = [int(i) for i in problem_ids.split(',')]
+
+    if not problem_ids:
+        raise SuspiciousOperation("Invalid problem ids")
+
+    problem_instances = ProblemInstance.objects.filter(id__in=problem_ids)
 
     if request.method == 'POST':
-        if request.POST.get('copy-limits', '') == 'on':
-            pi = copy_problem_instance(problem_instance, contest)
-        else:
-            pi = get_new_problem_instance(problem_instance.problem, contest)
-
-        messages.success(request, _(u"Problem {} added successfully.".format(pi)))
+        copied_instances = (
+            [copy_problem_instance(problem_instance, contest) 
+             for problem_instance in problem_instances]
+            if request.POST.get('copy-limits', '') == 'on'
+            else [get_new_problem_instance(problem_instance.problem, contest) 
+                  for problem_instance in problem_instances]
+        )
+        messages.success(request, _(u"Problems {} added successfully.".format(', '.join(map(str, copied_instances)))))
         return safe_redirect(
             request,
             reverse(
@@ -818,7 +839,10 @@ def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
     return TemplateResponse(
         request,
         'contests/reattach_problem_confirm.html',
-        {'problem_instance': problem_instance, 'destination_contest': contest},
+        {
+            'problem_instances': problem_instances,
+            'contest': contest
+        },
     )
 
 
@@ -838,3 +862,15 @@ def unarchive_contest(request):
     contest.is_archived = False
     contest.save()
     return redirect('default_contest_view', contest_id=contest.id)
+
+def filter_contests_view(request, filter_value=""):
+    contests = visible_contests_queryset(request, filter_value)
+    contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
+    
+    context = {
+        'contests' : contests,
+        'contests_on_page' : getattr(settings, 'CONTESTS_ON_PAGE', 20),
+    }  
+    return TemplateResponse(
+        request, 'contests/select_contest.html', context
+    )
