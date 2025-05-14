@@ -7,6 +7,7 @@ import urllib.parse
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
+from django.contrib import messages
 from django.db.models import Case, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
@@ -381,13 +382,22 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     list_display = ('name_link', 'short_name_link', 'round', 'package', 'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
-    actions = ['attach_problems_to_another_contest']
+    actions = ['attach_problems_to_another_contest', 'assign_problems_to_a_round']
 
     def attach_problems_to_another_contest(self, request, queryset):
         ids = [problem.id for problem in queryset]
 
         # Attach problem ids as arguments to the URL
         base_url = reverse('reattach_problem_contest_list')
+        query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
+
+        return redirect('%s?%s' % (base_url, query_string))
+
+    def assign_problems_to_a_round(self, request, queryset):
+        ids = [problem.id for problem in queryset]
+
+        # Attach problem ids as arguments to the URL
+        base_url = reverse('assign_problems_to_a_round')
         query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
 
         return redirect('%s?%s' % (base_url, query_string))
