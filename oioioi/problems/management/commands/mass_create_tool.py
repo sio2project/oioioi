@@ -3,6 +3,7 @@ import string
 import sys
 
 from django.core.management.base import BaseCommand, CommandError
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from oioioi.problems.models import (
     Problem,
@@ -32,6 +33,7 @@ def get_unique_candidate(candidate_fn, uniqueness_fn, max_attempts=10):
 
 class Command(BaseCommand):
     help = (
+        "!!! THIS TOOL IS INTENDED FOR BENCHMARKING AND TESTING PURPOSES ONLY -- DO NOT USE IN PRODUCTION !!! "
         "Allows the creation of mock data for testing purposes. "
         "Creates Problems, Users, Algorithm Tags, Difficulty Tags, Algorithm Tag Proposals, and "
         "Algorithm Tag Through and Difficulty Tag Through records to assign tags to problems. Use with caution in production environments. "
@@ -265,6 +267,13 @@ class Command(BaseCommand):
         num_diffproposals = options['diffproposals']
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
+
+        if not settings.DEBUG:
+            self.stderr.write(self.style.ERROR(
+                "This command should only be run in DEBUG mode. "
+                "Please set DEBUG=True in your settings."
+            ))
+            return
 
         if (num_problems == 0 and num_users == 0 and num_algotags == 0 and num_difftags == 0
             and num_algothrough == 0 and num_diffthrough == 0
