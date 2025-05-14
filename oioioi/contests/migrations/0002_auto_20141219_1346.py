@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('contests', '0001_initial'),
         ('problems', '0001_initial'),
@@ -51,11 +50,6 @@ class Migration(migrations.Migration):
         migrations.AlterUniqueTogether(
             name='contestview',
             unique_together=set([('user', 'contest')]),
-        ),
-        migrations.AddIndex(
-            model_name='contestview',
-            index=models.Index(name="contests_contestview_user_id_timestamp_a0151775_idx",
-                               fields=('user', 'timestamp')),
         ),
         migrations.AddField(
             model_name='contestpermission',

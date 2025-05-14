@@ -86,16 +86,6 @@ class Migration(migrations.Migration):
             name='school',
             unique_together=set([('name', 'postal_code')]),
         ),
-        migrations.AddIndex(
-            model_name='school',
-            index=models.Index(name="oi_school_city_21f890_idx",
-                               fields=('city', 'is_active')),
-        ),
-        migrations.AddIndex(
-            model_name='school',
-            index=models.Index(name="oi_school_provinc_42dc90_idx",
-                               fields=('province', 'is_active')),
-        ),
         migrations.AlterUniqueTogether(
             name='region',
             unique_together=set([('contest', 'short_name')]),

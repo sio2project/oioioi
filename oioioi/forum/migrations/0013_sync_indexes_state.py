@@ -9,20 +9,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.SeparateDatabaseAndState(
-            database_operations=[],
-            state_operations=[
-                migrations.AlterIndexTogether(
-                    name="post",
-                    index_together=set(),
-                ),
-                migrations.AddIndex(
-                    model_name="post",
-                    index=models.Index(
-                        fields=['thread', 'add_date'],
-                        name="forum_post_thread_id_add_date_6d8ec21d_idx",
-                    ),
-                ),
-            ]
-        )
+        migrations.AlterIndexTogether(
+            name="post",
+            index_together=set(),
+        ),
+        migrations.AddIndex(
+            model_name="post",
+            index=models.Index(
+                fields=['thread', 'add_date'],
+                name="forum_post_thread__54acb8_idx"
+            ),
+        ),
     ]

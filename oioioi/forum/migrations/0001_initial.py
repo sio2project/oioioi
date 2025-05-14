@@ -81,11 +81,6 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(verbose_name='thread', to='forum.Thread', on_delete=models.CASCADE),
             preserve_default=True,
         ),
-        migrations.AddIndex(
-            model_name='post',
-            index=models.Index(name="forum_post_thread_id_add_date_6d8ec21d_idx",
-                               fields=('thread', 'add_date')),
-        ),
         migrations.AddField(
             model_name='category',
             name='forum',

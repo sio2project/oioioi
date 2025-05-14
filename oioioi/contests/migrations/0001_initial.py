@@ -260,10 +260,6 @@ class Migration(migrations.Migration):
             name='userresultforcontest',
             unique_together=set([('user', 'contest')]),
         ),
-        migrations.AddIndex(
-            model_name='submissionreport',
-            index=models.Index(name="contests_submissionrepor_submission_id_creation_d_df45e5ee_idx", fields=('submission', 'creation_date')),
-        ),
         migrations.AddField(
             model_name='scorereport',
             name='submission_report',
