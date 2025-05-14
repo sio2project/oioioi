@@ -13,6 +13,7 @@ First, ensure that all dependencies are installed:
 * latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*, *tex-gyre*,
   *texlive-pstricks*, *lmodern*),
 * Berkeley DB library (Ubuntu package: *libdb-dev*)
+* Node.js and npm (Ubuntu packages: *nodejs*, *npm*),
 
 It should be easier to begin with a separate folder at first::
 
@@ -29,7 +30,9 @@ Then OIOIOI and its dependencies can be installed using the following commands::
   git clone git://github.com/sio2project/oioioi.git
   cd oioioi
   pip install -r requirements.txt
-
+  npm install
+  npm run build
+  
 OIOIOI is a set of Django applications, therefore you need to create a folder with
 Django settings and other deployment configuration::
 
