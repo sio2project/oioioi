@@ -123,7 +123,7 @@ class ModelAdmin(
 
         if request.POST:  # The user has already confirmed the deletion.
             obj_display = force_str(obj)
-            self.log_deletion(request, obj, obj_display)
+            self.log_deletions(request, (obj,))
             self.delete_model(request, obj)
             self.message_user(
                 request,
@@ -177,6 +177,9 @@ class ModelAdmin(
         return self.has_change_permission(request, obj)
 
 
+@admin.action(
+    description=_("Delete selected %(verbose_name_plural)s")
+)
 def delete_selected(modeladmin, request, queryset, **kwargs):
     """Default ModelAdmin action that deletes the selected objects.
 
@@ -212,9 +215,7 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
             raise PermissionDenied
         n = queryset.count()
         if n:
-            for obj in queryset:
-                obj_display = force_str(obj)
-                modeladmin.log_deletion(request, obj, obj_display)
+            modeladmin.log_deletions(request, queryset)
             queryset.delete()
             message_text = _("Successfully deleted %(count)d %(items)s.") % {
                 "count": n,
@@ -267,7 +268,6 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
     )
 
 
-delete_selected.short_description = _("Delete selected %(verbose_name_plural)s")
 
 
 def collect_deleted_objects(modeladmin, request, queryset):
@@ -347,6 +347,7 @@ system_admin_menu_registry = MenuRegistry(_("System Administration"), is_superus
 side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
 
+@admin.register(User, site=site)
 class OioioiUserAdmin(UserAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
     form = OioioiUserChangeForm
     add_form = OioioiUserCreationForm
@@ -371,13 +372,14 @@ class OioioiUserAdmin(UserAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
             kwargs['widget'] = forms.CheckboxSelectMultiple()
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
+    @admin.action(
+        description=_("Mark users as active")
+    )
     def activate_user(self, request, qs):
         qs.update(is_active=True)
 
-    activate_user.short_description = _("Mark users as active")
 
 
-site.register(User, OioioiUserAdmin)
 
 system_admin_menu_registry.register(
     'users',

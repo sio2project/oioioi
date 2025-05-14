@@ -1,9 +1,9 @@
-from django.urls import re_path
+from django.urls import path
 
 from oioioi.timeline import views
 
 app_name = 'timeline'
 
 contest_patterns = [
-    re_path(r'^admin_profile/timeline/$', views.timeline_view, name='timeline_view'),
+    path('admin_profile/timeline/', views.timeline_view, name='timeline_view'),
 ]

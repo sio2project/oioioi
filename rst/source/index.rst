@@ -11,19 +11,19 @@ There is also some documentation on the `OIOIOI Project Documentation Site
 Architecture Overview
 ---------------------
 
-.. _Django 3.2: https://docs.djangoproject.com/en/3.2/
-.. _Django authentication: https://docs.djangoproject.com/en/3.2/topics/auth/
+.. _Django 5.2: https://docs.djangoproject.com/en/5.2/
+.. _Django authentication: https://docs.djangoproject.com/en/5.2/topics/auth/
 .. _django-registration-redux: https://django-registration-redux.readthedocs.org/en/latest/
-.. _Django file storage: https://docs.djangoproject.com/en/3.2/topics/files/
+.. _Django file storage: https://docs.djangoproject.com/en/5.2/topics/files/
 .. _Filetracker: https://github.com/sio2project/filetracker
 .. _Sioworkers: https://github.com/sio2project/sioworkers
 .. _Celery: https://docs.celeryproject.org/en/latest/index.html
 .. _django-pagination: https://code.google.com/p/django-pagination/
 .. _pytest: https://docs.pytest.org/
-.. _Django i18n: https://docs.djangoproject.com/en/3.2/topics/i18n/
+.. _Django i18n: https://docs.djangoproject.com/en/5.2/topics/i18n/
 .. _Transifex: https://www.transifex.com/projects/p/sio2project/
 
-The OIOIOI source code is a standard `Django 3.2`_ project, with the following
+The OIOIOI source code is a standard `Django 5.2`_ project, with the following
 components used:
 
 * Standard `Django authentication`_

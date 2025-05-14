@@ -1,3 +1,4 @@
+from django.urls import path
 from django.urls import re_path
 
 from oioioi.rankings import views
@@ -5,14 +6,14 @@ from oioioi.rankings import views
 app_name = 'rankings'
 
 contest_patterns = [
-    re_path(r'^ranking/$', views.ranking_view, name='default_ranking'),
-    re_path(
-        r'^ranking/edit_message/$',
+    path('ranking/', views.ranking_view, name='default_ranking'),
+    path(
+        'ranking/edit_message/',
         views.edit_ranking_message_view,
         name='edit_ranking_message',
     ),
-    re_path(
-        r'^ranking/get_users_in_ranking/$',
+    path(
+        'ranking/get_users_in_ranking/',
         views.get_users_in_ranking_view,
         name='get_users_in_ranking',
     ),

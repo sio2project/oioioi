@@ -100,7 +100,7 @@ class OIRegistrationController(ParticipantsController):
                     request.user.username,
                     self.contest.id,
                     request.META.get('REMOTE_ADDR', '?'),
-                    request.META.get('HTTP_USER_AGENT', '?'),
+                    request.headers.get('user-agent', '?'),
                 )
                 self.handle_validated_form(request, form, participant)
                 if 'next' in request.GET:

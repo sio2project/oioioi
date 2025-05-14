@@ -372,7 +372,7 @@ class TestErrorHandlers(TestCase):
         self.client.login = custom_login
 
     def ajax_get(self, url):
-        return self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        return self.client.get(url, headers={"x-requested-with": 'XMLHttpRequest'})
 
     def assertHtml(self, response, code):
         self.assertContains(response, '<html', status_code=code)
@@ -1267,9 +1267,9 @@ class TestLoginChange(TestCase):
             # The html strings underneath may change with any django upgrade.
             self.assertContains(
                 response,
-                '<input type="text" id="id_username" name="username" '
-                'value="%s" class="form-control" '
-                'maxlength="150" required />' % l,
+                '<input type="text" name="username" value="%s" '
+                'maxlength="150" class="form-control" required="" '
+                'aria-describedby="id_username_helptext" id="id_username">' % l,
                 html=True,
             )
 
@@ -1286,9 +1286,9 @@ class TestLoginChange(TestCase):
             response = self.client.get(self.url_edit_profile)
             self.assertContains(
                 response,
-                '<input type="text" id="id_username" name="username" '
-                'value="valid_user" class="form-control" '
-                'maxlength="150" readonly required />',
+                '<input type="text" name="username" value="valid_user" '
+                'maxlength="150" readonly="" class="form-control" required="" '
+                'aria-describedby="id_username_helptext" id="id_username">',
                 html=True,
             )
 
@@ -1300,9 +1300,9 @@ class TestLoginChange(TestCase):
             response = self.client.get(self.url_edit_profile)
             self.assertContains(
                 response,
-                '<input type="text" id="id_username" name="username" '
-                'value="%s" class="form-control" '
-                'maxlength="150" readonly required />' % l,
+                '<input type="text" name="username" value="%s" '
+                'maxlength="150" readonly="" class="form-control" required="" '
+                'aria-describedby="id_username_helptext" id="id_username">' % l,
                 html=True,
             )
 
@@ -1454,7 +1454,7 @@ class TestUserDeactivationLogout(TestCase):
         self.user.is_active = False
         self.user.save()
 
-        self.client.get(self.profile_index, follow=True)
+        self.client.post(self.profile_index, follow=True)
         # At this point we should check if user is deactivated and log him out.
         self.assert_logged(False)
 
