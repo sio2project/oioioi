@@ -19,6 +19,7 @@ from django.views.decorators.http import require_POST
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
+from oioioi.base.utils import jsonify
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.attachment_registration import attachment_registry
@@ -852,3 +853,33 @@ def filter_contests_view(request, filter_value=""):
     return TemplateResponse(
         request, 'contests/select_contest.html', context
     )
+
+def get_contest_hints(query):
+    contests = Contest.objects.filter(
+        Q(name__icontains=query) | Q(id__icontains=query) | Q(is_archived=False)
+    ).distinct()
+    
+    return [
+        {
+            'trigger': 'problem',
+            'name': contest.name,
+            'url': reverse('filter_contests', kwargs={'filter_value': contest.name})
+        }
+        for contest in contests[: getattr(settings, 'NUM_HINTS', 10)]
+    ]
+
+@jsonify
+def get_search_hints_view(request, view_type):
+    # Function works analogously to the auto-completion function implemented in the problemset
+
+    print(view_type)
+
+    if view_type == 'all' and request.user.is_superuser:
+       raise PermissionDenied
+
+    query = request.GET.get('q', '')
+
+    result = []
+    result.extend(list(get_contest_hints(query)))
+
+    return result

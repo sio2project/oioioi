@@ -198,6 +198,11 @@ neutral_patterns = [
         views.filter_contests_view, 
         name='filter_contests',
     ),
+    re_path(
+        r'^get_search_hints/(?P<view_type>public|my|all)/$',
+        views.get_search_hints_view,
+        name='get_search_hints',
+    ),
 ]
 
 if settings.USE_API:
