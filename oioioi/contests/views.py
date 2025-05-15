@@ -869,7 +869,7 @@ def get_contest_hints(query):
     ]
 
 @jsonify
-def get_search_hints_view(request, view_type):
+def get_contest_hints_view(request, view_type):
     # Function works analogously to the auto-completion function implemented in the problemset
 
     print(view_type)

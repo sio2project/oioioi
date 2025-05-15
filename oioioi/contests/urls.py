@@ -199,9 +199,9 @@ neutral_patterns = [
         name='filter_contests',
     ),
     re_path(
-        r'^get_search_hints/(?P<view_type>public|my|all)/$',
-        views.get_search_hints_view,
-        name='get_search_hints',
+        r'^get_contest_hints/(?P<view_type>public|my|all)/$',
+        views.get_contest_hints_view,
+        name='get_contest_hints',
     ),
 ]
 
