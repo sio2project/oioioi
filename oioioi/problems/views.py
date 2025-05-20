@@ -912,7 +912,9 @@ def task_archive_tag_view(request, origin_tag):
         origin_tag.problems.all()
         .select_related('problemsite', 'main_problem_instance')
         .prefetch_related(
-            'origininfovalue_set__localizations', 'origininfovalue_set__category'
+            'origininfovalue_set__localizations', 
+            'origininfovalue_set__category',
+            'names'
         )
     )
     problems = _filter_problems_prefetched(problems, request.GET)
