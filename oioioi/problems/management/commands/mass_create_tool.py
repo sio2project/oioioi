@@ -18,6 +18,12 @@ from oioioi.problems.models import (
 
 User = get_user_model()
 
+def unsigned_int(value):
+    ivalue = int(value)
+    if ivalue < 0:
+        raise ValueError(f"{value} is not a non-negative integer")
+    return ivalue
+
 def get_unique_candidate(candidate_fn, uniqueness_fn, max_attempts=10):
     """
     Repeatedly calls candidate_fn() until uniqueness_fn(candidate) is True,
@@ -41,64 +47,69 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
+            '--wipe', '-w',
+            action='store_true',
+            help='Remove all previously generated mock data before creating new data'
+        )
+        parser.add_argument(
             '--problems', '-p',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of problems to create (default: 0)'
         )
         parser.add_argument(
             '--users', '-u',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of users to create (default: 0)'
         )
         parser.add_argument(
             '--algotags', '-at',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of algorithm tags to create (default: 0)'
         )
         parser.add_argument(
             '--difftags', '-dt',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of difficulty tags to create (default: 0)'
         )
         parser.add_argument(
             '--algothrough', '-att',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of algorithm tag through records (assigning algorithm tags to problems) to create (default: 0)'
         )
         parser.add_argument(
             '--diffthrough', '-dtt',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of difficulty tag through records (assigning difficulty tags to problems) to create (default: 0)'
         )
         parser.add_argument(
             '--algoproposals', '-ap',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of algorithm tag proposals to create (default: 0)'
         )
         parser.add_argument(
             '--diffproposals', '-dp',
-            type=int,
+            type=unsigned_int,
             default=0,
             metavar='N',
             help='Number of difficulty tag proposals to create (default: 0)'
         )
         parser.add_argument(
             '--seed', '-s',
-            type=int,
+            type=unsigned_int,
             default=None,
             metavar='SEED',
             help='Random seed for reproducibility'
@@ -253,10 +264,43 @@ class Command(BaseCommand):
             msg = f"Created {created} of {expected} {object_name}."
             self.stdout.write(self.style.WARNING(msg))
 
+    def remove_all_generated_data(self):
+        """
+        Removes all mass-generated mock data created using this tool.
+        """
+
+        # Delete Problems
+        prob_qs = Problem.objects.filter(short_name__startswith=self.auto_prefix)
+        prob_count = prob_qs.count()
+        prob_qs.delete()
+        self.stdout.write(self.style.SUCCESS(f"Deleted {prob_count} Problems"))
+
+        # Delete Users
+        user_qs = User.objects.filter(username__startswith=self.auto_prefix)
+        user_count = user_qs.count()
+        user_qs.delete()
+        self.stdout.write(self.style.SUCCESS(f"Deleted {user_count} Users"))
+
+        # Delete Algorithm Tags
+        algo_tag_qs = AlgorithmTag.objects.filter(name__startswith=self.auto_prefix)
+        algo_tag_count = algo_tag_qs.count()
+        algo_tag_qs.delete()
+        self.stdout.write(self.style.SUCCESS(f"Deleted {algo_tag_count} Algorithm Tags"))
+
+        # Delete Difficulty Tags
+        diff_tag_qs = DifficultyTag.objects.filter(name__startswith=self.auto_prefix)
+        diff_tag_count = diff_tag_qs.count()
+        diff_tag_qs.delete()
+        self.stdout.write(self.style.SUCCESS(f"Deleted {diff_tag_count} Difficulty Tags"))
+
+        self.stdout.write(self.style.SUCCESS("Through, Proposal and AggregatedProposal records are deleted on cascade, along with ProblemSites."))
+        self.stdout.write(self.style.SUCCESS("Mock data removal complete"))
+
     def handle(self, *args, **options):
         self.errors_found = False
         self.auto_prefix = "_auto_"
 
+        wipe = options['wipe']
         num_problems = options['problems']
         num_users = options['users']
         num_algotags = options['algotags']
@@ -268,24 +312,19 @@ class Command(BaseCommand):
         seed = options['seed']
         verbosity = int(options.get('verbosity', 1))
 
+        total_objects_to_create = (
+            num_problems + num_users + num_algotags +
+            num_difftags + num_algothrough + num_diffthrough +
+            num_algoproposals + num_diffproposals
+        )
+
         if not settings.DEBUG:
+            self.errors_found = True
             self.stderr.write(self.style.ERROR(
                 "This command should only be run in DEBUG mode. "
                 "Please set DEBUG=True in your settings."
             ))
             return
-
-        if (num_problems == 0 and num_users == 0 and num_algotags == 0 and num_difftags == 0
-            and num_algothrough == 0 and num_diffthrough == 0
-            and num_algoproposals == 0 and num_diffproposals == 0):
-            self.stdout.write(self.style.WARNING(
-                "No objects specified for creation. Please set one or more counts to non-zero. "
-                "See --help for usage details."
-            ))
-            return
-
-        if seed is not None:
-            random.seed(seed)
 
         if num_algothrough > 0 and (num_problems <= 0 or num_algotags <= 0):
             self.errors_found = True
@@ -302,6 +341,29 @@ class Command(BaseCommand):
         if num_diffproposals > 0 and (num_problems <= 0 or num_users <= 0 or num_difftags <= 0):
             self.errors_found = True
             raise CommandError("Creation of difficulty tag proposals requires at least one problem, one user, and one difficulty tag to be created first.")
+
+        if wipe:
+            self.stdout.write(self.style.WARNING(
+                "Wiping all previously generated mock data."
+            ))
+            self.remove_all_generated_data()
+
+            if total_objects_to_create == 0:
+                return
+            else:
+                self.stdout.write(self.style.SUCCESS(
+                    "Wipe complete. Proceeding to create new mock data."
+                ))
+
+        if total_objects_to_create == 0:
+            self.stdout.write(self.style.WARNING(
+                "No objects specified for creation. Please set one or more counts to non-zero. "
+                "See --help for usage details."
+            ))
+            return
+
+        if seed is not None:
+            random.seed(seed)
 
         created_problems = self.create_problems(
             count=num_problems,
