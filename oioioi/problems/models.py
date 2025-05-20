@@ -855,7 +855,7 @@ class DifficultyTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name)
+        return str(self.tag.name)
 
 
 
@@ -942,7 +942,7 @@ class AlgorithmTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name)
+        return str(self.tag.name)
 
     class Meta(object):
         unique_together = ('problem', 'tag')
