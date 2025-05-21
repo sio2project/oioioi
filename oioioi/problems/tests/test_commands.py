@@ -240,3 +240,44 @@ class TestMassCreateTool(TestCase):
                 '-dp', '1',
                 stdout=out,
             )
+
+    def test_seed_repeatability(self):
+        out = StringIO()
+        call_command(
+            'mass_create_tool',
+            '-p', '10',
+            '-u', '10',
+            '-at', '5',
+            '-dt', '5',
+            '-att', '20',
+            '-dtt', '8',
+            '-ap', '50',
+            '-dp', '50',
+            '-s', '8518751',
+            stdout=out,
+        )
+
+        seed_snapshot = {}
+        for name, model in self.name_to_model.items():
+            seed_snapshot[name] = sorted(str(obj) for obj in model.objects.all())
+
+        call_command(
+            'mass_create_tool',
+            '-p', '10',
+            '-u', '10',
+            '-at', '5',
+            '-dt', '5',
+            '-att', '20',
+            '-dtt', '8',
+            '-ap', '50',
+            '-dp', '50',
+            '-s', '8518751',
+            '-w',
+            stdout=out,
+        )
+
+        seed_snapshot2 = {}
+        for name, model in self.name_to_model.items():
+            seed_snapshot2[name] = sorted(str(obj) for obj in model.objects.all())
+
+        self.assertEqual(seed_snapshot, seed_snapshot2)
