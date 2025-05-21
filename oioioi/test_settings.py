@@ -128,15 +128,6 @@ LOGGING['loggers']['django.db.backends.schema'] = {
     'level': 'INFO',
 }
 
-REST_FRAMEWORK = {
-   'DEFAULT_RENDERER_CLASSES': (
-       'rest_framework.renderers.JSONRenderer',
-       'rest_framework.renderers.BrowsableAPIRenderer',
-   ),
-   'DEFAULT_AUTHENTICATION_CLASSES': (
-       'rest_framework.authentication.TokenAuthentication',
-       'rest_framework.authentication.SessionAuthentication',
-       'oauth2_provider.contrib.rest_framework.OAuth2Authentication'
-   ),
-   'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
-}
+REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += (
+    'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+)

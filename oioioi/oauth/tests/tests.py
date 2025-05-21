@@ -1,19 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 import pytest
 
 from django.conf import settings
-from django.contrib.admin.utils import quote
-from django.contrib.auth.models import AnonymousUser, User
-from django.core import mail
-from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
-from django.core.management import call_command
-from django.http import HttpResponse
-from django.template import RequestContext, Template
-from django.test import RequestFactory
 from django.test.utils import override_settings
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from oauth2_provider.models import Application, AccessToken
 from django.utils import timezone
@@ -35,15 +26,18 @@ class PasswordGrantTestCase(TestCase):
 
     def setUp(self):
         # For this test, we need to explicitly create a password-grant-based app
-        self.user = User.objects.create_user('oauth_test_user', 'test@example.com', 'password')
+        # Since secrets are hashed we will store their plaintext as members
+        self.user_pwd = 'password'
+        self.user = User.objects.create_user('oauth_test_user', 'test@example.com', self.user_pwd)
 
+        self.app_secret = 'test-client-secret'
         self.application = Application.objects.create(
             name='Password Grant Test App',
             user=self.user,
             client_type=Application.CLIENT_CONFIDENTIAL,
             authorization_grant_type=Application.GRANT_PASSWORD,
             client_id='test-client-id',
-            client_secret='test-client-secret',
+            client_secret=self.app_secret,
             redirect_uris=''
         )
 
@@ -74,9 +68,9 @@ class PasswordGrantTestCase(TestCase):
         response = self.client.post(token_url, {
             'grant_type': Application.GRANT_PASSWORD,
             'username': self.user.username,
-            'password': 'password',
+            'password': self.user_pwd,
             'client_id': self.application.client_id,
-            'client_secret': 'test-client-secret'
+            'client_secret': self.app_secret,
         })
 
         self.assertEqual(response.status_code, 200)
