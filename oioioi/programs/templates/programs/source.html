@@ -6,6 +6,7 @@
 <style type="text/css">
     {{ css|safe }}
 </style>
+<link href="{% static 'common/prism.css' %}" rel="stylesheet" />
 {% endblock %}
 
 {% block title %}
@@ -13,17 +14,28 @@
 {% endblock %}
 
 {% block main-content %}
+
+    <script src="{% static 'common/prism.js' %}"></script>
+    <script type="module" src="{% static 'code_formatter/formatter.js' %}"></script>
     {% if decode_error %}
         {% include "programs/file_decoding_error.html" %}
     {% endif %}
     <button class="btn btn-outline-secondary" id="cpy_btn" style="margin-bottom: 3px" onclick="copyCodeToClipboard()">
         {% trans "Copy to clipboard" %}
     </button>
-    {% if is_source_safe %}
-        <pre hidden id="raw_source">{{ raw_source }}</pre>
-        <div class="h-scrollable">{{ source|safe }}</div>
-    {% else %}
-        <pre id="raw_source">{{ raw_source }}</pre>
+
+    {% if extension == 'cpp' or extension == 'cc' or extension == 'c' %}
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+
+        <button class="btn btn-outline-secondary" id="format_btn" style="margin-bottom: 3px" onclick="format_cpp_code()">
+            {% trans "Format code" %}
+        </button>
     {% endif %}
+    
+
+    <pre hidden id="raw_source">{{ raw_source }}</pre>
+    
+    <pre id="visible_source" class="language-{{ prismjs_extension }} line-numbers"><code class="nohighlight">{{raw_source}}</code></pre>
+
     <script type="application/javascript" src="{% static 'common/clipboard.js' %}"></script>
 {% endblock %}

@@ -155,7 +155,6 @@ class TestProgrammingContestController(TestCase):
         contest = Contest.objects.get()
         self.assertEqual(contest.controller.get_safe_exec_mode(), 'sio2jail')
 
-
 class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = [
         'test_users',
@@ -176,6 +175,9 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         # Download shown response.
         show_response = self.client.get(
             reverse('show_submission_source', kwargs=kwargs)
+        )
+        self.assertTrue(
+            'format_btn' in show_response.content.decode('utf-8')
         )
         self.assertEqual(show_response.status_code, 200)
         # Download plain text response.
@@ -269,6 +271,32 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         self.assertNotContains(response, 'submission-- ')
 
         self.assertEqual(no_whitespaces_content.count('>10.00s<'), 5)
+
+
+class TestProgramsViewsPython(TestCase, TestStreamingMixin):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_permissions',
+        'test_submission_python',
+    ]
+
+    def test_python_formatting_not_visible(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        submission = ProgramSubmission.objects.get(pk=1)
+        kwargs = {
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id,
+        }
+        # Download shown response.
+        show_response = self.client.get(
+            reverse('show_submission_source', kwargs=kwargs)
+        )
+        self.assertFalse(
+            'format_btn' in show_response.content.decode('utf-8')
+        )
 
 
 class TestSourceWithoutContest(TestCase):
