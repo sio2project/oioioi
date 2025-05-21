@@ -6,7 +6,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView
 from django.contrib.sites.requests import RequestSite
-from django.urls import re_path, reverse_lazy
+from django.urls import path
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 from registration import signals
 from registration.backends.default.views import (
@@ -45,7 +46,7 @@ class RegistrationView(DefaultRegistrationView):
             user.id,
             user.username,
             request.META.get('REMOTE_ADDR', '?'),
-            request.META.get('HTTP_USER_AGENT', '?'),
+            request.headers.get('user-agent', '?'),
         )
 
         registration_profile = RegistrationProfile.objects.create_profile(user)
@@ -63,8 +64,8 @@ class RegistrationView(DefaultRegistrationView):
 
 
 urlpatterns = [
-    re_path(
-        r'^register/$',
+    path(
+        'register/',
         RedirectView.as_view(pattern_name='sign-up', permanent=True),
         name='registration_redirect',
     ),
@@ -72,15 +73,15 @@ urlpatterns = [
 
 if not settings.SEND_USER_ACTIVATION_EMAIL:
     urlpatterns += [
-        re_path(
-            r'^sign-up/$',
+        path(
+            'sign-up/',
             RegistrationView.as_view(
                 success_url=reverse_lazy('sign-up_complete')
             ),
             name='sign-up',
         ),
-        re_path(
-            r'^sign-up/complete/$',
+        path(
+            'sign-up/complete/',
             TemplateView.as_view(
                 template_name='registration/'
                 'registration_and_activation_complete.html'
@@ -90,12 +91,12 @@ if not settings.SEND_USER_ACTIVATION_EMAIL:
     ]
 else:
     urlpatterns += [
-        re_path(r'^sign-up/$', RegistrationView.as_view(), name='sign-up')
+        path('sign-up/', RegistrationView.as_view(), name='sign-up')
     ]
 
 urlpatterns += [
-    re_path(
-        r'^password/reset/$',
+    path(
+        'password/reset/',
         PasswordResetView.as_view(
             form_class=OioioiPasswordResetForm,
             success_url=reverse_lazy('auth_password_reset_done'),
