@@ -230,6 +230,49 @@ class Command(BaseCommand):
             sys.stdout.write("\n")
         return objs
 
+    def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
+        """
+        Creates exactly `count` distinct through-records connecting problems and tags.
+        - For DifficultyTagThrough: at most one per problem.
+        - For AlgorithmTagThrough: any unique (problem, tag) pair.
+        """
+        if through_model == DifficultyTagThrough:
+            if count > len(problems):
+                raise CommandError(
+                    f"Cannot create {count} difficulty-through records; "
+                    f"only {len(problems)} problems available"
+                )
+            chosen_problems = random.sample(problems, count)
+            pairs = list(zip(chosen_problems, random.choices(tags, k=count)))
+        else:
+            all_pairs = [(p, t) for p in problems for t in tags]
+            if count > len(all_pairs):
+                raise CommandError(
+                    f"Cannot create {count} algorithm-through records; "
+                    f"only {len(all_pairs)} unique pairs available"
+                )
+            random.shuffle(all_pairs)
+            pairs = all_pairs[:count]
+
+        objs = []
+        for idx, (problem, tag) in enumerate(pairs, start=1):
+            record = through_model(problem=problem, tag=tag)
+            record.save()
+            objs.append(record)
+
+            if verbosity >= 3:
+                self.stdout.write(self.style.SUCCESS(
+                    f"Created {verbose_name}: Problem ID {problem.id} - Tag {tag.name}"
+                ))
+            elif verbosity == 2:
+                sys.stdout.write(f"Created {idx} of {count} {verbose_name}s\r")
+                sys.stdout.flush()
+
+        if verbosity == 2 and objs:
+            sys.stdout.write("\n")
+
+        return objs
+
     def create_proposals(self, count, problems, users, tags, proposal_model, verbose_name, verbosity):
         """
         Creates algorithm tag proposals by pairing problems, users, and algotags randomly.
