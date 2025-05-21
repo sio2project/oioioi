@@ -356,18 +356,20 @@ class Command(BaseCommand):
             num_difftags + num_algothrough + num_diffthrough +
             num_algoproposals + num_diffproposals
         )
+        max_algothrough = num_problems * num_algotags
+        max_diffthrough = num_problems
 
         if not settings.DEBUG:
             self.errors_found = True
             raise CommandError("This command should only be run in DEBUG mode. Please set DEBUG=True in your settings.")
 
-        if num_algothrough > 0 and (num_problems <= 0 or num_algotags <= 0):
+        if num_algothrough > max_algothrough:
             self.errors_found = True
-            raise CommandError("Assigning algorithm tags to problems requires at least one problem and one algorithm tag to be created first.")
+            raise CommandError(f"For {num_problems} problems and {num_algotags} algorithm tags can create at most {max_algothrough} algorithm tag through records.")
 
-        if num_diffthrough > 0 and (num_problems <= 0 or num_difftags <= 0):
+        if num_diffthrough > max_diffthrough:
             self.errors_found = True
-            raise CommandError("Assigning difficulty tags to problems requires at least one problem and one difficulty tag to be created first.")
+            raise CommandError(f"For {num_problems} problems can create at most {max_diffthrough} difficulty tag through records.")
 
         if num_algoproposals > 0 and (num_problems <= 0 or num_users <= 0 or num_algotags <= 0):
             self.errors_found = True
