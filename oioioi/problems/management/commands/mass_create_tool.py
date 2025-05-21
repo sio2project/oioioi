@@ -312,25 +312,21 @@ class Command(BaseCommand):
         Removes all mass-generated mock data created using this tool.
         """
 
-        # Delete Problems
         prob_qs = Problem.objects.filter(short_name__startswith=self.auto_prefix)
         prob_count = prob_qs.count()
         prob_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {prob_count} Problems"))
 
-        # Delete Users
         user_qs = User.objects.filter(username__startswith=self.auto_prefix)
         user_count = user_qs.count()
         user_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {user_count} Users"))
 
-        # Delete Algorithm Tags
         algo_tag_qs = AlgorithmTag.objects.filter(name__startswith=self.auto_prefix)
         algo_tag_count = algo_tag_qs.count()
         algo_tag_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {algo_tag_count} Algorithm Tags"))
 
-        # Delete Difficulty Tags
         diff_tag_qs = DifficultyTag.objects.filter(name__startswith=self.auto_prefix)
         diff_tag_count = diff_tag_qs.count()
         diff_tag_qs.delete()
