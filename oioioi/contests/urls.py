@@ -157,6 +157,11 @@ c_patterns = [
     re_path(r'^admin/', admin.contest_site.urls),
     re_path(r'^archive/confirm$', views.confirm_archive_contest, name='confirm_archive_contest'),
     re_path(r'^unarchive/$', views.unarchive_contest, name='unarchive_contest'),
+    re_path(
+        r'^assign_problems_to_a_round/$',
+        views.assign_problems_to_a_round_view,
+        name='assign_problems_to_a_round',
+    )
 ]
 
 nonc_patterns = [
