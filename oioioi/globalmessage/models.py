@@ -9,6 +9,7 @@ class GlobalMessage(models.Model):
     enabled = models.BooleanField(default=False, verbose_name=_("enabled"))
     start = models.DateTimeField(null=True, blank=True, verbose_name=_("start"))
     end = models.DateTimeField(null=True, blank=True, verbose_name=_("end"))
+    updated = models.DateTimeField(null=False, blank=False, verbose_name=_("updated"))
 
     def visible(self, timestamp):
         return (
