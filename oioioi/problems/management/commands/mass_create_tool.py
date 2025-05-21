@@ -320,11 +320,7 @@ class Command(BaseCommand):
 
         if not settings.DEBUG:
             self.errors_found = True
-            self.stderr.write(self.style.ERROR(
-                "This command should only be run in DEBUG mode. "
-                "Please set DEBUG=True in your settings."
-            ))
-            return
+            raise CommandError("This command should only be run in DEBUG mode. Please set DEBUG=True in your settings.")
 
         if num_algothrough > 0 and (num_problems <= 0 or num_algotags <= 0):
             self.errors_found = True
