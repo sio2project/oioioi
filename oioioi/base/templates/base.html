@@ -2,9 +2,27 @@
 
 {% load i18n all_with_prefix common_media compress simple_tags get_clocks get_su %}
 {% site_displayed_tag %}
-
 <html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head>
+    <script src="{{ STATIC_URL }}js/darkreader.min.js"></script>
+    <script>
+        if (localStorage.getItem("dark-mode") === "enabled") {
+            DarkReader.enable();
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggleButton = document.getElementById("dark-mode-toggle");
+            toggleButton.addEventListener("click", function () {
+                if (localStorage.getItem("dark-mode") === "enabled") {
+                    DarkReader.disable();
+                    localStorage.setItem("dark-mode", "disabled");
+                } else {
+                    DarkReader.enable();
+                    localStorage.setItem("dark-mode", "enabled");
+                }
+            });
+        });
+    </script>
+    
     {% block head %}
         <title>{% block title %}{% trans "Main page" %}{% endblock %} - {{ site_name }}</title>
         <meta charset="UTF-8">
@@ -29,7 +47,6 @@
                 {% common_styles %}
             {% endcompress %}
         {% endblock %}
-
         {% block adminhead %}{% endblock %}
         {% all_with_prefix extra_head_ %}
 
@@ -139,28 +156,6 @@
             <script type="text/javascript" async
                     src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML">
             </script>
-       {% endblock %}
-    
-   <script src="{{ STATIC_URL }}js/darkreader.min.js"></script>
-   <script>
-       document.addEventListener("DOMContentLoaded", function () {
-           const toggleButton = document.getElementById("dark-mode-toggle");
-
-           if (localStorage.getItem("dark-mode") === "enabled") {
-               DarkReader.enable();
-           }
-
-           toggleButton.addEventListener("click", function () {
-               if (DarkReader.isEnabled()) {
-                   DarkReader.disable();
-                   localStorage.setItem("dark-mode", "disabled");
-               } else {
-                   DarkReader.enable();
-                   localStorage.setItem("dark-mode", "enabled");
-               }
-           });
-       });
-   </script>
-    
+        {% endblock %}
     </body>
 </html>

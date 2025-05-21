@@ -14,6 +14,11 @@
     </span>
   </div>
   <input type="checkbox" id="dark-mode-toggle">
+  <script>
+    if (localStorage.getItem("dark-mode") === "enabled") {
+      document.getElementById("dark-mode-toggle").checked = true;
+    }
+  </script>
   {% all_with_prefix extra_footer_ %}
 </footer>
 
