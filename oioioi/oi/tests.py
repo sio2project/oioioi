@@ -2,6 +2,7 @@
 import os
 import re
 from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
+from unittest.mock import patch
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
@@ -25,6 +26,7 @@ class TestOIAdmin(TestCase):
         'test_contest',
         'test_oi_registration',
         'test_permissions',
+        'test_schools_import',
     ]
 
     def test_admin_menu(self):
@@ -39,12 +41,18 @@ class TestOIAdmin(TestCase):
         self.assertNotContains(response, 'Regions')
 
     def test_schools_import(self):
-        filename = os.path.join(os.path.dirname(__file__), 'files', 'schools.csv')
+        # WARNING: There *cannot be* oioioi/schools directory automatically generated and deleted by the script.
+        patch('builtins.input', return_value='y')
+        filename = os.path.join(os.path.dirname(__file__), 'files', 'rspo.csv')
         manager = import_schools.Command()
-        manager.run_from_argv(['manage.py', 'import_schools', filename])
-        self.assertEqual(School.objects.count(), 3)
-        school = School.objects.get(postal_code='02-044')
-        self.assertEqual(school.city, u'Bielsko-Biała Zdrój')
+        manager.run_from_argv(['manage.py', 'import_schools', filename, '--first-import'])
+        self.assertEqual(School.objects.count(), 7)
+        school = School.objects.get(postal_code='49-305')
+        self.assertEqual(school.city, u'Brzeg')
+        BASE_DIR = f'{os.getcwd()}/schools'
+        for file in os.listdir(BASE_DIR):
+            os.remove(os.path.join(BASE_DIR, file))
+        os.rmdir(BASE_DIR)
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()
