@@ -71,6 +71,18 @@ def can_admin_problem(request, problem):
     return False
 
 
+def can_modify_tags(request, problem):
+    """Checks if the user can add tags to the problem.
+
+    The user can modify tags if user can admin problem or user has can_modify_tags permission
+    """
+    if request.user.has_perm('problems.can_modify_tags'):
+        return True
+    if problem is None:
+        return False
+    return can_admin_problem(request, problem)
+
+
 def can_admin_instance_of_problem(request, problem):
     """Checks if the user has admin permission in a ProblemInstace
     of the given Problem.
@@ -224,8 +236,12 @@ def generate_add_to_contest_metadata(request):
     "add to contest" functionality in problemset.
     """
 
-    administered = administered_contests(request)
-    # If user doesn't own any contest we won't show the option.
+    administered = [
+        contest
+        for contest in administered_contests(request)
+        if not contest.is_archived
+    ]
+    # If user doesn't own any unarchived contest we won't show the option.
     if administered:
         show_add_button = True
     else:
@@ -239,6 +255,7 @@ def generate_add_to_contest_metadata(request):
             contest
             for contest in rcontests
             if request.user.has_perm('contests.contest_admin', contest)
+            and not contest.is_archived
         ]
     return show_add_button, administered_recent_contests
 
@@ -406,6 +423,7 @@ def filter_my_all_visible_submissions(request, queryset):
 
     result = Submission.objects.none()
     resolved = set()
+    prev_contest = request.contest
 
     for submission in queryset:
         pi = submission.problem_instance
@@ -429,5 +447,8 @@ def filter_my_all_visible_submissions(request, queryset):
             request, current_queryset
         )
         result = result.union(current_queryset)
+        if hasattr(request, '_cache'): # Delete cache so that e.g. `is_contest_basicadmin` doesn't return wrong results
+            delattr(request, '_cache')
+    request.contest = prev_contest
 
     return result

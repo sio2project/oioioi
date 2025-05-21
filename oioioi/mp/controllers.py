@@ -13,6 +13,7 @@ from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController
+from oioioi.contests.models import RegistrationStatus
 
 CONTEST_RANKING_KEY = 'c'
 
@@ -49,7 +50,15 @@ class MPRegistrationController(ParticipantsController):
     def can_register(self, request):
         return super().is_registration_open(request)
 
+    def get_registration_status(self, request):
+        return super().registration_status(request)
+
     def registration_view(self, request):
+
+        registration_status = self.get_registration_status(request)
+        if registration_status == RegistrationStatus.NOT_OPEN_YET:
+            return TemplateResponse(request, 'contests/registration_not_open_yet.html')
+
         participant = self._get_participant_for_form(request)
 
         if 'mp_mpregistrationformdata' in request.session:
@@ -98,6 +107,10 @@ class MPRegistrationController(ParticipantsController):
 class MPContestController(ProgrammingContestController):
     description = _("Master of Programming")
     create_forum = False
+    scoring_description = _(
+        "The submissions are scored from 0 to 100 points.\n"
+        "The participant can submit to finished rounds, but a multiplier is applied to the score of such submissions."
+        )
 
     show_email_in_participants_data = True
 
@@ -189,8 +202,8 @@ class MPContestController(ProgrammingContestController):
 
 class MPRankingController(DefaultRankingController):
     """Changes to Default Ranking:
-    1. Sum column is just after User column
-    2. Rounds with earlier start_date are more to the left
+    1. Rounds with earlier start_date are more to the left.
+    2. Users with 0 points aren't listed.
     """
 
     description = _("MP style ranking")
@@ -207,11 +220,6 @@ class MPRankingController(DefaultRankingController):
 
     def _filter_pis_for_ranking(self, partial_key, queryset):
         return queryset.order_by("-round__start_date")
-
-    def _render_ranking_page(self, key, data, page):
-        request = self._fake_request(page)
-        data['is_admin'] = self.is_admin_key(key)
-        return render_to_string('mp/ranking.html', context=data, request=request)
 
     def _allow_zero_score(self):
         return False

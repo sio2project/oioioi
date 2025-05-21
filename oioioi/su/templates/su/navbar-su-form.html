@@ -1,6 +1,6 @@
 {% load i18n simple_filters %}
 
-{% if ctx.user.is_superuser %}
+{% if ctx.user.is_superuser or is_valid_contest_admin %}
     <div class="dropdown-divider mb-0" role="separator"></div>
     <form class="p-3" action="{% url 'su' %}" method="post" id="su-dropdown-form">
         {% csrf_token %}

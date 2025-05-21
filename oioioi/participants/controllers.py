@@ -15,13 +15,14 @@ from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import ContestController, RegistrationController
 from oioioi.contests.models import RegistrationAvailabilityConfig
-from oioioi.contests.utils import can_see_personal_data, is_contest_admin
+from oioioi.contests.utils import can_see_personal_data, is_contest_admin, is_contest_archived
 from oioioi.participants.models import (
     OnsiteRegistration,
     Participant,
     RegistrationModel,
     TermsAcceptedPhrase,
 )
+from oioioi.contests.models import RegistrationStatus
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
@@ -200,12 +201,24 @@ class ParticipantsController(RegistrationController):
         return True
 
     def is_registration_open(self, request):
+        if is_contest_archived(request):
+            return False
         try:
             rvc = RegistrationAvailabilityConfig.objects.get(contest=request.contest)
             return rvc.is_registration_open(request.timestamp)
         except RegistrationAvailabilityConfig.DoesNotExist:
             auditLogger.warning("RegistrationAvailabilityConfig does not exist for contest %s", request.contest)
             return True
+
+    def registration_status(self, request):
+        if is_contest_archived(request):
+            return RegistrationStatus.CLOSED
+        try:
+            rvc = RegistrationAvailabilityConfig.objects.get(contest=request.contest)
+            return rvc.registration_status(request.timestamp)
+        except RegistrationAvailabilityConfig.DoesNotExist:
+            auditLogger.warning("RegistrationAvailabilityConfig does not exist for contest %s", request.contest)
+            return RegistrationStatus.OPEN
 
 
 class OpenParticipantsController(ParticipantsController):
@@ -230,6 +243,8 @@ class OpenParticipantsController(ParticipantsController):
         return Q_always_true()
 
     def can_register(self, request):
+        if is_contest_archived(request):
+            return False
         return True
 
     def can_unregister(self, request, participant):

@@ -28,6 +28,8 @@ from oioioi.problems.forms import PackageFileReuploadForm, ProblemStatementRepla
 from oioioi.problems.models import (
     AlgorithmTagProposal,
     DifficultyTagProposal,
+    AggregatedAlgorithmTagProposal,
+    AggregatedDifficultyTagProposal,
     Problem,
     ProblemAttachment,
     ProblemPackage,
@@ -35,6 +37,7 @@ from oioioi.problems.models import (
 )
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (
+    can_modify_tags,
     can_admin_problem,
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
@@ -134,9 +137,9 @@ def check_for_downloads(request, problem):
 
 @problem_site_tab(_("Downloads"), key='files', order=200, condition=check_for_downloads)
 def problem_site_files(request, problem):
-    additional_files = attachment_registry_problemset.to_list(
+    additional_files = sorted(attachment_registry_problemset.to_list(
         request=request, problem=problem
-    )
+    ), key=itemgetter('name'))
     files_qs = ProblemAttachment.objects.filter(problem=problem.id)
     files = sorted(
         [
@@ -150,6 +153,7 @@ def problem_site_files(request, problem):
                         'attachment_id': f.id,
                     },
                 ),
+                'admin_only': False,
             }
             for f in files_qs
         ],
@@ -248,12 +252,6 @@ def problem_site_settings(request, problem):
     )
     model_solutions = generate_model_solutions_context(request, problem_instance)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
-    algorithm_tag_proposals = (
-        AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
-    )
-    difficulty_tag_proposals = (
-        DifficultyTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
-    )
 
     return TemplateResponse(
         request,
@@ -264,10 +262,29 @@ def problem_site_settings(request, problem):
             'administered_recent_contests': administered_recent_contests,
             'package': package if package and package.package_file else None,
             'model_solutions': model_solutions,
+            'can_admin_problem': can_admin_problem(request, problem),
+            'extra_actions': extra_actions,
+        },
+    )
+
+@problem_site_tab(_("Tags"), key='tags', order=600, condition=can_modify_tags)
+def problem_site_tags(request, problem):
+    algorithm_tag_proposals = (
+        AggregatedAlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-amount')[:25]
+    )
+    difficulty_tag_proposals = (
+        AggregatedDifficultyTagProposal.objects.all().filter(problem=problem).order_by('-amount')[:25]
+    )
+
+    return TemplateResponse(
+        request,
+        'problems/tags.html',
+        {
+            'site_key': problem.problemsite.url_key,
+            'problem': problem,
             'algorithm_tag_proposals': algorithm_tag_proposals,
             'difficulty_tag_proposals': difficulty_tag_proposals,
             'can_admin_problem': can_admin_problem(request, problem),
-            'extra_actions': extra_actions,
         },
     )
 

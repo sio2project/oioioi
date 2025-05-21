@@ -5,10 +5,11 @@ from django.db.models import Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext_lazy as _
 from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
-from oioioi.base.utils import request_cached
+from oioioi.base.utils import request_cached, request_cached_complex
 from oioioi.base.utils.public_message import get_public_message
 from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
@@ -20,8 +21,11 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
+    UserResultForProblem,
+    SubmissionMessage,
 )
-
+from oioioi.programs.models import ProgramsConfig
+from oioioi.participants.models import TermsAcceptedPhrase
 
 class RoundTimes(object):
     def __init__(
@@ -71,12 +75,15 @@ class RoundTimes(object):
             )
 
         return current_datetime >= self.show_results
+    
+    def results_date(self):
+        return self.show_results
 
     def public_results_visible(self, current_datetime):
         """Returns True if the results of the round have already been made
         public
 
-        It the contest's controller makes no distinction between personal
+        If the contest's controller makes no distinction between personal
         and public results, this function returns the same as
         :meth:'results_visible'.
 
@@ -89,6 +96,12 @@ class RoundTimes(object):
             return False
 
         return current_datetime >= self.show_public_results
+    
+    def public_results_date(self):
+        if not self.contest.controller.separate_public_results():
+            return self.results_date()
+
+        return self.show_public_results
 
     def get_start(self):
         return self.start
@@ -229,22 +242,144 @@ def submittable_problem_instances(request):
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
 
-@request_cached
-def visible_problem_instances(request):
+@request_cached_complex
+def visible_problem_instances(request, no_admin=False):
     controller = request.contest.controller
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
         .select_related('problem')
         .prefetch_related('round')
     )
-    return [pi for pi in queryset if controller.can_see_problem(request, pi)]
+    return [pi for pi in queryset if controller.can_see_problem(
+        request, pi, no_admin=no_admin,
+    )]
+
+
+@request_cached_complex
+def visible_rounds(request, no_admin=False):
+    controller = request.contest.controller
+    queryset = Round.objects.filter(contest=request.contest)
+    return [r for r in queryset if controller.can_see_round(
+        request, r, no_admin=no_admin,
+    )]
+
+@make_request_condition
+@request_cached
+def are_rules_visible(request):
+    return (
+        hasattr(request, 'contest')
+        and request.contest.show_contest_rules
+    )
+
+@request_cached
+def get_number_of_rounds(request):
+    """Returns the number of rounds in the current contest.
+    """ 
+    return Round.objects.filter(contest=request.contest).count()
+
+
+def get_contest_dates(request):
+    """Returns the end_date of the latest round and the start_date
+    of the earliest round.
+    """ 
+    rtimes = rounds_times(request, request.contest)
+
+    ends = [
+        rt.get_end()
+        for rt in rtimes.values()
+    ]
+    starts = [
+        rt.get_start()
+        for rt in rtimes.values()
+    ]
+
+    if starts and None not in starts:  
+        min_start = min(starts)  
+    else:  
+        min_start = None
+
+    if ends and None not in ends:  
+        max_end = max(ends)
+    else:  
+        max_end = None
+
+    return min_start, max_end
+
+
+def get_scoring_desription(request):
+    """Returns the scoring description of the current contest.
+    """
+    if (hasattr(request.contest.controller, 'scoring_description') and 
+            request.contest.controller.scoring_description is not None):
+        return request.contest.controller.scoring_description
+    else:
+        return None
 
 
 @request_cached
-def visible_rounds(request):
+def get_problems_sumbmission_limit(request):
+    """Returns the upper and lower submission limit in the current contest.
+    If there is one limit for all problems, it returns a list with one element.
+    If there are no problems in the contest, it returns the default limit.
+    """
     controller = request.contest.controller
-    queryset = Round.objects.filter(contest=request.contest)
-    return [r for r in queryset if controller.can_see_round(request, r)]
+    queryset = (
+        ProblemInstance.objects.filter(contest=request.contest)
+        .prefetch_related('round')
+    )
+
+    if queryset is None or not queryset.exists():
+        return [Contest.objects.get(id=request.contest.id).default_submissions_limit]
+    
+    limits = set()
+    for p in queryset:
+        limits.add(controller.get_submissions_limit(request, p, noadmin=True))
+
+    if len(limits) == 1:
+        if None in limits:
+            return None
+        elif 0 in limits:
+            return [_('infinity')]
+        else:
+            return [limits.pop()]
+    elif len(limits) > 1:
+        if 0 in limits:
+            limits.remove(0)
+            max_limit = _('infinity')
+        else:
+            max_limit = max(limits)
+
+        min_limit = min(limits)
+
+    return [min_limit, max_limit]
+
+
+def get_results_visibility(request):
+    """Returns the results ad ranking visibility for each round in the contest"""
+    rtimes = rounds_times(request, request.contest)
+
+    dates = list()
+    for r in rtimes.keys():
+        results_date = rtimes[r].results_date()
+        public_results_date = rtimes[r].public_results_date()
+
+        if results_date is None or results_date <= request.timestamp:
+            results = _('immediately')
+        else:
+            results = _('after %(date)s') % {"date": results_date.strftime("%Y-%m-%d %H:%M:%S")}
+
+        if public_results_date is None or public_results_date <= request.timestamp:
+            ranking = _('immediately')
+        else:
+            ranking = _('after %(date)s') % {"date": public_results_date.strftime("%Y-%m-%d %H:%M:%S")}
+
+        dates.append({
+            'name' : r.name,
+            'results' : results,
+            'ranking' : ranking
+        })
+
+    return dates
 
 
 def aggregate_statuses(statuses):
@@ -262,10 +397,8 @@ def used_controllers():
     by contests on this instance.
     """
     return Contest.objects.values_list('controller_name', flat=True).distinct()
-
-
-@request_cached
-def visible_contests(request):
+    
+def visible_contests_query(request):
     """Returns materialized set of contests visible to the logged in user."""
     if request.GET.get('living', 'safely') == 'dangerously':
         visible_query = Contest.objects.none()
@@ -288,8 +421,18 @@ def visible_contests(request):
         visible_query |= Q(
             controller_name=controller_name
         ) & controller.registration_controller().visible_contests_query(request)
-    return set(Contest.objects.filter(visible_query).distinct())
+    return Contest.objects.filter(visible_query).distinct()
 
+@request_cached
+def visible_contests(request):
+    contests = visible_contests_query(request)
+    return set(contests)
+
+@request_cached_complex
+def visible_contests_queryset(request, filter_value):
+    contests = visible_contests_query(request)
+    contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))    
+    return set(contests)
 
 @request_cached
 def administered_contests(request):
@@ -305,6 +448,17 @@ def administered_contests(request):
 
 @make_request_condition
 @request_cached
+def is_contest_owner(request):
+    """Checks if the user is the owner of the current contest.
+    This permission level allows full access to all contest functionality
+    and additionally permits managing contest permissions for a given contest
+    with the exception of contest ownerships.
+    """
+    return request.user.has_perm('contests.contest_owner', request.contest)
+
+
+@make_request_condition
+@request_cached
 def is_contest_admin(request):
     """Checks if the user is the contest admin of the current contest.
     This permission level allows full access to all contest functionality.
@@ -313,12 +467,8 @@ def is_contest_admin(request):
 
 
 def can_admin_contest(user, contest):
-    """Checks if the user should be allowed on the admin pages of the contest.
-    This is the same level of permissions as is_contest_basicadmin.
-    """
-    return user.has_perm('contests.contest_admin', contest) or user.has_perm(
-        'contests.contest_basicadmin', contest
-    )
+    """Checks if the user should be allowed on the admin pages of the contest."""
+    return user.has_perm('contests.contest_basicadmin', contest)
 
 
 @make_request_condition
@@ -412,17 +562,13 @@ def best_round_to_display(request, allow_past_rounds=False):
             (round, contest.controller.get_round_times(request, round))
             for round in Round.objects.filter(contest=contest)
         )
-        next_rtimes = [
-            (r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)
-        ]
+        next_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [
             (r, rt) for r, rt in rtimes if rt.is_active(timestamp) and rt.get_end()
         ]
         current_rtimes.sort(key=lambda r_rt1: r_rt1[1].get_end())
-        past_rtimes = [
-            (r, rt) for r, rt in rtimes.items() if rt.is_past(timestamp)
-        ]
+        past_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_past(timestamp)]
         past_rtimes.sort(key=lambda r_rt2: r_rt2[1].get_end())
 
     if current_rtimes:
@@ -462,4 +608,157 @@ def get_submit_message(request):
         request,
         SubmitMessage,
         'submit_message',
+    )
+
+
+def get_submission_message(request):
+    return get_public_message(
+        request,
+        SubmissionMessage,
+        'submission_message',
+    )
+
+
+@make_request_condition
+@request_cached
+def is_contest_archived(request):
+    return (
+        hasattr(request, 'contest')
+        and (request.contest is not None)
+        and request.contest.is_archived
+    )
+
+
+def get_inline_for_contest(inline, contest):
+    """Returns inline without add, change or delete permissions,
+    with all fields in readonly for archived contests.
+    For unarchived contests returns the inline itself.
+    """
+    if not contest or not contest.is_archived:
+        return inline
+
+    class ArchivedInlineWrapper(inline):
+        extra = 0
+        max_num = 0
+        can_delete = False
+        editable_fields = []
+        exclude = []
+
+        def has_add_permission(self, request, obj=None):
+            return False
+
+        def has_change_permission(self, request, obj=None):
+            return False
+
+        def has_delete_permission(self, request, obj=None):
+            return False
+
+        def has_view_permission(self, request, obj=None):
+            return True
+
+    return ArchivedInlineWrapper
+
+# The whole section below requires refactoring,
+# may include refactoring the models of `Contest`, `ProgramsConfig` and `TermsAcceptedPhrase`
+
+def extract_programs_config_execution_mode(request):
+    return request.POST.get('programs_config-0-execution_mode', None)
+
+
+def create_programs_config(request, adding):
+    """Creates ProgramsConfig for a given contest if needed.
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
+    """
+    requested_contest_id = request.POST.get('id', None)
+    execution_mode = extract_programs_config_execution_mode(request)
+
+    if (
+        execution_mode and
+        execution_mode != 'AUTO'
+    ):
+        if adding and requested_contest_id:
+            ProgramsConfig.objects.create(contest_id=requested_contest_id, execution_mode=execution_mode)
+        elif not hasattr(request.contest, 'programs_config'):
+            ProgramsConfig.objects.create(contest_id=request.contest.id, execution_mode=execution_mode)
+
+
+def extract_terms_accepted_phrase_text(request):
+    return request.POST.get('terms_accepted_phrase-0-text', None)
+
+
+def create_terms_accepted_phrase(request, adding):
+    """Creates TermsAcceptedPhrase for a given contest if needed.
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
+    """
+
+    requested_contest_id = request.POST.get('id', None)
+    text = extract_terms_accepted_phrase_text(request)
+
+    if text:
+        if adding and requested_contest_id:
+            TermsAcceptedPhrase.objects.create(contest_id=requested_contest_id, text=text)
+        elif not hasattr(request.contest, 'terms_accepted_phrase'):
+            TermsAcceptedPhrase.objects.create(contest_id=request.contest.id, text=text)
+
+
+def create_contest_attributes(request, adding):
+    """Called to create certain attributes of contest object after modifying it that would not be created automatically.
+    Creates attributes are ProgramsConfig and TermsAcceptedPhrase
+
+    Args:
+        request: The HTTP request object.
+        adding (bool): If True, the contest is being added; otherwise, it is being modified.
+    """
+    if request.method != 'POST':
+        return
+    create_programs_config(request, adding)
+    create_terms_accepted_phrase(request, adding)
+
+def get_problem_statements(request, controller, problem_instances):
+    # Problem statements in order
+    # 1) problem instance
+    # 2) statement_visible
+    # 3) round end time
+    # 4) user result
+    # 5) number of submissions left
+    # 6) submissions_limit
+    # 7) can_submit
+    # Sorted by (start_date, end_date, round name, problem name)
+    return sorted(
+        [
+            (
+                pi,
+                controller.can_see_statement(request, pi),
+                controller.get_round_times(request, pi.round),
+                # Because this view can be accessed by an anynomous user we can't
+                # use `user=request.user` (it would cause TypeError). Surprisingly
+                # using request.user.id is ok since for AnynomousUser id is set
+                # to None.
+                next(
+                    (
+                        r
+                        for r in UserResultForProblem.objects.filter(
+                            user__id=request.user.id, problem_instance=pi
+                        )
+                        if r
+                        and r.submission_report
+                        and controller.can_see_submission_score(
+                            request, r.submission_report.submission
+                        )
+                    ),
+                    None,
+                ),
+                pi.controller.get_submissions_left(request, pi),
+                pi.controller.get_submissions_limit(request, pi),
+                controller.can_submit(request, pi) and not is_contest_archived(request),
+            )
+            for pi in problem_instances
+        ],
+        key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name, p[0].short_name),
     )

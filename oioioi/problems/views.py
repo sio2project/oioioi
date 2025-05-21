@@ -81,6 +81,7 @@ from oioioi.problems.problem_site import (
     problem_site_tab_registry,
 )
 from oioioi.problems.problem_sources import problem_sources
+from oioioi.problems.templatetags.tag import prefetch_top_tag_proposals
 from oioioi.problems.utils import (
     can_add_to_problemset,
     can_admin_instance_of_problem,
@@ -93,6 +94,7 @@ from oioioi.problems.utils import (
     show_proposal_form,
 )
 from oioioi.programs.models import ModelSolution
+from oioioi.problems.models import ProblemSite
 from unidecode import unidecode
 
 
@@ -113,10 +115,7 @@ def show_problem_attachment_view(request, attachment_id):
 def _get_package(request, package_id, contest_perm=None):
     package = get_object_or_404(ProblemPackage, id=package_id)
     if package.contest:
-        has_perm = request.user.has_perm(contest_perm, package.contest) or (
-            contest_perm == 'contests.contest_basicadmin'
-            and request.user.has_perm('contests.contest_admin', package.contest)
-        )
+        has_perm = request.user.has_perm(contest_perm, package.contest)
     elif package.problem:
         has_perm = can_admin_problem(request, package.problem)
     else:
@@ -142,6 +141,9 @@ def download_package_traceback_view(request, package_id):
 
 
 def add_or_update_problem(request, contest, template):
+    if contest and contest.is_archived:
+        raise PermissionDenied
+
     if 'problem' in request.GET:
         existing_problem = get_object_or_404(Problem, id=request.GET['problem'])
         if (
@@ -250,22 +252,38 @@ def _get_problems_by_query(query):
     return filtered_problems.distinct()
 
 
-def search_problems_in_problemset(datadict):
+def filter_problems_by_query(problems, datadict):
     query = datadict.get('q', '')
     algorithm_tags = datadict.getlist('algorithm')
     difficulty_tags = datadict.getlist('difficulty')
     origin_tags = datadict.getlist('origin')
 
-    problems = Problem.objects.all()
-
     if query:
-        problems = _get_problems_by_query(query)
-    if algorithm_tags:
-        problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+        problems_matching_query = _get_problems_by_query(query)
+        problems = problems.filter(pk__in=problems_matching_query)
     if difficulty_tags:
         problems = problems.filter(difficultytag__name__in=difficulty_tags)
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
+    if algorithm_tags:
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict['include_proposals'] == '1':
+            direct_match_problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+
+            problem_list = list(problems)
+            proposal_match_problem_ids = []
+
+            prefetch_top_tag_proposals(problems)
+            for problem in problem_list:
+                for proposal in problem.top_tag_proposals:
+                    if proposal.tag.name in algorithm_tags:
+                        proposal_match_problem_ids.append(problem.id)
+                        break
+
+            proposal_match_problems = problems.filter(id__in=proposal_match_problem_ids)
+
+            problems = (direct_match_problems | proposal_match_problems).distinct()
+        else:
+            problems = problems.filter(algorithmtag__name__in=algorithm_tags)
 
     return problems
 
@@ -304,7 +322,10 @@ def generate_problemset_tabs(request):
 
 
 def problemset_get_problems(request):
-    problems = search_problems_in_problemset(request.GET)
+    problems = Problem.objects.all()
+
+    if settings.PROBLEM_TAGS_VISIBLE:
+        problems = filter_problems_by_query(problems, request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
         # We annotate all of the statistics to assure that the display
@@ -423,6 +444,9 @@ def problemset_generate_view(request, page_title, problems, view_type):
         request
     )
     show_tags = settings.PROBLEM_TAGS_VISIBLE
+    show_tag_proposals = settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET
+    max_tag_proposals_shown = settings.PROBSET_SHOWN_TAG_PROPOSALS_LIMIT
+    min_proposals_per_tag = settings.PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL
     show_statistics = settings.PROBLEM_STATISTICS_AVAILABLE
     show_user_statistics = show_statistics and request.user.is_authenticated
     show_filters = (
@@ -466,7 +490,7 @@ def problemset_generate_view(request, page_title, problems, view_type):
 
     difficulty_tags = DifficultyTag.objects.filter(
         name__in=request.GET.getlist('difficulty')
-    )
+    ).order_by('name')
 
     return TemplateResponse(
         request,
@@ -481,6 +505,9 @@ def problemset_generate_view(request, page_title, problems, view_type):
             'algorithm_tags': request.GET.getlist('algorithm'),
             'difficulty_tags': difficulty_tags,
             'show_tags': show_tags,
+            'show_tag_proposals': show_tag_proposals,
+            'max_tag_proposals_shown': max_tag_proposals_shown,
+            'min_proposals_per_tag': min_proposals_per_tag,
             'show_statistics': show_statistics,
             'show_user_statistics': show_user_statistics,
             'show_filters': show_filters,
@@ -553,7 +580,7 @@ def problem_site_view(request, site_key):
     )
     difficulty_options = (
         tag.full_name
-        for tag in DifficultyTagLocalization.objects.filter(language=get_language())
+        for tag in DifficultyTagLocalization.objects.filter(language=get_language()).order_by('full_name')
     )
     context = {
         'problem': problem,
@@ -612,6 +639,11 @@ def problemset_add_to_contest_view(request, site_key):
         raise Http404
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
+    administered = [
+        contest
+        for contest in administered
+        if not contest.is_archived
+    ]
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append(
         {
@@ -664,7 +696,7 @@ def get_report_row_begin_HTML_view(request, submission_id):
     return TemplateResponse(
         request,
         'contests/my_submission_table_base_row_begin.html',
-        { 
+        {
             'record': submission_template_context(request, submission),
             'show_scores': json.loads(request.POST.get('show_scores', "false")),
             'can_admin': can_admin_problem_instance(request, submission.problem_instance) and
@@ -677,7 +709,7 @@ def get_report_row_begin_HTML_view(request, submission_id):
 @transaction.non_atomic_requests
 def problemset_add_or_update_problem_view(request):
     if not can_add_to_problemset(request):
-        if request.contest:
+        if request.contest and not request.contest.is_archived:
             url = (
                 reverse('add_or_update_problem')
                 + '?'
@@ -880,7 +912,9 @@ def task_archive_tag_view(request, origin_tag):
         origin_tag.problems.all()
         .select_related('problemsite', 'main_problem_instance')
         .prefetch_related(
-            'origininfovalue_set__localizations', 'origininfovalue_set__category'
+            'origininfovalue_set__localizations', 
+            'origininfovalue_set__category',
+            'names'
         )
     )
     problems = _filter_problems_prefetched(problems, request.GET)
@@ -1125,7 +1159,6 @@ def get_algorithm_and_difficulty_tag_hints(query):
 
     return result
 
-
 @uniquefy('name')
 def get_problem_hints(query, view_type, user):
     problems = _get_problems_by_query(query)
@@ -1142,6 +1175,7 @@ def get_problem_hints(query, view_type, user):
             'trigger': 'problem',
             'name': problem.name,
             'category': _("Problems"),
+            'url': reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
         }
         for problem in problems[: getattr(settings, 'NUM_HINTS', 10)]
     ]
@@ -1169,9 +1203,11 @@ def get_search_hints_view(request, view_type):
 
     result = []
     result.extend(list(get_problem_hints(query, view_type, request.user)))
-    result.extend(get_algorithm_and_difficulty_tag_hints(query))
-    result.extend(get_nonselected_origintag_hints(query))
-    result.extend(get_origininfovalue_hints(query))
+
+    if settings.PROBLEM_TAGS_VISIBLE:
+        result.extend(get_algorithm_and_difficulty_tag_hints(query))
+        result.extend(get_nonselected_origintag_hints(query))
+        result.extend(get_origininfovalue_hints(query))
 
     # Convert category names in results from lazy translation to strings,
     # since jsonify throws error if given lazy translation objects.

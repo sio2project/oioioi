@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
-from oioioi.problems.models import Problem
+from oioioi.problems.models import AlgorithmTag, AlgorithmTagThrough, Problem
 
 
 class TestProblemsetPage(TestCase):
@@ -48,6 +48,161 @@ class TestProblemsetPage(TestCase):
             response, '/problemset/problem/', count=Problem.objects.count() * 2
         )
         self.assertContains(response, 'Add to contest', count=Problem.objects.count())
+
+
+class TestTagProposalsOnProbset(TestCase):
+    fixtures = [
+        'test_users',
+        'test_problem_search',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+        'test_aggregated_tag_proposals',
+    ]
+
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=False,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=False,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_tags_not_visible(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, 'class="badge tag-label')
+        self.assertNotContains(response, 'show-tag-proposals-checkbox')
+        self.assertNotContains(response, 'aggregated-proposals')
+        self.assertNotContains(response, 'tag-label-algorithm-proposal')
+
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=True,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=False,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_tag_proposals_not_visible(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'class="badge tag-label')
+        self.assertNotContains(response, 'show-tag-proposals-checkbox')
+        self.assertNotContains(response, 'aggregated-proposals')
+        self.assertNotContains(response, 'tag-label-algorithm-proposal')
+        self.assertNotContains(response, 'greedy<span class="tag-proposal-amount')
+
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=True,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=True,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_tag_proposals_visible(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'show-tag-proposals-checkbox')
+        self.assertContains(response, 'aggregated-proposals')
+        self.assertContains(response, 'tag-label-algorithm-proposal')
+
+        self.assertContains(response, 'greedy<span class="tag-proposal-amount')
+        self.assertNotContains(response, 'knapsack<span class="tag-proposal-amount')
+        self.assertNotContains(response, 'dp<span class="tag-proposal-amount')
+        self.assertNotContains(response, 'lcis<span class="tag-proposal-amount')
+
+    @override_settings(
+        PROBLEM_TAGS_VISIBLE=True,
+        SHOW_TAG_PROPOSALS_IN_PROBLEMSET=True,
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+    )
+    def test_duplicate_tag_proposal(self):
+        AlgorithmTagThrough.objects.create(
+            problem=Problem.objects.get(pk=2),
+            tag=AlgorithmTag.objects.get(pk=4),
+        )
+
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_main')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'show-tag-proposals-checkbox')
+        self.assertNotContains(response, 'aggregated-proposals')
+        self.assertNotContains(response, 'tag-label-algorithm-proposal')
+        self.assertNotContains(response, 'greedy<span class="tag-proposal-amount')
+
+
+@override_settings(
+    PROBLEM_TAGS_VISIBLE=True,
+    SHOW_TAG_PROPOSALS_IN_PROBLEMSET=True,
+    PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+)
+class TestTagProposalSearch(TestCase):
+    fixtures = [
+        'test_users',
+        'test_problem_search',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+        'test_aggregated_tag_proposals',
+    ]
+    url = reverse('problemset_main')
+
+    def _try_single_search(self, dict, hasZadanko, hasZolc):
+        response = self.client.get(self.url, dict)
+
+        if hasZadanko:
+            self.assertContains(response, 'Zadanko')
+        else:
+            self.assertNotContains(response, 'Zadanko')
+
+        if hasZolc:
+            self.assertContains(response, 'Żółć')
+        else:
+            self.assertNotContains(response, 'Żółć')
+
+    def setUp(self):
+        self.client.get('/c/c/')
+        self.assertTrue(self.client.login(username='test_user'))
+
+    @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
+    def test_search_min_3(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=2)
+    def test_search_min_2(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1)
+    def test_search_min_1(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, True, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, True)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
+        PROBSET_SHOWN_TAG_PROPOSALS_LIMIT=1,
+    )
+    def test_search_min_1_limit_1(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
+        PROBSET_SHOWN_TAG_PROPOSALS_LIMIT=0,
+    )
+    def test_search_min_1_limit_0(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, False)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+
 
 
 class TestAddToProblemsetPermissions(TestCase):
@@ -219,7 +374,9 @@ class TestProblemsetFilters(TestCase):
             self.assertEqual(response.status_code, 200)
 
             for problem in self.problems:
+                problemTag = f"<td>{problem}</td>"
+
                 if problem in filtered:
-                    self.assertContains(response, problem)
+                    self.assertContains(response, problemTag, html=True)
                 else:
-                    self.assertNotContains(response, problem)
+                    self.assertNotContains(response, problemTag, html=True)

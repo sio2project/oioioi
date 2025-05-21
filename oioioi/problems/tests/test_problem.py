@@ -4,6 +4,7 @@ import io
 
 import six
 import urllib.parse
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
@@ -21,6 +22,7 @@ from oioioi.problems.models import (
     DifficultyTag,
     DifficultyTagThrough,
     Problem,
+    ProblemName,
     ProblemAttachment,
     ProblemPackage,
     ProblemStatement,
@@ -80,6 +82,12 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Sum')
 
         self.assertTrue(self.client.login(username='test_user'))
+
+        # Users with problem.problems_db_admin can only see problems with visibility set to public.
+        problem = Problem.objects.get()
+        problem.visibility = Problem.VISIBILITY_PUBLIC
+        problem.save()
+
         check_not_accessible(self, url)
 
         user = User.objects.get(username='test_user')
@@ -193,6 +201,7 @@ class TestProblemPackageAdminView(TestCase):
     fixtures = [
         'test_users',
         'test_contest',
+        'test_permissions',
         'test_problem_packages',
         'test_problem_instance',
         'test_two_empty_contests',
@@ -220,6 +229,21 @@ class TestProblemPackageAdminView(TestCase):
         self.assertNotContains(response, 'Edit problem')
         # Not visible, because the problem instances's contest is 'c', not 'c1'
         self.assertNotContains(response, 'Model solutions')
+
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    def test_navbar_links(self):
+        for _ in range(0, 2):
+            url = reverse('my_submissions', kwargs={'contest_id': 'c'})
+            for login in ['test_admin', 'test_contest_admin']:
+                self.assertTrue(self.client.login(username=login))
+                self.assertContains(self.client.get(url), 'Problem packages', 2)
+            # Outside of contests there is only the System Administration menu.
+            url = reverse('noncontest:select_contest')
+            self.assertNotContains(self.client.get(url), 'Problem packages')
+            self.assertTrue(self.client.login(username='test_admin'))
+            self.assertContains(self.client.get(url), 'Problem packages', 2)
+            # It shouldn't matter whether there are packages with errors.
+            ProblemPackage.objects.all().delete()
 
     def test_problem_info_brace(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -407,14 +431,47 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Settings')
         response = self.client.get(url)
         self.assertContains(response, 'Add to contest')
-        self.assertContains(response, 'Current tags')
         self.assertContains(response, 'Edit problem')
         self.assertContains(response, 'Edit tests')
         self.assertContains(response, 'Reupload problem')
         self.assertContains(response, 'Model solutions')
+        self.assertContains(response, 'Medium')
+
+    @override_settings(LANGUAGE_CODE='en')
+    def test_tags_tab_admin(self):
+        problemsite_url = self._get_site_urls()['statement']
+        url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=tags'
+
+        response = self.client.get(problemsite_url)
+        self.assertNotContains(response, 'Tags')
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(problemsite_url)
+        self.assertContains(response, 'Tags')
+        response = self.client.get(url)
+        self.assertContains(response, 'Current tags')
         self.assertContains(response, 'dp')
         self.assertContains(response, 'lcis')
-        self.assertContains(response, 'Medium')
+
+    @override_settings(LANGUAGE_CODE='en')
+    def test_tags_tab_user_with_permission(self):
+        problemsite_url = self._get_site_urls()['statement']
+        url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=tags'
+
+        response = self.client.get(problemsite_url)
+        self.assertNotContains(response, 'Tags')
+
+        user = User.objects.get(username='test_user')
+        permission = Permission.objects.get(codename='can_modify_tags')  
+        user.user_permissions.add(permission)
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(problemsite_url)
+        self.assertContains(response, 'Tags')
+        response = self.client.get(url)
+        self.assertContains(response, 'Current tags')
+        self.assertContains(response, 'dp')
+        self.assertContains(response, 'lcis')
 
     def test_statement_replacement(self):
         url = (
@@ -685,6 +742,7 @@ class TestProblemSearchPermissions(TestCase, AssertContainsOnlyMixin):
         self.assert_contains_only(response, self.task_names)
 
 
+@override_settings(PROBLEM_TAGS_VISIBLE=True)
 class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
     fixtures = ['test_problem_search']
     url = reverse('problemset_main')
@@ -692,7 +750,7 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         'Prywatne',
         'Zadanko',
         'Żółć',
-        'Znacznik',
+        'Znaczn1k',
         'Algorytm',
         'Trudność',
         'Bajtocja',
@@ -742,7 +800,7 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         response = self.client.get(self.url, {'q': 'a'})
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(
-            response, ('Zadanko', 'Znacznik', 'Algorytm', 'Byteland')
+            response, ('Zadanko', 'Znaczn1k', 'Algorytm', 'Byteland')
         )
 
     def _test_search_name_localized(self, queries, exp_names):
@@ -778,7 +836,7 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': '1'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko', 'Żółć', 'Znacznik'))
+        self.assert_contains_only(response, ('Zadanko', 'Żółć', 'Znaczn1k'))
 
     def test_search_tags_basic(self):
         self.client.get('/c/c/')
@@ -811,3 +869,18 @@ class TestProblemSearch(TestCase, AssertContainsOnlyMixin):
         )
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ())
+
+def problem_name(problem, language):
+    problem_name = ProblemName.objects.filter(
+        problem=problem, language=language
+    ).first()
+    return problem_name.name if problem_name else problem.legacy_name
+
+class TestProblemName(TestCase):
+    fixtures = ['test_problem_search']
+
+    def test_problem_names(self):
+        for (lang_code, _) in settings.LANGUAGES:
+            with override_settings(LANGUAGE_CODE=lang_code):
+                for problem in Problem.objects.all():
+                    self.assertEqual(problem.name, problem_name(problem, lang_code))

@@ -66,7 +66,7 @@ requirements = [
     # Library for parsing dates and timedelta
     "humanize<=4.9.0",
     # SIO2 dependencies:
-    "filetracker>=2.1,<3.0",
+    "filetracker>=2.2.0,<3.0",
     "django-simple-captcha>=0.5,<=0.5.18",
     "phonenumbers>=8.13,<8.14",
     "pdfminer.six==20221105",

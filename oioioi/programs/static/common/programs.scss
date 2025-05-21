@@ -1,4 +1,9 @@
-@import "scss/style";
+@import "bootstrap/stylesheets/_functions";
+@import "bootstrap/stylesheets/_variables";
+@import "bootstrap/stylesheets/mixins/_breakpoints";
+@import "bootstrap/stylesheets/mixins/_border-radius";
+@import "bootstrap/stylesheets/mixins/_hover";
+@import "bootstrap/stylesheets/_card";
 
 .test-actions {
   visibility: hidden;
@@ -70,7 +75,10 @@
 
   .linenodiv, .syntax-highlight {
     @extend .card;
-    @extend .bg-light;
+    // Should be @extend .bg-light
+    // but it requires whole bootstrap to be included
+    // which increases bundle size dramatically
+    background-color: #f8f9fa !important;
     padding: ($spacer * 0.5);
   }
 }
@@ -82,7 +90,10 @@
 
   &.line-numbers, &.code {
     @extend .card;
-    @extend .bg-light;
+    // Should be @extend .bg-light
+    // but it requires whole bootstrap to be included
+    // which increases bundle size dramatically
+    background-color: #f8f9fa !important;
     padding: ($spacer * 0.5);
   }
 }

@@ -25,6 +25,8 @@ from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import CONTEST_RANKING_KEY, DefaultRankingController
+from oioioi.contests.models import RegistrationStatus
+
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
@@ -61,10 +63,18 @@ class PARegistrationController(ParticipantsController):
     def can_register(self, request):
         return super().is_registration_open(request)
 
+    def get_registration_status(self, request):
+        return super().registration_status(request)
+
     def can_unregister(self, request, participant):
         return False
 
     def registration_view(self, request):
+
+        registration_status = self.get_registration_status(request)
+        if registration_status == RegistrationStatus.NOT_OPEN_YET:
+            return TemplateResponse(request, 'contests/registration_not_open_yet.html')
+
         participant = self._get_participant_for_form(request)
 
         if 'pa_paregistrationformdata' in request.session:
@@ -114,6 +124,12 @@ class PARegistrationController(ParticipantsController):
 class PAContestController(ProgrammingContestController):
     description = _("Algorithmic Engagements")
     create_forum = True
+    scoring_description = _(
+        "The submissions are judged on real-time. All problems have 10 test groups, each worth 1 point. "
+        "If any of the tests in a group fails, the group is worth 0 points.\n"
+        "The full scoring is available after the end of the round."
+        "The ranking is determined by the total score and number of 10-score submissions, 9-score, 8-score etc."
+        )
 
     def fill_evaluation_environ(self, environ, submission):
         environ['test_scorer'] = 'oioioi.pa.utils.pa_test_scorer'
@@ -287,6 +303,15 @@ class PADivCRankingController(PARankingController):
 
 class PAFinalsContestController(ACMContestController):
     description = _("Algorithmic Engagements finals")
+    scoring_description = _(
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.\n"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n"
+        "The lower the total time, the higher the rank.\n"
+        "Compilation errors and system errors are not considered as an incorrect submission.\n"
+        "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds."
+        )
 
     def registration_controller(self):
         return ParticipantsController(self.contest)

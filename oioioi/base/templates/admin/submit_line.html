@@ -5,7 +5,10 @@
         {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
         <a class="btn btn-danger deletelink" href="{% add_preserved_filters delete_url %}" class="deletelink">{% translate "Delete" %}</a>
     {% endif %}
+
     <div class="ml-auto">
+    {% if show_archive %}<a class="btn btn-warning" href="{% url 'confirm_archive_contest' %}">{% translate "Archive" %}</a>{% endif %}
+    {% if show_unarchive %}<a class="btn btn-warning" href="{% url 'unarchive_contest' %}">{% translate "Unarchive" %}</a>{% endif %}
     {% if show_save_as_new %}<input class="btn btn-secondary" type="submit" value="{% translate 'Save as new' %}" name="_saveasnew">{% endif %}
     {% if show_save_and_add_another %}<input class="btn btn-secondary" type="submit" value="{% translate 'Save and add another' %}" name="_addanother">{% endif %}
     {% if show_save_and_continue %}<input class="btn btn-secondary" type="submit" value="{% if can_change %}{% translate 'Save and continue editing' %}{% else %}{% translate 'Save and view' %}{% endif %}" name="_continue">{% endif %}
@@ -20,6 +23,8 @@
             {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
             <a class="nav-item m-1 btn btn-danger deletelink" href="{% add_preserved_filters delete_url %}" class="deletelink">{% translate "Delete" %}</a>
         {% endif %}
+        {% if show_archive %}<a class="nav-item m-1 btn btn-warning" href="{% url 'confirm_archive_contest' %}">{% translate "Archive" %}</a>{% endif %}
+        {% if show_unarchive %}<a class="nav-item m-1 btn btn-warning" href="{% url 'unarchive_contest' %}">{% translate "Unarchive" %}</a>{% endif %}
         {% if show_save_as_new %}<input class="nav-item m-1 btn btn-secondary" type="submit" value="{% translate 'Save as new' %}" name="_saveasnew">{% endif %}
         {% if show_save_and_add_another %}<input class="nav-item m-1 btn btn-secondary" type="submit" value="{% translate 'Save and add another' %}" name="_addanother">{% endif %}
         {% if show_save_and_continue %}<input class="nav-item m-1 btn btn-secondary" type="submit" value="{% if can_change %}{% translate 'Save and continue editing' %}{% else %}{% translate 'Save and view' %}{% endif %}" name="_continue">{% endif %}

@@ -9,6 +9,7 @@ from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.db.models import Count
 
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.contests.controllers import (
@@ -70,35 +71,32 @@ def get_round_context(request, round_pk):
         pi for pi in queryset if controller.can_see_problem(request, pi)
     ]
 
-    for pi in visible_problem_instances:
-        problem_instances[pi.pk] = {}
-        problem_instances[pi.pk]['problem_instance'] = pi
-        problem_instances[pi.pk]['submission_count'] = 0
-        problem_instances[pi.pk]['question_count'] = 0
-        problem_instances[pi.pk]['solved_count'] = 0
-        problem_instances[pi.pk]['tried_solving_count'] = 0
-        problem_instances[pi.pk]['users_with_score'] = defaultdict(int)
-        problem_instances[pi.pk]['max_score'] = 0
-
     end_date = request.timestamp
     start_date = end_date - timedelta(days=RECENT_ACTIVITY_DAYS)
 
     last_week = [start_date, end_date]
 
-    questions = Message.objects.filter(round=selected_round, date__range=last_week)
-
-    for question in questions:
-        if question.problem_instance is not None:
-            problem_instance = problem_instances[question.problem_instance.pk]
-            problem_instance['question_count'] += 1
-
-    submissions = Submission.objects.filter(
+    submission_counts = Submission.objects.filter(
         problem_instance__round=selected_round, date__range=last_week
-    )
+    ).values('problem_instance').annotate(submission_count=Count('id'))
 
-    for submission in submissions:
-        problem_instance = problem_instances[submission.problem_instance.pk]
-        problem_instance['submission_count'] += 1
+    submission_dict = { item['problem_instance']: item['submission_count'] for item in submission_counts }
+
+    question_counts = Message.objects.filter(
+        round=selected_round, date__range=last_week
+    ).values('problem_instance').annotate(question_count=Count('id'))
+
+    question_dict = { item['problem_instance']: item['question_count'] for item in question_counts }
+
+    for pi in visible_problem_instances:
+        problem_instances[pi.pk] = {}
+        problem_instances[pi.pk]['problem_instance'] = pi
+        problem_instances[pi.pk]['submission_count'] = submission_dict.get(pi.pk, 0)
+        problem_instances[pi.pk]['question_count'] = question_dict.get(pi.pk, 0)
+        problem_instances[pi.pk]['solved_count'] = 0
+        problem_instances[pi.pk]['tried_solving_count'] = 0
+        problem_instances[pi.pk]['users_with_score'] = defaultdict(int)
+        problem_instances[pi.pk]['max_score'] = 0
 
     results = UserResultForProblem.objects.filter(
         problem_instance__round=selected_round, submission_report__isnull=False

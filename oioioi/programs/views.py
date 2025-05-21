@@ -200,6 +200,8 @@ def download_output_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
     if not test.problem_instance.controller.can_see_test(request, test):
         raise PermissionDenied
+    if not test.output_file:
+        raise Http404
     return stream_file(test.output_file, strip_num_or_hash(test.output_file.name))
 
 

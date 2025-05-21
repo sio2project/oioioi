@@ -24,6 +24,7 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.evalmgr.tasks import create_environ, delay_environ
 from oioioi.problems.models import ProblemStatistics, UserStatistics
 from oioioi.problems.utils import can_admin_problem
+from oioioi.programs.utils import get_checker_format
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             return 'IGNORED'
         return 'NORMAL'
 
-    def get_submissions_limit(self, request, problem_instance, kind='NORMAL'):
+    def get_submissions_limit(self, request, problem_instance, kind='NORMAL', noadmin=False):
         # in the future it should always return None as submissions limit
         # for main_problem_instance (without contest) makes no sense and
         # rest of logic should  be moved to contest controller
@@ -74,7 +75,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
         if (
             problem_instance.contest is None
-            or can_admin_problem(request, problem)
+            or (can_admin_problem(request, problem) and not noadmin)
             or kind == 'IGNORED'
         ):
             return None
@@ -148,6 +149,17 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         environ = create_environ()
         environ['extra_args'] = extra_args or {}
         environ['is_rejudge'] = is_rejudge
+        if hasattr(submission, 'programsubmission'):
+            user_lang = None
+            for code, lang in settings.LANGUAGES:
+                if code == submission.programsubmission.user_language_code:
+                    user_lang = lang.lower()
+                    break
+            if user_lang:
+                environ['user_language'] = user_lang
+            else:
+                environ['user_language'] = 'english'
+            environ['checker_format'] = environ['user_language'] + '_' + get_checker_format(submission.problem_instance)
         picontroller = submission.problem_instance.controller
 
         picontroller.fill_evaluation_environ(environ, submission)
@@ -727,3 +739,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             message += gettext_noop("The score is %(score)s.")
 
         return message
+
+    def user_outs_exist(self):
+        return True
+
+    def allow_test_runs(self, request):
+        return True

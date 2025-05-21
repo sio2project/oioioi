@@ -1,0 +1,74 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Rules" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Rules" %}</h1>
+<ul class="list-group list-group-light">
+    {% if no_of_rounds %}
+        <li class="list-group-item">
+            {% blocktrans count number=no_of_rounds %}
+                The contest has {{ number }} round.
+            {% plural %}
+                The contest has {{ number }} rounds.
+            {% endblocktrans %}
+        </li>
+    {% endif %}
+    {% if contest_start_date and contest_end_date %}
+        <li class="list-group-item">
+            {% blocktrans %}
+                The contest starts on {{ contest_start_date }} and ends on {{ contest_end_date }}.
+            {% endblocktrans %}
+        </li>
+    {% elif contest_start_date %}
+        <li class="list-group-item">
+            {% blocktrans %}
+                The contest starts on {{ contest_start_date }}.
+            {% endblocktrans %}
+        </li>
+    {% endif %}
+    {% if submission_limit|length > 1 %}
+        <li class="list-group-item">
+            {% blocktrans with submission_limit.0 as min and submission_limit.1 as max %}
+                There is a limit of {{ min }} to {{ max }} submissions, depending on a problem.
+            {% endblocktrans %}
+        </li>
+    {% elif submission_limit %}
+        <li class="list-group-item">
+            {% blocktrans with limit=submission_limit.0 %}
+                There is a limit of {{ limit }} submissions for each problem.
+            {% endblocktrans %}
+        </li>
+    {% else %}
+        <li class="list-group-item">
+            {% blocktrans %}
+                There are no submission limits in this contest.
+            {% endblocktrans %}
+        </li>
+    {% endif %}
+    {% if scoring_type %}
+        <li class="list-group-item">
+            {% blocktrans with scoring_type|linebreaksbr as scoring_description %}
+                {{ scoring_description }}
+            {% endblocktrans %}
+        </li>
+    {% endif %}
+    {% for round in results_visibility %}
+        {% if round.results != round.ranking %}
+            <li class="list-group-item">
+                {% blocktrans with round.name as name and round.results as results and round.ranking as ranking %}
+                    In round {{ name }}, your results will be visible {{ results }} and the public ranking will be visible {{ ranking }}.
+                {% endblocktrans %}
+            </li>
+        {% else %}
+            <li class="list-group-item">
+                {% blocktrans with round.name as name and round.results as results %}
+                    In round {{ name }}, your results as well as public ranking will be visible {{ results }}.
+                {% endblocktrans %}
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+{% endblock %}

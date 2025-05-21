@@ -228,13 +228,25 @@ class TestProblemStatisticsSpecialCases(TestCase):
         self.assertTrue(ps.avg_best_score == 100)
 
 
-@override_settings(PROBLEM_STATISTICS_AVAILABLE=True)
+@override_settings(
+    PROBLEM_STATISTICS_AVAILABLE=True,
+    PROBLEM_TAGS_VISIBLE=False,
+)
 class TestProblemStatisticsDisplay(TestCase):
     fixtures = ['test_users', 'test_statistics_display']
 
-    problem_columns = [
+    problem_columns_tags_invisible = [
         'short_name',
         'name',
+        'submitted',
+        'solved_pc',
+        'avg_best_score',
+        'user_score',
+    ]
+    problem_columns_tags_visible = [
+        'short_name',
+        'name',
+        'tags',
         'submitted',
         'solved_pc',
         'avg_best_score',
@@ -315,7 +327,7 @@ class TestProblemStatisticsDisplay(TestCase):
     def test_statistics_sorting(self):
         self.assertTrue(self.client.login(username='test_user'))
 
-        for i, column in enumerate(self.problem_columns):
+        for i, column in enumerate(self.problem_columns_tags_invisible):
             url_main = reverse('problemset_main')
             response = self.client.get(url_main, {'order_by': column})
             self.assertEqual(response.status_code, 200)
@@ -344,7 +356,7 @@ class TestProblemStatisticsDisplay(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        for column in self.problem_columns[2:]:
+        for column in self.problem_columns_tags_invisible[2:]:
             url_main = reverse('problemset_main')
             response = self.client.get(url_main, {'order_by': column})
             self.assertEqual(response.status_code, 200)
@@ -363,7 +375,7 @@ class TestProblemStatisticsDisplay(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        for i, column in enumerate(self.problem_columns):
+        for i, column in enumerate(self.problem_columns_tags_invisible):
             url_main = reverse('problemset_main')
             response = self.client.get(url_main, {'order_by': column})
             self.assertEqual(response.status_code, 200)
@@ -378,12 +390,13 @@ class TestProblemStatisticsDisplay(TestCase):
             self._assert_rows_sorted(rows, order_by=i, desc=True)
 
     # Check that the query and the ordering are correctly preserved in links
+    @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_statistics_sorting_with_query(self):
         self.assertTrue(self.client.login(username='test_user'))
 
-        col_no = 3
+        col_no = 4
         q = 'Bbbb'
-        order = self.problem_columns[col_no - 1]
+        order = self.problem_columns_tags_visible[col_no - 1]
         url_main = reverse('problemset_main')
 
         response = self.client.get(

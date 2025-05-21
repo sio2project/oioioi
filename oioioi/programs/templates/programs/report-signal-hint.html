@@ -1,0 +1,83 @@
+{% load i18n %}
+
+<div class="alert alert-info">
+    <i class="fa-solid fa-circle-info"></i>
+    <br>
+    {% for signal in signals_to_explain %}
+        {% if signal == 4 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGILL signal (signal 4):</b>
+                <ul>
+                    <li>Enabling compiler optimizations through <code>#pragma</code>, which may not be supported by this contest</li>
+                    <li>With compiler optimizations enabled, programs may cause this signal when they encounter
+                undefined behavior (e.g. division by zero), instead of giving a more informative signal</li>
+                    <li>Your compiled code contains machine code that the processor cannot understand.</li>
+                </ul>
+            {% endblocktrans %}
+        {% elif signal == 6 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGABRT signal (signal 6):</b>
+                <ul>
+                    <li>Out-of-bounds index access for the vector data structure</li>
+                    <li>Array allocation with an invalid size e.g. <code>int tab[-1];</code></li>
+                    <li>Bad use of C++ standard library functions, e.g. <code>sort()</code> over an invalid range</li>
+                    <li>A failed assertion when using <code>assert</code> - commonly used by the C++ Standard Library</li>
+                    <li>Other illegal memory operations.</li>
+                </ul>
+            {% endblocktrans %}
+        {% elif signal == 7 %}
+            {% blocktrans %}
+                <b>The SIGBUS signal (signal 7)</b> can mean a general memory violation, and can
+                be caused by trying to access an invalid memory address.
+            {% endblocktrans %}
+            <br>
+        {% elif signal == 8 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGFPE signal (signal 8):</b>
+                <ul>
+                    <li>Overflows/underflows for floating-point numbers</li>
+                    <li>Division by zero, either with floating-point numbers and integers</li>
+                    <li>Other illegal arithmetic operations, e.g. square-root of negative numbers.</li>
+                </ul>
+            {% endblocktrans %}
+        {% elif signal == 9 %}
+            {% blocktrans %}
+                <b>Most common sources for the SIGKILL signal (signal 9):</b>
+                <ul>
+                    <li>Your global variable exceeds the memory limit
+                        <br>(The difference compared to MLE is that the program exits before it can even "fully start")
+                    </li>
+                    <li>Other unexpected operations causing the program to get terminated preemptively.</li>
+                </ul>
+            {% endblocktrans %}
+        {% elif signal == 11 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGSEGV signal (signal 11):</b>
+                <ul>
+                    <li>Out-of-bounds array accesses</li>
+                    <li>De-referencing an invalid pointer (an empty "null-pointer" or a pointer to memory which has already been freed)</li>
+                    <li>Other memory violation errors</li>
+                </ul>
+            {% endblocktrans %}
+        {% elif signal == 31 %}
+            {% blocktrans %}
+                <b>Most common causes of the SIGSYS signal (signal 31):</b>
+                <ul>
+                    <li>Using a system call (syscall) that's not allowed by this task/contest.</li>
+                    <li>Using an invalid/non-existent system call.</li>
+                </ul>
+            {% endblocktrans %}
+        {% else %}
+            <span style="color: red;font-size: 1.5rem;font-weight: bold">
+                {% blocktranslate with signal=signal %}
+                    Signal {{ signal }} shouldn't show up while checking...
+                    <u>We recommend reporting this issue.</u>
+                {% endblocktranslate %}
+            </span>
+        {% endif %}
+    {% endfor %}
+    <hr>
+    {% blocktranslate %}
+        Program execution can differ depending on the operating system used and the execution environment.
+    {% endblocktranslate %}
+</div>

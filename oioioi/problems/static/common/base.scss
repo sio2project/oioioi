@@ -8,14 +8,19 @@
 .search-row {
   display: flex;
   justify-content: space-evenly;
+  margin: 4rem 0 2rem 0;
 }
 
 .search-bar {
-  margin: 5rem 0 4rem 0;
+  margin: 0 0 1rem 0;
 }
 
 .filter-bar {
-  margin: 5rem 0 4rem 0;
+  margin: 0 0 1rem 0;
+}
+
+.tag-proposal-checkbox-row {
+  margin: 2rem 0 2rem 0;
 }
 
 .tabbed-content {
@@ -57,4 +62,22 @@
 .tag-label-difficulty {
     background-color: #2DB941;
     color: #fff;
+}
+
+.tag-label-algorithm-proposal {
+  background-color: #91c5f5;
+  color: #000;
+}
+
+.tag-label-difficulty-proposal {
+  background-color: #90EE90;
+  color: #000;
+}
+
+.tag-proposal-amount {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  background-color: #e4e4e4;
+  color: #000;
 }

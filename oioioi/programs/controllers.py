@@ -11,17 +11,20 @@ from django.forms.widgets import Media
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, get_language_from_request
 
 from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import ScoreReport, SubmissionReport
+from oioioi.sinolpack.models import ExtraConfig
 from oioioi.contests.utils import (
     is_contest_admin,
     is_contest_basicadmin,
     is_contest_observer,
+    is_contest_archived,
+    get_submission_message,
 )
 from oioioi.evalmgr.tasks import (
     add_before_placeholder,
@@ -419,8 +422,13 @@ class ProgrammingProblemController(ProblemController):
 
         submission.save()
 
-    def get_submission_size_limit(self, problem_instance):
-        return 102400  # in bytes
+    def get_submission_size_limit(self, problem_instance): # in bytes
+        return ExtraConfig.objects.get(
+            problem_id=problem_instance.problem_id,
+        ).parsed_config.get(
+            'submission_size_limit',
+            settings.DEFAULT_SUBMISSION_SIZE_LIMIT,
+        )
 
     def check_repeated_submission(self, request, problem_instance, form):
         return (
@@ -463,12 +471,19 @@ class ProgrammingProblemController(ProblemController):
                 _("This language is not allowed for selected problem.")
             )
 
+        controller = problem_instance.controller
+        size_limit = controller.get_submission_size_limit(problem_instance)
+
         if is_file_chosen:
+            if cleaned_data['file'].size > size_limit:
+                raise ValidationError(_("File size limit exceeded."))
             code = cleaned_data['file'].read()
         else:
+            if len(cleaned_data['code']) > size_limit:
+                raise ValidationError(_("Code length limit exceeded."))
             code = cleaned_data['code'].encode('utf-8')
 
-        if problem_instance.controller.check_repeated_submission(
+        if controller.check_repeated_submission(
             request, problem_instance, form
         ):
             lines = iter(code.splitlines())
@@ -516,6 +531,7 @@ class ProgrammingProblemController(ProblemController):
                 ),
             ),
             date=request.timestamp,
+            user_language_code=get_language_from_request(request),
         )
 
         file = form_data['file']
@@ -563,17 +579,6 @@ class ProgrammingProblemController(ProblemController):
         form.set_custom_field_attributes(field_name, problem_instance)
 
     def adjust_submission_form(self, request, form, problem_instance):
-        controller = problem_instance.controller
-        size_limit = controller.get_submission_size_limit(problem_instance)
-
-        def validate_file_size(file):
-            if file.size > size_limit:
-                raise ValidationError(_("File size limit exceeded."))
-
-        def validate_code_length(code):
-            if len(code) > size_limit:
-                raise ValidationError(_("Code length limit exceeded."))
-
         def validate_language(file):
             ext = get_extension(file.name)
             if ext not in get_allowed_languages_extensions(problem_instance):
@@ -595,7 +600,7 @@ class ProgrammingProblemController(ProblemController):
             required=False,
             widget=CancellableFileInput,
             allow_empty_file=False,
-            validators=[validate_file_size, validate_language],
+            validators=[validate_language],
             label=_("File"),
             help_text=mark_safe(
                 _(
@@ -641,7 +646,6 @@ class ProgrammingProblemController(ProblemController):
         form.fields['code'] = forms.CharField(
             required=False,
             label=_("Code"),
-            validators=[validate_code_length],
             widget=code_widget
         )
 
@@ -700,6 +704,8 @@ class ProgrammingProblemController(ProblemController):
                     submission
                 ),
                 'can_admin': can_admin,
+                'is_contest_archived': is_contest_archived(request),
+                'message': get_submission_message(request),
             },
         )
 
@@ -726,12 +732,18 @@ class ProgrammingProblemController(ProblemController):
         group_reports = dict((g.group, g) for g in group_reports)
 
         picontroller = problem_instance.controller
+        pcontroller = problem_instance.problem.controller
 
-        allow_download_out = picontroller.can_generate_user_out(request, report)
+        allow_download_out = pcontroller.user_outs_exist() and picontroller.can_generate_user_out(request, report)
         allow_test_comments = picontroller.can_see_test_comments(request, report)
         all_outs_generated = allow_download_out
 
         groups = []
+        signals_to_explain = set()
+        # Sioworkers doesn't give us exit codes or signals explicitly. Neither does sio2jail.
+        # This detection mechanism is similar to the one sioworkers uses to give a RE verdict:
+        # https://github.com/sio2project/sioworkers/blob/55776ac98613ff2b11bd63397be536029616b9bb/sio/workers/executors.py#L670
+        signal_exit_msg = 'process exited due to signal '
         for group_name, tests in itertools.groupby(
             test_reports, attrgetter('test_group')
         ):
@@ -740,6 +752,13 @@ class ProgrammingProblemController(ProblemController):
             for test in tests_list:
                 test.generate_status = picontroller._out_generate_status(request, test)
                 all_outs_generated &= test.generate_status == 'OK'
+                # Extract all error signals from the test report according to the format
+                if test.comment.startswith(signal_exit_msg):
+                    try:
+                        signal = int(test.comment[len(signal_exit_msg):])
+                        signals_to_explain.add(signal)
+                    except ValueError:
+                        pass
 
             tests_records = [
                 {'display_type': get_report_display_type(request, test), 'test': test}
@@ -761,6 +780,7 @@ class ProgrammingProblemController(ProblemController):
                 'allow_test_comments': allow_test_comments,
                 'all_outs_generated': all_outs_generated,
                 'is_admin': picontroller.is_admin(request, report),
+                'signals_to_explain': signals_to_explain,
             },
         )
 
@@ -888,6 +908,11 @@ class ProgrammingProblemController(ProblemController):
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
+    scoring_description = _(
+        "The submissions are scored on a set of groups of test cases. Each group is worth a certain number of points.\n"
+        "The score is a sum of the scores of all groups. The ranking is determined by the total score.\n"
+        "The full scoring is available after the results date for the round."
+        )
 
     def get_compiler_for_submission(self, submission):
         problem_instance = submission.problem_instance

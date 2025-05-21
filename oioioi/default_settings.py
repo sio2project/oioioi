@@ -162,6 +162,13 @@ PROBLEMSET_LINK_VISIBLE = True
 # Set to true to show tags on the list of problems
 PROBLEM_TAGS_VISIBLE = False
 
+# Only relevant with PROBLEM_TAGS_VISIBLE set to True
+SHOW_TAG_PROPOSALS_IN_PROBLEMSET = False
+
+# Only relevant with SHOW_TAG_PROPOSALS_IN_PROBLEMSET set to True
+PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 3
+PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL = 10
+
 # Enables problem statistics at the cost of some per-submission performance hit.
 # Set to True if you want to see statistics in the Problemset and problem sites.
 # After enabling you should use ./manage.py recalculate_statistics
@@ -285,6 +292,7 @@ INSTALLED_APPS = (
     'oioioi.workers',
     'oioioi.quizzes',
     'oioioi._locale',
+    'oioioi.interactive',
 
     'djsupervisor',
     'registration',
@@ -372,6 +380,7 @@ PAGINATION_DEFAULT_WINDOW = 4
 PAGINATION_DEFAULT_MARGIN = 1
 FILES_ON_PAGE = 100
 PROBLEMS_ON_PAGE = 100
+CONTESTS_ON_PAGE = 20
 QUESTIONS_ON_PAGE = 30
 SUBMISSIONS_ON_PAGE = 100
 PARTICIPANTS_ON_PAGE = 100
@@ -715,6 +724,7 @@ PRINTING_COMMAND = ['lp', '-o landscape', '-o sides=two-sided-short-edge']
 # To get unlimited submissions count set to 0.
 DEFAULT_SUBMISSIONS_LIMIT = 10
 WARN_ABOUT_REPEATED_SUBMISSION = True
+DEFAULT_SUBMISSION_SIZE_LIMIT = 1024 * 100  # in bytes
 
 # Only used if 'testrun' app is enabled.
 # To get unlimited test runs set to 0.
@@ -863,9 +873,19 @@ FORUM_PAGE_SIZE = 15
 FORUM_THREADS_PER_PAGE = 30
 FORUM_POSTS_PER_PAGE = 30
 FORUM_POST_MAX_LENGTH = 20000
+FORUM_REACTIONS_TO_DISPLAY = 10
 
 # Check seems to be broken. https://stackoverflow.com/a/65578574
 SILENCED_SYSTEM_CHECKS = ['admin.E130']
 
 # Experimental
 USE_ACE_EDITOR = False
+
+REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = [
+    'rest_framework.throttling.AnonRateThrottle',
+    'rest_framework.throttling.UserRateThrottle'
+]
+REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
+    'anon': '1000/day',
+    'user': '1000/hour'
+}

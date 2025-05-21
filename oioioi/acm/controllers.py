@@ -33,6 +33,15 @@ IGNORED_STATUSES = ['CE', 'SE', '?']
 class ACMContestController(ProgrammingContestController):
     description = _("ACM style contest")
     create_forum = False
+    scoring_description = _(
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.\n"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n"
+        "The lower the total time, the higher the rank.\n"
+        "Compilation errors and system errors are not considered as an incorrect submission.\n"
+        "The ranking is frozen 60 minutes before the end of the round."
+        )
 
     def registration_controller(self):
         return ParticipantsController(self.contest)
@@ -47,6 +56,9 @@ class ACMContestController(ProgrammingContestController):
             frozen_ranking_minutes = 60
 
         return round.end_date - datetime.timedelta(minutes=frozen_ranking_minutes)
+
+    def get_penalty_time(self):
+        return ACMScore.DEFAULT_PENALTY_TIME
 
     def fill_evaluation_environ(self, environ, submission):
         environ['group_scorer'] = 'oioioi.acm.utils.acm_group_scorer'
@@ -122,6 +134,7 @@ class ACMContestController(ProgrammingContestController):
                 problems_solved=solved,
                 penalties_count=(penalties_count - solved),
                 time_passed=self.get_submission_relative_time(submission),
+                penalty_time=self.get_penalty_time(),
             )
             result.score = score
             result.status = submission.status
@@ -178,9 +191,9 @@ class ACMContestController(ProgrammingContestController):
     def ranking_controller(self):
         return ACMRankingController(self.contest)
 
-    def can_see_round(self, request_or_context, round):
+    def can_see_round(self, request_or_context, round, no_admin=False):
         context = self.make_context(request_or_context)
-        if context.is_admin:
+        if not no_admin and context.is_admin:
             return True
         rtimes = self.get_round_times(request_or_context, round)
         return rtimes.is_active(context.timestamp)
@@ -191,6 +204,15 @@ class ACMContestController(ProgrammingContestController):
 
 class ACMOpenContestController(ACMContestController):
     description = _("ACM style contest (open)")
+    scoring_description = _(
+        "The solutions are judged on real-time. "
+        "The submission is correct if it passes all the test cases.\n"
+        "Participants are ranked by the number of solved problems. "
+        "In case of a tie, the times of first correct submissions are summed up and a penalty of 20 minutes is added for each incorrect submission.\n"
+        "The lower the total time, the higher the rank.\n"
+        "Compilation errors and system errors are not considered as an incorrect submission.\n"
+        "The ranking is frozen 60 minutes before the end of the round."
+        )
 
     def registration_controller(self):
         return OpenParticipantsController(self.contest)

@@ -1,6 +1,9 @@
 {% load i18n %}
 {% load runtimeformat %}
 
+{% if allow_test_comments and signals_to_explain %}
+    {% include "programs/report-signal-hint.html" %}
+{% endif %}
 <ul class="list-unstyled">
     {% for group in groups %}
         {% for record in group.tests %}

@@ -119,6 +119,16 @@ SECRET_KEY = '__SECRET__'
 # Set to true to show tags on the list of problems
 # PROBLEM_TAGS_VISIBLE = False
 
+# Only relevant with PROBLEM_TAGS_VISIBLE set to True
+# Set to True to show tag proposals in the problemset
+# SHOW_TAG_PROPOSALS_IN_PROBLEMSET = False
+
+# Below values only relevant with SHOW_TAG_PROPOSALS_IN_PROBLEMSET set to True
+# Maximum amount of proposed tags shown for a single problem
+# PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 3
+# Minimum amount of user proposals to consider showing a tag proposal
+# PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL = 10
+
 # Enables problem statistics at the cost of some per-submission performance hit.
 # Set to True if you want to see statistics in the Problemset and problem sites.
 # After enabling you should use ./manage.py recalculate_statistics
@@ -196,6 +206,7 @@ INSTALLED_APPS = (
     # 'oioioi.problemsharing',
     # 'oioioi.usergroups',
     # 'oioioi.usercontests',
+    # 'oioioi.welcomepage',
 ) + INSTALLED_APPS
 
 # If set to locations of flite and sox executables, enables audio playback
@@ -263,6 +274,7 @@ FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 # PAGINATION_DEFAULT_MARGIN = 1
 # FILES_ON_PAGE = 100
 # PROBLEMS_ON_PAGE = 100
+# CONTESTS_ON_PAGE = 20
 # QUESTIONS_ON_PAGE = 30
 # SUBMISSIONS_ON_PAGE = 100
 # PARTICIPANTS_ON_PAGE = 100
@@ -581,4 +593,8 @@ ZEUS_INSTANCES = {
 # Experimental
 # USE_ACE_EDITOR = False
 
+# If set to True, contest admins will be able to log in as participants of contests they admin.
+CONTEST_ADMINS_CAN_SU = False
 
+# If set to False, contest admins switched to a participant will be able to make any type of request.
+ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS = True

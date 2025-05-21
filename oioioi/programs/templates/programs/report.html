@@ -19,6 +19,14 @@
         <pre>
             {{ compilation_report.compiler_output }}
         </pre>
+        {% if 'relocation truncated to fit' in compilation_report.compiler_output %}
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info"></i>
+                {% blocktrans %}
+                    This compilation error most commonly occurs when your global variable(s) are too large.
+                {% endblocktrans %}
+            </div>
+        {% endif %}
     {% else %}
         {% include "programs/report-body.html" %}
         {% include "programs/report-comments.html" with groups=groups %}

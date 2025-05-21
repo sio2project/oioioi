@@ -1,3 +1,4 @@
+import sys
 from importlib import import_module
 
 from django.conf import settings
@@ -76,6 +77,7 @@ def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
 
 c_patterns = [
     re_path(r'^$', views.default_contest_view, name='default_contest_view'),
+    re_path(r'^rules/$', views.contest_rules_view, name='contest_rules'),
     re_path(r'^p/$', views.problems_list_view, name='problems_list'),
     re_path(
         r'^p/(?P<problem_instance>[a-z0-9_-]+)/$',
@@ -124,6 +126,11 @@ c_patterns = [
         views.edit_submissions_message_view,
         name='edit_submissions_message',
     ),
+    re_path(
+        r'^submission_edit_message/$',
+        views.edit_submission_message_view,
+        name='edit_submission_message',
+    ),
     re_path(r'^files/$', views.contest_files_view, name='contest_files'),
     re_path(
         r'^files_edit_message/$',
@@ -148,6 +155,8 @@ c_patterns = [
         name='user_info_redirect',
     ),
     re_path(r'^admin/', admin.contest_site.urls),
+    re_path(r'^archive/confirm$', views.confirm_archive_contest, name='confirm_archive_contest'),
+    re_path(r'^unarchive/$', views.unarchive_contest, name='unarchive_contest'),
 ]
 
 nonc_patterns = [
@@ -173,31 +182,57 @@ neutral_patterns = [
         name='report',
     ),
     re_path(
-        r'^reattach/(?P<problem_instance_id>\d+)/contest_list/'
+        r'^reattach/contest_list/'
         '((?P<full_list>full))?',
         views.reattach_problem_contest_list_view,
         name='reattach_problem_contest_list',
     ),
     re_path(
-        r'^reattach/(?P<problem_instance_id>\d+)/'
+        r'^reattach/'
         '(?P<contest_id>[a-z0-9_-]+)/confirm',
         views.reattach_problem_confirm_view,
         name='reattach_problem_confirm',
+    ),
+    re_path(
+        r'^contest/query/(?P<filter_value>.+)/$', 
+        views.filter_contests_view, 
+        name='filter_contests',
     ),
 ]
 
 if settings.USE_API:
     nonc_patterns += [
         # the contest information is managed manually and added after api prefix
+        re_path(r'^api/contest_list', api.contest_list, name="api_contest_list"),
         re_path(
             r'^api/c/(?P<contest_name>[a-z0-9_-]+)/submit/(?P<problem_short_name>[a-z0-9_-]+)$',
             api.SubmitContestSolutionView.as_view(),
             name='api_contest_submit',
         ),
         re_path(
-            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)$',
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problems/(?P<problem_short_name>[a-z0-9_-]+)/$',
             api.GetProblemIdView.as_view(),
             name='api_contest_get_problem_id',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_list/(?P<problem_short_name>[a-z0-9_-]+)/$',
+            api.GetUserProblemSubmissionList.as_view(),
+            name='api_user_problem_submission_list',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_submission_code/(?P<submission_id>[a-z0-9_-]+)/$',
+            api.GetUserProblemSubmissionCode.as_view(),
+            name='api_user_problem_submission_code',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/round_list/$',
+            api.GetContestRounds.as_view(),
+            name='api_round_list',
+        ),
+        re_path(
+            r'^api/c/(?P<contest_id>[a-z0-9_-]+)/problem_list/$',
+            api.GetContestProblems.as_view(),
+            name='api_problem_list',
         ),
         re_path(
             r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',
@@ -219,8 +254,11 @@ for app in settings.INSTALLED_APPS:
             # patterns defined in the global urls.py are an exception
             if hasattr(urls_module, 'urlpatterns'):
                 neutral_patterns += getattr(urls_module, 'urlpatterns')
-        except ImportError:
+        except ModuleNotFoundError:
             pass
+        except ImportError as e:
+            if settings.DEBUG:
+                print(e, file=sys.stderr)
 
 # We actually use make_patterns here, but we don't pass the globs, because
 # the algorithm in oioioi.urls has yet to capture all urls, including ours.

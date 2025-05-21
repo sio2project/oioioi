@@ -15,17 +15,23 @@ You can manually use docker files to create images containing our services.
 
 To run the infrastructure simply::
 
-  "OIOIOI_VERSION=<oioioi_version>" docker-compose up
+  "OIOIOI_VERSION=<oioioi_version>" docker compose up
 
 Make sure to change default superuser password, same as in the automatic method.
 
 To start additional number of workers::
 
-  "OIOIOI_VERSION=<oioioi_version>" docker-compose up --scale worker=<number>
+  "OIOIOI_VERSION=<oioioi_version>" docker compose up --scale worker=<number>
 
 as described `in Docker docs`_.
 
 .. _in Docker docs: https://docs.docker.com/compose/reference/up/
+
+Docker image
+============
+.. _official Docker image: https://github.com/sio2project/oioioi/pkgs/container/oioioi
+
+An `official Docker image`_ for oioioi is available on the GitHub Container Registry.
 
 Docker (for development)
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,21 +57,21 @@ experimental features enabled.
 
 Prepare the image with::
 
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml build
+    OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml build
 
 Then you can start oioioi with::
 
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up -d
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml exec web python3 manage.py runserver 0.0.0.0:8000
+    OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml up -d
+    OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml exec web python3 manage.py runserver 0.0.0.0:8000
 
-to start the infrastructure in the development mode. Current dirrectory with the source code will be bound to /sio2/oioioi/ inside the running container.
+to start the infrastructure in the development mode. Current directory with the source code will be bound to /sio2/oioioi/ inside the running container.
 
 oioioi web interface will be available at localhost:8000, and the user admin with password admin will be created.
 
 Additionally you can bind config files and logs folder to the host::
 
     id=$(docker create sio2project/oioioi-dev)  #Create oioioi container
-    docker cp $id:/sio2/deployment deployment  #Copy initial deployment folder from oioioi contanier
+    docker cp $id:/sio2/deployment deployment  #Copy initial deployment folder from oioioi container
     docker rm -v $id  #Remove unneeded container
 
 Remember to also uncomment the appropriate volume binding in the web service description in the docker-compose-dev.yml.
@@ -76,8 +82,8 @@ Running tests on Docker
 For testing purposes we use test.sh script located in oioioi directory. Note it's not the same directory
 you are connected to after using docker exec -it “web” /bin/bash. The default container id that you should use for running tests is "web"::
 
-    docker-compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh
-    docker-compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
+    docker compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh
+    docker compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
 
 Running static code analysis tools locally (requires Docker)
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,7 +150,7 @@ Documentation for developers:
 * `Developer's Reference`_
 
 .. _Developer's Guide: CONTRIBUTING.rst
-.. _Developer's Reference: http://oioioi.readthedocs.io/en/latest/
+.. _Developer's Reference: https://sio2project.github.io/oioioi/
 
 Testing
 -------
@@ -152,7 +158,7 @@ Testing
 OIOIOI has a big suite of unit tests. You can run them in following way:
 
 * ``test.sh`` - a simple test runner, use from virtualenv
-* ``tox [path/to/module[::TestClass[::test_method]]] [-- arg1 arg2 ...]`` - runs pytest in isolated environemnt
+* ``tox [path/to/module[::TestClass[::test_method]]] [-- arg1 arg2 ...]`` - runs pytest in isolated environment
 
 Supported args:
 

@@ -1,4 +1,6 @@
+from oioioi.contests.models import Contest, ProblemInstance, Round, UserResultForProblem
 from rest_framework import serializers
+from django.utils.timezone import now
 
 
 class SubmissionSerializer(serializers.Serializer):
@@ -30,3 +32,45 @@ class SubmissionSerializer(serializers.Serializer):
 
     class Meta:
         fields = ('file', 'kind', 'problem_instance_id')
+
+
+class ContestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contest
+        fields = ['id', 'name']
+
+
+class RoundSerializer(serializers.ModelSerializer):
+    is_active = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Round
+        fields = [
+            "name",
+            "start_date",
+            "end_date",
+            "is_active",
+            "results_date",
+            "public_results_date",
+            "is_trial",
+        ]
+
+    def get_is_active(self, obj: Round):
+        if obj.end_date:
+            return now() < obj.end_date
+        return True
+
+
+# This is a partial serializer and it serves as a base for the API response.
+class ProblemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ProblemInstance
+        exclude = ['needs_rejudge', 'problem', 'contest']
+
+
+class UserResultForProblemSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserResultForProblem
+        fields = ['score', 'status']

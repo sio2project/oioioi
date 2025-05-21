@@ -1,4 +1,5 @@
 import os.path
+from fractions import Fraction
 from math import ceil
 from operator import itemgetter  # pylint: disable=E0611
 
@@ -16,6 +17,8 @@ from oioioi.programs.models import (
     ModelProgramSubmission,
     ProgramSubmission,
     ReportActionsConfig,
+    CheckerFormatForContest,
+    CheckerFormatForProblem,
 )
 
 
@@ -98,8 +101,8 @@ def min_group_scorer(test_results):
 
 def discrete_test_scorer(test, result):
     status = result['result_code']
-    percentage = result.get('result_percentage', 100)
-    max_score = int(ceil(percentage * test['max_score'] / 100.))
+    percentage = result.get('result_percentage', (100, 1))
+    max_score = ceil(Fraction(*percentage) / 100. * test['max_score'])
     score = max_score if status == 'OK' else 0
     return IntegerScore(score), IntegerScore(test['max_score']), status
 
@@ -109,8 +112,8 @@ def threshold_linear_test_scorer(test, result):
     limit = test.get('exec_time_limit', 0)
     used = result.get('time_used', 0)
     status = result['result_code']
-    percentage = result.get('result_percentage', 100)
-    max_score = int(ceil(percentage * test['max_score'] / 100.0))
+    percentage = result.get('result_percentage', (100, 1))
+    max_score = ceil(Fraction(*percentage) / 100. * test['max_score'])
     test_max_score = IntegerScore(test['max_score'])
 
     if status != 'OK':
@@ -214,3 +217,16 @@ def get_submittable_languages():
     for _, lang_config in submittable_languages.items():
         lang_config.setdefault('type', 'main')
     return submittable_languages
+
+
+def get_checker_format(problem_instance):
+    try:
+        return CheckerFormatForProblem.objects.get(problem_instance=problem_instance).format
+    except CheckerFormatForProblem.DoesNotExist:
+        if problem_instance.contest:
+            try:
+                return CheckerFormatForContest.objects.get(contest=problem_instance.contest).format
+            except CheckerFormatForContest.DoesNotExist:
+                return getattr(settings, 'DEFAULT_CHECKER_FORMAT', 'abbreviated')
+        else:
+            return getattr(settings, 'DEFAULT_CHECKER_FORMAT', 'abbreviated')

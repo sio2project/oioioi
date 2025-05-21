@@ -1,0 +1,35 @@
+[
+  {
+    "pk": 1,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "zad1",
+      "contest": "c",
+      "submissions_limit": 0
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.probleminstance",
+    "fields": {
+        "problem": 1,
+        "round": 1,
+        "short_name": "zad2",
+        "contest": "c",
+        "submissions_limit": 0
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.probleminstance",
+    "fields": {
+        "problem": 1,
+        "round": 1,
+        "short_name": "zad3",
+        "contest": "c",
+        "submissions_limit": 0
+    }
+  }
+]

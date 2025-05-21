@@ -59,6 +59,10 @@ function init_search_selection(id) {
             minLength: 2,
             fitToElement: true,
             autoSelect: false,
+            followLinkOnSelect: true,
+            itemLink: function(item) {
+                return item.url;
+            },
             matcher: function(item) {
                 // Bug fix: backspace on empty input matched last results.
                 if(!input.val()) {
@@ -112,10 +116,10 @@ function init_search_selection(id) {
                 } else if (item.trigger !== 'problem') {
                     // At this point for anything other than a problem we
                     // want to create a search tag
-                    const value = item.value || item.name;
+                    const value = item.value;
 
                     // Only create new search tag if it doesn't exist yet
-                    const tag = $(".search-tag-text:contains('" + value + "')");
+                    const tag = $("input[name='" + item.prefix + "'][value='" + value + "']");
                     if (tag.length === 0) {
                         const tag = value.split('_')[0];
 

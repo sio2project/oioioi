@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta  # pylint: disable=E0611
 import pytest
 import six
 import urllib
+import yaml
 
 from django.conf import settings
 from django.contrib.admin.utils import quote
@@ -45,10 +46,13 @@ from oioioi.programs.models import (
     LanguageOverrideForTest,
     TestReport,
     check_compilers_config,
+    CheckerFormatForContest,
+    CheckerFormatForProblem,
 )
 from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
-from oioioi.programs.utils import form_field_id_for_langs
+from oioioi.programs.utils import form_field_id_for_langs, get_checker_format
 from oioioi.programs.views import _testreports_to_generate_outs
+from oioioi.sinolpack.models import ExtraConfig
 from oioioi.sinolpack.tests import get_test_filename
 from oioioi.evalmgr.tasks import create_environ
 
@@ -542,7 +546,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         NotificationHandler.send_notification = fake_send_notification
 
         submission = Submission.objects.get(pk=1)
-        
+
         environ = create_environ()
         environ['extra_args'] = {}
         environ['is_rejudge'] = False
@@ -637,12 +641,25 @@ class TestSubmission(TestCase, SubmitFileMixin):
             self.assertEqual(200, response.status_code)
             self.assertContains(response, 'Sorry, there are no problems')
 
+    def _set_code_size_limit(self, limit):
+        ec = ExtraConfig.objects.get()
+        conf = ec.parsed_config
+        conf['submission_size_limit'] = limit
+        ec.config = yaml.dump(conf)
+        ec.save()
+
     def test_huge_submission(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_file(contest, problem_instance, file_size=102405)
         self.assertContains(response, 'File size limit exceeded.')
         self.assertNotContains(response, 'You have to either choose file or paste')
+        self._set_code_size_limit(102404)
+        response = self.submit_file(contest, problem_instance, file_size=102405)
+        self.assertContains(response, 'File size limit exceeded.')
+        self._set_code_size_limit(102405)
+        response = self.submit_file(contest, problem_instance, file_size=102405)
+        self.assertEqual(response.status_code, 302);
 
     def test_huge_code_length(self):
         contest = Contest.objects.get()
@@ -650,6 +667,12 @@ class TestSubmission(TestCase, SubmitFileMixin):
         code = 'a' * 102401
         response = self.submit_code(contest, problem_instance, code=code)
         self.assertContains(response, 'Code length limit exceeded.')
+        self._set_code_size_limit(102400)
+        response = self.submit_code(contest, problem_instance, code=code)
+        self.assertContains(response, 'Code length limit exceeded.')
+        self._set_code_size_limit(102401)
+        response = self.submit_code(contest, problem_instance, code=code)
+        self.assertEqual(response.status_code, 302);
 
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
@@ -992,19 +1015,19 @@ class TestScorers(TestCase):
     t_results_ok_perc = (
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 0, 'result_percentage': 99},
+            {'result_code': 'OK', 'time_used': 0, 'result_percentage': (99, 1)},
         ),
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 50},
+            {'result_code': 'OK', 'time_used': 75, 'result_percentage': (50, 1)},
         ),
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 75, 'result_percentage': 0},
+            {'result_code': 'OK', 'time_used': 75, 'result_percentage': (0, 1)},
         ),
         (
             {'exec_time_limit': 100, 'max_score': 100},
-            {'result_code': 'OK', 'time_used': 99, 'result_percentage': 1},
+            {'result_code': 'OK', 'time_used': 99, 'result_percentage': (1, 1)},
         ),
     )
 
@@ -1965,3 +1988,27 @@ class TestLanguageOverrideForTest(TestCase):
         self.assertEqual(
             env_with_tests['tests']['1a']['exec_mem_limit'], tests[1].memory_limit
         )
+
+
+class TestOICompare(TestCase):
+    fixtures = ['test_contest', 'test_problem_instance', 'test_full_package']
+
+    def test_format(self):
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        for format_contest, format_problem, expected in [
+            (None, None, 'abbreviated'),
+            ('terse', None, 'terse'),
+            ('terse', 'abbreviated', 'abbreviated'),
+            (None, 'terse', 'terse'),
+        ]:
+            CheckerFormatForContest.objects.all().delete()
+            CheckerFormatForProblem.objects.all().delete()
+            if format_problem is not None:
+                CheckerFormatForProblem.objects.create(
+                    problem_instance=pi, format=format_problem
+                )
+            if format_contest is not None:
+                CheckerFormatForContest.objects.create(contest=contest, format=format_contest)
+
+            self.assertEqual(get_checker_format(pi), expected)

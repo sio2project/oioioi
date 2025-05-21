@@ -12,16 +12,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.8
+    - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: '3.10'
 
     - name: Install apt dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y curl libpq-dev libdb-dev
-        sudo apt-get install -y fp-compiler fp-units-base fp-units-math
         sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-lang-czechslovak texlive-latex-extra texlive-pstricks texlive-luatex
 
     - name: Install pip dependencies
@@ -32,4 +31,4 @@ jobs:
 
     - name: Run tests
       run: |
-        ./test.sh --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v
+        ./test.sh -n auto --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v

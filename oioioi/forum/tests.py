@@ -402,6 +402,31 @@ class TestLatestPosts(TestCase):
             posts_on_last_page,
         )
 
+    def test_reaction_display(self):
+        p = Post(
+            thread=self.thread,
+            content='test',
+            author=self.user,
+        )
+        p.save()
+
+        PostReaction(
+            post_id=p.id, 
+            type_of_reaction='UPVOTE',
+            author=self.user
+        ).save()
+
+        response = self.client.get(self.url, follow=True)
+        self.assertNotContains(response, 'post_reactions')
+        self.assertNotContains(response, 'title="Test User"')
+
+        self.cat.reactions_enabled = True
+        self.cat.save()
+
+        response = self.client.get(self.url, follow=True)
+        self.assertContains(response, 'post_reactions')
+        self.assertContains(response, 'title="Test User"')
+
 
 class TestPost(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -723,6 +748,38 @@ class TestPost(TestCase):
         self.assertEqual(1, count_reactions('DOWNVOTE'))
         self.assertEqual(1, self.p.reactions.count())
 
+    def test_reacted_by(self):
+        react_url = self.reverse_post('forum_post_toggle_reaction')
+        upvote_url = react_url + '?reaction=upvote'
+
+        self.cat.reactions_enabled = True
+        self.cat.save()
+
+        self.assertTrue(self.client.login(username='test_user'))
+        self.client.post(upvote_url, follow=True)
+        self.assertTrue(self.client.login(username='test_user2'))
+        self.client.post(upvote_url, follow=True)
+
+        response = self.client.get(self.thread_url, follow=True)
+        self.assertContains(response, 'Test User 2, Test User')
+
+    @override_settings(FORUM_REACTIONS_TO_DISPLAY=2)
+    def test_reacted_by_many_users(self):
+        react_url = self.reverse_post('forum_post_toggle_reaction')
+        upvote_url = react_url + '?reaction=upvote'
+
+        self.cat.reactions_enabled = True
+        self.cat.save()
+
+        self.assertTrue(self.client.login(username='test_user'))
+        self.client.post(upvote_url, follow=True)
+        self.assertTrue(self.client.login(username='test_user2'))
+        self.client.post(upvote_url, follow=True)
+        self.assertTrue(self.client.login(username='test_user3'))
+        self.client.post(upvote_url, follow=True)
+
+        response = self.client.get(self.thread_url, follow=True)
+        self.assertContains(response, 'Test User 3, Test User 2 and others')
 
 class TestBan(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -949,3 +1006,59 @@ class TestNewPostMessage(TestPublicMessage):
             'category_id': cat.id,
             'thread_id': thr.id,
         }
+
+
+class TestContestArchived(TestCase):
+    fixtures = ['test_users', 'test_archived_contest']
+
+    def setUp(self):
+        self.contest = get_contest_with_forum()
+        self.user = User.objects.get(username='test_user')
+        self.category = Category(forum=self.contest.forum, name='test_category')
+        self.category.save()
+
+    def test_add_new_forum_category(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('oioioiadmin:forum_category_add', kwargs={'contest_id': 'c'})
+        # non-admins should not be able to add categories when contest is archived
+        response = self.client.get(url, follow=True)
+        self.assertEqual(403, response.status_code)
+
+        self.client.logout()
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        # admins also should not be able to add categories when contest is archived
+        response = self.client.get(url, follow=True)
+        self.assertEqual(403, response.status_code)
+
+    def test_add_post(self):
+        thr = Thread(category=self.category, name='test_thread')
+        thr.save()
+        thread_url = reverse(
+            'forum_thread',
+            kwargs={
+                'contest_id': self.contest.id,
+                'category_id': self.category.id,
+                'thread_id': thr.id,
+            },
+        )
+        # non-admins should not be able to post when contest is archived
+        self.assertTrue(self.client.login(username='test_user'))
+        self.assertFalse(Post.objects.filter(author=self.user).exists())
+        response = self.client.get(thread_url)
+        self.assertNotIsInstance(response.context['form'], PostForm)
+
+        self.client.post(thread_url, {'content': "lorem ipsum?"})
+        self.assertFalse(Post.objects.filter(author=self.user).exists())
+        self.client.logout()
+
+        # admins also should not be able to post when contest is archived
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(thread_url)
+        self.assertNotIsInstance(response.context['form'], PostForm)
+
+        self.client.post(thread_url, {'content': "lorem ipsum?"})
+        self.assertFalse(Post.objects.filter(author=self.user).exists())

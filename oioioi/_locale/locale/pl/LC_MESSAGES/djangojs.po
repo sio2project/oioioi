@@ -35,7 +35,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-02-20 09:35+0000\n"
+"POT-Creation-Date: 2025-03-12 17:38+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
 "Last-Translator: Maciej Dziurzyński, 2024\n"
 "Language-Team: Polish (http://app.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -265,11 +265,11 @@ msgstr "Kompilator"
 msgid "Failed to fetch available compilers</font>"
 msgstr "Nie udało się pobrać dostępnych kompilatorów </font>"
 
-#: programs/static/common/clipboard.js:6
+#: programs/static/common/clipboard.js:5
 msgid "Copied!"
 msgstr "Skopiowano!"
 
-#: programs/static/common/clipboard.js:8
+#: programs/static/common/clipboard.js:9
 msgid "Unable to copy Code"
 msgstr "Nie udało się skopiować kodu"
 

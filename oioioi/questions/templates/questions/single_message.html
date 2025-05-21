@@ -3,7 +3,7 @@
 
 <div class="oioioi-message {% if is_reply %}oioioi-message--reply {% endif %}{% if message.kind == 'PUBLIC' %}oioioi-message--reply-public {% endif %}{% if has_replies %}oioioi-message--has-replies{% endif %}">
     <p class="oioioi-message__info">
-        <span class="oioioi-message__badge badge {% if record.needs_reply and is_admin %}badge-danger{% else %}badge-secondary{% endif %}">
+        <span class="oioioi-message__badge badge {% if record.needs_reply and is_admin %}badge-danger{% elif message.kind == 'PUBLIC' %}badge-secondary{% elif message.kind == 'PRIVATE' %}badge-light{% else %}badge-primary{% endif %}">
             {{ message.get_kind_display }}
         </span>
         {% if is_new %}

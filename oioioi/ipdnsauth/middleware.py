@@ -38,7 +38,7 @@ class IpDnsAuthMiddleware(object):
             return
 
         user = auth.authenticate(request, ip_addr=ip_addr, dns_name=dns_name)
-        if user and not request.user.is_authenticated:
+        if user and (not request.user.is_authenticated or request.user != user):
             auth.login(request, user)
 
 

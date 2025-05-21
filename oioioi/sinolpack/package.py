@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 import zipfile
+from enum import Enum
 
 import chardet
 import six
@@ -27,6 +28,7 @@ from oioioi.filetracker.utils import (
     filetracker_to_django_file,
     stream_file,
 )
+from oioioi.interactive.models import Interactor, InteractiveTaskInfo
 from oioioi.problems.models import (
     Problem,
     ProblemAttachment,
@@ -58,6 +60,11 @@ DEFAULT_MEMORY_LIMIT = 66000
 TASK_PRIORITY = 500
 C_EXTRA_ARGS = ['-Wall', '-Wno-unused-result', '-Werror']
 PAS_EXTRA_ARGS = ['-Ci', '-Cr', '-Co', '-gl']
+
+
+class TaskType(Enum):
+    STANDARD = 'standard'
+    INTERACTIVE = 'interactive'
 
 
 def _stringify_keys(dictionary):
@@ -111,7 +118,6 @@ def _remove_from_zip(zipfname, *filenames):
 
 
 class SinolPackage(object):
-    controller_name = 'oioioi.sinolpack.controllers.SinolProblemController'
     package_backend_name = 'oioioi.sinolpack.package.SinolPackageBackend'
 
     def __init__(self, path, original_filename=None):
@@ -142,6 +148,7 @@ class SinolPackage(object):
         self.restrict_html = (
             settings.SINOLPACK_RESTRICT_HTML and not settings.USE_SINOLPACK_MAKEFILES
         )
+        self.task_type = TaskType.STANDARD
 
     def identify(self):
         return self._find_main_dir() is not None
@@ -332,6 +339,8 @@ class SinolPackage(object):
         self.env = env
         self.package = package
 
+        self._detect_task_type()
+
         self._create_problem_or_reuse_if_exists(self.package.problem)
         return self._extract_and_process_package()
 
@@ -370,7 +379,7 @@ class SinolPackage(object):
         return Problem.create(
             legacy_name=self.short_name,
             short_name=self.short_name,
-            controller_name=self.controller_name,
+            controller_name=self._get_controller_name(),
             contest=self.package.contest,
             visibility=(
                 Problem.VISIBILITY_PUBLIC
@@ -379,6 +388,14 @@ class SinolPackage(object):
             ),
             author=author,
         )
+
+    def _get_controller_name(self):
+        if hasattr(self, 'controller_name'):
+            return self.controller_name
+        return {
+            TaskType.STANDARD: 'oioioi.sinolpack.controllers.SinolProblemController',
+            TaskType.INTERACTIVE: 'oioioi.sinolpack.controllers.SinolInteractiveProblemController',
+        }[self.task_type]
 
     def _extract_and_process_package(self):
         tmpdir = tempfile.mkdtemp()
@@ -431,6 +448,8 @@ class SinolPackage(object):
         self._process_statements()
         self._generate_tests()
         self._process_checkers()
+        if self.task_type == TaskType.INTERACTIVE:
+            self._process_interactive_checkers()
         self._process_model_solutions()
         self._process_attachments()
         self._save_original_package()
@@ -450,6 +469,21 @@ class SinolPackage(object):
             instance.config = ''
         instance.save()
         self.config = instance.parsed_config
+        if self.task_type == TaskType.INTERACTIVE:
+            self._process_interactive_config()
+
+    @_describe_processing_error
+    def _process_interactive_config(self):
+        instance, _ = InteractiveTaskInfo.objects.get_or_create(problem=self.problem)
+        if 'num_processes' in self.config:
+            instance.num_processes = self.config['num_processes']
+        instance.save()
+
+
+    @_describe_processing_error
+    def _detect_task_type(self):
+        if any(map(lambda name: self.short_name + 'soc' in name, self.archive.filenames())):
+            self.task_type = TaskType.INTERACTIVE
 
     @_describe_processing_error
     def _detect_full_name(self):
@@ -712,7 +746,8 @@ class SinolPackage(object):
         self._verify_time_limits(sum_of_time_limits)
 
         self._verify_inputs(created_tests)
-        self._generate_test_outputs(created_tests, outs_to_make)
+        if self.task_type == TaskType.STANDARD:
+            self._generate_test_outputs(created_tests, outs_to_make)
         self._validate_tests(created_tests)
         self._delete_non_existing_tests(created_tests)
 
@@ -759,7 +794,7 @@ class SinolPackage(object):
         outs_to_make = []
         scored_groups = set()
 
-        if self.use_make and not self.config.get('no_outgen', False):
+        if self.task_type != TaskType.INTERACTIVE and self.use_make and not self.config.get('no_outgen', False):
             self._find_and_compile('', command='outgen')
 
         for order, test in enumerate(sorted(all_items, key=naturalsort_key)):
@@ -848,7 +883,7 @@ class SinolPackage(object):
         :raises: :class:`~oioioi.problems.package.ProblemPackageError`
         """
         for instance in created_tests:
-            if not instance.output_file:
+            if self.task_type == TaskType.STANDARD and not instance.output_file:
                 raise ProblemPackageError(
                     _("Missing out file for test %s") % instance.name
                 )
@@ -1207,9 +1242,29 @@ class SinolPackage(object):
             instance.exe_file = self._find_checker_exec()
             instance.save()
 
-    def _find_checker_exec(self):
-        checker_prefix = os.path.join(self.rootdir, 'prog', self.short_name + 'chk')
-        exe_candidates = [checker_prefix + '.e', checker_prefix + '.sh']
+    @_describe_processing_error
+    def _process_interactive_checkers(self):
+        interactor_name = '%ssoc.e' % (self.short_name)
+        out_name = _make_filename_in_job_dir(self.env, interactor_name)
+        instance = Interactor.objects.get_or_create(problem=self.problem)[0]
+        env = self._find_and_compile(
+            'soc',
+            command=interactor_name,
+            cwd=os.path.join(self.rootdir, 'prog'),
+            log_on_failure=False,
+            out_name=out_name,
+        )
+        if not self.use_make and env:
+            self._save_to_field(instance.exe_file, env['compiled_file'])
+        else:
+            instance.exe_file = self._find_checker_exec('soc', False)
+            instance.save()
+
+    def _find_checker_exec(self, name='chk', allow_sh=True):
+        checker_prefix = os.path.join(self.rootdir, 'prog', self.short_name + name)
+        exe_candidates = [checker_prefix + '.e']
+        if allow_sh:
+            exe_candidates.append(checker_prefix + '.sh')
         for exe in exe_candidates:
             if os.path.isfile(exe):
                 return File(open(exe, 'rb'))

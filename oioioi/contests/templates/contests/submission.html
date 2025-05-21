@@ -31,10 +31,16 @@
     {{ header }}
     <div class="row">
         {% for report in reports %}
-            <div class="{% if submission.status != 'CE' and  submission.status != 'SE' %}col-xl-6{% endif %}">
+            <div class="{% if submission.status != 'CE' and submission.status != 'SE' %}col-xl-6{% endif %}">
                 {{ report }}
             </div>
         {% endfor %}
+        {% if submission.status == 'SE' %}
+            <div class="alert alert-info col-xl-12">
+                <i class="fa-solid fa-circle-info"></i>
+                {% trans "Something went wrong on our side when judging your submission... Try again later or contact the administration if this issue persists." %}
+            </div>
+        {% endif %}
     </div>
     {% if can_admin %}
         <h4>

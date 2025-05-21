@@ -3,6 +3,7 @@
 import os.path
 import zipfile
 
+from oioioi.interactive.models import Interactor
 import pytest
 import urllib.parse
 from io import BytesIO
@@ -19,6 +20,7 @@ from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (
     Contest,
+    FailureReport,
     ProblemInstance,
     Submission,
     UserResultForContest,
@@ -34,6 +36,7 @@ from oioioi.problems.models import (
 from oioioi.problems.package import NoBackend, backend_for_package
 from oioioi.programs.models import (
     LanguageOverrideForTest,
+    ModelProgramSubmission,
     ModelSolution,
     OutputChecker,
     Test,
@@ -106,7 +109,7 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
 
-    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    @override_settings(CONTEST_MODE=ContestMode.neutral, USE_SINOLPACK_MAKEFILES=False)
     def test_single_file_replacement(self):
         filename = get_test_filename('test_simple_package.zip')
         old_statement = 'tst/doc/tstzad.pdf'
@@ -622,6 +625,112 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         self.assertTrue(all([t.memory_limit == 3000 for t in overriden_memory_group]))
         overriden_memory_group2 = overriden_tests.filter(test__group=2)
         self.assertTrue(all([t.memory_limit == 1000 for t in overriden_memory_group2]))
+    
+    @both_configurations
+    def test_simple_interactive_package(self):
+        filename = get_test_filename('test_simple_interactive.tgz')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self._check_simple_interactive_package(problem)
+
+        # Rudimentary test of package updating
+        call_command('updateproblem', str(problem.id), filename)
+        problem = Problem.objects.get()
+        self._check_simple_interactive_package(problem)
+    
+    def _check_simple_interactive_package(self, problem):
+        self.assertEqual(problem.short_name, 'abc')
+
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
+
+        checker = Interactor.objects.get(problem=problem)
+        self.assertIsNotNone(checker.exe_file)
+
+        model_solutions = ModelSolution.objects.filter(problem=problem).order_by(
+            'order_key'
+        )
+        sol = model_solutions.get(name='abc.cpp')
+        sol_extra_cin = model_solutions.get(name='abc2.cpp')
+        sol_re = model_solutions.get(name='abcb.cpp')
+        self.assertEqual(list(model_solutions), [sol, sol_extra_cin, sol_re])
+
+        for ms in [sol, sol_extra_cin]:
+            s = ModelProgramSubmission.objects.get(model_solution=ms)
+            self.assertEqual(s.status, 'INI_OK')
+            self.assertEqual(s.score, IntegerScore(100))
+        
+        s = ModelProgramSubmission.objects.get(model_solution=sol_re)
+        for test in tests:
+            test_report = TestReport.objects.get(test=test, submission_report__submission=s)
+            self.assertEqual(test_report.comment, 'program exited with code 1')
+        
+    @both_configurations
+    def test_sigpipe_interactor_package(self):
+        filename = get_test_filename('test_sigpipe_interactor.tgz')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self._check_sigpipe_interactor_package(problem)
+
+        # Rudimentary test of package updating
+        call_command('updateproblem', str(problem.id), filename)
+        problem = Problem.objects.get()
+        self._check_sigpipe_interactor_package(problem)
+    
+    def _check_sigpipe_interactor_package(self, problem):
+        self.assertEqual(problem.short_name, 'abc')
+
+        tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
+
+        checker = Interactor.objects.get(problem=problem)
+        self.assertIsNotNone(checker.exe_file)
+
+        model_solutions = ModelSolution.objects.filter(problem=problem).order_by(
+            'order_key'
+        )
+        sol = model_solutions.get(name='abc.cpp')
+        sol_re = model_solutions.get(name='abc1.cpp')
+        self.assertEqual(list(model_solutions), [sol, sol_re])
+
+        s1 = ModelProgramSubmission.objects.get(model_solution=sol)
+        for test in tests:
+            test_report = TestReport.objects.get(test=test, submission_report__submission=s1)
+            self.assertEqual(test_report.status, 'WA')
+            self.assertIn(test_report.comment, 'solution exited prematurely')
+
+        s2 = ModelProgramSubmission.objects.get(model_solution=sol_re)
+        for test in tests:
+            test_report = TestReport.objects.get(test=test, submission_report__submission=s2)
+            self.assertEqual(test_report.comment, 'program exited with code 1')
+
+    @both_configurations
+    def test_interactor_failure_package(self):
+        filename = get_test_filename('test_interactor_failure.tgz')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self._check_interactor_failure_package(problem)
+
+        # Rudimentary test of package updating
+        call_command('updateproblem', str(problem.id), filename)
+        problem = Problem.objects.get()
+        self._check_interactor_failure_package(problem)
+    
+    def _check_interactor_failure_package(self, problem):
+        self.assertEqual(problem.short_name, 'abc')
+
+        checker = Interactor.objects.get(problem=problem)
+        self.assertIsNotNone(checker.exe_file)
+
+        model_solutions = ModelSolution.objects.filter(problem=problem).order_by(
+            'order_key'
+        )
+        sol = model_solutions.get(name='abc.cpp')
+        sol_extra_cin = model_solutions.get(name='abc2.cpp')
+        sol_re = model_solutions.get(name='abcb.cpp')
+        self.assertEqual(list(model_solutions), [sol, sol_extra_cin, sol_re])
+
+        for ms in [sol, sol_extra_cin]:
+            s = ModelProgramSubmission.objects.get(model_solution=ms)
+            self.assertEqual(TestReport.objects.filter(submission_report__submission=s).count(), 0)
 
 
 @enable_both_unpack_configurations

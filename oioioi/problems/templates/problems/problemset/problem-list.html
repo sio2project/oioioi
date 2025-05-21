@@ -74,7 +74,10 @@
                 </tr>
             </thead>
             <tbody>
-                {% prefetch_tags problems %}
+                {% if show_tags %}
+                    {% prefetch_tags problems %}
+                    {% prefetch_top_tag_proposals problems %}
+                {% endif %}
                 {% for problem in problems %}
                 <tr>
                     <td>{{ problem.short_name }}</td>
@@ -90,6 +93,17 @@
                             {% for tag in problem.algorithmtag_set.all %}
                                 {% tag_label tag %}
                             {% endfor %}
+                            {% comment %}
+                                Skip rendering the div if there are no top tag proposals
+                                so it does not generate a whitespace between other tags.
+                            {% endcomment %}
+                            {% if show_tag_proposals and problem.top_tag_proposals %}
+                                <div class="aggregated-proposals" style="display: none;">
+                                    {% for tag in problem.top_tag_proposals %}
+                                        {% aggregated_tag_label tag %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                             {% for tag in problem.origintag_set.all %}
                                 {% tag_label tag %}
                                 {% for info in problem.origininfovalue_set.all %}
@@ -182,5 +196,8 @@
 </form>
 
 <script type="text/javascript" src="{{ STATIC_URL }}problems/problemset/add-to-contest.js"></script>
+{% if show_tags and show_tag_proposals %}
+    <script type="text/javascript" src="{{ STATIC_URL }}problems/problemset/control-tag-proposals.js"></script>
+{% endif %}
 
 {% endblock %}

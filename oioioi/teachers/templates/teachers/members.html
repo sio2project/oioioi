@@ -86,14 +86,13 @@
                             </div>
                             <div id="collapse{{ usergroup.id }}" class="collapse usergroup-body">
                                 <div>
-                                    {% call_method_with_arguments usergroup.members 'values' 'first_name' 'last_name' as group_members %}
-                                    {% if group_members %}
+                                    {% if usergroup.members.count %}
                                         <ul class="usergroup-user-list">
-                                            {% for group_member in group_members|slice:":23" %}
-                                                <li> {{ group_member.first_name }} {{ group_member.last_name }} </li>
+                                            {% for member in usergroup.members.all|slice:":23" %}
+                                                <li> {{ member.get_full_name|default:member.username }} </li>
                                             {% endfor %}
 
-                                            {% if group_members.count > 23 %}
+                                            {% if usergroup.members.count > 23 %}
                                                 <li> &hellip; </li>
                                             {% endif %}
                                         </ul>
@@ -176,6 +175,25 @@
                 </p>
             {% endif %}
 
+            <form action="{% url 'teachers_add_user_to_contest' contest_id=contest.id member_type=member_type %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
+
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-success" type="submit">
+                            {% if member_type == 'teacher' %}
+                                {% trans "Add a teacher" %}
+                            {% else %}
+                                {% trans "Add a pupil" %}
+                            {% endif %}
+                        </button>
+                    </div>
+                    <input type="text" name="user" id="new-user" class="form-control" placeholder="{% trans "Username" %}" data-hints-url="{% url 'teachers_get_appendable_users' contest_id=contest.id member_type=member_type %}">
+                    <script>init_user_selection("new-user", {{ num_hints }})</script>
+                </div>
+            </form>
+
             {% if member_type == 'pupil' and usergroups_active and members %}
                 <div class="text-center">
                     <form class="convert-members" action="{% url 'teacher_usergroups_add_group' %}" method="get">
@@ -199,7 +217,7 @@
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" name="member" value="{{ member.id }}" {% if member_type == 'teacher' and member == user %}disabled{% endif %}>
-                                        {{ member.get_full_name }}
+                                        {{ member.get_full_name|default:member.username }}
                                     </label>
                                 </div>
                             </div>
