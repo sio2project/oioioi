@@ -1,0 +1,22 @@
+{% load i18n pagination_tags %}
+{% if rounds_times %}
+<div class="table-responsive-md">
+    <h4> {% trans "Submission types" %} </h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th> {% trans "Kind" %} </th>
+                <th> {% trans "Count" %} </th>
+            </tr>
+        </thead>
+    <tbody>
+        {% for submission_info in submissions_info %}
+        <tr>
+            <td>{{ submission_info.kind }}</td>
+            <td>{{ submission_info.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endif %}

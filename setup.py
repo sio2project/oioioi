@@ -61,6 +61,8 @@ requirements = [
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.
     "django-nested-admin>=4.1,<4.2",
+    # Library for parsing dates and timedelta
+    "humanize<=4.9.0",
     # SIO2 dependencies:
     "filetracker>=2.2.0,<3.0",
     "django-simple-captcha>=0.5,<=0.5.18",
