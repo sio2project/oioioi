@@ -64,12 +64,6 @@ function NotificationsClient(serverUrl, sessionId) {
     this.waitingPermissions = [];
     this.permissionBanner = null;
 
-    if (typeof (io) === 'undefined') {
-        this.setErrorState();
-        this.DROPDOWN_DISCONNECTED.show();
-        return;
-    }
-
     this.DROPDOWN_PANEL.on("show.bs.dropdown", this.renderMessages.bind(this));
     this.DROPDOWN_PANEL.on("shown.bs.dropdown", this.acknowledgeMessages.bind(this));
     this.DROPDOWN_PANEL.on("hidden.bs.dropdown", this.acknowledgeMessages.bind(this));
@@ -82,21 +76,25 @@ function NotificationsClient(serverUrl, sessionId) {
         this.dropdownUpToDate = false;
         this.renderMessages();
     });
-    console.log("notif url: " + this.NOTIF_SERVER_URL);
-    this.socket = io.connect(this.NOTIF_SERVER_URL);
-    console.log(this.socket);
-    this.socket.on('connect', this.authenticate.bind(this));
-    this.socket.emits = function (k, v) {
-        this.socket.emit(k, JSON.stringify(v));
-    }.bind(this);
+    
+    this.socket = new WebSocket(this.NOTIF_SERVER_URL);
+    this.socket.addEventListener('open', this.authenticate.bind(this));
+    this.socket.addEventListener('message', (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "SOCKET_AUTH_RESULT") 
+            this.authenticateCallback(data)
+        else 
+            this.onMessageReceived(data);           
+    });
+
     setInterval(this.notifWatchdog.bind(this), 2000);
-    this.socket.on("message", this.onMessageReceived.bind(this));
 }
 
 NotificationsClient.prototype.constructor = NotificationsClient;
 
 NotificationsClient.prototype.notifWatchdog = function () {
-    if (!this.socket || !this.socket.connected) {
+    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
         this.setErrorState();
         this.DROPDOWN_DISCONNECTED.show();
     }
@@ -114,19 +112,18 @@ NotificationsClient.prototype.setErrorState = function () {
 };
 
 NotificationsClient.prototype.authenticate = function () {
-    let me = this;
-    const sid = this.NOTIF_SESSION;
-    this.socket.emits("authenticate", { session_id: sid });
-    this.socket.on("authenticate", function (result) {
-        if (result.status !== 'OK') {
-            me.setErrorState();
-            me.DROPDOWN_DISCONNECTED.show();
-        }
-        else {
-            me.notifCount = 0;
-            me.updateNotifCount();
-        }
-    });
+    this.socket.send(JSON.stringify({ type: "SOCKET_AUTH", session_id: this.NOTIF_SESSION }));
+};
+
+NotificationsClient.prototype.authenticateCallback = function (result) {
+    if (result.status !== 'OK') {
+        this.setErrorState();
+        this.DROPDOWN_DISCONNECTED.show();
+    }
+    else {
+        this.notifCount = 0;
+        this.updateNotifCount();
+    }
 };
 
 NotificationsClient.prototype.updateNotifCount = function () {

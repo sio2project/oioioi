@@ -6,16 +6,18 @@ class Auth:
     AUTH_CACHE_EXPIRATION_SECONDS = 300
     URL_AUTHENTICATE_SUFFIX = 'notifications/authenticate/'
     
-    def __init__(self):
+    def __init__(self, url: str):
+        self.auth_url = url + self.URL_AUTHENTICATE_SUFFIX
         self.logger = logging.getLogger('auth')
-        self.auth_url = 'http://localhost:8000/' + self.URL_AUTHENTICATE_SUFFIX
-        self.http_session = aiohttp.ClientSession()
+        
+    async def connect(self) -> None:
+        self.http_client = aiohttp.ClientSession()
     
-    def authenticate(self, session_id: str) -> Optional[str]:
+    async def authenticate(self, session_id: str) -> Optional[str]:
         "Authenticate a user with session ID."
         
         try:
-            async with self.http_session.post(
+            async with self.http_client.post(
                 self.auth_url,
                 data={'nsid': session_id},
                 headers={'Content-Type': 'application/x-www-form-urlencoded'}

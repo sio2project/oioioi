@@ -16,13 +16,9 @@ class Queue:
         self.queues: Dict[str, aio_pika.abc.AbstractConsumer] = {}
         
     async def connect(self):
-        try:
-            self.connection = await aio_pika.connect_robust(self.amqp_url)
-            self.channel = await self.connection.channel()
-            self.logger.info("Connected to RabbitMQ")
-            
-        except Exception as e:
-            self.logger.error(f"Failed to connect to RabbitMQ: {str(e)}")
+        self.connection = await aio_pika.connect_robust(self.amqp_url)
+        self.channel = await self.connection.channel()
+        self.logger.info("Connected to RabbitMQ")
     
     async def subscribe(self, username: str):
         # Already subscribed
@@ -31,7 +27,7 @@ class Queue:
             
         try:
             queue_name = self.QUEUE_PREFIX + username
-            queue = await self.channel.declare_queue(queue_name)
+            queue = await self.channel.declare_queue(queue_name, durable=True)
             
             async def process_message(message: aio_pika.IncomingMessage):
                 async with message.process():
