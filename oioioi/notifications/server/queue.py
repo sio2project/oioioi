@@ -21,27 +21,22 @@ class Queue:
         self.logger.info("Connected to RabbitMQ")
     
     async def subscribe(self, user_id: str):
-        # Already subscribed
         if user_id in self.queues:
-            return
+            return # Already subscribed
             
-        try:
-            queue_name = self.QUEUE_PREFIX + user_id
-            queue = await self.channel.declare_queue(queue_name, durable=True)
-            
-            async def process_message(message: aio_pika.IncomingMessage):
-                async with message.process():
-                    body = message.body.decode()
-                    self.on_message(user_id, body)
-            
-            consumer_tag = await queue.consume(process_message)
+        queue_name = self.QUEUE_PREFIX + user_id
+        queue = await self.channel.declare_queue(queue_name, durable=True)
+        
+        async def process_message(message: aio_pika.IncomingMessage):
+            async with message.process():
+                body = message.body.decode()
+                self.on_message(user_id, body)
+        
+        consumer_tag = await queue.consume(process_message)
 
-            self.queues[user_id] = (queue, consumer_tag)
-            
-            self.logger.info(f"Subscribed to queue for user {user_id}")
-            
-        except Exception as e:
-            self.logger.error(f"Error subscribing to queue for {user_id}: {str(e)}")
+        self.queues[user_id] = (queue, consumer_tag)
+        
+        self.logger.info(f"Subscribed to queue for user {user_id}")
     
     async def unsubscribe(self, user_id: str):
         if user_id in self.queues:

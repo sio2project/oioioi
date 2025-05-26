@@ -57,20 +57,9 @@ class Server:
             message_type = data.get("type")
 
             if message_type == "SOCKET_AUTH":
-                session_id = data.get("session_id")
-                user_id = await self.auth.authenticate(session_id)
-
-                if user_id:
-                    ws.subscribe(user_id)
-                    ws.get_user_data()["user_id"] = user_id
-                    await self.queue.subscribe(user_id)
-                    self.logger.info(
-                        f"User {user_id} authenticated successfully")
-                else:
-                    self.logger.info(f"Authentication failed for session {session_id}")
-                
-                ws.send({"type": "SOCKET_AUTH_RESULT",
-                        "status": "OK" if user_id else "ERR_AUTH_FAILED"}, OpCode.TEXT)
+                await self.on_ws_auth_message(ws, data.get("session_id"))
+            else:
+                self.logger.warning(f"Unknown message type: {message_type}")
 
         except Exception as e:
             self.logger.error(f"Error processing message: {str(e)}")
@@ -94,3 +83,20 @@ class Server:
             self.app.publish(user_name, msg, OpCode.TEXT)
         except Exception as e:
             self.logger.error(f"Error publishing message: {str(e)}")
+
+    async def on_ws_auth_message(self, ws: WebSocket, session_id: str) -> None:
+        try:
+            user_id = await self.auth.authenticate(session_id)
+
+            ws.subscribe(user_id)
+            ws.get_user_data()["user_id"] = user_id
+            await self.queue.subscribe(user_id)
+
+            self.logger.info(f"User {user_id} authenticated successfully")
+            ws.send({"type": "SOCKET_AUTH_RESULT", "status": "OK"}, OpCode.TEXT)
+
+        except Exception as e:
+            self.logger.error(
+                f"Authentication error for session {session_id}: {str(e)}")
+            ws.send({"type": "SOCKET_AUTH_RESULT",
+                    "status": "ERR_AUTH_FAILED"}, OpCode.TEXT)

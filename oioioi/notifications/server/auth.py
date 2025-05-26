@@ -1,42 +1,44 @@
 import aiohttp
 import logging
-from typing import Dict, Optional, Any
+from cachetools import TTLCache
+
 
 class Auth:
     AUTH_CACHE_EXPIRATION_SECONDS = 300
+    AUTH_CACHE_MAX_SIZE = 10000
     URL_AUTHENTICATE_SUFFIX = 'notifications/authenticate/'
-    
+
     def __init__(self, url: str):
         self.auth_url = url + self.URL_AUTHENTICATE_SUFFIX
+        self.auth_cache = TTLCache(
+            maxsize=self.AUTH_CACHE_MAX_SIZE, ttl=self.AUTH_CACHE_EXPIRATION_SECONDS)
         self.logger = logging.getLogger('auth')
-        
+        self.http_client = None
+
     async def connect(self) -> None:
         self.http_client = aiohttp.ClientSession()
-    
-    async def authenticate(self, session_id: str) -> Optional[str]:
+
+    async def authenticate(self, session_id: str) -> str:
         "Authenticate a user with session ID."
-        
-        try:
-            async with self.http_client.post(
-                self.auth_url,
-                data={'nsid': session_id},
-                headers={'Content-Type': 'application/x-www-form-urlencoded'}
-            ) as response:
-                if response.status != 200:
-                    self.logger.error(f"Authentication request failed with status {response.status}")
-                    return None
-                    
-                result = await response.json()
-                
-                if result.get('status') != 'OK':
-                    self.logger.info("Authentication failed - server returned non-OK status")
-                    return None
-                    
-                username = result.get('user')
-                self.logger.debug(f"Authenticated user: {username}")
-                
-                return username
-            
-        except Exception as e:
-            self.logger.error(f"Authentication error: {str(e)}")
-            return None
+
+        if session_id in self.auth_cache:
+            self.logger.info(f"Cache hit for session ID: {session_id}")
+            return self.auth_cache[session_id]
+
+        async with self.http_client.post(
+            self.auth_url,
+            data={'nsid': session_id},
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        ) as response:
+            response.raise_for_status()
+            result = await response.json()
+
+            if result.get('status') != 'OK':
+                raise RuntimeError(
+                    "Authentication failed - server returned non-OK status")
+
+            user_id = result.get('user', None)
+            self.auth_cache[session_id] = user_id
+
+            self.logger.info(f"Authenticated session ID: {session_id}")
+            return user_id
