@@ -6,22 +6,23 @@ import logging
 from . auth import Auth
 from . queue import Queue
 
+
 class Server:
     def __init__(self, port: int, amqp_url: str, auth_url: str) -> None:
         self.port = port
-        
+
         self.app = App()
         self.auth = Auth(auth_url)
         self.queue = Queue(amqp_url, self.on_rabbit_message)
         self.logger = logging.getLogger('server')
-        
+
         self.app.on_start(self.on_start)
         self.app.ws("/", {
+            "upgrade": self.on_ws_upgrade,
             "message": self.on_ws_message,
             "close": self.on_ws_close,
         })
-        
-        
+
     def run(self) -> None:
         """Start the notification server."""
         logging.basicConfig(level=logging.INFO)
@@ -30,49 +31,62 @@ class Server:
 
         self.app.listen(self.port)
         self.app.run()
-        
+
     async def on_start(self) -> None:
         await self.auth.connect()
         await self.queue.connect()
-        
+
+    def on_ws_upgrade(self, res, req, socket_context):
+        """ 
+        Taken from socketify's documentation.
+        This method allows for storing extra data inside the websocket object. 
+        """
+
+        key = req.get_header("sec-websocket-key")
+        protocol = req.get_header("sec-websocket-protocol")
+        extensions = req.get_header("sec-websocket-extensions")
+
+        user_data = {"user_id": None}
+
+        res.upgrade(key, protocol, extensions, socket_context, user_data)
+
     async def on_ws_message(self, ws: WebSocket, msg: str, opcode: OpCode) -> None:
         """Handle incoming WebSocket messages."""
         try:
             data = json.loads(msg)
             message_type = data.get("type")
-            
-            if message_type == "SOCKET_AUTH":    
+
+            if message_type == "SOCKET_AUTH":
                 session_id = data.get("session_id")
-                user_name = await self.auth.authenticate(session_id)
-                
-                if user_name:
-                    ws.subscribe(user_name)
-                    await self.queue.subscribe(user_name)
-                    self.logger.info(f"User {user_name} authenticated successfully")
+                user_id = await self.auth.authenticate(session_id)
+
+                if user_id:
+                    ws.subscribe(user_id)
+                    ws.get_user_data()["user_id"] = user_id
+                    await self.queue.subscribe(user_id)
+                    self.logger.info(
+                        f"User {user_id} authenticated successfully")
                 else:
                     self.logger.info(f"Authentication failed for session {session_id}")
                 
-                ws.send({"type": "SOCKET_AUTH_RESULT", "status": "OK" if user_name else "ERR_AUTH_FAILED"}, OpCode.TEXT)
-                
+                ws.send({"type": "SOCKET_AUTH_RESULT",
+                        "status": "OK" if user_id else "ERR_AUTH_FAILED"}, OpCode.TEXT)
+
         except Exception as e:
             self.logger.error(f"Error processing message: {str(e)}")
-            
+
     async def on_ws_close(self, ws: WebSocket, code: int, msg: Union[bytes, str]) -> None:
         """Handle WebSocket connection closure."""
         try:
-            # We can retrieve the user name for this WebSockets by checking the topics this WebSocket is subscribed to.
-            user_name = ws.get_topics()[0]
-            
-            if user_name:
-                ws.unsubscribe(user_name)
-                
-                # If there are no more active connections for this user, unsubscribe from the RabbitMQ queue
-                if self.app.num_subscribers(user_name) == 0:
-                    await self.queue.unsubscribe(user_name)
-                    
+            user_id = ws.get_user_data().get("user_id")
+
+            # If there are no more active connections for this user, unsubscribe from the RabbitMQ queue
+            if user_id and self.app.num_subscribers(user_id) == 0:
+                await self.queue.unsubscribe(user_id)
+
         except Exception as e:
             self.logger.error(f"Error during connection close: {str(e)}")
-        
+
     def on_rabbit_message(self, user_name: str, msg: str) -> None:
         """Handle messages from RabbitMQ."""
         try:
