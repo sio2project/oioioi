@@ -856,9 +856,8 @@ def filter_contests_view(request, filter_value=""):
 
 def get_contest_hints(query):
     contests = Contest.objects.filter(
-        Q(name__icontains=query) | Q(id__icontains=query) | Q(is_archived=False)
+        (Q(name__icontains=query) | Q(id__icontains=query)) & Q(is_archived=False)
     ).distinct()
-    
     return [
         {
             'trigger': 'problem',
@@ -869,13 +868,8 @@ def get_contest_hints(query):
     ]
 
 @jsonify
-def get_contest_hints_view(request, view_type):
+def get_contest_hints_view(request):
     # Function works analogously to the auto-completion function implemented in the problemset
-
-    print(view_type)
-
-    if view_type == 'all' and request.user.is_superuser:
-       raise PermissionDenied
 
     query = request.GET.get('q', '')
 

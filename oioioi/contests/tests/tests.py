@@ -9,6 +9,8 @@ from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
 import pytest
 import pytz
 
+import urllib.parse
+
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import AnonymousUser, User
@@ -4526,3 +4528,60 @@ class TestContestListFiltering(TestCase):
         self.assertNotContains(response, self.c.name)
         self.assertContains(response, self.c1.name)
         self.assertContains(response, self.c2.name)
+
+class TestContestSearchHints(TestCase):
+    fixtures = [
+        'test_contest_search',
+        'test_contest',
+        'test_extra_contests',
+    ]
+    url = reverse('get_contest_hints')
+
+    allowed_values = [
+        'AAAcontest',
+        'ABAcontest',
+        'ACAcontest',
+        'AA contest',
+        'BA contest',
+        'CA contest',
+        'DA contest',
+        'EA contest',
+        'Extra test contest 1',
+        'Extra test contest 2',
+        'FA contest',
+        'Test contest',
+        'Archived contest',
+    ]
+
+    def get_query_url(self, parameter):
+        return self.url + '?' + urllib.parse.urlencode(parameter)
+
+    def assert_contains_only(self, response, allowed_values):
+        for contest in self.allowed_values:
+            if contest in allowed_values:
+                self.assertContains(response, contest)
+            else:
+                self.assertNotContains(response, contest)
+
+    def test_contest_search_basic(self):
+        self.client.get('/c/c1/')
+
+        response = self.client.get(self.get_query_url({'q' : 'XX'}), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q' : 'AA'}), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['AAAcontest', 'AA contest'])
+
+        response = self.client.get(self.get_query_url({'q' : 'Archived'}), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        response = self.client.get(self.get_query_url({'q' : 'DA'}), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['DA contest'])
+
+        response = self.client.get(self.get_query_url({'q' : 'Extra test'}), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['Extra test contest 1', 'Extra test contest 2',])

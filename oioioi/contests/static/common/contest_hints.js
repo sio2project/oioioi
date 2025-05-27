@@ -2,7 +2,6 @@ function init_search_selection(id) {
     $(function(){
         const input = $('#' + id);
 
-        // The default source - returns hints for contests
         const source_default = function(query, process) {
             $.getJSON(input.data("hintsUrl"), {q: query}, process);
         };
