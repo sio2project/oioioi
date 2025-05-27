@@ -2,6 +2,8 @@ import unicodecsv
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils.encoding import force_str
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.fields.related import ForeignKey, OneToOneField
 
 from collections import deque
 
@@ -104,16 +106,12 @@ def _fold_registration_models_tree(object):
         ]
 
     objs = deque()
-    print('Related objects:', get_all_related_objects(object._meta))
     for rel in get_all_related_objects(object._meta):
         if hasattr(object, rel.get_accessor_name()):
             objs.append(getattr(object, rel.get_accessor_name()))
-            print('Accessor name:', getattr(object, rel.get_accessor_name()))
 
-    print(objs)
     while objs:
         current = objs.popleft()
-        print('Current:', current)
         if current is None:
             continue
         objects_used.add(current)
@@ -123,7 +121,6 @@ def _fold_registration_models_tree(object):
                 field.remote_field is not None
                 and getattr(current, field.name) not in objects_used
             ):
-                print('Field name:', field.name, 'Appending:', getattr(current, field.name))
                 objs.append(getattr(current, field.name))
 
     for obj in objects_used:
@@ -132,29 +129,58 @@ def _fold_registration_models_tree(object):
                 if field.remote_field is None:
                     result += [(obj, field)]
 
-    print(result)
     return result
+
+
+def get_related_paths(model, prefix='', depth=5, visited=None):
+    if visited is None:
+        visited = set()
+    if model in visited or depth == 0:
+        return []
+
+    visited.add(model)
+    paths = []
+    try:
+        for field in model._meta.get_fields():
+            if isinstance(field, (ForeignKey, OneToOneField)) and not field.auto_created:
+                if field.name == 'participant':
+                    continue  # skip backward pointer to Participant
+
+                full_path = f"{prefix}__{field.name}" if prefix else field.name
+                paths.append(full_path)
+
+                related_model = field.related_model
+                paths.extend(
+                    get_related_paths(related_model, prefix=full_path, depth=depth - 1, visited=visited)
+                )
+    finally:
+        visited.remove(model)
+
+    return paths
 
 
 def serialize_participants_data(request):
     """Serializes all personal data of participants to a table.
     """
-    participants = (
-        Participant.objects
-        .filter(contest=request.contest)
-        .select_related('user')
-    )
-
-    # rcontroller = request.contest.controller.registration_controller()
-    # model_class = rcontroller.get_model_class()
-    # if model_class is not None:
-    #     related_name = model_class._meta.get_field('participant').remote_field.related_name
-    #     if related_name is None:
-    #         related_name = model_class.__name__.lower()
-    #     participants = participants.prefetch_related(related_name)
-
-    if not participants.exists():
+    participant = Participant.objects.filter(contest=request.contest).first()
+    if participant is None:
         return {'no_participants': True}
+
+    try: # Check if registration model exists
+        registration_model_instance = participant.registration_model
+        registration_model_class = registration_model_instance.__class__
+        registration_model_name = registration_model_instance._meta.get_field('participant').remote_field.related_name
+
+        related = get_related_paths(registration_model_class, prefix=registration_model_name, depth=10)
+        related.extend(['user', 'contest', registration_model_name])
+        print('Related list:', related)
+        participants = (
+            Participant.objects
+            .filter(contest=request.contest)
+            .select_related(*related)
+        )
+    except ObjectDoesNotExist: # It doesn't, so no need to select anything
+        participants = Participant.objects.filter(contest=request.contest)
 
     display_email = request.contest.controller.show_email_in_participants_data
 
