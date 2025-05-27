@@ -432,7 +432,7 @@ def visible_contests(request):
 def visible_contests_queryset(request, filter_value):
     contests = visible_contests_query(request)
     contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))    
-    return set(contests)
+    return contests
 
 @request_cached
 def administered_contests(request):

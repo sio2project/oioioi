@@ -843,7 +843,7 @@ def unarchive_contest(request):
     return redirect('default_contest_view', contest_id=contest.id)
 
 def filter_contests_view(request, filter_value=""):
-    contests = visible_contests_queryset(request, filter_value)
+    contests = set(visible_contests_queryset(request, filter_value))
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
     
     context = {
@@ -854,10 +854,9 @@ def filter_contests_view(request, filter_value=""):
         request, 'contests/select_contest.html', context
     )
 
-def get_contest_hints(query):
-    contests = Contest.objects.filter(
-        (Q(name__icontains=query) | Q(id__icontains=query)) & Q(is_archived=False)
-    ).distinct()
+def get_contest_hints(request, query):
+    contests = visible_contests_queryset(request, query)
+    contests = contests.filter(Q(is_archived=False)).distinct()
     return [
         {
             'trigger': 'problem',
@@ -874,6 +873,6 @@ def get_contest_hints_view(request):
     query = request.GET.get('q', '')
 
     result = []
-    result.extend(list(get_contest_hints(query)))
+    result.extend(list(get_contest_hints(request, query)))
 
     return result
