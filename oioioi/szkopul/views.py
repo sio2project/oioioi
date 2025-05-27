@@ -7,7 +7,7 @@ from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Contest, Submission
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import visible_contests_queryset
+from oioioi.contests.utils import visible_contests_queryset_old
 from oioioi.problems.utils import filter_my_all_visible_submissions
 
 from oioioi.base.navbar_links import navbar_links_registry
@@ -35,7 +35,7 @@ def main_page_view(request):
     # this is unsalvageable
     contests = list(
         set(
-            Contest.objects.filter(visible_contests_queryset(request)).distinct()[:to_show]
+            Contest.objects.filter(visible_contests_queryset_old(request)).distinct()[:to_show]
         ).difference(rcontests)
     )
     contests.sort(key=lambda x: x.creation_date, reverse=True)
