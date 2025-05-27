@@ -871,7 +871,6 @@ def reattach_problem_contest_list_view(request, full_list=False):
     )
 
 
-# TODO: refactor this function using _get_problem_isntances_from_problem_ids
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reattach_problem_confirm_view(request, contest_id):
     """"

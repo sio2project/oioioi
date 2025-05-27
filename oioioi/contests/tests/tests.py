@@ -3549,8 +3549,10 @@ class TestAssigningProblemsToARound(TestCase):
         response = self.client.post(url, data={'round': 1}, follow=True)
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(ProblemInstance.objects.get(id=pi_id).contest.id
-            , Contest.objects.get(id='one-round').id)
+        self.assertEqual(
+            ProblemInstance.objects.get(id=pi_id).contest.id,
+            Contest.objects.get(id='one-round').id
+        )
 
 
 class TestModifyContest(TestCase):
