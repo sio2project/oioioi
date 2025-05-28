@@ -116,7 +116,7 @@ def problem_site_document(request, problem, document, type):
             request, problem.problemsite.url_key, 'index.html'
         )
         document_html = render_to_string(
-            'problems/from-zip-statement.html',
+            'problems/from-zip-document.html',
             {'problem': problem,
             'statement': mark_safe(response.content.decode(errors="replace")),
             'can_admin_problem': can_admin_problem(request, problem)}
