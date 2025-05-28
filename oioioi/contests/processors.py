@@ -35,16 +35,6 @@ def recent_contests(request):
             for c in (mapping.get(id) for id in ids)
             if c is not None and c != request.contest
         ]
-    elif False:
-        visible_query = visible_contests_queryset(request)
-        c_views = (
-            Contest.objects.filter(contestview__user=request.real_user)
-            .filter(visible_query)
-            .order_by('-contestview__timestamp')
-            .only("id", "name")
-            .distinct()
-        )[: getattr(settings, "NUM_RECENT_CONTESTS", 5)]
-        return list(c_views)
     else:
         c_views = ContestView.objects.filter(user=request.real_user).select_related(
             'contest'

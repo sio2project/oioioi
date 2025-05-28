@@ -297,7 +297,7 @@ class Command(BaseCommand):
                 )
             SCHOOL_TYPES = [type.name for type in SchoolType.objects.all()]
             return [
-                school
+                {key: school[key] for key in RSPO_CSV_COLUMNS}
                 for school in reader
                 if (
                     school['Typ'] in SCHOOL_TYPES
