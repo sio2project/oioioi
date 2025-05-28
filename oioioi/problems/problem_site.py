@@ -34,6 +34,7 @@ from oioioi.problems.models import (
     ProblemAttachment,
     ProblemPackage,
     ProblemStatement,
+    ProblemEditorial,
 )
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (
@@ -305,6 +306,29 @@ def problem_site_add_to_contest(request, problem):
             'contests': administered,
             'tests_package_visible': tests_package_visible,
         },
+    )
+
+
+def show_editorial(request, problem):
+    """Show Editorial tab only if there's ≥1 ProblemEditorial."""
+    return ProblemEditorial.objects.filter(problem=problem).exists() and not request.contest
+
+@problem_site_tab(
+    _("Editorial"),
+    key='editorial',
+    order=750,
+    condition=show_editorial,
+)
+def problem_site_editorial(request, problem):
+    editorial = ProblemEditorial.objects.filter(problem=problem).order_by('language', 'id').first()
+    return TemplateResponse(
+        request,
+        'problems/editorial.html',
+        {
+            'problem': problem,
+            'editorial': editorial,
+            'can_admin_problem': can_admin_problem(request, problem),
+        }
     )
 
 
