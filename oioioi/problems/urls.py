@@ -9,7 +9,7 @@ problem_site_patterns = [
     path('site/', views.problem_site_view, name='problem_site'),
     path(
         'site/<path:path>',
-        views.problem_site_statement_zip_view,
+        views.problem_site_document_zip_view,
         {'type': 'statement'},
         name='problem_site_statement_zip',
     ),
