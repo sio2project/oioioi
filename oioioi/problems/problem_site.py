@@ -89,18 +89,27 @@ def problem_site_statement_zip_view(request, site_key, path):
     return query_zip(statement, path)
 
 
-def problem_site_document(request, problem, document):
+def problem_site_document(request, problem, document, type):
     if not document:
-        statement_html = render_to_string(
-            'problems/no-problem-statement.html',
-            {'problem': problem,
-            'can_admin_problem': can_admin_problem(request, problem)}
-        )
+        if type == 'statement':
+            document_html = render_to_string(
+                'problems/no-problem-statement.html',
+                {'problem': problem,
+                'can_admin_problem': can_admin_problem(request, problem)}
+            )
+        elif type == 'editorial':
+            document_html = render_to_string(
+                'problems/no-problem-editorial.html',
+                {'problem': problem,
+                'can_admin_problem': can_admin_problem(request, problem)}
+            )
+        else:
+            raise Http404("Document not found")
     elif document.extension == '.zip':
         response = problem_site_statement_zip_view(
             request, problem.problemsite.url_key, 'index.html'
         )
-        statement_html = render_to_string(
+        document_html = render_to_string(
             'problems/from-zip-statement.html',
             {'problem': problem,
             'statement': mark_safe(response.content.decode(errors="replace")),
@@ -111,14 +120,14 @@ def problem_site_document(request, problem, document):
             'problem_site_external_statement',
             kwargs={'site_key': problem.problemsite.url_key},
         )
-        statement_html = render_to_string(
+        document_html = render_to_string(
             'problems/external-statement.html',
             {'problem': problem,
             'statement_url': statement_url,
             'can_admin_problem': can_admin_problem(request, problem)},
         )
 
-    return statement_html
+    return document_html
 
 def check_for_statement(request, problem):
     return ProblemStatement.objects.filter(problem=problem).exists()
@@ -128,7 +137,7 @@ def check_for_statement(request, problem):
 )
 def problem_site_statement(request, problem):
     statement = query_statement(problem.id)
-    return problem_site_document(request, problem, statement)
+    return problem_site_document(request, problem, statement, type='statement')
 
 
 def show_editorial(request, problem):
@@ -139,7 +148,7 @@ def show_editorial(request, problem):
 )
 def problem_site_editorial(request, problem):
     statement = query_editorial(problem.id)
-    return problem_site_document(request, problem, statement)
+    return problem_site_document(request, problem, statement, type='editorial')
 
 
 def check_for_downloads(request, problem):
