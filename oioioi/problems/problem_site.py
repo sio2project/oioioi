@@ -122,14 +122,24 @@ def problem_site_document(request, problem, document, type):
             'can_admin_problem': can_admin_problem(request, problem)}
         )
     else:
-        statement_url = reverse(
-            'problem_site_external_statement',
-            kwargs={'site_key': problem.problemsite.url_key},
-        )
+        document_url = None
+        if type == 'editorial':
+            document_url = reverse(
+                'problem_site_external_editorial',
+                kwargs={'site_key': problem.problemsite.url_key},
+            )
+        elif type == 'statement':
+            document_url = reverse(
+                'problem_site_external_statement',
+                kwargs={'site_key': problem.problemsite.url_key},
+            )
+        else:
+            raise Http404("Document not found")
+
         document_html = render_to_string(
             'problems/external-statement.html',
             {'problem': problem,
-            'statement_url': statement_url,
+            'statement_url': document_url,
             'can_admin_problem': can_admin_problem(request, problem)},
         )
 
