@@ -1,0 +1,203 @@
+[
+    {
+      "pk": "cs1",
+      "model": "contests.contest",
+      "fields": {
+        "name": "AAAcontest",
+        "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+        "creation_date": "2011-07-31T20:27:58.768Z",
+        "is_archived": "False"
+      }
+    },
+    {
+      "pk": 1,
+      "model": "contests.round",
+      "fields": {
+        "name": "Round 1",
+        "contest": "cs1",
+        "start_date": "2011-07-31T20:27:58.768Z",
+        "results_date": "2012-07-31T20:27:58.768Z"
+      }
+    },
+    {
+        "pk": "cs2",
+        "model": "contests.contest",
+        "fields": {
+          "name": "ABAcontest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs2",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs3",
+        "model": "contests.contest",
+        "fields": {
+          "name": "ACAcontest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs3",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs4",
+        "model": "contests.contest",
+        "fields": {
+          "name": "AA contest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs4",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs5",
+        "model": "contests.contest",
+        "fields": {
+          "name": "BA contest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs5",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs6",
+        "model": "contests.contest",
+        "fields": {
+          "name": "CA contest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs6",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs7",
+        "model": "contests.contest",
+        "fields": {
+          "name": "DA contest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs7",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs8",
+        "model": "contests.contest",
+        "fields": {
+          "name": "EA contest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs8",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs9",
+        "model": "contests.contest",
+        "fields": {
+          "name": "FA contest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "False"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs9",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      },
+      {
+        "pk": "cs10",
+        "model": "contests.contest",
+        "fields": {
+          "name": "Archived contest",
+          "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+          "creation_date": "2011-07-31T20:27:58.768Z",
+          "is_archived": "True"
+        }
+      },
+      {
+        "pk": 1,
+        "model": "contests.round",
+        "fields": {
+          "name": "Round 1",
+          "contest": "cs10",
+          "start_date": "2011-07-31T20:27:58.768Z",
+          "results_date": "2012-07-31T20:27:58.768Z"
+        }
+      }
+  ]
+  
