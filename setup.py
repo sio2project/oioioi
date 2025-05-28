@@ -24,7 +24,7 @@ requirements = [
     "pytz>=2023.3,<2023.4",
     "SQLAlchemy<2.1.0",
     "beautifulsoup4>=4.12,<4.13",
-    "PyYAML>=6.0,<6.1",
+    "PyYAML>=6.0.1,<6.1",
     "python-dateutil>=2.8,<2.9",
     "django-two-factor-auth>=1.15,<1.16",
     "django-formtools>=2.4,<2.5",
