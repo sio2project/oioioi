@@ -598,3 +598,14 @@ CONTEST_ADMINS_CAN_SU = False
 
 # If set to False, contest admins switched to a participant will be able to make any type of request.
 ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS = True
+
+# OAuth2 support
+#
+# INSTALLED_APPS = (
+#    'oauth2_provider',
+#    'oioioi.oauth',
+# ) + INSTALLED_APPS
+#
+# REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += (
+#    'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+# )
