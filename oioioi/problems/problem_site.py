@@ -121,8 +121,7 @@ def problem_site_document(request, problem, document):
     return statement_html
 
 def check_for_statement(request, problem):
-    """Function checking if given problem has a ProblemStatement."""
-    return bool(ProblemStatement.objects.filter(problem=problem))
+    return ProblemStatement.objects.filter(problem=problem).exists()
 
 @problem_site_tab(
     _("Problem statement"), key='statement', order=100, condition=check_for_statement
