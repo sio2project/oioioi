@@ -137,7 +137,7 @@ def problem_site_document(request, problem, document, type):
             raise Http404("Document not found")
 
         document_html = render_to_string(
-            'problems/external-statement.html',
+            'problems/external-document.html',
             {'problem': problem,
             'statement_url': document_url,
             'can_admin_problem': can_admin_problem(request, problem)},
