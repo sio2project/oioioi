@@ -139,7 +139,8 @@ def problem_site_document(request, problem, document, type):
         document_html = render_to_string(
             'problems/external-document.html',
             {'problem': problem,
-            'statement_url': document_url,
+            'document_url': document_url,
+            'document_type': type,
             'can_admin_problem': can_admin_problem(request, problem)},
         )
 
