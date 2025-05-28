@@ -87,7 +87,7 @@ def problem_site_document_zip_view(request, site_key, path, type='statement'):
     document = None
     if type == 'editorial':
         document = query_editorial(problem.id)
-    else:
+    elif type == 'statement':
         document = query_statement(problem.id)
 
     if not document:
