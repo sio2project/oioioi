@@ -163,12 +163,12 @@ def query_editorial(problem_id):
     return query_document(editorials)
 
 
-def query_zip(statement, path):
-    if statement.extension != '.zip':
+def query_zip(document, path):
+    if document.extension != '.zip':
         raise SuspiciousOperation
 
     # ZipFile will call seek(), so we need a real file here
-    zip = zipfile.ZipFile(statement.content.read_using_cache())
+    zip = zipfile.ZipFile(document.content.read_using_cache())
     try:
         info = zip.getinfo(path)
     except KeyError:
