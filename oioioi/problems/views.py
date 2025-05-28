@@ -72,12 +72,12 @@ from oioioi.problems.models import (
     UserStatistics,
 )
 
-# problem_site_statement_zip_view is used in one of the tabs
+# problem_site_document_zip_view is used in some of the tabs
 # in problem_site.py. We placed the view in problem_site.py
 # instead of views.py to avoid circular imports. We still import
 # it here to use it in urls.py.
 from oioioi.problems.problem_site import (
-    problem_site_statement_zip_view,
+    problem_site_document_zip_view,
     problem_site_tab_registry,
 )
 from oioioi.problems.problem_sources import problem_sources

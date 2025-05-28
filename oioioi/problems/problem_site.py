@@ -81,12 +81,18 @@ def problem_site_tab(title, key, order=sys.maxsize, condition=None):
     return decorator
 
 
-def problem_site_statement_zip_view(request, site_key, path):
+def problem_site_document_zip_view(request, site_key, path, type='statement'):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
-    statement = query_statement(problem.id)
-    if not statement:
+
+    document = None
+    if type == 'editorial':
+        document = query_editorial(problem.id)
+    else:
+        document = query_statement(problem.id)
+
+    if not document:
         raise Http404
-    return query_zip(statement, path)
+    return query_zip(document, path)
 
 
 def problem_site_document(request, problem, document, type):
@@ -106,7 +112,7 @@ def problem_site_document(request, problem, document, type):
         else:
             raise Http404("Document not found")
     elif document.extension == '.zip':
-        response = problem_site_statement_zip_view(
+        response = problem_site_document_zip_view(
             request, problem.problemsite.url_key, 'index.html'
         )
         document_html = render_to_string(
