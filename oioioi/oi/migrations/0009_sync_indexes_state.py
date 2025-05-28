@@ -5,7 +5,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oi', '0007_alter_oiregistration_class_type_and_more'),
+        ('oi', '0008_schooltype_school_rspo_school_type'),
     ]
 
     operations = [
