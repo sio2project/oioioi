@@ -12,7 +12,7 @@ class Auth:
         self.auth_url = url + self.URL_AUTHENTICATE_SUFFIX
         self.auth_cache = TTLCache(
             maxsize=self.AUTH_CACHE_MAX_SIZE, ttl=self.AUTH_CACHE_EXPIRATION_SECONDS)
-        self.logger = logging.getLogger('auth')
+        self.logger = logging.getLogger('oioioi')
         self.http_client = None
 
     async def connect(self) -> None:
@@ -22,8 +22,9 @@ class Auth:
         "Authenticate a user with session ID."
 
         if session_id in self.auth_cache:
-            self.logger.info(f"Cache hit for session ID: {session_id}")
-            return self.auth_cache[session_id]
+            user_id = self.auth_cache[session_id]
+            self.logger.debug(f"Cache hit for session ID: {session_id} with user ID: {user_id}")
+            return user_id
 
         async with self.http_client.post(
             self.auth_url,
@@ -37,8 +38,8 @@ class Auth:
                 raise RuntimeError(
                     "Authentication failed - server returned non-OK status")
 
-            user_id = result.get('user', None)
+            user_id = result.get('user')
             self.auth_cache[session_id] = user_id
 
-            self.logger.info(f"Authenticated session ID: {session_id}")
+            self.logger.debug(f"Authenticated session ID: {session_id} with user ID: {user_id}")
             return user_id

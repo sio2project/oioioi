@@ -1,6 +1,6 @@
 import aio_pika
 import logging
-from typing import Callable, Set, Optional, Dict, Tuple
+from typing import Callable, Dict, Tuple
 
 class Queue:
     QUEUE_PREFIX = "_notifs_"
@@ -9,7 +9,7 @@ class Queue:
         self.amqp_url = amqp_url
         self.on_message = on_message
         
-        self.logger = logging.getLogger('queue')
+        self.logger = logging.getLogger('oioioi')
         self.connection = None
         self.channel = None
 
@@ -22,7 +22,8 @@ class Queue:
     
     async def subscribe(self, user_id: str):
         if user_id in self.queues:
-            return # Already subscribed
+            self.logger.debug(f"Already subscribed to queue for user {user_id}")
+            return
             
         queue_name = self.QUEUE_PREFIX + user_id
         queue = await self.channel.declare_queue(queue_name, durable=True)
@@ -36,15 +37,12 @@ class Queue:
 
         self.queues[user_id] = (queue, consumer_tag)
         
-        self.logger.info(f"Subscribed to queue for user {user_id}")
+        self.logger.debug(f"Subscribed to queue for user {user_id}")
     
     async def unsubscribe(self, user_id: str):
         if user_id in self.queues:
-            try:
-                queue, consumer_tag = self.queues[user_id]
-                await queue.cancel(consumer_tag)
-                del self.queues[user_id]
+            queue, consumer_tag = self.queues[user_id]
+            await queue.cancel(consumer_tag)
+            del self.queues[user_id]
 
-                self.logger.info(f"Unsubscribed from queue for {user_id}")
-            except Exception as e:
-                self.logger.error(f"Error unsubscribing from queue for {user_id}: {str(e)}")
+            self.logger.debug(f"Unsubscribed from queue for {user_id}")

@@ -1,5 +1,4 @@
-import asyncio
-from typing import Union, Dict, Any, Optional, Callable
+from typing import Union
 from socketify import App, AppOptions, OpCode, CompressOptions, WebSocket
 import json
 import logging
@@ -14,7 +13,7 @@ class Server:
         self.app = App()
         self.auth = Auth(auth_url)
         self.queue = Queue(amqp_url, self.on_rabbit_message)
-        self.logger = logging.getLogger('server')
+        self.logger = logging.getLogger('oioioi')
 
         self.app.on_start(self.on_start)
         self.app.ws("/", {
@@ -25,10 +24,7 @@ class Server:
 
     def run(self) -> None:
         """Start the notification server."""
-        logging.basicConfig(level=logging.INFO)
-
         self.logger.info(f"Starting notification server on port {self.port}")
-
         self.app.listen(self.port)
         self.app.run()
 
@@ -72,6 +68,8 @@ class Server:
             # If there are no more active connections for this user, unsubscribe from the RabbitMQ queue
             if user_id and self.app.num_subscribers(user_id) == 0:
                 await self.queue.unsubscribe(user_id)
+                
+            self.logger.debug(f"WebSocket closed for user {user_id}")
 
         except Exception as e:
             self.logger.error(f"Error during connection close: {str(e)}")
@@ -92,7 +90,7 @@ class Server:
             ws.get_user_data()["user_id"] = user_id
             await self.queue.subscribe(user_id)
 
-            self.logger.info(f"User {user_id} authenticated successfully")
+            self.logger.debug(f"User {user_id} authenticated successfully")
             ws.send({"type": "SOCKET_AUTH_RESULT", "status": "OK"}, OpCode.TEXT)
 
         except Exception as e:
