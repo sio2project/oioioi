@@ -90,6 +90,7 @@ from oioioi.problems.utils import (
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
     get_prefetched_value,
+    query_editorial,
     query_statement,
     show_proposal_form,
 )
@@ -615,14 +616,20 @@ def problem_site_view(request, site_key):
     )
 
 
-def problem_site_external_statement_view(request, site_key):
+def problem_site_external_document_view(request, site_key, type='statement'):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
-    statement = query_statement(problem.id)
-    if not statement:
+
+    document = None
+    if type == 'editorial':
+        document = query_editorial(problem.id)
+    elif type == 'statement':
+        document = query_statement(problem.id)
+
+    if not document:
         raise Http404
-    if statement.extension == '.zip' and not can_admin_problem(request, problem):
+    if document.extension == '.zip' and not can_admin_problem(request, problem):
         raise PermissionDenied
-    return stream_file(statement.content, statement.download_name)
+    return stream_file(document.content, document.download_name)
 
 
 def problem_site_external_attachment_view(request, site_key, attachment_id):

@@ -20,8 +20,15 @@ problem_site_patterns = [
         name='problem_site_statement_zip',
     ),
     path(
+        'editorial/',
+        views.problem_site_external_document_view,
+        {'type': 'editorial'},
+        name='problem_site_external_editorial',
+    ),
+    path(
         'statement/',
-        views.problem_site_external_statement_view,
+        views.problem_site_external_document_view,
+        {'type': 'statement'},
         name='problem_site_external_statement',
     ),
     path(
