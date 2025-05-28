@@ -113,7 +113,7 @@ def problem_site_document(request, problem, document, type):
             raise Http404("Document not found")
     elif document.extension == '.zip':
         response = problem_site_document_zip_view(
-            request, problem.problemsite.url_key, 'index.html'
+            request, problem.problemsite.url_key, 'index.html', type
         )
         document_html = render_to_string(
             'problems/from-zip-document.html',
