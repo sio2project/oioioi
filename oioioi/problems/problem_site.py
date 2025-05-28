@@ -42,6 +42,7 @@ from oioioi.problems.utils import (
     can_admin_problem,
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
+    query_editorial,
     query_statement,
     query_zip,
 )
@@ -88,23 +89,14 @@ def problem_site_statement_zip_view(request, site_key, path):
     return query_zip(statement, path)
 
 
-def check_for_statement(request, problem):
-    """Function checking if given problem has a ProblemStatement."""
-    return bool(ProblemStatement.objects.filter(problem=problem))
-
-
-@problem_site_tab(
-    _("Problem statement"), key='statement', order=100, condition=check_for_statement
-)
-def problem_site_statement(request, problem):
-    statement = query_statement(problem.id)
-    if not statement:
+def problem_site_document(request, problem, document):
+    if not document:
         statement_html = render_to_string(
             'problems/no-problem-statement.html',
             {'problem': problem,
             'can_admin_problem': can_admin_problem(request, problem)}
         )
-    elif statement.extension == '.zip':
+    elif document.extension == '.zip':
         response = problem_site_statement_zip_view(
             request, problem.problemsite.url_key, 'index.html'
         )
@@ -128,25 +120,27 @@ def problem_site_statement(request, problem):
 
     return statement_html
 
+def check_for_statement(request, problem):
+    """Function checking if given problem has a ProblemStatement."""
+    return bool(ProblemStatement.objects.filter(problem=problem))
+
+@problem_site_tab(
+    _("Problem statement"), key='statement', order=100, condition=check_for_statement
+)
+def problem_site_statement(request, problem):
+    statement = query_statement(problem.id)
+    return problem_site_document(request, problem, statement)
+
 
 def show_editorial(request, problem):
-    """Show Editorial tab only if there's ≥1 ProblemEditorial."""
     return ProblemEditorial.objects.filter(problem=problem).exists() and not request.contest
 
 @problem_site_tab(
     _("Editorial"), key='editorial', order=750, condition=show_editorial
 )
 def problem_site_editorial(request, problem):
-    editorial = ProblemEditorial.objects.filter(problem=problem).order_by('language', 'id').first()
-    return TemplateResponse(
-        request,
-        'problems/editorial.html',
-        {
-            'problem': problem,
-            'editorial': editorial,
-            'can_admin_problem': can_admin_problem(request, problem),
-        }
-    )
+    statement = query_editorial(problem.id)
+    return problem_site_document(request, problem, statement)
 
 
 def check_for_downloads(request, problem):
