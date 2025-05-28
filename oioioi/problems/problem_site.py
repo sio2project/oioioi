@@ -123,14 +123,14 @@ def problem_site_document(request, problem, document, type):
         )
     else:
         document_url = None
-        if type == 'editorial':
-            document_url = reverse(
-                'problem_site_external_editorial',
-                kwargs={'site_key': problem.problemsite.url_key},
-            )
-        elif type == 'statement':
+        if type == 'statement':
             document_url = reverse(
                 'problem_site_external_statement',
+                kwargs={'site_key': problem.problemsite.url_key},
+            )
+        elif type == 'editorial':
+            document_url = reverse(
+                'problem_site_external_editorial',
                 kwargs={'site_key': problem.problemsite.url_key},
             )
         else:
