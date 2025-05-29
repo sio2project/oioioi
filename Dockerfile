@@ -1,4 +1,4 @@
-FROM python:3.10 AS base
+FROM python:3.11 AS base
 
 ENV PYTHONUNBUFFERED 1
 
@@ -54,7 +54,7 @@ USER oioioi
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
 ENV BERKELEYDB_DIR /usr
-RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user psycopg2-binary==2.9.5 twisted uwsgi
 RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
@@ -73,7 +73,7 @@ WORKDIR /sio2/deployment
 RUN mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # The stage below is independent of base and can be built in parallel to optimize build time.
-FROM python:3.10 AS development-sandboxes
+FROM python:3.11 AS development-sandboxes
 
 ENV DOWNLOAD_DIR=/sio2/sandboxes
 ENV MANIFEST_URL=https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest
