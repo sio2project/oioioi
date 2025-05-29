@@ -357,10 +357,8 @@ class TestsSelectionForm(forms.Form):
         problem_instance = queryset[0].problem_instance
         tests = Test.objects.filter(problem_instance=problem_instance, is_active=True)
 
-        widget = forms.RadioSelect(attrs={'onChange': 'rejudgeTypeOnChange(this)'})
-        self.fields['rejudge_type'] = forms.ChoiceField(widget=widget)
         if uses_is_active:
-            self.fields['rejudge_type'].choices = [
+            choices = [
                 ('FULL', _("Rejudge submissions on all current active tests")),
                 (
                     'NEW',
@@ -371,17 +369,24 @@ class TestsSelectionForm(forms.Form):
                 ),
             ]
         else:
-            self.fields['rejudge_type'].choices = [
+            choices = [
                 ('FULL', _("Rejudge submissions on all tests"))
             ]
+
+        if pis_count == 1:
+            choices.append(
+                ('JUDGED', _("Rejudge submissions on judged tests only"))
+            )
+
+        widget = forms.RadioSelect(attrs={'onChange': 'rejudgeTypeOnChange(this)'})
+        self.fields['rejudge_type'] = forms.ChoiceField(
+            widget=widget,
+            choices=choices,
+        )
 
         self.initial['rejudge_type'] = 'FULL'
 
         if pis_count == 1:
-            self.fields['rejudge_type'].choices.append(
-                ('JUDGED', _("Rejudge submissions on judged tests only"))
-            )
-
             self.fields['tests'] = forms.MultipleChoiceField(
                 widget=forms.CheckboxSelectMultiple(attrs={'disabled': 'disabled'}),
                 choices=[(test.name, test.name) for test in tests],

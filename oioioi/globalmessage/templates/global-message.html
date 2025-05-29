@@ -1,1 +1,33 @@
-<div class="alert alert-info">{{ global_message }}</div>
+<div class="alert alert-info">
+    <button type="button" class="close" aria-label="Close" id="global-message-close" style="display:none;">
+        <span aria-hidden="true">×</span>
+    </button>
+    {{ global_message|safe }}
+</div>
+<script>
+    (() => {
+        const $globalMsgClose = document.getElementById("global-message-close");
+        const $globalMsgRoot =
+            document.getElementById("global-message-user") ||
+            document.getElementById("global-message-admin");
+        if ($globalMsgClose == null) {
+            throw new Error("No GlobalMessage close button found");
+        }
+        if ($globalMsgRoot == null) {
+            throw new Error("No GlobalMessage root element found");
+        }
+        $globalMsgClose.style.display = "";
+        const globalMsgData = localStorage.getItem("globalmessage_dismissed");
+        if (globalMsgData === $globalMsgRoot.dataset.start) {
+            $globalMsgRoot.style.display = "none";
+        }
+        $globalMsgClose.addEventListener("click", (e) => {
+            $globalMsgRoot.style.display = "none";
+            localStorage.setItem(
+                "globalmessage_dismissed",
+                $globalMsgRoot.dataset.start,
+            );
+        });
+    })();
+</script>
+

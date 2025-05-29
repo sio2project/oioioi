@@ -1,0 +1,36 @@
+{% load i18n pagination_tags %}
+{% if rounds_times %}
+<div class="table-responsive-md">
+    <h4> {% trans "General info" %} </h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+            <tr>
+                <th> {% trans "Name" %} </th>
+                <th> {% trans "Value" %} </th>
+            </tr>
+        </thead>
+    <tbody>
+        <tr>
+            <td>Queued jobs in this contest</td>
+            <td>{{ q_size }}</td>
+        </tr>
+        <tr>
+            <td>Queued jobs on this server</td>
+            <td>{{ q_size_global }}</td>
+        </tr>
+        <tr>
+            <td>Unanswered questions</td>
+            <td>{{ unanswered_questions }}</td>
+        </tr>
+        <tr>
+            <td>Oldest unanswered question</td>
+            <td>{{ oldest_unanswered_question }}</td>
+        </tr>
+        <tr>
+            <td>Submissions with system errors</td>
+            <td>{{ sys_error_count }}</td>
+        </tr>
+    </tbody>
+    </table>
+</div>
+{% endif %}

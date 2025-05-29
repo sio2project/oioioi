@@ -5,12 +5,12 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.models import Submission
+from oioioi.contests.models import Contest, Submission
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import visible_contests
+from oioioi.contests.utils import visible_contests_queryset_old
 from oioioi.problems.utils import filter_my_all_visible_submissions
 
-# from oioioi.base.navbar_links import navbar_links_registry
+from oioioi.base.navbar_links import navbar_links_registry
 
 # navbar_links_registry.register(
 #     name='courses',
@@ -32,7 +32,12 @@ def main_page_view(request):
 
     to_show = getattr(settings, 'NUM_RECENT_CONTESTS', 7)
     rcontests = recent_contests(request)
-    contests = list(visible_contests(request).difference(rcontests))
+    # this is unsalvageable
+    contests = list(
+        set(
+            Contest.objects.filter(visible_contests_queryset_old(request)).distinct()[:to_show]
+        ).difference(rcontests)
+    )
     contests.sort(key=lambda x: x.creation_date, reverse=True)
     contests = (rcontests + contests)[:to_show]
 

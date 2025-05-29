@@ -16,9 +16,9 @@ class AddSchoolForm(forms.ModelForm):
         exclude = ['is_active', 'is_approved']
 
 
-def city_options(province):
+def city_options(all_schools, province):
     cities = (
-        School.objects.filter(province=province, is_active=True)
+        all_schools.filter(province=province)
         .order_by('city')
         .distinct()
         .values_list('city', flat=True)
@@ -28,9 +28,9 @@ def city_options(province):
     return cities
 
 
-def school_options(province, city):
+def school_options(all_schools, province, city):
     schools = (
-        School.objects.filter(province=province, city=city, is_active=True)
+        all_schools.filter(province=province, city=city)
         .order_by('name')
         .only('name', 'address')
     )
@@ -40,6 +40,11 @@ def school_options(province, city):
 
 
 class SchoolSelect(forms.Select):
+    def __init__(self, is_contest_with_coordinator=False, is_coordinator=False, *args, **kwargs):
+        super(SchoolSelect, self).__init__(*args, **kwargs)
+        self.is_contest_with_coordinator = is_contest_with_coordinator
+        self.is_coordinator = is_coordinator
+
     def render(self, name, value, attrs=None, renderer=None):
         # check if this is the default renderer
         if renderer is not None and not isinstance(
@@ -59,8 +64,8 @@ class SchoolSelect(forms.Select):
                 pass
 
         provinces = [('', _("-- Choose province --"))] + list(PROVINCES)
-        cities = city_options(province)
-        schools = school_options(province, city)
+        cities = city_options(self.get_schools(), province)
+        schools = school_options(self.get_schools(), province, city)
 
         attr = {'name': name, 'id': 'id_' + name}
         options = [
@@ -71,11 +76,15 @@ class SchoolSelect(forms.Select):
         selects = {
             'attr': attr,
             'options': options,
-            # Do not show 'add new' link in admin view. Hack.
-            'show_add_new': 'oi_oiregistration' not in name,
+            'is_contest_with_coordinator': self.is_contest_with_coordinator,
+            'is_coordinator': self.is_coordinator,
         }
 
         return render_to_string('forms/school_select_form.html', selects)
+
+    @staticmethod
+    def get_schools():
+        return School.objects.filter(is_active=True)
 
 
 class OIRegistrationForm(forms.ModelForm):

@@ -54,6 +54,7 @@ class NotificationHandler(logging.StreamHandler):
                 if o.username and o.password:
                     kwargs['credentials'] = PlainCredentials(o.username, o.password)
                 kwargs.update(settings.NOTIFICATIONS_RABBITMQ_EXTRA_PARAMS)
+                kwargs['heartbeat'] = 8
                 parameters = ConnectionParameters(**kwargs)
                 thread_data.conn = BlockingConnection(parameters)
 

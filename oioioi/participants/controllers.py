@@ -120,7 +120,7 @@ class ParticipantsController(RegistrationController):
                 pass
         # pylint: disable=not-callable
         if request.method == 'POST':
-            form = self.form_class(request.POST, instance=instance)
+            form = self.form_class(request.POST, request.FILES, instance=instance)
         else:
             form = self.form_class(instance=instance)
 

@@ -134,6 +134,75 @@ class TestTagProposalsOnProbset(TestCase):
         self.assertNotContains(response, 'greedy<span class="tag-proposal-amount')
 
 
+@override_settings(
+    PROBLEM_TAGS_VISIBLE=True,
+    SHOW_TAG_PROPOSALS_IN_PROBLEMSET=True,
+    PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3,
+)
+class TestTagProposalSearch(TestCase):
+    fixtures = [
+        'test_users',
+        'test_problem_search',
+        'test_algorithm_tags',
+        'test_difficulty_tags',
+        'test_aggregated_tag_proposals',
+    ]
+    url = reverse('problemset_main')
+
+    def _try_single_search(self, dict, hasZadanko, hasZolc):
+        response = self.client.get(self.url, dict)
+
+        if hasZadanko:
+            self.assertContains(response, 'Zadanko')
+        else:
+            self.assertNotContains(response, 'Zadanko')
+
+        if hasZolc:
+            self.assertContains(response, 'Żółć')
+        else:
+            self.assertNotContains(response, 'Żółć')
+
+    def setUp(self):
+        self.client.get('/c/c/')
+        self.assertTrue(self.client.login(username='test_user'))
+
+    @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=3)
+    def test_search_min_3(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=2)
+    def test_search_min_2(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1)
+    def test_search_min_1(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, True, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, True)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
+        PROBSET_SHOWN_TAG_PROPOSALS_LIMIT=1,
+    )
+    def test_search_min_1_limit_1(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+    @override_settings(
+        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
+        PROBSET_SHOWN_TAG_PROPOSALS_LIMIT=0,
+    )
+    def test_search_min_1_limit_0(self):
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, False)
+        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, False, False)
+        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
+
+
 
 
 class TestAddToProblemsetPermissions(TestCase):
