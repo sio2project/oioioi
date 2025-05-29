@@ -60,6 +60,7 @@ Table of Contents
     sections/problem_uploading
     sections/controllers
     sections/notifications
+    sections/webpack
     sections/mixins
     sections/misc
     glossary

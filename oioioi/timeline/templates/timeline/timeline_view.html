@@ -1,27 +1,17 @@
 {% extends "base-with-menu.html" %}
-{% load i18n compress %}
+{% load i18n compress static %}
 
 {% block styles %}
 {{ block.super }}
 {% compress css %}
-    <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.css" />
-    <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}timeline/timeline.scss" />
+    <link rel="stylesheet" type="text/css" href="{% static '@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css' %}" />
+    <link rel="stylesheet" type="text/x-scss" href="{% static 'timeline/timeline.scss' %}" />
 {% endcompress %}
 {% endblock %}
 
 {% block scripts %}
 {{ block.super }}
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/moment.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/pl.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}jquery-ui/jquery-ui.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}timeline/timeline.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}moment/moment-timezone-with-data-2012-2022.min.js"></script>
-<script type="text/javascript">
-    $(document).ready(function() {
-        init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'), '{{ server_timezone }}');
-    });
-</script>
+<script src="{% static 'timeline.bundle.js' %}"></script>
 {% endblock %}
 
 {% block title %}{% trans "Timeline" %}{% endblock %}
@@ -51,7 +41,7 @@
 {% endif %}
 
 {% if registry %}
-<form id="timeline-form" method="post">
+<form id="timeline-form" method="post" autocomplete="off">
     <div class="form-group clearfix">
         <div class="float-right">
             <button type="button" class="btn btn-outline-secondary btn-hint">?</button>
@@ -69,10 +59,10 @@
                 {% endif %}
                 {% for record in events %}
                 <div id="datetimepickerbox_{{ round.0 }}_{{ forloop.counter }}" data-timeline-round-num="{{ round.0 }}" data-timeline-order="{{ record.order }}" data-timeline-type="{{ record.type }}" class="oioioi-timeline__datebox">
-                    <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-group date inline float-left">
+                    <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-group date inline float-left" data-td-target-input="nearest" data-td-target-toggle="nearest">
                         <input type="text" name="{{ record.date_id }}" class="oioioi-timeline__datetime-input form-control" value="{{ record.date|date:'Y-m-d H:i' }}" {{ attrs }} />
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary bg-light border datepickerbutton oioioi-timeline__calendar-icon" type="button"><i class="fa-solid fa-calendar"></i></button>
+                            <button class="btn btn-outline-secondary bg-light border datepickerbutton oioioi-timeline__calendar-icon" type="button" data-td-toggle="datetimepicker"><i class="fa-solid fa-calendar"></i></button>
                             <div class="oioioi-timeline__date-title bg-transparent input-group-text text-white">{{ record.text }}<small class="group-members"></small></div>
                             <button class="btn btn-secondary border bg-transparent oioioi-timeline__group-delete-btn" type="button"><i class=" fa-solid fa-up-down"></i></button>
                         </div>
