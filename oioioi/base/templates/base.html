@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-{% load i18n all_with_prefix common_media compress simple_tags get_clocks get_su %}
+{% load i18n all_with_prefix common_media compress simple_tags get_clocks get_su static %}
 {% site_displayed_tag %}
 
 <html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
@@ -13,19 +13,18 @@
         {% include "ingredients/head-favicon.html" %}
 
         {% comment %}
-        Load jQuery because inlined scripts in some views depends on it.
-        Some scripts depends on events triggered by views so they also must be includede here.
+        Load jQuery here because inlined scripts in some views depends on it.
         {% endcomment %}
+        <script src="{% static 'jquery.bundle.js' %}"></script>
+
         {% compress js %}
-            <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
-            <script src="{{ STATIC_URL }}fontawesomefree/js/all.min.js"></script>
             {% common_scripts %}
         {% endcompress %}
 
         {% block styles %}
             {% compress css %}
-                <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}scss/style.scss">
-                <link href="{{ STATIC_URL }}fontawesomefree/css/all.min.css" rel="stylesheet" type="text/css">
+                <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/style.scss' %}">
+                <link rel="stylesheet" type="text/css" href="{% static 'fontawesomefree/css/all.min.css' %}">
                 {% common_styles %}
             {% endcompress %}
         {% endblock %}
@@ -114,31 +113,10 @@
             {% endblock %}
         </div>
         {% block scripts %}
-            <script type="text/javascript">const oioioi_base_url = "{{ base_url|escapejs }}";</script>
-            <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
-            {% compress js %}
-                <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.bundle.min.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-typeahead.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/utils.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/csrf_link_protect.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/language-picker.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.storageapi.min.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-table-responsive-dropdown-fix.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-async-collapsible.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}js/menu.js"></script>
-                <script type="text/javascript">
-                    $(function () {
-                        $("[data-toggle='tooltip']").tooltip();
-                    });
-                </script>
-                <script>hljs.initHighlightingOnLoad();</script>
-                <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard.min.js"></script>
-                <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard-setup.js"></script>
-            {% endcompress %}
-            <script type="text/javascript" async
-                    src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-            </script>
+            <script>const oioioi_base_url = "{{ base_url | escapejs }}";</script>
+            <script src="{% url 'javascript_catalog' %}"></script>
+            <script src="{% static 'index.bundle.js' %}"></script>
+            <script async src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
        {% endblock %}
     </body>
 </html>

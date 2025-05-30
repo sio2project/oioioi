@@ -1,4 +1,3 @@
-/* jshint unused: false */
 function rejudgeTypeOnChange(object) {
     var tests = document.getElementsByName("tests");
     for (var i = 0; i < tests.length; i++) {

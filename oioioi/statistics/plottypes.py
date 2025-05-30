@@ -41,9 +41,6 @@ class TablePlot(PlotType):
     ``plot_name`` table name to be used as a caption
     """
 
-    def head_libraries(self):
-        return ['statistics/table.css']
-
     def render_plot(self, request, data, plot_id):
         return render_to_string('statistics/table.html', data)
 
@@ -61,7 +58,7 @@ class StaticHighchartsPlot(PlotType):
     """
 
     def head_libraries(self):
-        return ['js/highcharts.js', 'statistics/highcharts_plot.css']
+        return ['highcharts/lib/highcharts.js']
 
     def highcharts_options(self, data):
         """Function generating options for Highcharts chart, as specified in
