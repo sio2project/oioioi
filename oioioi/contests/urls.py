@@ -162,6 +162,11 @@ c_patterns = [
         r'^assign_problems_to_a_round/$',
         views.assign_problems_to_a_round_view,
         name='assign_problems_to_a_round',
+    ),
+    re_path(
+        r'^delete_problems/$',
+        views.delete_problems_confirm_view,
+        name='delete_problems',
     )
 ]
 
