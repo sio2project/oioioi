@@ -866,7 +866,7 @@ def reattach_problem_contest_list_view(request, full_list=False):
             'problem_instances': problem_instances,
             'contest_list': contests,
             'full_list': full_list,
-            'problem_ids': '%2C'.join(str(i) for i in problem_ids), # Separate the problem ids with a comma (%2C)
+            'problem_ids': '%2C'.join(str(i) for i in problem_ids.split(',')), # Separate the problem ids with a comma (%2C)
         },
     )
 
