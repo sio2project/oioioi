@@ -3332,6 +3332,7 @@ class TestManagingProblemsFromAnotherContest(TestCase):
                 reverse('reattach_problem_contest_list') + "?ids={}".format(problem_id),
                 reverse('reattach_problem_confirm', args=('available_contest',)) + "?ids={}".format(problem_id),
                 reverse('assign_problems_to_a_round') + "?ids={}".format(problem_id),
+                reverse('delete_problems') + "?ids={}".format(problem_id),
             ]
 
             for url in get_urls:
@@ -3341,6 +3342,7 @@ class TestManagingProblemsFromAnotherContest(TestCase):
             post_urls_and_data = [
                 (reverse('reattach_problem_confirm', args=('available_contest',)) + "?ids={}".format(problem_id), {}),
                 (reverse('assign_problems_to_a_round') + "?ids={}".format(problem_id), {'round': 100}),
+                (reverse('delete_problems') + "?ids={}".format(problem_id), {}),
             ]
 
             for url, data in post_urls_and_data:
@@ -3554,6 +3556,82 @@ class TestAssigningProblemsToARound(TestCase):
             Contest.objects.get(id='one-round').id
         )
 
+class TestDeletingProblems(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_extra_problem',
+        'test_permissions',
+        'test_problem_site',
+        'test_extra_contests',
+        'test_problem_instance_with_and_without_contests',
+    ]
+
+    def test_deleting_problem(self):
+        pi_id = ProblemInstance.objects.get(id=1).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('delete_problems') + "?ids={}".format(pi_id)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Are you sure you want to delete the selected problems?")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id).problem.name)
+
+        response = self.client.post(url, data={}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems deleted successfully")
+        self.assertFalse(ProblemInstance.objects.filter(id=pi_id).exists())
+
+    def test_deleting_problems(self):
+        pi_id1 = ProblemInstance.objects.get(id=1).id
+        pi_id2 = ProblemInstance.objects.get(id=2).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('delete_problems') + "?ids={}%2C{}".format(pi_id1, pi_id2)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Are you sure you want to delete the selected problems?")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        response = self.client.post(url, data={}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems deleted successfully")
+        self.assertFalse(ProblemInstance.objects.filter(id=pi_id1).exists())
+        self.assertFalse(ProblemInstance.objects.filter(id=pi_id2).exists())
+
+    def test_bad_problem_ids(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        # Non-existent problem id
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(30)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # Non-numeric problem id
+        url = reverse('assign_problems_to_a_round') + "?ids=A,30"
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # ProblemInstance which belongs to another contest
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(10)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # ProblemInstance which does not belong to any contest
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(20)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
 
 class TestModifyContest(TestCase):
     fixtures = ['test_users']
