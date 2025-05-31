@@ -1,0 +1,41 @@
+#dark-mode-toggle {
+  margin-left: auto;
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 60px;
+  height: 30px;
+  border-radius: 30px;
+  background-color: #a8adad;
+  transition: all 0.5s ease-in;
+  cursor: pointer;
+  z-index: 1;
+}
+
+#dark-mode-toggle::before {
+  content: "";
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: #EEE;
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  transition: all 0.5s ease-in;
+  background-image: url('../images/icons/sun.svg');
+  background-size: 20px 20px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+#dark-mode-toggle:checked {
+  background-color: #a8adad;
+}
+
+#dark-mode-toggle:checked::before {
+  left: 32px;
+  background-color: #333;
+  background-image: url('../images/icons/Moon.svg');
+}
