@@ -1,6 +1,7 @@
 import aiohttp
 import logging
 from cachetools import TTLCache
+from typing import Optional
 
 
 class Auth:
@@ -10,16 +11,18 @@ class Auth:
 
     def __init__(self, url: str):
         self.auth_url = url + self.URL_AUTHENTICATE_SUFFIX
-        self.auth_cache = TTLCache(
+        self.auth_cache: TTLCache[str, str] = TTLCache(
             maxsize=self.AUTH_CACHE_MAX_SIZE, ttl=self.AUTH_CACHE_EXPIRATION_SECONDS)
         self.logger = logging.getLogger('oioioi')
-        self.http_client = None
+        self.http_client: Optional[aiohttp.ClientSession] = None
 
-    async def connect(self) -> None:
+    async def connect(self):
         self.http_client = aiohttp.ClientSession()
 
     async def authenticate(self, session_id: str) -> str:
-        "Authenticate a user with session ID."
+        """Authenticate a user with session ID."""
+        if self.http_client is None:
+            raise RuntimeError("Connection not established. Call connect() first.")
 
         if session_id in self.auth_cache:
             user_id = self.auth_cache[session_id]

@@ -1,6 +1,7 @@
 import aio_pika
 import logging
-from typing import Callable, Dict, Tuple
+from typing import Callable, Dict, Tuple, Optional
+
 
 class Queue:
     QUEUE_PREFIX = "_notifs_"
@@ -10,10 +11,10 @@ class Queue:
         self.on_message = on_message
         
         self.logger = logging.getLogger('oioioi')
-        self.connection = None
-        self.channel = None
+        self.connection: Optional[aio_pika.Connection] = None
+        self.channel: Optional[aio_pika.Channel] = None
 
-        self.queues: Dict[str, Dict[str, Tuple[aio_pika.Queue, str]]] = {}
+        self.queues: Dict[str, Tuple[aio_pika.abc.AbstractQueue, str]] = {}
         
     async def connect(self):
         self.connection = await aio_pika.connect_robust(self.amqp_url)
@@ -21,6 +22,9 @@ class Queue:
         self.logger.info("Connected to RabbitMQ")
     
     async def subscribe(self, user_id: str):
+        if self.connection is None or self.channel is None:
+            raise RuntimeError("Connection not established. Call connect() first.")
+
         if user_id in self.queues:
             self.logger.debug(f"Already subscribed to queue for user {user_id}")
             return
@@ -28,7 +32,7 @@ class Queue:
         queue_name = self.QUEUE_PREFIX + user_id
         queue = await self.channel.declare_queue(queue_name, durable=True)
         
-        async def process_message(message: aio_pika.IncomingMessage):
+        async def process_message(message: aio_pika.abc.AbstractIncomingMessage):
             async with message.process():
                 body = message.body.decode()
                 self.on_message(user_id, body)
@@ -39,7 +43,10 @@ class Queue:
         
         self.logger.debug(f"Subscribed to queue for user {user_id}")
     
-    async def unsubscribe(self, user_id: str):
+    async def unsubscribe(self, user_id: str) -> None:
+        if self.connection is None or self.channel is None:
+            raise RuntimeError("Connection not established. Call connect() first.")
+            
         if user_id in self.queues:
             queue, consumer_tag = self.queues[user_id]
             await queue.cancel(consumer_tag)

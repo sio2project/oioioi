@@ -2,8 +2,8 @@ from typing import Union
 from socketify import App, OpCode, WebSocket
 import json
 import logging
-from . auth import Auth
-from . queue import Queue
+from .auth import Auth
+from .queue import Queue
 
 
 class Server:
@@ -46,7 +46,7 @@ class Server:
 
         res.upgrade(key, protocol, extensions, socket_context, user_data)
 
-    async def on_ws_message(self, ws: WebSocket, msg: str, opcode: OpCode) -> None:
+    async def on_ws_message(self, ws: WebSocket, msg: Union[bytes, str], opcode: OpCode) -> None:
         """Handle incoming WebSocket messages."""
         try:
             data = json.loads(msg)
