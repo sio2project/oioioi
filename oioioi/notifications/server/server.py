@@ -1,5 +1,5 @@
 from typing import Union
-from socketify import App, AppOptions, OpCode, CompressOptions, WebSocket
+from socketify import App, OpCode, WebSocket
 import json
 import logging
 from . auth import Auth
