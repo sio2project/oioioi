@@ -2,8 +2,9 @@ from typing import Union
 from socketify import App, OpCode, WebSocket
 import json
 import logging
-from .auth import Auth
-from .queue import Queue
+
+from oioioi.notifications.server.auth import Auth
+from oioioi.notifications.server.queue import Queue
 
 
 class Server:
@@ -53,7 +54,7 @@ class Server:
             message_type = data.get("type")
 
             if message_type == "SOCKET_AUTH":
-                await self.on_ws_auth_message(ws, data.get("session_id"))
+                await self.on_ws_auth_message(ws, data["session_id"])
             else:
                 self.logger.warning(f"Unknown message type: {message_type}")
 
@@ -63,7 +64,7 @@ class Server:
     async def on_ws_close(self, ws: WebSocket, code: int, msg: Union[bytes, str]) -> None:
         """Handle WebSocket connection closure."""
         try:
-            user_id = ws.get_user_data().get("user_id")
+            user_id = ws.get_user_data()["user_id"]
 
             # If there are no more active connections for this user, unsubscribe from the RabbitMQ queue
             if user_id and self.app.num_subscribers(user_id) == 0:

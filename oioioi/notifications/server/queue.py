@@ -11,8 +11,8 @@ class Queue:
         self.on_message = on_message
         
         self.logger = logging.getLogger('oioioi')
-        self.connection: Optional[aio_pika.Connection] = None
-        self.channel: Optional[aio_pika.Channel] = None
+        self.connection: Optional[aio_pika.abc.AbstractConnection] = None
+        self.channel: Optional[aio_pika.abc.AbstractChannel] = None
 
         self.queues: Dict[str, Tuple[aio_pika.abc.AbstractQueue, str]] = {}
         
