@@ -24,7 +24,7 @@ requirements = [
     "pytz>=2023.3,<2023.4",
     "SQLAlchemy<2.1.0",
     "beautifulsoup4>=4.12,<4.13",
-    "PyYAML>=6.0,<6.1",
+    "PyYAML>=6.0.1,<6.1",
     "python-dateutil>=2.8,<2.9",
     "django-two-factor-auth>=1.15,<1.16",
     "django-formtools>=2.4,<2.5",
@@ -56,7 +56,7 @@ requirements = [
     "mistune<2.0",   # 2.0 is breaking
     "pika>=1.3,<1.4",
     "Unidecode>=1.3,<1.4",
-    "sentry-sdk>=1.25,<1.26",
+    "sentry-sdk>=2.16.0,<2.17.0",
     "fontawesomefree>=6.4,<6.5",
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.

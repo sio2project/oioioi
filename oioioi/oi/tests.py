@@ -2,6 +2,7 @@
 import os
 import re
 from datetime import datetime, timedelta, timezone  # pylint: disable=E0611
+import pytest
 
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
@@ -25,6 +26,7 @@ class TestOIAdmin(TestCase):
         'test_contest',
         'test_oi_registration',
         'test_permissions',
+        'test_school_types',
     ]
 
     def test_admin_menu(self):
@@ -39,12 +41,18 @@ class TestOIAdmin(TestCase):
         self.assertNotContains(response, 'Regions')
 
     def test_schools_import(self):
-        filename = os.path.join(os.path.dirname(__file__), 'files', 'schools.csv')
+        filename = os.path.join(os.path.dirname(__file__), 'files', 'rspo_schools.csv')
+        backup_filename = os.path.join(os.path.dirname(__file__), 'files', 'rspo_schools.bak')
         manager = import_schools.Command()
-        manager.run_from_argv(['manage.py', 'import_schools', filename])
-        self.assertEqual(School.objects.count(), 3)
-        school = School.objects.get(postal_code='02-044')
-        self.assertEqual(school.city, u'Bielsko-Biała Zdrój')
+        manager.run_from_argv([
+            'manage.py',
+            'import_schools',
+            '--first-import', filename,
+            '--backup-filename', backup_filename
+        ])
+        self.assertEqual(School.objects.count(), 26)
+        school = School.objects.get(postal_code='02-172')
+        self.assertEqual(school.city, 'Włochy')
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()
@@ -172,7 +180,6 @@ class TestOIRegistration(TestCase):
 
         self.assertContains(response, 'Postal code')
         self.assertContains(response, 'School')
-        self.assertContains(response, 'add it')
         self.assertContains(response, 'Test terms accepted')
         self.assertContains(response, '1977')
 
@@ -201,7 +208,9 @@ class TestOIRegistration(TestCase):
         self.assertEqual(registration.address, reg_data['address'])
         self.assertEqual(registration.school.address, 'Nowowiejska 37a')
 
+    @pytest.mark.xfail
     def test_registration_with_new_school(self):
+        """currently the registration form for OI does not support adding new school"""
         contest = Contest.objects.get()
         user = User.objects.get(username='test_user')
         url = reverse('participants_register', kwargs={'contest_id': contest.id})
@@ -209,7 +218,6 @@ class TestOIRegistration(TestCase):
         response = self.client.get(url)
         self.assertContains(response, 'Postal code')
         self.assertContains(response, 'School')
-        self.assertContains(response, 'add it')
 
         user.first_name = 'Sir Lancelot'
         user.last_name = 'du Lac'

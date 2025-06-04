@@ -382,13 +382,22 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     list_display = ('name_link', 'short_name_link', 'round', 'package', 'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
-    actions = ['attach_problems_to_another_contest']
+    actions = ['attach_problems_to_another_contest', 'assign_problems_to_a_round']
 
     def attach_problems_to_another_contest(self, request, queryset):
         ids = [problem.id for problem in queryset]
 
         # Attach problem ids as arguments to the URL
         base_url = reverse('reattach_problem_contest_list')
+        query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
+
+        return redirect('%s?%s' % (base_url, query_string))
+
+    def assign_problems_to_a_round(self, request, queryset):
+        ids = [problem.id for problem in queryset]
+
+        # Attach problem ids as arguments to the URL
+        base_url = reverse('assign_problems_to_a_round')
         query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
 
         return redirect('%s?%s' % (base_url, query_string))

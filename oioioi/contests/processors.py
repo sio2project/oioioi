@@ -1,10 +1,13 @@
 from django.conf import settings
 from django.utils.functional import lazy
+from django.utils.module_loading import import_string
+from django.db.models import Q
 
 from oioioi.base.utils import request_cached
+from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import Contest, ContestView
-from oioioi.contests.utils import visible_contests
-
+from oioioi.contests.utils import visible_contests, visible_contests_queryset
+from oioioi.contests.utils import used_controllers
 
 def register_current_contest(request):
     """A template context processor which makes the current contest available
