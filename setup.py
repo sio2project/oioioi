@@ -56,7 +56,7 @@ requirements = [
     "mistune<2.0",   # 2.0 is breaking
     "pika>=1.3,<1.4",
     "Unidecode>=1.3,<1.4",
-    "sentry-sdk>=1.25,<1.26",
+    "sentry-sdk>=2.16.0,<2.17.0",
     "fontawesomefree>=6.4,<6.5",
     # A library allowing to nest inlines in django admin.
     # Used in quizzes module for adding new quizzes.
