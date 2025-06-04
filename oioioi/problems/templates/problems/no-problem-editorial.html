@@ -1,10 +1,9 @@
 {% load i18n %}
-<div>
-    <object data="{{ statement_url }}" type="application/pdf" width="100%" height="800px"></object>
-</div>
 
-<div class="text-center bottom-text">
-    {% blocktrans %}You can also open the problem's statement by clicking <a href="{{ statement_url }}"><b>here</b></a>.{% endblocktrans %}
+<div class="alert alert-info">
+    {% blocktrans %}
+    <p>This problem doesn't have any editorial available .</p>
+    {% endblocktrans %}
 </div>
 
 {% if can_admin_problem %}

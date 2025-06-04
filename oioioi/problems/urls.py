@@ -9,13 +9,27 @@ problem_site_patterns = [
     path('site/', views.problem_site_view, name='problem_site'),
     path(
         'site/<path:path>',
-        views.problem_site_statement_zip_view,
+        views.problem_site_document_zip_view,
+        {'type': 'statement'},
         name='problem_site_statement_zip',
     ),
     path(
+        'site/editorial/<path:path>',
+        views.problem_site_document_zip_view,
+        {'type': 'editorial'},
+        name='problem_site_editorial_zip',
+    ),
+    path(
         'statement/',
-        views.problem_site_external_statement_view,
+        views.problem_site_external_document_view,
+        {'type': 'statement'},
         name='problem_site_external_statement',
+    ),
+    path(
+        'editorial/',
+        views.problem_site_external_document_view,
+        {'type': 'editorial'},
+        name='problem_site_external_editorial',
     ),
     path(
         'attachment/<int:attachment_id>/',
