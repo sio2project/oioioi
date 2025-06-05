@@ -104,7 +104,14 @@ class ProblemSiteForm(forms.ModelForm):
 
 
 class ProblemsetSourceForm(forms.Form):
-    url_key = forms.CharField(label=_("Enter problem's secret key"), required=True)
+    url_key = forms.CharField(label=_("Enter problem's secret key"),
+                              help_text=_("Please note that the time and memory limits will be copied\
+                                          from the source problem. If they have been overriden\
+                                          in a specific contest, these settings will not be copied.\
+                                          If you want to copy the limits from a specific contest,\
+                                          please go the contest's problem list and use the 'Attach\
+                                          to another contest' option."),
+                              required=True)
 
     def __init__(self, url_key, *args, **kwargs):
         super(ProblemsetSourceForm, self).__init__(*args, **kwargs)

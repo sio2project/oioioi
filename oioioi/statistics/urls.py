@@ -1,3 +1,4 @@
+from django.urls import path
 from django.urls import re_path
 
 from oioioi.statistics import views
@@ -15,5 +16,7 @@ contest_patterns = [
         views.statistics_view,
         name='statistics_view_without_object',
     ),
-    re_path(r'^stat/$', views.statistics_view, name='statistics_main'),
+    path('stat/', views.statistics_view, name='statistics_main'),
+    path('stat/', views.statistics_view, name='statistics_main'),
+    path('monitoring/', views.monitoring_view, name='monitoring'),
 ]

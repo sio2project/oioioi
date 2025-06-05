@@ -1,5 +1,5 @@
 {% extends "base-with-menu.html" %}
-{% load i18n %}
+{% load i18n pagination_tags %}
 
 {% block title %}{% trans "Select contest" %}{% endblock %}
 
@@ -8,7 +8,31 @@
 <article>
     <h1>{% trans "Select contest" %}</h1>
 
-    <div class="table-responsive-md">
+    <div style="width: 20%; margin-bottom: 1rem;">
+            <form method="GET" action="{% url 'filter_contests' filter_value='PLACEHOLDER' %}" id="filter_form">
+                <div class="input-group">
+                <input type="text" id="filter_input" class="form-control search-query" style="width: 20%;" placeholder="Search" name="filter_field" value="{{ filter }}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-outline-secondary "  name="submit_button"> <i class="fa-solid fa-magnifying-glass"> </i> </button>
+                </span>
+                </div>  
+            </form>
+            <script>
+                document.getElementById('filter_form').addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    let filterValue = document.getElementById('filter_input').value;
+                    let actionUrl = "";
+                    if(filterValue == "") {
+                        actionUrl = "{% url 'select_contest'%}";
+                    } else {
+                        actionUrl = "{% url 'filter_contests' filter_value='PLACEHOLDER' %}".replace('PLACEHOLDER', encodeURIComponent(filterValue));
+                    }
+                    window.location.href = actionUrl;
+                });
+            </script>
+        </div>
+        {% autopaginate contests contests_on_page %}
+        <div class="table-responsive-md">
         <table class="table">
             <thead>
                 <tr>
@@ -34,6 +58,7 @@
             </tbody>
         </table>
     </div>
+    {% paginate %}
 </article>
 
 {% endblock %}

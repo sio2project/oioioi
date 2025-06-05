@@ -119,10 +119,17 @@ class Problem(models.Model):
 
     @cached_property
     def name(self):
-        problem_name = ProblemName.objects.filter(
-            problem=self, language=get_language()
-        ).first()
-        return problem_name.name if problem_name else self.legacy_name
+        # We fetch all of self.names and filter by language in Python instead of Django.
+        # This allows us to do prefetch_related('names'), which considerably speeds up
+        # views such as task_archive_tag_view that query many problems and their associated names
+
+        # Check if primary key exists, as it's needed to access related fields such as `names`
+        if self.pk:
+            for problem_name in self.names.all():
+                if problem_name.language == get_language():
+                    return problem_name.name
+
+        return self.legacy_name
 
     @property
     def controller(self):
@@ -162,9 +169,9 @@ class Problem(models.Model):
         )
 
     def __str__(self):
-        return u'%(name)s (%(short_name)s)' % {
-            u'short_name': self.short_name,
-            u'name': self.name,
+        return '%(name)s (%(short_name)s)' % {
+            'short_name': self.short_name,
+            'name': self.name,
         }
 
     def save(self, *args, **kwargs):
@@ -247,7 +254,7 @@ class ProblemStatement(models.Model):
         verbose_name_plural = _("problem statements")
 
     def __str__(self):
-        return u'%s / %s' % (self.problem.name, self.filename)
+        return '%s / %s' % (self.problem.name, self.filename)
 
 
 
@@ -278,7 +285,7 @@ class ProblemAttachment(models.Model):
         verbose_name_plural = _("attachments")
 
     def __str__(self):
-        return u'%s / %s' % (self.problem.name, self.filename)
+        return '%s / %s' % (self.problem.name, self.filename)
 
 
 def _make_package_filename(instance, filename):
@@ -780,7 +787,7 @@ class OriginInfoValue(models.Model):
     @property
     def full_name(self):
         return str(
-            u'{} {}'.format(self.parent_tag.full_name, self.full_value)
+            '{} {}'.format(self.parent_tag.full_name, self.full_value)
         )
 
     class Meta(object):
@@ -835,6 +842,7 @@ class DifficultyTag(models.Model):
     class Meta(object):
         verbose_name = _("difficulty tag")
         verbose_name_plural = _("difficulty tags")
+        ordering = ["pk"]
 
     def __str__(self):
         return str(self.name)
@@ -847,7 +855,7 @@ class DifficultyTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return str(self.tag.name)
+        return str(self.problem.name) + ' -- ' + str(self.tag.name)
 
 
 
@@ -880,7 +888,7 @@ class DifficultyTagProposal(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name)
+        return str(self.problem.name) + ' -- ' + str(self.tag.name)
 
     class Meta(object):
         verbose_name = _("difficulty proposal")
@@ -894,7 +902,7 @@ class AggregatedDifficultyTagProposal(models.Model):
     amount = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name) + u' -- ' + str(self.amount)
+        return str(self.problem.name) + ' -- ' + str(self.tag.name) + ' -- ' + str(self.amount)
 
     class Meta:
         verbose_name = _("aggregated difficulty tag proposal")
@@ -934,7 +942,7 @@ class AlgorithmTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return str(self.tag.name)
+        return str(self.problem.name) + ' -- ' + str(self.tag.name)
 
     class Meta(object):
         unique_together = ('problem', 'tag')
@@ -970,7 +978,7 @@ class AlgorithmTagProposal(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name)
+        return str(self.problem.name) + ' -- ' + str(self.tag.name)
 
     class Meta(object):
         verbose_name = _("algorithm tag proposal")
@@ -984,7 +992,7 @@ class AggregatedAlgorithmTagProposal(models.Model):
     amount = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name) + u' -- ' + str(self.amount)
+        return str(self.problem.name) + ' -- ' + str(self.tag.name) + ' -- ' + str(self.amount)
 
     class Meta:
         verbose_name = _("aggregated algorithm tag proposal")

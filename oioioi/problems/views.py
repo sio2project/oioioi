@@ -81,6 +81,7 @@ from oioioi.problems.problem_site import (
     problem_site_tab_registry,
 )
 from oioioi.problems.problem_sources import problem_sources
+from oioioi.problems.templatetags.tag import prefetch_top_tag_proposals
 from oioioi.problems.utils import (
     can_add_to_problemset,
     can_admin_instance_of_problem,
@@ -251,22 +252,38 @@ def _get_problems_by_query(query):
     return filtered_problems.distinct()
 
 
-def search_problems_in_problemset(datadict):
+def filter_problems_by_query(problems, datadict):
     query = datadict.get('q', '')
     algorithm_tags = datadict.getlist('algorithm')
     difficulty_tags = datadict.getlist('difficulty')
     origin_tags = datadict.getlist('origin')
 
-    problems = Problem.objects.all()
-
     if query:
-        problems = _get_problems_by_query(query)
-    if algorithm_tags:
-        problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+        problems_matching_query = _get_problems_by_query(query)
+        problems = problems.filter(pk__in=problems_matching_query)
     if difficulty_tags:
         problems = problems.filter(difficultytag__name__in=difficulty_tags)
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
+    if algorithm_tags:
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict['include_proposals'] == '1':
+            direct_match_problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+
+            problem_list = list(problems)
+            proposal_match_problem_ids = []
+
+            prefetch_top_tag_proposals(problems)
+            for problem in problem_list:
+                for proposal in problem.top_tag_proposals:
+                    if proposal.tag.name in algorithm_tags:
+                        proposal_match_problem_ids.append(problem.id)
+                        break
+
+            proposal_match_problems = problems.filter(id__in=proposal_match_problem_ids)
+
+            problems = (direct_match_problems | proposal_match_problems).distinct()
+        else:
+            problems = problems.filter(algorithmtag__name__in=algorithm_tags)
 
     return problems
 
@@ -305,7 +322,10 @@ def generate_problemset_tabs(request):
 
 
 def problemset_get_problems(request):
-    problems = search_problems_in_problemset(request.GET)
+    problems = Problem.objects.all()
+
+    if settings.PROBLEM_TAGS_VISIBLE:
+        problems = filter_problems_by_query(problems, request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
         # We annotate all of the statistics to assure that the display
@@ -470,7 +490,7 @@ def problemset_generate_view(request, page_title, problems, view_type):
 
     difficulty_tags = DifficultyTag.objects.filter(
         name__in=request.GET.getlist('difficulty')
-    )
+    ).order_by('name')
 
     return TemplateResponse(
         request,
@@ -560,7 +580,7 @@ def problem_site_view(request, site_key):
     )
     difficulty_options = (
         tag.full_name
-        for tag in DifficultyTagLocalization.objects.filter(language=get_language())
+        for tag in DifficultyTagLocalization.objects.filter(language=get_language()).order_by('full_name')
     )
     context = {
         'problem': problem,
@@ -892,7 +912,9 @@ def task_archive_tag_view(request, origin_tag):
         origin_tag.problems.all()
         .select_related('problemsite', 'main_problem_instance')
         .prefetch_related(
-            'origininfovalue_set__localizations', 'origininfovalue_set__category'
+            'origininfovalue_set__localizations', 
+            'origininfovalue_set__category',
+            'names'
         )
     )
     problems = _filter_problems_prefetched(problems, request.GET)
@@ -1181,9 +1203,11 @@ def get_search_hints_view(request, view_type):
 
     result = []
     result.extend(list(get_problem_hints(query, view_type, request.user)))
-    result.extend(get_algorithm_and_difficulty_tag_hints(query))
-    result.extend(get_nonselected_origintag_hints(query))
-    result.extend(get_origininfovalue_hints(query))
+
+    if settings.PROBLEM_TAGS_VISIBLE:
+        result.extend(get_algorithm_and_difficulty_tag_hints(query))
+        result.extend(get_nonselected_origintag_hints(query))
+        result.extend(get_origininfovalue_hints(query))
 
     # Convert category names in results from lazy translation to strings,
     # since jsonify throws error if given lazy translation objects.

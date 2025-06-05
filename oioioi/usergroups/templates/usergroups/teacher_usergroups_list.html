@@ -5,6 +5,11 @@
     {% trans "Your User Groups" %}
 {% endblock %}
 
+{% block styles %}
+{{ block.super }}
+    <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}usergroups/teacher_usergroups_list.css">
+{% endblock %}
+
 {% block main-content %}
 <h1>
     {% trans "Your Groups" %}
@@ -23,8 +28,34 @@
         {% paginate %}
 
         <ul class="list-group">
-        {% for group in usergroup_list %}
-            <li class="list-group-item"> <a href="{% url 'teacher_usergroup_detail' group.id %}">{{ group }}</a> </li>
+        {% for usergroup in usergroup_list %}
+            <li class="list-group-item usergroup"> 
+                <div class="text-start">
+                    <button class="usergroup-title btn btn-link collapsed" data-toggle="collapse" data-target="#collapse{{ usergroup.id }}">
+                        {{ usergroup.name }}
+                    </button>
+                </div>
+                <div id="collapse{{ usergroup.id }}" class="collapse usergroup-body">
+                    <div>
+                        {% if usergroup.members.count %}
+                            <ul class="usergroup-user-list">
+                                {% for member in usergroup.members.all|slice:":23" %}
+                                    <li> {{ member.get_full_name|default:member.username }} </li>
+                                {% endfor %}
+
+                                {% if usergroup.members.count > 23 %}
+                                    <li> &hellip; </li>
+                                {% endif %}
+                            </ul>
+                        {% else %}
+                            <p class="text-start"> {% trans "Strange, this group doesn't have any members." %} </p>
+                        {% endif %}
+                    </div>
+                    <div class="text-start">
+                        <a href="{% url 'teacher_usergroup_detail' usergroup_id=usergroup.id %}" class="btn btn-primary group-button"> {% trans "Modify group" %} </a>
+                    </div>
+                </div>
+            </li>
         {% endfor%}
         </ul>
         {% paginate %}

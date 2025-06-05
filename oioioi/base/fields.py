@@ -216,6 +216,8 @@ class EnumField(models.CharField):
     description = _("Enumeration")
 
     def __init__(self, registry=None, *args, **kwargs):
+        self.registry = registry
+
         if registry:
             # This allows this field to be stored for migration purposes
             # without the need to serialize an EnumRegistry object.
@@ -225,12 +227,10 @@ class EnumField(models.CharField):
             ), 'Invalid registry passed to EnumField.__init__: %r' % (registry,)
             kwargs['max_length'] = registry.max_length
             kwargs['choices'] = self._generate_choices()
-        self.registry = registry
         models.CharField.__init__(self, *args, **kwargs)
 
     def _generate_choices(self):
-        for item in self.registry.entries:
-            yield item
+        return list(self.registry.entries)
 
     def deconstruct(self):
         name, path, args, kwargs = super(EnumField, self).deconstruct()

@@ -55,6 +55,10 @@
                 {% endif %}
                 <script>init_search_selection('problemsite_search');</script>
 
+                {% if show_tags and show_tag_proposals %}
+                <input id="control-include_proposals" class="input" type="hidden" name="include_proposals" value="0"/>
+                {% endif %}
+
                 <span class="input-group-btn">
                 <button type="submit" class="btn btn-outline-secondary">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -62,25 +66,26 @@
                 </span>
             </div>
             <div id="tag-row">
+            {% if show_tags %}
             {% with delete_me="this.parentNode.parentNode.remove()" %}
 
                 {% include "problems/problemset/search-tag.html" with input_class="collapse" input_attr="disabled" %}
                 {% for tag in difficulty_tags %}
-                    {% include "problems/problemset/search-tag.html" with input_name="difficulty" input_text=tag.full_name input_attr="readonly" input_script=delete_me %}
+                    {% include "problems/problemset/search-tag.html" with input_name="difficulty" input_value=tag input_text=tag.full_name input_attr="readonly" input_script=delete_me %}
                 {% endfor %}
                 {% for tag in algorithm_tags %}
-                    {% include "problems/problemset/search-tag.html" with input_name="algorithm" input_text=tag input_attr="readonly" input_script=delete_me %}
+                    {% include "problems/problemset/search-tag.html" with input_name="algorithm" input_value=tag input_text=tag input_attr="readonly" input_script=delete_me %}
                 {% endfor %}
                 {% for tag, origininfo in origin_tags.items %}
                 <div id="origintag-group-{{ tag }}" class="origintag-group">
-                    {% include "problems/problemset/search-tag.html" with input_name="origin" input_text=tag input_attr="readonly" input_script="this.parentNode.parentNode.parentNode.remove()" %}
+                    {% include "problems/problemset/search-tag.html" with input_name="origin" input_value=tag input_text=tag input_attr="readonly" input_script="this.parentNode.parentNode.parentNode.remove()" %}
                     {% for info in origininfo %}
                         {% include "problems/problemset/search-tag.html" with input_name="origin" input_value=tag|add:"_"|add:info input_text=info input_attr="readonly" input_script=delete_me %}
                     {% endfor %}
                 </div>
                 {% endfor %}
-
             {% endwith %}
+            {% endif %}
             </div>
         </form>
         {% endif %}
@@ -91,8 +96,9 @@
     <div class="row tag-proposal-checkbox-row">
         <div class="col-12 text-center">
             <label class="form-check-label">
-                <input id="show-tag-proposals-checkbox" class="form-check-input" type="checkbox" value="">
-                {% trans "Show tags proposed by users" %}
+                <input id="show-tag-proposals-checkbox" class="form-check-input" type="checkbox" value=""
+                    {% if request.GET.include_proposals == "1" %}checked{% endif %}>
+                {% trans "Include tags proposed by users" %}
             </label>
         </div>
     </div>

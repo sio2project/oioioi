@@ -2,6 +2,50 @@
 {% load i18n %}
 {% load pagination_tags %}
 {% load format_data_range %}
+
+{% block styles %}
+    {{ block.super }}
+    <style>
+        tr:target {
+            animation: target-glow;
+            animation-duration: 1s;
+            animation-timing-function: ease;
+            animation-iteration-count: 6;
+            background-color: rgba(255, 255, 0 , .4);
+        }
+        
+        @keyframes target-glow {
+            0%, 100% {
+                background-color: rgba(255, 255, 0 , .4);
+                box-shadow: none;
+            }
+            50% {
+                background-color: rgba(255, 255, 0 , .8);
+                box-shadow: 0px 0px 4px 6px rgba(255, 255, 0, .8);
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            if(window.location.hash) {
+                const id = window.location.hash.substring(1);
+                const el = $('#' + id);
+                if (el.length) {
+                    const elementPosition = el.offset().top - $('#oioioi-navbar').height() - 20;
+
+                    $('html, body').animate({
+                        scrollTop: elementPosition
+                    }, 800);
+                }
+            }
+        });
+    </script>
+{% endblock %}
+
 {% block title %}{% trans "Problems" %}{% endblock %}
 
 {% block main-content %}
@@ -43,7 +87,7 @@
                             </tr>
                         {% endifchanged %}
                     {% endif %}
-                    <tr>
+                    <tr id="{{ pi.get_short_name_display }}">
                         <td>{{ pi.get_short_name_display }}</td>
                         <td>
                             {% if statement_visible %}

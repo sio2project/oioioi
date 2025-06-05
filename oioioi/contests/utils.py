@@ -400,7 +400,33 @@ def used_controllers():
 
 
 @request_cached
-def visible_contests(request):
+def visible_contests_queryset_old(request):
+    """Returns Q for filtering contests visible to the logged in user."""
+    if request.GET.get('living', 'safely') == 'dangerously':
+        visible_query = Contest.objects.none()
+        for controller_name in used_controllers():
+            controller_class = import_string(controller_name)
+            # HACK: we pass None contest just to call visible_contests_query.
+            # This is a workaround for mixins not taking classmethods very well.
+            controller = controller_class(None)
+            subquery = Contest.objects.filter(controller_name=controller_name).filter(
+                controller.registration_controller().visible_contests_query(request)
+            )
+            visible_query = visible_query.union(subquery, all=False)
+        return visible_query
+    visible_query = Q_always_false()
+    for controller_name in used_controllers():
+        controller_class = import_string(controller_name)
+        # HACK: we pass None contest just to call visible_contests_query.
+        # This is a workaround for mixins not taking classmethods very well.
+        controller = controller_class(None)
+        visible_query |= Q(
+            controller_name=controller_name
+        ) & controller.registration_controller().visible_contests_query(request)
+    return visible_query
+
+
+def visible_contests_query(request):
     """Returns materialized set of contests visible to the logged in user."""
     if request.GET.get('living', 'safely') == 'dangerously':
         visible_query = Contest.objects.none()
@@ -413,7 +439,7 @@ def visible_contests(request):
                 controller.registration_controller().visible_contests_query(request)
             )
             visible_query = visible_query.union(subquery, all=False)
-        return set(visible_query)
+        return visible_query
     visible_query = Q_always_false()
     for controller_name in used_controllers():
         controller_class = import_string(controller_name)
@@ -423,9 +449,21 @@ def visible_contests(request):
         visible_query |= Q(
             controller_name=controller_name
         ) & controller.registration_controller().visible_contests_query(request)
-    return set(Contest.objects.filter(visible_query).distinct())
+    return Contest.objects.filter(visible_query).distinct()
 
+@request_cached
+def visible_contests(request):
+    contests = visible_contests_query(request)
+    return set(contests)
 
+@request_cached_complex
+def visible_contests_queryset(request, filter_value=None):
+    contests = visible_contests_query(request)
+    if filter_value is not None:
+        contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))    
+    return set(contests)
+
+# why is there no `can_admin_contest_query`?
 @request_cached
 def administered_contests(request):
     """Returns a list of contests for which the logged
@@ -575,6 +613,7 @@ def best_round_to_display(request, allow_past_rounds=False):
 
 @make_request_condition
 def has_any_contest(request):
+    # holy shit.
     contests = [contest for contest in administered_contests(request)]
     return len(contests) > 0
 

@@ -1,28 +1,29 @@
-from django.urls import include, re_path
+from django.urls import path
+from django.urls import include
 
 from oioioi import urls
 from oioioi.contests.tests import tests
 from oioioi.contests.urls import make_patterns
 
 contest_patterns = [
-    re_path(
-        r'^render_contest_id/$', tests.render_contest_id_view, name='render_contest_id'
+    path(
+        'render_contest_id/', tests.render_contest_id_view, name='render_contest_id'
     ),
 ]
 
 namespaced_patterns = [
-    re_path(r'^namespaced_id/$', tests.print_contest_id_view, name='print_contest_id'),
+    path('namespaced_id/', tests.print_contest_id_view, name='print_contest_id'),
 ]
 
 neutral_patterns = [
-    re_path(r'^id/$', tests.print_contest_id_view, name='print_contest_id'),
-    re_path(r'', include((namespaced_patterns, 'namespace'))),
+    path('id/', tests.print_contest_id_view, name='print_contest_id'),
+    path('', include((namespaced_patterns, 'namespace'))),
 ]
 
 
 noncontest_patterns = [
-    re_path(
-        r'noncontest_id/$',
+    path(
+        'noncontest_id/',
         tests.print_contest_id_view,
         name='noncontest_print_contest_id',
     ),
