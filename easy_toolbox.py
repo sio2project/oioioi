@@ -42,6 +42,8 @@ RAW_COMMANDS = [
      "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}"),
     ("cypress-apply-settings", "Apply settings for CyPress.",
      '{exec} web bash -c "echo CAPTCHA_TEST_MODE=True >> settings.py"'),
+    ("ruff", "Run Ruff, a linter and formatter. You can add `--fix` to automatically fix some errors.","{exec} -w /sio2/oioioi web bash -c 'ruff check . {extra_args} ; echo ; ruff format .'",
+)
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
