@@ -38,6 +38,11 @@ select = [
 ]
 src = ["oioioi"]
 exclude = [
-    "migrations"
+    "migrations",
+    "oioioi/**/*settings.py"
 ]
 target-version = "py311"
+ignore = [
+    "B904",
+    "B026",
+]
