@@ -25,7 +25,9 @@ RUN apt-get update && \
         sox \
         flite \
         locales \
-        python3-pip && \
+        python3-pip \
+        libuv1 \
+        zlib1g && \
     apt-get clean
 
 # This is oioioi user linux uid. Setting it is useful in development.
