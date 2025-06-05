@@ -85,27 +85,6 @@ you are connected to after using docker exec -it “web” /bin/bash. The defaul
     docker compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh
     docker compose -f docker-compose-dev.yml exec "web" ../oioioi/test.sh oioioi/{name_of_the_app}/
 
-Running static code analysis tools locally (requires Docker)
-~~~~~~~~~~~~~~~~~~~~~~~
-
-The static code analysis tools currently in use for python code are black, isort, pep8 and pylint.
-All of them can be run locally using the `run_static.sh` shell script.
-In order for the script to work the `web` container from docker-compose-dev.yml needs to be running.
-The docker image for the project needs to be rebuild if you are migrating from and older Dockerfile version (rebuild the image if you are getting error messages that isort or black are not installed).
-Commands for building the image and starting up the containers are listed in the paragraphs above.
-
-When running all tools at once or when running pep8 and pylint independently only the recently modified files (files modified in the most recent commit or staged changes) will be processed.
-
-To run all tools at once::
-
-    ./run_static.sh
-
-To run one of the tools::
-
-    ./run_static.sh black
-    ./run_static.sh isort
-    ./run_static.sh pylint
-    ./run_static.sh pep8
 
 Script toolbox for Docker (development)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -120,6 +99,33 @@ Developer environment can be easily set up by running::
     ./easy_toolbox.py run
 
 For system requirements check `easy_toolbox.py`.
+
+Running static code analysis tools locally
+~~~~~~~~~~~~~~~~~~~~~~~
+.. _ruff: https://github.com/astral-sh/ruff
+
+The static code analysis tool (linter and formatter) currently in use for Python code is `ruff`_.
+
+It can can be run locally using the::
+
+    ./easy_toolbox.py ruff
+
+In order for the script to work the `web` container from `docker-compose-dev.yml` needs to be running.
+
+To allow ruff to fix the errors, add the `--fix` flag::
+
+    ./easy_toolbox.py ruff --fix
+
+To avoid having to run this command every time before committing, you can install `pre-commit` along with ruff::
+
+    pip install -r requirements_static.txt
+
+Then simply run the following command::
+
+    pre-commit install
+
+From now on, ruff will run automatically before each commit - just keep in mind
+that ruff will only run on the files you have modified.
 
 Manual installation (deprecated)
 ~~~~~~~~~~~~~~~~~~~
