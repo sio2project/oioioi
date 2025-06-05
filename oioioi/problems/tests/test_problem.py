@@ -476,7 +476,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
     def test_statement_replacement(self):
         url = (
             reverse('problem_site', kwargs={'site_key': '123'})
-            + '?key=replace_problem_statement'
+            + '?key=replace_statement_or_editorial'
         )
 
         self.assertTrue(self.client.login(username='test_user'))

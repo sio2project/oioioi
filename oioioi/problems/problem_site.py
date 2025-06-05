@@ -349,8 +349,8 @@ def problem_site_add_to_contest(request, problem):
 
 
 @problem_site_tab(
-    _("Replace problem statement"),
-    key='replace_problem_statement',
+    _("Replace statement or editorial"),
+    key='replace_statement_or_editorial',
     order=800,
     condition=can_admin_problem,
 )
@@ -371,7 +371,7 @@ def problem_site_replace_statement(request, problem):
                 url = reverse(
                     'problem_site', kwargs={'site_key': problem.problemsite.url_key}
                 )
-                return redirect(url + '?key=replace_problem_statement')
+                return redirect(url + '?key=replace_statement_or_editorial')
             else:
                 form.add_error(None, _("Picked statement file does not exist."))
     else:
