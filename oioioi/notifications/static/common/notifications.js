@@ -76,34 +76,37 @@ function NotificationsClient(serverUrl, sessionId) {
         this.dropdownUpToDate = false;
         this.renderMessages();
     });
-    
+
+    this.socketInit();
+}
+
+NotificationsClient.prototype.constructor = NotificationsClient;
+
+NotificationsClient.prototype.socketInit = function () {
     this.socket = new WebSocket(this.NOTIF_SERVER_URL);
-    this.socket.addEventListener('open', this.authenticate.bind(this));
-    this.socket.addEventListener('message', (event) => {
+
+    this.socket.onopen = () => this.authenticate();
+    this.socket.onclose = () => {
+        this.setErrorState();
+        this.DROPDOWN_DISCONNECTED.show();
+
+        console.warn("WebSocket connection closed. Attempting to reconnect...");
+        setTimeout(() => this.socketInit(), 10000); 
+    }
+
+    this.socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
         if (data.type === "SOCKET_AUTH_RESULT") 
             this.authenticateCallback(data)
         else 
             this.onMessageReceived(data);           
-    });
-
-    setInterval(this.notifWatchdog.bind(this), 2000);
+    };
 }
-
-NotificationsClient.prototype.constructor = NotificationsClient;
-
-NotificationsClient.prototype.notifWatchdog = function () {
-    if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
-        this.setErrorState();
-        this.DROPDOWN_DISCONNECTED.show();
-    }
-};
 
 NotificationsClient.prototype.clearNumberBadgeClasses = function () {
     this.DROPDOWN.removeClass("btn btn-danger");
     this.DROPDOWN_ICON.removeClass("text-warning");
-    this.DROPDOWN_DISCONNECTED.hide();
 };
 
 NotificationsClient.prototype.setErrorState = function () {
@@ -112,17 +115,19 @@ NotificationsClient.prototype.setErrorState = function () {
 };
 
 NotificationsClient.prototype.authenticate = function () {
-    this.socket.send(JSON.stringify({ type: "SOCKET_AUTH", session_id: this.NOTIF_SESSION }));
+    this.socket?.send(JSON.stringify({ type: "SOCKET_AUTH", session_id: this.NOTIF_SESSION }));
 };
 
 NotificationsClient.prototype.authenticateCallback = function (result) {
-    if (result.status !== 'OK') {
-        this.setErrorState();
-        this.DROPDOWN_DISCONNECTED.show();
-    }
-    else {
+    if (result.status === 'OK') {
         this.notifCount = 0;
         this.updateNotifCount();
+        this.DROPDOWN_DISCONNECTED.hide();
+    } else {
+        console.warn("WebSocket authentication failed.");
+
+        // Close the socket to attempt to reconnect
+        this.socket?.close();
     }
 };
 
