@@ -199,6 +199,7 @@ class ServerTest(TestCase):
         mock_auth.return_value.authenticate.return_value = "user_id"
 
         mock_ws = MagicMock()
+        mock_ws.get_user_data.return_value = {"user_id": None}
         message = json.dumps({"type": "SOCKET_AUTH", "session_id": "session_id"})
         await server.on_ws_message(mock_ws, message, OpCode.TEXT)
 
@@ -217,10 +218,29 @@ class ServerTest(TestCase):
         )
 
         mock_ws = MagicMock()
+        mock_ws.get_user_data.return_value = {"user_id": None}
         message = json.dumps({"type": "SOCKET_AUTH", "session_id": "session_id"})
         await server.on_ws_message(mock_ws, message, OpCode.TEXT)
 
         mock_auth.return_value.authenticate.assert_called_once_with("session_id")
+        mock_queue.return_value.subscribe.assert_not_called()
+        mock_ws.subscribe.assert_not_called()
+        mock_ws.send.assert_called_once_with(
+            {"type": "SOCKET_AUTH_RESULT", "status": "ERR_AUTH_FAILED"}, OpCode.TEXT
+        )
+        
+    async def test_on_ws_message_auth_multiple_times(self, mock_auth, mock_queue, mock_app):
+        server = Server(self.port, self.amqp_url, self.auth_url)
+
+        mock_ws = MagicMock()
+        # Set up the mock websocket to return user data indicating it's already authenticated
+        mock_ws.get_user_data.return_value = {"user_id": "user_id"}
+        
+        message = json.dumps({"type": "SOCKET_AUTH", "session_id": "session_id"})
+        await server.on_ws_message(mock_ws, message, OpCode.TEXT)
+
+        # Verify authentication was not attempted again
+        mock_auth.return_value.authenticate.assert_not_called()
         mock_queue.return_value.subscribe.assert_not_called()
         mock_ws.subscribe.assert_not_called()
         mock_ws.send.assert_called_once_with(

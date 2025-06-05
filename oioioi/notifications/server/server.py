@@ -17,11 +17,14 @@ class Server:
         self.logger = logging.getLogger('oioioi')
 
         self.app.on_start(self.on_start)
-        self.app.ws("/", {
-            "upgrade": self.on_ws_upgrade,
-            "message": self.on_ws_message,
-            "close": self.on_ws_close,
-        })
+        self.app.ws(
+            "/",
+            {
+                "upgrade": self.on_ws_upgrade,
+                "message": self.on_ws_message,
+                "close": self.on_ws_close,
+            },
+        )
 
     def run(self) -> None:
         """Start the notification server."""
@@ -34,9 +37,9 @@ class Server:
         await self.queue.connect()
 
     def on_ws_upgrade(self, res, req, socket_context):
-        """ 
+        """
         Taken from socketify's documentation.
-        This method allows for storing extra data inside the websocket object. 
+        This method allows for storing extra data inside the websocket object.
         """
 
         key = req.get_header("sec-websocket-key")
@@ -47,7 +50,9 @@ class Server:
 
         res.upgrade(key, protocol, extensions, socket_context, user_data)
 
-    async def on_ws_message(self, ws: WebSocket, msg: Union[bytes, str], opcode: OpCode) -> None:
+    async def on_ws_message(
+        self, ws: WebSocket, msg: Union[bytes, str], opcode: OpCode
+    ) -> None:
         """Handle incoming WebSocket messages."""
         try:
             data = json.loads(msg)
@@ -61,7 +66,9 @@ class Server:
         except Exception as e:
             self.logger.error(f"Error processing message: {str(e)}")
 
-    async def on_ws_close(self, ws: WebSocket, code: int, msg: Union[bytes, str]) -> None:
+    async def on_ws_close(
+        self, ws: WebSocket, code: int, msg: Union[bytes, str]
+    ) -> None:
         """Handle WebSocket connection closure."""
         try:
             user_id = ws.get_user_data()["user_id"]
@@ -69,7 +76,7 @@ class Server:
             # If there are no more active connections for this user, unsubscribe from the RabbitMQ queue
             if user_id and self.app.num_subscribers(user_id) == 0:
                 await self.queue.unsubscribe(user_id)
-                
+
             self.logger.debug(f"WebSocket closed for user {user_id}")
 
         except Exception as e:
@@ -85,6 +92,10 @@ class Server:
 
     async def on_ws_auth_message(self, ws: WebSocket, session_id: str) -> None:
         try:
+            current_user_id = ws.get_user_data()["user_id"]
+            if current_user_id:
+                raise RuntimeError("Socket is already authenticated.")
+
             user_id = await self.auth.authenticate(session_id)
 
             ws.subscribe(user_id)
@@ -96,6 +107,8 @@ class Server:
 
         except Exception as e:
             self.logger.error(
-                f"Authentication error for session {session_id}: {str(e)}")
-            ws.send({"type": "SOCKET_AUTH_RESULT",
-                    "status": "ERR_AUTH_FAILED"}, OpCode.TEXT)
+                f"Authentication error for session {session_id}: {str(e)}"
+            )
+            ws.send(
+                {"type": "SOCKET_AUTH_RESULT", "status": "ERR_AUTH_FAILED"}, OpCode.TEXT
+            )
