@@ -29,7 +29,7 @@ force-exclude = '((.*)?default_settings.py|(.*)migrations(.*))'
 
 [tool.ruff]
 line-length = 120
-select = [
+lint.select = [
     "E", # pycodestyle errors
     "W", # pycodestyle warnings
     "F", # pyflakes
@@ -42,7 +42,7 @@ exclude = [
     "oioioi/**/*settings.py"
 ]
 target-version = "py311"
-ignore = [
+lint.ignore = [
     "B904",
     "B026",
 ]
