@@ -38,6 +38,7 @@ requirements = [
     "django-debug-toolbar",
     "django-extensions>=3.2,<3.3",
     "djangorestframework>=3.14,<3.15",
+    "django-oauth-toolkit>=3.0,<3.1",
     "Werkzeug",
     "pytest>=7.2,<8.0",
     "pytest-cov>=4.0,<5.0",
