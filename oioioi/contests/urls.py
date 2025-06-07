@@ -158,13 +158,11 @@ c_patterns = [
     re_path(r'^admin/', admin.contest_site.urls),
     path('archive/confirm', views.confirm_archive_contest, name='confirm_archive_contest'),
     path('unarchive/', views.unarchive_contest, name='unarchive_contest'),
-    re_path(
-        r'^assign_problems_to_a_round/$',
+    path('assign_problems_to_a_round/',
         views.assign_problems_to_a_round_view,
         name='assign_problems_to_a_round',
     ),
-    re_path(
-        r'^delete_problems/$',
+    path('delete_problems/',
         views.delete_problems_confirm_view,
         name='delete_problems',
     )
