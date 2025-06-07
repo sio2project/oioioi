@@ -382,25 +382,27 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     list_display = ('name_link', 'short_name_link', 'round', 'package', 'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
-    actions = ['attach_problems_to_another_contest', 'assign_problems_to_a_round']
+    actions = ['attach_problems_to_another_contest', 'assign_problems_to_a_round', 'delete_problems']
+
+    def _attach_problem_ids_to_url(self, queryset, url_name):
+        """Helper function to create a URL with problem ids as query parameters."""
+        ids = [problem.id for problem in queryset]
+        # Attach problem ids as arguments to the URL
+        base_url = reverse(url_name)
+        query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
+        return '%s?%s' % (base_url, query_string)
 
     def attach_problems_to_another_contest(self, request, queryset):
-        ids = [problem.id for problem in queryset]
-
-        # Attach problem ids as arguments to the URL
-        base_url = reverse('reattach_problem_contest_list')
-        query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
-
-        return redirect('%s?%s' % (base_url, query_string))
+        return redirect(
+            self._attach_problem_ids_to_url(queryset, 'reattach_problem_contest_list'))
 
     def assign_problems_to_a_round(self, request, queryset):
-        ids = [problem.id for problem in queryset]
+        return redirect(
+            self._attach_problem_ids_to_url(queryset, 'assign_problems_to_a_round'))
 
-        # Attach problem ids as arguments to the URL
-        base_url = reverse('assign_problems_to_a_round')
-        query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
-
-        return redirect('%s?%s' % (base_url, query_string))
+    def delete_problems(self, request, queryset):
+        return redirect(
+            self._attach_problem_ids_to_url(queryset, 'delete_problems'))
 
     def __init__(self, *args, **kwargs):
         # creating a thread local variable to store the request

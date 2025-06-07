@@ -866,7 +866,7 @@ def reattach_problem_contest_list_view(request, full_list=False):
             'problem_instances': problem_instances,
             'contest_list': contests,
             'full_list': full_list,
-            'problem_ids': '%2C'.join(str(i) for i in problem_ids), # Separate the problem ids with a comma (%2C)
+            'problem_ids': '%2C'.join(str(i) for i in problem_ids.split(',')), # Separate the problem ids with a comma (%2C)
         },
     )
 
@@ -946,6 +946,7 @@ def assign_problems_to_a_round_view(request):
     if not request.contest:
         raise SuspiciousOperation("Invalid contest")
 
+    # Check if the problem instances belong to the contest in the request
     if not _check_if_problem_instances_belong_to_contest(problem_instances, request.contest.id):
         raise SuspiciousOperation("Invalid problem instances")
 
@@ -953,10 +954,6 @@ def assign_problems_to_a_round_view(request):
     if not request.contest.round_set.exists():
         messages.error(request, _("The contest has no rounds."))
         return redirect('oioioiadmin:contests_probleminstance_changelist')
-
-    # Check if the problem instances belong to the contest in the request
-    if not all(pi.contest and pi.contest.id == request.contest.id for pi in problem_instances):
-        raise SuspiciousOperation("Invalid problem instances")
 
     if request.method == 'POST':
         form = RoundSelectionForm(request.POST, contest=request.contest)
@@ -992,6 +989,53 @@ def assign_problems_to_a_round_view(request):
             'form': form,
         },
     )
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def delete_problems_confirm_view(request):
+    """
+    Handles the assignment of problem instances to a specific round within a contest.
+    This view retrieves problem instances based on the provided IDs in the request,
+    validates their association with the current contest, and allows the user to assign
+    them to a specific round within the contest. If the assignment is successful, the
+    user is redirected to the problem instance changelist page.
+    Args:
+        request (HttpRequest): The HTTP request object containing GET or POST data.
+    Raises:
+        SuspiciousOperation: If the contest in the request is invalid, or if the problem
+                             instances or selected round do not belong to the contest.
+    """
+
+    problem_ids = request.GET.get('ids')
+
+    # Get the problems instances from the request
+    problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
+
+    if not request.contest:
+        raise SuspiciousOperation("Invalid contest")
+
+    if not _check_if_problem_instances_belong_to_contest(problem_instances, request.contest.id):
+        raise SuspiciousOperation("Invalid problem instances")
+
+    if request.method == 'POST':
+        for problem_instance in problem_instances:
+            problem_instance.delete()
+        messages.success(request, _("Problems deleted successfully."))
+        return safe_redirect(
+            request,
+            reverse(
+                'oioioiadmin:contests_probleminstance_changelist',
+                kwargs={'contest_id': request.contest.id},
+            ),
+        )
+
+    return TemplateResponse(
+        request,
+        'contests/delete_problems_confirm.html',
+        {
+            'problem_instances': problem_instances,
+        },
+    )
+
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def confirm_archive_contest(request):
