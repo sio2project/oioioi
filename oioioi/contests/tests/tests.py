@@ -3213,6 +3213,7 @@ class TestReattachingProblems(TestCase):
         'test_extra_problem',
         'test_permissions',
         'test_problem_site',
+        'test_problem_with_long_id'
     ]
 
     def test_reattaching_problem(self):
@@ -3237,10 +3238,12 @@ class TestReattachingProblems(TestCase):
         self.assertContains(response, u'Sum\u017cyce')
         self.assertContains(response, "Attach")
 
+        prev_problem_count = ProblemInstance.objects.count()
+
         response = self.client.post(url, data={'submit': True}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'c2')
-        self.assertEqual(ProblemInstance.objects.count(), 3)
+        self.assertEqual(ProblemInstance.objects.count(), prev_problem_count + 1)
         self.assertContains(response, ' added successfully.')
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
@@ -3279,10 +3282,12 @@ class TestReattachingProblems(TestCase):
         self.assertContains(response, u'Sum\u017cyce')
         self.assertContains(response, "Attach")
 
+        prev_problem_count = ProblemInstance.objects.count()
+
         response = self.client.post(url, data={'submit': True}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'c2')
-        self.assertEqual(ProblemInstance.objects.count(), 4)
+        self.assertEqual(ProblemInstance.objects.count(), prev_problem_count + 2)
         self.assertContains(response, ' added successfully.')
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
@@ -3311,6 +3316,37 @@ class TestReattachingProblems(TestCase):
         for url in urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
+
+    # Makes sure that ids are correctly forwarded in links from
+    # reattach_problem_contest_list to reattach_problem_confirm.
+    def test_correctly_passing_problem_ids(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        pi_id1 = ProblemInstance.objects.get(id=1).id
+        pi_id2 = ProblemInstance.objects.get(id=12345).id
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('reattach_problem_contest_list') + "?ids={}".format(pi_id1)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=1")
+
+        url = reverse('reattach_problem_contest_list') + "?ids={}".format(pi_id2)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=12345")
+
+        url = reverse('reattach_problem_contest_list') + "?ids={},{}".format(pi_id1, pi_id2)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=1%2C12345")
+
+        url = reverse('reattach_problem_contest_list') + "?ids={},{}".format(pi_id2, pi_id1)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=12345%2C1")
+
+
 
 # Testing whether a user with admin permission for one contest
 # can manage problems belonging to another contest using
