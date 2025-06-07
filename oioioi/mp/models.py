@@ -6,6 +6,7 @@ from oioioi.base.utils.deps import check_django_app_dependencies
 
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
+from oioioi.oi.models import School
 
 check_django_app_dependencies(__name__, ['oioioi.contests'])
 
@@ -15,6 +16,30 @@ class MPRegistration(RegistrationModel):
 
     def erase_data(self):
         self.terms_accepted = False
+        self.save()
+
+
+class MP2025Registration(RegistrationModel):
+    terms_accepted = models.BooleanField(_("terms accepted"), default=False)
+    birth_year = models.IntegerField(_("year of birth"))
+    city = models.CharField(max_length=100, verbose_name=_("city"))
+    school = models.ForeignKey(
+        School,
+        null=True,
+        verbose_name=_("school"),
+        on_delete=models.CASCADE,
+        blank=True,
+    )
+    teacher = models.CharField(
+        max_length=100, verbose_name=_("teacher's name"), blank=True
+    )
+
+    def erase_data(self):
+        self.terms_accepted = False
+        self.birth_year = 1900
+        self.city = 'Account deleted'
+        self.school = None
+        self.teacher = 'Account deleted'
         self.save()
 
 

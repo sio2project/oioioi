@@ -104,6 +104,14 @@ class MPRegistrationController(ParticipantsController):
         ).exists()
 
 
+class MP2025RegistrationController(MPRegistrationController):
+    @property
+    def form_class(self):
+        from oioioi.mp.forms import MP2025RegistrationForm
+
+        return MP2025RegistrationForm
+
+
 class MPContestController(ProgrammingContestController):
     description = _("Master of Programming")
     create_forum = False
@@ -223,3 +231,70 @@ class MPRankingController(DefaultRankingController):
 
     def _allow_zero_score(self):
         return False
+
+
+class MP2024ContestController(MPContestController):
+    description = _("Master of Programming 2024")
+
+    def update_user_result_for_problem(self, result):
+        submissions = Submission.objects.filter(
+            problem_instance=result.problem_instance,
+            user=result.user,
+            kind='NORMAL',
+            score__isnull=False,
+        ).order_by('score', 'date')
+
+        if not submissions.exists():
+            result.score = None
+            result.status = None
+            result.submission_report = None
+            return
+
+        submissions_during_round = submissions.filter(
+            date__lte=result.problem_instance.round.end_date,
+        ).order_by('score', 'date')
+
+        best_score_during_round = 0
+        if submissions_during_round.exists():
+            best_score_during_round = submissions_during_round.last().score.value
+
+        best_submission_overall = submissions.last()
+
+        try:
+            multiplier = SubmissionScoreMultiplier.objects.get(
+                contest=result.problem_instance.contest,
+            ).multiplier
+        except SubmissionScoreMultiplier.DoesNotExist:
+            multiplier = 0
+
+        best_score = (
+            best_score_during_round
+            + (best_submission_overall.score.value - best_score_during_round)
+            * multiplier
+        )
+
+        try:
+            report = SubmissionReport.objects.get(
+                submission=best_submission_overall,
+                status='ACTIVE',
+                kind='NORMAL',
+            )
+        except SubmissionReport.DoesNotExist:
+            report = None
+
+        result.score = FloatScore(best_score)
+        result.status = best_submission_overall.status
+        result.submission_report = report
+
+
+class MP2025ContestController(MP2024ContestController):
+    description = _("Master of Programming 2025")
+
+    def fill_evaluation_environ(self, environ, submission):
+        super(MPContestController, self).fill_evaluation_environ(environ, submission)
+
+        environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
+        environ['test_scorer'] = 'oioioi.programs.utils.threshold_linear_test_scorer'
+
+    def registration_controller(self):
+        return MP2025RegistrationController(self.contest)

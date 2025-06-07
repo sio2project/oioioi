@@ -38,13 +38,13 @@ def pytest_collection_modifyitems(config, items):
 
 
 # Removing links column from html report
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_header(cells):
     cells.pop()
 
 
 # Removing links column from html report
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_row(report, cells):
     cells.pop()
 

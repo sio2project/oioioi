@@ -10,6 +10,17 @@ $(document).ready(function() {
         school = $('#id_oi_oiregistration-0-school');
     }
 
+    function get_school_info() {
+        if (school.val()) {
+            $.get(oioioi_base_url + 'oi/school/',
+                {'school': school.val()},
+                function(info) {
+                    $("#school_info_wrapper").html(info);
+                }
+            );
+        }
+    }
+
     if(province.val() === "") {
         city.prop('disabled', true);
         school.prop('disabled', true);
@@ -19,13 +30,17 @@ $(document).ready(function() {
         school.prop('disabled', true);
     }
 
+    if (school.val() !== "") {
+        get_school_info();
+    }
+
     province.change(function() {
         city.html('');
         city.prop('disabled', true);
         school.html('');
         school.prop('disabled', true);
         if (province.val()) {
-            $.get(oioioi_base_url + 'oi/cities/',
+            $.get('oicities/',
                 {'province': province.val()},
                 function(options) {
                     city.html(options);
@@ -38,7 +53,7 @@ $(document).ready(function() {
         school.html('');
         school.prop('disabled', true);
         if (province.val() && city.val()) {
-            $.get(oioioi_base_url + 'oi/schools/',
+            $.get('oischools/',
                 {'province': province.val(), 'city': city.val()},
                 function(options) {
                     school.html(options);
@@ -46,4 +61,32 @@ $(document).ready(function() {
                 });
         }
     });
+
+    school.change(function() {
+        if (school.val()) {
+            get_school_info();
+        }
+        else {
+            $("#school_info_wrapper").html("");
+        }
+    });
+
+    if (province.val()) {
+        previous_city = city.val();
+        $.get('oicities/',
+                {'province': province.val()},
+                function(options) {
+                    city.html(options);
+                    $(city.selector + ' option[value="' + previous_city + '"]').attr('selected', 'selected');
+                });
+    }
+    if (province.val() && city.val()) {
+        previous_school = school.val();
+        $.get('oischools/',
+                {'province': province.val(), 'city': city.val()},
+                function(options) {
+                    school.html(options);
+                    $(school.selector + ' option[value="' + previous_school + '"]').attr('selected', 'selected');
+                });
+    }
 });
