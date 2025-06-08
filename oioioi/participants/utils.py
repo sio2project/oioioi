@@ -143,13 +143,13 @@ def get_related_paths(model, prefix='', depth=5, visited=None):
     try:
         for field in model._meta.get_fields():
             if isinstance(field, (ForeignKey, OneToOneField)) and not field.auto_created:
-                if field.name == 'participant':
+                related_model = field.related_model
+                if related_model == Participant:
                     continue  # skip backward pointer to Participant
 
                 full_path = f"{prefix}__{field.name}" if prefix else field.name
                 paths.append(full_path)
 
-                related_model = field.related_model
                 paths.extend(
                     get_related_paths(related_model, prefix=full_path, depth=depth - 1, visited=visited)
                 )
@@ -173,7 +173,6 @@ def serialize_participants_data(request):
 
         related = get_related_paths(registration_model_class, prefix=registration_model_name, depth=10)
         related.extend(['user', 'contest', registration_model_name])
-        print('Related list:', related)
         participants = (
             Participant.objects
             .filter(contest=request.contest)
@@ -216,7 +215,6 @@ def serialize_participants_data(request):
             values['email address'] = participant.user.email
         data.append([values.get(key, '') for key in keys])
 
-    print('Keys:', keys)
     return {'keys': keys, 'data': data}
 
 

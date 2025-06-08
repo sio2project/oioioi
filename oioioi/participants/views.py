@@ -84,7 +84,13 @@ def unregistration_view(request):
     not_anonymous & contest_exists & contest_has_participants & can_see_personal_data
 )
 def participants_data(request):
+    import time
+    start = time.perf_counter()
+    print("Start")
     context = serialize_participants_data(request)
+    end = time.perf_counter()
+    duration_ms = (end - start) * 1000
+    print(f"Time taken = {duration_ms:.2f} ms")
     return TemplateResponse(request, 'participants/data.html', context)
 
 
