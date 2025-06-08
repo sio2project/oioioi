@@ -46,9 +46,7 @@ from oioioi.contests.utils import (
     visible_problem_instances,
     process_instances_to_limits,
 )
-from oioioi.newsfeed import default_app_config
 from oioioi.problems.controllers import ProblemController
-from oioioi.programs.models import Test
 
 logger = logging.getLogger(__name__)
 
