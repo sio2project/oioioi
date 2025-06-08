@@ -25,7 +25,9 @@ RUN apt-get update && \
         sox \
         flite \
         locales \
-        python3-pip && \
+        python3-pip \
+        nodejs \
+        npm && \
     apt-get clean
 
 # This is oioioi user linux uid. Setting it is useful in development.
@@ -61,8 +63,15 @@ RUN pip3 install -r requirements.txt --user filetracker[server]
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user
 
+# Installing node dependencies
+ENV PATH $PATH:/sio2/oioioi/node_modules/.bin
+
+COPY --chown=oioioi:oioioi package.json package-lock.json ./
+RUN npm ci
+
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 
+RUN npm run build
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
