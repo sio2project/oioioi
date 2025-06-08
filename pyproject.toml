@@ -6,6 +6,8 @@ lint.select = [
     "F", # pyflakes
     "I", # isort
     "B", # flake8-bugbear
+    "UP",
+    "C4"
 ]
 src = ["oioioi"]
 exclude = [
@@ -16,4 +18,5 @@ target-version = "py311"
 lint.ignore = [
     "B904",
     "B026",
+    "C416"
 ]
