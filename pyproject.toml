@@ -6,8 +6,8 @@ lint.select = [
     "F", # pyflakes
     "I", # isort
     "B", # flake8-bugbear
-    "UP",
-    "C4"
+    "UP", # pyupgrade
+    "C4" # flake8-comprehensions
 ]
 src = ["oioioi"]
 exclude = [
