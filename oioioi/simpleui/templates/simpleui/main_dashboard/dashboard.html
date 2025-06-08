@@ -33,7 +33,7 @@
             {% endblock %}
 	    </nav>
     </header>
-    <script type="text/javascript" src="{% static 'js/highcharts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'highcharts/lib/highcharts.js' %}"></script>
     {% if contests|length == 0 %}
         {% url 'oioioiadmin:contests_contest_add' as link %}
         {% if can_create_contest %}
