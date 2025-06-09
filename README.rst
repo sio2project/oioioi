@@ -127,6 +127,10 @@ Then simply run the following command::
 From now on, ruff will run automatically before each commit - just keep in mind
 that ruff will only run on the files you have modified.
 
+If you want to check all files, not just the modified ones, you can run::
+
+     pre-commit run --all-files
+
 Manual installation (deprecated)
 ~~~~~~~~~~~~~~~~~~~
 
