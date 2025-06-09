@@ -23,7 +23,7 @@ from oioioi.contests.models import (
     ProblemStatementConfig,
     RankingVisibilityConfig, RegistrationAvailabilityConfig,
 )
-from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin
+from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin, contest_has_registration
 from oioioi.problems.forms import (
     AlgorithmTagThroughForm,
     DifficultyTagThroughForm,
@@ -124,9 +124,19 @@ class RegistrationAvailabilityConfigInline(admin.TabularInline):
     form = RegistrationAvailabilityConfigForm
     category = _("Advanced")
 
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        if contest_has_registration(request):
+            formset.disable_config = False
+        else:
+            formset.disable_config = True
+        return formset
+    def get_readonly_fields(self, request, obj=None):
+        if not contest_has_registration(request):
+            return [field.name for field in self.model._meta.fields]
+        return super().get_readonly_fields(request, obj)
     def has_add_permission(self, request, obj=None):
         return is_contest_admin(request)
-
     def has_change_permission(self, request, obj=None):
         return is_contest_admin(request)
 
