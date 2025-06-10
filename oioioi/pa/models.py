@@ -7,7 +7,7 @@ from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import ProblemInstance
 
 # pylint: disable=unused-import
-from oioioi.pa.score import PAScore  # Registers the PA score type
+from oioioi.pa.score import PAScore # noqa: F401 # Registers the PA score type
 from oioioi.participants.models import RegistrationModel
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
