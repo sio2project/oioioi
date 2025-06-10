@@ -354,32 +354,45 @@ def problem_site_add_to_contest(request, problem):
     order=800,
     condition=can_admin_problem,
 )
-def problem_site_replace_statement(request, problem):
-    statements = ProblemStatement.objects.filter(problem=problem)
-    filenames = [statement.filename for statement in statements]
+def problem_site_replace_statement_or_editorial(request, problem):
+    statements  = ProblemStatement .objects.filter(problem=problem)
+    editorials = ProblemEditorial.objects.filter(problem=problem)
+
+    stmt_names = [s.filename for s in statements]
+    ed_names   = [e.filename for e in editorials]
+
+    stmt_form = ProblemStatementReplaceForm(stmt_names)
+    ed_form   = ProblemStatementReplaceForm(ed_names)
 
     if request.method == 'POST':
-        form = PackageFileReuploadForm(filenames, request.POST, request.FILES)
-        if form.is_valid():
-            statement_filename = form.cleaned_data['file_name']
-            statements = [s for s in statements if s.filename == statement_filename]
-            if statements:
-                statement = statements[0]
-                new_statement_file = form.cleaned_data['file_replacement']
-                statement.content = new_statement_file
-                statement.save()
-                url = reverse(
-                    'problem_site', kwargs={'site_key': problem.problemsite.url_key}
-                )
+        form_type = request.POST.get('form_type')
+        if form_type == 'statement':
+            stmt_form = ProblemStatementReplaceForm(stmt_names, request.POST, request.FILES)
+            if stmt_form.is_valid():
+                fn = stmt_form.cleaned_data['file_name']
+                stmt = next(s for s in statements if s.filename == fn)
+                stmt.content = stmt_form.cleaned_data['file_replacement']
+                stmt.save()
+                url = reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
                 return redirect(url + '?key=replace_statement_or_editorial')
-            else:
-                form.add_error(None, _("Picked statement file does not exist."))
-    else:
-        form = ProblemStatementReplaceForm(filenames)
+        elif form_type == 'editorial':
+            ed_form = ProblemStatementReplaceForm(ed_names, request.POST, request.FILES)
+            if ed_form.is_valid():
+                fn = ed_form.cleaned_data['file_name']
+                ed = next(e for e in editorials if e.filename == fn)
+                ed.content = ed_form.cleaned_data['file_replacement']
+                ed.save()
+                url = reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
+                return redirect(url + '?key=replace_statement_or_editorial')
+
     return TemplateResponse(
         request,
         'problems/replace-problem-statement.html',
-        {'form': form, 'problem': problem},
+        {
+            'problem': problem,
+            'statement_form': stmt_form,
+            'editorial_form': ed_form,
+        },
     )
 
 
