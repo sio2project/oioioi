@@ -13,7 +13,6 @@ from oioioi.problems.models import (
     DifficultyTagThrough,
     AlgorithmTagProposal,
     DifficultyTagProposal,
-    ProblemName,
     ProblemSite,
 )
 
@@ -157,8 +156,8 @@ class Command(BaseCommand):
 
     def create_problems(self, count, verbosity):
         """
-        Creates a list of Problems using create_unique_objects, then creates associated
-        ProblemSite objects and ProblemName objects for all available languages.
+        Creates a list of Problems using create_unique_objects,
+        then creates associated ProblemSite objects.
         - count: number of objects to create.
         - candidate_prefix: A prefix string (e.g. 'prob_').
         - random_length: Number of random characters to append.
@@ -176,16 +175,11 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
         for problem in created_problems:
-            for lang, _ in settings.LANGUAGES:
-                ProblemName.objects.create(
-                    problem=problem,
-                    name=f"{problem.short_name}_{lang}",
-                    language=lang,
-                )
-            ProblemSite.objects.create(
+            site = ProblemSite.objects.create(
                 problem=problem,
                 url_key=f"{problem.short_name}_site",
             )
+            site.save()
         return created_problems
 
     def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
@@ -338,7 +332,7 @@ class Command(BaseCommand):
         diff_tag_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {diff_tag_count} Difficulty Tags"))
 
-        self.stdout.write(self.style.SUCCESS("Through, Proposal and AggregatedProposal records are deleted on cascade, along with ProblemSites and ProblemNames."))
+        self.stdout.write(self.style.SUCCESS("Through, Proposal and AggregatedProposal records are deleted on cascade, along with ProblemSites."))
         self.stdout.write(self.style.SUCCESS("Mock data removal complete"))
 
     def handle(self, *args, **options):
