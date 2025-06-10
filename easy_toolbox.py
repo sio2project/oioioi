@@ -27,7 +27,7 @@ RAW_COMMANDS = [
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop and remove all SIO2 containers", "down"),
     ("wipe", "Stop all SIO2 containers and DESTROY all data", "down -v", True),
-    ("run", "Run django server and webpack", 
+    ("run", "Run django server and webpack",
      '{exec} web conc -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"'),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
@@ -45,6 +45,8 @@ RAW_COMMANDS = [
      '{exec} web bash -c "echo CAPTCHA_TEST_MODE=True >> settings.py"'),
     ("npm", "Run npm command.", "{exec} web npm --prefix ../oioioi {extra_args}"),
     ("eslint", "Run javascript linter.", "{exec} web npm --prefix ../oioioi run lint"),
+    ("ruff", "Run Ruff, a linter and formatter. You can add `--fix` to automatically fix some errors.","{exec} -w /sio2/oioioi web bash -c 'ruff check . {extra_args} ; echo ; ruff format .'",
+)
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
