@@ -12,15 +12,11 @@
 </p>
 
 {% include "problems/ingredients/document-replace-form.html" with
-    title=_("Replace statement")
+    title="{% trans "Replace statement" %}"
     form=statement_form
-    form_type="statement"
-    button_label=_("Submit statement")
 %}
 
 {% include "problems/ingredients/document-replace-form.html" with
-    title=_("Replace editorial")
+    title="{% trans "Replace editorial" %}"
     form=editorial_form
-    form_type="editorial"
-    button_label=_("Submit editorial")
 %}
