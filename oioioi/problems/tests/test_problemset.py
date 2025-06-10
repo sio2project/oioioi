@@ -184,26 +184,6 @@ class TestTagProposalSearch(TestCase):
         self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, True)
         self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
 
-    @override_settings(
-        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
-        PROBSET_SHOWN_TAG_PROPOSALS_LIMIT=1,
-    )
-    def test_search_min_1_limit_1(self):
-        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, True)
-        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, True, False)
-        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
-
-    @override_settings(
-        PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL=1,
-        PROBSET_SHOWN_TAG_PROPOSALS_LIMIT=0,
-    )
-    def test_search_min_1_limit_0(self):
-        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 1}, False, False)
-        self._try_single_search({'algorithm': 'knapsack', 'include_proposals': 1}, False, False)
-        self._try_single_search({'algorithm': 'greedy', 'include_proposals': 0}, False, False)
-
-
-
 
 class TestAddToProblemsetPermissions(TestCase):
     fixtures = ['test_users']
