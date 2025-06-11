@@ -2,6 +2,7 @@ from io import StringIO
 from django.test import TestCase, override_settings
 from django.core.management import call_command, CommandError
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from oioioi.problems.models import (
     Problem,
     AlgorithmTag,
@@ -10,7 +11,7 @@ from oioioi.problems.models import (
     DifficultyTagThrough,
     AlgorithmTagProposal,
     DifficultyTagProposal,
-    ProblemSite,
+    ProblemName,
 )
 
 User = get_user_model()
@@ -19,7 +20,6 @@ User = get_user_model()
 class TestMassCreateTool(TestCase):
     name_to_model = {
         'problems': Problem,
-        'problems': ProblemSite,
         'users': User,
         'algotags': AlgorithmTag,
         'difftags': DifficultyTag,
@@ -33,7 +33,15 @@ class TestMassCreateTool(TestCase):
         for name, model in self.name_to_model.items():
             count = model.objects.count()
             expected_count = expected_counts.get(name, 0)
-            assert count == expected_count, f"Expected {expected_count} {name}, got {count}" 
+            assert count == expected_count, f"Expected {expected_count} {name}, got {count}"
+
+        # Validation for i18n problem names
+        problem_amount: int = expected_counts.get('problems', Problem.objects.count())
+        expected_probname_count = len(settings.LANGUAGES) * problem_amount
+        probname_count = ProblemName.objects.count()
+        assert probname_count == expected_probname_count, (
+            f"Expected {expected_probname_count} probnames, got {probname_count}"
+        )
 
     def test_long_flags(self):
         out = StringIO()
