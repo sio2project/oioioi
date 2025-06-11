@@ -390,7 +390,7 @@ def problem_site_replace_statement_or_editorial(request, problem):
         'problems/replace-problem-statement.html',
         {
             'problem': problem,
-            'statement_form': stmt_form,
+            'form': stmt_form,
             'editorial_form': ed_form,
         },
     )
