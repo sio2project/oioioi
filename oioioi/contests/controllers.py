@@ -12,6 +12,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext_noop
+from django.db.models import Min, Max, Q
 
 from oioioi.base.utils import (
     ObjectWithMixins,
@@ -21,8 +22,10 @@ from oioioi.base.utils import (
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.contests.models import (
     Contest,
+    ProblemInstance,
     ProblemStatementConfig,
     RankingVisibilityConfig,
+    LimitsVisibilityConfig,
     Round,
     RoundTimeExtension,
     ScoreReport,
@@ -41,6 +44,7 @@ from oioioi.contests.utils import (
     last_break_between_rounds,
     rounds_times,
     visible_problem_instances,
+    process_instances_to_limits,
 )
 from oioioi.problems.controllers import ProblemController
 
@@ -586,6 +590,19 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     def default_can_see_statement(self, request_or_context, problem_instance):
         return True
 
+    def can_see_problems_limits(self, request):
+        context = self.make_context(request)
+        lvc = LimitsVisibilityConfig.objects.filter(contest=context.contest)
+        if lvc.exists() and lvc[0].visible == 'YES':
+            return True
+        elif lvc.exists() and lvc[0].visible == 'NO':
+            return False
+        else:
+            return self.default_can_see_problems_limits(request)
+
+    def default_can_see_problems_limits(self, request):
+        return False
+
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Determines if the current user is allowed to submit a solution for
         the given problem.
@@ -640,6 +657,105 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return problem_instance.problem.controller.is_submissions_limit_exceeded(
             request, problem_instance, kind
         )
+
+    def get_problems_limits(self, request):
+        """Returns a dictionary containing data about time and memory limits for a given ProblemInstance:
+            ProblemInstanceID -> {
+                'default':  (min_time, max_time, min_memory, max_memory),
+                'cpp':      (min_time, max_time, min_memory, max_memory),
+                'py':       (min_time, max_time, min_memory, max_memory)
+            }
+            Corresponding dictionary is None if no limits exist
+        """
+
+        instances = ProblemInstance.objects.filter(contest=request.contest).annotate(
+            # default limits
+            min_time=Min('test__time_limit', filter=Q(test__is_active=True)),
+            max_time=Max('test__time_limit', filter=Q(test__is_active=True)),
+            min_memory=Min('test__memory_limit', filter=Q(test__is_active=True)),
+            max_memory=Max('test__memory_limit', filter=Q(test__is_active=True)),
+
+            # cpp overridden limits
+            cpp_min_time=Min(
+                'test__languageoverridefortest__time_limit',
+                filter=Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+            cpp_max_time=Max(
+                'test__languageoverridefortest__time_limit',
+                filter=Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+            cpp_min_memory=Min(
+                'test__languageoverridefortest__memory_limit',
+                filter=Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+            cpp_max_memory=Max(
+                'test__languageoverridefortest__memory_limit',
+                filter=Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+
+            # python overridden limits
+            py_min_time=Min(
+                'test__languageoverridefortest__time_limit',
+                filter=Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+            py_max_time=Max(
+                'test__languageoverridefortest__time_limit',
+                filter=Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+            py_min_memory=Min(
+                'test__languageoverridefortest__memory_limit',
+                filter=Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+            py_max_memory=Max(
+                'test__languageoverridefortest__memory_limit',
+                filter=Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+
+            # non-overridden test limits in cpp
+            cpp_min_time_non_overridden=Min(
+                'test__time_limit',
+                filter=~Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+            cpp_max_time_non_overridden=Max(
+                'test__time_limit',
+                filter=~Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+            cpp_min_memory_non_overridden=Min(
+                'test__memory_limit',
+                filter=~Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+            cpp_max_memory_non_overridden=Max(
+                'test__memory_limit',
+                filter=~Q(test__languageoverridefortest__language='cpp') & Q(test__is_active=True)
+            ),
+
+            # non-overridden test limits in python
+            py_min_time_non_overridden=Min(
+                'test__time_limit',
+                filter=~Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+            py_max_time_non_overridden=Max(
+                'test__time_limit',
+                filter=~Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+            py_min_memory_non_overridden=Min(
+                'test__memory_limit',
+                filter=~Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+            py_max_memory_non_overridden=Max(
+                'test__memory_limit',
+                filter=~Q(test__languageoverridefortest__language='py') & Q(test__is_active=True)
+            ),
+        ).values(
+            'id',
+            'min_time', 'max_time', 'min_memory', 'max_memory',
+            'cpp_min_time', 'cpp_max_time', 'cpp_min_memory', 'cpp_max_memory',
+            'cpp_min_time_non_overridden', 'cpp_max_time_non_overridden', 'cpp_min_memory_non_overridden', 'cpp_max_memory_non_overridden',
+            'py_min_time', 'py_max_time', 'py_min_memory', 'py_max_memory',
+            'py_min_time_non_overridden', 'py_max_time_non_overridden', 'py_min_memory_non_overridden', 'py_max_memory_non_overridden'
+        )
+
+        return process_instances_to_limits(instances)
 
     def adjust_submission_form(self, request, form, problem_instance):
         # by default delegate to ProblemController

@@ -68,6 +68,7 @@ from oioioi.contests.utils import (
     are_rules_visible,
     get_scoring_desription,
     get_submission_message,
+    stringify_problems_limits,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
@@ -146,6 +147,12 @@ def contest_rules_view(request):
 @enforce_condition(contest_exists & can_enter_contest)
 def problems_list_view(request):
     controller = request.contest.controller
+
+    show_problems_limits = controller.can_see_problems_limits(request)
+    problems_limits = {}
+    if show_problems_limits:
+        problems_limits = stringify_problems_limits(controller.get_problems_limits(request))
+
     problem_instances = visible_problem_instances(request)
 
     # Problem statements in order
@@ -163,6 +170,7 @@ def problems_list_view(request):
                 pi,
                 controller.can_see_statement(request, pi),
                 controller.get_round_times(request, pi.round),
+                problems_limits.get(pi.pk, None),
                 # Because this view can be accessed by an anynomous user we can't
                 # use `user=request.user` (it would cause TypeError). Surprisingly
                 # using request.user.id is ok since for AnynomousUser id is set
@@ -190,16 +198,17 @@ def problems_list_view(request):
         key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name, p[0].short_name),
     )
 
-    show_submissions_limit = any([p[5] for p in problems_statements])
-    show_submit_button = any([p[6] for p in problems_statements])
+    show_submissions_limit = any([p[6] for p in problems_statements])
+    show_submit_button = any([p[7] for p in problems_statements])
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
-    table_columns = 3 + int(show_submissions_limit) + int(show_submit_button)
+    table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
 
     return TemplateResponse(
         request,
         'contests/problems_list.html',
         {
             'problem_instances': problems_statements,
+            'show_problems_limits': show_problems_limits,
             'show_rounds': show_rounds,
             'show_scores': request.user.is_authenticated,
             'show_submissions_limit': show_submissions_limit,
