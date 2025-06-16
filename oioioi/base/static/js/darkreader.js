@@ -1,6 +1,18 @@
-import * as DarkReaderModule from 'darkreader';
+import { enable, disable } from 'darkreader';
 
-window.DarkReader = {
-  enable: DarkReaderModule.enable,
-  disable: DarkReaderModule.disable,
-};
+if (localStorage.getItem("dark-mode") === "enabled") {
+  enable();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleButton = document.getElementById("dark-mode-toggle");
+  toggleButton.addEventListener("click", function () {
+      if (localStorage.getItem("dark-mode") === "enabled") {
+          disable();
+          localStorage.setItem("dark-mode", "disabled");
+      } else {
+          enable();
+          localStorage.setItem("dark-mode", "enabled");
+      }
+  });
+});
