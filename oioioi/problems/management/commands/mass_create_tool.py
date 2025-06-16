@@ -13,6 +13,7 @@ from oioioi.problems.models import (
     DifficultyTagThrough,
     AlgorithmTagProposal,
     DifficultyTagProposal,
+    ProblemName,
     ProblemSite,
 )
 
@@ -156,8 +157,8 @@ class Command(BaseCommand):
 
     def create_problems(self, count, verbosity):
         """
-        Creates a list of Problems using create_unique_objects,
-        then creates associated ProblemSite objects.
+        Creates a list of Problems using create_unique_objects, then creates associated
+        ProblemSite objects and ProblemName objects for all available languages.
         - count: number of objects to create.
         - candidate_prefix: A prefix string (e.g. 'prob_').
         - random_length: Number of random characters to append.
@@ -175,60 +176,18 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
         for problem in created_problems:
-            site = ProblemSite.objects.create(
+
+            for lang, _ in settings.LANGUAGES:
+                ProblemName.objects.create(
+                        problem = problem,
+                    name = f"{problem.short_name}_{lang}",
+                    language = lang,
+                )
+            ProblemSite.objects.create(
                 problem=problem,
                 url_key=f"{problem.short_name}_site",
             )
-            site.save()
         return created_problems
-
-    def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
-        """
-        Creates a specified number of through-records connecting a problem and a tag.
-        For DifficultyTagThrough ensures that each problem is assigned to at most one difficulty tag.
-        For AlgorithmTagThrough ensures that each (problem, tag) pair is unique.
-        - count: number of through records to create.
-        - problems: list of existing problems.
-        - tags: list of existing tags.
-        - through_model: the through model class to use.
-        - verbose_name: description used in output.
-        - verbosity: the current verbosity level.
-        Returns a list of created through-records.
-        """
-        objs = []
-        for i in range(count):
-            candidate_fn = lambda: (random.choice(problems), random.choice(tags))
-            if through_model == DifficultyTagThrough:
-                uniqueness_fn = lambda candidate: not (
-                    through_model.objects.filter(problem=candidate[0]).exists() or
-                    any(r.problem == candidate[0] for r in objs)
-                )
-            else:
-                uniqueness_fn = lambda candidate: not (
-                    through_model.objects.filter(problem=candidate[0], tag=candidate[1]).exists() or
-                    any(r.problem == candidate[0] and r.tag == candidate[1] for r in objs)
-                )
-            try:
-                candidate = get_unique_candidate(candidate_fn, uniqueness_fn)
-            except CommandError as e:
-                self.errors_found = True
-                self.stderr.write(self.style.ERROR(
-                    f"Failed to create {verbose_name} candidate: {e}. Stopping further creation for {verbose_name}."
-                ))
-                break
-            record = through_model(problem=candidate[0], tag=candidate[1])
-            record.save()
-            objs.append(record)
-            if verbosity >= 3:
-                self.stdout.write(self.style.SUCCESS(
-                    f"Created {verbose_name}: Problem ID {candidate[0].id} - Tag {candidate[1].name}"
-                ))
-            elif verbosity == 2:
-                sys.stdout.write(f"Created {i+1} of {count} {verbose_name}s\r")
-                sys.stdout.flush()
-        if verbosity == 2 and count:
-            sys.stdout.write("\n")
-        return objs
 
     def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
         """
@@ -332,7 +291,7 @@ class Command(BaseCommand):
         diff_tag_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {diff_tag_count} Difficulty Tags"))
 
-        self.stdout.write(self.style.SUCCESS("Through, Proposal and AggregatedProposal records are deleted on cascade, along with ProblemSites."))
+        self.stdout.write(self.style.SUCCESS("Through, Proposal and AggregatedProposal records are deleted on cascade, along with ProblemSites and ProblemNames."))
         self.stdout.write(self.style.SUCCESS("Mock data removal complete"))
 
     def handle(self, *args, **options):
