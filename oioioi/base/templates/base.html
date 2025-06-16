@@ -5,23 +5,6 @@
 <html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head>
     <script src="{% static 'darkreader.bundle.js' %}"></script>
-    <script>
-        if (localStorage.getItem("dark-mode") === "enabled") {
-            DarkReader.enable();
-        }
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggleButton = document.getElementById("dark-mode-toggle");
-            toggleButton.addEventListener("click", function () {
-                if (localStorage.getItem("dark-mode") === "enabled") {
-                    DarkReader.disable();
-                    localStorage.setItem("dark-mode", "disabled");
-                } else {
-                    DarkReader.enable();
-                    localStorage.setItem("dark-mode", "enabled");
-                }
-            });
-        });
-    </script>
     
     {% block head %}
         <title>{% block title %}{% trans "Main page" %}{% endblock %} - {{ site_name }}</title>
