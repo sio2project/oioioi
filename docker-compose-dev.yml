@@ -5,7 +5,7 @@ x-common-envs: &common-envs
 
 services:
   db:
-    image: library/postgres:12.2
+    image: library/postgres:14.17
     environment:
       POSTGRES_USER: "oioioi"
       POSTGRES_PASSWORD: "password"
@@ -40,6 +40,9 @@ services:
     # - "7887:7887"
     volumes:
       - .:/sio2/oioioi
+      # use docker's node_modules and dist_webpack instead of the host ones
+      - node_modules-dev:/sio2/oioioi/node_modules
+      - dist_webpack-dev:/sio2/oioioi/dist_webpack
       - filetracker-data-dev:/sio2/deployment/media
 #      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
@@ -68,3 +71,5 @@ services:
 volumes:
   postgress-data-dev:
   filetracker-data-dev:
+  node_modules-dev:
+  dist_webpack-dev:

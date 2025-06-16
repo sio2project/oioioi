@@ -1,7 +1,7 @@
 @import "scss/utility/variables";
-@import "bootstrap/stylesheets/functions";
-@import "bootstrap/stylesheets/variables";
-@import "bootstrap/stylesheets/mixins";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
 
 // Sets position absolute
 @mixin absolute($top: auto, $right: auto, $bottom: auto, $left: auto) {

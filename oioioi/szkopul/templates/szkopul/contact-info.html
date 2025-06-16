@@ -12,11 +12,15 @@
         <section>
           {% blocktrans trimmed %}
             <p>In the event of technical difficulties with Szkopuł, please contact us via email at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
-            <p>If you are familiar with IRC chat, the support team is also reachable on PIRC network (<code>irc.pirc.pl</code>) in <code>#szkopul</code> channel. If you are not, just use email.</p>
-            <p>Please do not ask us things like "how to solve task XYZ?".</p>
-            <p>Please remember that the support team has to sleep sometimes or go to work in real life.</p>
+            <p>
+              If you would like to talk about tasks, solutions or technical problems, please visit our Discord servers.
+              They are moderated by the community, but members of the support team are also active there.</p>
           {% endblocktrans %}
         </section>
+        <div style="justify-content: space-evenly; display: flex; max-width: 100%; flex-wrap: wrap;">
+          <iframe class="my-2" id="iframe1" src="" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+          <iframe class="my-2" id="iframe2" src="" width="350" height="500" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+        </div>
       </div>
     </div>
   </div>
@@ -25,3 +29,12 @@
     data-toggle="modal" data-target="#szkopul-contact-form">
   {% trans "Send Feedback" %}
 </button>
+
+{% block scripts %}
+<script type="text/javascript">
+  $('#szkopul-contact-form-open').on('click', function() {
+    $('#iframe1').attr('src', 'https://discord.com/widget?id=1172296729278820403&theme=light');
+    $('#iframe2').attr('src', 'https://discord.com/widget?id=706063478292480021&theme=light');
+  });
+</script>
+{% endblock %}

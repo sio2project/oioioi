@@ -1,0 +1,39 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block styles %}
+    {{ block.super }}
+    {{ form.media.css }}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
+
+{% block title %}Zarejestruj się na kurs{% endblock %}
+
+{% block main-content %}
+<h2>Zarejestruj się na kurs</h2>
+
+<p>
+    Kurs jest otwarty dla wszystkich. 
+    Uczniowie szkół średnich, do których adresowany jest projekt MAP, muszą dokonać dodatkowej rejestracji w projekcie, która dostępna jest pod adresem <a href="https://rekrutacja.map.org.pl/" target="_blank">rekrutacja.map.org.pl</a>. Tylko tak zarejestrowani uczestnicy kursu będą mogli wziąć udział w turnieju!
+</p>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Submit" %}
+        </button>
+        {% if can_unregister %}
+            <a role="button" class="btn btn-danger float-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
+                {% trans "Deregister" %}
+            </a>
+        {% endif %}
+    </div>
+</form>
+
+{% endblock %}

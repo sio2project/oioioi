@@ -1,0 +1,9 @@
+{% load i18n %}
+
+<div class="alert alert-info mt-2" role="alert">
+	{% trans "Information about chosen school:" %} <br>
+	{% trans "Name" %}: {{ school.name }} <br>
+	{% trans "Address" %}: {{ school.address }}, {{ school.postal_code }} <br>
+	{% trans "Phone" %}: <a href="tel:{{ school.phone }}">{{ school.phone }}</a><br>
+	{% trans "E-mail" %}: <a href="mailto:{{ school.email }}">{{ school.email }}</a>
+</div>

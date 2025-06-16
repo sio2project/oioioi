@@ -285,8 +285,6 @@ class BaseTagLocalizationInline(admin.StackedInline):
 
 
 class BaseTagAdmin(admin.ModelAdmin):
-    filter_horizontal = ('problems',)
-
     def has_add_permission(self, request, obj=None):
         return can_modify_tags(request, obj)
 

@@ -12,6 +12,35 @@ Then run::
 
 and restart the judging machines.
 
+Fast Django Migration to 5.2 (Important for Large OIOIOI Instances)
+-----------------------------------
+
+The following migrations require removing an index (created by the deprecated ``index_together``) and creating a new one:
+
+* ``oi/migrations/0008_sync_indexes_state.py``
+* ``forum/migrations/0013_sync_indexes_state.py``
+* ``contests/migrations/0021_sync_indexes_state.py``
+
+Since dropping and then creating an index takes a long time for instances with a very large number of submissions, you can speed this up as follows:
+
+Because these indexes are in the database schema, you should mark these migrations (``0008_sync_indexes_state.py``, ``0021_sync_indexes_state.py``, ``0013_sync_indexes_state.py``) as fake.
+See the `django docs <https://docs.djangoproject.com/en/5.2/ref/django-admin/#cmdoption-migrate-fake>`_ for details.
+Then, rename the existing indexes created by ``IndexTogether`` to the corresponding names specified in these migrations.
+You can manually identify the indexes by checking which two fields they cover.
+
+For example, an index named ``forum_post_thread_id_add_date_6d8ec21d_idx`` should be renamed to ``forum_post_thread__54acb8_idx``.
+Similarly, rename the other indexes so that the database state is correct, i.e., the database contains indexes with the names specified in the migrations.
+
+After these steps, you will achieve a consistent database state without waiting a long time for the migrations to complete.
+
+::
+
+    python manage.py migrate oi 0008 --fake
+
+    python manage.py migrate forum 0021 --fake
+
+    python manage.py migrate contests 0013 --fake
+
 Changes in the deployment directory
 -----------------------------------
 

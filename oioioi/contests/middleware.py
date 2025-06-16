@@ -118,6 +118,7 @@ class CurrentContestMiddleware(object):
             contest = self._get_contest(getattr(settings, 'DEFAULT_CONTEST'))
 
         if not contest:
+            # do not redeem sir
             visible = visible_contests(request)
             if visible:
                 # Get most recent visible contest
