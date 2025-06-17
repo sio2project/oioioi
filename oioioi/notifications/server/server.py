@@ -1,3 +1,4 @@
+import sys
 from typing import Union
 from socketify import App, OpCode, WebSocket
 import json
@@ -33,8 +34,16 @@ class Server:
         self.app.run()
 
     async def on_start(self) -> None:
-        await self.auth.connect()
-        await self.queue.connect()
+        try:
+            await self.auth.connect()
+            await self.queue.connect()
+            self.logger.info("Notification server started successfully")
+        except Exception as e:
+            self.logger.error(f"""
+                Error starting notification server: {str(e)}. 
+                This usually means a configuration error related to RabbitMQ. Closing server.
+            """)
+            sys.exit(1)
 
     def on_ws_upgrade(self, res, req, socket_context):
         """
