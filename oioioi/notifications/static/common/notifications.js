@@ -88,7 +88,6 @@ NotificationsClient.prototype.socketInit = function () {
     this.socket.onopen = () => this.authenticate();
     this.socket.onclose = () => {
         this.setErrorState();
-        this.DROPDOWN_DISCONNECTED.show();
 
         console.warn("WebSocket connection closed. Attempting to reconnect...");
         setTimeout(() => this.socketInit(), 10000); 
@@ -104,14 +103,14 @@ NotificationsClient.prototype.socketInit = function () {
     };
 }
 
-NotificationsClient.prototype.clearNumberBadgeClasses = function () {
-    this.DROPDOWN.removeClass("btn btn-danger");
-    this.DROPDOWN_ICON.removeClass("text-warning");
+NotificationsClient.prototype.setErrorState = function () {
+    this.DROPDOWN_DISCONNECTED.show();
+    this.DROPDOWN_ICON.addClass("text-warning");
 };
 
-NotificationsClient.prototype.setErrorState = function () {
-    this.clearNumberBadgeClasses();
-    this.DROPDOWN_ICON.addClass("text-warning");
+NotificationsClient.prototype.clearErrorState = function () {
+    this.DROPDOWN_DISCONNECTED.hide();
+    this.DROPDOWN_ICON.removeClass("text-warning");
 };
 
 NotificationsClient.prototype.authenticate = function () {
@@ -122,7 +121,7 @@ NotificationsClient.prototype.authenticateCallback = function (result) {
     if (result.status === 'OK') {
         this.notifCount = 0;
         this.updateNotifCount();
-        this.DROPDOWN_DISCONNECTED.hide();
+        this.clearErrorState();
     } else {
         console.warn("WebSocket authentication failed.");
 
@@ -132,7 +131,8 @@ NotificationsClient.prototype.authenticateCallback = function (result) {
 };
 
 NotificationsClient.prototype.updateNotifCount = function () {
-    this.clearNumberBadgeClasses();
+    this.DROPDOWN.removeClass("btn btn-danger");
+
     if (this.notifCount > 0)
         this.DROPDOWN.addClass("btn btn-danger");
 };
@@ -163,7 +163,6 @@ NotificationsClient.prototype.renderMessages = function () {
             console.warn(err);
             this.dropdownLoading = false;
             this.HEADER_REFRESH_SPINNER.removeClass("spinner");
-            this.setErrorState();
             let text = gettext("A network error occured. Recent submissions list could not be loaded");
             this.TABLE_NOTIFICATIONS.html(
                 $("<span></span>").addClass("dropdown-item-text").text(text)
