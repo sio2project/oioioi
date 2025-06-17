@@ -356,6 +356,27 @@ class RankingVisibilityConfig(models.Model):
         verbose_name_plural = _("ranking visibility configs")
 
 
+limits_visibility_options = EnumRegistry()
+limits_visibility_options.register('YES', _("Visible"))
+limits_visibility_options.register('NO', _("Not visible"))
+
+
+class LimitsVisibilityConfig(models.Model):
+    contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
+    visible = EnumField(
+        limits_visibility_options,
+        default='NO',
+        verbose_name=_("limits visibility"),
+        help_text=_(
+            "Determines whether participants can see problems' time and memory limits"
+        ),
+    )
+
+    class Meta(object):
+        verbose_name = _("limits visibility config")
+        verbose_name_plural = _("limits visibility configs")
+
+
 registration_availability_options = EnumRegistry()
 registration_availability_options.register('YES', _("Open"))
 registration_availability_options.register('NO', _("Closed"))
