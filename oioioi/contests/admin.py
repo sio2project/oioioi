@@ -7,6 +7,7 @@ import urllib.parse
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
+from django.contrib.admin import action
 from django.db.models import Case, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
@@ -392,14 +393,17 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
         return '%s?%s' % (base_url, query_string)
 
+    @action(description=_("Attach problems to another contest"))
     def attach_problems_to_another_contest(self, request, queryset):
         return redirect(
             self._attach_problem_ids_to_url(queryset, 'reattach_problem_contest_list'))
 
+    @action(description=_("Assign problems to a round"))
     def assign_problems_to_a_round(self, request, queryset):
         return redirect(
             self._attach_problem_ids_to_url(queryset, 'assign_problems_to_a_round'))
 
+    @action(description=_("Delete problems"))
     def delete_problems(self, request, queryset):
         return redirect(
             self._attach_problem_ids_to_url(queryset, 'delete_problems'))
