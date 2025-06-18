@@ -3751,6 +3751,40 @@ class TestModifyContest(TestCase):
         self.assertNotContains(response, "Judging priority")
         self.assertNotContains(response, "Judging weight")
 
+class TestRemovingRoundDoesNotRemoveProblems(TestCase):
+    fixtures = [
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_problem_site',
+    ]
+
+    def test_removing_round_does_not_remove_problems(self):
+        # Only one ProblemInstance
+        prev_num_problems = ProblemInstance.objects.all().count()
+        self.assertEqual(prev_num_problems, 1)
+
+        round = Round.objects.get()
+        # This ProblemInstance is assigned to the only round
+        self.assertEqual(ProblemInstance.objects.filter(round=round).count(), 1)
+
+        problem = ProblemInstance.objects.get(round=round)
+
+        # Delete the round
+        round.delete()
+        self.assertEqual(Round.objects.count(), 0)
+
+        problems = ProblemInstance.objects.all()
+
+        # Make sure no problems have been deleted
+        self.assertEqual(problems.count(), prev_num_problems)
+
+        # We have to fetch the ProblemInstance again to make sure we
+        # don't have a previous cached version.
+        problem.refresh_from_db()
+        
+        # Make sure the foreign key is NULL
+        self.assertTrue(problem.round is None)
 
 class TestRegistrationController(TestCase):
     fixtures = ['test_two_empty_contests', 'test_users']
