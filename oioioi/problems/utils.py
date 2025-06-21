@@ -20,6 +20,7 @@ from oioioi.contests.utils import (
 from oioioi.problems.models import (
     AlgorithmTagProposal,
     DifficultyTagProposal,
+    ProblemEditorial,
     ProblemStatement,
     ProblemStatistics,
     UserStatistics,
@@ -131,9 +132,8 @@ def can_add_to_problemset(request):
     return request.user.has_perm('problems.problems_db_admin')
 
 
-def query_statement(problem_id):
-    statements = ProblemStatement.objects.filter(problem=problem_id)
-    if not statements:
+def query_document(documents):
+    if not documents:
         return None
 
     lang_prefs = (
@@ -152,15 +152,23 @@ def query_statement(problem_id):
             ext_pref = (sys.maxsize, statement.extension)
         return lang_pref, ext_pref
 
-    return sorted(statements, key=sort_key)[0]
+    return sorted(documents, key=sort_key)[0]
+
+def query_statement(problem_id):
+    statements = ProblemStatement.objects.filter(problem=problem_id)
+    return query_document(statements)
+
+def query_editorial(problem_id):
+    editorials = ProblemEditorial.objects.filter(problem=problem_id)
+    return query_document(editorials)
 
 
-def query_zip(statement, path):
-    if statement.extension != '.zip':
+def query_zip(document, path):
+    if document.extension != '.zip':
         raise SuspiciousOperation
 
     # ZipFile will call seek(), so we need a real file here
-    zip = zipfile.ZipFile(statement.content.read_using_cache())
+    zip = zipfile.ZipFile(document.content.read_using_cache())
     try:
         info = zip.getinfo(path)
     except KeyError:
