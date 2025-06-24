@@ -1,6 +1,6 @@
 import aio_pika
 import logging
-from typing import Callable, Dict, Tuple, Optional
+from typing import Callable, Optional, Awaitable
 
 
 class Queue:
@@ -13,21 +13,19 @@ class Queue:
         self.logger = logging.getLogger('oioioi')
         self.connection: Optional[aio_pika.abc.AbstractConnection] = None
         self.channel: Optional[aio_pika.abc.AbstractChannel] = None
-
-        self.queues: Dict[str, Tuple[aio_pika.abc.AbstractQueue, str]] = {}
         
     async def connect(self):
         self.connection = await aio_pika.connect_robust(self.amqp_url)
         self.channel = await self.connection.channel()
         self.logger.info("Connected to RabbitMQ")
     
-    async def subscribe(self, user_id: str):
+    async def subscribe(self, user_id: str) -> Callable[[], Awaitable[None]]:
+        """
+        Subscribe to a user's queue.
+        Returns a function that, when called, will cancel the subscription.
+        """
         if self.connection is None or self.channel is None:
             raise RuntimeError("Connection not established. Call connect() first.")
-
-        if user_id in self.queues:
-            self.logger.debug(f"Already subscribed to queue for user {user_id}")
-            return
             
         queue_name = self.QUEUE_PREFIX + user_id
         queue = await self.channel.declare_queue(queue_name, durable=True)
@@ -38,18 +36,15 @@ class Queue:
                 self.on_message(user_id, body)
         
         consumer_tag = await queue.consume(process_message)
-
-        self.queues[user_id] = (queue, consumer_tag)
         
         self.logger.debug(f"Subscribed to queue for user {user_id}")
-    
-    async def unsubscribe(self, user_id: str) -> None:
-        if self.connection is None or self.channel is None:
-            raise RuntimeError("Connection not established. Call connect() first.")
-            
-        if user_id in self.queues:
-            queue, consumer_tag = self.queues[user_id]
-            await queue.cancel(consumer_tag)
-            del self.queues[user_id]
-
-            self.logger.debug(f"Unsubscribed from queue for {user_id}")
+        
+        async def cancel_subscription():
+            try:
+                await self.channel.ready() # type: ignore
+                await queue.cancel(consumer_tag)
+                self.logger.debug(f"Unsubscribed from queue for {user_id}")
+            except Exception as e:
+                self.logger.error(f"Error unsubscribing from queue for {user_id}: {e}")
+                
+        return cancel_subscription

@@ -1,14 +1,12 @@
 import json
-from unittest.mock import AsyncMock, MagicMock, Mock, patch, call
-from socketify import OpCode
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import aiohttp
-import aio_pika
 
 from oioioi.base.tests import TestCase
 
 from oioioi.notifications.server.auth import Auth
 from oioioi.notifications.server.queue import Queue
-from oioioi.notifications.server.server import Server
+from oioioi.notifications.server.server import Server, UserConnection
 
 
 @patch('aiohttp.ClientSession')
@@ -94,14 +92,13 @@ class QueueTest(TestCase):
         with self.assertRaisesMessage(RuntimeError, "Connection not established"):
             await self.queue.subscribe("user_id")
 
-    async def test_unsubscribe_without_connect(self, mock_connect):
-        with self.assertRaisesMessage(RuntimeError, "Connection not established"):
-            await self.queue.unsubscribe("user_id")
-
     async def test_subscribe(self, mock_connect):
         await self.queue.connect()
 
-        await self.queue.subscribe("user_id")
+        cancel_subscription = await self.queue.subscribe("user_id")
+        
+        # Verify the returned function is callable
+        self.assertTrue(callable(cancel_subscription))
 
         declare_queue = mock_connect.return_value.channel.return_value.declare_queue
         declare_queue.assert_called_once_with(
@@ -109,26 +106,16 @@ class QueueTest(TestCase):
         )
         declare_queue.return_value.consume.assert_called_once()
 
-    async def test_subscribe_already_subscribed(self, mock_connect):
+    async def test_cancel_subscription(self, mock_connect):
         await self.queue.connect()
 
-        await self.queue.subscribe("user_id")
-        await self.queue.subscribe("user_id")  # should not declare again
-
-        declare_queue = mock_connect.return_value.channel.return_value.declare_queue
-        declare_queue.assert_called_once()
-        declare_queue.return_value.consume.assert_called_once()
-
-    async def test_unsubscribe(self, mock_connect):
-        await self.queue.connect()
-
-        queue = (
-            mock_connect.return_value.channel.return_value.declare_queue.return_value
-        )
+        queue = mock_connect.return_value.channel.return_value.declare_queue.return_value
         queue.consume.return_value = "consumer_tag"
 
-        await self.queue.subscribe("user_id")
-        await self.queue.unsubscribe("user_id")
+        cancel_subscription = await self.queue.subscribe("user_id")
+        
+        # Call the cancel function
+        await cancel_subscription()
 
         queue.cancel.assert_called_once_with("consumer_tag")
 
@@ -149,7 +136,6 @@ class QueueTest(TestCase):
         self.message_handler.assert_called_once_with("user_id", "test_message")
 
 
-@patch('oioioi.notifications.server.server.App')
 @patch('oioioi.notifications.server.server.Queue', autospec=True)
 @patch('oioioi.notifications.server.server.Auth', autospec=True)
 class ServerTest(TestCase):
@@ -158,123 +144,117 @@ class ServerTest(TestCase):
         self.amqp_url = 'amqp://localhost'
         self.auth_url = 'http://example.com'
 
-    def test_initialization(self, mock_auth, mock_queue, mock_app):
+    def test_initialization(self, mock_auth, mock_queue):
         server = Server(self.port, self.amqp_url, self.auth_url)
 
-        mock_app.assert_called_once()
         mock_auth.assert_called_once_with(self.auth_url)
-        mock_queue.assert_called_once_with(self.amqp_url, server.on_rabbit_message)
+        mock_queue.assert_called_once_with(self.amqp_url, server.handle_rabbit_message)
 
-    async def test_on_start(self, mock_auth, mock_queue, mock_app):
+    @patch('oioioi.notifications.server.server.serve')
+    async def test_run(self, mock_serve, mock_auth, mock_queue):
         server = Server(self.port, self.amqp_url, self.auth_url)
 
-        await server.on_start()
+        await server.run()
 
         mock_auth.return_value.connect.assert_called_once()
         mock_queue.return_value.connect.assert_called_once()
-
-    async def test_on_ws_message_unknown(self, mock_auth, mock_queue, mock_app):
+        mock_serve.assert_called_once_with(server.handle_connection, "0.0.0.0", self.port)
+        mock_serve.return_value.__aenter__.return_value.serve_forever.assert_called_once()
+        
+    async def test_register_connection_success(self, mock_auth, mock_queue):
         server = Server(self.port, self.amqp_url, self.auth_url)
-        server.logger = MagicMock()
-
-        mock_ws = MagicMock()
-        message = json.dumps({"type": "wrong"})
-        await server.on_ws_message(mock_ws, message, OpCode.TEXT)
-
-        server.logger.warning.assert_called_once()
-
-    async def test_on_ws_message_invalid(self, mock_auth, mock_queue, mock_app):
-        server = Server(self.port, self.amqp_url, self.auth_url)
-        server.logger = MagicMock()
-
-        mock_ws = MagicMock()
-        message = "Not a valid JSON message"
-        await server.on_ws_message(mock_ws, message, OpCode.TEXT)
-
-        server.logger.error.assert_called_once()
-
-    async def test_on_ws_message_auth_success(self, mock_auth, mock_queue, mock_app):
-        server = Server(self.port, self.amqp_url, self.auth_url)
-
+        
         mock_auth.return_value.authenticate.return_value = "user_id"
-
-        mock_ws = MagicMock()
-        mock_ws.get_user_data.return_value = {"user_id": None}
-        message = json.dumps({"type": "SOCKET_AUTH", "session_id": "session_id"})
-        await server.on_ws_message(mock_ws, message, OpCode.TEXT)
-
+        mock_websocket = AsyncMock()
+        
+        return_val = await server._register_connection(mock_websocket, "session_id")
+        
+        self.assertEqual(return_val, "user_id")
+        self.assertIn("user_id", server.users)
         mock_auth.return_value.authenticate.assert_called_once_with("session_id")
         mock_queue.return_value.subscribe.assert_called_once_with("user_id")
-        mock_ws.subscribe.assert_called_once_with("user_id")
-        mock_ws.send.assert_called_once_with(
-            {"type": "SOCKET_AUTH_RESULT", "status": "OK"}, OpCode.TEXT
-        )
-
-    async def test_on_ws_message_auth_failure(self, mock_auth, mock_queue, mock_app):
+        
+    async def test_register_connection_failure(self, mock_auth, mock_queue):
         server = Server(self.port, self.amqp_url, self.auth_url)
-
-        mock_auth.return_value.authenticate.side_effect = RuntimeError(
-            "Authentication failed"
-        )
-
-        mock_ws = MagicMock()
-        mock_ws.get_user_data.return_value = {"user_id": None}
-        message = json.dumps({"type": "SOCKET_AUTH", "session_id": "session_id"})
-        await server.on_ws_message(mock_ws, message, OpCode.TEXT)
-
+        
+        mock_auth.return_value.authenticate.side_effect = RuntimeError("Authentication failed")
+        mock_websocket = AsyncMock()
+        
+        return_val = await server._register_connection(mock_websocket, "session_id")
+        
+        self.assertEqual(return_val, None)
+        self.assertNotIn("user_id", server.users)
         mock_auth.return_value.authenticate.assert_called_once_with("session_id")
         mock_queue.return_value.subscribe.assert_not_called()
-        mock_ws.subscribe.assert_not_called()
-        mock_ws.send.assert_called_once_with(
-            {"type": "SOCKET_AUTH_RESULT", "status": "ERR_AUTH_FAILED"}, OpCode.TEXT
-        )
+
+    async def test_unregister_connection(self, mock_auth, mock_queue):
+        server = Server(self.port, self.amqp_url, self.auth_url)
+
+        mock_websocket = AsyncMock()
+        mock_cancel_subscription = AsyncMock()
+        server.users["user_id"] = UserConnection({mock_websocket}, mock_cancel_subscription)
+
+        await server._unregister_connection("user_id",mock_websocket)
+
+        self.assertNotIn("user_id", server.users)
+        mock_cancel_subscription.assert_called_once()
+
+    async def test_handle_connection_success(self, mock_auth, mock_queue):
+        server = Server(self.port, self.amqp_url, self.auth_url)
         
-    async def test_on_ws_message_auth_multiple_times(self, mock_auth, mock_queue, mock_app):
-        server = Server(self.port, self.amqp_url, self.auth_url)
+        with patch.object(server, "_register_connection", return_value="user_id"):
+            with patch.object(server, "_unregister_connection"):
+                mock_websocket = AsyncMock()
+                mock_websocket.__aiter__.return_value = [json.dumps({
+                    "type": "SOCKET_AUTH", 
+                    "session_id": "session_id"
+                })]
+                
+                await server.handle_connection(mock_websocket)
+                
+                mock_websocket.send.assert_called_once_with(json.dumps({
+                    "type": "SOCKET_AUTH_RESULT", 
+                    "status": "OK"
+                }))
 
-        mock_ws = MagicMock()
-        # Set up the mock websocket to return user data indicating it's already authenticated
-        mock_ws.get_user_data.return_value = {"user_id": "user_id"}
+    async def test_handle_connection_failure(self, mock_auth, mock_queue):
+        server = Server(self.port, self.amqp_url, self.auth_url)
         
-        message = json.dumps({"type": "SOCKET_AUTH", "session_id": "session_id"})
-        await server.on_ws_message(mock_ws, message, OpCode.TEXT)
-
-        # Verify authentication was not attempted again
-        mock_auth.return_value.authenticate.assert_not_called()
-        mock_queue.return_value.subscribe.assert_not_called()
-        mock_ws.subscribe.assert_not_called()
-        mock_ws.send.assert_called_once_with(
-            {"type": "SOCKET_AUTH_RESULT", "status": "ERR_AUTH_FAILED"}, OpCode.TEXT
-        )
-
-    async def test_on_ws_close(self, mock_auth, mock_queue, mock_app):
+        with patch.object(server, "_register_connection", return_value=None):
+            mock_websocket = AsyncMock()
+            mock_websocket.__aiter__.return_value = [json.dumps({
+                "type": "SOCKET_AUTH", 
+                "session_id": "session_id"
+            })]
+            
+            await server.handle_connection(mock_websocket)
+            
+            mock_websocket.send.assert_called_once_with(json.dumps({
+                "type": "SOCKET_AUTH_RESULT", 
+                "status": "ERROR"
+            }))
+        
+    async def test_handle_connection_multiple_auth(self, mock_auth, mock_queue):
         server = Server(self.port, self.amqp_url, self.auth_url)
-
-        mock_app.return_value.num_subscribers.return_value = 0
-
-        mock_ws = MagicMock()
-        mock_ws.get_user_data.return_value = {"user_id": "user_id"}
-        await server.on_ws_close(mock_ws, 0, "")
-
-        mock_queue.return_value.unsubscribe.assert_called_once_with("user_id")
-
-    async def test_on_ws_close_with_other(self, mock_auth, mock_queue, mock_app):
+        
+        with patch.object(server, "_register_connection", return_value="user_id") as register_mock:
+            with patch.object(server, "_unregister_connection"):
+                mock_websocket = AsyncMock()
+                auth_message = json.dumps({"type": "SOCKET_AUTH", "session_id": "session_id"})
+                mock_websocket.__aiter__.return_value = [auth_message, auth_message]
+                
+                await server.handle_connection(mock_websocket)
+                
+                # We expect the register_connection to be called only once
+                register_mock.assert_called_once_with(mock_websocket, "session_id")
+        
+    def test_handle_rabbit_message(self, mock_auth, mock_queue):
         server = Server(self.port, self.amqp_url, self.auth_url)
-
-        # This means that there are still other sockets to this username
-        mock_app.return_value.num_subscribers.return_value = 1
-
-        mock_ws = MagicMock()
-        mock_ws.get_user_data.return_value = {"user_id": "user_id"}
-        await server.on_ws_close(mock_ws, 0, "")
-
-        mock_queue.return_value.unsubscribe.assert_not_called()
-
-    def test_on_rabbit_message(self, mock_auth, mock_queue, mock_app):
-        server = Server(self.port, self.amqp_url, self.auth_url)
-
-        server.on_rabbit_message("user_id", "message")
-
-        mock_app.return_value.publish.assert_called_once_with(
-            "user_id", "message", OpCode.TEXT
-        )
+        
+        cancel_mock = AsyncMock()
+        socket_set = set(AsyncMock())
+        server.users["user_id"] = UserConnection(socket_set, cancel_mock)
+        
+        with patch('oioioi.notifications.server.server.broadcast') as mock_broadcast:
+            server.handle_rabbit_message("user_id", "message")
+            mock_broadcast.assert_called_once_with(socket_set, "message")

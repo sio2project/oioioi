@@ -1,123 +1,117 @@
-import sys
-from typing import Union
-from socketify import App, OpCode, WebSocket
+import asyncio
 import json
 import logging
+from typing import Dict, NamedTuple, Set, Callable, Awaitable, Optional
+from weakref import WeakValueDictionary
+
+from websockets.asyncio.server import serve, ServerConnection, broadcast
+from websockets.exceptions import ConnectionClosed
 
 from oioioi.notifications.server.auth import Auth
 from oioioi.notifications.server.queue import Queue
 
 
+class UserConnection(NamedTuple):
+    sockets: Set[ServerConnection]
+    queue_cancel: Callable[[], Awaitable[None]]
+
 class Server:
     def __init__(self, port: int, amqp_url: str, auth_url: str) -> None:
         self.port = port
-
-        self.app = App()
         self.auth = Auth(auth_url)
-        self.queue = Queue(amqp_url, self.on_rabbit_message)
+        self.queue = Queue(amqp_url, self.handle_rabbit_message)
         self.logger = logging.getLogger('oioioi')
+        
+        self.users: Dict[str, UserConnection] = {}
+        # Per-user locks to prevent race conditions when registering connections
+        self.user_locks = WeakValueDictionary[str, asyncio.Lock]()
 
-        self.app.on_start(self.on_start)
-        self.app.ws(
-            "/",
-            {
-                "upgrade": self.on_ws_upgrade,
-                "message": self.on_ws_message,
-                "close": self.on_ws_close,
-            },
-        )
-
-    def run(self) -> None:
-        """Start the notification server."""
+    async def run(self) -> None:
         self.logger.info(f"Starting notification server on port {self.port}")
-        self.app.listen(self.port)
-        self.app.run()
-
-    async def on_start(self) -> None:
-        try:
-            await self.auth.connect()
-            await self.queue.connect()
+        
+        await self.auth.connect()
+        await self.queue.connect()                
+            
+        async with serve(self.handle_connection, "0.0.0.0", self.port) as server:
             self.logger.info("Notification server started successfully")
-        except Exception as e:
-            self.logger.error(f"""
-                Error starting notification server: {str(e)}. 
-                This usually means a configuration error related to RabbitMQ. Closing server.
-            """)
-            sys.exit(1)
+            await server.serve_forever()
 
-    def on_ws_upgrade(self, res, req, socket_context):
-        """
-        Taken from socketify's documentation.
-        This method allows for storing extra data inside the websocket object.
-        """
-
-        key = req.get_header("sec-websocket-key")
-        protocol = req.get_header("sec-websocket-protocol")
-        extensions = req.get_header("sec-websocket-extensions")
-
-        user_data = {"user_id": None}
-
-        res.upgrade(key, protocol, extensions, socket_context, user_data)
-
-    async def on_ws_message(
-        self, ws: WebSocket, msg: Union[bytes, str], opcode: OpCode
-    ) -> None:
-        """Handle incoming WebSocket messages."""
+    async def handle_connection(self, websocket: ServerConnection) -> None:
+        user_id = None
+        
         try:
-            data = json.loads(msg)
-            message_type = data.get("type")
+            async for message in websocket:
+                try:
+                    data = json.loads(message)
+                    message_type = data["type"]
 
-            if message_type == "SOCKET_AUTH":
-                await self.on_ws_auth_message(ws, data["session_id"])
-            else:
-                self.logger.warning(f"Unknown message type: {message_type}")
-
-        except Exception as e:
-            self.logger.error(f"Error processing message: {str(e)}")
-
-    async def on_ws_close(
-        self, ws: WebSocket, code: int, msg: Union[bytes, str]
-    ) -> None:
-        """Handle WebSocket connection closure."""
+                    if message_type == "SOCKET_AUTH":
+                        if user_id is not None:
+                            raise RuntimeError("Socket is already authenticated.")
+                        
+                        user_id = await self._register_connection(websocket, data["session_id"])
+                        
+                        await websocket.send(json.dumps({
+                            "type": "SOCKET_AUTH_RESULT", 
+                            "status": "OK" if user_id else "ERROR"
+                        }))
+                    else:
+                        raise RuntimeError("Unknown message type.")
+                    
+                except Exception as e:
+                    self.logger.error(f"Error processing message: {type(e).__name__}, {e}")
+        
+        except ConnectionClosed:
+            # Ignore connection close to avoid logging them as errors
+            pass
+        
+        finally:
+            await self._unregister_connection(user_id, websocket)
+                
+    def handle_rabbit_message(self, user_id: str, msg: str) -> None:
+        if user_id not in self.users:
+            self.logger.warning(f"Received message for unregistered user {user_id}")
+            return
+        
+        broadcast(self.users[user_id].sockets, msg)
+        self.logger.debug(f"Published message to {user_id}: {msg}")
+        
+    async def _register_connection(self, websocket: ServerConnection, session_id: str) -> Optional[str]:
         try:
-            user_id = ws.get_user_data()["user_id"]
-
-            # If there are no more active connections for this user, unsubscribe from the RabbitMQ queue
-            if user_id and self.app.num_subscribers(user_id) == 0:
-                await self.queue.unsubscribe(user_id)
-
-            self.logger.debug(f"WebSocket closed for user {user_id}")
-
-        except Exception as e:
-            self.logger.error(f"Error during connection close: {str(e)}")
-
-    def on_rabbit_message(self, user_name: str, msg: str) -> None:
-        """Handle messages from RabbitMQ."""
-        try:
-            self.logger.debug(f"Publishing message to {user_name}: {msg}")
-            self.app.publish(user_name, msg, OpCode.TEXT)
-        except Exception as e:
-            self.logger.error(f"Error publishing message: {str(e)}")
-
-    async def on_ws_auth_message(self, ws: WebSocket, session_id: str) -> None:
-        try:
-            current_user_id = ws.get_user_data()["user_id"]
-            if current_user_id:
-                raise RuntimeError("Socket is already authenticated.")
-
             user_id = await self.auth.authenticate(session_id)
-
-            ws.subscribe(user_id)
-            ws.get_user_data()["user_id"] = user_id
-            await self.queue.subscribe(user_id)
+            
+            # Create or get the lock for the user
+            lock = self.user_locks.setdefault(user_id, asyncio.Lock())
+                
+            # Acquire the lock to ensure that we only subscribe to the queue once per user
+            async with lock:
+                if user_id not in self.users:
+                    # User is not registered, try subscribing to its queue
+                    queue_cancel = await self.queue.subscribe(user_id)
+                    self.users[user_id] = UserConnection(set(), queue_cancel)
+                
+                self.users[user_id].sockets.add(websocket)
 
             self.logger.debug(f"User {user_id} authenticated successfully")
-            ws.send({"type": "SOCKET_AUTH_RESULT", "status": "OK"}, OpCode.TEXT)
+            return user_id
 
         except Exception as e:
-            self.logger.error(
-                f"Authentication error for session {session_id}: {str(e)}"
-            )
-            ws.send(
-                {"type": "SOCKET_AUTH_RESULT", "status": "ERR_AUTH_FAILED"}, OpCode.TEXT
-            )
+            self.logger.error(f"Authentication error for session {session_id}: {type(e).__name__}, {e}")
+            return None
+    
+    async def _unregister_connection(self, user_id: Optional[str], websocket: ServerConnection) -> None:
+        if user_id is None:
+            self.logger.debug("WebSocket closed for unregistered user.")
+            return
+        
+        self.users[user_id].sockets.remove(websocket)
+        
+        if not self.users[user_id].sockets:
+            # Cleanup if there are no more sockets for this user
+            queue_cancel = self.users[user_id].queue_cancel
+
+            del self.users[user_id]
+            
+            await queue_cancel()
+                
+        self.logger.debug(f"WebSocket closed for user {user_id}")
