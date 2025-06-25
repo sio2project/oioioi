@@ -13,7 +13,7 @@ class Auth:
         self.auth_url = url + self.URL_AUTHENTICATE_SUFFIX
         self.auth_cache: TTLCache[str, str] = TTLCache(
             maxsize=self.AUTH_CACHE_MAX_SIZE, ttl=self.AUTH_CACHE_EXPIRATION_SECONDS)
-        self.logger = logging.getLogger('oioioi')
+        self.logger = logging.getLogger(__name__)
         self.http_client: Optional[aiohttp.ClientSession] = None
 
     async def connect(self):

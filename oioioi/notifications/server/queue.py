@@ -15,7 +15,7 @@ class Queue:
         self.amqp_url = amqp_url
         self.on_message = on_message
         
-        self.logger = logging.getLogger('oioioi')
+        self.logger = logging.getLogger(__name__)
         self.connection: Optional[aio_pika.abc.AbstractConnection] = None
         self.channel: Optional[aio_pika.abc.AbstractChannel] = None
         

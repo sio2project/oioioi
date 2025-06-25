@@ -20,7 +20,7 @@ class Server:
         self.port = port
         self.auth = Auth(auth_url)
         self.queue = Queue(amqp_url, self.handle_rabbit_message)
-        self.logger = logging.getLogger('oioioi')
+        self.logger = logging.getLogger(__name__)
         
         # Tracks user connections and their queue subscriptions
         self.users: Dict[str, UserConnection] = {}
