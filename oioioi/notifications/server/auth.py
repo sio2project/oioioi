@@ -19,6 +19,12 @@ class Auth:
     async def connect(self):
         self.http_client = aiohttp.ClientSession()
 
+    async def close(self):
+        if self.http_client is not None:
+            await self.http_client.close()
+            self.http_client = None
+            self.logger.info("HTTP client closed")
+
     async def authenticate(self, session_id: str) -> str:
         """Authenticate a user with session ID."""
         if self.http_client is None:

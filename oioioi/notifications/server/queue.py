@@ -19,6 +19,12 @@ class Queue:
         self.channel = await self.connection.channel()
         self.logger.info("Connected to RabbitMQ")
     
+    async def close(self):
+        if self.connection:
+            await self.connection.close()
+            self.connection = self.channel = None
+            self.logger.info("RabbitMQ connection closed")
+    
     async def subscribe(self, user_id: str) -> Callable[[], Awaitable[None]]:
         """
         Subscribe to a user's queue.

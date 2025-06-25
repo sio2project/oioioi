@@ -11,4 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         server = Server(settings.NOTIFICATIONS_SERVER_PORT,
                         settings.NOTIFICATIONS_RABBITMQ_URL, settings.NOTIFICATIONS_OIOIOI_URL)
-        asyncio.run(server.run())
+        try:
+            asyncio.run(server.run())
+        except KeyboardInterrupt:
+            pass  # Allow graceful shutdown on Ctrl+C

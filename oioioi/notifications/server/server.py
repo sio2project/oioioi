@@ -29,12 +29,19 @@ class Server:
     async def run(self) -> None:
         self.logger.info(f"Starting notification server on port {self.port}")
         
-        await self.auth.connect()
-        await self.queue.connect()                
+        try:
+            await self.auth.connect()
+            await self.queue.connect()                
             
-        async with serve(self.handle_connection, "0.0.0.0", self.port) as server:
-            self.logger.info("Notification server started successfully")
-            await server.serve_forever()
+            async with serve(self.handle_connection, "", self.port) as server:
+                self.logger.info("Notification server started successfully")
+                await server.serve_forever()
+            
+        finally:
+            await self.auth.close()
+            await self.queue.close()
+            
+            self.logger.info("Notification server stopped")
 
     async def handle_connection(self, websocket: ServerConnection) -> None:
         user_id = None
