@@ -84,7 +84,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
    * Added *NOTIFICATIONS_* options to *deployment/settings.py*::
 
         # Notifications configuration (client)
-        # This one is for JavaScript socket.io client.
+        # This one is for JavaScript WebSocket client.
         # It should contain actual URL available from remote machines.
         NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
