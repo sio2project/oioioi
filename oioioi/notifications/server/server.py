@@ -22,6 +22,7 @@ class Server:
         self.queue = Queue(amqp_url, self.handle_rabbit_message)
         self.logger = logging.getLogger('oioioi')
         
+        # Tracks user connections and their queue subscriptions
         self.users: Dict[str, UserConnection] = {}
         # Per-user locks to prevent race conditions when registering connections
         self.user_locks = WeakValueDictionary[str, asyncio.Lock]()
@@ -58,6 +59,7 @@ class Server:
                         
                         user_id = await self._register_connection(websocket, data["session_id"])
                         
+                        # Send authentication result back to client
                         await websocket.send(json.dumps({
                             "type": "SOCKET_AUTH_RESULT", 
                             "status": "OK" if user_id else "ERROR"
@@ -80,6 +82,7 @@ class Server:
             self.logger.warning(f"Received message for unregistered user {user_id}")
             return
         
+        # Broadcast message to all sockets for this user
         broadcast(self.users[user_id].sockets, msg)
         self.logger.debug(f"Published message to {user_id}: {msg}")
         

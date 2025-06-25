@@ -26,7 +26,12 @@ class Auth:
             self.logger.info("HTTP client closed")
 
     async def authenticate(self, session_id: str) -> str:
-        """Authenticate a user with session ID."""
+        """
+        Authenticate a user with session ID.
+        
+        Returns the user ID if authentication is successful.
+        Raises RuntimeError if authentication fails.
+        """
         if self.http_client is None:
             raise RuntimeError("Connection not established. Call connect() first.")
 

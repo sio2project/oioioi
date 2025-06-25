@@ -7,6 +7,11 @@ class Queue:
     QUEUE_PREFIX = "_notifs_"
     
     def __init__(self, amqp_url: str, on_message: Callable[[str, str], None]):
+        """
+        Args:
+            amqp_url: Connection URL for RabbitMQ
+            on_message: Callback function that receives (user_id, message)
+        """
         self.amqp_url = amqp_url
         self.on_message = on_message
         
@@ -28,7 +33,10 @@ class Queue:
     async def subscribe(self, user_id: str) -> Callable[[], Awaitable[None]]:
         """
         Subscribe to a user's queue.
-        Returns a function that, when called, will cancel the subscription.
+        The on_message callback will be called with (user_id, message) for each message received.
+        
+        Returns:
+            A function that, when called, will cancel the subscription.
         """
         if self.connection is None or self.channel is None:
             raise RuntimeError("Connection not established. Call connect() first.")

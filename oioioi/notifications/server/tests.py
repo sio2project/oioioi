@@ -158,7 +158,7 @@ class ServerTest(TestCase):
 
         mock_auth.return_value.connect.assert_called_once()
         mock_queue.return_value.connect.assert_called_once()
-        mock_serve.assert_called_once_with(server.handle_connection, "0.0.0.0", self.port)
+        mock_serve.assert_called_once_with(server.handle_connection, "", self.port)
         mock_serve.return_value.__aenter__.return_value.serve_forever.assert_called_once()
         
     async def test_register_connection_success(self, mock_auth, mock_queue):
