@@ -11,7 +11,7 @@ How to use:
     NOTIFICATIONS_SERVER_ENABLED = True
     NOTIFICATIONS_RABBITMQ_URL = 'amqp://oioioi:oioioi@broker'
     NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
-- stop and start again the containers (easy_toolbox.py stop; easy_toolbox.py start)
+- stop and start again the containers (easy_toolbox.py stop; easy_toolbox.py up)
 
 
 

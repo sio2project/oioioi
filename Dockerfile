@@ -27,9 +27,7 @@ RUN apt-get update && \
         locales \
         python3-pip \
         nodejs \
-        npm \
-        libuv1 \
-        zlib1g && \
+        npm && \
     apt-get clean
 
 # This is oioioi user linux uid. Setting it is useful in development.
