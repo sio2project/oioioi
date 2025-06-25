@@ -37,7 +37,7 @@ class AuthTest(TestCase):
         mock_response = (
             mock_client.return_value.post.return_value.__aenter__.return_value
         )
-        mock_response.json.return_value = {"status": "OK", "user": "user_id"}
+        mock_response.json.return_value = {"user": "user_id"}
         mock_response.raise_for_status = MagicMock()
 
         result = await self.auth.authenticate("session_id")
@@ -51,19 +51,7 @@ class AuthTest(TestCase):
             headers={'Content-Type': 'application/x-www-form-urlencoded'},
         )
 
-    async def test_authenticate_error_server_status(self, mock_client):
-        await self.auth.connect()
-
-        mock_response = (
-            mock_client.return_value.post.return_value.__aenter__.return_value
-        )
-        mock_response.json.return_value = {"status": "ERROR"}
-        mock_response.raise_for_status = Mock()
-
-        with self.assertRaisesMessage(RuntimeError, "Authentication failed"):
-            await self.auth.authenticate("session_id")
-
-    async def test_authenticate_error_http_status(self, mock_client):
+    async def test_authenticate_error(self, mock_client):
         await self.auth.connect()
 
         mock_response = (

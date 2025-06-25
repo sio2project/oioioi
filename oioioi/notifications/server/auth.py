@@ -48,11 +48,7 @@ class Auth:
             response.raise_for_status()
             result = await response.json()
 
-            if result.get('status') != 'OK':
-                raise RuntimeError(
-                    "Authentication failed - server returned non-OK status")
-
-            user_id = result.get('user')
+            user_id = result['user']
             self.auth_cache[session_id] = user_id
 
             self.logger.debug(f"Authenticated session ID: {session_id} with user ID: {user_id}")
