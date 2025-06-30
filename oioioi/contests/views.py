@@ -53,7 +53,8 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
     visible_contests,
-    visible_contests_queryset, 
+    visible_contests_queryset,
+    visible_contests_as_django_queryset,
     visible_problem_instances,
     visible_rounds,
     get_files_message,
@@ -855,7 +856,7 @@ def filter_contests_view(request, filter_value=""):
     )
 
 def get_contest_hints(request, query):
-    contests = visible_contests_queryset(request, query)
+    contests = visible_contests_as_django_queryset(request, query)
     contests = contests.filter(Q(is_archived=False)).distinct()
     return [
         {

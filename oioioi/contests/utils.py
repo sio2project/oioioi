@@ -397,7 +397,8 @@ def used_controllers():
     by contests on this instance.
     """
     return Contest.objects.values_list('controller_name', flat=True).distinct()
-    
+
+
 def visible_contests_query(request):
     """Returns materialized set of contests visible to the logged in user."""
     if request.GET.get('living', 'safely') == 'dangerously':
@@ -411,7 +412,7 @@ def visible_contests_query(request):
                 controller.registration_controller().visible_contests_query(request)
             )
             visible_query = visible_query.union(subquery, all=False)
-        return set(visible_query)
+        return visible_query
     visible_query = Q_always_false()
     for controller_name in used_controllers():
         controller_class = import_string(controller_name)
@@ -429,10 +430,21 @@ def visible_contests(request):
     return set(contests)
 
 @request_cached_complex
-def visible_contests_queryset(request, filter_value):
+def visible_contests_queryset(request, filter_value=None):
     contests = visible_contests_query(request)
-    contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))    
+    if filter_value is not None:
+        contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))
+    return set(contests)
+
+
+@request_cached_complex
+def visible_contests_as_django_queryset(request, filter_value=None):
+    """TODO: remove code duplication visible_contests_queryset/visible_contests_query"""
+    contests = visible_contests_query(request)
+    if filter_value is not None:
+        contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))
     return contests
+
 
 @request_cached
 def administered_contests(request):
