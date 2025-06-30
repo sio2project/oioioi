@@ -20,6 +20,7 @@ from django.views.decorators.http import require_POST
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
+from oioioi.base.utils import jsonify
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.attachment_registration import attachment_registry
@@ -55,7 +56,8 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
     visible_contests,
-    visible_contests_queryset, 
+    visible_contests_queryset,
+    visible_filtered_contests_as_django_queryset,
     visible_problem_instances,
     visible_rounds,
     get_files_message,
@@ -1064,7 +1066,7 @@ def unarchive_contest(request):
     return redirect('default_contest_view', contest_id=contest.id)
 
 def filter_contests_view(request, filter_value=""):
-    contests = visible_contests_queryset(request, filter_value)
+    contests = set(visible_contests_queryset(request, filter_value))
     contests = sorted(contests, key=lambda x: x.creation_date, reverse=True)
     
     context = {
@@ -1074,3 +1076,26 @@ def filter_contests_view(request, filter_value=""):
     return TemplateResponse(
         request, 'contests/select_contest.html', context
     )
+
+def get_contest_hints(request, query):
+    contests = visible_filtered_contests_as_django_queryset(request, query)
+    contests = contests.filter(Q(is_archived=False)).distinct()
+    return [
+        {
+            'trigger': 'problem',
+            'name': contest.name,
+            'url': reverse('filter_contests', kwargs={'filter_value': contest.name})
+        }
+        for contest in contests[: getattr(settings, 'NUM_HINTS', 10)]
+    ]
+
+@jsonify
+def get_contest_hints_view(request):
+    # Function works analogously to the auto-completion function implemented in the problemset
+
+    query = request.GET.get('q', '')
+
+    result = []
+    result.extend(list(get_contest_hints(request, query)))
+
+    return result

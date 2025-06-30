@@ -207,6 +207,11 @@ neutral_patterns = [
         views.filter_contests_view, 
         name='filter_contests',
     ),
+    re_path(
+        r'^get_contest_hints/$',
+        views.get_contest_hints_view,
+        name='get_contest_hints',
+    ),
 ]
 
 if settings.USE_API:
