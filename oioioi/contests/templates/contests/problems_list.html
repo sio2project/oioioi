@@ -2,6 +2,50 @@
 {% load i18n %}
 {% load pagination_tags %}
 {% load format_data_range %}
+
+{% block styles %}
+    {{ block.super }}
+    <style>
+        tr:target {
+            animation: target-glow;
+            animation-duration: 1s;
+            animation-timing-function: ease;
+            animation-iteration-count: 6;
+            background-color: rgba(255, 255, 0 , .4);
+        }
+        
+        @keyframes target-glow {
+            0%, 100% {
+                background-color: rgba(255, 255, 0 , .4);
+                box-shadow: none;
+            }
+            50% {
+                background-color: rgba(255, 255, 0 , .8);
+                box-shadow: 0px 0px 4px 6px rgba(255, 255, 0, .8);
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            if(window.location.hash) {
+                const id = window.location.hash.substring(1);
+                const el = $('#' + id);
+                if (el.length) {
+                    const elementPosition = el.offset().top - $('#oioioi-navbar').height() - 20;
+
+                    $('html, body').animate({
+                        scrollTop: elementPosition
+                    }, 800);
+                }
+            }
+        });
+    </script>
+{% endblock %}
+
 {% block title %}{% trans "Problems" %}{% endblock %}
 
 {% block main-content %}
@@ -14,7 +58,12 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th>{% trans "Name" %}</th>
+                    <th class="problem-name-column">{% trans "Name" %}</th>
+                    {% if show_problems_limits %}
+                        <th>
+                            {% trans "Limits" %}
+                        </th>
+                    {% endif %}
                     {% if show_submissions_limit %}
                         <th class="text-right">
                         {% if user.is_authenticated %}
@@ -31,8 +80,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pi, statement_visible, round_time, result, submissions_left, submissions_limit, can_submit in problem_instances %}
-
+                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit in problem_instances %}
                     {% if show_rounds %}
                         {% ifchanged pi.round %}
                             <tr class="problemlist-subheader">
@@ -43,7 +91,7 @@
                             </tr>
                         {% endifchanged %}
                     {% endif %}
-                    <tr>
+                    <tr id="{{ pi.get_short_name_display }}">
                         <td>{{ pi.get_short_name_display }}</td>
                         <td>
                             {% if statement_visible %}
@@ -53,6 +101,23 @@
                                 {{ pi.problem.name }}
                             {% endif %}
                         </td>
+                        {% if show_problems_limits %}
+                            <td class="text-right">
+                                {% if problem_limits %}
+                                    <table>
+                                        {% for row in problem_limits %}
+                                            <tr class="problem-limits-row">
+                                                {% for entry in row %}
+                                                    <td>
+                                                        {{ entry }}
+                                                    </td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                {% endif %}
+                            </td>
+                        {% endif %}
                         {% if show_submissions_limit %}
                             <td class="text-right">
                                 {% if submissions_left == None %}

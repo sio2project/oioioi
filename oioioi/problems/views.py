@@ -53,6 +53,7 @@ from oioioi.contests.utils import administered_contests, is_contest_basicadmin
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
 from oioioi.problems.models import (
+    AggregatedAlgorithmTagProposal,
     AlgorithmTag,
     AlgorithmTagLocalization,
     AlgorithmTagProposal,
@@ -81,6 +82,7 @@ from oioioi.problems.problem_site import (
     problem_site_tab_registry,
 )
 from oioioi.problems.problem_sources import problem_sources
+from oioioi.problems.templatetags.tag import prefetch_top_tag_proposals
 from oioioi.problems.utils import (
     can_add_to_problemset,
     can_admin_instance_of_problem,
@@ -251,22 +253,30 @@ def _get_problems_by_query(query):
     return filtered_problems.distinct()
 
 
-def search_problems_in_problemset(datadict):
+def filter_problems_by_query(problems, datadict):
     query = datadict.get('q', '')
     algorithm_tags = datadict.getlist('algorithm')
     difficulty_tags = datadict.getlist('difficulty')
     origin_tags = datadict.getlist('origin')
 
-    problems = Problem.objects.all()
-
     if query:
-        problems = _get_problems_by_query(query)
-    if algorithm_tags:
-        problems = problems.filter(algorithmtag__name__in=algorithm_tags)
+        problems_matching_query = _get_problems_by_query(query)
+        problems = problems.filter(pk__in=problems_matching_query)
     if difficulty_tags:
         problems = problems.filter(difficultytag__name__in=difficulty_tags)
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
+    if algorithm_tags:
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict['include_proposals'] == '1':
+            proposal_match_problem_ids = AggregatedAlgorithmTagProposal.objects.filter(
+                tag__name__in=algorithm_tags,
+                amount__gte=settings.PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL
+            ).values_list('problem_id', flat=True)
+            problems = problems.filter(
+                Q(algorithmtag__name__in=algorithm_tags) | Q(id__in=proposal_match_problem_ids)
+            ).distinct()
+        else:
+            problems = problems.filter(algorithmtag__name__in=algorithm_tags)
 
     return problems
 
@@ -305,10 +315,10 @@ def generate_problemset_tabs(request):
 
 
 def problemset_get_problems(request):
+    problems = Problem.objects.all()
+
     if settings.PROBLEM_TAGS_VISIBLE:
-        problems = search_problems_in_problemset(request.GET)
-    else:
-        problems = Problem.objects.all()
+        problems = filter_problems_by_query(problems, request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
         # We annotate all of the statistics to assure that the display
@@ -895,7 +905,9 @@ def task_archive_tag_view(request, origin_tag):
         origin_tag.problems.all()
         .select_related('problemsite', 'main_problem_instance')
         .prefetch_related(
-            'origininfovalue_set__localizations', 'origininfovalue_set__category'
+            'origininfovalue_set__localizations', 
+            'origininfovalue_set__category',
+            'names'
         )
     )
     problems = _filter_problems_prefetched(problems, request.GET)

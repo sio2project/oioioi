@@ -1,4 +1,4 @@
-FROM python:3.10 AS base
+FROM python:3.11 AS base
 
 ENV PYTHONUNBUFFERED 1
 
@@ -25,7 +25,9 @@ RUN apt-get update && \
         sox \
         flite \
         locales \
-        python3-pip && \
+        python3-pip \
+        nodejs \
+        npm && \
     apt-get clean
 
 # This is oioioi user linux uid. Setting it is useful in development.
@@ -54,7 +56,7 @@ USER oioioi
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
 ENV BERKELEYDB_DIR /usr
-RUN pip3 install --user psycopg2-binary==2.8.6 twisted uwsgi
+RUN pip3 install --user psycopg2-binary twisted uwsgi
 RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
@@ -64,8 +66,15 @@ RUN pip3 install -r requirements.txt --user filetracker[server]
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user
 
+# Installing node dependencies
+ENV PATH $PATH:/sio2/oioioi/node_modules/.bin
+
+COPY --chown=oioioi:oioioi package.json package-lock.json ./
+RUN npm ci
+
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 
+RUN npm run build
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
@@ -73,7 +82,7 @@ WORKDIR /sio2/deployment
 RUN mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # The stage below is independent of base and can be built in parallel to optimize build time.
-FROM python:3.10 AS development-sandboxes
+FROM python:3.11 AS development-sandboxes
 
 ENV DOWNLOAD_DIR=/sio2/sandboxes
 ENV MANIFEST_URL=https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest

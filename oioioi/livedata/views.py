@@ -35,7 +35,7 @@ def cache_unless_admin_or_observer(view):
             cache.set(
                 cache_key,
                 {
-                    'content': str(result.content),
+                    'content': result.content.decode(result.charset),
                     'content_type': result['Content-Type'],
                 },
                 settings.LIVEDATA_CACHE_TIMEOUT,

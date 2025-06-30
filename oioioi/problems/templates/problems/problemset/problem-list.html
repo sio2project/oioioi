@@ -74,10 +74,9 @@
                 </tr>
             </thead>
             <tbody>
-                {% if show_tags and show_tag_proposals %}
-                    {% prefetch_tags problems max_tag_proposals_shown min_proposals_per_tag %}
-                {% elif show_tags %}
+                {% if show_tags %}
                     {% prefetch_tags problems %}
+                    {% prefetch_top_tag_proposals problems %}
                 {% endif %}
                 {% for problem in problems %}
                 <tr>

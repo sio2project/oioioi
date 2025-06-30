@@ -1,0 +1,34 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Assign problems to a round" %}{% endblock %}
+
+{% block main-content %}
+<h2>
+    {% blocktrans %} Round Choice {% endblocktrans %}
+</h2>
+<p>
+    {% blocktrans %}Choose a round to assign the following problems to: {% endblocktrans %}
+    <ul class="list-group d-inline-block">
+        {% for problem in problem_instances %}
+            <li class="list-group-item">{{ problem }}</li>
+        {% endfor %}
+    </ul>
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="post" value="yes" />
+    <div class="form-group d-flex">
+        {{ form.as_p }}
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Assign" %}
+        </button>
+        <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+            {% trans "No, go back" %}
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -399,6 +399,33 @@ def used_controllers():
     return Contest.objects.values_list('controller_name', flat=True).distinct()
 
 
+@request_cached
+def visible_contests_queryset_old(request):
+    """Returns Q for filtering contests visible to the logged in user."""
+    if request.GET.get('living', 'safely') == 'dangerously':
+        visible_query = Contest.objects.none()
+        for controller_name in used_controllers():
+            controller_class = import_string(controller_name)
+            # HACK: we pass None contest just to call visible_contests_query.
+            # This is a workaround for mixins not taking classmethods very well.
+            controller = controller_class(None)
+            subquery = Contest.objects.filter(controller_name=controller_name).filter(
+                controller.registration_controller().visible_contests_query(request)
+            )
+            visible_query = visible_query.union(subquery, all=False)
+        return visible_query
+    visible_query = Q_always_false()
+    for controller_name in used_controllers():
+        controller_class = import_string(controller_name)
+        # HACK: we pass None contest just to call visible_contests_query.
+        # This is a workaround for mixins not taking classmethods very well.
+        controller = controller_class(None)
+        visible_query |= Q(
+            controller_name=controller_name
+        ) & controller.registration_controller().visible_contests_query(request)
+    return visible_query
+
+
 def visible_contests_query(request):
     """Returns materialized set of contests visible to the logged in user."""
     if request.GET.get('living', 'safely') == 'dangerously':
@@ -412,7 +439,7 @@ def visible_contests_query(request):
                 controller.registration_controller().visible_contests_query(request)
             )
             visible_query = visible_query.union(subquery, all=False)
-        return set(visible_query)
+        return visible_query
     visible_query = Q_always_false()
     for controller_name in used_controllers():
         controller_class = import_string(controller_name)
@@ -474,6 +501,7 @@ def visible_filtered_contests_as_django_queryset(request, filter_value=None):
     return contests
 
 
+# why is there no `can_admin_contest_query`?
 @request_cached
 def administered_contests(request):
     """Returns a list of contests for which the logged
@@ -623,6 +651,7 @@ def best_round_to_display(request, allow_past_rounds=False):
 
 @make_request_condition
 def has_any_contest(request):
+    # holy shit.
     contests = [contest for contest in administered_contests(request)]
     return len(contests) > 0
 
@@ -802,3 +831,100 @@ def get_problem_statements(request, controller, problem_instances):
         ],
         key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name, p[0].short_name),
     )
+
+def process_instances_to_limits(raw_instances):
+    instances_to_limits = {}
+
+    for instance in raw_instances:
+        if instance['min_time'] is not None:
+            instances_to_limits[instance['id']] = {
+                'default': (instance['min_time'], instance['max_time'], instance['min_memory'], instance['max_memory']),
+                'cpp': (
+                    min(filter(None, [instance['cpp_min_time'], instance['cpp_min_time_non_overridden']])),
+                    max(filter(None, [instance['cpp_max_time'], instance['cpp_max_time_non_overridden']])),
+                    min(filter(None, [instance['cpp_min_memory'], instance['cpp_min_memory_non_overridden']])),
+                    max(filter(None, [instance['cpp_max_memory'], instance['cpp_max_memory_non_overridden']]))
+                ),
+                'py': (
+                    min(filter(None, [instance['py_min_time'], instance['py_min_time_non_overridden']])),
+                    max(filter(None, [instance['py_max_time'], instance['py_max_time_non_overridden']])),
+                    min(filter(None, [instance['py_min_memory'], instance['py_min_memory_non_overridden']])),
+                    max(filter(None, [instance['py_max_memory'], instance['py_max_memory_non_overridden']]))
+                ),
+            }
+
+    return instances_to_limits
+
+def stringify_problems_limits(raw_limits):
+    """Stringifies the time and memory limits for a given set of problem instances.
+
+    This function processes a dictionary of problem instances (raw_limits), where each problem instance
+    contains limits for default, C++, and Python. The function then formats these limits into
+    human-readable strings based on the following logic:
+        - If both C++ and Python limits are the same as the default, only the default limits are shown.
+        - Else if both limits for C++ or Python differ from the default limits, those limits are formatted separately.
+        - Else if one of language's limits differ, the default and the differing language limits are shown.
+
+    Args:
+        raw_limits (dict): A dictionary of problem instances, where each key is the problem instance ID and
+        each value is another dictionary containing the following keys:
+        - 'default': A tuple (min_time, max_time, min_memory, max_memory) for the default limits.
+        - 'cpp': A tuple (min_time, max_time, min_memory, max_memory) for C++ language.
+        - 'py': A tuple (min_time, max_time, min_memory, max_memory) for Python language.
+
+    Returns:
+        dict: A dictionary of formatted limits, where each key is the problem instance ID and each value is
+              a tuple with the following format:
+              - For default-only limits: (('', time_limit, memory_limit),)
+              - For limits with both languages: (('C++:', cpp_time, cpp_memory), ('Python:', py_time, py_memory))
+              - For mixed limits (one language differs): (('Default:', time_limit, memory_limit), language_limits)
+    """
+    def KiB_to_MB(KiBs):
+        return (KiBs * 1024) // 1000000
+
+    def format_limits(pi_limits):
+        time_lower = f'{pi_limits[0] / 1000:.1g}'
+        time_higher = f'{pi_limits[1] / 1000:.1g}'
+
+        time_limit = f'{time_lower} s' if time_lower == time_higher else f'{time_lower}-{time_higher} s'
+
+        if pi_limits[2] < 1000000 / 1024: # lower memory limit is smaller than 1MB, display KiB
+            unit = 'KiB'
+            memory_lower = pi_limits[2]
+            memory_higher = pi_limits[3]
+        else:
+            unit = 'MB'
+            memory_lower = KiB_to_MB(pi_limits[2])
+            memory_higher = KiB_to_MB(pi_limits[3])
+
+        memory_limit = f'{memory_lower} {unit}' if memory_lower == memory_higher else f'{memory_lower}-{memory_higher} {unit}'
+
+        return time_limit, memory_limit
+
+    stringified = {}
+
+    for pi_pk, pi_limits in raw_limits.items():
+        if all(pi_limits[lang] == pi_limits['default'] for lang in ['cpp', 'py']): # language limits same as default
+            time_limit, memory_limit = format_limits(pi_limits['default'])
+            stringified[pi_pk] = (('', time_limit, memory_limit),)
+
+        elif all(pi_limits[lang] != pi_limits['default'] for lang in ['cpp', 'py']): # both languages differ
+            cpp_time, cpp_memory = format_limits(pi_limits['cpp'])
+            py_time, py_memory = format_limits(pi_limits['py'])
+            stringified[pi_pk] = (
+                ('C++:', cpp_time, cpp_memory),
+                ('Python:', py_time, py_memory)
+            )
+
+        else: # one of languages differ
+            if pi_limits['cpp'] != pi_limits['default']:
+                language_limits = ('C++:', *format_limits(pi_limits['cpp']))
+            else:
+                language_limits = ('Python:', *format_limits(pi_limits['py']))
+
+            stringified[pi_pk] = (
+                (_('Default') + ':', *format_limits(pi_limits['default'])),
+                language_limits
+            )
+
+    return stringified

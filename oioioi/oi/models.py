@@ -61,8 +61,15 @@ CLASS_TYPES = [
 ]
 
 
+class SchoolType(models.Model):
+    name = models.CharField(
+        max_length=255, validators=[validate_whitespaces], verbose_name=_("name")
+    )
+
 
 class School(models.Model):
+    rspo = models.PositiveIntegerField(blank=True, null=True, unique=True)
+    type = models.ForeignKey(SchoolType, null=True, on_delete=models.SET_NULL)
     name = models.CharField(
         max_length=255, validators=[validate_whitespaces], verbose_name=_("name")
     )
@@ -95,7 +102,7 @@ class School(models.Model):
 
     class Meta(object):
         unique_together = ('name', 'postal_code')
-        index_together = (('city', 'is_active'), ('province', 'is_active'))
+        indexes = [models.Index(fields=("city", "is_active")), models.Index(fields=("province", "is_active"))]
         ordering = ['province', 'city', 'address', 'name']
 
     def __str__(self):

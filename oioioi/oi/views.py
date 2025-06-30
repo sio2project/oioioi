@@ -2,17 +2,20 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.views.decorators.http import require_GET, require_POST
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_admin, contest_exists, can_see_personal_data
 from oioioi.dashboard.registry import dashboard_headers_registry
+from oioioi.filetracker.utils import stream_file
 from oioioi.oi.controllers import OIRegistrationController
 from oioioi.oi.forms import AddSchoolForm, SchoolSelect, city_options, school_options
 from oioioi.oi.models import School
+from oioioi.oi.utils import get_schools
+from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 
 
@@ -37,8 +40,8 @@ def cities_view(request):
     if 'province' not in request.GET:
         raise SuspiciousOperation
     province = request.GET['province']
-    options = city_options(province)
-    return HttpResponse(SchoolSelect(choices=options).render_options([]))
+    options = { 'options': city_options(get_schools(request), province) }
+    return HttpResponse(render_to_string('forms/school_select_options_form.html', options))
 
 
 @require_GET
@@ -48,8 +51,19 @@ def schools_view(request):
         raise SuspiciousOperation
     province = request.GET['province']
     city = request.GET['city']
-    options = school_options(province, city)
-    return HttpResponse(SchoolSelect(choices=options).render_options([]))
+    options = { 'options': school_options(get_schools(request), province, city) }
+    return HttpResponse(render_to_string('forms/school_select_options_form.html', options))
+
+
+@require_GET
+@enforce_condition(not_anonymous)
+def school_view(request):
+    if 'school' not in request.GET:
+        raise SuspiciousOperation
+    school = School.objects.filter(id=request.GET['school'], is_active=True).first()
+    if school is None:
+        raise Http404
+    return HttpResponse(render_to_string('forms/school_select_school_info.html', { 'school': school }))
 
 
 @enforce_condition(not_anonymous)
@@ -118,3 +132,14 @@ def schools_similar_view(request):
         )
     else:
         return HttpResponse('')
+
+
+@require_GET
+@enforce_condition(contest_exists & can_see_personal_data)
+def consent_view(request, participant_id):
+    p = get_object_or_404(Participant, id=participant_id, contest=request.contest)
+    consent = p.registration_model.parent_consent
+    if not consent:
+        raise Http404
+
+    return stream_file(consent)

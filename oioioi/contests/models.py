@@ -356,6 +356,27 @@ class RankingVisibilityConfig(models.Model):
         verbose_name_plural = _("ranking visibility configs")
 
 
+limits_visibility_options = EnumRegistry()
+limits_visibility_options.register('YES', _("Visible"))
+limits_visibility_options.register('NO', _("Not visible"))
+
+
+class LimitsVisibilityConfig(models.Model):
+    contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
+    visible = EnumField(
+        limits_visibility_options,
+        default='NO',
+        verbose_name=_("limits visibility"),
+        help_text=_(
+            "Determines whether participants can see problems' time and memory limits"
+        ),
+    )
+
+    class Meta(object):
+        verbose_name = _("limits visibility config")
+        verbose_name_plural = _("limits visibility configs")
+
+
 registration_availability_options = EnumRegistry()
 registration_availability_options.register('YES', _("Open"))
 registration_availability_options.register('NO', _("Closed"))
@@ -598,7 +619,7 @@ class SubmissionReport(models.Model):
     class Meta(object):
         get_latest_by = 'creation_date'
         ordering = ('-creation_date',)
-        index_together = (('submission', 'creation_date'),)
+        indexes = [models.Index(fields=("submission", "creation_date"))]
 
 
 class ScoreReport(models.Model):
@@ -726,7 +747,7 @@ class ContestView(models.Model):
 
     class Meta(object):
         unique_together = ('user', 'contest')
-        index_together = [['user', 'timestamp']]
+        indexes = [models.Index(fields=["user", "timestamp"])]
         get_latest_by = 'timestamp'
         ordering = ('-timestamp',)
 

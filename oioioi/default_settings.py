@@ -4,6 +4,8 @@ import sys
 
 from oioioi.base.utils.finders import find_executable_path
 
+from pathlib import Path
+
 if sys.version_info < (2, 6):
     raise RuntimeError("OIOIOI needs at least Python 2.6")
 
@@ -14,6 +16,8 @@ from django.contrib.messages import constants as messages
 from django.utils.translation import gettext_lazy as _
 
 import oioioi
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLATION_CONFIG_VERSION = 49
 
@@ -91,14 +95,10 @@ LOCALE_PATHS = [
     os.path.join(os.path.dirname(oioioi.__file__), '_locale/locale-overrides'),
 ]
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
-USE_L10N = False
-
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-DATETIME_FORMAT = 'Y-m-d H:i:s'
+FORMAT_MODULE_PATH = 'oioioi.formats'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -166,7 +166,7 @@ PROBLEM_TAGS_VISIBLE = False
 SHOW_TAG_PROPOSALS_IN_PROBLEMSET = False
 
 # Only relevant with SHOW_TAG_PROPOSALS_IN_PROBLEMSET set to True
-PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 3
+PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 10
 PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL = 10
 
 # Enables problem statistics at the cost of some per-submission performance hit.
@@ -350,7 +350,14 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_ACTIVATION_DAYS = 7
 
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
-DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": 'oioioi.filetracker.storage.FiletrackerStorage',
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 FILETRACKER_SERVER_ENABLED = True
 FILETRACKER_LISTEN_ADDR = os.getenv('FILETRACKER_LISTEN_ADDR', '127.0.0.1')
@@ -889,3 +896,8 @@ REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
     'anon': '1000/day',
     'user': '1000/hour'
 }
+
+STATICFILES_DIRS = [
+    BASE_DIR / "dist_webpack",
+    BASE_DIR / "node_modules"
+]

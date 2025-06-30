@@ -24,3 +24,6 @@ function scroll_and_focus(selector) {
     scroll_to(selector);
     $(selector).focus();
 }
+
+window.scroll_to = scroll_to
+window.scroll_and_focus = scroll_and_focus

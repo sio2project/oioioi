@@ -46,7 +46,7 @@ from oioioi.contests.models import (
     FilesMessage,
     SubmissionsMessage,
     SubmitMessage,
-    SubmissionMessage,
+    SubmissionMessage, LimitsVisibilityConfig,
 )
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import make_empty_contest_formset
@@ -61,6 +61,7 @@ from oioioi.contests.utils import (
     is_contest_basicadmin,
     is_contest_observer,
     rounds_times,
+    stringify_problems_limits,
 )
 from oioioi.dashboard.contest_dashboard import unregister_contest_dashboard_view
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -568,7 +569,6 @@ class TestContestController(TestCase):
                 ),
                 expected_order,
             )
-
 
 class TestContestViews(TestCase):
     fixtures = [
@@ -3212,8 +3212,10 @@ class TestReattachingProblems(TestCase):
         'test_extra_contests',
         'test_full_package',
         'test_problem_instance',
+        'test_extra_problem',
         'test_permissions',
         'test_problem_site',
+        'test_problem_with_long_id'
     ]
 
     def test_reattaching_problem(self):
@@ -3221,27 +3223,29 @@ class TestReattachingProblems(TestCase):
         c2.default_submissions_limit = 123
         c2.save()
 
-        pi_id = ProblemInstance.objects.get().id
+        pi_id = ProblemInstance.objects.get(id=1).id
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
-        url = reverse('reattach_problem_contest_list', args=(pi_id, 'full'))
+        url = reverse('reattach_problem_contest_list', args=('full',)) + "/?ids={}".format(pi_id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Choose a contest to attach the problem to")
+        self.assertContains(response, "Choose a contest to attach the following problems to:")
         self.assertContains(response, '<td><a', count=Contest.objects.count())
 
-        url = reverse('reattach_problem_confirm', args=(pi_id, 'c2'))
+        url = reverse('reattach_problem_confirm', args=('c2',)) + "/?ids={}".format(pi_id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Extra test contest 2")
         self.assertContains(response, u'Sum\u017cyce')
         self.assertContains(response, "Attach")
 
+        prev_problem_count = ProblemInstance.objects.count()
+
         response = self.client.post(url, data={'submit': True}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'c2')
-        self.assertEqual(ProblemInstance.objects.count(), 2)
+        self.assertEqual(ProblemInstance.objects.count(), prev_problem_count + 1)
         self.assertContains(response, ' added successfully.')
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
@@ -3253,13 +3257,57 @@ class TestReattachingProblems(TestCase):
             test.delete()
         self.assertTrue(Test.objects.count() > 0)
 
+    def test_reattaching_problems(self):
+        c2 = Contest.objects.get(id='c2')
+        c2.default_submissions_limit = 123
+        c2.save()
+
+        pi_id1 = ProblemInstance.objects.get(id=1).id
+        pi_id2 = ProblemInstance.objects.get(id=2).id
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('reattach_problem_contest_list', args=('full',)) + "/?ids={}%2C{}".format(
+            pi_id1, pi_id2)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choose a contest to attach the following problems to:")
+        self.assertContains(response, '<td><a', count=Contest.objects.count())
+        self.assertContains(response, 'zad1')
+        self.assertContains(response, 'zad-extra')
+
+        url = reverse('reattach_problem_confirm', args=('c2',)) + "/?ids={}%2C{}".format(
+            pi_id1, pi_id2)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Extra test contest 2")
+        self.assertContains(response, u'Sum\u017cyce')
+        self.assertContains(response, "Attach")
+
+        prev_problem_count = ProblemInstance.objects.count()
+
+        response = self.client.post(url, data={'submit': True}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'c2')
+        self.assertEqual(ProblemInstance.objects.count(), prev_problem_count + 2)
+        self.assertContains(response, ' added successfully.')
+        self.assertContains(response, u'Sum\u017cyce')
+        self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
+        for problem in ProblemInstance.objects.filter(contest__id='c2'):
+            self.assertEqual(problem.submissions_limit, 123)
+
+        for problem in Problem.objects.all():
+            for test in problem.main_problem_instance.test_set.all():
+                test.delete()
+        self.assertTrue(Test.objects.count() > 0)
+
     def test_permissions(self):
-        pi_id = ProblemInstance.objects.get().id
+        pi_id = ProblemInstance.objects.get(id=1).id
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         urls = [
-            reverse('reattach_problem_contest_list', args=(pi_id,)),
-            reverse('reattach_problem_confirm', args=(pi_id, 'c1')),
+            reverse('reattach_problem_contest_list') + "/?ids={}".format(pi_id),
+            reverse('reattach_problem_confirm', args=('c1',)) + "/?ids={}".format(pi_id),
         ]
         for url in urls:
             response = self.client.get(url, follow=True)
@@ -3271,6 +3319,357 @@ class TestReattachingProblems(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
 
+    # Makes sure that ids are correctly forwarded in links from
+    # reattach_problem_contest_list to reattach_problem_confirm.
+    def test_correctly_passing_problem_ids(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        pi_id1 = ProblemInstance.objects.get(id=1).id
+        pi_id2 = ProblemInstance.objects.get(id=12345).id
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('reattach_problem_contest_list') + "?ids={}".format(pi_id1)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=1")
+
+        url = reverse('reattach_problem_contest_list') + "?ids={}".format(pi_id2)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=12345")
+
+        url = reverse('reattach_problem_contest_list') + "?ids={},{}".format(pi_id1, pi_id2)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=1%2C12345")
+
+        url = reverse('reattach_problem_contest_list') + "?ids={},{}".format(pi_id2, pi_id1)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "c/c/reattach/c/confirm/?ids=12345%2C1")
+
+
+
+# Testing whether a user with admin permission for one contest
+# can manage problems belonging to another contest using
+# the problem manager interface.
+class TestManagingProblemsFromAnotherContest(TestCase):
+
+    fixtures = [
+        'test_managing_problems_from_another_contest',
+    ]
+
+    def test_managing(self):
+        self.assertTrue(self.client.login(username='test_weak_admin'))
+
+        self.client.get('/c/available_contest/') # 'available_contest' becomes the current contest
+
+        for problem_id in [1000, 1001]:
+
+            get_urls = [
+                reverse('reattach_problem_contest_list') + "?ids={}".format(problem_id),
+                reverse('reattach_problem_confirm', args=('available_contest',)) + "?ids={}".format(problem_id),
+                reverse('assign_problems_to_a_round') + "?ids={}".format(problem_id),
+                reverse('delete_problems') + "?ids={}".format(problem_id),
+            ]
+
+            for url in get_urls:
+                response = self.client.get(url, follow=True)
+                self.assertEqual(response.status_code, 400)
+
+            post_urls_and_data = [
+                (reverse('reattach_problem_confirm', args=('available_contest',)) + "?ids={}".format(problem_id), {}),
+                (reverse('assign_problems_to_a_round') + "?ids={}".format(problem_id), {'round': 100}),
+                (reverse('delete_problems') + "?ids={}".format(problem_id), {}),
+            ]
+
+            for url, data in post_urls_and_data:
+                response = self.client.post(url, data=data, follow=True)
+                self.assertEqual(response.status_code, 400)
+
+
+
+
+class TestAssigningProblemsToARound(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_extra_contests',
+        'test_full_package',
+        'test_problem_instance',
+        'test_extra_problem',
+        'test_permissions',
+        'test_problem_site',
+        'test_assign_to_a_round'
+    ]
+
+    def test_contest_with_no_rounds(self):
+        pi_id = ProblemInstance.objects.get(id=100).id
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/no-rounds/') # 'no-rounds' becomes the current contest
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(pi_id)
+        response = self.client.get(url, follow=True)
+
+        # In case of no rounds, the user should be redirected back to the
+        # to the probleminstance menu and a message should be displayed.
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "The contest has no rounds.")
+        self.assertContains(response, "Select problem instance to change")
+
+    def test_contest_with_one_round(self):
+        pi_id1 = ProblemInstance.objects.get(id=300).id
+        pi_id2 = ProblemInstance.objects.get(id=301).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/one-round/')  # 'one-round' becomes the current contest
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}%2C{}".format(
+            pi_id1, pi_id2
+        )
+
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choose a round to assign the following problems to")
+        self.assertContains(response, Round.objects.get(id=1).name)
+
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        # Add both problem to the round with id 1.
+        response = self.client.post(url, data={'round': 1}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 1", count=3)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 1)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 1)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'one-round')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'one-round')
+
+    def test_contest_with_multiple_rounds(self):
+        pi_id1 = ProblemInstance.objects.get(id=400).id
+        pi_id2 = ProblemInstance.objects.get(id=401).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/multiple-rounds/')  # 'multiple-rounds' becomes the current contest
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}%2C{}".format(
+            pi_id1, pi_id2
+        )
+
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Choose a round to assign the following problems to")
+        self.assertContains(response, Round.objects.get(id=3).name)
+        self.assertContains(response, Round.objects.get(id=4).name)
+
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        # Add both problem to the round with id 1.
+        response = self.client.post(url, data={'round': 3}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 1", count=3)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 3)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 3)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'multiple-rounds')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'multiple-rounds')
+
+        # Now assign the problems to the other round.
+        response = self.client.post(url, data={'round': 4}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 2", count=3)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 4)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 4)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'multiple-rounds')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'multiple-rounds')
+
+        # Now try to assign one of the problems to the first round
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(pi_id1)
+        response = self.client.post(url, data={'round' : 3}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Problems assigned to the round")
+
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        # The name of the round should be displayed next to both problems and in the
+        # message "Problem assigned to the round...".
+        self.assertContains(response, "Round 1", count=2)
+        self.assertContains(response, "Round 2", count=1)
+
+        # Check if the problems are assigned to the round
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).round.id, 3)
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).round.id, 4)
+        # Check if the problems are assigned to the contest
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id1).contest.id, 'multiple-rounds')
+        self.assertEqual(ProblemInstance.objects.get(id=pi_id2).contest.id, 'multiple-rounds')
+
+    def test_bad_problem_ids(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        self.client.get('/c/one-round/')  # 'one-round' becomes the current contest
+
+        # Non-existent problem id
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(30)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # Non-numeric problem id
+        url = reverse('assign_problems_to_a_round') + "?ids=A,30"
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # ProblemInstance which belongs to another contest
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(400)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # ProblemInstance which does not belong to any contest
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(401)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+    def test_permissions(self):
+        pi_id = ProblemInstance.objects.get(id=300).id
+
+        self.assertTrue(self.client.login(username='test_user'))
+
+        self.client.get('/c/one-round/')  # 'one-round' becomes the current contest
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(pi_id)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        response = self.client.post(url, data={'round': 1}, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/one-round/')  # 'one-round' becomes the current contest
+
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(pi_id)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(url, data={'round': 1}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(
+            ProblemInstance.objects.get(id=pi_id).contest.id,
+            Contest.objects.get(id='one-round').id
+        )
+
+class TestDeletingProblems(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_extra_problem',
+        'test_permissions',
+        'test_problem_site',
+        'test_extra_contests',
+        'test_problem_instance_with_and_without_contests',
+    ]
+
+    def test_deleting_problem(self):
+        pi_id = ProblemInstance.objects.get(id=1).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('delete_problems') + "?ids={}".format(pi_id)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Are you sure you want to delete the selected problems?")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id).problem.name)
+
+        response = self.client.post(url, data={}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems deleted successfully")
+        self.assertFalse(ProblemInstance.objects.filter(id=pi_id).exists())
+
+    def test_deleting_problems(self):
+        pi_id1 = ProblemInstance.objects.get(id=1).id
+        pi_id2 = ProblemInstance.objects.get(id=2).id
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('delete_problems') + "?ids={}%2C{}".format(pi_id1, pi_id2)
+        response = self.client.get(url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Are you sure you want to delete the selected problems?")
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
+        self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
+
+        response = self.client.post(url, data={}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Problems deleted successfully")
+        self.assertFalse(ProblemInstance.objects.filter(id=pi_id1).exists())
+        self.assertFalse(ProblemInstance.objects.filter(id=pi_id2).exists())
+
+    def test_bad_problem_ids(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        # Non-existent problem id
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(30)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # Non-numeric problem id
+        url = reverse('assign_problems_to_a_round') + "?ids=A,30"
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # ProblemInstance which belongs to another contest
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(10)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+        # ProblemInstance which does not belong to any contest
+        url = reverse('assign_problems_to_a_round') + "?ids={}".format(20)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 400)
 
 class TestModifyContest(TestCase):
     fixtures = ['test_users']
@@ -4585,3 +4984,165 @@ class TestContestSearchHints(TestCase):
         response = self.client.get(self.get_query_url({'q' : 'Extra test'}), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['Extra test contest 1', 'Extra test contest 2',])
+
+class TestProblemsLimits(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_program_tests_and_languageoverrides'
+    ]
+
+    def test_limits_visibility(self):
+        contest = Contest.objects.get()
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        self.assertTrue(self.client.login(username='test_user'))
+
+        # Limits are not displayed
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Limits')
+
+        # Display limits
+        _ = LimitsVisibilityConfig.objects.create(contest=contest, visible='YES')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Limits')
+        self.assertContains(response, 'C++:')
+        self.assertContains(response, 'Python:')
+
+
+    def test_problems_limits_for_contest_view(self):
+        contest = Contest.objects.get()
+
+        class FakeRequest(object):
+            def __init__(self, timestamp, contest):
+                self.timestamp = timestamp
+                self.user = AnonymousUser()
+                self.contest = contest
+
+        limits = contest.controller.get_problems_limits(
+            FakeRequest(datetime(2011, 1, 1, tzinfo=timezone.utc), contest)
+        )
+
+        # Test defaults
+        self.assertEqual(limits[2]['default'][0], 1000)
+        self.assertEqual(limits[2]['default'][1], 2000)
+        self.assertEqual(limits[2]['default'][2], 256000)
+        self.assertEqual(limits[2]['default'][3], 512000)
+
+        self.assertEqual(limits[3]['default'][0], 1000)
+        self.assertEqual(limits[3]['default'][1], 4000)
+        self.assertEqual(limits[3]['default'][2], 128000)
+        self.assertEqual(limits[3]['default'][3], 1024000)
+
+        # Test cpp
+        self.assertEqual(limits[2]['cpp'][0], 1000)
+        self.assertEqual(limits[2]['cpp'][1], 2000)
+        self.assertEqual(limits[2]['cpp'][2], 256000)
+        self.assertEqual(limits[2]['cpp'][3], 512000)
+
+        self.assertEqual(limits[3]['cpp'][0], 500)
+        self.assertEqual(limits[3]['cpp'][1], 4000)
+        self.assertEqual(limits[3]['cpp'][2], 64000)
+        self.assertEqual(limits[3]['cpp'][3], 1024000)
+
+        # Test python
+        self.assertEqual(limits[2]['py'][0], 1000)
+        self.assertEqual(limits[2]['py'][1], 2000)
+        self.assertEqual(limits[2]['py'][2], 256000)
+        self.assertEqual(limits[2]['py'][3], 512000)
+
+        self.assertEqual(limits[3]['py'][0], 1000)
+        self.assertEqual(limits[3]['py'][1], 6000)
+        self.assertEqual(limits[3]['py'][2], 128000)
+        self.assertEqual(limits[3]['py'][3], 2048000)
+
+
+    def test_stringify_limits(self):
+        raw_limits = {
+            '1': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (1000, 2000, 1000, 2000),
+                'py': (1000, 2000, 1000, 2000),
+            },
+            '2': {
+                'default': (2000, 4000, 2000, 4000),
+                'cpp': (1000, 3000, 1000, 4000),
+                'py': (3000, 5000, 2000, 5000)
+            },
+            '3': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (500, 2000, 500, 1000),
+                'py': (1000, 3000, 1000, 3000),
+            },
+            '4': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (500, 2000, 2000, 3000),
+                'py': (1000, 2000, 1000, 2000),
+            },
+            '5': {
+                'default': (1000, 2000, 1000, 2000),
+                'cpp': (1000, 2000, 1000, 2000),
+                'py': (3000, 4000, 1000, 3000),
+            },
+            '6': {
+                'default': (1000, 2000, 500, 2000),
+                'cpp': (100, 500, 100, 200),
+                'py': (1000, 2000, 500, 2000),
+            }
+        }
+
+        stringified = stringify_problems_limits(raw_limits)
+
+        # Test no overrides
+        self.assertEqual(len(stringified['1']), 1)
+        self.assertEqual(stringified['1'][0][0], '')
+        self.assertEqual(stringified['1'][0][1], '1-2 s')
+        self.assertEqual(stringified['1'][0][2], '1-2 MB')
+
+        # Test two simple overrides
+        self.assertEqual(len(stringified['2']), 2)
+        self.assertEqual(stringified['2'][0][0], 'C++:')
+        self.assertEqual(stringified['2'][0][1], '1-3 s')
+        self.assertEqual(stringified['2'][0][2], '1-4 MB')
+        self.assertEqual(stringified['2'][1][0], 'Python:')
+        self.assertEqual(stringified['2'][1][1], '3-5 s')
+        self.assertEqual(stringified['2'][1][2], '2-5 MB')
+
+        # Test two overrides, one with small memory limit
+        self.assertEqual(len(stringified['3']), 2)
+        self.assertEqual(stringified['3'][0][0], 'C++:')
+        self.assertEqual(stringified['3'][0][1], '0.5-2 s')
+        self.assertEqual(stringified['3'][0][2], '500-1000 KiB')
+        self.assertEqual(stringified['3'][1][0], 'Python:')
+        self.assertEqual(stringified['3'][1][1], '1-3 s')
+        self.assertEqual(stringified['3'][1][2], '1-3 MB')
+
+        # Test one override, cpp
+        self.assertEqual(len(stringified['4']), 2)
+        self.assertEqual(stringified['4'][0][0], 'Default:')
+        self.assertEqual(stringified['4'][0][1], '1-2 s')
+        self.assertEqual(stringified['4'][0][2], '1-2 MB')
+        self.assertEqual(stringified['4'][1][0], 'C++:')
+        self.assertEqual(stringified['4'][1][1], '0.5-2 s')
+        self.assertEqual(stringified['4'][1][2], '2-3 MB')
+
+        # Test one override, python
+        self.assertEqual(len(stringified['5']), 2)
+        self.assertEqual(stringified['5'][0][0], 'Default:')
+        self.assertEqual(stringified['5'][0][1], '1-2 s')
+        self.assertEqual(stringified['5'][0][2], '1-2 MB')
+        self.assertEqual(stringified['5'][1][0], 'Python:')
+        self.assertEqual(stringified['5'][1][1], '3-4 s')
+        self.assertEqual(stringified['5'][1][2], '1-3 MB')
+
+        # Test small memory limits
+        self.assertEqual(len(stringified['6']), 2)
+        self.assertEqual(stringified['6'][0][0], 'Default:')
+        self.assertEqual(stringified['6'][0][1], '1-2 s')
+        self.assertEqual(stringified['6'][0][2], '500-2000 KiB')
+        self.assertEqual(stringified['6'][1][0], 'C++:')
+        self.assertEqual(stringified['6'][1][1], '0.1-0.5 s')
+        self.assertEqual(stringified['6'][1][2], '100-200 KiB')

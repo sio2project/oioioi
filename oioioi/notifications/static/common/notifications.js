@@ -1,4 +1,4 @@
-let notificationsClient; // jshint ignore:line
+let notificationsClient;
 
 function TranslationClient() {
     this.translationQueue = {};
@@ -82,7 +82,9 @@ function NotificationsClient(serverUrl, sessionId) {
         this.dropdownUpToDate = false;
         this.renderMessages();
     });
+    console.log("notif url: " + this.NOTIF_SERVER_URL);
     this.socket = io.connect(this.NOTIF_SERVER_URL);
+    console.log(this.socket);
     this.socket.on('connect', this.authenticate.bind(this));
     this.socket.emits = function (k, v) {
         this.socket.emit(k, JSON.stringify(v));

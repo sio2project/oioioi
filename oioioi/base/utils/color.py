@@ -8,26 +8,7 @@ from django.utils.safestring import mark_safe
 
 
 class ColorWidget(forms.TextInput):
-    """Based on:
-    http://laktek.com/2008/10/27/really-simple-color-picker-in-jquery/
-    Requires jQuery > 1.2.6
-
-    Displays a fixed set of preselected color options.
-    Hex value can also be edited manually.
-    Only supports Hex values.  Alpha channel not supported.
-    """
-
-    class Media(object):
-        js = ('js/jquery.colorPicker.js',)
-
-    def render(self, name, value, attrs=None, renderer=None):
-        html = super(ColorWidget, self).render(name, value, attrs, renderer)
-        return html + mark_safe(
-            u'''<script type="text/javascript">
-            $('#id_%s').colorPicker();
-            </script>'''
-            % name
-        )
+    input_type = "color"
 
 
 class ColorField(models.CharField):

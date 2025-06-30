@@ -62,6 +62,8 @@ INSTALLED_APPS = (
     'oioioi.usercontests',
     'oioioi.mp',
     'oioioi.welcomepage',
+    'oauth2_provider',
+    'oioioi.oauth',
 ) + INSTALLED_APPS
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
@@ -125,3 +127,7 @@ LOGGING['loggers']['django.db.backends.schema'] = {
     'handlers': ['console'],
     'level': 'INFO',
 }
+
+REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += (
+    'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+)

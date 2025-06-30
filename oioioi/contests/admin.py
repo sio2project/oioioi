@@ -7,15 +7,18 @@ import urllib.parse
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
+from django.contrib.admin import action
 from django.db.models import Case, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.urls import re_path, reverse
+from django.urls import path
+from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
@@ -380,6 +383,30 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     list_display = ('name_link', 'short_name_link', 'round', 'package', 'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
+    actions = ['attach_problems_to_another_contest', 'assign_problems_to_a_round', 'delete_problems']
+
+    def _attach_problem_ids_to_url(self, queryset, url_name):
+        """Helper function to create a URL with problem ids as query parameters."""
+        ids = [problem.id for problem in queryset]
+        # Attach problem ids as arguments to the URL
+        base_url = reverse(url_name)
+        query_string = urlencode({'ids': ','.join(str(i) for i in ids)}, doseq=True)
+        return '%s?%s' % (base_url, query_string)
+
+    @action(description=_("Attach problems to another contest"))
+    def attach_problems_to_another_contest(self, request, queryset):
+        return redirect(
+            self._attach_problem_ids_to_url(queryset, 'reattach_problem_contest_list'))
+
+    @action(description=_("Assign problems to a round"))
+    def assign_problems_to_a_round(self, request, queryset):
+        return redirect(
+            self._attach_problem_ids_to_url(queryset, 'assign_problems_to_a_round'))
+
+    @action(description=_("Delete problems"))
+    def delete_problems(self, request, queryset):
+        return redirect(
+            self._attach_problem_ids_to_url(queryset, 'delete_problems'))
 
     def __init__(self, *args, **kwargs):
         # creating a thread local variable to store the request
@@ -429,7 +456,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse('reset_tests_limits_for_probleminstance', args=(instance.id,))
 
     def _reattach_problem_href(self, instance):
-        return reverse('reattach_problem_contest_list', args=(instance.id,))
+        base_url = reverse('reattach_problem_contest_list')
+        query_string = urlencode({'ids': instance.id})
+        # Attach problem id as an argument to the URL
+        return '%s?%s' % (base_url, query_string)
 
     def _add_or_update_href(self, instance):
         return (
@@ -738,7 +768,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_urls(self):
-        urls = [re_path(r'^rejudge/$', self.rejudge_view)]
+        urls = [path('rejudge/', self.rejudge_view)]
         return urls + super(SubmissionAdmin, self).get_urls()
 
     def rejudge_view(self, request):
@@ -919,10 +949,10 @@ class SubmissionAdmin(admin.ModelAdmin):
         )
         return queryset
 
-    def lookup_allowed(self, key, value):
+    def lookup_allowed(self, key, value, request):
         if key == 'user__username':
             return True
-        return super(SubmissionAdmin, self).lookup_allowed(key, value)
+        return super(SubmissionAdmin, self).lookup_allowed(key, value, request)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         _contest_id = None
