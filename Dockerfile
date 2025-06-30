@@ -56,7 +56,7 @@ USER oioioi
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
 ENV BERKELEYDB_DIR /usr
-RUN pip3 install --user psycopg2-binary==2.9.5 twisted uwsgi
+RUN pip3 install --user psycopg2-binary twisted uwsgi
 RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
