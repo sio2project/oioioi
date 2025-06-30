@@ -68,10 +68,13 @@
   word-break: break-all;
 }
 
-#szkopul-contact-form-open {
-  position: fixed;
-  right: 1em;
+#szkopul-contact-form-open-div {
+  position: sticky;
   bottom: 1em;
+  padding-right: 1em;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
   z-index: 999;
 }
 

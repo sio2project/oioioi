@@ -13,6 +13,6 @@ def szkopul_contact(request):
                 context={'support_email': settings.SZKOPUL_SUPPORT_EMAIL},
             )
 
-        return {'extra_body_szkopul_contact': lazy(generator, str)()}
+        return {'extra_after_footer_szkopul_contact': lazy(generator, str)()}
     else:
         return {}
