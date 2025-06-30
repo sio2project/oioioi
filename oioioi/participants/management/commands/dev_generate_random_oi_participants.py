@@ -10,7 +10,6 @@ from django.db import DatabaseError, transaction
 from django.utils.translation import gettext as _
 
 from oioioi.contests.models import Contest
-from oioioi.participants.admin import ParticipantAdmin
 from oioioi.participants.models import Participant
 from oioioi.oi.models import OIRegistration, School, T_SHIRT_SIZES, CLASS_TYPES
 
@@ -33,12 +32,6 @@ class Command(BaseCommand):
             contest = Contest.objects.get(id=options['contest_id'])
         except Contest.DoesNotExist:
             raise CommandError(_("Contest %s does not exist") % options['contest_id'])
-
-        # rcontroller = contest.controller.registration_controller()
-        # if not issubclass(
-        #     getattr(rcontroller, 'participant_admin', type(None)), ParticipantAdmin
-        # ):
-        #     raise CommandError(_("Wrong type of contest"))
 
         arg = options['filename_or_url']
         if arg.startswith('http://') or arg.startswith('https://'):
@@ -100,7 +93,6 @@ class Command(BaseCommand):
                     ok = False
 
             if ok:
-                # self.stdout.write(_("Successfully processed %d entries.") % all_count)
                 print(f"Successfully processed {all_count} entries.")
             else:
                 raise CommandError(_("There were some errors. Database not changed."))
