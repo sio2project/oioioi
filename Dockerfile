@@ -65,6 +65,7 @@ COPY --chown=oioioi:oioioi setup.py requirements.txt ./
 RUN pip3 install -r requirements.txt --user filetracker[server]
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user
+RUN pip3 install --user -U "gevent==25.5.1"  # override version of gevent
 
 # Installing node dependencies
 ENV PATH $PATH:/sio2/oioioi/node_modules/.bin
