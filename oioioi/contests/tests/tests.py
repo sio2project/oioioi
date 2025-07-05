@@ -3524,7 +3524,7 @@ class TestAssigningProblemsToARound(TestCase):
         response = self.client.post(url, data={'round' : 3}, follow=True)
         self.assertEqual(response.status_code, 200)
 
-        self.assertContains(response, " have been successfully assigned to the round ")
+        self.assertContains(response, " have been successfully assigned ")
 
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
