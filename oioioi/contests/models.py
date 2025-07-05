@@ -465,7 +465,7 @@ class ProblemInstance(models.Model):
         on_delete=models.CASCADE,
     )
     round = models.ForeignKey(
-        Round, verbose_name=_("round"), null=True, blank=True, on_delete=models.CASCADE
+        Round, verbose_name=_("round"), null=True, blank=True, on_delete=models.SET_NULL
     )
     problem = models.ForeignKey(
         'problems.Problem', verbose_name=_("problem"), on_delete=models.CASCADE
