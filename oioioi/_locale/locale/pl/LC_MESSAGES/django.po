@@ -81,7 +81,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-01 07:06+0000\n"
+"POT-Creation-Date: 2025-07-05 15:15+0000\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
 "Last-Translator: Kamil Szymczak, 2024-2025\n"
 "Language-Team: Polish (http://app.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -1204,7 +1204,7 @@ msgstr "Język"
 #: base/templates/nesting/admin/inlines/tabular.html:123
 #, python-format
 msgid "Add another %(verbose_name)s"
-msgstr "Dodaj kolejne%(verbose_name)s"
+msgstr "Dodaj kolejne %(verbose_name)s"
 
 #: base/templates/registration/activate.html:4
 msgid "Account activation"
@@ -3645,28 +3645,32 @@ msgstr "Wyłączono flagę \"wymaga ponownej oceny\""
 msgid "Tests limits reset successfully"
 msgstr "Zresetowanie limitów powiodło się"
 
-#: contests/views.py:920
-#| msgid "Problem {} added successfully."
-msgid "Problems {} added successfully."
-msgstr "Zadania {} zostały pomyślnie dodane."
+#: contests/views.py:924
+#, python-format
+msgid ""
+"Problems %(problem_names)s have been successfully added to the contest."
+msgstr "Zadania %(problem_names)s zostały pomyślnie dodane do konkursu."
 
-#: contests/views.py:966
+#: contests/views.py:972
 msgid "The contest has no rounds."
 msgstr "Konkurs nie ma żadnych rund."
 
-#: contests/views.py:981
-#| msgid "Problem {} added successfully."
-msgid "Problems assigned to the round {} successfully."
-msgstr "Zadania zostały pomyślnie przypisane do rundy {}."
+#: contests/views.py:988
+#, python-format
+msgid ""
+"Problems %(problem_names)s have been successfully assigned to"
+"                   the round %(round_name)s."
+msgstr "Zadania %(problem_names)s zostały pomyślnie przypisane do rundy %(round_name)s."
 
-#: contests/views.py:991
+#: contests/views.py:1002
 msgid "Please select a round."
 msgstr "Proszę wybrać rundę."
 
-#: contests/views.py:1033
-#| msgid "Problem {} added successfully."
-msgid "Problems deleted successfully."
-msgstr "Zadania zostały usunięte pomyślnie."
+#: contests/views.py:1045
+#, python-format
+#| msgid "The %(name)s \"%(obj)s\" was deleted successfully."
+msgid "Problems %(problem_names)s have been deleted successfully."
+msgstr "Zadania %(problem_names)s zostały pomyślnie usunięte."
 
 #: dashboard/menu.py:7
 msgid "Top Links Menu"
