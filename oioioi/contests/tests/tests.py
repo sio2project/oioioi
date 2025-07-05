@@ -3671,6 +3671,27 @@ class TestDeletingProblems(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 400)
 
+class TestRemovingRoundDoesNotRemoveProblems(TestCase):
+    fixtures = [
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance'
+    ]
+
+    def test_removing_round_does_not_remove_problems(self):
+        round = Round.objects.get(id=1)
+        problem = ProblemInstance.objects.get(id=1)
+
+        self.assertEqual(problem.contest.id, 'c')
+        self.assertEqual(round.id, problem.round.id)
+
+        round.delete()
+
+        problem.refresh_from_db()
+        self.assertIsNone(problem.round)
+        self.assertEqual(problem.contest.id, 'c')
+
+
 class TestModifyContest(TestCase):
     fixtures = ['test_users']
 
