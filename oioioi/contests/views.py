@@ -1039,11 +1039,12 @@ def delete_problems_confirm_view(request):
         raise SuspiciousOperation("Invalid problem instances")
 
     if request.method == 'POST':
+        problem_names = _get_problem_names_as_string(problem_instances)
         for problem_instance in problem_instances:
             problem_instance.delete()
         messages.success(request,
             _("Problems %(problem_names)s have been deleted successfully.")
-            % {'problem_names': _get_problem_names_as_string(problem_instances)}
+            % {'problem_names': problem_names }
         )
         return safe_redirect(
             request,
