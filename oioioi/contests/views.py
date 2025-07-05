@@ -788,6 +788,9 @@ def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
         {'probleminstance': problem_instance},
     )
 
+def _get_problem_names_as_string(problem_instances):
+    return ', '.join(map(str, problem_instances))
+
 def _get_problem_instances_from_problem_ids(problem_ids):
     """
     Retrieves a list of ProblemInstance objects corresponding to a comma-separated
@@ -917,7 +920,10 @@ def reattach_problem_confirm_view(request, contest_id):
             else [get_new_problem_instance(problem_instance.problem, contest) 
                   for problem_instance in problem_instances]
         )
-        messages.success(request, _(u"Problems {} added successfully.".format(', '.join(map(str, copied_instances)))))
+        messages.success(request,
+            _("Problems %(problem_names)s have been successfully added to the contest.")
+            % {'problem_names': _get_problem_names_as_string(copied_instances) }
+        )
         return safe_redirect(
             request,
             reverse(
@@ -978,7 +984,12 @@ def assign_problems_to_a_round_view(request):
             for problem_instance in problem_instances:
                 problem_instance.round = round
                 problem_instance.save()
-            messages.success(request, _("Problems assigned to the round {} successfully.".format(round.name)))
+            messages.success(request,
+                _("Problems %(problem_names)s have been successfully assigned to \
+                  the round %(round_name)s.")
+                % { 'problem_names': _get_problem_names_as_string(problem_instances),
+                    'round_name': round.name }
+            )
             return safe_redirect(
                 request,
                 reverse(
@@ -1030,7 +1041,10 @@ def delete_problems_confirm_view(request):
     if request.method == 'POST':
         for problem_instance in problem_instances:
             problem_instance.delete()
-        messages.success(request, _("Problems deleted successfully."))
+        messages.success(request,
+            _("Problems %(problem_names)s have been deleted successfully.")
+            % {'problem_names': _get_problem_names_as_string(problem_instances)}
+        )
         return safe_redirect(
             request,
             reverse(
