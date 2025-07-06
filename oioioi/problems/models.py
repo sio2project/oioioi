@@ -257,6 +257,40 @@ class ProblemStatement(models.Model):
         return '%s / %s' % (self.problem.name, self.filename)
 
 
+class ProblemEditorial(models.Model):
+    """Represents a file containing problem editoral.
+
+    Problem may have multiple editorials, for example in various languages
+    or formats.
+    """
+
+    problem = models.ForeignKey(
+        Problem, related_name='editorials', on_delete=models.CASCADE
+    )
+    language = models.CharField(
+        max_length=6, blank=True, null=True, verbose_name=_("language code")
+    )
+    content = FileField(upload_to=make_problem_filename, verbose_name=_("content"))
+
+    @property
+    def filename(self):
+        return os.path.split(self.content.name)[1]
+
+    @property
+    def download_name(self):
+        return self.problem.short_name + self.extension
+
+    @property
+    def extension(self):
+        return os.path.splitext(self.content.name)[1].lower()
+
+    class Meta(object):
+        verbose_name = _("problem editorial")
+        verbose_name_plural = _("problem editorials")
+
+    def __str__(self):
+        return '%s / %s' % (self.problem.name, self.filename)
+
 
 class ProblemAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to

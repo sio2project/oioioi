@@ -73,12 +73,12 @@ from oioioi.problems.models import (
     UserStatistics,
 )
 
-# problem_site_statement_zip_view is used in one of the tabs
+# problem_site_document_zip_view is used in some of the tabs
 # in problem_site.py. We placed the view in problem_site.py
 # instead of views.py to avoid circular imports. We still import
 # it here to use it in urls.py.
 from oioioi.problems.problem_site import (
-    problem_site_statement_zip_view,
+    problem_site_document_zip_view,
     problem_site_tab_registry,
 )
 from oioioi.problems.problem_sources import problem_sources
@@ -91,6 +91,7 @@ from oioioi.problems.utils import (
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
     get_prefetched_value,
+    query_editorial,
     query_statement,
     show_proposal_form,
 )
@@ -608,14 +609,20 @@ def problem_site_view(request, site_key):
     )
 
 
-def problem_site_external_statement_view(request, site_key):
+def problem_site_external_document_view(request, site_key, type='statement'):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
-    statement = query_statement(problem.id)
-    if not statement:
+
+    document = None
+    if type == 'editorial':
+        document = query_editorial(problem.id)
+    elif type == 'statement':
+        document = query_statement(problem.id)
+
+    if not document:
         raise Http404
-    if statement.extension == '.zip' and not can_admin_problem(request, problem):
+    if document.extension == '.zip' and not can_admin_problem(request, problem):
         raise PermissionDenied
-    return stream_file(statement.content, statement.download_name)
+    return stream_file(document.content, document.download_name)
 
 
 def problem_site_external_attachment_view(request, site_key, attachment_id):

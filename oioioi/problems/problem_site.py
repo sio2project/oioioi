@@ -34,6 +34,7 @@ from oioioi.problems.models import (
     ProblemAttachment,
     ProblemPackage,
     ProblemStatement,
+    ProblemEditorial,
 )
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (
@@ -41,6 +42,7 @@ from oioioi.problems.utils import (
     can_admin_problem,
     generate_add_to_contest_metadata,
     generate_model_solutions_context,
+    query_editorial,
     query_statement,
     query_zip,
 )
@@ -79,53 +81,91 @@ def problem_site_tab(title, key, order=sys.maxsize, condition=None):
     return decorator
 
 
-def problem_site_statement_zip_view(request, site_key, path):
+def problem_site_document_zip_view(request, site_key, path, type='statement'):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
-    statement = query_statement(problem.id)
-    if not statement:
-        raise Http404
-    return query_zip(statement, path)
 
+    document = None
+    if type == 'editorial':
+        document = query_editorial(problem.id)
+    elif type == 'statement':
+        document = query_statement(problem.id)
+
+    if not document:
+        raise Http404
+    return query_zip(document, path)
+
+
+def problem_site_document(request, problem, document, type):
+    if not document:
+        if type == 'statement':
+            document_html = render_to_string(
+                'problems/no-problem-statement.html',
+                {'problem': problem,
+                'can_admin_problem': can_admin_problem(request, problem)}
+            )
+        elif type == 'editorial':
+            document_html = render_to_string(
+                'problems/no-problem-editorial.html',
+                {'problem': problem,
+                'can_admin_problem': can_admin_problem(request, problem)}
+            )
+        else:
+            raise Http404("Document not found")
+    elif document.extension == '.zip':
+        response = problem_site_document_zip_view(
+            request, problem.problemsite.url_key, 'index.html', type
+        )
+        document_html = render_to_string(
+            'problems/from-zip-document.html',
+            {'problem': problem,
+            'statement': mark_safe(response.content.decode(errors="replace")),
+            'can_admin_problem': can_admin_problem(request, problem)}
+        )
+    else:
+        document_url = None
+        if type == 'statement':
+            document_url = reverse(
+                'problem_site_external_statement',
+                kwargs={'site_key': problem.problemsite.url_key},
+            )
+        elif type == 'editorial':
+            document_url = reverse(
+                'problem_site_external_editorial',
+                kwargs={'site_key': problem.problemsite.url_key},
+            )
+        else:
+            raise Http404("Document not found")
+
+        document_html = render_to_string(
+            'problems/external-document.html',
+            {'problem': problem,
+            'document_url': document_url,
+            'document_type': type,
+            'can_admin_problem': can_admin_problem(request, problem)},
+        )
+
+    return document_html
 
 def check_for_statement(request, problem):
-    """Function checking if given problem has a ProblemStatement."""
-    return bool(ProblemStatement.objects.filter(problem=problem))
-
+    return ProblemStatement.objects.filter(problem=problem).exists()
 
 @problem_site_tab(
     _("Problem statement"), key='statement', order=100, condition=check_for_statement
 )
 def problem_site_statement(request, problem):
     statement = query_statement(problem.id)
-    if not statement:
-        statement_html = render_to_string(
-            'problems/no-problem-statement.html',
-            {'problem': problem,
-            'can_admin_problem': can_admin_problem(request, problem)}
-        )
-    elif statement.extension == '.zip':
-        response = problem_site_statement_zip_view(
-            request, problem.problemsite.url_key, 'index.html'
-        )
-        statement_html = render_to_string(
-            'problems/from-zip-statement.html',
-            {'problem': problem,
-            'statement': mark_safe(response.content.decode(errors="replace")),
-            'can_admin_problem': can_admin_problem(request, problem)}
-        )
-    else:
-        statement_url = reverse(
-            'problem_site_external_statement',
-            kwargs={'site_key': problem.problemsite.url_key},
-        )
-        statement_html = render_to_string(
-            'problems/external-statement.html',
-            {'problem': problem,
-            'statement_url': statement_url,
-            'can_admin_problem': can_admin_problem(request, problem)},
-        )
+    return problem_site_document(request, problem, statement, type='statement')
 
-    return statement_html
+
+def show_editorial(request, problem):
+    return ProblemEditorial.objects.filter(problem=problem).exists() and not request.contest
+
+@problem_site_tab(
+    _("Editorial"), key='editorial', order=750, condition=show_editorial
+)
+def problem_site_editorial(request, problem):
+    statement = query_editorial(problem.id)
+    return problem_site_document(request, problem, statement, type='editorial')
 
 
 def check_for_downloads(request, problem):
@@ -309,37 +349,50 @@ def problem_site_add_to_contest(request, problem):
 
 
 @problem_site_tab(
-    _("Replace problem statement"),
-    key='replace_problem_statement',
+    _("Replace statement or editorial"),
+    key='replace_statement_or_editorial',
     order=800,
     condition=can_admin_problem,
 )
-def problem_site_replace_statement(request, problem):
-    statements = ProblemStatement.objects.filter(problem=problem)
-    filenames = [statement.filename for statement in statements]
+def problem_site_replace_statement_or_editorial(request, problem):
+    statements  = ProblemStatement .objects.filter(problem=problem)
+    editorials = ProblemEditorial.objects.filter(problem=problem)
+
+    stmt_names = [s.filename for s in statements]
+    ed_names   = [e.filename for e in editorials]
+
+    stmt_form = ProblemStatementReplaceForm(stmt_names)
+    ed_form   = ProblemStatementReplaceForm(ed_names)
 
     if request.method == 'POST':
-        form = PackageFileReuploadForm(filenames, request.POST, request.FILES)
-        if form.is_valid():
-            statement_filename = form.cleaned_data['file_name']
-            statements = [s for s in statements if s.filename == statement_filename]
-            if statements:
-                statement = statements[0]
-                new_statement_file = form.cleaned_data['file_replacement']
-                statement.content = new_statement_file
-                statement.save()
-                url = reverse(
-                    'problem_site', kwargs={'site_key': problem.problemsite.url_key}
-                )
-                return redirect(url + '?key=replace_problem_statement')
-            else:
-                form.add_error(None, _("Picked statement file does not exist."))
-    else:
-        form = ProblemStatementReplaceForm(filenames)
+        form_type = request.POST.get('form_type')
+        if form_type == 'statement':
+            stmt_form = ProblemStatementReplaceForm(stmt_names, request.POST, request.FILES)
+            if stmt_form.is_valid():
+                fn = stmt_form.cleaned_data['file_name']
+                stmt = next(s for s in statements if s.filename == fn)
+                stmt.content = stmt_form.cleaned_data['file_replacement']
+                stmt.save()
+                url = reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
+                return redirect(url + '?key=replace_statement_or_editorial')
+        elif form_type == 'editorial':
+            ed_form = ProblemStatementReplaceForm(ed_names, request.POST, request.FILES)
+            if ed_form.is_valid():
+                fn = ed_form.cleaned_data['file_name']
+                ed = next(e for e in editorials if e.filename == fn)
+                ed.content = ed_form.cleaned_data['file_replacement']
+                ed.save()
+                url = reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
+                return redirect(url + '?key=replace_statement_or_editorial')
+
     return TemplateResponse(
         request,
         'problems/replace-problem-statement.html',
-        {'form': form, 'problem': problem},
+        {
+            'problem': problem,
+            'form': stmt_form,
+            'editorial_form': ed_form,
+        },
     )
 
 

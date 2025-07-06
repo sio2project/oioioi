@@ -474,7 +474,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return (
             reverse('problem_site', args=(instance.problem.problemsite.url_key,))
             + '?'
-            + urllib.parse.urlencode({'key': 'replace_problem_statement'})
+            + urllib.parse.urlencode({'key': 'replace_statement_or_editorial'})
         )
 
     def _package_manage_href(self, instance):
