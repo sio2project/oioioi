@@ -78,7 +78,7 @@ from oioioi.problems.models import (
 # instead of views.py to avoid circular imports. We still import
 # it here to use it in urls.py.
 from oioioi.problems.problem_site import (
-    problem_site_statement_zip_view,
+    problem_site_statement_zip_view, # noqa: F401
     problem_site_tab_registry,
 )
 from oioioi.problems.problem_sources import problem_sources
