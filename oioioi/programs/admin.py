@@ -399,6 +399,13 @@ class ProgramSubmissionAdminMixin(object):
     an admin panel.
     """
 
+    # FIXME: see the language_display() method
+    # Mapping of an extension to the display language name
+    ext_to_lang = dict()
+    for lang, exts in getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).items():
+        for ext in exts:
+            ext_to_lang[ext] = lang
+
     def __init__(self, *args, **kwargs):
         super(ProgramSubmissionAdminMixin, self).__init__(*args, **kwargs)
         self.actions += ['submission_diff_action']
@@ -417,7 +424,14 @@ class ProgramSubmissionAdminMixin(object):
         description=_("Language")
     )
     def language_display(self, instance):
-        return instance.programsubmission.get_language_display()
+        # return instance.programsubmission.get_language_display()
+        # FIXME: A hack to avoid extra queries when rendering SubmissionAdmin.
+        #  If it's not a hack then maybe it should at least be moved to programs/problem_instance_utils.py or something.
+        #  I don't get why we would need to check for allowed submission languages here, if the check fails it just
+        #  renders empty, and the checks are all done while submitting, surely we don't need the extra check here? And
+        #  what if we change allowed problem languages in the future? The old solution would render empty here in that
+        #  case...
+        return self.ext_to_lang.get(instance.programsubmission.extension, '????')
 
 
     @admin.action(

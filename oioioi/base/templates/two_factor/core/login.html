@@ -40,7 +40,7 @@
         {# hidden submit button to enable [enter] key #}
         <div style="margin-left: -9999px"><input type="submit" value=""/></div>
 
-        {% if other_devices %}
+        <!-- {% if other_devices %}
           <p>{% trans "Or, alternatively, use one of your backup phones:" %}</p>
           <p>
             {% for other in other_devices %}
@@ -49,7 +49,7 @@
               {{ other|device_action }}
             </button>
           {% endfor %}</p>
-        {% endif %}
+        {% endif %} -->
         {% if backup_tokens %}
           <p>{% trans "As a last resort, you can use a backup token:" %}</p>
           <p>

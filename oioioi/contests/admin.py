@@ -862,7 +862,15 @@ class SubmissionAdmin(admin.ModelAdmin):
                 force_str(instance.get_kind_display()),
             )
         else:
-            return instance.problem_instance
+            # return instance.problem_instance
+            # FIXME: This is a temporary hack,
+            #  problem_instance.__str__() invokes a new query, so for the SubmissionAdmin page it runs
+            #  ~100 queries every refresh. They're small and fast to execute but with so many of them ran
+            #  synchronously, latency slows things down significantly.
+            return '{} ({})'.format(
+                instance.problem_instance.problem.legacy_name,
+                instance.problem_instance.get_short_name_display()
+            )
 
     problem_instance_display.short_description = _("Problem")
     problem_instance_display.admin_order_field = 'problem_instance'
