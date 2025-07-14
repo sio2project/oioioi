@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-05 15:15+0000\n"
+"POT-Creation-Date: 2025-07-14 10:54+0000\n"
 "PO-Revision-Date: 2012-09-07 19:11+0000\n"
 "Last-Translator: Michal Boron <beredentod@gmail.com>, 2019\n"
 "Language-Team: German (http://app.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -45,7 +45,7 @@ msgstr "ACM Style Ranking"
 msgid "#"
 msgstr "#"
 
-#: acm/controllers.py:271 contests/admin.py:1093 contests/forms.py:345
+#: acm/controllers.py:271 contests/admin.py:1101 contests/forms.py:345
 #: contests/templates/contests/basic_user_info.html:20
 #: contests/templates/contests/navbar-user-info-form.html:17
 #: oireports/forms.py:90 rankings/forms.py:11 su/forms.py:33
@@ -110,7 +110,7 @@ msgstr "Das Ranking ist eingefroren."
 msgid "User"
 msgstr "Benutzer"
 
-#: acm/templates/acm/acm_ranking.html:13 contests/admin.py:883
+#: acm/templates/acm/acm_ranking.html:13 contests/admin.py:891
 #: contests/fields.py:11
 #: contests/templates/contests/my_submissions_table.html:60
 #: contests/templates/contests/problems_list.html:76
@@ -167,12 +167,12 @@ msgstr ""
 #: balloons/admin.py:124 complaints/admin.py:11 contestexcl/admin.py:16
 #: contestlogo/admin.py:14 contestlogo/admin.py:43 contests/admin.py:201
 #: disqualification/admin.py:116 ipauthsync/admin.py:11 mailsubmit/admin.py:18
-#: mp/admin.py:42 participants/admin.py:442 problems/admin.py:67
+#: mp/admin.py:42 participants/admin.py:443 problems/admin.py:67
 #: problems/admin.py:96 problems/admin.py:125 problems/admin.py:154
 #: problems/admin.py:243 programs/admin.py:42 programs/admin.py:163
 #: programs/admin.py:184 programs/admin.py:220 programs/admin.py:239
-#: programs/admin.py:246 programs/admin.py:253 programs/admin.py:468
-#: programs/admin.py:473 questions/admin.py:106 sinolpack/admin.py:18
+#: programs/admin.py:246 programs/admin.py:253 programs/admin.py:482
+#: programs/admin.py:487 questions/admin.py:106 sinolpack/admin.py:18
 #: sinolpack/admin.py:40 statistics/admin.py:11 teams/admin.py:62
 #: zeus/admin.py:17
 msgid "Advanced"
@@ -1098,7 +1098,7 @@ msgid "Log in"
 msgstr ""
 
 #: base/templates/ingredients/navbar-user.html:28 contests/admin.py:847
-#: contests/admin.py:1053 mailsubmit/admin.py:89 participants/admin.py:62
+#: contests/admin.py:1061 mailsubmit/admin.py:89 participants/admin.py:62
 #: rankings/controllers.py:266
 msgid "Login"
 msgstr ""
@@ -1783,7 +1783,7 @@ msgid ""
 "the following complaint was received:"
 msgstr ""
 
-#: complaints/templates/complaints/jury-email.txt:5 contests/admin.py:889
+#: complaints/templates/complaints/jury-email.txt:5 contests/admin.py:897
 #: evalmgr/admin.py:147
 #: questions/templates/admin/questions/change_message.html:32
 #: rankings/controllers.py:224 statistics/controllers.py:29
@@ -1794,8 +1794,8 @@ msgstr ""
 msgid "Participant status"
 msgstr ""
 
-#: complaints/templates/complaints/jury-email.txt:8 contests/admin.py:974
-#: contests/admin.py:981
+#: complaints/templates/complaints/jury-email.txt:8 contests/admin.py:982
+#: contests/admin.py:989
 #: dashboard/templates/dashboard/dashboard-submissions.html:3
 #: problems/problem_site.py:176
 #: simpleui/templates/simpleui/contest/contest.html:60
@@ -2125,7 +2125,7 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: contests/admin.py:557 contests/admin.py:867 contests/forms.py:144
+#: contests/admin.py:557 contests/admin.py:875 contests/forms.py:144
 #: contests/templates/contests/my_submissions_table.html:55
 #: contests/templates/contests/submission_header.html:85 evalmgr/admin.py:136
 #: mailsubmit/forms.py:14 publicsolutions/forms.py:8
@@ -2158,7 +2158,7 @@ msgstr ""
 msgid "kind"
 msgstr ""
 
-#: contests/admin.py:667 contests/admin.py:997 contests/models.py:184
+#: contests/admin.py:667 contests/admin.py:1005 contests/models.py:184
 #: contests/models.py:274 contests/models.py:468
 msgid "round"
 msgstr ""
@@ -2197,14 +2197,14 @@ msgid ""
 "submissions"
 msgstr ""
 
-#: contests/admin.py:855 contests/admin.py:1061 contests/admin.py:1110
+#: contests/admin.py:855 contests/admin.py:1069 contests/admin.py:1118
 #: contests/templates/contests/submission_header.html:83
 #: disqualification/admin.py:79 mailsubmit/admin.py:97
 #: participants/admin.py:76 similarsubmits/admin.py:92
 msgid "User name"
 msgstr ""
 
-#: contests/admin.py:877
+#: contests/admin.py:885
 #: contests/templates/contests/my_submissions_table.html:58
 #: contests/templates/contests/submission.html:61
 #: contests/templates/contests/submission_header.html:87 evalmgr/admin.py:163
@@ -2215,27 +2215,27 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: contests/admin.py:903
+#: contests/admin.py:911
 #, python-format
 msgid ""
 "You have selected %(sub_count)d submission(s) from %(pis_count)d problem(s)"
 msgstr ""
 
-#: contests/admin.py:929
+#: contests/admin.py:937
 msgid "Rejudge selected submissions"
 msgstr ""
 
-#: contests/admin.py:988
+#: contests/admin.py:996
 #: contests/templates/contests/my_submissions_all.html:10
 #: contests/templates/contests/my_submissions_all.html:15
 msgid "All submissions"
 msgstr "Alle Vorlagen"
 
-#: contests/admin.py:1085
+#: contests/admin.py:1093
 msgid "Round extensions"
 msgstr ""
 
-#: contests/admin.py:1171 contests/admin.py:1177
+#: contests/admin.py:1179 contests/admin.py:1185
 msgid "Contest rights"
 msgstr ""
 
@@ -3581,7 +3581,7 @@ msgstr ""
 msgid "Please select a round."
 msgstr ""
 
-#: contests/views.py:1045
+#: contests/views.py:1046
 #, python-format
 #| msgid "The %(name)s \"%(obj)s\" was deleted successfully."
 msgid "Problems %(problem_names)s have been deleted successfully."
@@ -4781,7 +4781,7 @@ msgstr ""
 msgid "Deregister"
 msgstr ""
 
-#: newsfeed/forms.py:19 programs/admin.py:417
+#: newsfeed/forms.py:19 programs/admin.py:424
 msgid "Language"
 msgstr ""
 
@@ -5480,7 +5480,7 @@ msgstr ""
 msgid "Regions"
 msgstr ""
 
-#: participants/admin.py:365 participants/models.py:122
+#: participants/admin.py:366 participants/models.py:122
 msgid "region"
 msgstr ""
 
@@ -6420,7 +6420,7 @@ msgid "Selected problems will be tagged with this tag.<br>"
 msgstr ""
 
 #: problems/models.py:605 problems/models.py:701 problems/models.py:808
-#: problems/models.py:867 problems/models.py:957 programs/admin.py:448
+#: problems/models.py:867 problems/models.py:957 programs/admin.py:462
 #: programs/models.py:139 programs/models.py:386 programs/models.py:421
 #: programs/models.py:437
 msgid "language"
@@ -7174,13 +7174,13 @@ msgstr ""
 msgid "Compiler overrides"
 msgstr ""
 
-#: programs/admin.py:424
+#: programs/admin.py:438
 #: programs/templates/programs/my_submissions_table_diff.html:10
 #: programs/templates/programs/my_submissions_table_diff.html:17
 msgid "Diff submissions"
 msgstr ""
 
-#: programs/admin.py:429
+#: programs/admin.py:443
 msgid "You shall select exactly two submissions to diff"
 msgstr ""
 
@@ -9614,6 +9614,10 @@ msgid ""
 " <p> If you would like to talk about tasks, solutions or technical problems,"
 " please visit our Discord servers. They are moderated by the community, but "
 "members of the support team are also active there.</p>"
+msgstr ""
+
+#: szkopul/views.py:24
+msgid "Kursy"
 msgstr ""
 
 #: teachers/admin.py:67
