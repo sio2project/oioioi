@@ -3246,7 +3246,7 @@ class TestReattachingProblems(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'c2')
         self.assertEqual(ProblemInstance.objects.count(), prev_problem_count + 1)
-        self.assertContains(response, ' added successfully.')
+        self.assertContains(response, ' have been successfully added to the contest.')
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
         self.assertEqual(
@@ -3290,7 +3290,7 @@ class TestReattachingProblems(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'c2')
         self.assertEqual(ProblemInstance.objects.count(), prev_problem_count + 2)
-        self.assertContains(response, ' added successfully.')
+        self.assertContains(response, ' have been successfully added to the contest.')
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2').exists())
         for problem in ProblemInstance.objects.filter(contest__id='c2'):
@@ -3441,7 +3441,7 @@ class TestAssigningProblemsToARound(TestCase):
         response = self.client.post(url, data={'round': 1}, follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, " have been successfully assigned ")
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
 
@@ -3482,7 +3482,7 @@ class TestAssigningProblemsToARound(TestCase):
         response = self.client.post(url, data={'round': 3}, follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, " have been successfully assigned ")
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
 
@@ -3502,7 +3502,7 @@ class TestAssigningProblemsToARound(TestCase):
         response = self.client.post(url, data={'round': 4}, follow=True)
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, " have been successfully assigned ")
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
 
@@ -3524,7 +3524,7 @@ class TestAssigningProblemsToARound(TestCase):
         response = self.client.post(url, data={'round' : 3}, follow=True)
         self.assertEqual(response.status_code, 200)
 
-        self.assertContains(response, "Problems assigned to the round")
+        self.assertContains(response, " have been successfully assigned ")
 
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id1).problem.name)
         self.assertContains(response, ProblemInstance.objects.get(id=pi_id2).problem.name)
@@ -3622,7 +3622,7 @@ class TestDeletingProblems(TestCase):
 
         response = self.client.post(url, data={}, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Problems deleted successfully")
+        self.assertContains(response, "have been deleted successfully")
         self.assertFalse(ProblemInstance.objects.filter(id=pi_id).exists())
 
     def test_deleting_problems(self):
@@ -3642,7 +3642,7 @@ class TestDeletingProblems(TestCase):
 
         response = self.client.post(url, data={}, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Problems deleted successfully")
+        self.assertContains(response, "have been deleted successfully")
         self.assertFalse(ProblemInstance.objects.filter(id=pi_id1).exists())
         self.assertFalse(ProblemInstance.objects.filter(id=pi_id2).exists())
 
