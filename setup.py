@@ -81,7 +81,7 @@ requirements = [
     "cryptography==42.0.7",
     "charset-normalizer==3.3.2",
     "click==8.1.7",
-    "certifi==2024.2.2",
+    "certifi==2024.7.4",
     "click-didyoumean==0.3.1",
     "click-plugins==1.1.1",
     "click-repl==0.3.0",
