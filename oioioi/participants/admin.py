@@ -336,6 +336,7 @@ class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     search_fields = ParticipantAdmin.search_fields + [
         'participants_onsiteregistration__number'
     ]
+    autocomplete_fields = ['user']
 
     def get_custom_list_select_related(self):
         return super(

@@ -1,6 +1,8 @@
 # These dependencies need to be installed from external sources,
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
+# Version 1.5.4-1.5.5 requires filetracker==2.2.0 which creates conflicts here
 http://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.5.tar.gz
+pylibmc
 
 -e .

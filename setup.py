@@ -13,7 +13,7 @@ except ImportError:
 import os
 import sys
 
-if os.getuid() == 0:  # root
+if os.getuid() == 0 and not os.getenv('ALLOW_ROOT') == '1':  # root
     print("ERROR: This setup.py cannot be run as root.", file=sys.stderr)
     print("ERROR: If you want to proceed anyway, hunt this", file=sys.stderr)
     print("ERROR: message and edit the source at your own risk.", file=sys.stderr)
@@ -26,7 +26,8 @@ requirements = [
     "beautifulsoup4>=4.12,<4.13",
     "PyYAML>=6.0.1,<6.1",
     "python-dateutil>=2.8,<2.9",
-    "django-two-factor-auth>=1.15,<1.16",
+    "django-two-factor-auth==1.15.4",
+    "django-otp==1.2.2",
     "django-formtools>=2.4,<2.5",
     "django-registration-redux>=2.12,<2.13",
     "Celery<5.4.0",
@@ -70,9 +71,25 @@ requirements = [
     "phonenumbers>=8.13,<8.14",
     "pdfminer.six==20221105",
     # https://stackoverflow.com/questions/73929564/entrypoints-object-has-no-attribute-get-digital-ocean
-    "importlib-metadata<5.0",
-    "supervisor<4.3",  # previously http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
+    "importlib-metadata==4.13.0",
+    "supervisor==4.2.5",  # previously http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
     "django-supervisor@git+https://github.com/sio2project/django-supervisor#egg=django-supervisor",  # previously http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
+    # Takes too much time during deployment
+    "cffi==1.16.0",
+    "django-appconf==1.0.6",
+    "django-phonenumber-field==6.4.0",
+    "cryptography==42.0.7",
+    "charset-normalizer==3.3.2",
+    "click==8.1.7",
+    "certifi==2024.2.2",
+    "click-didyoumean==0.3.1",
+    "click-plugins==1.1.1",
+    "click-repl==0.3.0",
+    "coverage>=7.4.0",
+    "coverage[toml]>=7.4.0",
+    "exceptiongroup>=1.2.1",
+    "attrs>=23.2.0",
+    "Automat>=22.10.0"
 ]
 
 setup(
