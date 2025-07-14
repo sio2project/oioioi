@@ -8,11 +8,11 @@ from oioioi.contests.models import submission_statuses
 from oioioi.problems.models import Problem
 from oioioi.programs.models import TestReport
 
-check_django_app_dependencies(__name__, ['oioioi.testrun'], strict=True)
+check_django_app_dependencies(__name__, ["oioioi.testrun"], strict=True)
 
 
-submission_statuses.register('MSE', _("Outgoing message size limit exceeded"))
-submission_statuses.register('MCE', _("Outgoing message count limit exceeded"))
+submission_statuses.register("MSE", _("Outgoing message size limit exceeded"))
+submission_statuses.register("MCE", _("Outgoing message count limit exceeded"))
 
 
 class ZeusProblemData(models.Model):
@@ -24,7 +24,7 @@ class ZeusProblemData(models.Model):
 def make_custom_library_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return 'testruns/%s/%d/lib%s' % (
+    return "testruns/%s/%d/lib%s" % (
         instance.problem_instance.contest.id,
         instance.id,
         os.path.splitext(filename)[1],

@@ -13,13 +13,11 @@ class MaintenanceModeInfo(models.Model):
 
 def get_maintenance_mode():
     info, _ = MaintenanceModeInfo.objects.get_or_create()
-    return {'state': info.state, 'message': info.message}
+    return {"state": info.state, "message": info.message}
 
 
-def set_maintenance_mode(new_state, new_message=''):
-    MaintenanceModeInfo.objects.update_or_create(
-        {'state': new_state, 'message': new_message}
-    )
+def set_maintenance_mode(new_state, new_message=""):
+    MaintenanceModeInfo.objects.update_or_create({"state": new_state, "message": new_message})
 
 
 def is_maintenance_mode_enabled():

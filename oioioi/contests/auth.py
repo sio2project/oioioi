@@ -8,7 +8,7 @@ from oioioi.base.utils.query_helpers import (
 from oioioi.contests.models import Contest, ContestPermission
 
 
-class ContestPermissionsAuthBackend(object):
+class ContestPermissionsAuthBackend:
     description = _("Contests permissions")
     supports_authentication = False
 
@@ -26,10 +26,10 @@ class ContestPermissionsAuthBackend(object):
             if user.is_superuser:
                 return Q_always_true()
             query = Q(contestpermission__permission=perm, contestpermission__user=user)
-            if perm == 'contests.contest_admin':
-                query |= self.filter_for_perm(obj_class, 'contests.contest_owner', user)
-            if perm == 'contests.contest_basicadmin':
-                query |= self.filter_for_perm(obj_class, 'contests.contest_admin', user)
+            if perm == "contests.contest_admin":
+                query |= self.filter_for_perm(obj_class, "contests.contest_owner", user)
+            if perm == "contests.contest_basicadmin":
+                query |= self.filter_for_perm(obj_class, "contests.contest_admin", user)
             return query
         return Q_always_false()
 
@@ -38,18 +38,10 @@ class ContestPermissionsAuthBackend(object):
             return False
         if obj is None or not isinstance(obj, Contest):
             return False
-        if perm == 'contests.contest_admin' and self.has_perm(
-            user_obj, 'contests.contest_owner', obj
-        ):
+        if perm == "contests.contest_admin" and self.has_perm(user_obj, "contests.contest_owner", obj):
             return True
-        if perm == 'contests.contest_basicadmin' and self.has_perm(
-            user_obj, 'contests.contest_admin', obj
-        ):
+        if perm == "contests.contest_basicadmin" and self.has_perm(user_obj, "contests.contest_admin", obj):
             return True
-        if not hasattr(user_obj, '_contest_perms_cache'):
-            user_obj._contest_perms_cache = set(
-                ContestPermission.objects.filter(user=user_obj).values_list(
-                    'contest', 'permission'
-                )
-            )
+        if not hasattr(user_obj, "_contest_perms_cache"):
+            user_obj._contest_perms_cache = set(ContestPermission.objects.filter(user=user_obj).values_list("contest", "permission"))
         return (obj.id, perm) in user_obj._contest_perms_cache

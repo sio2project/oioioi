@@ -1,5 +1,4 @@
 import logging
-
 import urllib.parse
 
 from django.contrib import messages
@@ -12,6 +11,7 @@ from django.shortcuts import redirect
 from django.urls import re_path, reverse
 from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, system_admin_menu_registry
 from oioioi.base.permissions import is_superuser
@@ -19,14 +19,17 @@ from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import (
+    LimitsVisibilityConfig,
     ProblemInstance,
     ProblemStatementConfig,
-    RankingVisibilityConfig, RegistrationAvailabilityConfig, LimitsVisibilityConfig,
+    RankingVisibilityConfig,
+    RegistrationAvailabilityConfig,
 )
 from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin
 from oioioi.problems.forms import (
     AlgorithmTagThroughForm,
     DifficultyTagThroughForm,
+    LimitsVisibilityConfigForm,
     LocalizationFormset,
     OriginInfoValueForm,
     OriginInfoValueThroughForm,
@@ -34,7 +37,8 @@ from oioioi.problems.forms import (
     ProblemNameInlineFormSet,
     ProblemSiteForm,
     ProblemStatementConfigForm,
-    RankingVisibilityConfigForm, RegistrationAvailabilityConfigForm, LimitsVisibilityConfigForm,
+    RankingVisibilityConfigForm,
+    RegistrationAvailabilityConfigForm,
 )
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -76,7 +80,7 @@ class StatementConfigInline(admin.TabularInline):
         return is_contest_admin(request)
 
 
-class StatementConfigAdminMixin(object):
+class StatementConfigAdminMixin:
     """Adds :class:`~oioioi.contests.models.ProblemStatementConfig` to an admin
     panel.
     """
@@ -105,7 +109,7 @@ class RankingVisibilityConfigInline(admin.TabularInline):
         return is_contest_admin(request)
 
 
-class RankingVisibilityConfigAdminMixin(object):
+class RankingVisibilityConfigAdminMixin:
     """Adds :class:`~oioioi.contests.models.RankingVisibilityConfig` to an admin
     panel.
     """
@@ -134,7 +138,7 @@ class LimitsVisibilityConfigInline(admin.TabularInline):
         return is_contest_admin(request)
 
 
-class LimitsVisibilityConfigAdminMixin(object):
+class LimitsVisibilityConfigAdminMixin:
     """Adds :class:`~oioioi.contests.models.LimitsVisibilityConfig` to an admin
     panel.
     """
@@ -163,7 +167,7 @@ class RegistrationAvailabilityConfigInline(admin.TabularInline):
         return is_contest_admin(request)
 
 
-class RegistrationAvailabilityConfigAdminMixin(object):
+class RegistrationAvailabilityConfigAdminMixin:
     """Adds :class:`~oioioi.contests.models.OpenRegistrationConfig` to an admin
     panel.
     """
@@ -180,7 +184,7 @@ class NameInline(admin.StackedInline):
     model = ProblemName
     can_delete = False
     formset = ProblemNameInlineFormSet
-    fields = ['name', 'language']
+    fields = ["name", "language"]
     category = NO_CATEGORY
 
     def has_add_permission(self, request, obj=None):
@@ -196,7 +200,7 @@ class NameInline(admin.StackedInline):
 class StatementInline(admin.TabularInline):
     model = ProblemStatement
     can_delete = False
-    readonly_fields = ['language', 'content_link']
+    readonly_fields = ["language", "content_link"]
     fields = readonly_fields
     category = NO_CATEGORY
 
@@ -211,7 +215,7 @@ class StatementInline(admin.TabularInline):
 
     def content_link(self, instance):
         if instance.id is not None:
-            href = reverse('show_statement', kwargs={'statement_id': str(instance.id)})
+            href = reverse("show_statement", kwargs={"statement_id": str(instance.id)})
             return make_html_link(href, instance.content.name)
         return None
 
@@ -221,14 +225,12 @@ class StatementInline(admin.TabularInline):
 class AttachmentInline(admin.TabularInline):
     model = ProblemAttachment
     extra = 0
-    readonly_fields = ['content_link']
+    readonly_fields = ["content_link"]
     category = NO_CATEGORY
 
     def content_link(self, instance):
         if instance.id is not None:
-            href = reverse(
-                'show_problem_attachment', kwargs={'attachment_id': str(instance.id)}
-            )
+            href = reverse("show_problem_attachment", kwargs={"attachment_id": str(instance.id)})
             return make_html_link(href, instance.content.name)
         return None
 
@@ -239,7 +241,7 @@ class ProblemInstanceInline(admin.StackedInline):
     model = ProblemInstance
     can_delete = False
     fields = []
-    inline_classes = ('collapse open',)
+    inline_classes = ("collapse open",)
     category = _("Advanced")
 
     def has_add_permission(self, request, obj=None):
@@ -273,9 +275,12 @@ def tag_inline(
     verbose_name,
     verbose_name_plural,
     extra=0,
-    category=_("Tags"),
+    category=None,
     has_permission_func=lambda self, request, obj=None: True,
 ):
+    if category is None:
+        category = _("Tags")
+
     def decorator(cls):
         cls.model = model
         cls.form = form
@@ -294,10 +299,8 @@ def tag_inline(
 
 
 def _update_queryset_if_problems(db_field, **kwargs):
-    if db_field.name == 'problems':
-        kwargs['queryset'] = Problem.objects.filter(
-            visibility=Problem.VISIBILITY_PUBLIC
-        )
+    if db_field.name == "problems":
+        kwargs["queryset"] = Problem.objects.filter(visibility=Problem.VISIBILITY_PUBLIC)
 
 
 class BaseTagLocalizationInline(admin.StackedInline):
@@ -308,7 +311,7 @@ class BaseTagLocalizationInline(admin.StackedInline):
 
     def has_change_permission(self, request, obj=None):
         return can_modify_tags(request, obj)
-    
+
     def has_delete_permission(self, request, obj=None):
         return can_modify_tags(request, obj)
 
@@ -341,13 +344,11 @@ class OriginTagLocalizationInline(BaseTagLocalizationInline):
 
 class OriginTagAdmin(BaseTagAdmin):
     inlines = (OriginTagLocalizationInline,)
-    exclude = ['problems']
+    exclude = ["problems"]
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(OriginTagAdmin, self).formfield_for_manytomany(
-            db_field, request, **kwargs
-        )
+        return super(OriginTagAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(OriginTag, OriginTagAdmin)
@@ -382,14 +383,12 @@ class OriginInfoValueLocalizationInline(BaseTagLocalizationInline):
 class OriginInfoValueAdmin(admin.ModelAdmin):
     form = OriginInfoValueForm
     inlines = (OriginInfoValueLocalizationInline,)
-    exclude = ['problems']
+    exclude = ["problems"]
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(OriginInfoValueAdmin, self).formfield_for_manytomany(
-            db_field, request, **kwargs
-        )
-    
+        return super(OriginInfoValueAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
 
 admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
 
@@ -414,9 +413,7 @@ class DifficultyTagAdmin(BaseTagAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(DifficultyTagAdmin, self).formfield_for_manytomany(
-            db_field, request, **kwargs
-        )
+        return super(DifficultyTagAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(DifficultyTag, DifficultyTagAdmin)
@@ -442,9 +439,7 @@ class AlgorithmTagAdmin(BaseTagAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(AlgorithmTagAdmin, self).formfield_for_manytomany(
-            db_field, request, **kwargs
-        )
+        return super(AlgorithmTagAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
@@ -467,19 +462,19 @@ class ProblemAdmin(admin.ModelAdmin):
         ProblemSiteInline,
     )
     readonly_fields = [
-        'author',
-        'legacy_name',
-        'short_name',
-        'controller_name',
-        'package_backend_name',
-        'main_problem_instance',
-        'ascii_name',
+        "author",
+        "legacy_name",
+        "short_name",
+        "controller_name",
+        "package_backend_name",
+        "main_problem_instance",
+        "ascii_name",
     ]
-    exclude = ['contest']
-    list_filter = ['short_name']
+    exclude = ["contest"]
+    list_filter = ["short_name"]
 
-    class Media(object):
-        js = ('problems/admin-origintag.js',)
+    class Media:
+        js = ("problems/admin-origintag.js",)
 
     def has_add_permission(self, request):
         return can_add_problems(request)
@@ -497,21 +492,21 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def redirect_to_list(self, request, problem):
         if problem.contest:
-            return redirect('oioioiadmin:contests_probleminstance_changelist', contest_id=problem.contest.id)
+            return redirect("oioioiadmin:contests_probleminstance_changelist", contest_id=problem.contest.id)
         else:
-            return redirect('problemset_all_problems')
+            return redirect("problemset_all_problems")
 
     def response_change(self, request, obj):
-        if '_continue' not in request.POST and obj.problemsite:
-            return redirect('problem_site', obj.problemsite.url_key)
+        if "_continue" not in request.POST and obj.problemsite:
+            return redirect("problem_site", obj.problemsite.url_key)
         else:
             return super(ProblemAdmin, self).response_change(request, obj)
 
-    def add_view(self, request, form_url='', extra_context=None):
+    def add_view(self, request, form_url="", extra_context=None):
         if request.contest:
-            return redirect('add_or_update_problem', contest_id=request.contest.id)
+            return redirect("add_or_update_problem", contest_id=request.contest.id)
         else:
-            return redirect('add_or_update_problem')
+            return redirect("add_or_update_problem")
 
     def download_view(self, request, object_id):
         problem = self.get_object(request, unquote(object_id))
@@ -522,9 +517,7 @@ class ProblemAdmin(admin.ModelAdmin):
         try:
             return problem.package_backend.pack(problem)
         except NotImplementedError:
-            self.message_user(
-                request, _("Package not available for problem %s.") % (problem,)
-            )
+            self.message_user(request, _("Package not available for problem %s.") % (problem,))
             return self.redirect_to_list(request, problem)
 
     def get_queryset(self, request):
@@ -535,7 +528,7 @@ class ProblemAdmin(admin.ModelAdmin):
             combined = request.user.problem_set.all()
         if request.user.is_superuser:
             return queryset
-        if request.user.has_perm('problems.problems_db_admin') or request.user.has_perm('problems.can_modify_tags'):
+        if request.user.has_perm("problems.problems_db_admin") or request.user.has_perm("problems.can_modify_tags"):
             combined |= queryset.filter(visibility=Problem.VISIBILITY_PUBLIC)
         if is_contest_basicadmin(request):
             combined |= queryset.filter(contest=request.contest)
@@ -543,31 +536,26 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def delete_view(self, request, object_id, extra_context=None):
         obj = self.get_object(request, unquote(object_id))
-        response = super(ProblemAdmin, self).delete_view(
-            request, object_id, extra_context
-        )
+        response = super(ProblemAdmin, self).delete_view(request, object_id, extra_context)
         if isinstance(response, HttpResponseRedirect):
             return self.redirect_to_list(request, obj)
         return response
 
     def get_readonly_fields(self, request, obj=None):
         if not (request.user.is_superuser or is_contest_admin(request)):
-            return ['visibility'] + self.readonly_fields
+            return ["visibility"] + self.readonly_fields
         return self.readonly_fields
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
+    def change_view(self, request, object_id, form_url="", extra_context=None):
         problem = self.get_object(request, unquote(object_id))
         extra_context = extra_context or {}
-        extra_context['categories'] = sorted(
-            set([getattr(inline, 'category', None) for inline in self.get_inlines(request, problem)])
-        )
-        if problem is not None and can_admin_problem(request, problem):   
-            extra_context['no_category'] = NO_CATEGORY
-        if request.user.has_perm('problems.problems_db_admin'):
-            extra_context['no_category'] = NO_CATEGORY
-        return super(ProblemAdmin, self).change_view(
-            request, object_id, form_url, extra_context=extra_context
-        )
+        extra_context["categories"] = sorted(set([getattr(inline, "category", None) for inline in self.get_inlines(request, problem)]))
+        if problem is not None and can_admin_problem(request, problem):
+            extra_context["no_category"] = NO_CATEGORY
+        if request.user.has_perm("problems.problems_db_admin"):
+            extra_context["no_category"] = NO_CATEGORY
+        return super(ProblemAdmin, self).change_view(request, object_id, form_url, extra_context=extra_context)
+
     def get_inlines(self, request, obj):
         if obj is not None and can_admin_problem(request, obj):
             return super().get_inlines(request, obj)
@@ -575,7 +563,6 @@ class ProblemAdmin(admin.ModelAdmin):
             return self.tag_inlines
         else:
             return ()
-        
 
 
 class BaseProblemAdmin(admin.MixinsAdmin):
@@ -597,9 +584,9 @@ class BaseProblemAdmin(admin.MixinsAdmin):
         urls = super(BaseProblemAdmin, self).get_urls()
         extra_urls = [
             re_path(
-                r'^(\d+)/download/$',
+                r"^(\d+)/download/$",
                 self.download_view,
-                name='problems_problem_download',
+                name="problems_problem_download",
             )
         ]
         return extra_urls + urls
@@ -610,15 +597,15 @@ admin.site.register(Problem, BaseProblemAdmin)
 
 class ProblemPackageAdmin(admin.ModelAdmin):
     list_display = [
-        'contest',
-        'problem_name',
-        'colored_status',
-        'created_by',
-        'creation_date',
-        'package_info',
+        "contest",
+        "problem_name",
+        "colored_status",
+        "created_by",
+        "creation_date",
+        "package_info",
     ]
-    list_filter = ['status', 'problem_name', 'contest']
-    actions = ['delete_selected']  # This allows us to override the action
+    list_filter = ["status", "problem_name", "contest"]
+    actions = ["delete_selected"]  # This allows us to override the action
 
     def __init__(self, *args, **kwargs):
         super(ProblemPackageAdmin, self).__init__(*args, **kwargs)
@@ -638,31 +625,29 @@ class ProblemPackageAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         if not request.user.is_superuser:
             return False
-        return (not obj) or (obj.status != 'OK')
+        return (not obj) or (obj.status != "OK")
 
     def delete_selected(self, request, queryset):
         # We use processed ProblemPackage instances to store orignal package
         # files.
-        if queryset.filter(status='OK').exists():
+        if queryset.filter(status="OK").exists():
             messages.error(request, _("Cannot delete a processed Problem Package"))
         else:
             return delete_selected(self, request, queryset)
 
-    delete_selected.short_description = (
-        _("Delete selected %s") % ProblemPackage._meta.verbose_name_plural.title()
-    )
+    delete_selected.short_description = _("Delete selected %s") % ProblemPackage._meta.verbose_name_plural.title()
 
     def colored_status(self, instance):
-        status_to_str = {'OK': 'ok', '?': 'in_prog', 'ERR': 'err'}
+        status_to_str = {"OK": "ok", "?": "in_prog", "ERR": "err"}
         package_status = status_to_str[instance.status]
         return format_html(
-            u'<span class="submission-admin prob-pack--{}">{}</span>',
+            '<span class="submission-admin prob-pack--{}">{}</span>',
             package_status,
             instance.get_status_display(),
         )
 
     colored_status.short_description = _("Status")
-    colored_status.admin_order_field = 'status'
+    colored_status.admin_order_field = "status"
 
     def package_info(self, instance):
         if instance.info:
@@ -673,28 +658,22 @@ class ProblemPackageAdmin(admin.ModelAdmin):
     package_info.short_description = _("Package information")
 
     def came_from(self):
-        return reverse('oioioiadmin:problems_problempackage_changelist')
+        return reverse("oioioiadmin:problems_problempackage_changelist")
 
     def inline_actions(self, instance, contest):
         actions = []
         if instance.package_file:
-            package_download = reverse(
-                'download_package', kwargs={'package_id': str(instance.id)}
-            )
+            package_download = reverse("download_package", kwargs={"package_id": str(instance.id)})
             actions.append((package_download, _("Package download")))
-        if instance.status == 'OK' and instance.problem:
+        if instance.status == "OK" and instance.problem:
             problem = instance.problem
             if (not problem.contest) or (problem.contest == contest):
                 problem_view = (
-                    reverse('oioioiadmin:problems_problem_change', args=(problem.id,))
-                    + '?'
-                    + urllib.parse.urlencode({'came_from': self.came_from()})
+                    reverse("oioioiadmin:problems_problem_change", args=(problem.id,)) + "?" + urllib.parse.urlencode({"came_from": self.came_from()})
                 )
                 actions.append((problem_view, _("Edit problem")))
-        if instance.status == 'ERR' and instance.traceback:
-            traceback_view = reverse(
-                'download_package_traceback', kwargs={'package_id': str(instance.id)}
-            )
+        if instance.status == "ERR" and instance.traceback:
+            traceback_view = reverse("download_package_traceback", kwargs={"package_id": str(instance.id)})
             actions.append((traceback_view, _("Error details")))
         return actions
 
@@ -707,51 +686,45 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         return inner
 
     def get_list_display(self, request):
-        items = super(ProblemPackageAdmin, self).get_list_display(request) + [
-            self.actions_field(request.contest)
-        ]
+        items = super(ProblemPackageAdmin, self).get_list_display(request) + [self.actions_field(request.contest)]
         if not is_contest_admin(request):
-            disallowed_items = ['created_by', 'actions_field']
+            disallowed_items = ["created_by", "actions_field"]
             items = [item for item in items if item not in disallowed_items]
         return items
 
     def get_list_filter(self, request):
         items = super(ProblemPackageAdmin, self).get_list_filter(request)
         if not is_contest_admin(request):
-            disallowed_items = ['created_by']
+            disallowed_items = ["created_by"]
             items = [item for item in items if item not in disallowed_items]
         return items
 
     def get_custom_list_select_related(self):
         return super(ProblemPackageAdmin, self).get_custom_list_select_related() + [
-            'problem',
-            'problem__contest',
+            "problem",
+            "problem__contest",
         ]
 
 
 admin.site.register(ProblemPackage, ProblemPackageAdmin)
 
 system_admin_menu_registry.register(
-    'problempackage_change',
+    "problempackage_change",
     _("Problem packages"),
-    lambda request: reverse('oioioiadmin:problems_problempackage_changelist'),
+    lambda request: reverse("oioioiadmin:problems_problempackage_changelist"),
     order=70,
 )
 
 
 class ContestProblemPackage(ProblemPackage):
-    class Meta(object):
+    class Meta:
         proxy = True
         verbose_name = _("Contest Problem Package")
 
 
 class ContestProblemPackageAdmin(ProblemPackageAdmin):
-    list_display = [
-        x
-        for x in ProblemPackageAdmin.list_display
-        if x not in ['contest', 'celery_task_id']
-    ]
-    list_filter = [x for x in ProblemPackageAdmin.list_filter if x != 'contest']
+    list_display = [x for x in ProblemPackageAdmin.list_display if x not in ["contest", "celery_task_id"]]
+    list_filter = [x for x in ProblemPackageAdmin.list_filter if x != "contest"]
 
     def __init__(self, *args, **kwargs):
         super(ContestProblemPackageAdmin, self).__init__(*args, **kwargs)
@@ -759,9 +732,7 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
 
     def get_queryset(self, request):
         qs = super(ContestProblemPackageAdmin, self).get_queryset(request)
-        return qs.filter(
-            Q(contest=request.contest) | Q(problem__contest=request.contest)
-        )
+        return qs.filter(Q(contest=request.contest) | Q(problem__contest=request.contest))
 
     def has_change_permission(self, request, obj=None):
         if obj:
@@ -772,28 +743,28 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
         return False
 
     def came_from(self):
-        return reverse('oioioiadmin:problems_contestproblempackage_changelist')
+        return reverse("oioioiadmin:problems_contestproblempackage_changelist")
 
     def get_actions(self, request):
         actions = super(ContestProblemPackageAdmin, self).get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
+        if "delete_selected" in actions:
+            del actions["delete_selected"]
         return actions
 
 
 contest_site.contest_register(ContestProblemPackage, ContestProblemPackageAdmin)
 contest_admin_menu_registry.register(
-    'problempackage_change',
+    "problempackage_change",
     _("Problem packages"),
-    lambda request: reverse('oioioiadmin:problems_contestproblempackage_changelist'),
+    lambda request: reverse("oioioiadmin:problems_contestproblempackage_changelist"),
     condition=~is_superuser,
     order=70,
 )
 
 
 class MainProblemInstanceAdmin(admin.ModelAdmin):
-    fields = ('problem', 'short_name')
-    readonly_fields = ('problem',)
+    fields = ("problem", "short_name")
+    readonly_fields = ("problem",)
 
     def has_add_permission(self, request):
         return False
@@ -810,8 +781,8 @@ class MainProblemInstanceAdmin(admin.ModelAdmin):
         return False
 
     def response_change(self, request, obj):
-        if '_continue' not in request.POST:
-            return redirect('problem_site', obj.problem.problemsite.url_key)
+        if "_continue" not in request.POST:
+            return redirect("problem_site", obj.problem.problemsite.url_key)
         else:
             return super(MainProblemInstanceAdmin, self).response_change(request, obj)
 

@@ -2,24 +2,16 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
-from django.dispatch import Signal
-
 from django.utils.translation import get_language, get_language_from_request
 from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 
-if (
-    'oioioi.portals.processors.portal_processor'
-    not in settings.TEMPLATES[0]['OPTIONS']['context_processors']
-):
+if "oioioi.portals.processors.portal_processor" not in settings.TEMPLATES[0]["OPTIONS"]["context_processors"]:
     raise ImproperlyConfigured(
-        "When using portals module "
-        "you have to add oioioi.portals.processors.portal_processor "
-        "to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py"
+        "When using portals module you have to add oioioi.portals.processors.portal_processor to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py"
     )
-
 
 
 class Node(MPTTModel):
@@ -30,20 +22,18 @@ class Node(MPTTModel):
         validators=[validate_db_string_id],
     )
     parent = TreeForeignKey(
-        'self',
+        "self",
         null=True,
         blank=False,
-        related_name='children',
+        related_name="children",
         verbose_name=_("parent"),
         on_delete=models.CASCADE,
     )
 
-    problems_in_content = models.ManyToManyField(
-        'problems.problem', related_name='portal_pages', blank=True
-    )
+    problems_in_content = models.ManyToManyField("problems.problem", related_name="portal_pages", blank=True)
 
-    class Meta(object):
-        unique_together = ('parent', 'short_name')
+    class Meta:
+        unique_together = ("parent", "short_name")
 
     def __str__(self):
         return str(self.get_lang_version().full_name)
@@ -76,15 +66,11 @@ class Node(MPTTModel):
             return super(Node, self).get_siblings(include_self)
 
     def get_path(self):
-        return '/'.join(
-            node.short_name for node in self.get_ancestors(include_self=True)
-        ).lstrip('/')
+        return "/".join(node.short_name for node in self.get_ancestors(include_self=True)).lstrip("/")
 
 
 class NodeLanguageVersion(models.Model):
-    node = models.ForeignKey(
-        Node, related_name='language_versions', on_delete=models.CASCADE
-    )
+    node = models.ForeignKey(Node, related_name="language_versions", on_delete=models.CASCADE)
     language = models.CharField(max_length=6, verbose_name=_("language code"))
     full_name = models.CharField(
         max_length=32,
@@ -94,8 +80,8 @@ class NodeLanguageVersion(models.Model):
     )
     panel_code = models.TextField(null=False, blank=True, verbose_name=_("panel code"))
 
-    class Meta(object):
-        unique_together = ('node', 'language')
+    class Meta:
+        unique_together = ("node", "language")
 
 
 class Portal(models.Model):
@@ -119,6 +105,4 @@ class Portal(models.Model):
     def clean(self):
         super(Portal, self).clean()
         if (self.owner is None) == (self.link_name is None):  # !xor
-            raise ValidationError(
-                _("Exactly one from the following should be chosen: owner, link_name")
-            )
+            raise ValidationError(_("Exactly one from the following should be chosen: owner, link_name"))

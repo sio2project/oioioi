@@ -17,17 +17,17 @@ from oioioi.similarsubmits.models import (
 
 class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
     list_display = [
-        'id',
-        'group_link',
-        'submission_link',
-        'submission_user_full_name',
-        'submission_problem_instance',
-        'guilty',
+        "id",
+        "group_link",
+        "submission_link",
+        "submission_user_full_name",
+        "submission_problem_instance",
+        "guilty",
     ]
-    list_display_links = ['id', 'guilty']
-    list_filter = ['guilty']
-    search_fields = ['submission__user__username', 'submission__user__last_name']
-    raw_id_fields = ['submission', 'group']
+    list_display_links = ["id", "guilty"]
+    list_filter = ["guilty"]
+    search_fields = ["submission__user__username", "submission__user__last_name"]
+    raw_id_fields = ["submission", "group"]
 
     def has_add_permission(self, request):
         return is_contest_admin(request)
@@ -41,30 +41,28 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj is None:
             return []
-        return ['submission', 'group']
+        return ["submission", "group"]
 
-    def add_view(self, request, form_url='', extra_context=None):
-        return redirect('bulk_add_similarities', contest_id=request.contest.id)
+    def add_view(self, request, form_url="", extra_context=None):
+        return redirect("bulk_add_similarities", contest_id=request.contest.id)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'submission':
+        if db_field.name == "submission":
             qs = Submission.objects.all()
             if request.contest:
                 qs = qs.filter(problem_instance__contest=request.contest)
-            kwargs['queryset'] = qs
-        elif db_field.name == 'group':
+            kwargs["queryset"] = qs
+        elif db_field.name == "group":
             qs = SubmissionsSimilarityGroup.objects.all()
             if request.contest:
                 qs = qs.filter(contest=request.contest)
-            kwargs['queryset'] = qs
-        return super(SubmissionsSimilarityEntryAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+            kwargs["queryset"] = qs
+        return super(SubmissionsSimilarityEntryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def group_link(self, instance):
         return make_html_link(
             reverse(
-                'oioioiadmin:similarsubmits_' 'submissionssimilaritygroup_change',
+                "oioioiadmin:similarsubmits_submissionssimilaritygroup_change",
                 args=[instance.group_id],
             ),
             instance.group_id,
@@ -75,7 +73,7 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
     def submission_link(self, instance):
         return make_html_link(
             reverse(
-                'submission',
+                "submission",
                 kwargs=dict(
                     contest_id=instance.submission.problem_instance.contest_id,
                     submission_id=instance.submission_id,
@@ -90,11 +88,11 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
         return instance.submission.user.get_full_name()
 
     submission_user_full_name.short_description = _("User name")
-    submission_user_full_name.admin_order_field = 'submission__user__last_name'
+    submission_user_full_name.admin_order_field = "submission__user__last_name"
 
     def submission_problem_instance(self, instance):
-        if instance.submission.kind != 'NORMAL':
-            return '%s (%s)' % (
+        if instance.submission.kind != "NORMAL":
+            return "%s (%s)" % (
                 force_str(instance.submission.problem_instance),
                 force_str(instance.submission.get_kind_display()),
             )
@@ -102,35 +100,27 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
             return instance.submission.problem_instance
 
     submission_problem_instance.short_description = _("Problem")
-    submission_problem_instance.admin_order_field = 'submission__problem_instance'
+    submission_problem_instance.admin_order_field = "submission__problem_instance"
 
     def get_custom_list_select_related(self):
-        return super(
-            SubmissionsSimilarityEntryAdmin, self
-        ).get_custom_list_select_related() + [
-            'submission',
-            'submission__user',
-            'submission__problem_instance',
+        return super(SubmissionsSimilarityEntryAdmin, self).get_custom_list_select_related() + [
+            "submission",
+            "submission__user",
+            "submission__problem_instance",
         ]
 
     def get_queryset(self, request):
         queryset = super(SubmissionsSimilarityEntryAdmin, self).get_queryset(request)
-        queryset = queryset.filter(
-            submission__problem_instance__contest=request.contest
-        )
-        queryset = queryset.order_by('-id')
+        queryset = queryset.filter(submission__problem_instance__contest=request.contest)
+        queryset = queryset.order_by("-id")
         return queryset
 
 
-contest_site.contest_register(
-    SubmissionsSimilarityEntry, SubmissionsSimilarityEntryAdmin
-)
+contest_site.contest_register(SubmissionsSimilarityEntry, SubmissionsSimilarityEntryAdmin)
 contest_admin_menu_registry.register(
-    'submissions_similarity',
+    "submissions_similarity",
     _("Similar submits"),
-    lambda request: reverse(
-        'oioioiadmin:similarsubmits_submissionssimilarityentry_changelist'
-    ),
+    lambda request: reverse("oioioiadmin:similarsubmits_submissionssimilarityentry_changelist"),
     is_contest_admin,
     order=100,
 )
@@ -139,24 +129,22 @@ contest_admin_menu_registry.register(
 class SubmisionsSimilarityEntryInline(admin.TabularInline):
     model = SubmissionsSimilarityEntry
     extra = 0
-    raw_id_fields = ['submission']
+    raw_id_fields = ["submission"]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'submission':
+        if db_field.name == "submission":
             qs = Submission.objects
             if request.contest:
                 qs = qs.filter(problem_instance__contest=request.contest)
-                kwargs['initial'] = request.contest
-            kwargs['queryset'] = qs
-        return super(SubmisionsSimilarityEntryInline, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+                kwargs["initial"] = request.contest
+            kwargs["queryset"] = qs
+        return super(SubmisionsSimilarityEntryInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class SubmissionsSimilarityGroupAdmin(admin.ModelAdmin):
-    list_display = ['id']
+    list_display = ["id"]
     inlines = [SubmisionsSimilarityEntryInline]
-    exclude = ['contest']
+    exclude = ["contest"]
 
     def has_add_permission(self, request):
         return is_contest_admin(request)
@@ -172,45 +160,30 @@ class SubmissionsSimilarityGroupAdmin(admin.ModelAdmin):
         obj.save()
 
     def _interrupt_redirection(self, request):
-        if 'came_from' not in request.GET and all(
-            x not in request.POST
-            for x in ('_continue', '_popup', '_saveasnew', '_addanother')
-        ):
+        if "came_from" not in request.GET and all(x not in request.POST for x in ("_continue", "_popup", "_saveasnew", "_addanother")):
             return True
         return False
 
     def response_add(self, request, obj, post_url_continue=None):
         if self._interrupt_redirection(request):
-            return redirect(
-                'oioioiadmin:similarsubmits_' 'submissionssimilarityentry_changelist'
-            )
-        return super(SubmissionsSimilarityGroupAdmin, self).response_add(
-            request, obj, post_url_continue
-        )
+            return redirect("oioioiadmin:similarsubmits_submissionssimilarityentry_changelist")
+        return super(SubmissionsSimilarityGroupAdmin, self).response_add(request, obj, post_url_continue)
 
     def response_change(self, request, obj):
         if self._interrupt_redirection(request):
-            return redirect(
-                'oioioiadmin:similarsubmits_' 'submissionssimilarityentry_changelist'
-            )
-        return super(SubmissionsSimilarityGroupAdmin, self).response_change(
-            request, obj
-        )
+            return redirect("oioioiadmin:similarsubmits_submissionssimilarityentry_changelist")
+        return super(SubmissionsSimilarityGroupAdmin, self).response_change(request, obj)
 
     def response_delete(self, request):
         if self._interrupt_redirection(request):
-            return redirect(
-                'oioioiadmin:similarsubmits_' 'submissionssimilarityentry_changelist'
-            )
+            return redirect("oioioiadmin:similarsubmits_submissionssimilarityentry_changelist")
         return super(SubmissionsSimilarityGroupAdmin, self).response_delete(request)
 
     def get_queryset(self, request):
         queryset = super(SubmissionsSimilarityGroupAdmin, self).get_queryset(request)
         queryset = queryset.filter(contest=request.contest)
-        queryset = queryset.order_by('-id')
+        queryset = queryset.order_by("-id")
         return queryset
 
 
-contest_site.contest_register(
-    SubmissionsSimilarityGroup, SubmissionsSimilarityGroupAdmin
-)
+contest_site.contest_register(SubmissionsSimilarityGroup, SubmissionsSimilarityGroupAdmin)

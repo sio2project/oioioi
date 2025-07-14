@@ -3,13 +3,13 @@ import sys
 from oioioi.base.menu import OrderedRegistry
 
 
-class DateRegistry(object):
+class DateRegistry:
     """Maintains a collection of important changeable date fields."""
 
     def __init__(self):
         self._registry = OrderedRegistry()
 
-    class DateItem(object):
+    class DateItem:
         def __init__(self, date_field, name_generator, round_chooser, qs_filter, model):
             self.date_field = date_field
             self.name_generator = name_generator
@@ -57,11 +57,7 @@ class DateRegistry(object):
             return decorator
 
         if name_generator is None:
-            name_generator = (
-                lambda obj: str(model._meta.verbose_name)
-                + " "
-                + str(model._meta.get_field(date_field).verbose_name)
-            )
+            name_generator = lambda obj: str(model._meta.verbose_name) + " " + str(model._meta.get_field(date_field).verbose_name)
 
         if round_chooser is None:
             round_chooser = lambda obj: None
@@ -69,9 +65,7 @@ class DateRegistry(object):
         if qs_filter is None:
             qs_filter = lambda qs, contest_id: qs.filter(contest=contest_id)
 
-        date_item = self.DateItem(
-            date_field, name_generator, round_chooser, qs_filter, model
-        )
+        date_item = self.DateItem(date_field, name_generator, round_chooser, qs_filter, model)
         self._registry.register(date_item, order)
 
     def tolist(self, contest_id):

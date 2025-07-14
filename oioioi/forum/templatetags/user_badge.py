@@ -9,9 +9,9 @@ register = template.Library()
 
 
 class BadgeNode(Node):
-    '''
+    """
     Returns a badge for a user if they are a moderator.
-    '''
+    """
 
     def __init__(self, target_user, asvar):
         self.target_user = Variable(target_user)
@@ -19,7 +19,7 @@ class BadgeNode(Node):
 
     def render(self, context):
         user = self.target_user.resolve(context)
-        if is_forum_moderator(context['request'], user):
+        if is_forum_moderator(context["request"], user):
             badge = _(" (moderator)")
         else:
             badge = ""

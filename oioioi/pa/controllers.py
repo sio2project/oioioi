@@ -2,7 +2,6 @@ import datetime
 import logging
 
 from django import forms
-from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import gettext_lazy as _
@@ -10,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.acm.controllers import ACMContestController
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
+from oioioi.contests.models import RegistrationStatus
 from oioioi.contests.utils import (
     all_non_trial_public_results_visible,
     is_contest_admin,
@@ -25,14 +25,12 @@ from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import CONTEST_RANKING_KEY, DefaultRankingController
-from oioioi.contests.models import RegistrationStatus
-
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
 
 class PARegistrationController(ParticipantsController):
-    registration_template = 'pa/registration.html'
+    registration_template = "pa/registration.html"
 
     @property
     def form_class(self):
@@ -70,55 +68,48 @@ class PARegistrationController(ParticipantsController):
         return False
 
     def registration_view(self, request):
-
         registration_status = self.get_registration_status(request)
         if registration_status == RegistrationStatus.NOT_OPEN_YET:
-            return TemplateResponse(request, 'contests/registration_not_open_yet.html')
+            return TemplateResponse(request, "contests/registration_not_open_yet.html")
 
         participant = self._get_participant_for_form(request)
 
-        if 'pa_paregistrationformdata' in request.session:
+        if "pa_paregistrationformdata" in request.session:
             # pylint: disable=not-callable
-            form = self.form_class(request.session['pa_paregistrationformdata'])
-            del request.session['pa_paregistrationformdata']
+            form = self.form_class(request.session["pa_paregistrationformdata"])
+            del request.session["pa_paregistrationformdata"]
         else:
             form = self.get_form(request, participant)
         form.set_terms_accepted_text(self.get_terms_accepted_phrase())
 
-        if request.method == 'POST':
+        if request.method == "POST":
             # pylint: disable=maybe-no-member
             if form.is_valid():
-                participant, created = Participant.objects.get_or_create(
-                    contest=self.contest, user=request.user
-                )
+                participant, created = Participant.objects.get_or_create(contest=self.contest, user=request.user)
                 self.handle_validated_form(request, form, participant)
                 auditLogger.info(
                     "User %d (%s) registered in %s from IP %s UA: %s",
                     request.user.id,
                     request.user.username,
                     self.contest.id,
-                    request.META.get('REMOTE_ADDR', '?'),
-                    request.headers.get('user-agent', '?'),
+                    request.META.get("REMOTE_ADDR", "?"),
+                    request.headers.get("user-agent", "?"),
                 )
-                if 'next' in request.GET:
-                    return safe_redirect(request, request.GET['next'])
+                if "next" in request.GET:
+                    return safe_redirect(request, request.GET["next"])
                 else:
-                    return redirect('default_contest_view', contest_id=self.contest.id)
+                    return redirect("default_contest_view", contest_id=self.contest.id)
 
-        context = {'form': form, 'participant': participant}
+        context = {"form": form, "participant": participant}
         return TemplateResponse(request, self.registration_template, context)
 
     def mixins_for_admin(self):
         from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
 
-        return super(PARegistrationController, self).mixins_for_admin() + (
-            TermsAcceptedPhraseAdminMixin,
-        )
+        return super(PARegistrationController, self).mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
 
     def can_change_terms_accepted_phrase(self, request):
-        return not PARegistration.objects.filter(
-            participant__contest=request.contest
-        ).exists()
+        return not PARegistration.objects.filter(participant__contest=request.contest).exists()
 
 
 class PAContestController(ProgrammingContestController):
@@ -129,10 +120,10 @@ class PAContestController(ProgrammingContestController):
         "If any of the tests in a group fails, the group is worth 0 points.\n"
         "The full scoring is available after the end of the round."
         "The ranking is determined by the total score and number of 10-score submissions, 9-score, 8-score etc."
-        )
+    )
 
     def fill_evaluation_environ(self, environ, submission):
-        environ['test_scorer'] = 'oioioi.pa.utils.pa_test_scorer'
+        environ["test_scorer"] = "oioioi.pa.utils.pa_test_scorer"
 
         super(PAContestController, self).fill_evaluation_environ(environ, submission)
 
@@ -153,21 +144,17 @@ class PAContestController(ProgrammingContestController):
     def can_submit(self, request, problem_instance, check_round_times=True):
         if request.user.is_anonymous:
             return False
-        if request.user.has_perm('contests.contest_admin', self.contest):
+        if request.user.has_perm("contests.contest_admin", self.contest):
             return True
         if not is_participant(request):
             return False
-        return super(PAContestController, self).can_submit(
-            request, problem_instance, check_round_times
-        )
+        return super(PAContestController, self).can_submit(request, problem_instance, check_round_times)
 
     def can_see_publicsolutions(self, request, round):
         if all_non_trial_public_results_visible(request):
             # Do not show solutions for trial rounds that has future
             # publication date (e.g. not set).
-            return self.get_round_times(request, round).public_results_visible(
-                request.timestamp
-            )
+            return self.get_round_times(request, round).public_results_visible(request.timestamp)
         return False
 
     def solutions_must_be_public(self, qs):
@@ -178,22 +165,18 @@ class PAContestController(ProgrammingContestController):
         )
 
     def get_division_choices(self):
-        return [('A', _("A")), ('B', _("B")), ('NONE', _("None"))]
+        return [("A", _("A")), ("B", _("B")), ("NONE", _("None"))]
 
     def adjust_upload_form(self, request, existing_problem, form):
-        super(PAContestController, self).adjust_upload_form(
-            request, existing_problem, form
-        )
-        initial = 'NONE'
+        super(PAContestController, self).adjust_upload_form(request, existing_problem, form)
+        initial = "NONE"
         if existing_problem:
             try:
-                initial = PAProblemInstanceData.objects.get(
-                    problem_instance__problem=existing_problem
-                ).division
+                initial = PAProblemInstanceData.objects.get(problem_instance__problem=existing_problem).division
             except PAProblemInstanceData.DoesNotExist:
                 pass
 
-        form.fields['division'] = forms.ChoiceField(
+        form.fields["division"] = forms.ChoiceField(
             required=True,
             label=_("Division"),
             initial=initial,
@@ -202,18 +185,18 @@ class PAContestController(ProgrammingContestController):
 
     def fill_upload_environ(self, request, form, env):
         super(PAContestController, self).fill_upload_environ(request, form, env)
-        env['division'] = form.cleaned_data['division']
-        env['post_upload_handlers'] += ['oioioi.pa.handlers.save_division']
+        env["division"] = form.cleaned_data["division"]
+        env["post_upload_handlers"] += ["oioioi.pa.handlers.save_division"]
 
     def get_default_safe_exec_mode(self):
-        return 'cpu'
+        return "cpu"
 
     def get_allowed_languages(self):
-        return ['C', 'C++', 'Pascal', 'Java']
+        return ["C", "C++", "Pascal", "Java"]
 
 
-A_PLUS_B_RANKING_KEY = 'ab'
-B_RANKING_KEY = 'b'
+A_PLUS_B_RANKING_KEY = "ab"
+B_RANKING_KEY = "b"
 
 
 class PARankingController(DefaultRankingController):
@@ -270,11 +253,11 @@ class PARankingController(DefaultRankingController):
 
     def _filter_pis_for_ranking(self, partial_key, queryset):
         if partial_key == A_PLUS_B_RANKING_KEY:
-            return queryset.filter(paprobleminstancedata__division__in=['A', 'B'])
+            return queryset.filter(paprobleminstancedata__division__in=["A", "B"])
         elif partial_key == B_RANKING_KEY:
-            return queryset.filter(paprobleminstancedata__division='B')
+            return queryset.filter(paprobleminstancedata__division="B")
         else:
-            return queryset.filter(paprobleminstancedata__division='NONE')
+            return queryset.filter(paprobleminstancedata__division="NONE")
 
     def _allow_zero_score(self):
         return False
@@ -284,8 +267,7 @@ class PADivCRankingController(PARankingController):
     description = _("PA style ranking (with division C)")
 
     def available_rankings(self, request):
-        rankings = [(A_PLUS_B_RANKING_KEY, _("Division A + B + C")),
-                (B_RANKING_KEY, _("Division B + C"))]
+        rankings = [(A_PLUS_B_RANKING_KEY, _("Division A + B + C")), (B_RANKING_KEY, _("Division B + C"))]
         for round in self._rounds_for_ranking(request):
             if round.is_trial:
                 rankings.append((str(round.id), round.name))
@@ -293,12 +275,11 @@ class PADivCRankingController(PARankingController):
 
     def _filter_pis_for_ranking(self, partial_key, queryset):
         if partial_key == A_PLUS_B_RANKING_KEY:
-            return queryset.filter(
-                    paprobleminstancedata__division__in=['A', 'B', 'C'])
+            return queryset.filter(paprobleminstancedata__division__in=["A", "B", "C"])
         elif partial_key == B_RANKING_KEY:
-            return queryset.filter(paprobleminstancedata__division__in=['B', 'C'])
+            return queryset.filter(paprobleminstancedata__division__in=["B", "C"])
         else:
-            return queryset.filter(paprobleminstancedata__division='NONE')
+            return queryset.filter(paprobleminstancedata__division="NONE")
 
 
 class PAFinalsContestController(ACMContestController):
@@ -311,7 +292,7 @@ class PAFinalsContestController(ACMContestController):
         "The lower the total time, the higher the rank.\n"
         "Compilation errors and system errors are not considered as an incorrect submission.\n"
         "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds."
-        )
+    )
 
     def registration_controller(self):
         return ParticipantsController(self.contest)
@@ -339,10 +320,11 @@ class PAFinalsContestController(ACMContestController):
         return round.end_date - datetime.timedelta(minutes=frozen_ranking_minutes)
 
     def get_safe_exec_mode(self):
-        return 'cpu'
+        return "cpu"
 
 
 PAFinalsContestController.mix_in(OnsiteContestControllerMixin)
+
 
 class PADivCContestController(PAContestController):
     description = _("Algorithmic Engagements with Division C")
@@ -351,4 +333,4 @@ class PADivCContestController(PAContestController):
         return PADivCRankingController(self.contest)
 
     def get_division_choices(self):
-        return [('A', _("A")), ('B', _("B")), ('C', _("C")), ('NONE', _("None"))]
+        return [("A", _("A")), ("B", _("B")), ("C", _("C")), ("NONE", _("None"))]

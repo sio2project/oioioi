@@ -1,7 +1,5 @@
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
-
 
 
 class GlobalMessage(models.Model):
@@ -11,11 +9,7 @@ class GlobalMessage(models.Model):
     end = models.DateTimeField(null=True, blank=True, verbose_name=_("end"))
 
     def visible(self, timestamp):
-        return (
-            self.enabled
-            and ((not self.start) or self.start <= timestamp)
-            and ((not self.end) or timestamp <= self.end)
-        )
+        return self.enabled and ((not self.start) or self.start <= timestamp) and ((not self.end) or timestamp <= self.end)
 
     @staticmethod
     def get_singleton():

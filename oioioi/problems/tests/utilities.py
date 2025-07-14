@@ -36,18 +36,18 @@ class DummyPackageBackend(ProblemPackageBackend):
         return True
 
     def get_short_name(self, path, original_filename=None):
-        return 'bar'
+        return "bar"
 
     def unpack(self, env):
-        pp = ProblemPackage.objects.get(id=env['package_id'])
+        pp = ProblemPackage.objects.get(id=env["package_id"])
         p = Problem.create(
-            legacy_name='foo',
-            short_name='bar',
+            legacy_name="foo",
+            short_name="bar",
             contest=pp.contest,
-            controller_name='oioioi.problems.controllers.ProblemController',
+            controller_name="oioioi.problems.controllers.ProblemController",
         )
-        env['problem_id'] = p.id
-        if 'FAIL' in pp.package_file.name:
+        env["problem_id"] = p.id
+        if "FAIL" in pp.package_file.name:
             raise DummyPackageException("DUMMY_FAILURE")
         return env
 
@@ -56,11 +56,11 @@ class DummyPackageBackend(ProblemPackageBackend):
 
 
 def dummy_handler(env):
-    pp = ProblemPackage.objects.get(id=env['package_id'])
-    if env.get('cc_rulez', False):
-        pp.problem_name = 'contest_controller_rulez'
+    pp = ProblemPackage.objects.get(id=env["package_id"])
+    if env.get("cc_rulez", False):
+        pp.problem_name = "contest_controller_rulez"
     else:
-        pp.problem_name = 'handled'
+        pp.problem_name = "handled"
     pp.save()
     return env
 
@@ -68,18 +68,18 @@ def dummy_handler(env):
 class DummySource(UploadedPackageSource):
     def create_env(self, *args, **kwargs):
         env = super(DummySource, self).create_env(*args, **kwargs)
-        env['post_upload_handlers'] += ['oioioi.problems.tests.dummy_handler']
+        env["post_upload_handlers"] += ["oioioi.problems.tests.dummy_handler"]
         return env
 
 
 class DummyContestController(ProgrammingContestController):
     def adjust_upload_form(self, request, existing_problem, form):
-        form.fields['cc_rulez'] = forms.BooleanField()
+        form.fields["cc_rulez"] = forms.BooleanField()
 
     def fill_upload_environ(self, request, form, env):
-        env['cc_rulez'] = form.cleaned_data['cc_rulez']
-        env['post_upload_handlers'] += ['oioioi.problems.tests.dummy_handler']
+        env["cc_rulez"] = form.cleaned_data["cc_rulez"]
+        env["post_upload_handlers"] += ["oioioi.problems.tests.dummy_handler"]
 
 
 def get_test_filename(name):
-    return os.path.join(os.path.dirname(__file__), '../../sinolpack/files', name)
+    return os.path.join(os.path.dirname(__file__), "../../sinolpack/files", name)

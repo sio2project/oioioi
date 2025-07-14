@@ -1,7 +1,6 @@
 import json
 import logging
 import pprint
-import socket
 import time
 import traceback
 from functools import wraps
@@ -29,7 +28,7 @@ WAIT_FOR_SUBMISSION_SLEEP_SECONDS = 1
 #   TODO: Improve after migration to Python 3:
 #   def _get_submission_or_skip(*args, submission_class=Submission)
 def _get_submission_or_skip(*args, **kwargs):
-    submission_class = kwargs.get('submission_class', Submission)
+    submission_class = kwargs.get("submission_class", Submission)
 
     def wrapper(fn):
         """A decorator which tries to get a submission by id from env or skips
@@ -39,10 +38,10 @@ def _get_submission_or_skip(*args, **kwargs):
         @wraps(fn)
         @require_transaction
         def decorated(env, *args, **kwargs):
-            if 'submission_id' not in env:
+            if "submission_id" not in env:
                 return env
             try:
-                submission = submission_class.objects.get(id=env['submission_id'])
+                submission = submission_class.objects.get(id=env["submission_id"])
             except Submission.DoesNotExist:
                 return env
             return fn(env, submission, *args, **kwargs)
@@ -60,7 +59,7 @@ def wait_for_submission_in_db(env, **kwargs):
     """
     for _i in range(WAIT_FOR_SUBMISSION_RETRIES):
         with transaction.atomic():
-            if bool(Submission.objects.filter(id=env['submission_id'])):
+            if bool(Submission.objects.filter(id=env["submission_id"])):
                 break
         time.sleep(WAIT_FOR_SUBMISSION_SLEEP_SECONDS)
     return env
@@ -86,23 +85,23 @@ def update_submission_score(env, submission, **kwargs):
 def update_user_results(env, **kwargs):
     with transaction.atomic():
         try:
-            submission = Submission.objects.get(id=env['submission_id'])
+            submission = Submission.objects.get(id=env["submission_id"])
         except Submission.DoesNotExist:
             return env
 
         user = submission.user
         if not user:
             return env
-        problem_instance = ProblemInstance.objects.get(id=env['problem_instance_id'])
+        problem_instance = ProblemInstance.objects.get(id=env["problem_instance_id"])
         round = problem_instance.round
         contest = None
         if round is not None:
-            assert round.id == env['round_id']
+            assert round.id == env["round_id"]
             contest = round.contest
-            assert contest.id == env['contest_id']
+            assert contest.id == env["contest_id"]
         else:
-            assert 'round_id' not in env
-            assert 'contest_id' not in env
+            assert "round_id" not in env
+            assert "contest_id" not in env
 
     problem_instance.controller.update_user_results(user, problem_instance)
 
@@ -119,17 +118,11 @@ def update_problem_statistics(env, submission, **kwargs):
     (
         problem_statistics,
         created,
-    ) = ProblemStatistics.objects.select_for_update().get_or_create(
-        problem=submission.problem_instance.problem
-    )
+    ) = ProblemStatistics.objects.select_for_update().get_or_create(problem=submission.problem_instance.problem)
 
-    user_statistics, created = UserStatistics.objects.select_for_update().get_or_create(
-        user=submission.user, problem_statistics=problem_statistics
-    )
+    user_statistics, created = UserStatistics.objects.select_for_update().get_or_create(user=submission.user, problem_statistics=problem_statistics)
 
-    submission.problem_instance.controller.update_problem_statistics(
-        problem_statistics, user_statistics, submission
-    )
+    submission.problem_instance.controller.update_problem_statistics(problem_statistics, user_statistics, submission)
 
     user_statistics.save()
     problem_statistics.save()
@@ -142,35 +135,35 @@ def call_submission_judged(env, submission, **kwargs):
     contest = submission.problem_instance.contest
 
     if contest is None:
-        assert 'contest_id' not in env
+        assert "contest_id" not in env
     else:
-        assert contest.id == env['contest_id']
-        contest.controller.submission_judged(submission, rejudged=env['is_rejudge'])
+        assert contest.id == env["contest_id"]
+        contest.controller.submission_judged(submission, rejudged=env["is_rejudge"])
     return env
 
 
 @transaction.atomic
 @_get_submission_or_skip
-def send_notification_judged(env, submission, kind='NORMAL', **kwargs):
-    if submission.user is not None and not env['is_rejudge']:
+def send_notification_judged(env, submission, kind="NORMAL", **kwargs):
+    if submission.user is not None and not env["is_rejudge"]:
         message = "Submission %(submission_id)d by user %(username)s for problem %(short_name)s"
-        if kind == 'INITIAL':
-            notification = 'initial_results'
+        if kind == "INITIAL":
+            notification = "initial_results"
             message += " got initial result."
         else:
-            notification =  'submission_judged'
+            notification = "submission_judged"
             message += " was judged"
         logger.info(
             message,
             {
-                'submission_id': submission.pk,
-                'username': submission.user.username,
-                'short_name': submission.problem_instance.short_name,
+                "submission_id": submission.pk,
+                "username": submission.user.username,
+                "short_name": submission.problem_instance.short_name,
             },
             extra={
-                'notification': notification,
-                'user': submission.user,
-                'submission': submission,
+                "notification": notification,
+                "user": submission.user,
+                "submission": submission,
             },
         )
     return env
@@ -188,18 +181,18 @@ def create_error_report(env, submission, exc_info, **kwargs):
 
     logger.error(
         "System Error evaluating submission #%s:\n%s",
-        env.get('submission_id', '???'),
+        env.get("submission_id", "???"),
         pprint.pformat(env, indent=4),
         exc_info=exc_info,
     )
 
     submission_report = SubmissionReport(submission=submission)
-    submission_report.kind = 'FAILURE'
+    submission_report.kind = "FAILURE"
     submission_report.save()
 
     failure_report = FailureReport(submission_report=submission_report)
     failure_report.json_environ = json.dumps(env)
-    failure_report.message = u''.join(traceback.format_exception(*exc_info))
+    failure_report.message = "".join(traceback.format_exception(*exc_info))
     failure_report.save()
 
     return env
@@ -217,10 +210,10 @@ def mail_admins_on_error(env, submission, exc_info, **kwargs):
 
     try:
         mail_admins(
-            "System Error evaluating submission #%s" % env.get('submission_id', '???'),
-            u''.join(traceback.format_exception(*exc_info)),
+            "System Error evaluating submission #%s" % env.get("submission_id", "???"),
+            "".join(traceback.format_exception(*exc_info)),
         )
-    except (socket.error, SMTPException) as e:
+    except (OSError, SMTPException) as e:
         logger.error("An error occurred while sending email: %s", e.message)
 
     return env

@@ -8,11 +8,11 @@ class VoluntarySolutionPublication(models.Model):
     submission = models.OneToOneField(
         Submission,
         primary_key=True,
-        related_name='publication',
+        related_name="publication",
         verbose_name=_("submission"),
         on_delete=models.CASCADE,
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("voluntary solution publication")
         verbose_name_plural = _("voluntary solution publications")

@@ -13,18 +13,16 @@ from oioioi.teams.utils import teams_enabled
 class MembersInline(admin.TabularInline):
     model = TeamMembership
     fields = [
-        'user',
+        "user",
     ]
 
 
 class TeamsAdmin(admin.ModelAdmin):
     list_select_related = True
-    list_display = ['name', 'join_key']
-    fields = ['name', 'login']
-    search_fields = ['name']
-    inlines = (
-        MembersInline,
-    )
+    list_display = ["name", "join_key"]
+    fields = ["name", "login"]
+    search_fields = ["name"]
+    inlines = (MembersInline,)
     form = TeamForm
 
     def has_add_permission(self, request):
@@ -49,9 +47,9 @@ class TeamsAdmin(admin.ModelAdmin):
 
 contest_site.contest_register(Team, TeamsAdmin)
 contest_admin_menu_registry.register(
-    'teams',
+    "teams",
     _("Teams"),
-    lambda request: reverse('oioioiadmin:teams_team_changelist'),
+    lambda request: reverse("oioioiadmin:teams_team_changelist"),
     condition=teams_enabled & is_contest_admin,
     order=30,
 )
@@ -71,7 +69,7 @@ class TeamsConfigInline(admin.TabularInline):
         return self.has_change_permission(request, obj)
 
 
-class TeamsAdminMixin(object):
+class TeamsAdminMixin:
     """Adds :class:`~oioioi.teams.models.TeamsConfig` to an admin panel."""
 
     def __init__(self, *args, **kwargs):

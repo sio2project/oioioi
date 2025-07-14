@@ -11,34 +11,20 @@ from oioioi.similarsubmits.models import (
 )
 
 
-class SimilarityDisqualificationMixin(object):
+class SimilarityDisqualificationMixin:
     """ContestController mixin that sets up similarsubmits app."""
 
     def is_submission_disqualified(self, submission):
-        prev = super(SimilarityDisqualificationMixin, self).is_submission_disqualified(
-            submission
-        )
+        prev = super(SimilarityDisqualificationMixin, self).is_submission_disqualified(submission)
 
-        return (
-            prev
-            or SubmissionsSimilarityEntry.objects.filter(
-                submission=submission, guilty=True
-            ).exists()
-        )
+        return prev or SubmissionsSimilarityEntry.objects.filter(submission=submission, guilty=True).exists()
 
     def has_disqualification_history(self, submission):
-        prev = super(
-            SimilarityDisqualificationMixin, self
-        ).has_disqualification_history(submission)
-        return (
-            prev
-            or SubmissionsSimilarityEntry.objects.filter(submission=submission).exists()
-        )
+        prev = super(SimilarityDisqualificationMixin, self).has_disqualification_history(submission)
+        return prev or SubmissionsSimilarityEntry.objects.filter(submission=submission).exists()
 
     def is_any_submission_to_problem_disqualified(self, user, problem_instance):
-        prev = super(
-            SimilarityDisqualificationMixin, self
-        ).is_any_submission_to_problem_disqualified(user, problem_instance)
+        prev = super(SimilarityDisqualificationMixin, self).is_any_submission_to_problem_disqualified(user, problem_instance)
 
         return (
             prev
@@ -51,9 +37,7 @@ class SimilarityDisqualificationMixin(object):
         )
 
     def is_user_disqualified(self, request, user):
-        prev = super(SimilarityDisqualificationMixin, self).is_user_disqualified(
-            request, user
-        )
+        prev = super(SimilarityDisqualificationMixin, self).is_user_disqualified(request, user)
 
         return (
             prev
@@ -66,9 +50,7 @@ class SimilarityDisqualificationMixin(object):
         )
 
     def user_has_disqualification_history(self, request, user):
-        prev = super(
-            SimilarityDisqualificationMixin, self
-        ).user_has_disqualification_history(request, user)
+        prev = super(SimilarityDisqualificationMixin, self).user_has_disqualification_history(request, user)
 
         return (
             prev
@@ -80,31 +62,19 @@ class SimilarityDisqualificationMixin(object):
 
     def change_submission_kind(self, submission, kind):
         old_kind = submission.kind
-        super(SimilarityDisqualificationMixin, self).change_submission_kind(
-            submission, kind
-        )
+        super(SimilarityDisqualificationMixin, self).change_submission_kind(submission, kind)
         if submission.kind != old_kind:
-            SubmissionsSimilarityEntry.objects.filter(submission=submission).update(
-                guilty=False
-            )
+            SubmissionsSimilarityEntry.objects.filter(submission=submission).update(guilty=False)
 
     def exclude_disqualified_users(self, queryset):
         return (
             super(SimilarityDisqualificationMixin, self)
             .exclude_disqualified_users(queryset)
-            .exclude(
-                submission__in=Submission.objects.filter(
-                    similarities__guilty=True, problem_instance__contest=self.contest
-                )
-            )
+            .exclude(submission__in=Submission.objects.filter(similarities__guilty=True, problem_instance__contest=self.contest))
         )
 
     def filter_visible_sources(self, request, queryset):
-        prev = (
-            super(SimilarityDisqualificationMixin, self)
-            .filter_visible_sources(request, queryset)
-            .distinct()
-        )
+        prev = super(SimilarityDisqualificationMixin, self).filter_visible_sources(request, queryset).distinct()
 
         if not request.user.is_authenticated:
             return prev
@@ -118,40 +88,30 @@ class SimilarityDisqualificationMixin(object):
         return (prev | similar).distinct()
 
     def _render_disqualification_reason(self, request, submission):
-        prev = super(
-            SimilarityDisqualificationMixin, self
-        )._render_disqualification_reason(request, submission)
+        prev = super(SimilarityDisqualificationMixin, self)._render_disqualification_reason(request, submission)
 
         if is_contest_admin(request):
             q_expression = Q(submissions__submission=submission)
         else:
             # Do not split this filter as it spans many-to-many relationship
-            q_expression = Q(
-                submissions__submission=submission, submissions__guilty=True
-            )
-        similarities = SubmissionsSimilarityGroup.objects.filter(
-            q_expression
-        ).prefetch_related('submissions')
+            q_expression = Q(submissions__submission=submission, submissions__guilty=True)
+        similarities = SubmissionsSimilarityGroup.objects.filter(q_expression).prefetch_related("submissions")
         if not similarities:
             return prev
 
         submission_contexts = {}
         for group in similarities:
             for entry in group.submissions.all():
-                submission_contexts[entry.submission] = submission_template_context(
-                    request, entry.submission
-                )
+                submission_contexts[entry.submission] = submission_template_context(request, entry.submission)
 
         template = (
-            'similarsubmits/programming_similar_submissions_admin.html'
-            if is_contest_admin(request)
-            else 'similarsubmits/programming_similar_submissions.html'
+            "similarsubmits/programming_similar_submissions_admin.html" if is_contest_admin(request) else "similarsubmits/programming_similar_submissions.html"
         )
 
         context = {
-            'similarities': similarities,
-            'main_submission_id': submission.id,
-            'submission_contexts': submission_contexts,
+            "similarities": similarities,
+            "main_submission_id": submission.id,
+            "submission_contexts": submission_contexts,
         }
 
         return prev + render_to_string(template, request=request, context=context)

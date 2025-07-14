@@ -3,7 +3,7 @@ from django.db import models
 
 from oioioi.filetracker.fields import FileField
 
-if getattr(settings, 'TESTS', False):
+if getattr(settings, "TESTS", False):
 
     class FileTestModel(models.Model):
-        file_field = FileField(upload_to='tests')
+        file_field = FileField(upload_to="tests")

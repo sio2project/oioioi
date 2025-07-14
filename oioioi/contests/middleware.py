@@ -16,29 +16,25 @@ def activate_contest(request, contest):
     if not contest:
         return
 
-    recent_contests = request.session.get('recent_contests', [])
+    recent_contests = request.session.get("recent_contests", [])
     if not recent_contests or recent_contests[0] != contest.id:
         try:
             del recent_contests[recent_contests.index(contest.id)]
         except ValueError:
             pass
         recent_contests = [contest.id] + recent_contests
-        recent_contests = recent_contests[: getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
-        request.session['recent_contests'] = recent_contests
+        recent_contests = recent_contests[: getattr(settings, "NUM_RECENT_CONTESTS", 5)]
+        request.session["recent_contests"] = recent_contests
 
-    if not request.real_user.is_anonymous and not request.session.get(
-        'first_view_after_logging', False
-    ):
-        cv, created = ContestView.objects.get_or_create(
-            user=request.real_user, contest=contest
-        )
+    if not request.real_user.is_anonymous and not request.session.get("first_view_after_logging", False):
+        cv, created = ContestView.objects.get_or_create(user=request.real_user, contest=contest)
         # Do not repeatedly update timestamp for latest contest.
         if cv != ContestView.objects.filter(user=request.real_user).latest() or created:
             cv.timestamp = request.timestamp
             cv.save()
 
 
-class CurrentContestMiddleware(object):
+class CurrentContestMiddleware:
     """Middleware which tracks the currently visited contest and stores it
     to be used in other parts of the current contest mechanism.
 
@@ -100,7 +96,7 @@ class CurrentContestMiddleware(object):
         m = contest_re.match(request.path)
 
         if m is not None:
-            contest_id = m.group('c_name')
+            contest_id = m.group("c_name")
             contest = get_object_or_404(Contest, id=contest_id)
 
         activate_contest(request, contest)
@@ -110,12 +106,12 @@ class CurrentContestMiddleware(object):
 
         # There was no contest, but CONTEST_MODE tells us we need
         # to try to put the user into a contest.
-        recent_contests = request.session.get('recent_contests', [])
+        recent_contests = request.session.get("recent_contests", [])
         if recent_contests:
             contest = self._get_contest(recent_contests[0])
 
-        if not contest and getattr(settings, 'DEFAULT_CONTEST', None):
-            contest = self._get_contest(getattr(settings, 'DEFAULT_CONTEST'))
+        if not contest and getattr(settings, "DEFAULT_CONTEST", None):
+            contest = self._get_contest(settings.DEFAULT_CONTEST)
 
         if not contest:
             # do not redeem sir
@@ -138,31 +134,28 @@ class CurrentContestMiddleware(object):
         if not res.url_name:
             return
         nonglobal = False
-        if res.namespaces and res.namespaces[0] == 'noncontest':
+        if res.namespaces and res.namespaces[0] == "noncontest":
             # It certainly isn't a global url because it has
             # a noncontest version. It could still be a neutral URL.
             nonglobal = True
             res.namespaces = res.namespaces[1:]
-        assert 'contest_id' not in res.kwargs
-        res.kwargs['contest_id'] = contest.id
+        assert "contest_id" not in res.kwargs
+        res.kwargs["contest_id"] = contest.id
         # If there is a contest-prefixed version of this url,
         # reverse will return it.
-        assert not res.namespaces or res.namespaces[0] != 'contest'
+        assert not res.namespaces or res.namespaces[0] != "contest"
         name = res.url_name
         if res.namespaces:
-            name = ':'.join(res.namespaces + [name])
+            name = ":".join(res.namespaces + [name])
         try:
             new_path = reverse(name, args=res.args, kwargs=res.kwargs)
             assert contest_re.match(new_path)
             if request.GET:
-                new_path += '?' + request.GET.urlencode()
+                new_path += "?" + request.GET.urlencode()
             return HttpResponseRedirect(new_path)
         except NoReverseMatch:
             if nonglobal:
                 # That wasn't a global url and it doesn't have
                 # a contest version. It must be a noncontest-only url.
-                if (
-                    settings.CONTEST_MODE == ContestMode.contest_only
-                    and not request.user.is_superuser
-                ):
+                if settings.CONTEST_MODE == ContestMode.contest_only and not request.user.is_superuser:
                     raise PermissionDenied

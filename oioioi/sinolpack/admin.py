@@ -12,9 +12,9 @@ class SinolpackConfigInline(admin.StackedInline):
     can_delete = False
     extra = 0
     max_num = 0
-    readonly_fields = ['config']
+    readonly_fields = ["config"]
     fields = readonly_fields
-    inline_classes = ('collapse',)
+    inline_classes = ("collapse",)
     category = _("Advanced")
 
     def has_add_permission(self, request, obj=None):
@@ -34,9 +34,9 @@ class SinolpackExtraFilesInline(admin.StackedInline):
     model = ExtraFile
     can_delete = False
     extra = 0
-    readonly_fields = ['file_link']
+    readonly_fields = ["file_link"]
     fields = readonly_fields
-    inline_classes = ('collapse',)
+    inline_classes = ("collapse",)
     category = _("Advanced")
 
     def has_add_permission(self, request, obj=None):
@@ -51,22 +51,22 @@ class SinolpackExtraFilesInline(admin.StackedInline):
     def has_view_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
-    @admin.display(
-        description=_("Extra file")
-    )
+    @admin.display(description=_("Extra file"))
     def file_link(self, instance):
         if instance.id is not None:
-            href = reverse('download_extra_file', kwargs={'file_id': str(instance.id)})
+            href = reverse("download_extra_file", kwargs={"file_id": str(instance.id)})
             return make_html_link(href, instance.name)
         return None
 
 
-
-class SinolpackProblemAdminMixin(object):
+class SinolpackProblemAdminMixin:
     """Adds :class:`~oioioi.sinolpack.models.ExtraConfig` and
     :class:`~oioioi.sinolpack.models.ExtraFile` to an admin panel.
     """
 
     def __init__(self, *args, **kwargs):
         super(SinolpackProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = tuple(self.inlines) + (SinolpackConfigInline, SinolpackExtraFilesInline,)
+        self.inlines = tuple(self.inlines) + (
+            SinolpackConfigInline,
+            SinolpackExtraFilesInline,
+        )

@@ -8,25 +8,25 @@ from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.contests.models import Submission
 
 job_states = EnumRegistry()
-job_states.register('QUEUED', _("Queued"))
-job_states.register('PROGRESS', _("In progress"))
-job_states.register('CANCELLED', _("Cancelled"))
-job_states.register('WAITING', _("Waiting"))
+job_states.register("QUEUED", _("Queued"))
+job_states.register("PROGRESS", _("In progress"))
+job_states.register("CANCELLED", _("Cancelled"))
+job_states.register("WAITING", _("Waiting"))
 
 
 class QueuedJob(models.Model):
     job_id = models.CharField(max_length=50, primary_key=True)
-    state = EnumField(job_states, default='QUEUED')
+    state = EnumField(job_states, default="QUEUED")
     creation_date = models.DateTimeField(default=timezone.now)
 
     # Optional information about queued jobs.
     submission = models.ForeignKey(Submission, null=True, on_delete=models.CASCADE)
     celery_task_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("Queued job")
         verbose_name_plural = _("Queued jobs")
-        ordering = ['pk']
+        ordering = ["pk"]
 
 
 class SavedEnviron(models.Model):
@@ -35,9 +35,7 @@ class SavedEnviron(models.Model):
     # call.
     queued_job = models.OneToOneField(QueuedJob, on_delete=models.CASCADE)
     environ = models.TextField(help_text=_("JSON-encoded evaluation environ"))
-    save_time = models.DateTimeField(
-        auto_now=True, help_text=_("Time and date when the environ was saved")
-    )
+    save_time = models.DateTimeField(auto_now=True, help_text=_("Time and date when the environ was saved"))
 
     def load_environ(self):
         return json.loads(self.environ)
@@ -45,6 +43,6 @@ class SavedEnviron(models.Model):
     @classmethod
     def save_environ(cls, environ):
         return cls.objects.create(
-            queued_job=QueuedJob.objects.get(job_id=environ['job_id']),
+            queued_job=QueuedJob.objects.get(job_id=environ["job_id"]),
             environ=json.dumps(environ),
         )

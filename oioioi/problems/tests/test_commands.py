@@ -1,32 +1,35 @@
 from io import StringIO
-from django.test import TestCase, override_settings
-from django.core.management import call_command, CommandError
-from django.contrib.auth import get_user_model
+
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.management import CommandError, call_command
+from django.test import TestCase, override_settings
+
 from oioioi.problems.models import (
-    Problem,
     AlgorithmTag,
-    DifficultyTag,
-    AlgorithmTagThrough,
-    DifficultyTagThrough,
     AlgorithmTagProposal,
+    AlgorithmTagThrough,
+    DifficultyTag,
     DifficultyTagProposal,
+    DifficultyTagThrough,
+    Problem,
     ProblemName,
 )
 
 User = get_user_model()
 
+
 @override_settings(DEBUG=True)
 class TestMassCreateTool(TestCase):
     name_to_model = {
-        'problems': Problem,
-        'users': User,
-        'algotags': AlgorithmTag,
-        'difftags': DifficultyTag,
-        'algothrough': AlgorithmTagThrough,
-        'diffthrough': DifficultyTagThrough,
-        'algoproposals': AlgorithmTagProposal,
-        'diffproposals': DifficultyTagProposal,
+        "problems": Problem,
+        "users": User,
+        "algotags": AlgorithmTag,
+        "difftags": DifficultyTag,
+        "algothrough": AlgorithmTagThrough,
+        "diffthrough": DifficultyTagThrough,
+        "algoproposals": AlgorithmTagProposal,
+        "diffproposals": DifficultyTagProposal,
     }
 
     def _assert_model_counts(self, expected_counts):
@@ -36,113 +39,151 @@ class TestMassCreateTool(TestCase):
             assert count == expected_count, f"Expected {expected_count} {name}, got {count}"
 
         # Validation for i18n problem names
-        problem_amount: int = expected_counts.get('problems', Problem.objects.count())
+        problem_amount: int = expected_counts.get("problems", Problem.objects.count())
         expected_probname_count = len(settings.LANGUAGES) * problem_amount
         probname_count = ProblemName.objects.count()
-        assert probname_count == expected_probname_count, (
-            f"Expected {expected_probname_count} probnames, got {probname_count}"
-        )
+        assert probname_count == expected_probname_count, f"Expected {expected_probname_count} probnames, got {probname_count}"
 
     def test_long_flags(self):
         out = StringIO()
         call_command(
-            'mass_create_tool',
-            '--problems', '10',
-            '--users', '10',
-            '--algotags', '5',
-            '--difftags', '5',
-            '--algothrough', '20',
-            '--diffthrough', '8',
-            '--algoproposals', '50',
-            '--diffproposals', '50',
+            "mass_create_tool",
+            "--problems",
+            "10",
+            "--users",
+            "10",
+            "--algotags",
+            "5",
+            "--difftags",
+            "5",
+            "--algothrough",
+            "20",
+            "--diffthrough",
+            "8",
+            "--algoproposals",
+            "50",
+            "--diffproposals",
+            "50",
             stdout=out,
         )
-        self._assert_model_counts({
-            'problems': 10,
-            'users': 10,
-            'algotags': 5,
-            'difftags': 5,
-            'algothrough': 20,
-            'diffthrough': 8,
-            'algoproposals': 50,
-            'diffproposals': 50,
-        })
+        self._assert_model_counts(
+            {
+                "problems": 10,
+                "users": 10,
+                "algotags": 5,
+                "difftags": 5,
+                "algothrough": 20,
+                "diffthrough": 8,
+                "algoproposals": 50,
+                "diffproposals": 50,
+            }
+        )
 
         call_command(
-            'mass_create_tool',
-            '--problems', '10',
-            '--users', '10',
-            '--algotags', '5',
-            '--difftags', '5',
-            '--algothrough', '20',
-            '--diffthrough', '8',
-            '--algoproposals', '50',
-            '--diffproposals', '50',
-            '--wipe',
+            "mass_create_tool",
+            "--problems",
+            "10",
+            "--users",
+            "10",
+            "--algotags",
+            "5",
+            "--difftags",
+            "5",
+            "--algothrough",
+            "20",
+            "--diffthrough",
+            "8",
+            "--algoproposals",
+            "50",
+            "--diffproposals",
+            "50",
+            "--wipe",
             stdout=out,
         )
-        self._assert_model_counts({
-            'problems': 10,
-            'users': 10,
-            'algotags': 5,
-            'difftags': 5,
-            'algothrough': 20,
-            'diffthrough': 8,
-            'algoproposals': 50,
-            'diffproposals': 50,
-        })
-        call_command('mass_create_tool', '--wipe')
+        self._assert_model_counts(
+            {
+                "problems": 10,
+                "users": 10,
+                "algotags": 5,
+                "difftags": 5,
+                "algothrough": 20,
+                "diffthrough": 8,
+                "algoproposals": 50,
+                "diffproposals": 50,
+            }
+        )
+        call_command("mass_create_tool", "--wipe")
         self._assert_model_counts({})
 
     def test_short_flags(self):
         out = StringIO()
         call_command(
-            'mass_create_tool',
-            '-p', '10',
-            '-u', '10',
-            '-at', '5',
-            '-dt', '5',
-            '-att', '20',
-            '-dtt', '8',
-            '-ap', '50',
-            '-dp', '50',
+            "mass_create_tool",
+            "-p",
+            "10",
+            "-u",
+            "10",
+            "-at",
+            "5",
+            "-dt",
+            "5",
+            "-att",
+            "20",
+            "-dtt",
+            "8",
+            "-ap",
+            "50",
+            "-dp",
+            "50",
             stdout=out,
         )
-        self._assert_model_counts({
-            'problems': 10,
-            'users': 10,
-            'algotags': 5,
-            'difftags': 5,
-            'algothrough': 20,
-            'diffthrough': 8,
-            'algoproposals': 50,
-            'diffproposals': 50,
-        })
+        self._assert_model_counts(
+            {
+                "problems": 10,
+                "users": 10,
+                "algotags": 5,
+                "difftags": 5,
+                "algothrough": 20,
+                "diffthrough": 8,
+                "algoproposals": 50,
+                "diffproposals": 50,
+            }
+        )
         call_command(
-            'mass_create_tool',
-            '-p', '10',
-            '-u', '10',
-            '-at', '5',
-            '-dt', '5',
-            '-att', '20',
-            '-dtt', '8',
-            '-ap', '50',
-            '-dp', '50',
-            '-w',
+            "mass_create_tool",
+            "-p",
+            "10",
+            "-u",
+            "10",
+            "-at",
+            "5",
+            "-dt",
+            "5",
+            "-att",
+            "20",
+            "-dtt",
+            "8",
+            "-ap",
+            "50",
+            "-dp",
+            "50",
+            "-w",
             stdout=out,
         )
 
-        self._assert_model_counts({
-            'problems': 10,
-            'users': 10,
-            'algotags': 5,
-            'difftags': 5,
-            'algothrough': 20,
-            'diffthrough': 8,
-            'algoproposals': 50,
-            'diffproposals': 50,
-        })
-        call_command('mass_create_tool', '-w')
+        self._assert_model_counts(
+            {
+                "problems": 10,
+                "users": 10,
+                "algotags": 5,
+                "difftags": 5,
+                "algothrough": 20,
+                "diffthrough": 8,
+                "algoproposals": 50,
+                "diffproposals": 50,
+            }
+        )
+        call_command("mass_create_tool", "-w")
         self._assert_model_counts({})
 
     @override_settings(DEBUG=False)
@@ -150,15 +191,23 @@ class TestMassCreateTool(TestCase):
         out = StringIO()
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '10',
-                '-u', '10',
-                '-at', '5',
-                '-dt', '5',
-                '-att', '20',
-                '-dtt', '8',
-                '-ap', '50',
-                '-dp', '50',
+                "mass_create_tool",
+                "-p",
+                "10",
+                "-u",
+                "10",
+                "-at",
+                "5",
+                "-dt",
+                "5",
+                "-att",
+                "20",
+                "-dtt",
+                "8",
+                "-ap",
+                "50",
+                "-dp",
+                "50",
                 stdout=out,
             )
 
@@ -166,15 +215,23 @@ class TestMassCreateTool(TestCase):
         out = StringIO()
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '10',
-                '-u', '10',
-                '-at', '5',
-                '-dt', '-5',
-                '-att', '20',
-                '-dtt', '8',
-                '-ap', '50',
-                '-dp', '50',
+                "mass_create_tool",
+                "-p",
+                "10",
+                "-u",
+                "10",
+                "-at",
+                "5",
+                "-dt",
+                "-5",
+                "-att",
+                "20",
+                "-dtt",
+                "8",
+                "-ap",
+                "50",
+                "-dp",
+                "50",
                 stdout=out,
             )
 
@@ -182,18 +239,24 @@ class TestMassCreateTool(TestCase):
         out = StringIO()
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '7',
-                '-at', '5',
-                '-att', '40',
+                "mass_create_tool",
+                "-p",
+                "7",
+                "-at",
+                "5",
+                "-att",
+                "40",
                 stdout=out,
             )
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '7',
-                '-dt', '5',
-                '-dtt', '10',
+                "mass_create_tool",
+                "-p",
+                "7",
+                "-dt",
+                "5",
+                "-dtt",
+                "10",
                 stdout=out,
             )
 
@@ -201,67 +264,94 @@ class TestMassCreateTool(TestCase):
         out = StringIO()
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '1',
-                '-u', '1',
-                '-ap', '1',
+                "mass_create_tool",
+                "-p",
+                "1",
+                "-u",
+                "1",
+                "-ap",
+                "1",
                 stdout=out,
             )
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '1',
-                '-at', '1',
-                '-ap', '1',
+                "mass_create_tool",
+                "-p",
+                "1",
+                "-at",
+                "1",
+                "-ap",
+                "1",
                 stdout=out,
             )
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-u', '1',
-                '-at', '1',
-                '-ap', '1',
+                "mass_create_tool",
+                "-u",
+                "1",
+                "-at",
+                "1",
+                "-ap",
+                "1",
                 stdout=out,
             )
 
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '1',
-                '-u', '1',
-                '-dp', '1',
+                "mass_create_tool",
+                "-p",
+                "1",
+                "-u",
+                "1",
+                "-dp",
+                "1",
                 stdout=out,
             )
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-p', '1',
-                '-dt', '1',
-                '-dp', '1',
+                "mass_create_tool",
+                "-p",
+                "1",
+                "-dt",
+                "1",
+                "-dp",
+                "1",
                 stdout=out,
             )
         with self.assertRaises(CommandError):
             call_command(
-                'mass_create_tool',
-                '-u', '1',
-                '-dt', '1',
-                '-dp', '1',
+                "mass_create_tool",
+                "-u",
+                "1",
+                "-dt",
+                "1",
+                "-dp",
+                "1",
                 stdout=out,
             )
 
     def test_seed_repeatability(self):
         out = StringIO()
         call_command(
-            'mass_create_tool',
-            '-p', '10',
-            '-u', '10',
-            '-at', '5',
-            '-dt', '5',
-            '-att', '20',
-            '-dtt', '8',
-            '-ap', '50',
-            '-dp', '50',
-            '-s', '8518751',
+            "mass_create_tool",
+            "-p",
+            "10",
+            "-u",
+            "10",
+            "-at",
+            "5",
+            "-dt",
+            "5",
+            "-att",
+            "20",
+            "-dtt",
+            "8",
+            "-ap",
+            "50",
+            "-dp",
+            "50",
+            "-s",
+            "8518751",
             stdout=out,
         )
 
@@ -270,17 +360,26 @@ class TestMassCreateTool(TestCase):
             seed_snapshot[name] = sorted(str(obj) for obj in model.objects.all())
 
         call_command(
-            'mass_create_tool',
-            '-p', '10',
-            '-u', '10',
-            '-at', '5',
-            '-dt', '5',
-            '-att', '20',
-            '-dtt', '8',
-            '-ap', '50',
-            '-dp', '50',
-            '-s', '8518751',
-            '-w',
+            "mass_create_tool",
+            "-p",
+            "10",
+            "-u",
+            "10",
+            "-at",
+            "5",
+            "-dt",
+            "5",
+            "-att",
+            "20",
+            "-dtt",
+            "8",
+            "-ap",
+            "50",
+            "-dp",
+            "50",
+            "-s",
+            "8518751",
+            "-w",
             stdout=out,
         )
 

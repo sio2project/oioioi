@@ -13,7 +13,7 @@ except ImportError:
 import os
 import sys
 
-if os.getuid() == 0 and not os.getenv('ALLOW_ROOT') == '1':  # root
+if os.getuid() == 0 and not os.getenv("ALLOW_ROOT") == "1":  # root
     print("ERROR: This setup.py cannot be run as root.", file=sys.stderr)
     print("ERROR: If you want to proceed anyway, hunt this", file=sys.stderr)
     print("ERROR: message and edit the source at your own risk.", file=sys.stderr)
@@ -55,7 +55,7 @@ requirements = [
     "chardet>=5.1,<5.2",
     "django-gravatar2>=1.4,<1.5",
     "django-mptt>=0.16,<0.17",
-    "mistune<2.0",   # 2.0 is breaking
+    "mistune<2.0",  # 2.0 is breaking
     "pika>=1.3,<1.4",
     "Unidecode>=1.3,<1.4",
     "sentry-sdk>=2.16.0,<2.17.0",
@@ -89,23 +89,23 @@ requirements = [
     "coverage[toml]>=7.4.0",
     "exceptiongroup>=1.2.1",
     "attrs>=23.2.0",
-    "Automat>=22.10.0"
+    "Automat>=22.10.0",
 ]
 
 setup(
-    name='oioioi',
-    version='0.2.0.dev',
-    description='The web frontend of the SIO2 Project contesting system',
-    author='The SIO2 Team',
-    author_email='sio2@sio2project.mimuw.edu.pl',
-    url='http://sio2project.mimuw.edu.pl',
+    name="oioioi",
+    version="0.2.0.dev",
+    description="The web frontend of the SIO2 Project contesting system",
+    author="The SIO2 Team",
+    author_email="sio2@sio2project.mimuw.edu.pl",
+    url="http://sio2project.mimuw.edu.pl",
     install_requires=requirements,
-    packages=find_packages(exclude=['ez_setup']),
+    packages=find_packages(exclude=["ez_setup"]),
     include_package_data=True,
-    test_suite='oioioi.runtests.runtests',
+    test_suite="oioioi.runtests.runtests",
     entry_points={
-        'console_scripts': [
-            'oioioi-create-config = oioioi.deployment.create_config:main',
+        "console_scripts": [
+            "oioioi-create-config = oioioi.deployment.create_config:main",
         ],
     },
 )

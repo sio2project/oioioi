@@ -15,12 +15,12 @@ from oioioi.disqualification.models import Disqualification, DisqualificationsCo
 
 
 class DisqualificationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'submission_link', 'user_full_name', 'guilty_text']
-    list_display_links = ['id', 'title', 'guilty_text']
-    list_filter = ['guilty']
-    search_fields = ['title', 'user__username', 'user__last_name']
-    raw_id_fields = ['submission']
-    exclude = ['contest']
+    list_display = ["id", "title", "submission_link", "user_full_name", "guilty_text"]
+    list_display_links = ["id", "title", "guilty_text"]
+    list_filter = ["guilty"]
+    search_fields = ["title", "user__username", "user__last_name"]
+    raw_id_fields = ["submission"]
+    exclude = ["contest"]
 
     def has_add_permission(self, request):
         return is_contest_admin(request)
@@ -39,32 +39,28 @@ class DisqualificationAdmin(admin.ModelAdmin):
         obj.save()
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'submission':
+        if db_field.name == "submission":
             qs = Submission.objects.filter(user__isnull=False)
             if request.contest:
                 qs = qs.filter(problem_instance__contest=request.contest)
-            kwargs['queryset'] = qs
-        if db_field.name == 'user':
+            kwargs["queryset"] = qs
+        if db_field.name == "user":
             qs = User.objects.all()
             if request.contest:
-                qs = request.contest.controller.registration_controller().filter_participants(
-                    qs
-                )
-            kwargs['queryset'] = qs
-        return super(DisqualificationAdmin, self).formfield_for_foreignkey(
-            db_field, request, **kwargs
-        )
+                qs = request.contest.controller.registration_controller().filter_participants(qs)
+            kwargs["queryset"] = qs
+        return super(DisqualificationAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
     def submission_link(self, instance):
         if instance.submission is None:
-            return ''
+            return ""
         reverse_kwargs = {
-            'contest_id': instance.submission.problem_instance.contest_id,
-            'submission_id': instance.submission_id,
+            "contest_id": instance.submission.problem_instance.contest_id,
+            "submission_id": instance.submission_id,
         }
         return make_html_link(
-            reverse('submission', kwargs=reverse_kwargs),
-            '%d (%s)'
+            reverse("submission", kwargs=reverse_kwargs),
+            "%d (%s)"
             % (
                 instance.submission_id,
                 force_str(instance.submission.problem_instance),
@@ -77,35 +73,30 @@ class DisqualificationAdmin(admin.ModelAdmin):
         return instance.user.get_full_name()
 
     user_full_name.short_description = _("User name")
-    user_full_name.admin_order_field = 'user__last_name'
+    user_full_name.admin_order_field = "user__last_name"
 
     def guilty_text(self, instance):
         return _("Yes") if instance.guilty else _("No")
 
     guilty_text.short_description = _("Guilty")
-    guilty_text.admin_order_field = 'guilty'
+    guilty_text.admin_order_field = "guilty"
 
     def get_custom_list_select_related(self):
         return super(DisqualificationAdmin, self).get_custom_list_select_related() + [
-            'submission',
-            'user',
-            'submission__problem_instance',
+            "submission",
+            "user",
+            "submission__problem_instance",
         ]
 
     def get_queryset(self, request):
-        return (
-            super(DisqualificationAdmin, self)
-            .get_queryset(request)
-            .filter(contest=request.contest)
-            .order_by('-id')
-        )
+        return super(DisqualificationAdmin, self).get_queryset(request).filter(contest=request.contest).order_by("-id")
 
 
 contest_site.contest_register(Disqualification, DisqualificationAdmin)
 contest_admin_menu_registry.register(
-    'disqualification_admin',
+    "disqualification_admin",
     _("Custom disqualification"),
-    lambda request: reverse('oioioiadmin:disqualification_disqualification_changelist'),
+    lambda request: reverse("oioioiadmin:disqualification_disqualification_changelist"),
     is_contest_admin,
     order=100,
 )
@@ -115,7 +106,7 @@ class DisqualificationsConfigInline(admin.TabularInline):
     model = DisqualificationsConfig
     category = _("Advanced")
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 2})},
+        models.TextField: {"widget": Textarea(attrs={"rows": 2})},
     }
 
     def has_add_permission(self, request, obj=None):
@@ -128,7 +119,7 @@ class DisqualificationsConfigInline(admin.TabularInline):
         return is_contest_admin(request)
 
 
-class DisqualificationsAdminMixin(object):
+class DisqualificationsAdminMixin:
     """Adds :class:`~oioioi.disqualification.models.DisqualificationsConfigInline`
     to an admin panel."""
 

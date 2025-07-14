@@ -1,7 +1,7 @@
 from oioioi.contests.controllers import ContestController
 
 
-class LivedataContestControllerMixin(object):
+class LivedataContestControllerMixin:
     """ContestController mixin that sets a default setting for livedata
     visibility.
     """

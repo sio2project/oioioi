@@ -1,20 +1,14 @@
-from oioioi.contests.models import Contest, ProblemInstance, Round, UserResultForProblem
-from rest_framework import serializers
 from django.utils.timezone import now
+from rest_framework import serializers
+
+from oioioi.contests.models import Contest, ProblemInstance, Round, UserResultForProblem
 
 
 class SubmissionSerializer(serializers.Serializer):
-    file = serializers.FileField(
-        help_text="File with the problem solution. "
-        "It should have name which allows "
-        "programming language recognition."
-    )
+    file = serializers.FileField(help_text="File with the problem solution. It should have name which allows programming language recognition.")
     kind = serializers.CharField(
         required=False,
-        help_text="It is an advanced parameter determining "
-        "submission kind. It usually defaults "
-        "to normal and you should not "
-        "set it manually.",
+        help_text="It is an advanced parameter determining submission kind. It usually defaults to normal and you should not set it manually.",
     )
     problem_instance = None
 
@@ -31,13 +25,13 @@ class SubmissionSerializer(serializers.Serializer):
         return data
 
     class Meta:
-        fields = ('file', 'kind', 'problem_instance_id')
+        fields = ("file", "kind", "problem_instance_id")
 
 
 class ContestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contest
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
 
 class RoundSerializer(serializers.ModelSerializer):
@@ -63,14 +57,12 @@ class RoundSerializer(serializers.ModelSerializer):
 
 # This is a partial serializer and it serves as a base for the API response.
 class ProblemSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ProblemInstance
-        exclude = ['needs_rejudge', 'problem', 'contest']
+        exclude = ["needs_rejudge", "problem", "contest"]
 
 
 class UserResultForProblemSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserResultForProblem
-        fields = ['score', 'status']
+        fields = ["score", "status"]

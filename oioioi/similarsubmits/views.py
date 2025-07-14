@@ -17,14 +17,12 @@ from oioioi.similarsubmits.utils import is_correct_submissionssimilarity
 
 @enforce_condition(contest_exists & is_contest_admin)
 def bulk_add_similarities_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = BulkAddSubmissionsSimilarityForm(request, request.POST)
         if form.is_valid():
-            groups = form.cleaned_data['similar_groups']
+            groups = form.cleaned_data["similar_groups"]
             for group in groups:
-                entries = SubmissionsSimilarityEntry.objects.filter(
-                    submission__in=group
-                ).select_related('group')
+                entries = SubmissionsSimilarityEntry.objects.filter(submission__in=group).select_related("group")
 
                 if entries.exists():
                     groups = set([entry.group for entry in entries])
@@ -41,23 +39,16 @@ def bulk_add_similarities_view(request):
                     group_model.save()
 
                 for submission in group:
-                    SubmissionsSimilarityEntry.objects.get_or_create(
-                        group=group_model, submission=submission
-                    )
+                    SubmissionsSimilarityEntry.objects.get_or_create(group=group_model, submission=submission)
 
             messages.success(
                 request,
-                ngettext_lazy(
-                    "Created one group", "Created %(groups_count)d groups", len(groups)
-                )
-                % {'groups_count': len(groups)},
+                ngettext_lazy("Created one group", "Created %(groups_count)d groups", len(groups)) % {"groups_count": len(groups)},
             )
-            return redirect(
-                'oioioiadmin:similarsubmits_' 'submissionssimilaritygroup_changelist'
-            )
+            return redirect("oioioiadmin:similarsubmits_submissionssimilaritygroup_changelist")
     else:
         form = BulkAddSubmissionsSimilarityForm(request)
-    return TemplateResponse(request, 'similarsubmits/bulk_add.html', {'form': form})
+    return TemplateResponse(request, "similarsubmits/bulk_add.html", {"form": form})
 
 
 @require_POST
@@ -66,22 +57,16 @@ def bulk_add_similarities_view(request):
 def mark_guilty_view(request, entry_id):
     entry = get_object_or_404(SubmissionsSimilarityEntry, id=entry_id)
 
-    if entry.submission.kind == 'IGNORED_HIDDEN':
+    if entry.submission.kind == "IGNORED_HIDDEN":
         messages.error(
             request,
-            _(
-                "You can't mark a removed submission as"
-                " guilty because the author will not be able"
-                " to see it."
-            ),
+            _("You can't mark a removed submission as guilty because the author will not be able to see it."),
         )
     else:
         entry.guilty = True
         entry.save()
 
-    return redirect(
-        'submission', contest_id=request.contest.id, submission_id=entry.submission_id
-    )
+    return redirect("submission", contest_id=request.contest.id, submission_id=entry.submission_id)
 
 
 @require_POST
@@ -91,6 +76,4 @@ def mark_not_guilty_view(request, entry_id):
     entry = get_object_or_404(SubmissionsSimilarityEntry, id=entry_id)
     entry.guilty = False
     entry.save()
-    return redirect(
-        'submission', contest_id=request.contest.id, submission_id=entry.submission_id
-    )
+    return redirect("submission", contest_id=request.contest.id, submission_id=entry.submission_id)

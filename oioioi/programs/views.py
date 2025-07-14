@@ -65,29 +65,25 @@ def show_submission_source_view(request, submission_id):
     is_source_safe = False
     try:
         lexer = guess_lexer_for_filename(filename, raw_source)
-        formatter = HtmlFormatter(
-            linenos=True, line_number_chars=3, cssclass='syntax-highlight'
-        )
+        formatter = HtmlFormatter(linenos=True, line_number_chars=3, cssclass="syntax-highlight")
         formatted_source = highlight(raw_source, lexer, formatter)
-        formatted_source_css = HtmlFormatter().get_style_defs('.syntax-highlight')
+        formatted_source_css = HtmlFormatter().get_style_defs(".syntax-highlight")
         is_source_safe = True
     except ClassNotFound:
         formatted_source = raw_source
-        formatted_source_css = ''
-    download_url = reverse(
-        'download_submission_source', kwargs={'submission_id': submission_id}
-    )
+        formatted_source_css = ""
+    download_url = reverse("download_submission_source", kwargs={"submission_id": submission_id})
     return TemplateResponse(
         request,
-        'programs/source.html',
+        "programs/source.html",
         {
-            'raw_source': raw_source,
-            'source': formatted_source,
-            'css': formatted_source_css,
-            'is_source_safe': is_source_safe,
-            'download_url': download_url,
-            'decode_error': decode_error,
-            'submission_id': submission_id,
+            "raw_source": raw_source,
+            "source": formatted_source,
+            "css": formatted_source_css,
+            "is_source_safe": is_source_safe,
+            "download_url": download_url,
+            "decode_error": decode_error,
+            "submission_id": submission_id,
         },
     )
 
@@ -96,14 +92,14 @@ def show_submission_source_view(request, submission_id):
 def save_diff_id_view(request, submission_id):
     # Verify user's access to the submission
     get_submission_source_file_or_error(request, submission_id)
-    request.session['saved_diff_id'] = submission_id
+    request.session["saved_diff_id"] = submission_id
     return HttpResponse()
 
 
 @enforce_condition(~contest_exists | can_enter_contest)
 def source_diff_view(request, submission1_id, submission2_id):
-    if request.session.get('saved_diff_id'):
-        request.session.pop('saved_diff_id')
+    if request.session.get("saved_diff_id"):
+        request.session.pop("saved_diff_id")
     source1 = get_submission_source_file_or_error(request, submission1_id).read()
     source2 = get_submission_source_file_or_error(request, submission2_id).read()
 
@@ -115,7 +111,7 @@ def source_diff_view(request, submission1_id, submission2_id):
     numwidth = len(str(max(len(source1), len(source2))))
     ndiff = difflib.ndiff(source1, source2)
 
-    class DiffLine(object):
+    class DiffLine:
         def __init__(self, css_class, text, number):
             self.css_class = css_class
             self.text = text
@@ -133,50 +129,46 @@ def source_diff_view(request, submission1_id, submission2_id):
     for diffline in ndiff:
         line = diffstrip(diffline)
         line = line.expandtabs(4)
-        maxlen = getattr(settings, 'CHARACTERS_IN_LINE', 80)
+        maxlen = getattr(settings, "CHARACTERS_IN_LINE", 80)
         parts = (len(line) + maxlen) // maxlen
         line = line.ljust(parts * maxlen)
         for i in range(parts):
             f, t = i * maxlen, ((i + 1) * maxlen)
             c1, c2 = numformat(count1), numformat(count2)
-            if diffline.startswith('- '):
-                diff1.append(DiffLine('left', line[f:t], '' if i else c1))
-                diff2.append(DiffLine('empty', '', ''))
-            elif diffline.startswith('+ '):
-                diff1.append(DiffLine('empty', '', ''))
-                diff2.append(DiffLine('right', line[f:t], '' if i else c2))
-            elif diffline.startswith('  '):
-                diff1.append(DiffLine('both', line[f:t], '' if i else c1))
-                diff2.append(DiffLine('both', line[f:t], '' if i else c2))
-        if diffline.startswith('- ') or diffline.startswith('  '):
+            if diffline.startswith("- "):
+                diff1.append(DiffLine("left", line[f:t], "" if i else c1))
+                diff2.append(DiffLine("empty", "", ""))
+            elif diffline.startswith("+ "):
+                diff1.append(DiffLine("empty", "", ""))
+                diff2.append(DiffLine("right", line[f:t], "" if i else c2))
+            elif diffline.startswith("  "):
+                diff1.append(DiffLine("both", line[f:t], "" if i else c1))
+                diff2.append(DiffLine("both", line[f:t], "" if i else c2))
+        if diffline.startswith("- ") or diffline.startswith("  "):
             count1 += 1
-        if diffline.startswith('+ ') or diffline.startswith('  '):
+        if diffline.startswith("+ ") or diffline.startswith("  "):
             count2 += 1
 
-    download_url1 = reverse(
-        'download_submission_source', kwargs={'submission_id': submission1_id}
-    )
-    download_url2 = reverse(
-        'download_submission_source', kwargs={'submission_id': submission2_id}
-    )
+    download_url1 = reverse("download_submission_source", kwargs={"submission_id": submission1_id})
+    download_url2 = reverse("download_submission_source", kwargs={"submission_id": submission2_id})
 
     return TemplateResponse(
         request,
-        'programs/source_diff.html',
+        "programs/source_diff.html",
         {
-            'source1': diff1,
-            'decode_error1': decode_error1,
-            'download_url1': download_url1,
-            'source2': diff2,
-            'decode_error2': decode_error2,
-            'download_url2': download_url2,
-            'submission1_id': submission1_id,
-            'submission2_id': submission2_id,
-            'reverse_diff_url': reverse(
-                'source_diff',
+            "source1": diff1,
+            "decode_error1": decode_error1,
+            "download_url1": download_url1,
+            "source2": diff2,
+            "decode_error2": decode_error2,
+            "download_url2": download_url2,
+            "submission1_id": submission1_id,
+            "submission2_id": submission2_id,
+            "reverse_diff_url": reverse(
+                "source_diff",
                 kwargs={
-                    'submission1_id': submission2_id,
-                    'submission2_id': submission1_id,
+                    "submission1_id": submission2_id,
+                    "submission2_id": submission1_id,
                 },
             ),
         },
@@ -207,7 +199,7 @@ def download_output_file_view(request, test_id):
 
 def download_checker_exe_view(request, checker_id):
     checker = get_object_or_404(OutputChecker, id=checker_id)
-    if not test.problem_instance.controller.can_see_checker_exe(request, test):
+    if not checker.problem_instance.controller.can_see_checker_exe(request, checker):
         raise PermissionDenied
     if not checker.exe_file:
         raise Http404
@@ -222,14 +214,7 @@ def _check_generate_out_permission(request, submission_report):
 
 
 def _userout_filename(testreport):
-    return (
-        testreport.test_name
-        + '_user_out_'
-        + str(testreport.submission_report.submission.user)
-        + '_'
-        + str(testreport.submission_report.id)
-        + '.out'
-    )
+    return testreport.test_name + "_user_out_" + str(testreport.submission_report.submission.user) + "_" + str(testreport.submission_report.id) + ".out"
 
 
 def _check_generated_out_visibility_for_user(testreport):
@@ -272,11 +257,11 @@ def download_user_all_output_view(request, submission_report_id):
             _check_generated_out_visibility_for_user(report)
 
     zipfd, tmp_zip_filename = tempfile.mkstemp()
-    with zipfile.ZipFile(os.fdopen(zipfd, 'wb'), 'w') as zip:
+    with zipfile.ZipFile(os.fdopen(zipfd, "wb"), "w") as zip:
         for report in testreports:
             arcname = _userout_filename(report)
             testfd, tmp_test_filename = tempfile.mkstemp()
-            fileobj = os.fdopen(testfd, 'wb')
+            fileobj = os.fdopen(testfd, "wb")
             try:
                 shutil.copyfileobj(report.output_file, fileobj)
                 fileobj.close()
@@ -287,13 +272,8 @@ def download_user_all_output_view(request, submission_report_id):
         name = submission_report.submission.problem_instance.problem.short_name
         return stream_file(
             File(
-                open(tmp_zip_filename, 'rb'),
-                name=name
-                + '_'
-                + str(submission_report.submission.user)
-                + '_'
-                + str(submission_report.id)
-                + '_user_outs.zip',
+                open(tmp_zip_filename, "rb"),
+                name=name + "_" + str(submission_report.submission.user) + "_" + str(submission_report.id) + "_user_outs.zip",
             )
         )
 
@@ -308,9 +288,7 @@ def _testreports_to_generate_outs(request, testreports):
         (
             download_control,
             created,
-        ) = UserOutGenStatus.objects.select_for_update().get_or_create(
-            testreport=testreport
-        )
+        ) = UserOutGenStatus.objects.select_for_update().get_or_create(testreport=testreport)
 
         if not created:
             if not is_contest_basicadmin(request):
@@ -319,21 +297,21 @@ def _testreports_to_generate_outs(request, testreports):
                 download_control.save()
 
             # making sure, that output really exists or is processing right now
-            if bool(testreport.output_file) or download_control.status == '?':
+            if bool(testreport.output_file) or download_control.status == "?":
                 # out already generated or is processing, omit
                 continue
             else:
-                download_control.status = '?'
+                download_control.status = "?"
                 download_control.save()
         elif bool(testreport.output_file):
             # out already generated but without UserOutGenStatus object
             # so probably automatically by system
             download_control.visible_for_user = True
-            download_control.status = 'OK'
+            download_control.status = "OK"
             download_control.save()
             continue
         else:
-            download_control.status = '?'
+            download_control.status = "?"
             # invisible to the the user when first generated by the admin
             download_control.visible_for_user = not is_contest_basicadmin(request)
             download_control.save()
@@ -371,9 +349,7 @@ def generate_user_output_view(request, testreport_id=None, submission_report_id=
         testreports = [testreport]
     # taking all test reports related to submission report
     elif submission_report_id is not None:
-        testreports = TestReport.objects.filter(
-            submission_report__id=submission_report_id
-        )
+        testreports = TestReport.objects.filter(submission_report__id=submission_report_id)
 
     # check download out permission
     submission_report = get_object_or_404(SubmissionReport, id=submission_report_id)
@@ -384,9 +360,7 @@ def generate_user_output_view(request, testreport_id=None, submission_report_id=
 
     # creating re-submission with appropriate tests
     s_id = submission_report.submission.id
-    submission = get_submission_or_error(
-        request, s_id, submission_class=ProgramSubmission
-    )
+    submission = get_submission_or_error(request, s_id, submission_class=ProgramSubmission)
     if test_ids:
         # Note that submission comment should not be copied to re-submission!
         # It will be overwritten in handler anyway.
@@ -394,35 +368,33 @@ def generate_user_output_view(request, testreport_id=None, submission_report_id=
             problem_instance=submission.problem_instance,
             user=request.user,
             date=request.timestamp,
-            kind='USER_OUTS',
+            kind="USER_OUTS",
             source_file=submission.source_file,
         )
         resubmission.save()
         resubmission.problem_instance.controller.judge(
             resubmission,
             extra_args={
-                'tests_subset': test_ids,
-                'submission_report_id': submission_report.id,
+                "tests_subset": test_ids,
+                "submission_report_id": submission_report.id,
             },
         )
 
-    return redirect(
-        'submission', contest_id=request.contest.id, submission_id=submission.id
-    )
+    return redirect("submission", contest_id=request.contest.id, submission_id=submission.id)
 
 
 @jsonify
 def get_compiler_hints_view(request):
-    language = request.GET.get('language', '')
-    available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
+    language = request.GET.get("language", "")
+    available_compilers = getattr(settings, "AVAILABLE_COMPILERS", {})
     return list(available_compilers.get(language, {}).keys())
 
 
 @jsonify
 @enforce_condition(~contest_exists | can_enter_contest)
 def get_language_hints_view(request):
-    pi_ids = request.GET.getlist(u'pi_ids[]')
-    filename = request.GET.get(u'filename', u'')
+    pi_ids = request.GET.getlist("pi_ids[]")
+    filename = request.GET.get("filename", "")
     pis = ProblemInstance.objects.filter(id__in=pi_ids)
 
     extension = get_extension(filename)
@@ -430,21 +402,12 @@ def get_language_hints_view(request):
 
     if contest_exists(request):
         submittable_pis = submittable_problem_instances(request)
-        lang_dict = {
-            pi: lang for (pi, lang) in lang_dict.items() if pi in submittable_pis
-        }
+        lang_dict = {pi: lang for (pi, lang) in lang_dict.items() if pi in submittable_pis}
     else:
-        problemsite_key = request.GET.get(u'problemsite_key', u'')
-        lang_dict = {
-            pi: lang
-            for (pi, lang) in lang_dict.items()
-            if pi.problem.problemsite.url_key == problemsite_key
-        }
+        problemsite_key = request.GET.get("problemsite_key", "")
+        lang_dict = {pi: lang for (pi, lang) in lang_dict.items() if pi.problem.problemsite.url_key == problemsite_key}
 
     langs = get_submittable_languages()
-    lang_display_dict = {
-        pi.id: langs.get(lang, {'display_name': ''})['display_name']
-        for (pi, lang) in lang_dict.items()
-    }
+    lang_display_dict = {pi.id: langs.get(lang, {"display_name": ""})["display_name"] for (pi, lang) in lang_dict.items()}
 
     return lang_display_dict

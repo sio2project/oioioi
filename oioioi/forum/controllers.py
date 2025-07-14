@@ -2,7 +2,7 @@ from oioioi.contests.controllers import ContestController
 from oioioi.forum.models import Forum
 
 
-class ContestControllerWithForum(object):
+class ContestControllerWithForum:
     """Contest controller defines whether this particular contests needs
     forum application. Set True in a contest controller, if you want
     to let the participants use your forum. Do not change it here!

@@ -10,9 +10,7 @@ from oioioi.notifications.models import NotificationsSession
 
 
 def generate_token():
-    new_token = ''.join(
-        random.choice(string.ascii_uppercase + string.digits) for _ in range(32)
-    )
+    new_token = "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
     # It is very improbable, but it could happen that the generated token
     # is already present in the dictionary. Let's generate new one.
     if NotificationsSession.objects.filter(uid=new_token).exists():
@@ -38,11 +36,11 @@ def notification_processor(request):
     def generator():
         notifications_session_id = get_notifications_session(request.session).uid
         return render_to_string(
-            'notifications/notifications.html',
+            "notifications/notifications.html",
             dict(
                 notif_server_url=settings.NOTIFICATIONS_SERVER_URL,
                 notifications_session_id=notifications_session_id,
             ),
         )
 
-    return {'extra_navbar_right_notifications': lazy(generator, str)()}
+    return {"extra_navbar_right_notifications": lazy(generator, str)()}

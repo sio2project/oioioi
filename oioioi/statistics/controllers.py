@@ -26,36 +26,28 @@ from oioioi.statistics.plottypes import (
 )
 
 statistics_categories = EnumRegistry()
-statistics_categories.register('CONTEST', (_("Contest"), 'c'))
-statistics_categories.register('PROBLEM', (_("Problem"), 'p'))
+statistics_categories.register("CONTEST", (_("Contest"), "c"))
+statistics_categories.register("PROBLEM", (_("Problem"), "p"))
 
 statistics_plot_kinds = EnumRegistry()
+statistics_plot_kinds.register("POINTS_HISTOGRAM_CONTEST", (points_histogram_contest, ColumnStaticHighchartsPlot()))
 statistics_plot_kinds.register(
-    'POINTS_HISTOGRAM_CONTEST', (points_histogram_contest, ColumnStaticHighchartsPlot())
-)
-statistics_plot_kinds.register(
-    'SUBMISSIONS_HISTOGRAM_CONTEST',
+    "SUBMISSIONS_HISTOGRAM_CONTEST",
     (
         submissions_histogram_contest,
         ColumnStaticHighchartsPlot(),
     ),
 )
+statistics_plot_kinds.register("POINTS_HISTOGRAM_PROBLEM", (points_histogram_problem, ColumnStaticHighchartsPlot()))
+statistics_plot_kinds.register("POINTS_TABLE_PROBLEM", (points_histogram_problem, TablePlot()))
 statistics_plot_kinds.register(
-    'POINTS_HISTOGRAM_PROBLEM', (points_histogram_problem, ColumnStaticHighchartsPlot())
-)
-statistics_plot_kinds.register(
-    'POINTS_TABLE_PROBLEM', (points_histogram_problem, TablePlot())
-)
-statistics_plot_kinds.register(
-    'POINTS_TO_SOURCE_LENGTH_PROBLEM',
+    "POINTS_TO_SOURCE_LENGTH_PROBLEM",
     (points_to_source_length_problem, PointsToSourceLengthProblemPlot()),
 )
-statistics_plot_kinds.register(
-    'TEST_SCORES_TABLE_PROBLEM', (test_scores, BarPercentStaticHighchartsPlot())
-)
+statistics_plot_kinds.register("TEST_SCORES_TABLE_PROBLEM", (test_scores, BarPercentStaticHighchartsPlot()))
 
 
-class StatisticsMixinForContestController(object):
+class StatisticsMixinForContestController:
     """The basic unit of statistics module is a plot group. It is a group of
     plots. A plot group is calculated for an object. The object can be a
     contest or a problem.
@@ -169,10 +161,7 @@ class StatisticsMixinForContestController(object):
             return True
         try:
             sconfig = request.contest.statistics_config
-            return (
-                sconfig.visible_to_users
-                and request.timestamp >= sconfig.visibility_date
-            )
+            return sconfig.visible_to_users and request.timestamp >= sconfig.visibility_date
         except StatisticsConfig.DoesNotExist:
             return False
 
@@ -180,16 +169,14 @@ class StatisticsMixinForContestController(object):
 ContestController.mix_in(StatisticsMixinForContestController)
 
 
-class StatisticsMixinForProgrammingContestController(object):
+class StatisticsMixinForProgrammingContestController:
     def can_see_problem_statistics(self, request, pi):
         controller = pi.controller
         rtimes = rounds_times(request, self.contest)
 
         can_see_problem = controller.can_see_problem(request, pi)
         if pi.round:
-            can_see_round_results = rtimes[pi.round].public_results_visible(
-                request.timestamp
-            )
+            can_see_round_results = rtimes[pi.round].public_results_visible(request.timestamp)
         else:
             can_see_round_results = False
         can_observe = is_contest_admin(request) or is_contest_observer(request)
@@ -203,12 +190,12 @@ class StatisticsMixinForProgrammingContestController(object):
         can_see_all_problems = True
         for pi in contest_pis:
             if self.can_see_problem_statistics(request, pi):
-                result.append(('PROBLEM', pi.short_name, pi))
+                result.append(("PROBLEM", pi.short_name, pi))
             else:
                 can_see_all_problems = False
 
         if can_see_all_problems and contest_pis.exists():
-            result.insert(0, ('CONTEST', request.contest.id, request.contest))
+            result.insert(0, ("CONTEST", request.contest.id, request.contest))
         return result
 
     def statistics_available_plots(self, request, category, object):
@@ -222,41 +209,37 @@ class StatisticsMixinForProgrammingContestController(object):
             return (statistics_plot_kinds[name], object)
 
         def pi_results_visible(pi):
-            return (
-                rtimes[pi.round].public_results_visible(request.timestamp)
-                or is_contest_admin(request)
-                or is_contest_observer(request)
-            )
+            return rtimes[pi.round].public_results_visible(request.timestamp) or is_contest_admin(request) or is_contest_observer(request)
 
-        if category == 'CONTEST':
+        if category == "CONTEST":
             if not object:
                 object = request.contest
 
-            result.append(plot_kind('SUBMISSIONS_HISTOGRAM_CONTEST', object))
+            result.append(plot_kind("SUBMISSIONS_HISTOGRAM_CONTEST", object))
 
             pis = visible_problem_instances(request)
 
             # Do not add this plot if it would be empty.
             if any(pi_results_visible(pi) and not pi.round.is_trial for pi in pis):
-                result.append(plot_kind('POINTS_HISTOGRAM_CONTEST', object))
+                result.append(plot_kind("POINTS_HISTOGRAM_CONTEST", object))
 
-        if category == 'PROBLEM':
-            result.append(plot_kind('POINTS_HISTOGRAM_PROBLEM', object))
-            result.append(plot_kind('POINTS_TABLE_PROBLEM', object))
-            result.append(plot_kind('POINTS_TO_SOURCE_LENGTH_PROBLEM', object))
-            result.append(plot_kind('TEST_SCORES_TABLE_PROBLEM', object))
+        if category == "PROBLEM":
+            result.append(plot_kind("POINTS_HISTOGRAM_PROBLEM", object))
+            result.append(plot_kind("POINTS_TABLE_PROBLEM", object))
+            result.append(plot_kind("POINTS_TO_SOURCE_LENGTH_PROBLEM", object))
+            result.append(plot_kind("TEST_SCORES_TABLE_PROBLEM", object))
 
         return result
 
     def statistics_data(self, request, plot_kind, object):
         (plot_function, plot_type) = plot_kind
         result = plot_function(request, object)
-        result['plot_type'] = plot_type
+        result["plot_type"] = plot_type
 
         return result
 
     def render_statistics(self, request, data, plot_id):
-        return data['plot_type'].render_plot(request, data, plot_id)
+        return data["plot_type"].render_plot(request, data, plot_id)
 
 
 ProgrammingContestController.mix_in(StatisticsMixinForProgrammingContestController)

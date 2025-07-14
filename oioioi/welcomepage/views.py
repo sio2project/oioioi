@@ -1,9 +1,9 @@
-from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
-from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
 from django.utils.translation import get_language_from_request
+from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.main_page import register_main_page_view
@@ -23,24 +23,26 @@ def welcome_page_view(request):
         welcome_page_msg = WelcomePageMessage.objects.first()
     return TemplateResponse(
         request,
-        'welcomepage/welcome-page.html',
+        "welcomepage/welcome-page.html",
         {
-            'title': _('Welcome to %(site_name)s') % {'site_name': settings.SITE_NAME},
-            'welcome_page_msg': welcome_page_msg,
-            'show_edit_button': is_superuser(request),
+            "title": _("Welcome to %(site_name)s") % {"site_name": settings.SITE_NAME},
+            "welcome_page_msg": welcome_page_msg,
+            "show_edit_button": is_superuser(request),
         },
     )
 
 
 system_admin_menu_registry.register(
-    'welcome_page',
+    "welcome_page",
     _("Edit welcome page"),
-    lambda request: reverse('edit_welcome_page'),
+    lambda request: reverse("edit_welcome_page"),
     order=80,
 )
+
+
 @enforce_condition(is_superuser)
 def edit_welcome_page_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         formset = WelcomePageMessageFormset(request.POST)
         if formset.is_valid():
             instances = formset.save(commit=False)
@@ -48,7 +50,7 @@ def edit_welcome_page_view(request):
                 instance.save()
             for instance in formset.deleted_objects:
                 instance.delete()
-            return redirect('welcome_page')
+            return redirect("welcome_page")
     else:
         current_language = get_language_from_request(request)
         instances = WelcomePageMessage.objects.all()
@@ -56,22 +58,17 @@ def edit_welcome_page_view(request):
         for instance in instances:
             languages.remove(instance.language)
         formset = WelcomePageMessageFormset(
-            initial=[
-                {'language': lang, 'DELETE': lang != current_language}
-                for lang in languages
-            ],
+            initial=[{"language": lang, "DELETE": lang != current_language} for lang in languages],
             queryset=instances,
         )
     return TemplateResponse(
         request,
-        'welcomepage/welcome-page-edit.html',
-        {
-            'formset': formset
-        },
+        "welcomepage/welcome-page-edit.html",
+        {"formset": formset},
     )
 
 
 @enforce_condition(is_superuser)
 def delete_welcome_page_view(request):
     WelcomePageMessage.objects.all().delete()
-    return redirect(reverse('index'))
+    return redirect(reverse("index"))

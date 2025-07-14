@@ -6,5 +6,5 @@ def get_ranking_message(request):
     return get_public_message(
         request,
         RankingMessage,
-        'ranking_message',
+        "ranking_message",
     )
