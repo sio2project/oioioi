@@ -18,7 +18,7 @@ def registration_notice_fragment(request):
         and not is_participant(request)
         and rc.can_register(request)
     ):
-        return render_to_string('pa/registration-notice.html', request=request)
+        return render_to_string("pa/registration-notice.html", request=request)
     else:
         return None
 
@@ -29,5 +29,5 @@ def contest_info_view(request):
     rc = request.contest.controller.registration_controller()
     users = rc.filter_participants(User.objects.all())
     return {
-        'users_count': len(users),
+        "users_count": len(users),
     }

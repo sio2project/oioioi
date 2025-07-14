@@ -3,8 +3,8 @@ from django.core.exceptions import ImproperlyConfigured
 from django.dispatch import receiver
 from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
-from filetracker.client import Client as FiletrackerClient
 
+from filetracker.client import Client as FiletrackerClient
 from oioioi.base.utils import memoized, reset_memoized
 
 
@@ -23,17 +23,10 @@ def get_client():
     if isinstance(factory, str):
         factory = import_string(factory)
     if not callable(factory):
-        raise ImproperlyConfigured(
-            'The FILETRACKER_CLIENT_FACTORY setting '
-            'refers to non-callable: %r' % (factory,)
-        )
+        raise ImproperlyConfigured("The FILETRACKER_CLIENT_FACTORY setting refers to non-callable: %r" % (factory,))
     client = factory()
     if not isinstance(client, FiletrackerClient):
-        raise ImproperlyConfigured(
-            'The factory pointed by '
-            'FILETRACKER_CLIENT_FACTORY returned non-FiletrackerClient: '
-            '%r' % (client,)
-        )
+        raise ImproperlyConfigured("The factory pointed by FILETRACKER_CLIENT_FACTORY returned non-FiletrackerClient: %r" % (client,))
 
     # Needed for oioioi.sioworkers.backends.LocalBackend so that both Django
     # and sioworkers use the same Filetracker client
@@ -46,7 +39,7 @@ def get_client():
 
 @receiver(setting_changed)
 def _on_setting_changed(sender, setting, **kwargs):
-    if setting == 'FILETRACKER_CLIENT_FACTORY':
+    if setting == "FILETRACKER_CLIENT_FACTORY":
         reset_memoized(get_client)
 
 
@@ -55,6 +48,4 @@ def remote_storage_factory():
     remote server at ``settings.FILETRACKER_URL`` and a folder
     ``settings.FILETRACKER_CACHE_ROOT`` as a cache directory.
     """
-    return FiletrackerClient(
-        remote_url=settings.FILETRACKER_URL, cache_dir=settings.FILETRACKER_CACHE_ROOT
-    )
+    return FiletrackerClient(remote_url=settings.FILETRACKER_URL, cache_dir=settings.FILETRACKER_CACHE_ROOT)

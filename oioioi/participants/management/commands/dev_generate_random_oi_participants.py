@@ -1,7 +1,6 @@
 import os
-import urllib.request
 import random
-
+import urllib.request
 from datetime import date, timedelta
 
 from django.contrib.auth.models import User
@@ -10,8 +9,8 @@ from django.db import DatabaseError, transaction
 from django.utils.translation import gettext as _
 
 from oioioi.contests.models import Contest
+from oioioi.oi.models import CLASS_TYPES, T_SHIRT_SIZES, OIRegistration, School
 from oioioi.participants.models import Participant
-from oioioi.oi.models import OIRegistration, School, T_SHIRT_SIZES, CLASS_TYPES
 
 
 class Command(BaseCommand):
@@ -24,24 +23,24 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
-        parser.add_argument('contest_id', type=str, help='Contest to import to')
-        parser.add_argument('filename_or_url', type=str, help='Source file')
+        parser.add_argument("contest_id", type=str, help="Contest to import to")
+        parser.add_argument("filename_or_url", type=str, help="Source file")
 
     def handle(self, *args, **options):
         try:
-            contest = Contest.objects.get(id=options['contest_id'])
+            contest = Contest.objects.get(id=options["contest_id"])
         except Contest.DoesNotExist:
-            raise CommandError(_("Contest %s does not exist") % options['contest_id'])
+            raise CommandError(_("Contest %s does not exist") % options["contest_id"])
 
-        arg = options['filename_or_url']
-        if arg.startswith('http://') or arg.startswith('https://'):
+        arg = options["filename_or_url"]
+        if arg.startswith("http://") or arg.startswith("https://"):
             self.stdout.write(_("Fetching %s...\n") % (arg,))
             stream = urllib.request.urlopen(arg)
-            stream = (line.decode('utf-8') for line in stream)
+            stream = (line.decode("utf-8") for line in stream)
         else:
             if not os.path.exists(arg):
                 raise CommandError(_("File not found: %s") % arg)
-            stream = open(arg, 'r', encoding='utf-8')
+            stream = open(arg, encoding="utf-8")
 
         schools = list(School.objects.all())
         if not schools:
@@ -52,10 +51,10 @@ class Command(BaseCommand):
             ok = True
             for line in stream:
                 line = line.strip()
-                if not line or line.startswith('#'):
+                if not line or line.startswith("#"):
                     continue
 
-                parts = line.replace(',', ' ').split()
+                parts = line.replace(",", " ").split()
                 if len(parts) != 3:
                     self.stdout.write(_("Invalid line format: %s\n") % line)
                     ok = False
@@ -72,7 +71,7 @@ class Command(BaseCommand):
                         user.save()
 
                     Participant.objects.get_or_create(contest=contest, user=user)
-                    participant, _ = Participant.objects.get_or_create(contest=contest, user=user)
+                    participant, extra = Participant.objects.get_or_create(contest=contest, user=user)
 
                     OIRegistration.objects.create(
                         participant=participant,

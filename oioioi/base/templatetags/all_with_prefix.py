@@ -13,12 +13,8 @@ class AllWithPrefixNode(Node):
         flattened_context = {}
         for d in context.dicts:
             flattened_context.update(d)
-        to_render = [
-            value
-            for key, value in flattened_context.items()
-            if key.startswith(self.prefix)
-        ]
-        return ''.join(map(force_str, to_render))
+        to_render = [value for key, value in flattened_context.items() if key.startswith(self.prefix)]
+        return "".join(map(force_str, to_render))
 
 
 @register.tag
@@ -28,6 +24,6 @@ def all_with_prefix(parser, token):
     try:
         _tag_name, prefix = token.split_contents()
     except ValueError:
-        msg = '%r tag requires a single argument' % token.split_contents()[0]
+        msg = "%r tag requires a single argument" % token.split_contents()[0]
         raise TemplateSyntaxError(msg)
     return AllWithPrefixNode(prefix)

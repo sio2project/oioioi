@@ -8,11 +8,8 @@ from django.conf import settings
 
 
 def pytest_addoption(parser):
-    parser.addoption(
-        '--runslow', action='store_true', default=False, help="run slow tests"
-    )
-    parser.addoption(
-        '--strict-template-vars', action='store_true', help="Raise errors for undefined template variables")
+    parser.addoption("--runslow", action="store_true", default=False, help="run slow tests")
+    parser.addoption("--strict-template-vars", action="store_true", help="Raise errors for undefined template variables")
 
 
 # called for running each test
@@ -24,12 +21,12 @@ def pytest_runtest_setup(item):
 def pytest_configure(config):
     if config.getoption("--strict-template-vars"):
         # this will raise an error if a template variable is not defined
-        settings.TEMPLATES[0]['OPTIONS']['string_if_invalid'] = '{% templatetag openvariable %} INVALID_VAR: %s {% templatetag closevariable %}'
-        
+        settings.TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "{% templatetag openvariable %} INVALID_VAR: %s {% templatetag closevariable %}"
+
 
 def pytest_collection_modifyitems(config, items):
     # --runslow flag: do not skip slow tests
-    if config.getoption('--runslow', False):
+    if config.getoption("--runslow", False):
         return
     skip_slow = pytest.mark.skip(reason="need --runslow option to run")
     for item in items:
@@ -47,6 +44,7 @@ def pytest_html_results_table_header(cells):
 @pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_row(report, cells):
     cells.pop()
+
 
 @pytest.fixture()
 def require_migrations_flag(request):

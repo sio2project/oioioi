@@ -1,34 +1,26 @@
-from __future__ import unicode_literals
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import ProtectedError
 from django.db.models.signals import post_delete, pre_save
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import generate_key
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import Contest
 
-check_django_app_dependencies(__name__, ['oioioi.teachers'])
-
+check_django_app_dependencies(__name__, ["oioioi.teachers"])
 
 
 class UserGroup(models.Model):
     """Group of user which can be moved around contests by teachers"""
 
     name = models.CharField(max_length=255, verbose_name=_("name"))
-    owners = models.ManyToManyField(User, related_name='owned_usergroups')
-    members = models.ManyToManyField(User, blank=True, related_name='usergroups')
-    contests = models.ManyToManyField(Contest, blank=True, related_name='usergroups')
+    owners = models.ManyToManyField(User, related_name="owned_usergroups")
+    members = models.ManyToManyField(User, blank=True, related_name="usergroups")
+    contests = models.ManyToManyField(Contest, blank=True, related_name="usergroups")
 
-    addition_config = models.ForeignKey(
-        'ActionConfig', on_delete=models.PROTECT, related_name='as_addition_configs'
-    )
-    sharing_config = models.ForeignKey(
-        'ActionConfig', on_delete=models.PROTECT, related_name='as_sharing_configs'
-    )
+    addition_config = models.ForeignKey("ActionConfig", on_delete=models.PROTECT, related_name="as_addition_configs")
+    sharing_config = models.ForeignKey("ActionConfig", on_delete=models.PROTECT, related_name="as_sharing_configs")
 
     def __str__(self):
         return str(self.name)
@@ -80,8 +72,8 @@ class UserGroupRanking(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     user_group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
 
-    class Meta(object):
-        unique_together = ('contest', 'user_group')
+    class Meta:
+        unique_together = ("contest", "user_group")
 
     def __str__(self):
         return str(self.user_group.name)

@@ -8,11 +8,11 @@ def szkopul_contact(request):
 
         def generator():
             return render_to_string(
-                'szkopul/contact-info.html',
+                "szkopul/contact-info.html",
                 request=request,
-                context={'support_email': settings.SZKOPUL_SUPPORT_EMAIL},
+                context={"support_email": settings.SZKOPUL_SUPPORT_EMAIL},
             )
 
-        return {'extra_after_footer_szkopul_contact': lazy(generator, str)()}
+        return {"extra_after_footer_szkopul_contact": lazy(generator, str)()}
     else:
         return {}

@@ -1,26 +1,25 @@
 from django.urls import path
+
 from oioioi.simpleui import views
 
-app_name = 'simpleui'
+app_name = "simpleui"
 
-noncontest_patterns = [
-    path('user-dashboard/', views.user_dashboard_view, name='simpleui_user_dashboard')
-]
+noncontest_patterns = [path("user-dashboard/", views.user_dashboard_view, name="simpleui_user_dashboard")]
 
 contest_patterns = [
     path(
-        'contest-dashboard/',
+        "contest-dashboard/",
         views.contest_dashboard_view,
-        name='simpleui_contest_dashboard',
+        name="simpleui_contest_dashboard",
     ),
     path(
-        'contest-dashboard/<int:round_pk>/',
+        "contest-dashboard/<int:round_pk>/",
         views.contest_dashboard_view,
-        name='simpleui_contest_dashboard',
+        name="simpleui_contest_dashboard",
     ),
     path(
-        'problem-settings/<int:problem_instance_id>/',
+        "problem-settings/<int:problem_instance_id>/",
         views.problem_settings,
-        name='simpleui_problem_settings',
+        name="simpleui_problem_settings",
     ),
 ]

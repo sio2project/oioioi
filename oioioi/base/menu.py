@@ -1,4 +1,3 @@
-# coding: utf-8
 import bisect
 import sys
 from operator import attrgetter  # pylint: disable=E0611
@@ -9,7 +8,8 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.permissions import Condition
 
-class OrderedRegistry(object):
+
+class OrderedRegistry:
     """Maintains a collection of values ordered by a separate key."""
 
     def __init__(self):
@@ -41,7 +41,7 @@ class OrderedRegistry(object):
         return decorator
 
 
-class MenuItem(object):
+class MenuItem:
     """Used to store single menu entry.
 
     :param name: a short identifier, for example used to find a matching
@@ -55,10 +55,7 @@ class MenuItem(object):
     :type condition: :class:`oioioi.base.permissions.Condition`
     """
 
-    def __init__(
-        self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize
-    ):
-
+    def __init__(self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize):
         if condition is None:
             condition = Condition(lambda request: True)
 
@@ -76,7 +73,7 @@ class MenuItem(object):
         self.order = order
 
 
-class MenuRegistry(object):
+class MenuRegistry:
     """Maintains a collection of menu items.
 
     :param text: menu name to display (if appropriate)
@@ -101,9 +98,7 @@ class MenuRegistry(object):
         self._registry = []
         self._generators = {}
 
-    def register(
-        self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize
-    ):
+    def register(self, name, text, url_generator, condition=None, attrs=None, order=sys.maxsize):
         """Registers a new menu item.
 
         Menu items should be registered in ``views.py`` of Django apps.
@@ -112,9 +107,7 @@ class MenuRegistry(object):
         menu_item = MenuItem(name, text, url_generator, condition, attrs, order)
         self._registry.append(menu_item)
 
-    def register_decorator(
-        self, text, url_generator, condition=None, attrs=None, order=sys.maxsize
-    ):
+    def register_decorator(self, text, url_generator, condition=None, attrs=None, order=sys.maxsize):
         """Decorator for a view which registers a new menu item. It accepts the
         same arguments as the :meth:`MenuRegistry.register`, except for
         ``name``, which is inferred from the view function name ('_view'
@@ -127,10 +120,10 @@ class MenuRegistry(object):
 
         def decorator(view_func):
             name = view_func.__name__
-            suffix_to_remove = '_view'
+            suffix_to_remove = "_view"
             if name.endswith(suffix_to_remove):
                 name = name[: -len(suffix_to_remove)]
-            if hasattr(view_func, 'condition'):
+            if hasattr(view_func, "condition"):
                 current_condition = view_func.condition
             else:
                 current_condition = Condition(lambda request: True)
@@ -180,14 +173,9 @@ class MenuRegistry(object):
         items = self._get_all_registered_items(request)
 
         context_items = []
-        for item in sorted(items, key=attrgetter('order')):
+        for item in sorted(items, key=attrgetter("order")):
             if item.condition(request):
-                attrs_str = ' '.join(
-                    [
-                        '%s="%s"' % (escape(k), escape(v))
-                        for (k, v) in item.attrs.items()
-                    ]
-                )
+                attrs_str = " ".join(['%s="%s"' % (escape(k), escape(v)) for (k, v) in item.attrs.items()])
                 attrs_str = mark_safe(attrs_str)
                 context_items.append(
                     dict(
@@ -218,9 +206,7 @@ menu_registry = MenuRegistry(_("User Menu"), show_icons=True)
 
 #: The menu registry for the user menu, shown as a drop down when a logged in
 #: user clicks on its login in the navbar.
-account_menu_registry = MenuRegistry(
-    _("Account Menu"), lambda request: request.user.is_authenticated
-)
+account_menu_registry = MenuRegistry(_("Account Menu"), lambda request: request.user.is_authenticated)
 
 #: The registry for *menus* displayed on the side.
 side_pane_menus_registry = OrderedRegistry()
@@ -231,4 +217,3 @@ side_pane_menus_registry.register(personal_menu_registry, order=50)
 
 #: The registry for uncollapsed menu in the upper navigation bar.
 navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
-

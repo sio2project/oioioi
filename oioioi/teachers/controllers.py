@@ -22,17 +22,13 @@ class TeacherRegistrationController(ParticipantsController):
         return False
 
     def no_entry_view(self, request):
-        return TemplateResponse(request, 'teachers/no_entry.html')
+        return TemplateResponse(request, "teachers/no_entry.html")
 
 
 class TeacherRankingController(DefaultRankingController):
     def filter_users_for_ranking(self, key, queryset):
-        queryset = super(TeacherRankingController, self).filter_users_for_ranking(
-            key, queryset
-        )
-        return self.contest.controller.registration_controller().filter_participants(
-            queryset
-        )
+        queryset = super(TeacherRankingController, self).filter_users_for_ranking(key, queryset)
+        return self.contest.controller.registration_controller().filter_participants(queryset)
 
 
 class TeacherContestController(ProgrammingContestController):
@@ -40,12 +36,10 @@ class TeacherContestController(ProgrammingContestController):
     create_forum = True
 
     def fill_evaluation_environ(self, environ, submission):
-        environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
-        environ['test_scorer'] = 'oioioi.programs.utils.threshold_linear_test_scorer'
+        environ["group_scorer"] = "oioioi.programs.utils.min_group_scorer"
+        environ["test_scorer"] = "oioioi.programs.utils.threshold_linear_test_scorer"
 
-        super(TeacherContestController, self).fill_evaluation_environ(
-            environ, submission
-        )
+        super(TeacherContestController, self).fill_evaluation_environ(environ, submission)
 
     def registration_controller(self):
         return TeacherRegistrationController(self.contest)

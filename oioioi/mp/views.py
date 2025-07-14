@@ -16,6 +16,6 @@ def registration_notice_fragment(request):
         and not is_participant(request)
         and rc.can_register(request)
     ):
-        return render_to_string('mp/registration-notice.html', request=request)
+        return render_to_string("mp/registration-notice.html", request=request)
     else:
         return None

@@ -12,39 +12,35 @@ from oioioi.base.permissions import enforce_condition, not_anonymous
 
 @api_view()
 def ping(request):
-    """ Test endpoint for unauthorized user. """
+    """Test endpoint for unauthorized user."""
     return Response("pong")
 
 
 @api_view()
 @enforce_condition(not_anonymous, login_redirect=False)
 def auth_ping(request):
-    """ Test endpoint for authorized user. """
+    """Test endpoint for authorized user."""
     return Response("pong " + str(request.user))
 
 
 @enforce_condition(not_anonymous, login_redirect=False)
 def api_token(request, regenerated=False):
-    if request.method != 'POST':
-        return TemplateResponse(request, 'api-key.html', {})
+    if request.method != "POST":
+        return TemplateResponse(request, "api-key.html", {})
     token, created = Token.objects.get_or_create(user=request.user)
-    return TemplateResponse(
-        request, 'api-key.html', {"token": token, "regenerated": regenerated}
-    )
+    return TemplateResponse(request, "api-key.html", {"token": token, "regenerated": regenerated})
 
 
 def regenerate_token(request):
-    if request.method != 'POST':
+    if request.method != "POST":
         return api_token(request)
     Token.objects.filter(user=request.user).delete()
     return api_token(request, regenerated=True)
 
 
 def api_token_url(request):
-    return reverse('api_token')
+    return reverse("api_token")
 
 
 if settings.USE_API:
-    account_menu_registry.register(
-        'api_token', _("Your API token"), api_token_url, order=160
-    )
+    account_menu_registry.register("api_token", _("Your API token"), api_token_url, order=160)

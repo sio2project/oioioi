@@ -6,13 +6,12 @@ from django.conf import settings
 from django.db import transaction
 from django.urls import reverse
 from django.utils.module_loading import import_string
-from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import make_html_link
 from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.contests.models import ScoreReport, SubmissionReport
-from oioioi.contests.scores import IntegerScore, ScoreValue
+from oioioi.contests.scores import ScoreValue
 from oioioi.evalmgr.tasks import transfer_job
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import (
@@ -22,10 +21,10 @@ from oioioi.filetracker.utils import (
 from oioioi.programs.models import (
     CompilationReport,
     GroupReport,
+    LanguageOverrideForTest,
     Test,
     TestReport,
     UserOutGenStatus,
-    LanguageOverrideForTest,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,14 +45,14 @@ def _make_filename(env, base_name):
     with fields absent from ``env`` skipped. The folder can be also
     specified in ``env['eval_dir']``.
     """
-    if 'eval_dir' not in env:
-        eval_dir = '/eval'
-        if 'contest_id' in env:
-            eval_dir += '/%s' % env['contest_id']
-        if 'submission_id' in env:
-            eval_dir += '/%s' % env['submission_id']
-        env['eval_dir'] = eval_dir
-    return '%s/%s-%s' % (env['eval_dir'], env['job_id'], base_name)
+    if "eval_dir" not in env:
+        eval_dir = "/eval"
+        if "contest_id" in env:
+            eval_dir += "/%s" % env["contest_id"]
+        if "submission_id" in env:
+            eval_dir += "/%s" % env["submission_id"]
+        env["eval_dir"] = eval_dir
+    return "%s/%s-%s" % (env["eval_dir"], env["job_id"], base_name)
 
 
 def _skip_on_compilation_error(fn):
@@ -66,7 +65,7 @@ def _skip_on_compilation_error(fn):
 
     @functools.wraps(fn)
     def decorated(env, **kwargs):
-        if env.get('compilation_result', 'OK') != 'OK':
+        if env.get("compilation_result", "OK") != "OK":
             return env
         return fn(env, **kwargs)
 
@@ -95,30 +94,30 @@ def compile(env, **kwargs):
     """
 
     compilation_job = env.copy()
-    compilation_job['job_type'] = 'compile'
-    compilation_job['task_priority'] = COMPILE_TASK_PRIORITY
-    compilation_job['out_file'] = _make_filename(env, 'exe')
-    if 'language' in env and 'compiler' not in env:
-        compilation_job['compiler'] = 'default-' + env['language']
-    env['workers_jobs'] = {'compile': compilation_job}
+    compilation_job["job_type"] = "compile"
+    compilation_job["task_priority"] = COMPILE_TASK_PRIORITY
+    compilation_job["out_file"] = _make_filename(env, "exe")
+    if "language" in env and "compiler" not in env:
+        compilation_job["compiler"] = "default-" + env["language"]
+    env["workers_jobs"] = {"compile": compilation_job}
     return transfer_job(
         env,
-        'oioioi.sioworkers.handlers.transfer_job',
-        'oioioi.sioworkers.handlers.restore_job',
+        "oioioi.sioworkers.handlers.transfer_job",
+        "oioioi.sioworkers.handlers.restore_job",
     )
 
 
 def compile_end(env, **kwargs):
-    new_env = env['workers_jobs.results']['compile']
-    env['compiled_file'] = new_env.get('out_file')
-    env['compilation_message'] = new_env.get('compiler_output', '')
-    env['compilation_result'] = new_env.get('result_code', 'CE')
-    env['exec_info'] = new_env.get('exec_info', {})
+    new_env = env["workers_jobs.results"]["compile"]
+    env["compiled_file"] = new_env.get("out_file")
+    env["compilation_message"] = new_env.get("compiler_output", "")
+    env["compilation_result"] = new_env.get("result_code", "CE")
+    env["exec_info"] = new_env.get("exec_info", {})
     return env
 
 
 def _override_tests_limits(language, tests):
-    """ Given language and list of Test objects, returns
+    """Given language and list of Test objects, returns
     the dictionary of memory and time limits.
     The key is test's pk.
     In case language overriding is defined in the database,
@@ -126,20 +125,18 @@ def _override_tests_limits(language, tests):
     the limits are the same as initial.
     """
 
-    overriding_tests = LanguageOverrideForTest.objects.filter(
-        test__in=tests, language=language
-    )
+    overriding_tests = LanguageOverrideForTest.objects.filter(test__in=tests, language=language)
     new_limits = {}
 
     for test in tests:
         new_limits[test.pk] = {
-            'memory_limit': test.memory_limit,
-            'time_limit': test.time_limit,
+            "memory_limit": test.memory_limit,
+            "time_limit": test.time_limit,
         }
 
     for new_rule in overriding_tests:
-        new_limits[new_rule.test.pk]['memory_limit'] = new_rule.memory_limit
-        new_limits[new_rule.test.pk]['time_limit'] = new_rule.time_limit
+        new_limits[new_rule.test.pk]["memory_limit"] = new_rule.memory_limit
+        new_limits[new_rule.test.pk]["time_limit"] = new_rule.time_limit
 
     return new_limits
 
@@ -159,66 +156,57 @@ def collect_tests(env, **kwargs):
     Produced ``environ`` keys:
        * ``tests``: a dictionary mapping test names to test envs
     """
-    env.setdefault('tests', {})
+    env.setdefault("tests", {})
 
-    if 'tests_subset' in env['extra_args']:
-        tests = list(Test.objects.in_bulk(env['extra_args']['tests_subset']).values())
+    if "tests_subset" in env["extra_args"]:
+        tests = list(Test.objects.in_bulk(env["extra_args"]["tests_subset"]).values())
     else:
-        tests = Test.objects.filter(
-            problem_instance__id=env['problem_instance_id'], is_active=True
-        )
+        tests = Test.objects.filter(problem_instance__id=env["problem_instance_id"], is_active=True)
 
-    problem_instance = env['problem_instance_id']
-    if env['is_rejudge']:
-        submission = env['submission_id']
-        rejudge_type = env['extra_args'].setdefault('rejudge_type', 'FULL')
-        tests_to_judge = env['extra_args'].setdefault('tests_to_judge', [])
+    problem_instance = env["problem_instance_id"]
+    if env["is_rejudge"]:
+        submission = env["submission_id"]
+        rejudge_type = env["extra_args"].setdefault("rejudge_type", "FULL")
+        tests_to_judge = env["extra_args"].setdefault("tests_to_judge", [])
         test_reports = TestReport.objects.filter(
             submission_report__submission__id=submission,
-            submission_report__status='ACTIVE',
+            submission_report__status="ACTIVE",
         )
         tests_used = [report.test_name for report in test_reports]
-        if rejudge_type == 'NEW':
-            tests_to_judge = [
-                t.name
-                for t in Test.objects.filter(
-                    problem_instance__id=problem_instance, is_active=True
-                ).exclude(name__in=tests_used)
-            ]
-        elif rejudge_type == 'JUDGED':
-            tests = Test.objects.filter(
-                problem_instance__id=problem_instance, name__in=tests_used
-            )
+        if rejudge_type == "NEW":
+            tests_to_judge = [t.name for t in Test.objects.filter(problem_instance__id=problem_instance, is_active=True).exclude(name__in=tests_used)]
+        elif rejudge_type == "JUDGED":
+            tests = Test.objects.filter(problem_instance__id=problem_instance, name__in=tests_used)
             tests_to_judge = [t for t in tests_to_judge if t in tests_used]
-        elif rejudge_type == 'FULL':
+        elif rejudge_type == "FULL":
             tests_to_judge = [t.name for t in tests]
     else:
         tests_to_judge = [t.name for t in tests]
 
     # Some of the tests may be overriden, e.g. adding additional
     # overhead in time limits for Python submissions.
-    language = env['language']
+    language = env["language"]
     new_limits = _override_tests_limits(language, tests)
 
     for test in tests:
         test_env = {}
-        test_env['id'] = test.id
-        test_env['name'] = test.name
-        test_env['in_file'] = django_to_filetracker_path(test.input_file)
-        test_env['hint_file'] = django_to_filetracker_path(test.output_file)
-        test_env['kind'] = test.kind
-        test_env['group'] = test.group or test.name
-        test_env['max_score'] = test.max_score
-        test_env['order'] = test.order
+        test_env["id"] = test.id
+        test_env["name"] = test.name
+        test_env["in_file"] = django_to_filetracker_path(test.input_file)
+        test_env["hint_file"] = django_to_filetracker_path(test.output_file)
+        test_env["kind"] = test.kind
+        test_env["group"] = test.group or test.name
+        test_env["max_score"] = test.max_score
+        test_env["order"] = test.order
         if test.time_limit:
-            test_env['exec_time_limit'] = new_limits[test.pk]['time_limit']
+            test_env["exec_time_limit"] = new_limits[test.pk]["time_limit"]
         if test.memory_limit:
-            test_env['exec_mem_limit'] = new_limits[test.pk]['memory_limit']
-        test_env['to_judge'] = False
-        env['tests'][test.name] = test_env
+            test_env["exec_mem_limit"] = new_limits[test.pk]["memory_limit"]
+        test_env["to_judge"] = False
+        env["tests"][test.name] = test_env
 
     for test in tests_to_judge:
-        env['tests'][test]['to_judge'] = True
+        env["tests"][test]["to_judge"] = True
     return env
 
 
@@ -270,56 +258,56 @@ def run_tests(env, kind=None, **kwargs):
     """
     jobs = dict()
     not_to_judge = []
-    for test_name, test_env in env['tests'].items():
-        if kind and test_env['kind'] != kind:
+    for test_name, test_env in env["tests"].items():
+        if kind and test_env["kind"] != kind:
             continue
-        if not test_env['to_judge']:
+        if not test_env["to_judge"]:
             not_to_judge.append(test_name)
             continue
         job = test_env.copy()
-        job['job_type'] = (env.get('exec_mode', '') + env.get('task_type_suffix', '-exec')).lstrip('-')
-        if kind == 'INITIAL' or kind == 'EXAMPLE':
-            job['task_priority'] = EXAMPLE_TEST_TASK_PRIORITY
-        elif env['submission_kind'] == 'TESTRUN':
-            job['task_priority'] = TESTRUN_TEST_TASK_PRIORITY
+        job["job_type"] = (env.get("exec_mode", "") + env.get("task_type_suffix", "-exec")).lstrip("-")
+        if kind == "INITIAL" or kind == "EXAMPLE":
+            job["task_priority"] = EXAMPLE_TEST_TASK_PRIORITY
+        elif env["submission_kind"] == "TESTRUN":
+            job["task_priority"] = TESTRUN_TEST_TASK_PRIORITY
         else:
-            job['task_priority'] = DEFAULT_TEST_TASK_PRIORITY
-        job['exe_file'] = env['compiled_file']
-        job['exec_info'] = env['exec_info']
-        job['check_output'] = env.get('check_outputs', True)
-        if env.get('checker'):
-            job['chk_file'] = env['checker']
-        job['checker_format'] = env.get('checker_format', 'english_abbreviated')
-        if env.get('save_outputs'):
-            job.setdefault('out_file', _make_filename(env, test_name + '.out'))
-            job['upload_out'] = True
-        if env.get('interactor_file'):
-            job['interactor_file'] = env['interactor_file']
-        if env.get('num_processes'):
-            job['num_processes'] = env['num_processes']
-        job['untrusted_checker'] = env['untrusted_checker']
+            job["task_priority"] = DEFAULT_TEST_TASK_PRIORITY
+        job["exe_file"] = env["compiled_file"]
+        job["exec_info"] = env["exec_info"]
+        job["check_output"] = env.get("check_outputs", True)
+        if env.get("checker"):
+            job["chk_file"] = env["checker"]
+        job["checker_format"] = env.get("checker_format", "english_abbreviated")
+        if env.get("save_outputs"):
+            job.setdefault("out_file", _make_filename(env, test_name + ".out"))
+            job["upload_out"] = True
+        if env.get("interactor_file"):
+            job["interactor_file"] = env["interactor_file"]
+        if env.get("num_processes"):
+            job["num_processes"] = env["num_processes"]
+        job["untrusted_checker"] = env["untrusted_checker"]
         jobs[test_name] = job
-    extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})
-    env['workers_jobs'] = jobs
-    env['workers_jobs.extra_args'] = extra_args
-    env['workers_jobs.not_to_judge'] = not_to_judge
+    extra_args = env.get("sioworkers_extra_args", {}).get(kind, {})
+    env["workers_jobs"] = jobs
+    env["workers_jobs.extra_args"] = extra_args
+    env["workers_jobs.not_to_judge"] = not_to_judge
     return transfer_job(
         env,
-        'oioioi.sioworkers.handlers.transfer_job',
-        'oioioi.sioworkers.handlers.restore_job',
+        "oioioi.sioworkers.handlers.transfer_job",
+        "oioioi.sioworkers.handlers.restore_job",
     )
 
 
 @_skip_on_compilation_error
 def run_tests_end(env, **kwargs):
-    not_to_judge = env['workers_jobs.not_to_judge']
-    del env['workers_jobs.not_to_judge']
-    jobs = env['workers_jobs.results']
-    env.setdefault('test_results', {})
+    not_to_judge = env["workers_jobs.not_to_judge"]
+    del env["workers_jobs.not_to_judge"]
+    jobs = env["workers_jobs.results"]
+    env.setdefault("test_results", {})
     for test_name, result in jobs.items():
-        env['test_results'].setdefault(test_name, {}).update(result)
+        env["test_results"].setdefault(test_name, {}).update(result)
     for test_name in not_to_judge:
-        env['test_results'].setdefault(test_name, {}).update(env['tests'][test_name])
+        env["test_results"].setdefault(test_name, {}).update(env["tests"][test_name])
     return env
 
 
@@ -343,31 +331,31 @@ def grade_tests(env, **kwargs):
       * `score`, `max_score` and `status` keys in ``env['test_result']``
     """
 
-    fun = import_string(env.get('test_scorer') or settings.DEFAULT_TEST_SCORER)
-    tests = env['tests']
-    for test_name, test_result in env['test_results'].items():
-        if tests[test_name]['to_judge']:
+    fun = import_string(env.get("test_scorer") or settings.DEFAULT_TEST_SCORER)
+    tests = env["tests"]
+    for test_name, test_result in env["test_results"].items():
+        if tests[test_name]["to_judge"]:
             score, max_score, status = fun(tests[test_name], test_result)
             assert isinstance(score, (type(None), ScoreValue))
             assert isinstance(max_score, (type(None), ScoreValue))
-            test_result['score'] = score and score.serialize()
-            test_result['max_score'] = max_score and max_score.serialize()
-            test_result['status'] = status
+            test_result["score"] = score and score.serialize()
+            test_result["max_score"] = max_score and max_score.serialize()
+            test_result["status"] = status
         else:
             report = TestReport.objects.get(
-                submission_report__submission__id=env['submission_id'],
-                submission_report__status='ACTIVE',
+                submission_report__submission__id=env["submission_id"],
+                submission_report__status="ACTIVE",
                 test_name=test_name,
             )
             score = report.score
             max_score = report.max_score
             status = report.status
             time_used = report.time_used
-            test_result['score'] = score and score.serialize()
-            test_result['max_score'] = max_score and max_score.serialize()
-            test_result['status'] = status
-            test_result['time_used'] = time_used
-            env['test_results'][test_name] = test_result
+            test_result["score"] = score and score.serialize()
+            test_result["max_score"] = max_score and max_score.serialize()
+            test_result["status"] = status
+            test_result["time_used"] = time_used
+            env["test_results"][test_name] = test_result
     return env
 
 
@@ -390,46 +378,34 @@ def grade_groups(env, **kwargs):
     """
 
     test_results = defaultdict(dict)
-    for test_name, test in env['test_results'].items():
-        group_name = env['tests'][test_name]['group']
+    for test_name, test in env["test_results"].items():
+        group_name = env["tests"][test_name]["group"]
         test_results[group_name][test_name] = test
 
-    env.setdefault('group_results', {})
+    env.setdefault("group_results", {})
     for group_name, results in test_results.items():
-        if group_name in env['group_results']:
+        if group_name in env["group_results"]:
             continue
-        fun = import_string(env.get('group_scorer', settings.DEFAULT_GROUP_SCORER))
+        fun = import_string(env.get("group_scorer", settings.DEFAULT_GROUP_SCORER))
         score, max_score, status = fun(results)
         if not isinstance(score, (type(None), ScoreValue)):
-            raise TypeError(
-                "Group scorer returned %r as score, "
-                "not None or ScoreValue" % (type(score),)
-            )
+            raise TypeError("Group scorer returned %r as score, not None or ScoreValue" % (type(score),))
         if not isinstance(max_score, (type(None), ScoreValue)):
-            raise TypeError(
-                "Group scorer returned %r as max_score, "
-                "not None or ScoreValue" % (type(max_score),)
-            )
+            raise TypeError("Group scorer returned %r as max_score, not None or ScoreValue" % (type(max_score),))
         group_result = {}
-        group_result['score'] = score and score.serialize()
-        group_result['max_score'] = max_score and max_score.serialize()
-        group_result['status'] = status
-        one_of_tests = env['tests'][next(iter(results.keys()))]
-        if not all(
-            env['tests'][key]['kind'] == one_of_tests['kind']
-            for key in results.keys()
-        ):
-            raise ValueError(
-                "Tests in group '%s' have different kinds. "
-                "This is not supported." % (group_name,)
-            )
-        group_result['kind'] = one_of_tests['kind']
-        env['group_results'][group_name] = group_result
+        group_result["score"] = score and score.serialize()
+        group_result["max_score"] = max_score and max_score.serialize()
+        group_result["status"] = status
+        one_of_tests = env["tests"][next(iter(results.keys()))]
+        if not all(env["tests"][key]["kind"] == one_of_tests["kind"] for key in results.keys()):
+            raise ValueError("Tests in group '%s' have different kinds. This is not supported." % (group_name,))
+        group_result["kind"] = one_of_tests["kind"]
+        env["group_results"][group_name] = group_result
 
     return env
 
 
-def grade_submission(env, kind='NORMAL', **kwargs):
+def grade_submission(env, kind="NORMAL", **kwargs):
     """Grades submission with specified kind of tests on a `Job` layer.
 
     If ``kind`` is None, all tests will be graded.
@@ -450,31 +426,25 @@ def grade_submission(env, kind='NORMAL', **kwargs):
 
     # TODO: let score_aggregator handle compilation errors
 
-    if env.get('compilation_result', 'OK') != 'OK':
-        env['score'] = None
-        env['max_score'] = None
-        env['status'] = 'CE'
+    if env.get("compilation_result", "OK") != "OK":
+        env["score"] = None
+        env["max_score"] = None
+        env["status"] = "CE"
         return env
 
-    fun = import_string(
-        env.get('score_aggregator') or settings.DEFAULT_SCORE_AGGREGATOR
-    )
+    fun = import_string(env.get("score_aggregator") or settings.DEFAULT_SCORE_AGGREGATOR)
 
     if kind is None:
-        group_results = env['group_results']
+        group_results = env["group_results"]
     else:
-        group_results = dict(
-            (name, res)
-            for (name, res) in env['group_results'].items()
-            if res['kind'] == kind
-        )
+        group_results = dict((name, res) for (name, res) in env["group_results"].items() if res["kind"] == kind)
 
     score, max_score, status = fun(group_results)
     assert isinstance(score, (type(None), ScoreValue))
     assert isinstance(max_score, (type(None), ScoreValue))
-    env['score'] = score and score.serialize()
-    env['max_score'] = max_score and max_score.serialize()
-    env['status'] = status
+    env["score"] = score and score.serialize()
+    env["max_score"] = max_score and max_score.serialize()
+    env["status"] = status
 
     return env
 
@@ -502,20 +472,20 @@ def _make_base_report(env, submission, kind):
     submission_report.kind = kind
     submission_report.save()
 
-    env['report_id'] = submission_report.id
+    env["report_id"] = submission_report.id
 
     status_report = ScoreReport(submission_report=submission_report)
-    status_report.status = env['status']
-    status_report.score = env['score']
-    status_report.max_score = env['max_score']
+    status_report.status = env["status"]
+    status_report.score = env["score"]
+    status_report.max_score = env["max_score"]
     status_report.save()
 
     compilation_report = CompilationReport(submission_report=submission_report)
-    compilation_report.status = env['compilation_result']
-    compilation_message = env['compilation_message']
+    compilation_report.status = env["compilation_result"]
+    compilation_message = env["compilation_message"]
 
     if not isinstance(compilation_message, str):
-        compilation_message = compilation_message.decode('utf8')
+        compilation_message = compilation_message.decode("utf8")
     compilation_report.compiler_output = compilation_message
     compilation_report.save()
 
@@ -523,7 +493,7 @@ def _make_base_report(env, submission, kind):
 
 
 @transaction.atomic
-def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
+def make_report(env, kind="NORMAL", save_scores=True, **kwargs):
     """Builds entities for tests results in a database.
 
     Used ``environ`` keys:
@@ -542,54 +512,54 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
     """
     submission, submission_report = _make_base_report(env, kind)
 
-    if env['compilation_result'] != 'OK':
+    if env["compilation_result"] != "OK":
         return env
-    tests = env['tests']
+    tests = env["tests"]
 
-    test_results = env.get('test_results', {})
+    test_results = env.get("test_results", {})
     for test_name, result in test_results.items():
         test = tests[test_name]
-        if 'report_id' in result:
+        if "report_id" in result:
             continue
         test_report = TestReport(submission_report=submission_report)
-        test_report.test_id = test.get('id')
+        test_report.test_id = test.get("id")
         test_report.test_name = test_name
-        test_report.test_group = test['group']
-        test_report.test_time_limit = result['exec_time_limit']
-        test_report.max_score = result['max_score']
-        test_report.score = result['score'] if save_scores else None
-        test_report.status = result['status']
-        test_report.time_used = result['time_used']
+        test_report.test_group = test["group"]
+        test_report.test_time_limit = result["exec_time_limit"]
+        test_report.max_score = result["max_score"]
+        test_report.score = result["score"] if save_scores else None
+        test_report.status = result["status"]
+        test_report.time_used = result["time_used"]
 
-        comment = result.get('result_string', '')
-        if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
-            comment = ''
-        max_comment_length = TestReport._meta.get_field('comment').max_length
-        test_report.comment = (comment[:max_comment_length - 1] + '…') if len(comment) > max_comment_length else comment
-        if env.get('save_outputs', False):
-            test_report.output_file = filetracker_to_django_file(result['out_file'])
+        comment = result.get("result_string", "")
+        if comment.lower() in ["ok", "time limit exceeded"]:  # Annoying
+            comment = ""
+        max_comment_length = TestReport._meta.get_field("comment").max_length
+        test_report.comment = (comment[: max_comment_length - 1] + "…") if len(comment) > max_comment_length else comment
+        if env.get("save_outputs", False):
+            test_report.output_file = filetracker_to_django_file(result["out_file"])
         test_report.save()
-        result['report_id'] = test_report.id
+        result["report_id"] = test_report.id
 
-    group_results = env.get('group_results', {})
+    group_results = env.get("group_results", {})
     for group_name, group_result in group_results.items():
-        if 'report_id' in group_result:
+        if "report_id" in group_result:
             continue
         group_report = GroupReport(submission_report=submission_report)
         group_report.group = group_name
-        group_report.score = group_result['score'] if save_scores else None
-        group_report.max_score = group_result['max_score'] if save_scores else None
-        group_report.status = group_result['status']
+        group_report.score = group_result["score"] if save_scores else None
+        group_report.max_score = group_result["max_score"] if save_scores else None
+        group_report.status = group_result["status"]
         group_report.save()
-        group_result['result_id'] = group_report.id
+        group_result["result_id"] = group_report.id
 
     return env
 
 
 @_skip_on_compilation_error
 def delete_executable(env, **kwargs):
-    if 'compiled_file' in env:
-        get_client().delete_file(env['compiled_file'])
+    if "compiled_file" in env:
+        get_client().delete_file(env["compiled_file"])
     return env
 
 
@@ -603,29 +573,27 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
         * ``extra_args`` dictionary with ``submission_report`` object
         * ``test_results``
     """
-    if 'submission_report_id' not in env['extra_args']:
-        logger.info('No submission_report given to fill tests outputs')
+    if "submission_report_id" not in env["extra_args"]:
+        logger.info("No submission_report given to fill tests outputs")
         return env
 
-    submission_report_id = env['extra_args']['submission_report_id']
+    submission_report_id = env["extra_args"]["submission_report_id"]
     submission_report = SubmissionReport.objects.get(id=submission_report_id)
     test_reports = TestReport.objects.filter(submission_report=submission_report)
-    test_results = env.get('test_results', {})
+    test_results = env.get("test_results", {})
 
     for test_name, result in test_results.items():
         try:
             testreport = test_reports.get(test_name=test_name)
         except (TestReport.DoesNotExist, TestReport.MultipleObjectsReturned):
-            logger.warning('Test report for test: %s can not be determined', test_name)
+            logger.warning("Test report for test: %s can not be determined", test_name)
             continue
 
         if testreport.output_file:
-            logger.warning(
-                'Output for test report %s exists. Deleting old one.', testreport.id
-            )
+            logger.warning("Output for test report %s exists. Deleting old one.", testreport.id)
             get_client().delete_file(testreport.output_file)
 
-        testreport.output_file = filetracker_to_django_file(result['out_file'])
+        testreport.output_file = filetracker_to_django_file(result["out_file"])
         testreport.save()
 
         try:
@@ -633,7 +601,7 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
         except UserOutGenStatus.DoesNotExist:
             download_controller = UserOutGenStatus(testreport=testreport)
 
-        download_controller.status = 'OK'
+        download_controller.status = "OK"
         download_controller.save()
 
     return env
@@ -650,26 +618,24 @@ def insert_existing_submission_link(env, src_submission, **kwargs):
         * ``contest_id``
         * ``submission_id``
     """
-    if 'submission_report_id' not in env['extra_args']:
-        logger.info('No submission_report given to generate link')
+    if "submission_report_id" not in env["extra_args"]:
+        logger.info("No submission_report given to generate link")
         return env
 
-    submission_report_id = env['extra_args']['submission_report_id']
+    submission_report_id = env["extra_args"]["submission_report_id"]
     submission_report = SubmissionReport.objects.get(id=submission_report_id)
     dst_submission = submission_report.submission
     href = reverse(
-        'submission',
-        kwargs={'submission_id': dst_submission.id, 'contest_id': env['contest_id']},
+        "submission",
+        kwargs={"submission_id": dst_submission.id, "contest_id": env["contest_id"]},
     )
-    html_link = make_html_link(
-        href, _("submission report") + ": " + str(dst_submission.id)
-    )
-    test_names = ', '.join(list(env.get('test_results', {}).keys()))
+    html_link = make_html_link(href, _("submission report") + ": " + str(dst_submission.id))
+    test_names = ", ".join(list(env.get("test_results", {}).keys()))
 
     # Note that the comment is overwritten by safe string.
-    src_submission.comment = (
-        "This is an internal submission created after someone requested to "
-        "generate user output on tests: %s, related to %s" % (test_names, html_link)
+    src_submission.comment = "This is an internal submission created after someone requested to generate user output on tests: %s, related to %s" % (
+        test_names,
+        html_link,
     )
     src_submission.save()
 

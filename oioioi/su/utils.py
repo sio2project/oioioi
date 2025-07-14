@@ -1,14 +1,14 @@
-from django.contrib import auth
 from django.conf import settings
+from django.contrib import auth
 
 from oioioi.base.permissions import is_superuser, make_request_condition
-from oioioi.contests.utils import is_contest_basicadmin, contest_exists
-from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY, SU_REAL_USER_IS_SUPERUSER, SU_ORIGINAL_CONTEST
+from oioioi.contests.utils import contest_exists, is_contest_basicadmin
+from oioioi.su import SU_BACKEND_SESSION_KEY, SU_ORIGINAL_CONTEST, SU_REAL_USER_IS_SUPERUSER, SU_UID_SESSION_KEY
 
 
 @make_request_condition
 def is_real_superuser(request):
-    if hasattr(request, 'real_user'):
+    if hasattr(request, "real_user"):
         return request.real_user.is_superuser
     else:
         return is_superuser(request)
@@ -21,7 +21,7 @@ def is_under_su(request):
 
 @make_request_condition
 def can_contest_admins_su(_):
-    return getattr(settings, 'CONTEST_ADMINS_CAN_SU', False)
+    return getattr(settings, "CONTEST_ADMINS_CAN_SU", False)
 
 
 def get_user(request, user_id, backend_path):

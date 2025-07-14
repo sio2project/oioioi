@@ -19,34 +19,40 @@ import os
 import sys
 from shlex import quote
 
-BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker compose" + \
-                      " -f docker-compose-dev.yml"
+BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker compose" + " -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop and remove all SIO2 containers", "down"),
     ("wipe", "Stop all SIO2 containers and DESTROY all data", "down -v", True),
-    ("run", "Run django server and webpack",
-     '{exec} web conc -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"'),
+    (
+        "run",
+        "Run django server and webpack",
+        '{exec} web conc -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"',
+    ),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
     ("exec", "Run a command in the web container.", "{exec} web {extra_args}"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
     ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),
-    ("add-superuser", "Create admin_admin.",
-     "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
+    ("add-superuser", "Create admin_admin.", "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh {extra_args}"),
     ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow {extra_args}"),
-    ("test-coverage", "Run coverage tests.",
-     "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}"),
-    ("cypress-apply-settings", "Apply settings for CyPress.",
-     '{exec} web bash -c "echo CAPTCHA_TEST_MODE=True >> settings.py"'),
+    (
+        "test-coverage",
+        "Run coverage tests.",
+        "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}",
+    ),
+    ("cypress-apply-settings", "Apply settings for CyPress.", '{exec} web bash -c "echo CAPTCHA_TEST_MODE=True >> settings.py"'),
     ("npm", "Run npm command.", "{exec} web npm --prefix ../oioioi {extra_args}"),
     ("eslint", "Run javascript linter.", "{exec} web npm --prefix ../oioioi run lint"),
-    ("ruff", "Run Ruff, a linter and formatter. You can add `--fix` to automatically fix some errors.","{exec} -w /sio2/oioioi web bash -c 'ruff check . {extra_args} ; echo ; ruff format .'",
-)
+    (
+        "ruff",
+        "Run Ruff, a linter and formatter. You can add `--fix` to automatically fix some errors.",
+        "{exec} -w /sio2/oioioi web bash -c 'ruff check . {extra_args} ; echo ; ruff format .'",
+    ),
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
@@ -117,6 +123,7 @@ def get_action_from_args() -> Option:
 
 def get_action_from_gui() -> Option:
     import inquirer
+
     questions = [
         inquirer.List(
             "action",
@@ -160,10 +167,14 @@ def run() -> None:
 
 def print_help() -> None:
     print(
-        "OIOIOI helper toolbox", "", "This script allows to control OIOIOI with Docker commands.",
+        "OIOIOI helper toolbox",
+        "",
+        "This script allows to control OIOIOI with Docker commands.",
         f"Commands are always being run with '{BASE_DOCKER_COMMAND}' prefix.",
-        "Available commands are: ", "",
-        *COMMANDS.values(), "",
+        "Available commands are: ",
+        "",
+        *COMMANDS.values(),
+        "",
         "Example `build`:",
         f"{sys.argv[0]} build",
         sep="\n",

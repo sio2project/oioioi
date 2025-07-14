@@ -3,7 +3,6 @@
 # django_extensions/management/commands/shell_plus.py
 # pylint: skip-file
 
-from __future__ import print_function
 
 import os
 import time
@@ -15,54 +14,54 @@ from django_extensions.management.shells import import_objects
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
-            '--plain',
-            action='store_true',
-            dest='plain',
-            help='Tells Django to use plain Python, not BPython nor IPython.',
+            "--plain",
+            action="store_true",
+            dest="plain",
+            help="Tells Django to use plain Python, not BPython nor IPython.",
         )
         parser.add_argument(
-            '--bpython',
-            action='store_true',
-            dest='bpython',
-            help='Tells Django to use BPython, not IPython.',
+            "--bpython",
+            action="store_true",
+            dest="bpython",
+            help="Tells Django to use BPython, not IPython.",
         )
         parser.add_argument(
-            '--ipython',
-            action='store_true',
-            dest='ipython',
-            help='Tells Django to use IPython, not BPython.',
+            "--ipython",
+            action="store_true",
+            dest="ipython",
+            help="Tells Django to use IPython, not BPython.",
         )
         parser.add_argument(
-            '--notebook',
-            action='store_true',
-            dest='notebook',
-            help='Tells Django to use IPython args.',
+            "--notebook",
+            action="store_true",
+            dest="notebook",
+            help="Tells Django to use IPython args.",
         )
         parser.add_argument(
-            '--no-pythonrc',
-            action='store_true',
-            dest='no_pythonrc',
-            help='Tells Django not to execute PYTHONSTARTUP file',
+            "--no-pythonrc",
+            action="store_true",
+            dest="no_pythonrc",
+            help="Tells Django not to execute PYTHONSTARTUP file",
         )
         parser.add_argument(
-            '--print-sql',
-            action='store_true',
+            "--print-sql",
+            action="store_true",
             default=False,
             help="Print SQL queries as they're executed",
         )
         parser.add_argument(
-            '--dont-load',
-            action='append',
-            dest='dont_load',
+            "--dont-load",
+            action="append",
+            dest="dont_load",
             default=[],
-            help='Ignore autoloading of some apps/models. Can be used several times.',
+            help="Ignore autoloading of some apps/models. Can be used several times.",
         )
         parser.add_argument(
-            '--quiet-load',
-            action='store_true',
+            "--quiet-load",
+            action="store_true",
             default=False,
-            dest='quiet_load',
-            help='Do not display loaded models messages',
+            dest="quiet_load",
+            help="Do not display loaded models messages",
         )
 
     help = "Like the 'shell' command but autoloads the models of all installed Django apps."
@@ -70,11 +69,11 @@ class Command(BaseCommand):
     requires_model_validation = True
 
     def handle(self, *args, **options):
-        use_notebook = options.get('notebook', False)
-        use_ipython = options.get('ipython', False)
-        use_bpython = options.get('bpython', False)
-        use_plain = options.get('plain', False)
-        use_pythonrc = not options.get('no_pythonrc', True)
+        use_notebook = options.get("notebook", False)
+        use_ipython = options.get("ipython", False)
+        use_bpython = options.get("bpython", False)
+        use_plain = options.get("plain", False)
+        use_pythonrc = not options.get("no_pythonrc", True)
 
         if options.get("print_sql", False):
             # Code from http://gist.github.com/118990
@@ -93,18 +92,13 @@ class Command(BaseCommand):
                         return self.cursor.execute(sql, params)
                     finally:
                         execution_time = time.time() - starttime
-                        raw_sql = self.db.ops.last_executed_query(
-                            self.cursor, sql, params
-                        )
+                        raw_sql = self.db.ops.last_executed_query(self.cursor, sql, params)
                         if sqlparse:
                             print(sqlparse.format(raw_sql, reindent=True))
                         else:
                             print(raw_sql)
                         print()
-                        print(
-                            'Execution time: %.6fs [Database: %s]'
-                            % (execution_time, self.db.alias)
-                        )
+                        print("Execution time: %.6fs [Database: %s]" % (execution_time, self.db.alias))
                         print()
 
             util.CursorDebugWrapper = PrintQueryWrapper
@@ -116,8 +110,8 @@ class Command(BaseCommand):
             app = notebookapp.NotebookApp.instance()
             ipython_arguments = getattr(
                 settings,
-                'IPYTHON_ARGUMENTS',
-                ['--ext', 'django_extensions.management.notebook_extension'],
+                "IPYTHON_ARGUMENTS",
+                ["--ext", "django_extensions.management.notebook_extension"],
             )
             app.initialize(ipython_arguments)
             app.start()
@@ -147,7 +141,7 @@ class Command(BaseCommand):
                 if pythonrc and os.path.isfile(pythonrc):
                     try:
                         exec(
-                            compile(open(pythonrc).read(), pythonrc, 'exec'),
+                            compile(open(pythonrc).read(), pythonrc, "exec"),
                             globals(),
                             locals(),
                         )
@@ -198,8 +192,4 @@ class Command(BaseCommand):
                 import traceback
 
                 traceback.print_exc()
-                print(
-                    self.style.ERROR(
-                        "Could not load any interactive Python environment."
-                    )
-                )
+                print(self.style.ERROR("Could not load any interactive Python environment."))

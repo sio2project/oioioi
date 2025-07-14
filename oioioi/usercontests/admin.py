@@ -9,8 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base.menu import personal_menu_registry
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.admin import ContestAdmin, RoundInline
-from oioioi.contests.permissions import can_create_contest
-from oioioi.contests.utils import has_any_contest
 from oioioi.usercontests.forms import UserContestForm
 from oioioi.usercontests.models import UserContest
 
@@ -27,22 +25,22 @@ def use_usercontest_admin_form(request):
         return False
 
     user = request.user
-    return not (user.is_superuser or user.has_perm('teachers.teacher'))
+    return not (user.is_superuser or user.has_perm("teachers.teacher"))
 
 
-if 'oioioi.simpleui' not in settings.INSTALLED_APPS:
+if "oioioi.simpleui" not in settings.INSTALLED_APPS:
     personal_menu_registry.register(
-        'create_contest',
+        "create_contest",
         _("New contest"),
-        lambda request: reverse('oioioiadmin:contests_contest_add'),
+        lambda request: reverse("oioioiadmin:contests_contest_add"),
         use_usercontest_admin_form,
         order=10,
     )
 else:
     personal_menu_registry.register(
-        'user_dashboard',
+        "user_dashboard",
         _("Contests"),
-        lambda request: reverse('simpleui_user_dashboard'),
+        lambda request: reverse("simpleui_user_dashboard"),
         use_usercontest_admin_form,
         order=5,
     )
@@ -50,31 +48,26 @@ else:
 
 class UserRoundInlineFormset(RoundInline.formset):
     def clean(self):
-
         super(UserRoundInlineFormset, self).clean()
 
-        if not hasattr(settings, 'USER_CONTEST_TIMEOUT'):
+        if not hasattr(settings, "USER_CONTEST_TIMEOUT"):
             return
         for form in self.forms:
-            if not 'end_date' in form.cleaned_data.keys():
+            if "end_date" not in form.cleaned_data.keys():
                 continue
-            if form.cleaned_data['end_date'] is None:
-                raise forms.ValidationError(
-                    _("Please provide round end date."), code='invalid'
-                )
-            if form.cleaned_data['end_date'] > settings.USER_CONTEST_TIMEOUT:
+            if form.cleaned_data["end_date"] is None:
+                raise forms.ValidationError(_("Please provide round end date."), code="invalid")
+            if form.cleaned_data["end_date"] > settings.USER_CONTEST_TIMEOUT:
                 raise forms.ValidationError(
                     _(
-                        "Round \'%(round_name)s\' \
+                        "Round '%(round_name)s' \
                          has to end before %(end_contests)s."
                     ),
                     params={
-                        "round_name": form.cleaned_data['name'],
-                        "end_contests": settings.USER_CONTEST_TIMEOUT.strftime(
-                            '%Y-%m-%d %H:%M:%S %Z'
-                        ),
+                        "round_name": form.cleaned_data["name"],
+                        "end_contests": settings.USER_CONTEST_TIMEOUT.strftime("%Y-%m-%d %H:%M:%S %Z"),
                     },
-                    code='invalid',
+                    code="invalid",
                 )
 
 
@@ -82,7 +75,7 @@ class UserRoundInline(RoundInline):
     formset = UserRoundInlineFormset
 
 
-class UserContestAdminMixin(object):
+class UserContestAdminMixin:
     def is_owner(self, user, contest):
         return UserContest.objects.filter(user=user, contest=contest).exists()
 
@@ -97,15 +90,13 @@ class UserContestAdminMixin(object):
             return super(UserContestAdminMixin, self).get_fieldsets(request, obj)
 
         fields = list(UserContestForm().base_fields.keys())
-        return [(None, {'fields': fields})]
+        return [(None, {"fields": fields})]
 
     def save_model(self, request, obj, form, change):
         if change or not use_usercontest_admin_form(request):
-            return super(UserContestAdminMixin, self).save_model(
-                request, obj, form, change
-            )
+            return super(UserContestAdminMixin, self).save_model(request, obj, form, change)
 
-        obj.controller_name = 'oioioi.usercontests.controllers.UserContestController'
+        obj.controller_name = "oioioi.usercontests.controllers.UserContestController"
         ret = super(UserContestAdminMixin, self).save_model(request, obj, form, change)
         UserContest.objects.create(contest=obj, user=request.user)
         return ret

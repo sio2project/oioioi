@@ -1,15 +1,14 @@
-# coding: utf-8
 import functools
 
-from django.contrib.auth.views import LogoutView, redirect_to_login
+from django.contrib.auth import logout
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
-from django.contrib.auth import logout
 
 from oioioi.base.utils import is_ajax
 
 
-class AccessDenied(object):
+class AccessDenied:
     """A ``False``-like class with additional response to use as the access
     denied message.
     """
@@ -21,7 +20,7 @@ class AccessDenied(object):
         return False
 
 
-class Condition(object):
+class Condition:
     r"""Class representing a condition (a function which returns a boolean
     based on its arguments) intended for use with views and menu items.
 
@@ -45,17 +44,13 @@ class Condition(object):
     def __or__(self, other):
         if not isinstance(other, Condition):
             return NotImplemented
-        condition_or = lambda *args, **kwargs: self(*args, **kwargs) or other(
-            *args, **kwargs
-        )
+        condition_or = lambda *args, **kwargs: self(*args, **kwargs) or other(*args, **kwargs)
         return Condition(condition_or)
 
     def __and__(self, other):
         if not isinstance(other, Condition):
             return NotImplemented
-        condition_and = lambda *args, **kwargs: self(*args, **kwargs) and other(
-            *args, **kwargs
-        )
+        condition_and = lambda *args, **kwargs: self(*args, **kwargs) and other(*args, **kwargs)
         return Condition(condition_and)
 
     def __invert__(self):
@@ -84,7 +79,7 @@ def make_condition(condition_class=Condition):
 
     def wrap_condition(func):
         condition = condition_class(func)
-        for attr in ('__name__', '__module__', '__doc__'):
+        for attr in ("__name__", "__module__", "__doc__"):
             setattr(condition, attr, getattr(func, attr))
         condition.__dict__.update(func.__dict__)
         return condition
@@ -119,11 +114,7 @@ def enforce_condition(condition, template=None, login_redirect=True):
     :param template: template name to return when ``condition`` fails
     :type template: basestring
     """
-    assert isinstance(condition, Condition), (
-        'condition passed to'
-        ' enforce_condition must be an instance of the Condition class or'
-        ' its subclass'
-    )
+    assert isinstance(condition, Condition), "condition passed to enforce_condition must be an instance of the Condition class or its subclass"
 
     def decorator(view_func):
         @functools.wraps(view_func)
@@ -135,16 +126,12 @@ def enforce_condition(condition, template=None, login_redirect=True):
                 return view_func(request, *args, **kwargs)
             if template is not None:
                 return TemplateResponse(request, template)
-            elif (
-                not request.user.is_authenticated
-                and not is_ajax(request)
-                and login_redirect
-            ):
+            elif not request.user.is_authenticated and not is_ajax(request) and login_redirect:
                 return redirect_to_login(request.path)
             else:
                 raise PermissionDenied
 
-        old_condition = getattr(view_func, 'condition', None)
+        old_condition = getattr(view_func, "condition", None)
         if old_condition is None:
             new_condition = condition
         else:

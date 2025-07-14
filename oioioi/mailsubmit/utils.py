@@ -13,7 +13,6 @@ from oioioi.mailsubmit.models import MailSubmissionConfig
 @make_request_condition
 def is_mailsubmit_used(request):
     try:
-
         _msc = request.contest.mail_submission_config
         return True
     except MailSubmissionConfig.DoesNotExist:
@@ -24,12 +23,7 @@ def is_mailsubmit_used(request):
 def is_mailsubmit_allowed(request):
     try:
         msc = request.contest.mail_submission_config
-        return (
-            msc.enabled
-            and msc.start_date is not None
-            and msc.start_date <= request.timestamp
-            and (msc.end_date is None or request.timestamp < msc.end_date)
-        )
+        return msc.enabled and msc.start_date is not None and msc.start_date <= request.timestamp and (msc.end_date is None or request.timestamp < msc.end_date)
     except MailSubmissionConfig.DoesNotExist:
         return False
 
@@ -43,16 +37,8 @@ def has_any_mailsubmittable_problem(request):
 @request_cached
 def mailsubmittable_problem_instances(request):
     controller = request.contest.controller
-    queryset = (
-        ProblemInstance.objects.filter(contest=request.contest)
-        .select_related('problem')
-        .prefetch_related('round')
-    )
-    return [
-        pi
-        for pi in queryset
-        if controller.can_submit(request, pi, check_round_times=False)
-    ]
+    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round")
+    return [pi for pi in queryset if controller.can_submit(request, pi, check_round_times=False)]
 
 
 def accept_mail_submission(request, mailsubmission):
@@ -61,9 +47,9 @@ def accept_mail_submission(request, mailsubmission):
         request,
         mailsubmission.problem_instance,
         {
-            'user': mailsubmission.user,
-            'file': mailsubmission.source_file,
-            'kind': 'NORMAL',
+            "user": mailsubmission.user,
+            "file": mailsubmission.source_file,
+            "kind": "NORMAL",
         },
     )
     mailsubmission.submission = submission
@@ -80,13 +66,13 @@ def mail_submission_hashes(mailsubmission):
 
     pi = mailsubmission.problem_instance
 
-    msg = '%d-%s-%d-%s' % (mailsubmission.id, pi.contest.id, pi.id, source_hash)
-    msg = msg.encode('utf-8')
+    msg = "%d-%s-%d-%s" % (mailsubmission.id, pi.contest.id, pi.id, source_hash)
+    msg = msg.encode("utf-8")
 
     submission_hash = hmac.new(
-        settings.SECRET_KEY.encode('utf-8'),
+        settings.SECRET_KEY.encode("utf-8"),
         msg,
-        'sha256'  # Name of the hashing algorithm is required from Python3.8.
+        "sha256",  # Name of the hashing algorithm is required from Python3.8.
     ).hexdigest()[:MAILSUBMIT_CONFIRMATION_HASH_LENGTH]
 
     return source_hash, submission_hash

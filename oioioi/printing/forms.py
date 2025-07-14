@@ -8,7 +8,7 @@ from oioioi.programs.utils import decode_str
 
 
 def is_text_file_validator(file):
-    if not file.content_type.startswith('text/'):
+    if not file.content_type.startswith("text/"):
         raise ValidationError(_("The file should be a text file."))
 
 
@@ -30,14 +30,12 @@ class PrintForm(forms.Form):
 
     def clean_file(self):
         cleaned_data = self.cleaned_data
-        orig, _decode_error = decode_str(cleaned_data['file'].file.read())
+        orig, _decode_error = decode_str(cleaned_data["file"].file.read())
         try:
-            cleaned_data['file'] = generator(
+            cleaned_data["file"] = generator(
                 source=orig.expandtabs(4),
-                header=str(
-                    '%s (%s)' % (self.user.get_full_name(), self.user)
-                ),
+                header=str("%s (%s)" % (self.user.get_full_name(), self.user)),
             )
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))
-        return cleaned_data['file']
+        return cleaned_data["file"]

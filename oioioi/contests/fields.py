@@ -11,7 +11,7 @@ class ScoreField(models.CharField):
     description = _("Score")
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('max_length', 255)
+        kwargs.setdefault("max_length", 255)
         super(ScoreField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
@@ -26,10 +26,10 @@ class ScoreField(models.CharField):
         if isinstance(value, ScoreValue):
             return value.serialize()
         else:
-            raise ValidationError('Invalid score value object type')
+            raise ValidationError("Invalid score value object type")
 
     def from_db_value(self, value, expression, connection, context=None):
-        if value is None or value == '':
+        if value is None or value == "":
             return None
 
         return ScoreValue.deserialize(value)
@@ -41,7 +41,7 @@ class ScoreField(models.CharField):
         if isinstance(value, ScoreValue):
             return value
 
-        if value is None or value == '':
+        if value is None or value == "":
             return None
 
         return ScoreValue.deserialize(value)

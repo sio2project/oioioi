@@ -7,17 +7,15 @@ from oioioi.status.utils import get_status
 
 @request_cached
 def status_processor(request):
-    if not hasattr(request, 'contest') or not hasattr(request, 'session'):
+    if not hasattr(request, "contest") or not hasattr(request, "session"):
         # Called by too early middleware
         return {}
 
     def outdated_generator():
-        return render_to_string('status/outdated-modal.html')
+        return render_to_string("status/outdated-modal.html")
 
     def status_generator():
-        return render_to_string(
-            'status/initial-status.html', {'status': get_status(request)}
-        )
+        return render_to_string("status/initial-status.html", {"status": get_status(request)})
 
     # Well, we want to generate the status JSON as late as possible, for the
     # following simple/stupid reason: we want the current time in the response
@@ -26,6 +24,6 @@ def status_processor(request):
     # unoptimized, grey database queries!
 
     return {
-        'extra_footer_outdated': lazy(outdated_generator, str)(),
-        'extra_footer_status': lazy(status_generator, str)(),
+        "extra_footer_outdated": lazy(outdated_generator, str)(),
+        "extra_footer_status": lazy(status_generator, str)(),
     }

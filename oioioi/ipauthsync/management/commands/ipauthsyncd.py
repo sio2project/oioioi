@@ -1,11 +1,11 @@
 import time
 import traceback
 
+import requests
 from django.core.mail import mail_admins
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
-import requests
 
 from oioioi.ipauthsync.models import (
     IpAuthSyncConfig,
@@ -21,14 +21,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--interval',
+            "--interval",
             default=60,
             type=int,
             help="Time between synchronization rounds",
         )
         parser.add_argument(
-            '--timeout',
-            metavar='SECONDS',
+            "--timeout",
+            metavar="SECONDS",
             default=15,
             type=int,
             help="Connection timeout",
@@ -39,25 +39,21 @@ class Command(BaseCommand):
         for region in config.contest.regions.all():
             try:
                 r = requests.get(
-                    f'http://{region.region_server}/ipauthsync/list',
-                    headers=dict(Host='oireg'),
+                    f"http://{region.region_server}/ipauthsync/list",
+                    headers=dict(Host="oireg"),
                 )
                 r.raise_for_status()
 
                 warnings = []
                 mapping = []
-                for item in r.json()['mappings']:
-                    zaw_id = item['user_id']
-                    ip = item['ip_address']
+                for item in r.json()["mappings"]:
+                    zaw_id = item["user_id"]
+                    ip = item["ip_address"]
                     try:
-                        reg = OnsiteRegistration.objects.select_related(
-                            'participant__user'
-                        ).get(number=zaw_id, region=region)
+                        reg = OnsiteRegistration.objects.select_related("participant__user").get(number=zaw_id, region=region)
                         user = reg.participant.user
                     except OnsiteRegistration.DoesNotExist:
-                        warnings.append(
-                            "* No user found for ZAW=%s (IP=%s)" % (zaw_id, ip)
-                        )
+                        warnings.append("* No user found for ZAW=%s (IP=%s)" % (zaw_id, ip))
                         continue
 
                     try:
@@ -66,15 +62,13 @@ class Command(BaseCommand):
                     except Exception as e:
                         warnings.append("Invalid IP=%s (ZAW=%s): %s" % (ip, zaw_id, e))
 
-                    mapping.append('%s %s %s' % (zaw_id, ip, user.username))
+                    mapping.append("%s %s %s" % (zaw_id, ip, user.username))
 
                     yield user, ip
 
-                warnings = '\n'.join(warnings)
-                mapping = '\n'.join(mapping)
-                msgs, created = IpAuthSyncRegionMessages.objects.get_or_create(
-                    region=region
-                )
+                warnings = "\n".join(warnings)
+                mapping = "\n".join(mapping)
+                msgs, created = IpAuthSyncRegionMessages.objects.get_or_create(region=region)
                 if warnings != msgs.warnings:
                     msgs.warnings = warnings
                     msgs.save()
@@ -112,11 +106,7 @@ class Command(BaseCommand):
         # pylint: disable=attribute-defined-outside-init
         self.failing_regions = set()
         while True:
-            configs = (
-                IpAuthSyncConfig.objects.get_active(timezone.now())
-                .select_related('contest')
-                .prefetch_related('contest__regions')
-            )
+            configs = IpAuthSyncConfig.objects.get_active(timezone.now()).select_related("contest").prefetch_related("contest__regions")
             mappings = []
             for c in configs:
                 mappings.extend(self.handle_config(c))
@@ -129,4 +119,4 @@ class Command(BaseCommand):
                     entry.save()
                     IpAuthSyncedUser(entry=entry).save()
 
-            time.sleep(options['interval'])
+            time.sleep(options["interval"])

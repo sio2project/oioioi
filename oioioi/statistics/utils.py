@@ -1,7 +1,7 @@
 from django.template.loader import render_to_string
 
-from oioioi.base.utils import request_cached
 from oioioi.base.permissions import make_request_condition
+from oioioi.base.utils import request_cached
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -12,21 +12,17 @@ def render_head(requirements):
     Order of the included paths is stable.
     """
     unique = set()
-    result = ''
-    prefix = '/static/'
+    result = ""
+    prefix = "/static/"
 
     for name in requirements:
         if name not in unique:
             unique.add(name)
-            ext = name.split('.')[-1].strip().lower()
-            if ext == 'css':
-                result += render_to_string(
-                    'statistics/include-css.html', {'file_name': prefix + name}
-                )
-            if ext == 'js':
-                result += render_to_string(
-                    'statistics/include-js.html', {'file_name': prefix + name}
-                )
+            ext = name.split(".")[-1].strip().lower()
+            if ext == "css":
+                result += render_to_string("statistics/include-css.html", {"file_name": prefix + name})
+            if ext == "js":
+                result += render_to_string("statistics/include-js.html", {"file_name": prefix + name})
     return result
 
 

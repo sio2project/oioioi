@@ -4,7 +4,7 @@ from oioioi.contests.scores import IntegerScore, ScoreValue
 
 
 @total_ordering
-class ScoreDistribution(object):
+class ScoreDistribution:
     def __init__(self, scores=None):
         if scores:
             assert isinstance(scores, list)
@@ -14,7 +14,7 @@ class ScoreDistribution(object):
             self.scores = [0] * 10
 
     def __add__(self, other):
-        return ScoreDistribution([a + b for (a, b) in zip(self.scores, other.scores)])
+        return ScoreDistribution([a + b for (a, b) in zip(self.scores, other.scores, strict=False)])
 
     def __eq__(self, other):
         return self.scores == other.scores
@@ -28,16 +28,14 @@ class ScoreDistribution(object):
             self.scores[10 - score] += 1
 
     def __repr__(self):
-        return 'ScoreDistribution(%s)' % ', '.join(
-            ['%d: %d' % p for p in zip(reversed(list(range(1, 11))), self.scores)]
-        )
+        return "ScoreDistribution(%s)" % ", ".join(["%d: %d" % p for p in zip(reversed(list(range(1, 11))), self.scores, strict=False)])
 
     def _to_repr(self):
-        return ':'.join(['%05d' % p for p in self.scores])
+        return ":".join(["%05d" % p for p in self.scores])
 
     @classmethod
     def _from_repr(cls, value):
-        return cls([int(p) for p in value.split(':')])
+        return cls([int(p) for p in value.split(":")])
 
 
 @total_ordering
@@ -52,7 +50,7 @@ class PAScore(ScoreValue):
     considered, then 8 point scores etc.
     """
 
-    symbol = 'PA'
+    symbol = "PA"
 
     def __init__(self, points=None, distribution=None):
         if points:
@@ -68,9 +66,7 @@ class PAScore(ScoreValue):
             self.distribution.update(self.points.value)
 
     def __add__(self, other):
-        return PAScore(
-            self.points + other.points, self.distribution + other.distribution
-        )
+        return PAScore(self.points + other.points, self.distribution + other.distribution)
 
     def __eq__(self, other):
         if not isinstance(other, PAScore):
@@ -93,14 +89,14 @@ class PAScore(ScoreValue):
 
     @classmethod
     def _from_repr(cls, value):
-        points, distribution = value.split(';')
+        points, distribution = value.split(";")
         return cls(
             points=IntegerScore._from_repr(points),
             distribution=ScoreDistribution._from_repr(distribution),
         )
 
     def _to_repr(self):
-        return '%s;%s' % (self.points._to_repr(), self.distribution._to_repr())
+        return "%s;%s" % (self.points._to_repr(), self.distribution._to_repr())
 
     def to_int(self):
         return self.points.to_int()

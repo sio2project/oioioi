@@ -6,10 +6,10 @@ from oioioi.usergroups.models import UserGroup
 class AddUserGroupForm(forms.ModelForm):
     class Meta:
         model = UserGroup
-        fields = ['name']
+        fields = ["name"]
 
 
 class UserGroupChangeNameForm(forms.ModelForm):
     class Meta:
         model = UserGroup
-        fields = ['name']
+        fields = ["name"]

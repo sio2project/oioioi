@@ -47,27 +47,21 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
         return self.get_response(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs, selector=None):
-
         if not self._check_requirements(request):
             return
 
         def _default_selector(user, contest):
-            return not user.has_perm('contests.contest_admin', contest)
+            return not user.has_perm("contests.contest_admin", contest)
 
         if selector is None:
             final_selector = _default_selector
         else:
-            final_selector = lambda user, contest: _default_selector(
-                user, contest
-            ) and selector(user, contest)
+            final_selector = lambda user, contest: _default_selector(user, contest) and selector(user, contest)
 
-        if settings.ONLY_DEFAULT_CONTEST and \
-                (request.user is None or not request.user.is_superuser):
+        if settings.ONLY_DEFAULT_CONTEST and (request.user is None or not request.user.is_superuser):
             qs = [Contest.objects.get(id=settings.DEFAULT_CONTEST)]
         else:
-            qs = ExclusivenessConfig.objects.get_active(
-                request.timestamp
-            ).select_related('contest')
+            qs = ExclusivenessConfig.objects.get_active(request.timestamp).select_related("contest")
             qs = [ex_cf.contest for ex_cf in qs]
             qs = [cnst for cnst in qs if final_selector(request.user, cnst)]
 
@@ -75,9 +69,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             self._send_error_email(request, qs)
             activate_contest(request, None)
             auth.logout(request)
-            return TemplateResponse(
-                request, 'contestexcl/exclusive-contests-error.html'
-            )
+            return TemplateResponse(request, "contestexcl/exclusive-contests-error.html")
         elif len(qs) == 1:
             contest = qs[0]
             if request.contest != contest:
@@ -86,23 +78,15 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
                 else:
                     messages.info(
                         request,
-                        _(
-                            "You have been redirected to this contest,"
-                            " because you are not currently allowed to access"
-                            " other contests."
-                        ),
+                        _("You have been redirected to this contest, because you are not currently allowed to access other contests."),
                     )
-                    return redirect(
-                        reverse(
-                            'default_contest_view', kwargs={'contest_id': contest.id}
-                        )
-                    )
+                    return redirect(reverse("default_contest_view", kwargs={"contest_id": contest.id}))
             request.contest_exclusive = True
         else:
             request.contest_exclusive = False
 
     def _check_requirements(self, request):
-        if not hasattr(request, 'timestamp'):
+        if not hasattr(request, "timestamp"):
             raise ImproperlyConfigured(
                 "oioioi.base.middleware.TimestampingMiddleware is required."
                 " If you have it installed check if it comes before"
@@ -110,7 +94,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
                 "setting"
             )
 
-        if not hasattr(request, 'contest'):
+        if not hasattr(request, "contest"):
             raise ImproperlyConfigured(
                 "oioioi.contests.middleware.CurrentContestMiddleware is"
                 " required. If you have it installed check if it comes before "
@@ -118,7 +102,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
                 "setting"
             )
 
-        if not hasattr(request, 'user'):
+        if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "django.contrib.auth.middleware.AuthenticationMiddleware is"
                 "required. If you have it installed check if it comes before "
@@ -131,21 +115,19 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
     def _send_error_email(self, request, contests):
         context = self._error_email_context(request, contests)
         message = self._error_email_message(context)
-        subject = render_to_string('contestexcl/exclusive-contests-error-subject.txt')
-        subject = ' '.join(subject.strip().splitlines())
+        subject = render_to_string("contestexcl/exclusive-contests-error-subject.txt")
+        subject = " ".join(subject.strip().splitlines())
         mail_admins(subject, message)
 
     def _error_email_message(self, context):
-        return render_to_string(
-            'contestexcl/exclusive-contests-error-email.txt', context
-        )
+        return render_to_string("contestexcl/exclusive-contests-error-email.txt", context)
 
     def _error_email_context(self, request, contests):
         contests_data = [(cnst.name, cnst.id) for cnst in contests]
-        return {'contests': contests_data, 'username': request.user.username}
+        return {"contests": contests_data, "username": request.user.username}
 
 
 # This causes adding all mixins to ExclusiveContestMiddleware.
 # This is needed as middlewares are instantiated before importing
 # INSTALLED_APPS, so mixins would be late.
-load_modules('middleware')
+load_modules("middleware")

@@ -7,14 +7,14 @@ DEBUG = True
 COMPRESS_ENABLED = True
 COMPRESS_PRECOMPILERS = oioioi.default_settings.COMPRESS_PRECOMPILERS
 FILETRACKER_CLIENT_FACTORY = oioioi.default_settings.FILETRACKER_CLIENT_FACTORY
-FILETRACKER_CACHE_ROOT = '/tmp/oioioi-filetracker-cache'
-STATIC_ROOT = '/tmp/oioioi-static-root'
+FILETRACKER_CACHE_ROOT = "/tmp/oioioi-filetracker-cache"
+STATIC_ROOT = "/tmp/oioioi-static-root"
 
 DATABASES = {
-    'default': {
-        'NAME': '/tmp/oioioi.sqlite3',
-        'ENGINE': 'django.db.backends.sqlite3',
-        'ATOMIC_REQUESTS': True,
+    "default": {
+        "NAME": "/tmp/oioioi.sqlite3",
+        "ENGINE": "django.db.backends.sqlite3",
+        "ATOMIC_REQUESTS": True,
     }
 }
 

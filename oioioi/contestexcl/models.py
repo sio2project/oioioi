@@ -3,7 +3,6 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.date_registration import date_registry
@@ -11,9 +10,7 @@ from oioioi.contests.models import Contest
 
 if settings.ONLY_DEFAULT_CONTEST:
     if settings.DEFAULT_CONTEST is None:
-        raise ImproperlyConfigured(
-            "ONLY_DEFAULT_CONTEST is set, while no DEFAULT_CONTEST is set"
-        )
+        raise ImproperlyConfigured("ONLY_DEFAULT_CONTEST is set, while no DEFAULT_CONTEST is set")
 
     # Models are imported on initialization and it is not possible
     # to use one then. That's why we cannot check here
@@ -23,9 +20,7 @@ if settings.ONLY_DEFAULT_CONTEST:
 
 class ExclusivenessConfigManager(models.Manager):
     def get_active(self, timestamp):
-        condition = Q(start_date__lte=timestamp, end_date__isnull=True) | Q(
-            start_date__lte=timestamp, end_date__gte=timestamp
-        )
+        condition = Q(start_date__lte=timestamp, end_date__isnull=True) | Q(start_date__lte=timestamp, end_date__gte=timestamp)
         condition &= Q(enabled=True)
         return self.get_queryset().filter(condition)
 
@@ -39,13 +34,8 @@ class ExclusivenessConfigManager(models.Manager):
         return self.get_queryset().exclude(neg_condition)
 
 
-@date_registry.register(
-    'start_date', name_generator=(lambda obj: _("Enable exclusiveness"))
-)
-@date_registry.register(
-    'end_date', name_generator=(lambda obj: _("Disable exclusiveness"))
-)
-
+@date_registry.register("start_date", name_generator=(lambda obj: _("Enable exclusiveness")))
+@date_registry.register("end_date", name_generator=(lambda obj: _("Disable exclusiveness")))
 class ExclusivenessConfig(models.Model):
     """Represents an exclusiveness config for a contest.
 
@@ -56,21 +46,19 @@ class ExclusivenessConfig(models.Model):
 
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
-    start_date = models.DateTimeField(
-        default=timezone.now, verbose_name=_("start date")
-    )
+    start_date = models.DateTimeField(default=timezone.now, verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("end date"))
 
     objects = ExclusivenessConfigManager()
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("exclusiveness config")
         verbose_name_plural = _("exclusiveness configs")
 
     def __str__(self):
-        return u'%s (%s): %s - %s' % (
+        return "%s (%s): %s - %s" % (
             self.contest,
-            u'enabled' if self.enabled else u'disabled',
+            "enabled" if self.enabled else "disabled",
             self.start_date,
             self.end_date,
         )

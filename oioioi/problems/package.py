@@ -1,8 +1,8 @@
-""" This module contains a problem package backend interface. You should
-    create a ``package.py`` file in your new app and implement your package
-    backend (inheriting from
-    :class:`~oioioi.problems.package.ProblemPackageBackend`)
-    whenever you introduce a new problem package format.
+"""This module contains a problem package backend interface. You should
+create a ``package.py`` file in your new app and implement your package
+backend (inheriting from
+:class:`~oioioi.problems.package.ProblemPackageBackend`)
+whenever you introduce a new problem package format.
 """
 
 import logging
@@ -11,6 +11,7 @@ import sys
 from django.conf import settings
 from django.core.files import File
 from django.utils.module_loading import import_string
+
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.problems.models import Problem, ProblemPackage
 
@@ -28,7 +29,7 @@ class PackageProcessingError(ProblemPackageError):
         super(PackageProcessingError, self).__init__()
         self.original_exception_info = sys.exc_info()
         self.raiser = func_name
-        self.raiser_desc = ' '.join(func_doc.split())
+        self.raiser_desc = " ".join(func_doc.split())
 
 
 class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
@@ -39,9 +40,9 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
     :class:`~oioioi.problems.models.Problem` instances.
     """
 
-    description = '__human_readable_name_here__'
+    description = "__human_readable_name_here__"
     abstract = True
-    modules_with_subclasses = 'package'
+    modules_with_subclasses = "package"
 
     def identify(self, path, original_filename=None):
         """Checks if the backend is suitable for processing the specified
@@ -103,19 +104,19 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
         """
         problem = None
         pp = ProblemPackage(problem=existing_problem)
-        pp.package_file.save(filename, File(open(filename, 'rb')))
+        pp.package_file.save(filename, File(open(filename, "rb")))
         env = {}
         if existing_problem:
             if existing_problem.author:
-                env['author'] = existing_problem.author.username
+                env["author"] = existing_problem.author.username
             pp.problem_name = existing_problem.short_name
         else:
             pp.problem_name = self.get_short_name(filename)
         pp.save()
-        env['package_id'] = pp.id
+        env["package_id"] = pp.id
         with pp.save_operation_status():
             self.unpack(env)
-            problem = Problem.objects.get(id=env['problem_id'])
+            problem = Problem.objects.get(id=env["problem_id"])
             pp.problem = problem
             pp.save()
         return problem
@@ -150,5 +151,5 @@ def backend_for_package(filename, original_filename=None):
                 return backend_name
         # pylint: disable=broad-except
         except Exception:
-            logger.warning('Backend %s probe failed', backend_name, exc_info=True)
-    raise NoBackend('Problem pack format not recognized')
+            logger.warning("Backend %s probe failed", backend_name, exc_info=True)
+    raise NoBackend("Problem pack format not recognized")

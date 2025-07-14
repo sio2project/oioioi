@@ -9,9 +9,7 @@ from oioioi.contests.models import Contest, Submission
 
 
 class Disqualification(models.Model):
-    contest = models.ForeignKey(
-        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
-    )
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
     user = models.ForeignKey(User, verbose_name=_("user"), on_delete=models.CASCADE)
     # Leave submission empty to make contest-wide disqualification
     submission = models.ForeignKey(
@@ -29,7 +27,7 @@ class Disqualification(models.Model):
     content = models.TextField(verbose_name=_("content"))
     guilty = models.BooleanField(default=True)
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("disqualification")
         verbose_name_plural = _("disqualifications")
 
@@ -46,16 +44,10 @@ class Disqualification(models.Model):
 
 
 class DisqualificationsConfig(models.Model):
-    contest = models.OneToOneField(
-        Contest, related_name='disqualifications_config', on_delete=models.CASCADE
-    )
+    contest = models.OneToOneField(Contest, related_name="disqualifications_config", on_delete=models.CASCADE)
 
-    info = models.TextField(
-        verbose_name=_(
-            "information displayed on dashboard for every disqualified participant"
-        )
-    )
+    info = models.TextField(verbose_name=_("information displayed on dashboard for every disqualified participant"))
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("diqualifications configuration")
         verbose_name_plural = _("disqualifications configurations")

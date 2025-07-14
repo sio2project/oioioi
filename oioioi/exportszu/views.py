@@ -15,14 +15,12 @@ from oioioi.exportszu.utils import (
 
 @enforce_condition(contest_exists & is_contest_admin)
 def export_submissions_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ExportSubmissionsForm(request, request.POST)
         if form.is_valid():
-            round = form.cleaned_data['round']
-            only_final = form.cleaned_data['only_final']
-            collector = SubmissionsWithUserDataCollector(
-                request.contest, round=round, only_final=only_final
-            )
+            round = form.cleaned_data["round"]
+            only_final = form.cleaned_data["only_final"]
+            collector = SubmissionsWithUserDataCollector(request.contest, round=round, only_final=only_final)
             # TemporaryFile promises removal of the file when it is closed.
             # Note that we cannot use with, because we want to keep it beyond
             # this function call.
@@ -33,13 +31,9 @@ def export_submissions_view(request):
             # delete this file and from where.
             tmp_file.seek(0, os.SEEK_SET)  # go to the beginning of the file
             response = FileResponse(tmp_file)
-            response['Content-Type'] = 'application/gzip'
-            response['Content-Disposition'] = (
-                'attachment; filename="%s.tgz"' % request.contest.id
-            )
+            response["Content-Type"] = "application/gzip"
+            response["Content-Disposition"] = 'attachment; filename="%s.tgz"' % request.contest.id
             return response
     else:
         form = ExportSubmissionsForm(request)
-    return TemplateResponse(
-        request, 'exportszu/export_submissions.html', {'form': form}
-    )
+    return TemplateResponse(request, "exportszu/export_submissions.html", {"form": form})

@@ -3,13 +3,13 @@ from django.urls import path
 from oioioi.dashboard import views
 from oioioi.dashboard.contest_dashboard import contest_dashboard_view
 
-app_name = 'dashboard'
+app_name = "dashboard"
 
 contest_patterns = [
     path(
-        'dashboard-message/',
+        "dashboard-message/",
         views.dashboard_message_edit_view,
-        name='dashboard_message_edit',
+        name="dashboard_message_edit",
     ),
-    path('dashboard/', contest_dashboard_view, name='contest_dashboard'),
+    path("dashboard/", contest_dashboard_view, name="contest_dashboard"),
 ]

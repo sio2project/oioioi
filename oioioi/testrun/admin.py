@@ -11,7 +11,7 @@ class TestRunConfigInline(admin.TabularInline):
     form = AlwaysChangedModelForm
 
 
-class TestRunAdminMixin(object):
+class TestRunAdminMixin:
     """Adds `TestRunConfigForInstance` to an admin panel."""
 
     def __init__(self, *args, **kwargs):

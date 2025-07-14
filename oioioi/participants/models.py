@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -10,20 +9,19 @@ from oioioi.base.utils.validators import validate_db_string_id
 from oioioi.contests.models import Contest
 from oioioi.participants.fields import OneToOneBothHandsCascadingParticipantField
 
-check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
+check_django_app_dependencies(__name__, ["oioioi.contestexcl"])
 
 
 participant_statuses = EnumRegistry()
-participant_statuses.register('ACTIVE', _("Active"))
-participant_statuses.register('BANNED', _("Banned"))
-participant_statuses.register('DELETED', _("Account deleted"))
-
+participant_statuses.register("ACTIVE", _("Active"))
+participant_statuses.register("BANNED", _("Banned"))
+participant_statuses.register("DELETED", _("Account deleted"))
 
 
 class Participant(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    status = EnumField(participant_statuses, default='ACTIVE')
+    status = EnumField(participant_statuses, default="ACTIVE")
     anonymous = models.BooleanField(default=False)
 
     @property
@@ -39,8 +37,8 @@ class Participant(models.Model):
         except model_class.DoesNotExist:
             raise ObjectDoesNotExist
 
-    class Meta(object):
-        unique_together = ('contest', 'user')
+    class Meta:
+        unique_together = ("contest", "user")
 
     def __str__(self):
         return str(self.user)
@@ -57,18 +55,15 @@ class Participant(models.Model):
         except ObjectDoesNotExist:
             pass
 
-        self.status = 'DELETED'
+        self.status = "DELETED"
         self.anonymous = True
         self.save()
-
 
 
 class Region(models.Model):
     short_name = models.CharField(max_length=10, validators=[validate_db_string_id])
     name = models.CharField(max_length=255)
-    contest = models.ForeignKey(
-        Contest, related_name='regions', on_delete=models.CASCADE
-    )
+    contest = models.ForeignKey(Contest, related_name="regions", on_delete=models.CASCADE)
     region_server = models.CharField(
         max_length=255,
         null=True,
@@ -77,19 +72,17 @@ class Region(models.Model):
         help_text=_("IP address or hostname of the regional server"),
     )
 
-    class Meta(object):
-        unique_together = ('contest', 'short_name')
+    class Meta:
+        unique_together = ("contest", "short_name")
 
     def __str__(self):
-        return u'%s' % (self.short_name,)
+        return "%s" % (self.short_name,)
 
 
 class RegistrationModel(models.Model):
-    participant = OneToOneBothHandsCascadingParticipantField(
-        Participant, related_name='%(app_label)s_%(class)s', on_delete=models.CASCADE
-    )
+    participant = OneToOneBothHandsCascadingParticipantField(Participant, related_name="%(app_label)s_%(class)s", on_delete=models.CASCADE)
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
     def erase_data(self):
@@ -99,18 +92,13 @@ class RegistrationModel(models.Model):
 class OpenRegistration(RegistrationModel):
     terms_accepted = models.BooleanField(
         _("terms accepted"),
-        help_text=_(
-            "I declare that I have read the contest rules and "
-            "the technical arrangements. I fully understand them and "
-            "accept them unconditionally."
-        ),
+        help_text=_("I declare that I have read the contest rules and the technical arrangements. I fully understand them and accept them unconditionally."),
         default=False,
     )
 
     def erase_data(self):
         self.terms_accepted = False
         self.save()
-
 
 
 class OnsiteRegistration(RegistrationModel):
@@ -124,14 +112,14 @@ class OnsiteRegistration(RegistrationModel):
     )
     local_number = models.IntegerField(verbose_name=_("local number"))
 
-    class Meta(object):
-        unique_together = ('region', 'local_number')
+    class Meta:
+        unique_together = ("region", "local_number")
 
     def __str__(self):
         return _("%(number)s/%(region)s/%(local_number)s") % {
-            'number': self.number,
-            'region': self.region,
-            'local_number': self.local_number,
+            "number": self.number,
+            "region": self.region,
+            "local_number": self.local_number,
         }
 
     def erase_data(self):
@@ -154,13 +142,11 @@ class TermsAcceptedPhrase(models.Model):
     """
 
     text = models.TextField(_("text"), null=True, max_length=500)
-    contest = models.OneToOneField(
-        Contest, related_name='terms_accepted_phrase', on_delete=models.CASCADE
-    )
+    contest = models.OneToOneField(Contest, related_name="terms_accepted_phrase", on_delete=models.CASCADE)
 
     # Verbose names in Meta could be a little misleading.
     # This is because they are not 100% accurate, but look nice in admin view.
-    class Meta(object):
+    class Meta:
         # In StackedInline verbose_name_plural is used as a header of inline.
         verbose_name_plural = _("text asking participant to accept contest terms")
         verbose_name = _("text asking participant to accept contest terms")
@@ -169,4 +155,4 @@ class TermsAcceptedPhrase(models.Model):
     # We are using it to display only one object of type TermsAcceptedPhrase so
     # it is not necessary to name it.
     def __str__(self):
-        return u""
+        return ""

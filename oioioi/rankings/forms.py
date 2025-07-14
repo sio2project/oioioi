@@ -12,13 +12,11 @@ class FilterUsersInRankingForm(forms.Form):
 
     def __init__(self, request, *args, **kwargs):
         super(FilterUsersInRankingForm, self).__init__(*args, **kwargs)
-        self.fields['user'].hints_url = reverse(
-            'get_users_in_ranking', kwargs={'contest_id': request.contest.id}
-        )
-        self.fields['user'].widget.attrs['placeholder'] = _("Search for user...")
+        self.fields["user"].hints_url = reverse("get_users_in_ranking", kwargs={"contest_id": request.contest.id})
+        self.fields["user"].widget.attrs["placeholder"] = _("Search for user...")
 
 
 class RankingMessageForm(PublicMessageForm):
-    class Meta(object):
+    class Meta:
         model = RankingMessage
-        fields = ['content']
+        fields = ["content"]

@@ -1,15 +1,14 @@
 from dateutil.parser import parse as parse_date
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseNotAllowed
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from django.utils import translation
 
 from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.utils.middleware import was_response_generated_by_exception
@@ -17,7 +16,7 @@ from oioioi.base.utils.user import has_valid_name, has_valid_username
 from oioioi.su.utils import is_under_su
 
 
-class TimestampingMiddleware(object):
+class TimestampingMiddleware:
     """Middleware which adds an attribute ``timestamp`` to each ``request``
     object, representing the request time as :class:`datetime.datetime`
     instance.
@@ -35,13 +34,13 @@ class TimestampingMiddleware(object):
         return self.get_response(request)
 
     def _process_request(self, request):
-        if 'admin_time' in request.session:
-            request.timestamp = parse_date(request.session['admin_time'])
+        if "admin_time" in request.session:
+            request.timestamp = parse_date(request.session["admin_time"])
         else:
             request.timestamp = timezone.now()
 
 
-class HttpResponseNotAllowedMiddleware(object):
+class HttpResponseNotAllowedMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -52,13 +51,11 @@ class HttpResponseNotAllowedMiddleware(object):
 
     def _process_response(self, request, response):
         if isinstance(response, HttpResponseNotAllowed):
-            response.content = render_to_string(
-                "405.html", request=request, context={'allowed': response['Allow']}
-            )
+            response.content = render_to_string("405.html", request=request, context={"allowed": response["Allow"]})
         return response
 
 
-class AnnotateUserBackendMiddleware(object):
+class AnnotateUserBackendMiddleware:
     """Middleware annotating user object with path of authentication
     backend.
     """
@@ -74,7 +71,7 @@ class AnnotateUserBackendMiddleware(object):
     def _process_request(self, request):
         # Newly authenticated user objects are annotated with succeeded
         # backend, but it's not restored in AuthenticationMiddleware.
-        if not hasattr(request, 'user'):
+        if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The annotating user with backend middleware requires the"
                 " authentication middleware to be installed.  Edit your"
@@ -88,7 +85,7 @@ class AnnotateUserBackendMiddleware(object):
             request.user.backend = request.session[BACKEND_SESSION_KEY]
 
 
-class UserInfoInErrorMessage(object):
+class UserInfoInErrorMessage:
     """Add username and email of a user who caused an exception
     to error message."""
 
@@ -106,27 +103,27 @@ class UserInfoInErrorMessage(object):
     def process_exception(self, request, exception):
         # pylint: disable=broad-except
         try:
-            if not hasattr(request, 'user'):
+            if not hasattr(request, "user"):
                 return
 
             # This is because is_authenticated is a CallableBool not bool until Django 2.0,
             # so its str is not True/False as expected.
-            request.META['IS_AUTHENTICATED'] = str(bool(request.user.is_authenticated))
-            request.META['IS_UNDER_SU'] = str(is_under_su(request))
+            request.META["IS_AUTHENTICATED"] = str(bool(request.user.is_authenticated))
+            request.META["IS_UNDER_SU"] = str(is_under_su(request))
 
             if request.user.is_authenticated:
-                request.META['USERNAME'] = str(request.user.username)
-                request.META['USER_EMAIL'] = str(request.user.email)
+                request.META["USERNAME"] = str(request.user.username)
+                request.META["USER_EMAIL"] = str(request.user.email)
 
             if is_under_su(request):
-                request.META['REAL_USERNAME'] = str(request.real_user.username)
-                request.META['REAL_USER_EMAIL'] = str(request.real_user.email)
+                request.META["REAL_USERNAME"] = str(request.real_user.username)
+                request.META["REAL_USER_EMAIL"] = str(request.real_user.email)
 
         except Exception:
             pass
 
 
-class UsernameHeaderMiddleware(object):
+class UsernameHeaderMiddleware:
     """Middleware used for reporting username in response header,
     so that nginx can log it in access log."""
 
@@ -139,11 +136,9 @@ class UsernameHeaderMiddleware(object):
         return self._process_response(request, response)
 
     def _process_response(self, request, response):
-        if not hasattr(request, 'user'):
+        if not hasattr(request, "user"):
             raise ImproperlyConfigured(
-                "The UsernameHeaderMiddleware requires the"
-                " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
-                " earlier in MIDDLEWARE."
+                "The UsernameHeaderMiddleware requires the 'django.contrib.auth.middleware.AuthenticationMiddleware' earlier in MIDDLEWARE."
             )
 
         username = "-"
@@ -153,12 +148,12 @@ class UsernameHeaderMiddleware(object):
         if is_under_su(request):
             username = f"{request.real_user.username}/{username}"
 
-        response['X-Username'] = username
+        response["X-Username"] = username
 
         return response
 
 
-class CheckLoginMiddleware(object):
+class CheckLoginMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -173,18 +168,14 @@ class CheckLoginMiddleware(object):
             return
 
         storage = messages.get_messages(request)
-        check_login_message = _(
-            "Your login - %(login)s - contains forbidden characters. "
-        ) % {'login': request.user.username}
+        check_login_message = _("Your login - %(login)s - contains forbidden characters. ") % {"login": request.user.username}
 
-        check_name_message = _(
-            "Your name - %(name)s %(surname)s - contains forbidden characters. "
-        ) % {'name': request.user.first_name, 'surname': request.user.last_name}
+        check_name_message = _("Your name - %(name)s %(surname)s - contains forbidden characters. ") % {
+            "name": request.user.first_name,
+            "surname": request.user.last_name,
+        }
 
-        message_appendix = _(
-            "Please click <a href='%(link)s'>here</a> to change it. "
-            "It will take only a while."
-        ) % {'link': reverse('edit_profile')}
+        message_appendix = _("Please click <a href='%(link)s'>here</a> to change it. It will take only a while.") % {"link": reverse("edit_profile")}
 
         final_message = ""
         if not valid_username:
@@ -202,7 +193,7 @@ class CheckLoginMiddleware(object):
         messages.add_message(request, messages.INFO, mark_safe(final_message))
 
 
-class UserPreferencesMiddleware(object):
+class UserPreferencesMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.lang = settings.LANGUAGE_CODE
@@ -217,8 +208,7 @@ class UserPreferencesMiddleware(object):
 
     def _process_request(self, request):
         # checking data set by set_first_view_after_logging_flag signal handler:
-        just_logged_in = ('first_view_after_logging' in request.session) and \
-                            request.session['first_view_after_logging'] is True
+        just_logged_in = ("first_view_after_logging" in request.session) and request.session["first_view_after_logging"] is True
 
         ensure_preferences_exist_for_user(request.user)
 
@@ -228,8 +218,7 @@ class UserPreferencesMiddleware(object):
         if just_logged_in and pref_lang != "":
             self.lang = pref_lang
 
-        if ((not just_logged_in) or pref_lang == "") and \
-           settings.LANGUAGE_COOKIE_NAME in request.COOKIES.keys():
+        if ((not just_logged_in) or pref_lang == "") and settings.LANGUAGE_COOKIE_NAME in request.COOKIES.keys():
             self.lang = request.COOKIES[settings.LANGUAGE_COOKIE_NAME]
 
         translation.activate(self.lang)
@@ -237,8 +226,7 @@ class UserPreferencesMiddleware(object):
 
     def _process_response(self, request, response):
         if settings.LANGUAGE_COOKIE_NAME in request.COOKIES:
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME,
-                                request.COOKIES[settings.LANGUAGE_COOKIE_NAME], samesite='lax')
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, request.COOKIES[settings.LANGUAGE_COOKIE_NAME], samesite="lax")
         else:
-            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, self.lang, samesite='lax')
+            response.set_cookie(settings.LANGUAGE_COOKIE_NAME, self.lang, samesite="lax")
         return response

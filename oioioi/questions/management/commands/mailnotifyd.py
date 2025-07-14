@@ -20,15 +20,15 @@ def generate_notification(msg, user, mail):
     show_original = msg.top_reference and allowed_to_see(msg.top_reference, user)
     link_m_id = msg.top_reference.id if show_original else msg.id
     context = {
-        'msg': msg,
-        'show_original': show_original,
-        'link_m_id': link_m_id,
-        'root': settings.PUBLIC_ROOT_URL,
+        "msg": msg,
+        "show_original": show_original,
+        "link_m_id": link_m_id,
+        "root": settings.PUBLIC_ROOT_URL,
     }
 
-    subject = render_to_string('questions/reply_notification_subject.txt', context)
-    subject = ' '.join(subject.strip().splitlines())
-    body = render_to_string('questions/reply_notification_body.txt', context)
+    subject = render_to_string("questions/reply_notification_subject.txt", context)
+    subject = " ".join(subject.strip().splitlines())
+    body = render_to_string("questions/reply_notification_body.txt", context)
 
     return EmailMessage(subject=subject, body=body, to=[mail])
 
@@ -45,15 +45,15 @@ def mailnotify(instance):
 
     subscriptions = QuestionSubscription.objects.filter(contest=instance.contest)
 
-    if instance.kind == 'PUBLIC':
+    if instance.kind == "PUBLIC":
         # There may be users without an e-mail, filter them out
         mails = [(sub.user, sub.user.email) for sub in subscriptions if sub.user.email]
 
         # if there are any users with e-mails
-        for (user, mail) in mails:
+        for user, mail in mails:
             try_sending(instance, user, mail)
 
-    elif instance.kind == 'PRIVATE':
+    elif instance.kind == "PRIVATE":
         author = instance.top_reference.author
         subscriptions = subscriptions.filter(user=author)
         if subscriptions and author.email:
@@ -72,9 +72,7 @@ def try_sending(msg, user, mail):
         # For some reason some message from the past is not
         # visible for a user. We omit this, but make sure to
         # mark this in the logs.
-        logmsg = (
-            "Omitting message {} to {}, since they are not allowed to see it"
-        ).format(msg, user)
+        logmsg = f"Omitting message {msg} to {user}, since they are not allowed to see it"
         logger.info(logmsg)
 
 
@@ -84,7 +82,7 @@ def allowed_to_see(msg, user):
 
 
 def fake_request(user, contest):
-    request = RequestFactory().get('/', data={'name': u'test'})
+    request = RequestFactory().get("/", data={"name": "test"})
     request.user = user
     request.contest = contest
     request.timestamp = timezone.now()
@@ -92,9 +90,7 @@ def fake_request(user, contest):
 
 
 def candidate_messages(timestamp):
-    return Message.objects.filter(mail_sent=False).filter(
-        Q(pub_date__lte=timestamp) | Q(pub_date=None)
-    )
+    return Message.objects.filter(mail_sent=False).filter(Q(pub_date__lte=timestamp) | Q(pub_date=None))
 
 
 class Command(BaseCommand):

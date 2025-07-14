@@ -4,4 +4,4 @@ def register_contest_exclusive(request):
 
     It is added to the template context as a ``contest_exclusive`` variable.
     """
-    return {'contest_exclusive': getattr(request, 'contest_exclusive', False)}
+    return {"contest_exclusive": getattr(request, "contest_exclusive", False)}

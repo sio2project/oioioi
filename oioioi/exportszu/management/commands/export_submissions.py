@@ -1,5 +1,3 @@
-# ~*~ encoding: utf-8 ~*~
-
 from django.core.management.base import BaseCommand, CommandError
 
 from oioioi.contests.models import Contest, Round
@@ -14,27 +12,27 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-r',
-            '--round',
-            action='store',
+            "-r",
+            "--round",
+            action="store",
             type=int,
-            dest='round_id',
+            dest="round_id",
             help="Export only from this round",
         )
         parser.add_argument(
-            '-a',
-            '--all',
-            action='store_true',
-            dest='all',
+            "-a",
+            "--all",
+            action="store_true",
+            dest="all",
             help="Export all scored submissions, not only final.",
         )
-        parser.add_argument('contest_id', type=str, help="Contest to export from")
-        parser.add_argument('out_file', type=str, help="File path to export to")
+        parser.add_argument("contest_id", type=str, help="Contest to export from")
+        parser.add_argument("out_file", type=str, help="File path to export to")
 
     def handle(self, *args, **options):
-        contest = Contest.objects.get(id=options['contest_id'])
+        contest = Contest.objects.get(id=options["contest_id"])
 
-        round_id = options.get('round_id')
+        round_id = options.get("round_id")
         if round_id:
             round = Round.objects.get(id=round_id)
             if round.contest != contest:
@@ -42,8 +40,6 @@ class Command(BaseCommand):
         else:
             round = None
 
-        collector = SubmissionsWithUserDataCollector(
-            contest, round=round, only_final=not options.get('all')
-        )
-        with open(options['out_file'], 'wb') as f:
+        collector = SubmissionsWithUserDataCollector(contest, round=round, only_final=not options.get("all"))
+        with open(options["out_file"], "wb") as f:
             build_submissions_archive(f, collector)

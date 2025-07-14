@@ -64,13 +64,13 @@ def multival_lookup(d, key):
     return d.getlist(key)
 
 
-@register.filter(name='indent')
+@register.filter(name="indent")
 def indent_string(value, num_spaces=4):
     """
     Adds ``num_spaces`` spaces at the
     beginning of every line in value.
     """
-    return ' ' * num_spaces + value.replace('\n', '\n' + ' ' * num_spaces)
+    return " " * num_spaces + value.replace("\n", "\n" + " " * num_spaces)
 
 
 def _append_attr(field, attribute, value):
@@ -103,7 +103,7 @@ def _append_attr(field, attribute, value):
     return field
 
 
-@register.filter(name='add_class')
+@register.filter(name="add_class")
 def add_class(field, css_class):
     """
     Adds css class to a django form field
@@ -185,8 +185,7 @@ def partition(thelist, n):
     num_longer = len(thelist) - p * n
 
     return [thelist[((p + 1) * i) : ((p + 1) * (i + 1))] for i in range(num_longer)] + [
-        thelist[(p * i + num_longer) : (p * (i + 1) + num_longer)]
-        for i in range(num_longer, n)
+        thelist[(p * i + num_longer) : (p * (i + 1) + num_longer)] for i in range(num_longer, n)
     ]
 
 
@@ -195,9 +194,9 @@ def cyclic_lookup(thelist, index):
     return thelist[index % len(thelist)]
 
 
-@register.filter(name='zip')
+@register.filter(name="zip")
 def zip_lists(a, b):
-    return list(zip(a, b))
+    return list(zip(a, b, strict=False))
 
 
 @register.filter
@@ -220,7 +219,7 @@ def json_parse(value):
     """
     This is a correct way of embedding json inside js in an HTML template.
     """
-    return mark_safe('JSON.parse(\'%s\')' % escapejs(json.dumps(value)))
+    return mark_safe("JSON.parse('%s')" % escapejs(json.dumps(value)))
 
 
 @register.filter
@@ -237,23 +236,23 @@ def latex_escape(x):
     """
     res = str(x)
     # Braces + backslashes
-    res = res.replace('\\', '\\textbackslash\\q{}')
-    res = res.replace('{', '\\{')
-    res = res.replace('}', '\\}')
-    res = res.replace('\\q\\{\\}', '\\q{}')
+    res = res.replace("\\", "\\textbackslash\\q{}")
+    res = res.replace("{", "\\{")
+    res = res.replace("}", "\\}")
+    res = res.replace("\\q\\{\\}", "\\q{}")
     # then everything followed by empty space
     repls = [
-        ('#', '\\#'),
-        ('$', '\\$'),
-        ('%', '\\%'),
-        ('_', '\\_'),
-        ('<', '\\textless{}'),
-        ('>', '\\textgreater{}'),
-        ('&', '\\ampersand{}'),
-        ('~', '\\textasciitilde{}'),
-        ('^', '\\textasciicircum{}'),
-        ('"', '\\doublequote{}'),
-        ('\'', '\\singlequote{}'),
+        ("#", "\\#"),
+        ("$", "\\$"),
+        ("%", "\\%"),
+        ("_", "\\_"),
+        ("<", "\\textless{}"),
+        (">", "\\textgreater{}"),
+        ("&", "\\ampersand{}"),
+        ("~", "\\textasciitilde{}"),
+        ("^", "\\textasciicircum{}"),
+        ('"', "\\doublequote{}"),
+        ("'", "\\singlequote{}"),
     ]
 
     for key, value in repls:
@@ -263,10 +262,10 @@ def latex_escape(x):
 
 @register.filter
 def result_color_class(raw_score):
-    if raw_score in [None, '']:
-        return ''
+    if raw_score in [None, ""]:
+        return ""
 
-    if callable(getattr(raw_score, 'to_int', None)):
+    if callable(getattr(raw_score, "to_int", None)):
         score = raw_score.to_int()
     else:
         score = int(raw_score)
@@ -280,10 +279,10 @@ def result_color_class(raw_score):
     else:
         # There should be a method to get maximum points for
         # contest, for now, support just above cases.
-        return ''
+        return ""
 
     if score == 0:
-        return 'submission--WA'
+        return "submission--WA"
 
     score_color_threshold = 25
     buckets_count = 4
@@ -292,4 +291,4 @@ def result_color_class(raw_score):
     # Round down to multiple of $score_color_threshold.
     bucket = int(score / points_per_bucket) * score_color_threshold
 
-    return 'submission--OK{}'.format(bucket)
+    return f"submission--OK{bucket}"

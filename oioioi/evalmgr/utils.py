@@ -14,18 +14,16 @@ def mark_job_state(environ, state, **kwargs):
     set, and the job should be continued, False when it ought to be
     ignored.
     """
-    if 'submission_id' in environ:
-        submission = Submission.objects.filter(id=environ['submission_id'])
+    if "submission_id" in environ:
+        submission = Submission.objects.filter(id=environ["submission_id"])
         if submission.exists():
-            kwargs['submission'] = submission.get()
-    kwargs['state'] = state
-    qj, created = QueuedJob.objects.get_or_create(
-        job_id=environ['job_id'], defaults=kwargs
-    )
+            kwargs["submission"] = submission.get()
+    kwargs["state"] = state
+    qj, created = QueuedJob.objects.get_or_create(job_id=environ["job_id"], defaults=kwargs)
     if not created:
-        if qj.state == 'CANCELLED':
+        if qj.state == "CANCELLED":
             qj.delete()
-            logger.info('Job %s cancelled.', str(environ['job_id']))
+            logger.info("Job %s cancelled.", str(environ["job_id"]))
             return False
         else:
             for k, v in kwargs.items():

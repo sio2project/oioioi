@@ -5,10 +5,7 @@ from oioioi.rankings.models import Ranking
 
 
 class Command(BaseCommand):
-    help = _(
-        "Mark all rankings as one's needing recalculation."
-        "In combination with rankingsd will eventually recalculate all rankings."
-    )
+    help = _("Mark all rankings as one's needing recalculation.In combination with rankingsd will eventually recalculate all rankings.")
 
     def handle(self, *args, **options):
         Ranking.invalidate_queryset(Ranking.objects.all())

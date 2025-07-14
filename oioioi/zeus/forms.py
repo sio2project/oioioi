@@ -10,9 +10,9 @@ class ZeusProblemForm(PackageUploadForm):
 
     def __init__(self, zeus_instances, contest, *args, **kwargs):
         super(ZeusProblemForm, self).__init__(contest, *args, **kwargs)
-        zeus_id_field = self.fields['zeus_id']
+        zeus_id_field = self.fields["zeus_id"]
 
         if len(zeus_instances) > 1:
-            zeus_id_field.choices = [('', '')] + zeus_instances
+            zeus_id_field.choices = [("", "")] + zeus_instances
         else:
             zeus_id_field.choices = zeus_instances

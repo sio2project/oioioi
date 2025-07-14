@@ -17,7 +17,4 @@ def current_node_is_root(request):
 
 @make_request_condition
 def main_page_from_default_global_portal(request):
-    return (
-        settings.DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE
-        and Portal.objects.filter(owner=None, link_name='default').exists()
-    )
+    return settings.DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE and Portal.objects.filter(owner=None, link_name="default").exists()

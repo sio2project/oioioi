@@ -10,27 +10,27 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-i',
-            '--install',
-            action='store_true',
+            "-i",
+            "--install",
+            action="store_true",
             help="install dependencies required by the server",
         )
 
     def handle(self, *args, **options):
-        path = os.path.join(os.path.dirname(__file__), '..', '..', 'server')
+        path = os.path.join(os.path.dirname(__file__), "..", "..", "server")
         os.chdir(path)
-        if options['install']:
-            os.execlp('env', 'env', 'npm', 'install')
+        if options["install"]:
+            os.execlp("env", "env", "npm", "install")
         else:
             os.execlp(
-                'env',
-                'env',
-                'node',
-                'ns-main.js',
-                '--port',
+                "env",
+                "env",
+                "node",
+                "ns-main.js",
+                "--port",
                 settings.NOTIFICATIONS_SERVER_PORT.__str__(),
-                '--url',
+                "--url",
                 settings.NOTIFICATIONS_OIOIOI_URL,
-                '--amqp',
+                "--amqp",
                 settings.NOTIFICATIONS_RABBITMQ_URL,
             )
