@@ -1,5 +1,5 @@
 [tool.ruff]
-line-length = 120
+line-length = 150
 lint.select = [
     "E", # pycodestyle errors
     "W", # pycodestyle warnings
