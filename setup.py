@@ -78,7 +78,7 @@ requirements = [
     "cffi==1.16.0",
     "django-appconf==1.0.6",
     "django-phonenumber-field==6.4.0",
-    "cryptography==42.0.7",
+    "cryptography==44.0.1",
     "charset-normalizer==3.3.2",
     "click==8.1.7",
     "certifi==2024.7.4",
