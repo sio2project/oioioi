@@ -347,7 +347,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         # directory in which necessary files will be stored.
         #FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
-        # When using a remote storage it's recommended to enable a cache cleaner deamon
+        # When using a remote storage it's recommended to enable a cache cleaner daemon
         # which will periodically scan cache directory and remove files what aren't
         # used. For a detailed description of each option, please read a cache cleaner
         # configuration section in the sioworkersd documentation.
@@ -439,7 +439,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
         -# Filetracker server settings.
         -#
-        -# Determines which filetracker database use, availible options are:
+        -# Determines which filetracker database use, available options are:
         -# - 'oioioi.filetracker.client.media_root_factory' (the default)
         -#    Stores files on local filesystem under MEDIA_ROOT, optionally
         -#    exposing them with a filetracker server (see section below).
@@ -588,7 +588,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
         #    'oioioi.usergroups',
 
-#. * Introduced `DEFAULT_COMPILERS` to settings, which should be set for every language supoorted::
+#. * Introduced `DEFAULT_COMPILERS` to settings, which should be set for every language supported::
 
         --- a/oioioi/default_settings.py
         +++ b/oioioi/default_settings.py
@@ -896,7 +896,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# The server to be run. Options are:
         +# 'django' - django's http server
         +# 'uwsgi' - uwsgi daemon
-        +# 'uwsgi-http' - uwsgi deamon with built-in http server
+        +# 'uwsgi-http' - uwsgi daemon with built-in http server
         +# None - nothing will be run
         +SERVER = 'django'
 
