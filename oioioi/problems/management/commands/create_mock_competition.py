@@ -323,7 +323,7 @@ WORDS = [
 ]
 
 
-# Helper command, which finds the the smallest natural number n, such that
+# Helper command, which finds the smallest natural number n, such that
 # no object from the model model_class has a field equal to [base_value]n.
 # This function is to be used for finding anyname that isn't
 # used in the database yet.

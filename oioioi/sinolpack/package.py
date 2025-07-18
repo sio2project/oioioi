@@ -932,7 +932,7 @@ class SinolPackage:
 
     @_describe_processing_error
     def _get_time_limit(self, created, name, group):
-        """If we find the time limit specified anywhere in in the ``config.yml``
+        """If we find the time limit specified anywhere in the ``config.yml``
         then we overwrite potential manual changes.
 
         The time limit is more important the more specific it is.
