@@ -18,7 +18,7 @@ class AMPPZContestController(ACMContestController):
         "The lower the total time, the higher the rank.\n"
         "Compilation errors and system errors are not considered as an incorrect submission.\n"
         "The ranking is frozen 15 minutes before the end of the trial rounds and 60 minutes before the end of the normal rounds."
-        )
+    )
 
     def get_round_freeze_time(self, round):
         """Returns time after which any further updates should be non-public."""
@@ -41,7 +41,7 @@ class AMPPZContestController(ACMContestController):
         return is_contest_admin(request) or is_contest_observer(request)
 
     def default_contestlogo_url(self):
-        return '%samppz/images/logo-cropped.png' % settings.STATIC_URL
+        return "%samppz/images/logo-cropped.png" % settings.STATIC_URL
 
     def default_contesticons_urls(self):
-        return ['%samppz/images/menu-icon.png' % settings.STATIC_URL]
+        return ["%samppz/images/menu-icon.png" % settings.STATIC_URL]

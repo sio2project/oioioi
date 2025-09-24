@@ -17,35 +17,29 @@ class UserInfoLinkNode(Node):
         raise NotImplementedError
 
     def render(self, context):
-        is_admin = context.get('is_admin', False) or is_contest_basicadmin(
-            context['request']
-        )
-        personal_data = can_see_personal_data(context['request'])
+        is_admin = context.get("is_admin", False) or is_contest_basicadmin(context["request"])
+        personal_data = can_see_personal_data(context["request"])
         url = render_to_string(
-            'contests/user_info_link.html',
+            "contests/user_info_link.html",
             {
-                'ctx': context,
-                'target_user': self.target_user.resolve(context),
-                'target_name': self._get_user_name(
-                    context, self.target_user.resolve(context)
-                ),
-                'is_admin': is_admin,
-                'can_see_personal_data': personal_data,
+                "ctx": context,
+                "target_user": self.target_user.resolve(context),
+                "target_name": self._get_user_name(context, self.target_user.resolve(context)),
+                "is_admin": is_admin,
+                "can_see_personal_data": personal_data,
             },
         )
 
         if self.asvar:
             context[self.asvar] = url
-            return ''
+            return ""
         else:
             return url
 
 
 class PublicNameUserInfoLinkNode(UserInfoLinkNode):
     def _get_user_name(self, context, user):
-        return context['request'].contest.controller.get_user_public_name(
-            context['request'], user
-        )
+        return context["request"].contest.controller.get_user_public_name(context["request"], user)
 
 
 class FullNameUserInfoLinkNode(UserInfoLinkNode):
@@ -55,11 +49,8 @@ class FullNameUserInfoLinkNode(UserInfoLinkNode):
 
 def _get_name(parser, token, tag_name):
     bits = token.split_contents()
-    if (len(bits) != 4 or bits[2] != 'as') and (len(bits) != 2):
-        raise TemplateSyntaxError(
-            "The tag should look like this: "
-            "{%% %s <user_object>[ as <variable>] %%}" % tag_name
-        )
+    if (len(bits) != 4 or bits[2] != "as") and (len(bits) != 2):
+        raise TemplateSyntaxError("The tag should look like this: {%% %s <user_object>[ as <variable>] %%}" % tag_name)
     asvar = None
     if len(bits) == 4:
         asvar = bits[3]

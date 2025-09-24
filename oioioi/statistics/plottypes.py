@@ -1,7 +1,7 @@
 from django.template.loader import render_to_string
 
 
-class PlotType(object):
+class PlotType:
     def head_libraries(self):
         """Returns a list containing paths to all CSS and JS files required to
         plot data. The paths should be relative to static folder. The list
@@ -29,7 +29,7 @@ class PlainTextPlot(PlotType):
     """
 
     def render_plot(self, request, data, plot_id):
-        return data['text']
+        return data["text"]
 
 
 class TablePlot(PlotType):
@@ -42,7 +42,7 @@ class TablePlot(PlotType):
     """
 
     def render_plot(self, request, data, plot_id):
-        return render_to_string('statistics/table.html', data)
+        return render_to_string("statistics/table.html", data)
 
 
 class StaticHighchartsPlot(PlotType):
@@ -58,47 +58,47 @@ class StaticHighchartsPlot(PlotType):
     """
 
     def head_libraries(self):
-        return ['highcharts/lib/highcharts.js']
+        return ["highcharts/lib/highcharts.js"]
 
     def highcharts_options(self, data):
         """Function generating options for Highcharts chart, as specified in
         http://www.highcharts.com/docs/getting-started/how-to-set-options
         """
-        series = [{'name': n, 'data': d} for n, d in zip(data['series'], data['data'])]
-        if 'series_extra_options' in data:
-            for d, opts in zip(series, data['series_extra_options']):
+        series = [{"name": n, "data": d} for n, d in zip(data["series"], data["data"], strict=False)]
+        if "series_extra_options" in data:
+            for d, opts in zip(series, data["series_extra_options"], strict=False):
                 d.update(opts)
         options = {
-            'chart': {'type': None},
-            'title': {'text': data['plot_name']},
-            'xAxis': {},
-            'yAxis': {},
-            'legend': {'enabled': len(data['series']) > 1},
-            'plotOptions': {},
-            'series': series,
+            "chart": {"type": None},
+            "title": {"text": data["plot_name"]},
+            "xAxis": {},
+            "yAxis": {},
+            "legend": {"enabled": len(data["series"]) > 1},
+            "plotOptions": {},
+            "series": series,
         }
         # Setting axes bounds
-        for a in 'x', 'y':
-            for b in 'min', 'max':
-                key = '%s_%s' % (a, b)
+        for a in "x", "y":
+            for b in "min", "max":
+                key = "%s_%s" % (a, b)
                 if key in data:
-                    options['%sAxis' % a][b] = data[key]
+                    options["%sAxis" % a][b] = data[key]
         # Setting axes titles
-        if 'titles' in data:
-            for (key, title) in data['titles'].items():
-                options.setdefault(key, {}).update({'title': {'text': title}})
+        if "titles" in data:
+            for key, title in data["titles"].items():
+                options.setdefault(key, {}).update({"title": {"text": title}})
         return options
 
     def render_plot(self, request, data, plot_id):
         options = self.highcharts_options(data)
         # Setting extra options
-        if 'highcharts_extra_options' in data:
-            options.update(data['highcharts_extra_options'])
+        if "highcharts_extra_options" in data:
+            options.update(data["highcharts_extra_options"])
         return render_to_string(
-            'statistics/highcharts-plot.html',
+            "statistics/highcharts-plot.html",
             {
-                'plot_name_id': data['plot_name'].replace(' ', '') + str(plot_id),
-                'options': options,
+                "plot_name_id": data["plot_name"].replace(" ", "") + str(plot_id),
+                "options": options,
             },
         )
 
@@ -111,13 +111,13 @@ class ColumnStaticHighchartsPlot(StaticHighchartsPlot):
 
     def highcharts_options(self, data):
         options = super(ColumnStaticHighchartsPlot, self).highcharts_options(data)
-        options['chart']['type'] = 'column'
-        options['plotOptions']['column'] = {
-            'stacking': 'normal',
-            'pointPadding': 0.2,
-            'borderWidth': 0,
+        options["chart"]["type"] = "column"
+        options["plotOptions"]["column"] = {
+            "stacking": "normal",
+            "pointPadding": 0.2,
+            "borderWidth": 0,
         }
-        options['xAxis']['categories'] = data['keys']
+        options["xAxis"]["categories"] = data["keys"]
         return options
 
 
@@ -129,27 +129,27 @@ class BarPercentStaticHighchartsPlot(StaticHighchartsPlot):
 
     def highcharts_options(self, data):
         options = super(BarPercentStaticHighchartsPlot, self).highcharts_options(data)
-        options['chart']['type'] = 'bar'
-        options['chart']['height'] = 20 * len(data['keys']) + 120
-        options['plotOptions']['series'] = {
-            'stacking': 'percent',
-            'pointPadding': 0.2,
-            'pointWidth': 15,
-            'borderWidth': 0,
+        options["chart"]["type"] = "bar"
+        options["chart"]["height"] = 20 * len(data["keys"]) + 120
+        options["plotOptions"]["series"] = {
+            "stacking": "percent",
+            "pointPadding": 0.2,
+            "pointWidth": 15,
+            "borderWidth": 0,
         }
-        options['xAxis']['categories'] = data['keys']
+        options["xAxis"]["categories"] = data["keys"]
         return options
 
 
 class XYStaticHighchartsPlot(StaticHighchartsPlot):
     def highcharts_options(self, data):
         options = super(XYStaticHighchartsPlot, self).highcharts_options(data)
-        options['chart'].update({'type': 'scatter', 'zoomType': 'xy'})
-        options['yAxis'].update({'allowDecimals': False})
-        options['plotOptions']['scatter'] = {
-            'marker': {
-                'radius': 5,
-                'states': {'hover': {'enabled': True, 'lineColor': 'rgb(100,100,100)'}},
+        options["chart"].update({"type": "scatter", "zoomType": "xy"})
+        options["yAxis"].update({"allowDecimals": False})
+        options["plotOptions"]["scatter"] = {
+            "marker": {
+                "radius": 5,
+                "states": {"hover": {"enabled": True, "lineColor": "rgb(100,100,100)"}},
             }
         }
         return options
@@ -158,16 +158,16 @@ class XYStaticHighchartsPlot(StaticHighchartsPlot):
 class PointsToSourceLengthProblemPlot(XYStaticHighchartsPlot):
     def head_libraries(self):
         libs = super(PointsToSourceLengthProblemPlot, self).head_libraries()
-        libs += ['statistics/functions.js']
+        libs += ["statistics/functions.js"]
         return libs
 
     def highcharts_options(self, data):
         options = super(PointsToSourceLengthProblemPlot, self).highcharts_options(data)
 
-        options['plotOptions'].setdefault('series', {}).setdefault('point', {})
-        options['plotOptions']['series']['point']['events'] = {'click': 'onPointClick'}
+        options["plotOptions"].setdefault("series", {}).setdefault("point", {})
+        options["plotOptions"]["series"]["point"]["events"] = {"click": "onPointClick"}
 
-        options.setdefault('functions', {})
-        options['functions']['onPointClick'] = 'pointsToSourceLengthOnClick(this)'
+        options.setdefault("functions", {})
+        options["functions"]["onPointClick"] = "pointsToSourceLengthOnClick(this)"
 
         return options

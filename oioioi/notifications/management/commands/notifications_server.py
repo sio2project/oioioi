@@ -9,8 +9,7 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def handle(self, *args, **options):
-        server = Server(settings.NOTIFICATIONS_SERVER_PORT,
-                        settings.NOTIFICATIONS_RABBITMQ_URL, settings.NOTIFICATIONS_OIOIOI_URL)
+        server = Server(settings.NOTIFICATIONS_SERVER_PORT, settings.NOTIFICATIONS_RABBITMQ_URL, settings.NOTIFICATIONS_OIOIOI_URL)
         try:
             asyncio.run(server.run())
         except KeyboardInterrupt:

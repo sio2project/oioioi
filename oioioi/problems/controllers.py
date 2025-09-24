@@ -11,7 +11,9 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _, gettext_noop
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
+
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.models import (
     FailureReport,
@@ -44,7 +46,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     behave in a default way.
     """
 
-    modules_with_subclasses = ['controllers']
+    modules_with_subclasses = ["controllers"]
     abstract = True
 
     def __init__(self, problem):
@@ -64,20 +66,16 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         problem admins. In other cases it returns ``'NORMAL'``.
         """
         if can_admin_problem(request, problem_instance.problem):
-            return 'IGNORED'
-        return 'NORMAL'
+            return "IGNORED"
+        return "NORMAL"
 
-    def get_submissions_limit(self, request, problem_instance, kind='NORMAL', noadmin=False):
+    def get_submissions_limit(self, request, problem_instance, kind="NORMAL", noadmin=False):
         # in the future it should always return None as submissions limit
         # for main_problem_instance (without contest) makes no sense and
         # rest of logic should  be moved to contest controller
         problem = problem_instance.problem
 
-        if (
-            problem_instance.contest is None
-            or (can_admin_problem(request, problem) and not noadmin)
-            or kind == 'IGNORED'
-        ):
+        if problem_instance.contest is None or (can_admin_problem(request, problem) and not noadmin) or kind == "IGNORED":
             return None
         return problem_instance.submissions_limit
 
@@ -93,30 +91,22 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         return True
 
     def is_submissions_limit_exceeded(self, request, problem_instance, kind):
-        submissions_limit = problem_instance.controller.get_submissions_limit(
-            request, problem_instance, kind
-        )
+        submissions_limit = problem_instance.controller.get_submissions_limit(request, problem_instance, kind)
         if not submissions_limit:
             return False
 
-        submissions_number = Submission.objects.filter(
-            user=request.user, problem_instance__id=problem_instance.id, kind=kind
-        ).count()
+        submissions_number = Submission.objects.filter(user=request.user, problem_instance__id=problem_instance.id, kind=kind).count()
         return submissions_number >= submissions_limit
 
-    def get_submissions_left(self, request, problem_instance, kind='NORMAL'):
+    def get_submissions_left(self, request, problem_instance, kind="NORMAL"):
         """Returns number of submissions left until reaching problem limit"""
         if request.user.is_anonymous:
             return None
 
-        submissions_limit = problem_instance.controller.get_submissions_limit(
-            request, problem_instance, kind
-        )
+        submissions_limit = problem_instance.controller.get_submissions_limit(request, problem_instance, kind)
         if not submissions_limit:
             return None
-        submissions_number = Submission.objects.filter(
-            user=request.user, problem_instance__id=problem_instance.id, kind=kind
-        ).count()
+        submissions_number = Submission.objects.filter(user=request.user, problem_instance__id=problem_instance.id, kind=kind).count()
 
         return max(0, submissions_limit - submissions_number)
 
@@ -147,19 +137,19 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def judge(self, submission, extra_args=None, is_rejudge=False):
         environ = create_environ()
-        environ['extra_args'] = extra_args or {}
-        environ['is_rejudge'] = is_rejudge
-        if hasattr(submission, 'programsubmission'):
+        environ["extra_args"] = extra_args or {}
+        environ["is_rejudge"] = is_rejudge
+        if hasattr(submission, "programsubmission"):
             user_lang = None
             for code, lang in settings.LANGUAGES:
                 if code == submission.programsubmission.user_language_code:
                     user_lang = lang.lower()
                     break
             if user_lang:
-                environ['user_language'] = user_lang
+                environ["user_language"] = user_lang
             else:
-                environ['user_language'] = 'english'
-            environ['checker_format'] = environ['user_language'] + '_' + get_checker_format(submission.problem_instance)
+                environ["user_language"] = "english"
+            environ["checker_format"] = environ["user_language"] + "_" + get_checker_format(submission.problem_instance)
         picontroller = submission.problem_instance.controller
 
         picontroller.fill_evaluation_environ(environ, submission)
@@ -167,20 +157,20 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         extra_steps = (
             [
                 (
-                    'update_report_statuses',
-                    'oioioi.contests.handlers.update_report_statuses',
+                    "update_report_statuses",
+                    "oioioi.contests.handlers.update_report_statuses",
                 ),
                 (
-                    'update_submission_score',
-                    'oioioi.contests.handlers.update_submission_score',
+                    "update_submission_score",
+                    "oioioi.contests.handlers.update_submission_score",
                 ),
-                ('update_user_results', 'oioioi.contests.handlers.update_user_results'),
+                ("update_user_results", "oioioi.contests.handlers.update_user_results"),
             ]
             + (
                 [
                     (
-                        'update_problem_statistics',
-                        'oioioi.contests.handlers.update_problem_statistics',
+                        "update_problem_statistics",
+                        "oioioi.contests.handlers.update_problem_statistics",
                     )
                 ]
                 if settings.PROBLEM_STATISTICS_AVAILABLE
@@ -188,52 +178,48 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             )
             + [
                 (
-                    'call_submission_judged',
-                    'oioioi.contests.handlers.call_submission_judged',
+                    "call_submission_judged",
+                    "oioioi.contests.handlers.call_submission_judged",
                 ),
                 (
-                    'send_notification_submission_judged',
-                    'oioioi.contests.handlers.send_notification_judged',
+                    "send_notification_submission_judged",
+                    "oioioi.contests.handlers.send_notification_judged",
                 ),
                 (
-                    'dump_final_env',
-                    'oioioi.evalmgr.handlers.dump_env',
-                    dict(message='Finished evaluation'),
+                    "dump_final_env",
+                    "oioioi.evalmgr.handlers.dump_env",
+                    dict(message="Finished evaluation"),
                 ),
             ]
         )
 
-        environ.setdefault('error_handlers', [])
-        environ['error_handlers'].append(
-            ('create_error_report', 'oioioi.contests.handlers.create_error_report')
-        )
+        environ.setdefault("error_handlers", [])
+        environ["error_handlers"].append(("create_error_report", "oioioi.contests.handlers.create_error_report"))
 
         if settings.MAIL_ADMINS_ON_GRADING_ERROR:
-            environ['error_handlers'].append(
+            environ["error_handlers"].append(
                 (
-                    'mail_admins_on_error',
-                    'oioioi.contests.handlers.mail_admins_on_error',
+                    "mail_admins_on_error",
+                    "oioioi.contests.handlers.mail_admins_on_error",
                 )
             )
 
-        environ['error_handlers'].extend(extra_steps)
-        environ['error_handlers'].append(
-            ('error_handled', 'oioioi.evalmgr.handlers.error_handled')
-        )
+        environ["error_handlers"].extend(extra_steps)
+        environ["error_handlers"].append(("error_handled", "oioioi.evalmgr.handlers.error_handled"))
 
-        environ['recipe'].extend(extra_steps)
+        environ["recipe"].extend(extra_steps)
 
         picontroller.finalize_evaluation_environment(environ)
 
-        environ['recipe'].insert(
+        environ["recipe"].insert(
             0,
             (
-                'wait_for_submission_in_db',
-                'oioioi.contests.handlers.wait_for_submission_in_db',
+                "wait_for_submission_in_db",
+                "oioioi.contests.handlers.wait_for_submission_in_db",
             ),
         )
 
-        evalmgr_extra_args = environ.get('evalmgr_extra_args', {})
+        evalmgr_extra_args = environ.get("evalmgr_extra_args", {})
         logger.debug(
             "Judging submission #%d with environ:\n %s",
             submission.id,
@@ -264,13 +250,11 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                 Submission.objects.filter(problem_instance=result.problem_instance)
                 .filter(user=result.user)
                 .filter(score__isnull=False)
-                .filter(kind='NORMAL')
+                .filter(kind="NORMAL")
                 .latest()
             )
             try:
-                report = SubmissionReport.objects.get(
-                    submission=latest_submission, status='ACTIVE', kind='NORMAL'
-                )
+                report = SubmissionReport.objects.get(submission=latest_submission, status="ACTIVE", kind="NORMAL")
             except SubmissionReport.DoesNotExist:
                 report = None
             result.score = latest_submission.score
@@ -281,9 +265,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             result.status = None
             result.submission_report = None
 
-    def update_problem_statistics(
-        self, problem_statistics, user_statistics, submission
-    ):
+    def update_problem_statistics(self, problem_statistics, user_statistics, submission):
         """Updates :class:`~oioioi.problems.models.ProblemStatistics` and
         :class:`~oioioi.problems.models.UserStatistics` with data from a new
         :class:`~oioioi.contests.models.Submission`.
@@ -300,13 +282,11 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         Saving both statistics objects is a responsibility of the caller.
         """
         # Do not record ignored or hidden solutions
-        if submission.kind != 'NORMAL':
+        if submission.kind != "NORMAL":
             return
         try:
             # Get most recent report
-            report = SubmissionReport.objects.get(
-                submission=submission, status='ACTIVE', kind='NORMAL'
-            )
+            report = SubmissionReport.objects.get(submission=submission, status="ACTIVE", kind="NORMAL")
             score_report = ScoreReport.objects.get(submission_report=report)
 
             if not user_statistics.has_submitted:
@@ -327,9 +307,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             # instance - if the tests are also broken we are doomed anyway
             if score_report.max_score is None:
                 test_group_max_scores = (
-                    submission.problem_instance.test_set.filter(kind='NORMAL')
-                    .values_list('group')
-                    .annotate(group_max_score=Max('max_score'))
+                    submission.problem_instance.test_set.filter(kind="NORMAL").values_list("group").annotate(group_max_score=Max("max_score"))
                 )
                 max_score = sum(dict(test_group_max_scores).values())
             else:
@@ -352,9 +330,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             problem_statistics._best_score_sum += user_statistics.best_score
 
             # problem_statistics.submitted won't be 0 because we have a submit
-            problem_statistics.avg_best_score = (
-                problem_statistics._best_score_sum / problem_statistics.submitted
-            )
+            problem_statistics.avg_best_score = problem_statistics._best_score_sum / problem_statistics.submitted
 
         except SubmissionReport.DoesNotExist:
             pass
@@ -375,15 +351,11 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         (
             problem_statistics,
             created,
-        ) = ProblemStatistics.objects.select_for_update().get_or_create(
-            problem=self.problem
-        )
+        ) = ProblemStatistics.objects.select_for_update().get_or_create(problem=self.problem)
         (
             user_statistics,
             created,
-        ) = UserStatistics.objects.select_for_update().get_or_create(
-            problem_statistics=problem_statistics, user=user
-        )
+        ) = UserStatistics.objects.select_for_update().get_or_create(problem_statistics=problem_statistics, user=user)
 
         if not created:
             # Rollback the user's statistics
@@ -395,25 +367,17 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             if problem_statistics.submitted == 0:
                 problem_statistics.avg_best_score = 0
             else:
-                problem_statistics.avg_best_score = (
-                    problem_statistics._best_score_sum / problem_statistics.submitted
-                )
+                problem_statistics.avg_best_score = problem_statistics._best_score_sum / problem_statistics.submitted
             user_statistics.delete()
             (
                 user_statistics,
                 created,
-            ) = UserStatistics.objects.select_for_update().get_or_create(
-                problem_statistics=problem_statistics, user=user
-            )
+            ) = UserStatistics.objects.select_for_update().get_or_create(problem_statistics=problem_statistics, user=user)
 
         # Recreate statistics from every relevant submission one by one
-        user_submissions = Submission.objects.filter(
-            user=user, problem_instance__problem=self.problem
-        )
+        user_submissions = Submission.objects.filter(user=user, problem_instance__problem=self.problem)
         for submission in user_submissions:
-            submission.problem_instance.controller.update_problem_statistics(
-                problem_statistics, user_statistics, submission
-            )
+            submission.problem_instance.controller.update_problem_statistics(problem_statistics, user_statistics, submission)
         user_statistics.save()
         problem_statistics.save()
 
@@ -421,9 +385,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     @receiver(post_delete, sender=Submission)
     def recalculate_statistics_on_submission_deleted(instance, **kwargs):
         if instance.user:
-            instance.problem_instance.problem.controller.recalculate_statistics_for_user(
-                instance.user
-            )
+            instance.problem_instance.problem.controller.recalculate_statistics_for_user(instance.user)
 
     def _activate_newest_report(self, submission, queryset, kind=None):
         """Activates the newest report.
@@ -448,13 +410,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                     "invalid type parameter kind in _activate_newest_report: %r",
                     type(kind),
                 )
-            latest = (
-                queryset.select_for_update()
-                .filter(status__in=('INACTIVE', 'ACTIVE', 'SUPERSEDED'))
-                .latest()
-            )
-            queryset.filter(status='ACTIVE').update(status='SUPERSEDED')
-            latest.status = 'ACTIVE'
+            latest = queryset.select_for_update().filter(status__in=("INACTIVE", "ACTIVE", "SUPERSEDED")).latest()
+            queryset.filter(status="ACTIVE").update(status="SUPERSEDED")
+            latest.status = "ACTIVE"
             latest.save()
         except ObjectDoesNotExist:
             pass
@@ -470,11 +428,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         :param queryset: a queryset returning reports for the submission
         """
         controller = submission.problem_instance.controller
-        controller._activate_newest_report(
-            submission, queryset, kind=['NORMAL', 'FAILURE']
-        )
-        controller._activate_newest_report(submission, queryset, kind=['INITIAL'])
-        controller._activate_newest_report(submission, queryset, kind=['USER_OUTS'])
+        controller._activate_newest_report(submission, queryset, kind=["NORMAL", "FAILURE"])
+        controller._activate_newest_report(submission, queryset, kind=["INITIAL"])
+        controller._activate_newest_report(submission, queryset, kind=["USER_OUTS"])
 
     def update_user_results(self, user, problem_instance):
         """Updates score for problem instance.
@@ -489,9 +445,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             (
                 result,
                 created,
-            ) = UserResultForProblem.objects.select_for_update().get_or_create(
-                user=user, problem_instance=problem_instance
-            )
+            ) = UserResultForProblem.objects.select_for_update().get_or_create(user=user, problem_instance=problem_instance)
             problem_instance.controller.update_user_result_for_problem(result)
             result.save()
 
@@ -515,8 +469,8 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         localtime = timezone.localtime(submission.date)
         if shortened:
-            return localtime.strftime('%m-%d %H:%M:%S')
-        return localtime.strftime('%Y-%m-%d %H:%M:%S')
+            return localtime.strftime("%m-%d %H:%M:%S")
+        return localtime.strftime("%Y-%m-%d %H:%M:%S")
 
     def render_submission_score(self, submission):
         """Returns a human-readable representation of the submission score.
@@ -530,7 +484,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """Returns dict of all values which can be provided in extra_args
         argument to the judge method.
         """
-        return {'hidden_judge': _("Visible only for admins")}
+        return {"hidden_judge": _("Visible only for admins")}
 
     def render_submission_footer(self, request, submission):
         """Renders the given submission footer to HTML.
@@ -547,24 +501,24 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         kind ``FAILURE`` and raises :py:exc:`NotImplementedError`
         otherwise.
         """
-        if report.kind == 'FAILURE':
+        if report.kind == "FAILURE":
             failure_report = FailureReport.objects.get(submission_report=report)
             message = failure_report.message
             environ = json.loads(failure_report.json_environ)
-            if not environ.get('recipe'):
-                next_step = '(none)'
+            if not environ.get("recipe"):
+                next_step = "(none)"
             else:
-                next_step = repr(environ['recipe'][0])
-            del environ['recipe']
-            del environ['error_handlers']
+                next_step = repr(environ["recipe"][0])
+            del environ["recipe"]
+            del environ["error_handlers"]
             environ = pprint.pformat(environ, indent=4)
             return render_to_string(
-                'contests/failure_report.html',
+                "contests/failure_report.html",
                 request=request,
                 context={
-                    'message': message,
-                    'next_step': next_step,
-                    'environ': environ,
+                    "message": message,
+                    "next_step": next_step,
+                    "environ": environ,
                 },
             )
         else:
@@ -587,7 +541,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         problem = submission.problem_instance.problem
         if can_admin_problem(request, problem):
             return queryset
-        return queryset.filter(status='ACTIVE', kind='NORMAL')
+        return queryset.filter(status="ACTIVE", kind="NORMAL")
 
     def valid_kinds_for_submission(self, submission):
         """Returns list of all valid kinds we can change to
@@ -596,9 +550,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         Default implementation supports only kinds
         ``NORMAL``, ``IGNORED``, ``SUSPECTED``, 'IGNORED_HIDDEN'.
         """
-        valid = ['NORMAL', 'IGNORED', 'SUSPECTED', 'IGNORED_HIDDEN']
-        if submission.kind != 'SUSPECTED':
-            return [v for v in valid if v != 'SUSPECTED']
+        valid = ["NORMAL", "IGNORED", "SUSPECTED", "IGNORED_HIDDEN"]
+        if submission.kind != "SUSPECTED":
+            return [v for v in valid if v != "SUSPECTED"]
         if submission.kind in valid:
             return valid
         return []
@@ -624,9 +578,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
         :rtype: bool
         """
-        return submission.problem_instance.controller.results_visible(
-            request, submission
-        )
+        return submission.problem_instance.controller.results_visible(request, submission)
 
     def can_see_submission_score(self, request, submission):
         """Determines whether a user can see one of his/her submissions'
@@ -637,9 +589,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
         :rtype: bool
         """
-        return submission.problem_instance.controller.results_visible(
-            request, submission
-        )
+        return submission.problem_instance.controller.results_visible(request, submission)
 
     def can_see_submission_comment(self, request, submission):
         """Determines whether a user can see one of his/her submissions'
@@ -650,34 +600,23 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
         :rtype: bool
         """
-        return submission.problem_instance.controller.results_visible(
-            request, submission
-        )
+        return submission.problem_instance.controller.results_visible(request, submission)
 
     def change_submission_kind(self, submission, kind):
         """Changes kind of the submission, updates user reports for problem,
         round and contest which may contain given submission, and
         updates statistics for the submission's user if necessary.
         """
-        assert (
-            kind
-            in submission.problem_instance.controller.valid_kinds_for_submission(
-                submission
-            )
-        )
+        assert kind in submission.problem_instance.controller.valid_kinds_for_submission(submission)
         old_kind = submission.kind
         submission.kind = kind
         submission.save()
-        if old_kind == 'SUSPECTED' and kind != 'SUSPECTED':
+        if old_kind == "SUSPECTED" and kind != "SUSPECTED":
             submission.problem_instance.controller.judge(submission, is_rejudge=True)
         if submission.user:
-            submission.problem_instance.controller.update_user_results(
-                submission.user, submission.problem_instance
-            )
-            if old_kind == 'NORMAL' or kind == 'NORMAL':
-                submission.problem_instance.problem.controller.recalculate_statistics_for_user(
-                    submission.user
-                )
+            submission.problem_instance.controller.update_user_results(submission.user, submission.problem_instance)
+            if old_kind == "NORMAL" or kind == "NORMAL":
+                submission.problem_instance.problem.controller.recalculate_statistics_for_user(submission.user)
 
     def _is_partial_score(self, test_report):
         if not test_report:
@@ -706,7 +645,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         else:
             if filter_user:
                 qs = qs.filter(user=request.user)
-            return qs.filter(date__lte=request.timestamp).exclude(kind='IGNORED_HIDDEN')
+            return qs.filter(date__lte=request.timestamp).exclude(kind="IGNORED_HIDDEN")
 
     def get_extra_problem_site_actions(self, problem):
         """Returns a list of tuples (url, name)
@@ -723,15 +662,12 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return True
 
-
     def get_notification_message_submission_judged(self, submission):
         """Returns a message to show in a notification when a submission has
         been judged. It doesn't validate any permissions.
         """
         if submission.problem_instance.contest:
-            message = gettext_noop(
-                "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
-            )
+            message = gettext_noop("%(contest_name)s, %(task_name)s: Your submission was judged.\n")
         else:
             message = gettext_noop("%(task_name)s: Your submission was judged.\n")
 

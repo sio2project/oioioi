@@ -10,21 +10,17 @@ from oioioi.filetracker.fields import FileField
 
 
 def make_logo_filename(instance, filename):
-    return 'logo/%s/%s' % (
+    return "logo/%s/%s" % (
         instance.contest.id,
         get_valid_filename(os.path.basename(filename)),
     )
 
 
 class ContestLogo(models.Model):
-    contest = models.OneToOneField(
-        Contest, verbose_name=_("contest"), primary_key=True, on_delete=models.CASCADE
-    )
+    contest = models.OneToOneField(Contest, verbose_name=_("contest"), primary_key=True, on_delete=models.CASCADE)
     image = FileField(upload_to=make_logo_filename, verbose_name=_("logo image"))
     updated_at = models.DateTimeField(default=timezone.now)
-    link = models.URLField(
-        blank=True, null=True, verbose_name=_("external contest webpage url")
-    )
+    link = models.URLField(blank=True, null=True, verbose_name=_("external contest webpage url"))
 
     def save(self, *args, **kwargs):
         self.updated_at = timezone.now()
@@ -34,22 +30,20 @@ class ContestLogo(models.Model):
     def filename(self):
         return os.path.split(self.image.name)[1]
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("contest logo")
         verbose_name_plural = _("contest logo")
 
 
 def make_icon_filename(instance, filename):
-    return 'icons/%s/%s' % (
+    return "icons/%s/%s" % (
         instance.contest.id,
         get_valid_filename(os.path.basename(filename)),
     )
 
 
 class ContestIcon(models.Model):
-    contest = models.ForeignKey(
-        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
-    )
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
     image = FileField(upload_to=make_icon_filename, verbose_name=_("icon image"))
     updated_at = models.DateTimeField(default=timezone.now)
 
@@ -61,6 +55,6 @@ class ContestIcon(models.Model):
     def filename(self):
         return os.path.split(self.image.name)[1]
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("contest icon")
         verbose_name_plural = _("contest icons")

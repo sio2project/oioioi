@@ -5,7 +5,6 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models, transaction
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -24,23 +23,18 @@ from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.problem_instance_utils import get_language_by_extension
 
 execution_mode_options = EnumRegistry()
-execution_mode_options.register('AUTO', _("Auto"))
-execution_mode_options.register('cpu', _("Real CPU"))
-execution_mode_options.register('sio2jail', _("SIO2Jail"))
+execution_mode_options.register("AUTO", _("Auto"))
+execution_mode_options.register("cpu", _("Real CPU"))
+execution_mode_options.register("sio2jail", _("SIO2Jail"))
 
 
 class ProgramsConfig(models.Model):
-    contest = models.OneToOneField(
-        Contest, related_name='programs_config', on_delete=models.CASCADE
-    )
+    contest = models.OneToOneField(Contest, related_name="programs_config", on_delete=models.CASCADE)
     execution_mode = EnumField(
         execution_mode_options,
-        default='AUTO',
+        default="AUTO",
         verbose_name=_("execution mode"),
-        help_text=_(
-            "If set to Auto, the execution mode is determined "
-            "according to the type of the contest."
-        ),
+        help_text=_("If set to Auto, the execution mode is determined according to the type of the contest."),
     )
 
     def __str__(self):
@@ -49,14 +43,14 @@ class ProgramsConfig(models.Model):
     def __repr__(self):
         return _("Programs config")
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("programs configuration")
         verbose_name_plural = _("programs configurations")
 
 
 test_kinds = EnumRegistry()
-test_kinds.register('NORMAL', _("Normal test"))
-test_kinds.register('EXAMPLE', _("Example test"))
+test_kinds.register("NORMAL", _("Normal test"))
+test_kinds.register("EXAMPLE", _("Example test"))
 
 
 def validate_time_limit(value):
@@ -68,22 +62,14 @@ def validate_memory_limit(value):
     if value is None or value <= 0:
         raise ValidationError(_("Memory limit must be a positive number."))
     if value > settings.MAX_MEMORY_LIMIT_FOR_TEST:
-        raise ValidationError(
-            _(
-                "Memory limit mustn't be greater than %dKiB."
-                % settings.MAX_MEMORY_LIMIT_FOR_TEST
-            )
-        )
-
+        raise ValidationError(_("Memory limit mustn't be greater than %dKiB." % settings.MAX_MEMORY_LIMIT_FOR_TEST))
 
 
 class Test(models.Model):
     __test__ = False
     problem_instance = models.ForeignKey(ProblemInstance, on_delete=models.CASCADE)
     name = models.CharField(max_length=30, verbose_name=_("name"))
-    input_file = FileField(
-        upload_to=make_problem_filename, verbose_name=_("input"), null=True, blank=True
-    )
+    input_file = FileField(upload_to=make_problem_filename, verbose_name=_("input"), null=True, blank=True)
     output_file = FileField(
         upload_to=make_problem_filename,
         verbose_name=_("output/hint"),
@@ -115,11 +101,11 @@ class Test(models.Model):
     def __str__(self):
         return str(self.name)
 
-    class Meta(object):
-        ordering = ['order']
+    class Meta:
+        ordering = ["order"]
         verbose_name = _("test")
         verbose_name_plural = _("tests")
-        unique_together = ('problem_instance', 'name')
+        unique_together = ("problem_instance", "name")
 
 
 class LanguageOverrideForTest(models.Model):
@@ -138,11 +124,11 @@ class LanguageOverrideForTest(models.Model):
     )
     language = models.CharField(max_length=30, verbose_name=_("language"))
 
-    class Meta(object):
-        ordering = ['test__order']
+    class Meta:
+        ordering = ["test__order"]
         verbose_name = _("test limit override")
         verbose_name_plural = _("tests limit overrides")
-        unique_together = ('test', 'language')
+        unique_together = ("test", "language")
 
 
 class OutputChecker(models.Model):
@@ -154,7 +140,7 @@ class OutputChecker(models.Model):
         verbose_name=_("checker executable file"),
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("output checker")
         verbose_name_plural = _("output checkers")
 
@@ -167,23 +153,21 @@ class LibraryProblemData(models.Model):
         help_text=_("Filename that the library should be given during compilation"),
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("library problem data")
         verbose_name_plural = _("library problem data")
 
 
 model_solution_kinds = EnumRegistry()
-model_solution_kinds.register('NORMAL', _("Model solution"))
-model_solution_kinds.register('SLOW', _("Slow solution"))
-model_solution_kinds.register('INCORRECT', _("Incorrect solution"))
+model_solution_kinds.register("NORMAL", _("Model solution"))
+model_solution_kinds.register("SLOW", _("Slow solution"))
+model_solution_kinds.register("INCORRECT", _("Incorrect solution"))
 
 
 class ModelSolutionsManager(models.Manager):
     def recreate_model_submissions(self, problem_instance, model_solution=None):
         with transaction.atomic():
-            query = ModelProgramSubmission.objects.filter(
-                problem_instance=problem_instance
-            )
+            query = ModelProgramSubmission.objects.filter(problem_instance=problem_instance)
             if model_solution is not None:
                 query = query.filter(model_solution=model_solution)
             query.delete()
@@ -199,7 +183,7 @@ class ModelSolutionsManager(models.Manager):
                     model_solution=model_solution,
                     problem_instance=problem_instance,
                     source_file=model_solution.source_file,
-                    kind='IGNORED',
+                    kind="IGNORED",
                 )
                 submission.save()
             problem_instance.controller.judge(submission, is_rejudge=True)
@@ -216,13 +200,11 @@ class ModelSolution(models.Model):
 
     @property
     def short_name(self):
-        return self.name.rsplit('.', 1)[0]
+        return self.name.rsplit(".", 1)[0]
 
 
 @receiver(pre_save, sender=ProblemInstance)
-def _decide_if_autocreate_model_submissions_for_problem_instance(
-    sender, instance, raw, **kwargs
-):
+def _decide_if_autocreate_model_submissions_for_problem_instance(sender, instance, raw, **kwargs):
     instance.create_model_submissions = False
     if raw or instance.round is None:
         return
@@ -235,17 +217,13 @@ def _decide_if_autocreate_model_submissions_for_problem_instance(
 
 
 @receiver(post_save, sender=ProblemInstance)
-def _autocreate_model_submissions_for_problem_instance(
-    sender, instance, created, raw, **kwargs
-):
+def _autocreate_model_submissions_for_problem_instance(sender, instance, created, raw, **kwargs):
     if instance.create_model_submissions:
         ModelSolution.objects.recreate_model_submissions(instance)
 
 
 @receiver(post_save, sender=ModelSolution)
-def _autocreate_model_submissions_for_model_solutions(
-    sender, instance, created, raw, **kwargs
-):
+def _autocreate_model_submissions_for_model_solutions(sender, instance, created, raw, **kwargs):
     if created and not raw:
         pis = ProblemInstance.objects.filter(problem=instance.problem)
         for pi in pis:
@@ -259,14 +237,12 @@ def make_submission_filename(instance, filename):
         folder = instance.problem_instance.contest.id
     else:
         folder = "main_problem_instance"
-    return 'submissions/%s/%d%s' % (folder, instance.id, os.path.splitext(filename)[1])
+    return "submissions/%s/%d%s" % (folder, instance.id, os.path.splitext(filename)[1])
 
 
 class ProgramSubmission(Submission):
     source_file = FileField(upload_to=make_submission_filename)
-    source_length = models.IntegerField(
-        verbose_name=_("Source code length"), blank=True, null=True
-    )
+    source_length = models.IntegerField(verbose_name=_("Source code length"), blank=True, null=True)
     # Stores the language used by the user in the moment of submitting the solution
     user_language_code = models.CharField(max_length=6, verbose_name=_("User language code"), blank=True, null=True)
 
@@ -287,25 +263,25 @@ class ModelProgramSubmission(ProgramSubmission):
     model_solution = models.ForeignKey(ModelSolution, on_delete=models.CASCADE)
 
 
-submission_statuses.register('CE', _("Compilation failed"))
-submission_statuses.register('RE', _("Runtime error"))
-submission_statuses.register('WA', _("Wrong answer"))
-submission_statuses.register('TLE', _("Time limit exceeded"))
-submission_statuses.register('MLE', _("Memory limit exceeded"))
-submission_statuses.register('OLE', _("Output limit exceeded"))
-submission_statuses.register('SE', _("System error"))
-submission_statuses.register('RV', _("Rule violation"))
+submission_statuses.register("CE", _("Compilation failed"))
+submission_statuses.register("RE", _("Runtime error"))
+submission_statuses.register("WA", _("Wrong answer"))
+submission_statuses.register("TLE", _("Time limit exceeded"))
+submission_statuses.register("MLE", _("Memory limit exceeded"))
+submission_statuses.register("OLE", _("Output limit exceeded"))
+submission_statuses.register("SE", _("System error"))
+submission_statuses.register("RV", _("Rule violation"))
 
-submission_statuses.register('INI_OK', _("Initial tests: OK"))
-submission_statuses.register('INI_ERR', _("Initial tests: failed"))
+submission_statuses.register("INI_OK", _("Initial tests: OK"))
+submission_statuses.register("INI_ERR", _("Initial tests: failed"))
 
-submission_kinds.register('USER_OUTS', _("Generate user out"))
+submission_kinds.register("USER_OUTS", _("Generate user out"))
 
-submission_report_kinds.register('INITIAL', _("Initial report"))
-submission_report_kinds.register('NORMAL', _("Normal report"))
-submission_report_kinds.register('FULL', _("Full report"))
-submission_report_kinds.register('HIDDEN', _("Hidden report (for admins only)"))
-submission_report_kinds.register('USER_OUTS', _("Report with user out"))
+submission_report_kinds.register("INITIAL", _("Initial report"))
+submission_report_kinds.register("NORMAL", _("Normal report"))
+submission_report_kinds.register("FULL", _("Full report"))
+submission_report_kinds.register("HIDDEN", _("Hidden report (for admins only)"))
+submission_report_kinds.register("USER_OUTS", _("Report with user out"))
 
 
 class CompilationReport(models.Model):
@@ -318,7 +294,7 @@ def make_output_filename(instance, filename):
     # This code is dead (it's result is ignored) with current implementation
     # of assigning file from filetracker to a FileField.
     submission = instance.submission_report.submission
-    return 'userouts/%s/%d/%d-out' % (
+    return "userouts/%s/%d/%d-out" % (
         submission.problem_instance.contest.id,
         submission.id,
         instance.submission_report.id,
@@ -353,15 +329,13 @@ class ReportActionsConfig(models.Model):
     problem = models.OneToOneField(
         Problem,
         verbose_name=_("problem instance"),
-        related_name='report_actions_config',
+        related_name="report_actions_config",
         primary_key=True,
         on_delete=models.CASCADE,
     )
     can_user_generate_outs = models.BooleanField(
         default=False,
-        verbose_name=_(
-            "Allow users to generate their outs on tests from visible reports."
-        ),
+        verbose_name=_("Allow users to generate their outs on tests from visible reports."),
     )
 
 
@@ -369,10 +343,10 @@ class UserOutGenStatus(models.Model):
     testreport = models.OneToOneField(
         TestReport,
         primary_key=True,
-        related_name='userout_status',
+        related_name="userout_status",
         on_delete=models.CASCADE,
     )
-    status = EnumField(submission_statuses, default='?')
+    status = EnumField(submission_statuses, default="?")
     visible_for_user = models.BooleanField(default=True)
 
 
@@ -380,24 +354,20 @@ class ProblemCompiler(models.Model):
     """Represents compiler used for a given language for this problem.
     This can be altered by contest specific compilers."""
 
-    problem = models.ForeignKey(
-        Problem, verbose_name=_("problem"), on_delete=models.CASCADE
-    )
+    problem = models.ForeignKey(Problem, verbose_name=_("problem"), on_delete=models.CASCADE)
     language = models.CharField(max_length=20, verbose_name=_("language"))
     compiler = models.CharField(max_length=50, verbose_name=_("compiler"))
     auto_created = models.BooleanField(default=False, editable=False)
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("problem compiler")
         verbose_name_plural = _("problem compilers")
-        ordering = ('problem',)
-        unique_together = ('problem', 'language')
+        ordering = ("problem",)
+        unique_together = ("problem", "language")
 
 
 @receiver(post_save, sender=Problem)
-def _autocreate_problem_compilers_for_problem(
-    sender, instance, created, raw, using, **kwargs
-):
+def _autocreate_problem_compilers_for_problem(sender, instance, created, raw, using, **kwargs):
     # we want to do this only if object is newly created
     if created:
         # create problem compilers for every language and populate with defaults
@@ -415,32 +385,28 @@ class ContestCompiler(models.Model):
     """Represents compilers set for languages in different contests.
     This is used to allow overriding problems' compilers inside a contest."""
 
-    contest = models.ForeignKey(
-        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
-    )
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
     language = models.CharField(max_length=20, verbose_name=_("language"))
     compiler = models.CharField(max_length=50, verbose_name=_("compiler"))
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("contest compiler")
         verbose_name_plural = _("contest compilers")
-        ordering = ('contest',)
-        unique_together = ('contest', 'language')
+        ordering = ("contest",)
+        unique_together = ("contest", "language")
 
 
 class ProblemAllowedLanguage(models.Model):
     """Represents allowed language for specific problem."""
 
-    problem = models.ForeignKey(
-        Problem, verbose_name=_("problem"), on_delete=models.CASCADE
-    )
+    problem = models.ForeignKey(Problem, verbose_name=_("problem"), on_delete=models.CASCADE)
     language = models.CharField(max_length=20, verbose_name=_("language"))
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("problem allowed language")
         verbose_name_plural = _("problem allowed languages")
-        ordering = ('problem',)
-        unique_together = ('problem', 'language')
+        ordering = ("problem",)
+        unique_together = ("problem", "language")
 
 
 def check_compilers_config():
@@ -449,9 +415,9 @@ def check_compilers_config():
     AVAILABLE_COMPILERS = getattr(settings, "AVAILABLE_COMPILERS", {})
     DEFAULT_COMPILERS = getattr(settings, "DEFAULT_COMPILERS", {})
     for language, language_info in SUBMITTABLE_LANGUAGES.items():
-        if not language_info.get('display_name'):
+        if not language_info.get("display_name"):
             raise ImproperlyConfigured
-        if language_info.get('type', 'main') not in ['main', 'extra']:
+        if language_info.get("type", "main") not in ["main", "extra"]:
             raise ImproperlyConfigured
         if not SUBMITTABLE_EXTENSIONS.get(language):
             raise ImproperlyConfigured
@@ -460,7 +426,7 @@ def check_compilers_config():
             raise ImproperlyConfigured
         else:
             for compiler, compiler_info in compilers_for_lang.items():
-                if 'display_name' not in compiler_info:
+                if "display_name" not in compiler_info:
                     raise ImproperlyConfigured
         if not DEFAULT_COMPILERS.get(language):
             raise ImproperlyConfigured
@@ -472,41 +438,35 @@ check_compilers_config()
 
 
 CheckerFormat = EnumRegistry()
-CheckerFormat.register('terse', _("Terse"))
-CheckerFormat.register('abbreviated', _("Abbreviated"))
+CheckerFormat.register("terse", _("Terse"))
+CheckerFormat.register("abbreviated", _("Abbreviated"))
 
 
 class CheckerFormatForContest(models.Model):
     """Overrides the default checker's format (abbreviated) for a contest."""
 
-    contest = models.OneToOneField(
-        Contest, verbose_name=_("contest"), on_delete=models.CASCADE
-    )
+    contest = models.OneToOneField(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
     format = EnumField(
         CheckerFormat,
         verbose_name=_("format"),
-        help_text=_("Format of the checker output for this contest. "
-                    "Abbreviated describes the output difference, while "
-                    "Terse doesn't give any details.")
+        help_text=_("Format of the checker output for this contest. Abbreviated describes the output difference, while Terse doesn't give any details."),
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("checker format for contest")
         verbose_name_plural = _("checker formats for contests")
-        ordering = ('contest',)
-        unique_together = ('contest', 'format')
+        ordering = ("contest",)
+        unique_together = ("contest", "format")
 
 
 class CheckerFormatForProblem(models.Model):
     """Overrides the default checker's format (abbreviated) for a problem."""
 
-    problem_instance = models.OneToOneField(
-        ProblemInstance, verbose_name=_("problem instance"), on_delete=models.CASCADE
-    )
+    problem_instance = models.OneToOneField(ProblemInstance, verbose_name=_("problem instance"), on_delete=models.CASCADE)
     format = EnumField(CheckerFormat, verbose_name=_("format"))
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("checker format for problem")
         verbose_name_plural = _("checker formats for problems")
-        ordering = ('problem_instance',)
-        unique_together = ('problem_instance', 'format')
+        ordering = ("problem_instance",)
+        unique_together = ("problem_instance", "format")

@@ -58,7 +58,12 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th>{% trans "Name" %}</th>
+                    <th class="problem-name-column">{% trans "Name" %}</th>
+                    {% if show_problems_limits %}
+                        <th>
+                            {% trans "Limits" %}
+                        </th>
+                    {% endif %}
                     {% if show_submissions_limit %}
                         <th class="text-right">
                         {% if user.is_authenticated %}
@@ -75,8 +80,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pi, statement_visible, round_time, result, submissions_left, submissions_limit, can_submit in problem_instances %}
-
+                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit in problem_instances %}
                     {% if show_rounds %}
                         {% ifchanged pi.round %}
                             <tr class="problemlist-subheader">
@@ -97,6 +101,23 @@
                                 {{ pi.problem.name }}
                             {% endif %}
                         </td>
+                        {% if show_problems_limits %}
+                            <td class="text-right">
+                                {% if problem_limits %}
+                                    <table>
+                                        {% for row in problem_limits %}
+                                            <tr class="problem-limits-row">
+                                                {% for entry in row %}
+                                                    <td>
+                                                        {{ entry }}
+                                                    </td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                {% endif %}
+                            </td>
+                        {% endif %}
                         {% if show_submissions_limit %}
                             <td class="text-right">
                                 {% if submissions_left == None %}

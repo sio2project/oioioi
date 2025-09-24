@@ -2,7 +2,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.publicsolutions.utils import filter_public_solutions
 
 
-class PublicSolutionsContestControllerMixin(object):
+class PublicSolutionsContestControllerMixin:
     """ContestController mixin that sets up publicsolutions app."""
 
     def can_see_publicsolutions(self, request, round):
@@ -36,9 +36,7 @@ class PublicSolutionsContestControllerMixin(object):
         return qs.none()
 
     def filter_visible_sources(self, request, qs):
-        prev = super(
-            PublicSolutionsContestControllerMixin, self
-        ).filter_visible_sources(request, qs)
+        prev = super(PublicSolutionsContestControllerMixin, self).filter_visible_sources(request, qs)
 
         public = filter_public_solutions(request, qs)
         return (prev.distinct() | public.distinct()).distinct()

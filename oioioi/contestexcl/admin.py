@@ -12,20 +12,20 @@ class ExclusivenessConfigInline(admin.TabularInline):
     model = ExclusivenessConfig
     extra = 0
     form = ExclusivenessConfigForm
-    fields = ('enabled', 'start_date', 'end_date', 'disable')
+    fields = ("enabled", "start_date", "end_date", "disable")
     category = _("Advanced")
 
     def get_fields(self, request, obj=None):
         fields = super(ExclusivenessConfigInline, self).get_fields(request, obj)
         # Superadmins don't need to see the disable field
         if obj and request.user.is_superuser:
-            return [f for f in fields if f != 'disable']
+            return [f for f in fields if f != "disable"]
         return fields
 
     def get_readonly_fields(self, request, obj=None):
         # Contest admins should only be able to change the disable field
         if obj and not request.user.is_superuser:
-            return [f for f in self.get_fields(request, obj) if f != 'disable']
+            return [f for f in self.get_fields(request, obj) if f != "disable"]
         return []
 
     def has_add_permission(self, request, obj=None):
@@ -43,7 +43,7 @@ class ExclusivenessConfigInline(admin.TabularInline):
         return request.user.is_superuser
 
 
-class ContestAdminWithExclusivenessInlineMixin(object):
+class ContestAdminWithExclusivenessInlineMixin:
     """Adds :class:`~oioioi.contestexcl.models.ExclusivenessConfig` to an admin
     panel.
     """
@@ -54,20 +54,11 @@ class ContestAdminWithExclusivenessInlineMixin(object):
 
     def _warn_on_contestexcl_overlap(self, request, ex_confs):
         for obj in ex_confs:
-            qs = ExclusivenessConfig.objects.get_active_between(
-                obj.start_date, obj.end_date
-            ).select_related('contest')
+            qs = ExclusivenessConfig.objects.get_active_between(obj.start_date, obj.end_date).select_related("contest")
             qs = [ex_conf for ex_conf in qs if ex_conf.contest != request.contest]
             if qs:
-                contest_names = ', '.join([ex_conf.contest.name for ex_conf in qs])
-                msg = (
-                    _(
-                        "The following contests' exclusion times"
-                        " overlap with the current one: %s. Watch out, because"
-                        " it may cause conflicts!"
-                    )
-                    % contest_names
-                )
+                contest_names = ", ".join([ex_conf.contest.name for ex_conf in qs])
+                msg = _("The following contests' exclusion times overlap with the current one: %s. Watch out, because it may cause conflicts!") % contest_names
                 messages.warning(request, msg)
 
     def _warn_on_not_exclusive_rounds(self, request, ex_confs):
@@ -80,9 +71,7 @@ class ContestAdminWithExclusivenessInlineMixin(object):
             for ex_conf in ex_confs:
                 # Check if there's a gap before the next excl config
                 if ex_conf.start_date > round_excl_end_date:
-                    round_not_excl_dates.append(
-                        (round_excl_end_date, ex_conf.start_date)
-                    )
+                    round_not_excl_dates.append((round_excl_end_date, ex_conf.start_date))
                     round_excl_end_date = ex_conf.start_date
 
                 # Update how much of the round is covered by the next config
@@ -108,14 +97,14 @@ class ContestAdminWithExclusivenessInlineMixin(object):
                 if not first_future_date[1]:
                     msg = _(
                         "Exclusiveness configs usually cover entire rounds,"
-                        " but currently round \"%s\" is not exclusive from"
+                        ' but currently round "%s" is not exclusive from'
                         " %s! Please verify that your exclusiveness"
                         " configs are correct."
                     ) % (round.name, first_future_date[0])
                 else:
                     msg = _(
                         "Exclusiveness configs usually cover entire rounds,"
-                        " but currently round \"%s\" is not exclusive from"
+                        ' but currently round "%s" is not exclusive from'
                         " %s to %s! Please verify that your exclusiveness"
                         " configs are correct."
                     ) % (round.name, first_future_date[0], first_future_date[1])

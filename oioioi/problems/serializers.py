@@ -1,5 +1,6 @@
-from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 from rest_framework import serializers
+
+from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 
 
 class PackageSerializer(serializers.Serializer):
@@ -21,15 +22,12 @@ class PackageUploadSerializer(PackageSerializer):
     round_name = serializers.CharField(
         max_length=255,
         validators=[validate_whitespaces],
-        help_text="Round id string. "
-        "Round names are unique in regards to single contest.",
+        help_text="Round id string. Round names are unique in regards to single contest.",
     )
 
 
 class PackageReuploadSerializer(PackageSerializer):
     problem_id = serializers.IntegerField(
         required=True,
-        help_text="Integer id of problem to be reuploaded."
-        "Same as value in package reupload form's URL "
-        "availble through Contest Administration UI.",
+        help_text="Integer id of problem to be reuploaded.Same as value in package reupload form's URL availble through Contest Administration UI.",
     )

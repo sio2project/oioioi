@@ -13,18 +13,14 @@ def is_zeus_problem(problem):
 
 def filter_zeus_problem_instances(problem_instances):
     # Not returning new query_set because `instances` may have some cache in it
-    problems = frozenset(
-        Problem.objects.filter(
-            pk__in=[p.problem.pk for p in problem_instances]
-        ).exclude(zeusproblemdata=None)
-    )
+    problems = frozenset(Problem.objects.filter(pk__in=[p.problem.pk for p in problem_instances]).exclude(zeusproblemdata=None))
     return [pi for pi in problem_instances if pi.problem in problems]
 
 
 # Note:
 # "Unlike your SECRET_KEY, your salt argument does not need to stay secret."
 # https://docs.djangoproject.com/en/1.9/topics/signing/#using-the-salt-argument
-ZEUS_URL_SALT = 'zeus_url_salt'
+ZEUS_URL_SALT = "zeus_url_salt"
 
 
 def zeus_url_signature(submission_id):

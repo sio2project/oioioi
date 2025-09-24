@@ -12,19 +12,16 @@ class GenerateMenuNode(Node):
         self.registry = registry
 
     def render(self, context):
-        request = context['request']
+        request = context["request"]
         registry = self.registry.resolve(context)
         if not registry:
             registry = menu_registry
         if isinstance(registry, str):
             registry = import_string(registry)
         if not isinstance(registry, MenuRegistry):
-            raise TemplateSyntaxError(
-                "{%% generate_menu %%} got an "
-                "argument which is not a MenuRegistry: %r" % (registry,)
-            )
-        context['menu'] = registry.template_context(request)
-        return ''
+            raise TemplateSyntaxError("{%% generate_menu %%} got an argument which is not a MenuRegistry: %r" % (registry,))
+        context["menu"] = registry.template_context(request)
+        return ""
 
 
 @register.tag

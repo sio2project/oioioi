@@ -1,11 +1,9 @@
-# coding: utf-8
-
 import django.dispatch
 from django.conf import settings
 
 # pylint: disable=unused-import
 # Important. This import is to register signal handlers. Do not remove it.
-import oioioi.base.signal_handlers
+import oioioi.base.signal_handlers  # noqa: F401
 from oioioi.base.captcha_check import captcha_check
 from oioioi.base.setup_check import setup_check
 from oioioi.contests.models import Contest
@@ -30,29 +28,16 @@ PreferencesSaved = django.dispatch.Signal()
 
 
 class Consents(models.Model):
-    user = models.OneToOneField(
-        User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE
-    )
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE)
     terms_accepted = models.BooleanField(_("terms accepted"), default=False)
-    marketing_consent = models.BooleanField(
-        _("first-party marketing consent"), default=False
-    )
-    partner_consent = models.BooleanField(
-        _("third-party marketing consent"), default=False
-    )
+    marketing_consent = models.BooleanField(_("first-party marketing consent"), default=False)
+    partner_consent = models.BooleanField(_("third-party marketing consent"), default=False)
 
 
 class UserPreferences(models.Model):
-    user = models.OneToOneField(
-        User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE
-    )
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE)
 
-    language = models.CharField(
-        _("preferred_language"),
-        max_length=2,
-        choices=list(settings.LANGUAGES) + [("", _("None"))],
-        default=""
-    )
+    language = models.CharField(_("preferred_language"), max_length=2, choices=list(settings.LANGUAGES) + [("", _("None"))], default="")
 
     enable_editor = models.BooleanField(
         _("enable_editor"),

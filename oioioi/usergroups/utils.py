@@ -31,9 +31,7 @@ def filter_usergroup_exclusive_members(contest, usergroup, queryset=None):
     else:
         group_users = queryset.filter(usergroups__id=usergroup.id)
     other_groups = contest.usergroups.exclude(id=usergroup.id)
-    return group_users.exclude(usergroups__in=other_groups).exclude(
-        participant__contest__id=contest.id
-    )
+    return group_users.exclude(usergroups__in=other_groups).exclude(participant__contest__id=contest.id)
 
 
 def add_usergroup_to_members(contest, usergroup, only_exclusive=True):
@@ -41,9 +39,7 @@ def add_usergroup_to_members(contest, usergroup, only_exclusive=True):
     if only_exclusive:
         users = filter_usergroup_exclusive_members(contest, usergroup, users)
     users = users.exclude(participant__contest__id=contest.id)
-    Participant.objects.bulk_create(
-        [Participant(contest=contest, user=u) for u in users]
-    )
+    Participant.objects.bulk_create([Participant(contest=contest, user=u) for u in users])
 
 
 def move_members_to_usergroup(contest, usergroup):
@@ -54,9 +50,7 @@ def move_members_to_usergroup(contest, usergroup):
 
 def remove_usergroup_ranking(contest, usergroup):
     try:
-        instance = UserGroupRanking.objects.get(
-            contest_id=contest.id, user_group_id=usergroup.id
-        )
+        instance = UserGroupRanking.objects.get(contest_id=contest.id, user_group_id=usergroup.id)
         instance.delete()
     except UserGroupRanking.DoesNotExist:
         pass

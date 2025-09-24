@@ -54,22 +54,14 @@ class TestContestController(TestCase):
         self.assertFalse(controller.is_submission_disqualified(submission_ok))
         self.assertTrue(controller.has_disqualification_history(submission))
         self.assertFalse(controller.has_disqualification_history(submission_ok))
-        self.assertTrue(
-            controller.is_any_submission_to_problem_disqualified(
-                user, submission.problem_instance
-            )
-        )
+        self.assertTrue(controller.is_any_submission_to_problem_disqualified(user, submission.problem_instance))
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
-        self.assertTrue(
-            controller.user_has_disqualification_history(fake_request(), user)
-        )
+        self.assertTrue(controller.user_has_disqualification_history(fake_request(), user))
         self.assertTrue(controller.results_visible(fake_request(), submission))
 
         # submission_ok is a submission to the same problem
         self.assertTrue(controller.results_visible(fake_request(), submission_ok))
-        self.assertNotIn(
-            user, controller.exclude_disqualified_users(User.objects.all())
-        )
+        self.assertNotIn(user, controller.exclude_disqualified_users(User.objects.all()))
 
         other_contest = Contest(
             name="finding_another_shrubbery",
@@ -78,14 +70,8 @@ class TestContestController(TestCase):
         )
         other_contest.save()
         other_fake_request = self._get_fake_request(user, other_contest)
-        self.assertFalse(
-            other_contest.controller.is_user_disqualified(other_fake_request(), user)
-        )
-        self.assertFalse(
-            other_contest.controller.user_has_disqualification_history(
-                other_fake_request(), user
-            )
-        )
+        self.assertFalse(other_contest.controller.is_user_disqualified(other_fake_request(), user))
+        self.assertFalse(other_contest.controller.user_has_disqualification_history(other_fake_request(), user))
 
     def test_not_disqualified(self):
         user = User.objects.get(username="test_user2")
@@ -98,11 +84,7 @@ class TestContestController(TestCase):
 
         self.assertFalse(controller.is_submission_disqualified(submission))
         self.assertFalse(controller.has_disqualification_history(submission))
-        self.assertFalse(
-            controller.is_any_submission_to_problem_disqualified(
-                user, submission.problem_instance
-            )
-        )
+        self.assertFalse(controller.is_any_submission_to_problem_disqualified(user, submission.problem_instance))
         self.assertFalse(controller.is_user_disqualified(fake_request(), user))
         self.assertTrue(controller.results_visible(fake_request(), submission))
         self.assertIn(user, controller.exclude_disqualified_users(User.objects.all()))
@@ -118,25 +100,17 @@ class TestContestController(TestCase):
 
         self.assertFalse(controller.is_submission_disqualified(submission))
         self.assertFalse(controller.has_disqualification_history(submission))
-        self.assertFalse(
-            controller.is_any_submission_to_problem_disqualified(
-                user, submission.problem_instance
-            )
-        )
+        self.assertFalse(controller.is_any_submission_to_problem_disqualified(user, submission.problem_instance))
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
-        self.assertTrue(
-            controller.user_has_disqualification_history(fake_request(), user)
-        )
+        self.assertTrue(controller.user_has_disqualification_history(fake_request(), user))
         self.assertTrue(controller.results_visible(fake_request(), submission))
-        self.assertNotIn(
-            user, controller.exclude_disqualified_users(User.objects.all())
-        )
+        self.assertNotIn(user, controller.exclude_disqualified_users(User.objects.all()))
 
 
-class TestViewsMixin(object):
+class TestViewsMixin:
     @staticmethod
     def remove_whitespaces(response):
-        return re.sub(r'\s*', '', response.content.decode('utf-8'))
+        return re.sub(r"\s*", "", response.content.decode("utf-8"))
 
     def _assert_disqualification_box(self, response_callback):
         raise NotImplementedError
@@ -163,32 +137,24 @@ class TestViewsMixin(object):
                 else:
                     self.assertNotContains(response, s)
 
-            self.assertIn(
-                ">" + str(submission.score) + "<", self.remove_whitespaces(response)
-            )
+            self.assertIn(">" + str(submission.score) + "<", self.remove_whitespaces(response))
             self.assertContains(response, "Submission " + str(submission.id))
 
     def test_dashboard(self):
         self.assertTrue(self.client.login(username="test_user"))
-        response_cb = lambda: self.client.get(
-            reverse("contest_dashboard", kwargs=self.contest_kwargs), follow=True
-        )
+        response_cb = lambda: self.client.get(reverse("contest_dashboard", kwargs=self.contest_kwargs), follow=True)
         self._assert_disqualification_box(response_cb)
 
     def test_my_submissions(self):
         self.assertTrue(self.client.login(username="test_user"))
-        response_cb = lambda: self.client.get(
-            reverse("my_submissions", kwargs=self.contest_kwargs)
-        )
+        response_cb = lambda: self.client.get(reverse("my_submissions", kwargs=self.contest_kwargs))
         self._assert_disqualification_box(response_cb)
 
     def test_user_info_page(self):
-        self.assertTrue(self.client.login(username='test_admin'))
+        self.assertTrue(self.client.login(username="test_admin"))
         user = User.objects.get(username="test_user")
         contest = Contest.objects.get()
-        response_callback = lambda: self.client.get(
-            reverse('user_info', kwargs={'contest_id': contest.id, 'user_id': user.id})
-        )
+        response_callback = lambda: self.client.get(reverse("user_info", kwargs={"contest_id": contest.id, "user_id": user.id}))
         self._assert_disqualification_box(response_callback)
 
 

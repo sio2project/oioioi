@@ -6,21 +6,21 @@ from enum import Enum
 from django.urls import NoReverseMatch
 from django.utils.functional import lazy
 
-ContestMode = Enum('ContestMode', 'neutral contest_if_possible contest_only')
+ContestMode = Enum("ContestMode", "neutral contest_if_possible contest_only")
 
 
 cc_id = threading.local()
 
 
 def get_cc_id():
-    return getattr(cc_id, 'value', None)
+    return getattr(cc_id, "value", None)
 
 
 def set_cc_id(val):
     cc_id.value = val
 
 
-contest_re = re.compile(r'^(?:/api)?/c/(?P<c_name>[a-z0-9_-]+)/')
+contest_re = re.compile(r"^(?:/api)?/c/(?P<c_name>[a-z0-9_-]+)/")
 
 
 def reverse(target, *args, **kwargs):
@@ -75,9 +75,9 @@ def reverse(target, *args, **kwargs):
             raise NotImplementedError
         raise ValueError
 
-    if 'kwargs' in kwargs and kwargs['kwargs'] and 'contest_id' in kwargs['kwargs']:
+    if "kwargs" in kwargs and kwargs["kwargs"] and "contest_id" in kwargs["kwargs"]:
         kwargs = copy.deepcopy(kwargs)
-        contest_id = kwargs['kwargs'].pop('contest_id')
+        contest_id = kwargs["kwargs"].pop("contest_id")
         explicit_contest = True
     else:
         contest_id = get_cc_id()
@@ -85,15 +85,15 @@ def reverse(target, *args, **kwargs):
 
     if contest_id:
         try:
-            ret = django_reverse('contest:' + target, *args, **kwargs)
-            return re.sub(contest_re, r'/c/{}/'.format(contest_id), ret)
+            ret = django_reverse("contest:" + target, *args, **kwargs)
+            return re.sub(contest_re, rf"/c/{contest_id}/", ret)
         except NoReverseMatch:
             if explicit_contest:
                 raise
             # Else we will try the noncontest version.
 
     try:
-        return django_reverse('noncontest:' + target, *args, **kwargs)
+        return django_reverse("noncontest:" + target, *args, **kwargs)
     except NoReverseMatch:
         if explicit_contest and not contest_id:
             raise

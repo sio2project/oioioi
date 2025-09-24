@@ -3,75 +3,73 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.forms import PublicMessageForm
-from oioioi.forum.models import Ban, Post, Thread, ForumMessage, NewPostMessage
+from oioioi.forum.models import Ban, ForumMessage, NewPostMessage, Post, Thread
 
 
 class PostForm(forms.ModelForm):
-    class Meta(object):
+    class Meta:
         model = Post
-        fields = ['content']
+        fields = ["content"]
 
     def __init__(self, request, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
-        self.fields['content'].widget.attrs['class'] = 'monospace'
+        self.fields["content"].widget.attrs["class"] = "monospace"
 
     def is_valid(self):
         valid = super(PostForm, self).is_valid()
         if not valid:
             return valid
-        if len(self.cleaned_data['content']) > getattr(settings, 'FORUM_POST_MAX_LENGTH', 20000):
-            self.add_error('content', _('Post is too long'))
+        if len(self.cleaned_data["content"]) > getattr(settings, "FORUM_POST_MAX_LENGTH", 20000):
+            self.add_error("content", _("Post is too long"))
             return False
         return True
 
 
 class NewThreadForm(forms.ModelForm):
-    class Meta(object):
+    class Meta:
         model = Thread
-        fields = ['name']
+        fields = ["name"]
 
     content = forms.CharField(widget=forms.Textarea, required=True)
 
     def __init__(self, request, *args, **kwargs):
         super(NewThreadForm, self).__init__(*args, **kwargs)
-        self.fields['name'].label = _("Topic")
-        self.fields['name'].widget.attrs['class'] = 'monospace'
-        self.fields['content'].widget.attrs['class'] = 'monospace'
+        self.fields["name"].label = _("Topic")
+        self.fields["name"].widget.attrs["class"] = "monospace"
+        self.fields["content"].widget.attrs["class"] = "monospace"
 
 
 class BanForm(forms.ModelForm):
-    class Meta(object):
+    class Meta:
         model = Ban
-        fields = ['reason']
+        fields = ["reason"]
 
-    delete_reports = forms.BooleanField(
-        widget=forms.CheckboxInput(), label=_("Remove user reports"), required=False
-    )
+    delete_reports = forms.BooleanField(widget=forms.CheckboxInput(), label=_("Remove user reports"), required=False)
 
     def __init__(self, *args, **kwargs):
         super(BanForm, self).__init__(*args, **kwargs)
-        self.fields['reason'].label = _("Reason")
-        self.fields['reason'].widget.attrs['class'] = 'monospace'
+        self.fields["reason"].label = _("Reason")
+        self.fields["reason"].widget.attrs["class"] = "monospace"
 
 
 class ReportForm(forms.ModelForm):
-    class Meta(object):
+    class Meta:
         model = Post
-        fields = ['report_reason']
+        fields = ["report_reason"]
 
     def __init__(self, *args, **kwargs):
         super(ReportForm, self).__init__(*args, **kwargs)
-        self.fields['report_reason'].label = _("Reason")
-        self.fields['report_reason'].widget.attrs['class'] = 'monospace non-resizable'
+        self.fields["report_reason"].label = _("Reason")
+        self.fields["report_reason"].widget.attrs["class"] = "monospace non-resizable"
 
 
 class ForumMessageForm(PublicMessageForm):
-    class Meta(object):
+    class Meta:
         model = ForumMessage
-        fields = ['content']
+        fields = ["content"]
 
 
 class NewPostMessageForm(PublicMessageForm):
-    class Meta(object):
+    class Meta:
         model = NewPostMessage
-        fields = ['content']
+        fields = ["content"]

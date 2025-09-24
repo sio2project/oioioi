@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
+
 from oioioi.problems.package import NoBackend, backend_for_package
 
 
@@ -11,10 +12,8 @@ class Command(BaseCommand):
     help = _("Adds the problem from the given package to the database.")
 
     def add_arguments(self, parser):
-        parser.add_argument('filename', type=str)
-        parser.add_argument(
-            'no_throw', type=str, nargs='?', default='', choices=['', 'nothrow']
-        )
+        parser.add_argument("filename", type=str)
+        parser.add_argument("no_throw", type=str, nargs="?", default="", choices=["", "nothrow"])
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -24,10 +23,10 @@ class Command(BaseCommand):
         # we can still investigate the problem package
         # and make sure that the errors there are what we expected.
         throw_on_problem_not_added = True
-        if options['no_throw']:
+        if options["no_throw"]:
             throw_on_problem_not_added = False
 
-        filename = options['filename']
+        filename = options["filename"]
         if not os.path.exists(filename):
             raise CommandError(_("File not found: %s") % filename)
         try:
@@ -37,6 +36,6 @@ class Command(BaseCommand):
 
         problem = backend.simple_unpack(filename)
         if problem is not None:
-            self.stdout.write('%d\n' % (problem.id,))
+            self.stdout.write("%d\n" % (problem.id,))
         elif throw_on_problem_not_added:
             raise CommandError(_("There was an error adding the problem"))

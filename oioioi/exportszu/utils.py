@@ -16,7 +16,7 @@ from oioioi.programs.models import ProgramSubmission
 from oioioi.programs.utils import get_extension
 
 
-class SubmissionData(object):
+class SubmissionData:
     submission_id = None
     user_id = None
     username = None
@@ -31,7 +31,7 @@ class SubmissionData(object):
     source_file = None
 
 
-class SubmissionsWithUserDataCollector(object):
+class SubmissionsWithUserDataCollector:
     """
     Collects submissions with some associated data in specific contest with
     some filtering.
@@ -41,17 +41,15 @@ class SubmissionsWithUserDataCollector(object):
     the collector to provide access to fully prepared data.
     """
 
-    def __init__(
-        self, contest, round=None, problem_instance=None, language=None, only_final=True
-    ):
+    def __init__(self, contest, round=None, problem_instance=None, language=None, only_final=True):
         self.contest = contest
         self.round = round
         self.problem_instance = problem_instance
 
         if language:
-            exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            exts = getattr(settings, "SUBMITTABLE_EXTENSIONS", {})
             if language not in exts:
-                raise InvalidValue("Invalid programming language")
+                raise ValueError("Invalid programming language")
             self.lang_exts = exts[language]
         else:
             self.lang_exts = None
@@ -77,7 +75,7 @@ class SubmissionsWithUserDataCollector(object):
         if self.lang_exts:
             q_expr_langs = Q()
             for ext in self.lang_exts:
-                q_expr_langs |= Q(source_file__contains='.%s@' % ext)
+                q_expr_langs |= Q(source_file__contains=".%s@" % ext)
             q_expressions &= q_expr_langs
 
         if self.only_final:
@@ -101,11 +99,7 @@ class SubmissionsWithUserDataCollector(object):
             # here we try to get some optional data, it just may not be there
             # and it's ok
             try:
-                registration = (
-                    Participant.objects.select_related()
-                    .get(contest_id=self.contest.id, user=s.user)
-                    .registration_model
-                )
+                registration = Participant.objects.select_related().get(contest_id=self.contest.id, user=s.user).registration_model
                 try:
                     data.city = registration.city
                 except AttributeError:
@@ -138,19 +132,19 @@ def build_submissions_archive(out_file, submission_collector):
         contest_id = submission_collector.get_contest_id()
         files_dir = os.path.join(tmpdir, contest_id)
         os.mkdir(files_dir, 0o700)
-        with open(os.path.join(files_dir, 'INDEX'), 'w') as f:
+        with open(os.path.join(files_dir, "INDEX"), "w") as f:
             index_csv = csv.writer(f)
             header = [
-                'submission_id',
-                'user_id',
-                'username',
-                'first_name',
-                'last_name',
-                'city',
-                'school',
-                'school_city',
-                'problem_short_name',
-                'score',
+                "submission_id",
+                "user_id",
+                "username",
+                "first_name",
+                "last_name",
+                "city",
+                "school",
+                "school_city",
+                "problem_short_name",
+                "score",
             ]
             index_csv.writerow(header)
             for s in submission_list:
@@ -169,14 +163,14 @@ def build_submissions_archive(out_file, submission_collector):
 
                 def encode(obj):
                     if obj is None:
-                        return 'NULL'
+                        return "NULL"
                     else:
                         return force_str(obj, errors="ignore")
 
                 index_csv.writerow([encode(col) for col in index_entry])
 
         for s in submission_list:
-            filename = '%s:%s:%s.%s' % (
+            filename = "%s:%s:%s.%s" % (
                 s.submission_id,
                 s.username,
                 s.problem_short_name,
@@ -185,7 +179,7 @@ def build_submissions_archive(out_file, submission_collector):
             dest = os.path.join(files_dir, filename)
             submission_collector.get_submission_source(dest, s.source_file)
 
-        with tarfile.open(fileobj=out_file, mode='w:gz') as tar:
+        with tarfile.open(fileobj=out_file, mode="w:gz") as tar:
             tar.add(files_dir, arcname=contest_id)
     finally:
         shutil.rmtree(tmpdir)

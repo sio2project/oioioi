@@ -25,33 +25,29 @@ from oioioi.rankings.utils import get_ranking_message
 def has_any_ranking_visible(request):
     ccontroller = request.contest.controller
     rcontroller = ccontroller.ranking_controller()
-    return ccontroller.can_see_ranking(request) and bool(
-        rcontroller.available_rankings(request)
-    )
+    return ccontroller.can_see_ranking(request) and bool(rcontroller.available_rankings(request))
 
 
 @enforce_condition(contest_exists & can_enter_contest & is_contest_basicadmin)
 @enforce_condition(has_any_ranking_visible)
 def get_users_in_ranking_view(request):
     queryset = Submission.objects
-    return get_user_hints_view(request, 'substr', queryset, 'user')
+    return get_user_hints_view(request, "substr", queryset, "user")
 
 
 @menu_registry.register_decorator(
     _("Ranking"),
-    lambda request: reverse(
-        'default_ranking', kwargs={'contest_id': request.contest.id}
-    ),
+    lambda request: reverse("default_ranking", kwargs={"contest_id": request.contest.id}),
     order=440,
 )
 @enforce_condition(contest_exists & can_enter_contest)
-@enforce_condition(has_any_ranking_visible, template='rankings/no_rankings.html')
+@enforce_condition(has_any_ranking_visible, template="rankings/no_rankings.html")
 def ranking_view(request, key=None):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)
     if key is None:
         key = choices[0][0]
-    if key not in next(zip(*choices)):
+    if key not in next(zip(*choices, strict=False)):
         raise Http404
 
     context = dict()
@@ -60,30 +56,28 @@ def ranking_view(request, key=None):
 
     if rcontroller.can_search_for_users():
         form = FilterUsersInRankingForm(request, request.GET)
-        context['form'] = form
+        context["form"] = form
 
         if form.is_valid():
-            user = form.cleaned_data.get('user')
+            user = form.cleaned_data.get("user")
             # Everybody can search for themselves.
             # Contest admins can search for anyone.
             if user and (is_contest_basicadmin(request) or user == request.user):
                 found_pos = rcontroller.find_user_position(request, key, user)
                 if found_pos:
-                    users_per_page = getattr(settings, 'PARTICIPANTS_ON_PAGE', 100)
+                    users_per_page = getattr(settings, "PARTICIPANTS_ON_PAGE", 100)
                     found_page = ((found_pos - 1) // users_per_page) + 1
                     get_dict = request.GET.copy()
-                    get_dict.pop('user')
-                    get_dict['page'] = str(found_page)
-                    return redirect(
-                        request.path + '?' + get_dict.urlencode() + '#' + str(user.id)
-                    )
+                    get_dict.pop("user")
+                    get_dict["page"] = str(found_page)
+                    return redirect(request.path + "?" + get_dict.urlencode() + "#" + str(user.id))
                 else:
                     msg = _("User is not in the ranking.")
                     # Admin should receive error in form,
                     # whereas user should see it as an error message,
                     # because there is no form then.
                     if is_contest_basicadmin(request):
-                        form._errors['user'] = form.error_class([msg])
+                        form._errors["user"] = form.error_class([msg])
                     else:
                         messages.error(request, msg)
 
@@ -108,24 +102,24 @@ def ranking_view(request, key=None):
         # between each other (using these GET parameters).
         request.GET = request.GET.copy()
         try:
-            request.GET.pop('user')
+            request.GET.pop("user")
         except KeyError:
             pass
         ranking = rcontroller.get_rendered_ranking(request, key)
 
-    context['choices'] = choices
-    context['ranking'] = ranking
-    context['key'] = key
-    context['message'] = get_ranking_message(request)
+    context["choices"] = choices
+    context["ranking"] = ranking
+    context["key"] = key
+    context["message"] = get_ranking_message(request)
 
-    return TemplateResponse(request, 'rankings/ranking_view.html', context)
+    return TemplateResponse(request, "rankings/ranking_view.html", context)
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def ranking_csv_view(request, key):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)
-    if not choices or key not in next(zip(*choices)):
+    if not choices or key not in next(zip(*choices, strict=False)):
         raise Http404
 
     return rcontroller.render_ranking_to_csv(request, key)
@@ -138,21 +132,21 @@ def ranking_invalidate_view(request, key):
     full_key = rcontroller.get_full_key(request, key)
     ranking = Ranking.objects.filter(key=full_key)
     Ranking.invalidate_queryset(ranking)
-    return redirect('ranking', key=key)
+    return redirect("ranking", key=key)
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def edit_ranking_message_view(request):
     instance = get_ranking_message(request)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = RankingMessageForm(request, request.POST, instance=instance)
         if form.is_valid():
             form.save()
-            return redirect('default_ranking', contest_id=request.contest.id)
+            return redirect("default_ranking", contest_id=request.contest.id)
     else:
         form = RankingMessageForm(request, instance=instance)
     return TemplateResponse(
         request,
-        'public_message/edit.html',
-        {'form': form, 'title': _("Edit ranking message")},
+        "public_message/edit.html",
+        {"form": form, "title": _("Edit ranking message")},
     )

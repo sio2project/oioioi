@@ -47,16 +47,13 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh && \
 RUN sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
     locale-gen
 
-COPY ./entrypoint_checks.sh /entrypoint_checks.sh
-RUN chmod +x /entrypoint_checks.sh && chown oioioi /entrypoint_checks.sh
-
 # Installing python dependencies
 USER oioioi
 
 ENV PATH $PATH:/home/oioioi/.local/bin/
 
 ENV BERKELEYDB_DIR /usr
-RUN pip3 install --user psycopg2-binary==2.9.5 twisted uwsgi
+RUN pip3 install --user psycopg2-binary twisted uwsgi
 RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
@@ -65,6 +62,7 @@ COPY --chown=oioioi:oioioi setup.py requirements.txt ./
 RUN pip3 install -r requirements.txt --user filetracker[server]
 COPY --chown=oioioi:oioioi requirements_static.txt ./
 RUN pip3 install -r requirements_static.txt --user
+RUN pip3 install --user -U "gevent==25.5.1"  # override version of gevent
 
 # Installing node dependencies
 ENV PATH $PATH:/sio2/oioioi/node_modules/.bin

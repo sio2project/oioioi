@@ -21,59 +21,52 @@ def oisubmit_response(error_occured, comment):
 @csrf_exempt
 @enforce_condition(contest_exists & can_enter_contest)
 def oisubmit_view(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = OISubmitSubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():
             # Dates are interpreted as local timezone.
-            if form.cleaned_data.get('siotime', None) is not None:
-                submission_date = form.cleaned_data['siotime']
-            elif form.cleaned_data.get('localtime', None) is not None:
-                submission_date = form.cleaned_data['localtime']
+            if form.cleaned_data.get("siotime", None) is not None:
+                submission_date = form.cleaned_data["siotime"]
+            elif form.cleaned_data.get("localtime", None) is not None:
+                submission_date = form.cleaned_data["localtime"]
             else:
                 return HttpResponseServerError("Localtime is None")
 
             servertime = request.timestamp
             request.timestamp = submission_date
-            pi = form.cleaned_data['problem_instance']
+            pi = form.cleaned_data["problem_instance"]
 
-            task_submission_no = (
-                Submission.objects.filter(user=request.user, problem_instance__id=pi.id)
-                .filter(kind=form.cleaned_data['kind'])
-                .count()
-                + 1
-            )
+            task_submission_no = Submission.objects.filter(user=request.user, problem_instance__id=pi.id).filter(kind=form.cleaned_data["kind"]).count() + 1
 
             submissions_limit = pi.controller.get_submissions_limit(request, pi)
 
             errors = []
 
             if submissions_limit and task_submission_no > submissions_limit:
-                errors.append('SLE')
+                errors.append("SLE")
 
             rt = request.contest.controller.get_round_times(request, pi.round)
 
             if rt.is_future(request.timestamp):
-                errors.append('BEFORE_START')
+                errors.append("BEFORE_START")
             if rt.is_past(request.timestamp):
-                errors.append('AFTER_END')
+                errors.append("AFTER_END")
 
             if abs(request.timestamp - servertime) >= timedelta(seconds=30):
-                errors.append('TIMES_DIFFER')
+                errors.append("TIMES_DIFFER")
 
-            err_msg = ','.join(errors)
+            err_msg = ",".join(errors)
 
             received_suspected = bool(errors)
             if received_suspected:
-                form.cleaned_data['kind'] = 'SUSPECTED'
+                form.cleaned_data["kind"] = "SUSPECTED"
 
-            submission = request.contest.controller.create_submission(
-                request, pi, form.cleaned_data, judge_after_create=(not errors)
-            )
+            submission = request.contest.controller.create_submission(request, pi, form.cleaned_data, judge_after_create=(not errors))
 
             extra_data = OISubmitExtraData(
                 submission=submission,
-                localtime=form.cleaned_data['localtime'],
-                siotime=form.cleaned_data['siotime'],
+                localtime=form.cleaned_data["localtime"],
+                siotime=form.cleaned_data["siotime"],
                 servertime=servertime,
                 received_suspected=received_suspected,
                 comments=err_msg,
@@ -81,11 +74,7 @@ def oisubmit_view(request):
             extra_data.save()
 
             if errors:
-                msg = '\n'.join(
-                    str(SUSPICION_REASONS[err])
-                    for err in errors
-                    if err in SUSPICION_REASONS
-                )
+                msg = "\n".join(str(SUSPICION_REASONS[err]) for err in errors if err in SUSPICION_REASONS)
                 return oisubmit_response(True, msg)
             else:
                 msg = submission_date.strftime("%Y-%m-%d %H:%M:%S")
@@ -98,4 +87,4 @@ def oisubmit_view(request):
             return oisubmit_response(True, str(msg))
     else:
         form = OISubmitSubmissionForm(request)
-    return TemplateResponse(request, 'contests/submit.html', {'form': form})
+    return TemplateResponse(request, "contests/submit.html", {"form": form})

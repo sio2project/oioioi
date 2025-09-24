@@ -2,9 +2,9 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.translation import gettext as _
 
-from oioioi.usergroups.models import UserGroupRanking
 from oioioi.rankings.models import Ranking
 from oioioi.usergroups.controllers import USER_GROUP_RANKING_PREFIX
+from oioioi.usergroups.models import UserGroupRanking
 
 
 class Command(BaseCommand):
@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        key_infix = '#' + USER_GROUP_RANKING_PREFIX
+        key_infix = "#" + USER_GROUP_RANKING_PREFIX
 
         Ranking.objects.filter(key__contains=key_infix).delete()
         UserGroupRanking.objects.all().delete()

@@ -23,7 +23,7 @@ class StatisticsConfigInline(admin.TabularInline):
         return self.has_change_permission(request, obj)
 
 
-class StatisticsAdminMixin(object):
+class StatisticsAdminMixin:
     """Adds :class:`~oioioi.statistics.models.StatisticsConfig` to an admin
     panel.
     """

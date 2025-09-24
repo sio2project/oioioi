@@ -13,29 +13,24 @@ def validate_whitespaces(value):
         raise ValidationError(_("This field must contain a non-whitespace character."))
 
 
-db_string_id_re = re.compile(r'^[a-z0-9_-]+$')
+db_string_id_re = re.compile(r"^[a-z0-9_-]+$")
 #: We are forcing only lowercase letters, as some database collations use
 #: case insensitive string comparison.
 validate_db_string_id = RegexValidator(
     db_string_id_re,
-    _(
-        "Enter a valid 'slug' consisting of lowercase letters, numbers, "
-        "underscores or hyphens."
-    ),
-    'invalid',
+    _("Enter a valid 'slug' consisting of lowercase letters, numbers, underscores or hyphens."),
+    "invalid",
 )
 
 
 @deconstructible
-class UnicodeValidator(object):
+class UnicodeValidator:
     unicode_categories = []
     message = _("Enter a valid value.")
-    code = 'invalid'
+    code = "invalid"
     allow_spaces = False
 
-    def __init__(
-        self, unicode_categories=None, message=None, code=None, allow_spaces=None
-    ):
+    def __init__(self, unicode_categories=None, message=None, code=None, allow_spaces=None):
         if unicode_categories is not None:
             self.unicode_categories = unicode_categories
         if message is not None:
@@ -55,9 +50,7 @@ class UnicodeValidator(object):
         n = len(value)
         for i, letter in enumerate(value):
             c = u_cat(letter)
-            if c not in self.unicode_categories and (
-                i == 0 or i == n - 1 or c != 'Zs' or not self.allow_spaces
-            ):
+            if c not in self.unicode_categories and (i == 0 or i == n - 1 or c != "Zs" or not self.allow_spaces):
                 raise ValidationError(self.message, code=self.code)
 
     def __eq__(self, other):

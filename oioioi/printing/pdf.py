@@ -5,11 +5,9 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from fpdf import FPDF
 
-FONT_DIR = os.path.join(os.path.dirname(__file__), 'font')
-FONT = getattr(
-    settings, 'PRINTING_FONT', os.path.join(FONT_DIR, 'DejaVuSerifCondensed.ttf')
-)
-FONT_SIZE = getattr(settings, 'PRINTING_FONT_SIZE', 8)
+FONT_DIR = os.path.join(os.path.dirname(__file__), "font")
+FONT = getattr(settings, "PRINTING_FONT", os.path.join(FONT_DIR, "DejaVuSerifCondensed.ttf"))
+FONT_SIZE = getattr(settings, "PRINTING_FONT_SIZE", 8)
 MM_IN_POINT = 0.35
 
 
@@ -21,7 +19,7 @@ class PrintPDF(FPDF):
     """FPDF object with two column layout, header and footer"""
 
     def __init__(self, *args, **kwargs):
-        self.header_text = kwargs.pop('header', u'')
+        self.header_text = kwargs.pop("header", "")
         super(PrintPDF, self).__init__(*args, **kwargs)
         self.alias_nb_pages()
         self.initial_l_margin = self.l_margin
@@ -55,22 +53,20 @@ class PrintPDF(FPDF):
 
     def gray_cell(self, *args, **kwargs):
         self.set_fill_color(self.background_gray)
-        kwargs['fill'] = True
+        kwargs["fill"] = True
         self.cell(*args, **kwargs)
         self.set_fill_color(0)
 
     def header(self):
-        self.set_font('USER_FONT', size=FONT_SIZE)
+        self.set_font("USER_FONT", size=FONT_SIZE)
 
-        self.gray_cell(
-            w=0, h=self.cell_height, txt=self.header_text, border=1, ln=1, align='C'
-        )
+        self.gray_cell(w=0, h=self.cell_height, txt=self.header_text, border=1, ln=1, align="C")
 
     def footer(self):
         self.set_left_margin(self.initial_l_margin)
         self.set_y(self.h - self.b_margin)
 
-        self.set_font('Times', size=FONT_SIZE)
+        self.set_font("Times", size=FONT_SIZE)
         # FPDF does not support {nb} alias with unicode.
         #  It's already fixed in hg repository, we are waiting for release.
         self.gray_cell(
@@ -79,7 +75,7 @@ class PrintPDF(FPDF):
             txt=_("Page %s/{nb}") % self.page_no(),
             border=1,
             ln=1,
-            align='C',
+            align="C",
         )
 
         # Draw lines on margins and between columns
@@ -104,12 +100,10 @@ class PrintPDF(FPDF):
 
 
 def generator(source, header):
-    pdf = PrintPDF(orientation='L', header=header)
-    pdf.add_font('USER_FONT', '', FONT, uni=True)
+    pdf = PrintPDF(orientation="L", header=header)
+    pdf.add_font("USER_FONT", "", FONT, uni=True)
 
     pdf.add_page()
-    pdf.set_font('USER_FONT', size=FONT_SIZE)
-    pdf.multi_cell(
-        w=pdf.column_width, h=pdf.cell_height, txt=source, border=0, align='L'
-    )
-    return six.ensure_binary(pdf.output(dest='S'), 'latin-1')
+    pdf.set_font("USER_FONT", size=FONT_SIZE)
+    pdf.multi_cell(w=pdf.column_width, h=pdf.cell_height, txt=source, border=0, align="L")
+    return six.ensure_binary(pdf.output(dest="S"), "latin-1")

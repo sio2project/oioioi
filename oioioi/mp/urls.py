@@ -1,3 +1,3 @@
-app_name = 'mp'
+app_name = "mp"
 
 contest_patterns = []

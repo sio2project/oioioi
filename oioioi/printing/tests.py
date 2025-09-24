@@ -1,7 +1,8 @@
+from io import BytesIO
+
 from django.core.files.base import ContentFile
 from django.test.utils import override_settings
 from django.urls import reverse
-from io import BytesIO
 
 from oioioi.base.tests import TestCase
 from oioioi.base.utils.pdf import extract_text_from_pdf
@@ -32,46 +33,44 @@ class PrintingTestContestController(ContestController):
 
 class TestPDFGenerator(TestCase):
     def test_pdf_generation(self):
-        pdf = BytesIO(generator(source=SAMPLE_TEXT, header='header'))
+        pdf = BytesIO(generator(source=SAMPLE_TEXT, header="header"))
         text = extract_text_from_pdf(pdf)
         self.assertEqual(9, len(text))
-        self.assertIn(b'Lorem ipsum dolor', text[0])
-        self.assertIn(b'Sed egestas dui tellus', text[4])
+        self.assertIn(b"Lorem ipsum dolor", text[0])
+        self.assertIn(b"Sed egestas dui tellus", text[4])
 
 
 class TestPrintingView(TestCase):
     fixtures = [
-        'test_users',
-        'test_contest',
-        'test_full_package',
-        'test_problem_instance',
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
     ]
 
     def setUp(self):
-        self.assertTrue(self.client.login(username='test_user'))
+        self.assertTrue(self.client.login(username="test_user"))
         self.contest = Contest.objects.get()
-        self.contest.controller_name = (
-            'oioioi.printing.tests.PrintingTestContestController'
-        )
+        self.contest.controller_name = "oioioi.printing.tests.PrintingTestContestController"
         self.contest.save()
-        self.url = reverse('print_view', kwargs={'contest_id': self.contest.id})
+        self.url = reverse("print_view", kwargs={"contest_id": self.contest.id})
 
     def print_file(self, content):
-        file = ContentFile(content.encode('utf-8'), name='sample_code.cpp')
-        post_data = {'file': file}
+        file = ContentFile(content.encode("utf-8"), name="sample_code.cpp")
+        post_data = {"file": file}
         return self.client.post(self.url, post_data)
 
-    @override_settings(PRINTING_COMMAND=['grep', '%PDF-'])
+    @override_settings(PRINTING_COMMAND=["grep", "%PDF-"])
     def test_print(self):
         response = self.print_file(SAMPLE_TEXT)
-        self.assertContains(response, 'File has been printed.')
+        self.assertContains(response, "File has been printed.")
         # The assert above should fail if there is no "%PDF-" in generated file
 
     @override_settings(PRINTING_MAX_FILE_SIZE=2048 * 100)
     def test_page_limit(self):
         response = self.print_file(SAMPLE_TEXT * 2)
-        self.assertContains(response, 'The page limit exceeded.')
+        self.assertContains(response, "The page limit exceeded.")
 
     def test_file_size_limit(self):
         response = self.print_file(SAMPLE_TEXT * 2)
-        self.assertContains(response, 'The file size limit exceeded.')
+        self.assertContains(response, "The file size limit exceeded.")

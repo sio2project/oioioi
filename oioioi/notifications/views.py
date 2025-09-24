@@ -8,10 +8,10 @@ from django.views.decorators.http import require_POST
 @require_POST
 def notifications_authenticate_view(request):
     try:
-        session = Session.objects.get(notificationssession__uid=request.POST['nsid'])
-        user_id = session.get_decoded().get('_auth_user_id')
-        return JsonResponse({'user': user_id})
+        session = Session.objects.get(notificationssession__uid=request.POST["nsid"])
+        user_id = session.get_decoded().get("_auth_user_id")
+        return JsonResponse({"user": user_id})
     except KeyError:
         return HttpResponseBadRequest()
     except Session.DoesNotExist:
-        return HttpResponse('Unauthorized', status=401)
+        return HttpResponse("Unauthorized", status=401)

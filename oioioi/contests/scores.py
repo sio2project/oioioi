@@ -1,22 +1,23 @@
 """Each score class is represented in database as single string formatted as
-   ``"class_symbol:score_data"`` where ``class_symbol`` is used for binding
-   purposes (see :class:`ScoreValue`) and ``score_data`` is score in
-   human readable form.
+``"class_symbol:score_data"`` where ``class_symbol`` is used for binding
+purposes (see :class:`ScoreValue`) and ``score_data`` is score in
+human readable form.
 
-   To create new score class ``MyScore`` you have to choose ``class_symbol``
-   and decide how to encode score as ``score_data``.
-   MyScore should extend :class:`ScoreValue` and implement its
-   unimplemented functions such as :py:func:`__add__`, :py:func:`__lt__` etc.
+To create new score class ``MyScore`` you have to choose ``class_symbol``
+and decide how to encode score as ``score_data``.
+MyScore should extend :class:`ScoreValue` and implement its
+unimplemented functions such as :py:func:`__add__`, :py:func:`__lt__` etc.
 
-   NOTE: when you create a new type of score, make sure that it gets
-   registered (its class gets loaded) before any attempt to deserialize its
-   instance.
-   If you are not sure if this is the case, adding the line
-   ``from oioioi.yourapp.score import YourScore`` to ``yourapp.models.py``
-   should fix the problem.
+NOTE: when you create a new type of score, make sure that it gets
+registered (its class gets loaded) before any attempt to deserialize its
+instance.
+If you are not sure if this is the case, adding the line
+``from oioioi.yourapp.score import YourScore`` to ``yourapp.models.py``
+should fix the problem.
 
-   For simple example of score class implementation see :class:`IntegerScore`.
+For simple example of score class implementation see :class:`IntegerScore`.
 """
+
 from functools import total_ordering
 
 from django.core.exceptions import ValidationError
@@ -32,7 +33,7 @@ class ScoreValue(ClassInitBase):
 
     #: A unique, short class identifier prepended to the database
     #: representation of the value. This must be overridden in all subclasses.
-    symbol = '__override_in_subclasses__'
+    symbol = "__override_in_subclasses__"
 
     _subclasses = dict()
 
@@ -40,7 +41,7 @@ class ScoreValue(ClassInitBase):
     def __classinit__(cls):
         """Adds subclasses' bindings."""
 
-        this_class = globals().get('ScoreValue', cls)
+        this_class = globals().get("ScoreValue", cls)
         # pylint: disable=bad-super-call
         super(this_class, cls).__classinit__()
 
@@ -48,17 +49,14 @@ class ScoreValue(ClassInitBase):
             return
 
         if cls.symbol == this_class.symbol:
-            raise AssertionError('Symbol attribute not defined in %r' % (cls,))
+            raise AssertionError("Symbol attribute not defined in %r" % (cls,))
         if cls.symbol in this_class._subclasses:
-            raise AssertionError(
-                'Duplicate symbol \'%s\' used in both '
-                '%r and %r' % (cls.symbol, this_class._subclasses[cls.symbol], cls)
-            )
+            raise AssertionError("Duplicate symbol '%s' used in both %r and %r" % (cls.symbol, this_class._subclasses[cls.symbol], cls))
         this_class._subclasses[cls.symbol] = cls
 
     def serialize(self):
         """Converts the instance of any subclass to string."""
-        return '%s:%s' % (self.symbol, self._to_repr())
+        return "%s:%s" % (self.symbol, self._to_repr())
 
     def __repr__(self):
         return self.serialize()
@@ -68,14 +66,9 @@ class ScoreValue(ClassInitBase):
         """Invert the operation of :meth:`serialize`."""
         if not serialized:
             return None
-        parts = serialized.split(':', 1)
+        parts = serialized.split(":", 1)
         if len(parts) < 2:
-            raise ValidationError(
-                _(
-                    "Score must look like this: "
-                    "'<type>:<value>', for example 'int:100', not '%s'." % (serialized,)
-                )
-            )
+            raise ValidationError(_("Score must look like this: '<type>:<value>', for example 'int:100', not '%s'." % (serialized,)))
         symbol, value = parts
         if symbol in ScoreValue._subclasses:
             return ScoreValue._subclasses[symbol]._from_repr(value)
@@ -145,7 +138,7 @@ class IntegerScore(ScoreValue):
     Value is padded with zeros to 19 characters.
     """
 
-    symbol = 'int'
+    symbol = "int"
 
     def __init__(self, value=0):
         assert isinstance(value, int)
@@ -178,7 +171,7 @@ class IntegerScore(ScoreValue):
         return cls(int(value))
 
     def _to_repr(self):
-        return '%019d' % self.value
+        return "%019d" % self.value
 
     def to_int(self):
         return self.value

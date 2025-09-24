@@ -6,7 +6,7 @@ from oioioi.base.menu import OrderedRegistry
 from oioioi.base.permissions import Condition
 
 
-class _MainPageEntry(object):
+class _MainPageEntry:
     def __init__(self, view, condition):
         self.view = view
         self.condition = condition
@@ -54,7 +54,6 @@ def unregister_main_page_view(view):
 
 
 def main_page_view(request):
-
     for entry in _main_page_registry:
         if entry.condition(request):
             return entry.view(request)

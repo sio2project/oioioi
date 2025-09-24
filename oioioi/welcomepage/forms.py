@@ -6,9 +6,9 @@ from oioioi.welcomepage.models import WelcomePageMessage
 
 
 class WelcomePageMessageForm(forms.ModelForm):
-    class Meta(object):
+    class Meta:
         model = WelcomePageMessage
-        fields = ['content', 'language']
+        fields = ["content", "language"]
 
     language = forms.ChoiceField(
         label="Language",
@@ -18,12 +18,15 @@ class WelcomePageMessageForm(forms.ModelForm):
 
     content = forms.CharField(
         label="Content",
-        widget=forms.Textarea(attrs={
-            'rows': 10,
-            'style': 'white-space: pre;',
-            'class': 'monospace',
-        }),
+        widget=forms.Textarea(
+            attrs={
+                "rows": 10,
+                "style": "white-space: pre;",
+                "class": "monospace",
+            }
+        ),
     )
+
 
 WelcomePageMessageFormset = modelformset_factory(
     WelcomePageMessage,

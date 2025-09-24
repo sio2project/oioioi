@@ -88,9 +88,7 @@ class Ranking(models.Model):
     # use invalidate_* and is_up_to_date instead
     needs_recalculation = models.BooleanField(default=True)
     cooldown_date = models.DateTimeField(auto_now_add=True)
-    recalc_in_progress = models.ForeignKey(
-        RankingRecalc, null=True, on_delete=models.SET_NULL
-    )
+    recalc_in_progress = models.ForeignKey(RankingRecalc, null=True, on_delete=models.SET_NULL)
 
     @property
     def serialized(self):
@@ -123,14 +121,14 @@ class Ranking(models.Model):
         """
         return not self.needs_recalculation and self.recalc_in_progress_id is None
 
-    class Meta(object):
-        unique_together = ('contest', 'key')
+    class Meta:
+        unique_together = ("contest", "key")
 
 
 class RankingPage(models.Model):
     """Single page of a ranking"""
 
-    ranking = models.ForeignKey(Ranking, related_name='pages', on_delete=models.CASCADE)
+    ranking = models.ForeignKey(Ranking, related_name="pages", on_delete=models.CASCADE)
     nr = models.IntegerField()
     data = models.TextField()
 
@@ -142,12 +140,7 @@ def clamp(minimum, x, maximum):
 @transaction.atomic
 def choose_for_recalculation():
     now = timezone.now()
-    r = (
-        Ranking.objects.filter(needs_recalculation=True, cooldown_date__lt=now)
-        .order_by('last_recalculation_date')
-        .select_for_update()
-        .first()
-    )
+    r = Ranking.objects.filter(needs_recalculation=True, cooldown_date__lt=now).order_by("last_recalculation_date").select_for_update().first()
     if r is None:
         return None
     cooldown_duration = clamp(
@@ -178,9 +171,7 @@ def save_recalc_results(recalc, date_before, date_after, serialized, pages_list)
         r = Ranking.objects.filter(recalc_in_progress=recalc).select_for_update().get()
     except Ranking.DoesNotExist:
         return
-    r.serialized_data = pickle.dumps(
-        serialized
-    )
+    r.serialized_data = pickle.dumps(serialized)
     save_pages(r, pages_list)
     r.last_recalculation_date = date_before
     r.last_recalculation_duration = date_after - date_before
@@ -193,11 +184,7 @@ def save_recalc_results(recalc, date_before, date_after, serialized, pages_list)
 def recalculate(recalc):
     date_before = timezone.now()
     try:
-        r = (
-            Ranking.objects.filter(recalc_in_progress=recalc)
-            .select_related('contest')
-            .get()
-        )
+        r = Ranking.objects.filter(recalc_in_progress=recalc).select_related("contest").get()
     except Ranking.DoesNotExist:
         return
     ranking_controller = r.controller()
@@ -207,6 +194,6 @@ def recalculate(recalc):
 
 
 class RankingMessage(PublicMessage):
-    class Meta(object):
+    class Meta:
         verbose_name = _("ranking message")
         verbose_name_plural = _("ranking messages")

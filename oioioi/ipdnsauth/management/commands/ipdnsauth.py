@@ -17,38 +17,36 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--clear',
-            action='store_true',
-            dest='clear',
+            "--clear",
+            action="store_true",
+            dest="clear",
             default=False,
             help="Clears all current bindings for ip/dns",
         )
         parser.add_argument(
-            '--export',
-            dest='exportfile',
+            "--export",
+            dest="exportfile",
             help="Exports current settings into FILE",
-            metavar='FILE',
+            metavar="FILE",
         )
         parser.add_argument(
-            '--unload',
-            dest='unloadfile',
+            "--unload",
+            dest="unloadfile",
             help="Deletes bindings from FILE.",
-            metavar='FILE',
+            metavar="FILE",
         )
-        parser.add_argument(
-            '--load', dest='loadfile', help="Loads bindings from FILE.", metavar='FILE'
-        )
-        parser.add_argument('model', type=str, choices=('ip', 'dns'), help='Model')
+        parser.add_argument("--load", dest="loadfile", help="Loads bindings from FILE.", metavar="FILE")
+        parser.add_argument("model", type=str, choices=("ip", "dns"), help="Model")
 
     def _write(self, data, filename):
-        with open(filename, 'w') as csvfile:
-            writer = csv.writer(csvfile, delimiter=' ', lineterminator='\n')
+        with open(filename, "w") as csvfile:
+            writer = csv.writer(csvfile, delimiter=" ", lineterminator="\n")
             for username, binding in data:
                 writer.writerow([username, binding])
 
     def _read(self, filename):
-        with open(filename, 'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter=' ')
+        with open(filename) as csvfile:
+            reader = csv.reader(csvfile, delimiter=" ")
             return [row for row in reader]
 
     def clear(self, module, modelMgr, *args):
@@ -66,14 +64,10 @@ class Command(BaseCommand):
         self.stderr.write("Loading...\n")
         for row in data:
             try:
-                if module == 'ip':
-                    binding = IpToUser(
-                        user=User.objects.get(username=row[0]), ip_addr=row[1]
-                    )
-                elif module == 'dns':
-                    binding = DnsToUser(
-                        user=User.objects.get(username=row[0]), dns_name=row[1]
-                    )
+                if module == "ip":
+                    binding = IpToUser(user=User.objects.get(username=row[0]), ip_addr=row[1])
+                elif module == "dns":
+                    binding = DnsToUser(user=User.objects.get(username=row[0]), dns_name=row[1])
                 binding.full_clean()
                 binding.save()
             # pylint: disable=broad-except
@@ -87,9 +81,9 @@ class Command(BaseCommand):
         self.stderr.write("Unloading...\n")
         for row in data:
             try:
-                if module == 'ip':
+                if module == "ip":
                     modelMgr.get(user__username=row[0], ip_addr=row[1]).delete()
-                elif module == 'dns':
+                elif module == "dns":
                     modelMgr.get(user__username=row[0], dns_name=row[1]).delete()
             # pylint: disable=broad-except
             except Exception as e:
@@ -100,18 +94,18 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         command_map = {
-            'exportfile': self.export,
-            'clear': self.clear,
-            'unloadfile': self.unload,
-            'loadfile': self.load,
+            "exportfile": self.export,
+            "clear": self.clear,
+            "unloadfile": self.unload,
+            "loadfile": self.load,
         }
-        command_seq = ('exportfile', 'clear', 'unloadfile', 'loadfile')
+        command_seq = ("exportfile", "clear", "unloadfile", "loadfile")
 
-        if options['model'] == 'ip':
+        if options["model"] == "ip":
             modelMgr = IpToUser.objects
-        elif options['model'] == 'dns':
+        elif options["model"] == "dns":
             modelMgr = DnsToUser.objects
 
         for cmd in command_seq:
             if options[cmd]:
-                command_map[cmd](options['model'], modelMgr, options[cmd])
+                command_map[cmd](options["model"], modelMgr, options[cmd])

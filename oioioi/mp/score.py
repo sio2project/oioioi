@@ -5,7 +5,7 @@ from oioioi.contests.scores import ScoreValue
 
 @total_ordering
 class FloatScore(ScoreValue):
-    symbol = 'float'
+    symbol = "float"
 
     def __init__(self, value):
         assert isinstance(value, float) or isinstance(value, int)
@@ -47,7 +47,7 @@ class FloatScore(ScoreValue):
         return cls(float(value))
 
     def _to_repr(self):
-        return '%017.2f' % self.value
+        return "%017.2f" % self.value
 
     def to_int(self):
         return int(self.value)

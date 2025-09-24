@@ -7,7 +7,7 @@ from oioioi.su.utils import is_under_su, reset_to_real_user
 
 
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
-class IpDnsAuthMiddleware(object):
+class IpDnsAuthMiddleware:
     """Middleware for authentication based on user IP or DNS hostname."""
 
     def __init__(self, get_response):
@@ -19,7 +19,7 @@ class IpDnsAuthMiddleware(object):
         return self.get_response(request)
 
     def _process_request(self, request):
-        if not hasattr(request, 'user'):
+        if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The IpDns user auth middleware requires the"
                 " authentication middleware to be installed.  Edit your"
@@ -28,8 +28,8 @@ class IpDnsAuthMiddleware(object):
                 " before the IpDnsAuthMiddleware class."
             )
 
-        ip_addr = request.META.get('REMOTE_ADDR')
-        dns_name = request.META.get('REMOTE_HOST')
+        ip_addr = request.META.get("REMOTE_ADDR")
+        dns_name = request.META.get("REMOTE_HOST")
 
         if dns_name == ip_addr:
             dns_name = None
@@ -43,7 +43,7 @@ class IpDnsAuthMiddleware(object):
 
 
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
-class ForceDnsIpAuthMiddleware(object):
+class ForceDnsIpAuthMiddleware:
     """Middleware which allows only IP/DNS login for participants of
     on-site contests."""
 
@@ -54,31 +54,23 @@ class ForceDnsIpAuthMiddleware(object):
         return self.get_response(request)
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        if not hasattr(request, 'user'):
+        if not hasattr(request, "user"):
             raise ImproperlyConfigured(
-                "The ForceDnsIpAuthMiddleware middleware requires the"
-                " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
-                " earlier in MIDDLEWARE."
+                "The ForceDnsIpAuthMiddleware middleware requires the 'django.contrib.auth.middleware.AuthenticationMiddleware' earlier in MIDDLEWARE."
             )
-        if not request.user.is_anonymous and not hasattr(request.user, 'backend'):
+        if not request.user.is_anonymous and not hasattr(request.user, "backend"):
             raise ImproperlyConfigured(
-                "The ForceDnsIpAuthMiddleware middleware requires the"
-                " 'oioioi.base.middleware.AnnotateUserBackendMiddleware'"
-                " earlier in MIDDLEWARE."
+                "The ForceDnsIpAuthMiddleware middleware requires the 'oioioi.base.middleware.AnnotateUserBackendMiddleware' earlier in MIDDLEWARE."
             )
-        if not hasattr(request, 'contest'):
+        if not hasattr(request, "contest"):
             raise ImproperlyConfigured(
-                "The ForceDnsIpAuthMiddleware middleware requires the"
-                " 'oioioi.contests.middleware.CurrentContestMiddleware'"
-                " earlier in MIDDLEWARE."
+                "The ForceDnsIpAuthMiddleware middleware requires the 'oioioi.contests.middleware.CurrentContestMiddleware' earlier in MIDDLEWARE."
             )
         if not request.contest:
             return
-        if not hasattr(request, 'contest_exclusive'):
+        if not hasattr(request, "contest_exclusive"):
             raise ImproperlyConfigured(
-                "The ForceDnsIpAuthMiddleware middleware requires the"
-                " 'oioioi.contextexcl.middleware.ExclusiveContestsMiddleware'"
-                " earlier in MIDDLEWARE."
+                "The ForceDnsIpAuthMiddleware middleware requires the 'oioioi.contextexcl.middleware.ExclusiveContestsMiddleware' earlier in MIDDLEWARE."
             )
         if not request.contest_exclusive:
             return
@@ -93,11 +85,9 @@ class ForceDnsIpAuthMiddleware(object):
         ).exists():
             return
         backend_path = request.user.backend
-        if backend_path != 'oioioi.ipdnsauth.backends.IpDnsBackend':
+        if backend_path != "oioioi.ipdnsauth.backends.IpDnsBackend":
             if is_under_su(request):
                 reset_to_real_user(request)
             else:
                 auth.logout(request)
-            return TemplateResponse(
-                request, 'ipdnsauth/access_blocked.html', {'auth_backend': backend_path}
-            )
+            return TemplateResponse(request, "ipdnsauth/access_blocked.html", {"auth_backend": backend_path})

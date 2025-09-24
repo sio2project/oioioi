@@ -8,13 +8,11 @@ from oioioi.portals.conditions import is_portal_admin
 
 portal_actions = {}
 node_actions = {}
-DEFAULT_ACTION_NAME = 'show_node'
+DEFAULT_ACTION_NAME = "show_node"
 portal_admin_menu_registry = MenuRegistry(condition=is_portal_admin)
 
 
-def _register_portal_action(
-    actions, name, condition, menu_text, menu_url_generator, menu_order
-):
+def _register_portal_action(actions, name, condition, menu_text, menu_url_generator, menu_order):
     if condition is None:
         condition = Condition(lambda request: True)
 
@@ -23,18 +21,14 @@ def _register_portal_action(
         actions[name] = view
 
         if menu_text is not None:
-            portal_admin_menu_registry.register(
-                name, menu_text, menu_url_generator, condition, order=menu_order
-            )
+            portal_admin_menu_registry.register(name, menu_text, menu_url_generator, condition, order=menu_order)
 
         return view
 
     return decorator
 
 
-def register_portal_action(
-    name, condition=None, menu_text=None, menu_order=sys.maxsize
-):
+def register_portal_action(name, condition=None, menu_text=None, menu_order=sys.maxsize):
     """Decorator for a view, which registers it as a portal action.
 
     A portal action is a view which operates on a portal. After
@@ -120,7 +114,7 @@ def portal_url(portal=None, node=None, path=None, action=DEFAULT_ACTION_NAME):
 
     if portal is None:
         if node is None:
-            raise TypeError('Either portal or node must be specified')
+            raise TypeError("Either portal or node must be specified")
         portal = node.get_root().portal
 
     if path is None:
@@ -129,15 +123,13 @@ def portal_url(portal=None, node=None, path=None, action=DEFAULT_ACTION_NAME):
         path = node.get_path()
 
     if portal.owner is None:
-        url = reverse(
-            'global_portal', kwargs={'link_name': portal.link_name, 'portal_path': path}
-        )
+        url = reverse("global_portal", kwargs={"link_name": portal.link_name, "portal_path": path})
     else:
         url = reverse(
-            'user_portal',
-            kwargs={'username': portal.owner.username, 'portal_path': path},
+            "user_portal",
+            kwargs={"username": portal.owner.username, "portal_path": path},
         )
 
     if action != DEFAULT_ACTION_NAME:
-        url += '?action=' + action
+        url += "?action=" + action
     return url

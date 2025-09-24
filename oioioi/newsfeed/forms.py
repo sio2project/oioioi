@@ -7,12 +7,12 @@ from oioioi.newsfeed.models import NewsLanguageVersion
 
 
 class NewsLanguageVersionForm(forms.ModelForm):
-    class Meta(object):
+    class Meta:
         model = NewsLanguageVersion
         fields = [
-            'language',
-            'title',
-            'content',
+            "language",
+            "title",
+            "content",
         ]
 
     language = forms.ChoiceField(
@@ -28,7 +28,7 @@ class NewsLanguageVersionForm(forms.ModelForm):
 
     content = forms.CharField(
         label=_("Content"),
-        widget=forms.Textarea(attrs={'rows': 10}),
+        widget=forms.Textarea(attrs={"rows": 10}),
     )
 
 

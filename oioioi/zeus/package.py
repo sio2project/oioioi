@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class ZeusPackage(SinolPackage):
-    controller_name = 'oioioi.zeus.controllers.ZeusProblemController'
-    package_backend_name = 'oioioi.zeus.package.ZeusPackageBackend'
+    controller_name = "oioioi.zeus.controllers.ZeusProblemController"
+    package_backend_name = "oioioi.zeus.package.ZeusPackageBackend"
 
     def _find_main_dir(self):
         files = list(map(os.path.normcase, self.archive.filenames()))
@@ -30,11 +30,9 @@ class ZeusPackage(SinolPackage):
         return folder
 
     def _save_zeus_data(self):
-        problem_data, _created = ZeusProblemData.objects.get_or_create(
-            problem=self.problem
-        )
-        problem_data.zeus_id = self.env['zeus_id']
-        problem_data.zeus_problem_id = self.env['zeus_problem_id']
+        problem_data, _created = ZeusProblemData.objects.get_or_create(problem=self.problem)
+        problem_data.zeus_id = self.env["zeus_id"]
+        problem_data.zeus_problem_id = self.env["zeus_problem_id"]
         problem_data.save()
 
     def _process_package(self):

@@ -20,7 +20,7 @@ class ComplaintsConfigInline(admin.TabularInline):
         return is_contest_admin(request)
 
 
-class ComplaintsAdminMixin(object):
+class ComplaintsAdminMixin:
     """Adds :class:`~oioioi.complaints.models.ComplaintConfig` to an admin
     panel.
     """

@@ -15,13 +15,13 @@ def _make_moss_form(request, *args, **kwargs):
 
 @enforce_condition(contest_exists & is_contest_admin)
 def moss_submit(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = _make_moss_form(request, request.POST)
         if form.is_valid():
-            problem_instance = form.cleaned_data['problem_instance']
-            language = form.cleaned_data['language']
-            only_final = form.cleaned_data['only_final']
-            userid = form.cleaned_data['userid']
+            problem_instance = form.cleaned_data["problem_instance"]
+            language = form.cleaned_data["language"]
+            only_final = form.cleaned_data["only_final"]
+            userid = form.cleaned_data["userid"]
             collector = SubmissionsWithUserDataCollector(
                 request.contest,
                 problem_instance=problem_instance,
@@ -34,10 +34,10 @@ def moss_submit(request):
             except MossException as e:
                 return TemplateResponse(
                     request,
-                    'plagiarism/moss_submit.html',
-                    {'form': form, 'moss_error': e.message},
+                    "plagiarism/moss_submit.html",
+                    {"form": form, "moss_error": e.message},
                 )
             return redirect(url)
     else:
         form = _make_moss_form(request)
-    return TemplateResponse(request, 'plagiarism/moss_submit.html', {'form': form})
+    return TemplateResponse(request, "plagiarism/moss_submit.html", {"form": form})

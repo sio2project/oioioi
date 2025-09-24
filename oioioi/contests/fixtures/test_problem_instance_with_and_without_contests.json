@@ -1,0 +1,21 @@
+[
+  {
+    "pk": 10,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 2,
+      "short_name": "zad1",
+      "contest": "c1"
+    }
+  },
+  {
+    "pk": 20,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 3,
+      "short_name": "zad2"
+    }
+  }
+]
