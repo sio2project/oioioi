@@ -1,9 +1,9 @@
 import json
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
+
 import aiohttp
 
 from oioioi.base.tests import TestCase
-
 from oioioi.notifications.server.auth import Auth
 from oioioi.notifications.server.queue import Queue
 from oioioi.notifications.server.server import Server, UserConnection

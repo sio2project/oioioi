@@ -1,7 +1,8 @@
-import aiohttp
 import logging
-from cachetools import TTLCache
 from typing import Optional
+
+import aiohttp
+from cachetools import TTLCache
 
 
 class Auth:
@@ -13,7 +14,7 @@ class Auth:
         self.auth_url = url + self.URL_AUTHENTICATE_SUFFIX
         self.auth_cache: TTLCache[str, str] = TTLCache(maxsize=self.AUTH_CACHE_MAX_SIZE, ttl=self.AUTH_CACHE_EXPIRATION_SECONDS)
         self.logger = logging.getLogger(__name__)
-        self.http_client: Optional[aiohttp.ClientSession] = None
+        self.http_client: aiohttp.ClientSession | None = None
 
     async def connect(self):
         self.http_client = aiohttp.ClientSession()

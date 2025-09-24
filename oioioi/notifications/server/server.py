@@ -1,10 +1,11 @@
 import asyncio
 import json
 import logging
-from typing import Dict, NamedTuple, Set, Callable, Awaitable, Optional
+from collections.abc import Awaitable, Callable
+from typing import NamedTuple
 from weakref import WeakValueDictionary
 
-from websockets.asyncio.server import serve, ServerConnection, broadcast
+from websockets.asyncio.server import ServerConnection, broadcast, serve
 from websockets.exceptions import ConnectionClosed
 
 from oioioi.notifications.server.auth import Auth
@@ -12,7 +13,7 @@ from oioioi.notifications.server.queue import Queue
 
 
 class UserConnection(NamedTuple):
-    sockets: Set[ServerConnection]
+    sockets: set[ServerConnection]
     queue_cancel: Callable[[], Awaitable[None]]
 
 
@@ -24,7 +25,7 @@ class Server:
         self.logger = logging.getLogger(__name__)
 
         # Tracks user connections and their queue subscriptions
-        self.users: Dict[str, UserConnection] = {}
+        self.users: dict[str, UserConnection] = {}
         # Per-user locks to prevent race conditions when registering connections
         self.user_locks = WeakValueDictionary[str, asyncio.Lock]()
 
@@ -84,7 +85,7 @@ class Server:
         broadcast(self.users[user_id].sockets, msg)
         self.logger.debug(f"Published message to {user_id}: {msg}")
 
-    async def _register_connection(self, websocket: ServerConnection, session_id: str) -> Optional[str]:
+    async def _register_connection(self, websocket: ServerConnection, session_id: str) -> str | None:
         try:
             user_id = await self.auth.authenticate(session_id)
 
@@ -107,7 +108,7 @@ class Server:
             self.logger.error(f"Authentication error for session {session_id}: {type(e).__name__}, {e}")
             return None
 
-    async def _unregister_connection(self, user_id: Optional[str], websocket: ServerConnection) -> None:
+    async def _unregister_connection(self, user_id: str | None, websocket: ServerConnection) -> None:
         if user_id is None:
             self.logger.debug("WebSocket closed for unregistered user.")
             return

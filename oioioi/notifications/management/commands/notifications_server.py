@@ -1,7 +1,9 @@
+import asyncio
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from oioioi.notifications.server.server import Server
-import asyncio
 
 
 class Command(BaseCommand):

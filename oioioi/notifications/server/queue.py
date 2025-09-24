@@ -1,6 +1,8 @@
-import aio_pika
 import logging
-from typing import Callable, Optional, Awaitable
+from collections.abc import Awaitable, Callable
+from typing import Optional
+
+import aio_pika
 
 
 class Queue:
@@ -16,8 +18,8 @@ class Queue:
         self.on_message = on_message
 
         self.logger = logging.getLogger(__name__)
-        self.connection: Optional[aio_pika.abc.AbstractConnection] = None
-        self.channel: Optional[aio_pika.abc.AbstractChannel] = None
+        self.connection: aio_pika.abc.AbstractConnection | None = None
+        self.channel: aio_pika.abc.AbstractChannel | None = None
 
     async def connect(self):
         self.connection = await aio_pika.connect_robust(self.amqp_url)
