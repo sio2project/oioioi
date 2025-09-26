@@ -2,9 +2,10 @@
 
 {% load i18n all_with_prefix common_media compress simple_tags get_clocks get_su static %}
 {% site_displayed_tag %}
-
 <html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head>
+    <script src="{% static 'darkreader.bundle.js' %}"></script>
+    
     {% block head %}
         <title>{% block title %}{% trans "Main page" %}{% endblock %} - {{ site_name }}</title>
         <meta charset="UTF-8">
@@ -28,7 +29,6 @@
                 {% common_styles %}
             {% endcompress %}
         {% endblock %}
-
         {% block adminhead %}{% endblock %}
         {% all_with_prefix extra_head_ %}
 

@@ -2,6 +2,13 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.schemas import AutoSchema
+from rest_framework.views import APIView
+
 from oioioi.base.utils.api import make_path_coreapi_schema
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import can_admin_contest
@@ -13,16 +20,10 @@ from oioioi.problems.serializers import (
     PackageUploadSerializer,
 )
 from oioioi.problems.utils import can_admin_problem
-from rest_framework import status
-from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.schemas import AutoSchema
-from rest_framework.views import APIView
 
 
 def _check_permissions(request, contest=None, existing_problem=None):
-    if not request.user.has_perm('problems.problems_db_admin'):
+    if not request.user.has_perm("problems.problems_db_admin"):
         if contest and (not can_admin_contest(request.user, contest)):
             return False
     if existing_problem:
@@ -45,7 +46,7 @@ class PackageUploadQueryView(APIView):
     schema = AutoSchema(
         [
             make_path_coreapi_schema(
-                name='package_id',
+                name="package_id",
                 title="Package id",
                 description="Id of the package whose status you can get.",
             ),
@@ -54,29 +55,25 @@ class PackageUploadQueryView(APIView):
 
     @staticmethod
     def check_permissions(request, contest=None, existing_problem=None):
-        return _check_permissions(
-            request, contest=contest, existing_problem=existing_problem
-        )
+        return _check_permissions(request, contest=contest, existing_problem=existing_problem)
 
     def get(self, request, package_id):
         package = get_object_or_404(ProblemPackage, id=package_id)
         if not self.check_permissions(request, package.contest, package.problem):
-            return Response(
-                {'message': _("Permission denied.")}, status=status.HTTP_403_FORBIDDEN
-            )
+            return Response({"message": _("Permission denied.")}, status=status.HTTP_403_FORBIDDEN)
 
-        response = {'package_status': package.status}
-        if response['package_status'] == 'OK':
+        response = {"package_status": package.status}
+        if response["package_status"] == "OK":
             if package.problem is not None:
-                response['problem_id'] = package.problem.id
-        elif response['package_status'] == 'ERR':
+                response["problem_id"] = package.problem.id
+        elif response["package_status"] == "ERR":
             if package.info is not None:
-                response['info'] = package.info
+                response["info"] = package.info
 
         return Response(response, status=status.HTTP_200_OK)
 
 
-@method_decorator(transaction.non_atomic_requests, name='dispatch')
+@method_decorator(transaction.non_atomic_requests, name="dispatch")
 class BasePackageUploadView(APIView):
     parser_class = (MultiPartParser,)
     permission_classes = (IsAuthenticated,)
@@ -85,9 +82,7 @@ class BasePackageUploadView(APIView):
 
     @staticmethod
     def check_permissions(request, contest=None, existing_problem=None):
-        return _check_permissions(
-            request, contest=contest, existing_problem=existing_problem
-        )
+        return _check_permissions(request, contest=contest, existing_problem=existing_problem)
 
     @staticmethod
     def prepare_data(dictionary):
@@ -102,26 +97,24 @@ class BasePackageUploadView(APIView):
         if serializer.is_valid():
             data = self.prepare_data(serializer.validated_data)
 
-            contest = data.get('contest')
-            existing_problem = data.get('existing_problem')
-            form_data = data.get('form_data')
+            contest = data.get("contest")
+            existing_problem = data.get("existing_problem")
+            form_data = data.get("form_data")
 
             if not self.check_permissions(request, contest, existing_problem):
                 return Response(
-                    {'message': _("Permission denied.")},
+                    {"message": _("Permission denied.")},
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
             form = self.form_class(contest, existing_problem, form_data, request.FILES)
-            if form_data.get('round_id'):
-                form.data['round_id'] = form_data['round_id']
+            if form_data.get("round_id"):
+                form.data["round_id"] = form_data["round_id"]
 
             package_id = self.submit_upload_form(form, request, contest, existing_problem)
 
             if package_id is not None:
-                return Response(
-                    {'package_id': package_id}, status=status.HTTP_201_CREATED
-                )
+                return Response({"package_id": package_id}, status=status.HTTP_201_CREATED)
             else:
                 return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -137,21 +130,21 @@ class PackageUploadView(BasePackageUploadView):
 
     @staticmethod
     def prepare_data(dictionary):
-        contest_id = dictionary['contest_id']
-        round_name = dictionary['round_name']
+        contest_id = dictionary["contest_id"]
+        round_name = dictionary["round_name"]
 
         contest = Contest.objects.filter(id=contest_id).first()
         existing_problem = None
 
         form_data = {
-            'contest_id': contest.id,
-            'round_id': contest.round_set.filter(name=round_name).first().id,
+            "contest_id": contest.id,
+            "round_id": contest.round_set.filter(name=round_name).first().id,
         }
 
         data = {
-            'contest': contest,
-            'existing_problem': existing_problem,
-            'form_data': form_data,
+            "contest": contest,
+            "existing_problem": existing_problem,
+            "form_data": form_data,
         }
 
         return data
@@ -167,14 +160,14 @@ class PackageReuploadView(BasePackageUploadView):
     @staticmethod
     def prepare_data(dictionary):
         contest = None
-        existing_problem = get_object_or_404(Problem, id=dictionary['problem_id'])
+        existing_problem = get_object_or_404(Problem, id=dictionary["problem_id"])
 
         form_data = {}
 
         data = {
-            'contest': contest,
-            'existing_problem': existing_problem,
-            'form_data': form_data,
+            "contest": contest,
+            "existing_problem": existing_problem,
+            "form_data": form_data,
         }
 
         return data

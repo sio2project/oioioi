@@ -7,15 +7,15 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.base.utils.public_message import get_public_message
-from oioioi.contests.utils import is_contest_admin, can_admin_contest
+from oioioi.contests.utils import can_admin_contest, is_contest_admin
 from oioioi.forum.models import (
     Ban,
     Category,
+    ForumMessage,
+    NewPostMessage,
     Post,
     PostReaction,
     Thread,
-    ForumMessage,
-    NewPostMessage,
 )
 from oioioi.participants.utils import is_participant
 
@@ -23,10 +23,10 @@ from oioioi.participants.utils import is_participant
 @make_request_condition
 def forum_exists(request):
     return (
-        hasattr(request.contest, 'controller')
-        and hasattr(request.contest.controller, 'create_forum')
+        hasattr(request.contest, "controller")
+        and hasattr(request.contest.controller, "create_forum")
         and request.contest.controller.create_forum
-        and hasattr(request.contest, 'forum')
+        and hasattr(request.contest, "forum")
     )
 
 
@@ -41,12 +41,7 @@ def forum_exists_and_visible(request):
     #  should be exists and (visible or admin)?
     return (
         forum_exists(request)
-        and (
-            not (
-                request.contest.forum.is_locked(request.timestamp)
-                and not request.contest.forum.visible
-            )
-        )
+        and (not (request.contest.forum.is_locked(request.timestamp) and not request.contest.forum.visible))
         or (is_contest_admin(request))
     )
 
@@ -59,16 +54,16 @@ def is_proper_forum(request, *args, **kwargs):
     if not forum_exists(request):
         return False
     forum = request.contest.forum
-    if 'category_id' in kwargs:
-        category = get_object_or_404(Category, id=kwargs['category_id'])
+    if "category_id" in kwargs:
+        category = get_object_or_404(Category, id=kwargs["category_id"])
         if not category.forum == forum:
             return False
-    if 'thread_id' in kwargs:
-        thread = get_object_or_404(Thread, id=kwargs['thread_id'])
+    if "thread_id" in kwargs:
+        thread = get_object_or_404(Thread, id=kwargs["thread_id"])
         if not thread.category == category:
             return False
-    if 'post_id' in kwargs:
-        post = get_object_or_404(Post, id=kwargs['post_id'])
+    if "post_id" in kwargs:
+        post = get_object_or_404(Post, id=kwargs["post_id"])
         if not post.thread == thread:
             return False
     return True
@@ -113,31 +108,15 @@ def get_msgs(request, forum=None):
         forum = request.contest.forum
     msgs = []
     if request.user.is_authenticated and Ban.is_banned(forum, request.user):
-        msgs.append(
-            _(
-                "You are banned on this forum. You can't add, edit or "
-                "report posts. To appeal contact contest administrators."
-            )
-        )
+        msgs.append(_("You are banned on this forum. You can't add, edit or report posts. To appeal contact contest administrators."))
     if forum.is_locked(request.timestamp):
-        msgs.append(
-            _(
-                "This forum is locked, it is not possible to add "
-                "or edit posts right now"
-            )
-        )
+        msgs.append(_("This forum is locked, it is not possible to add or edit posts right now"))
         if forum.unlock_date and forum.unlock_date > now:
             localtime = timezone.localtime(forum.unlock_date)
-            msgs.append(
-                _("Forum is going to be unlocked at %s")
-                % localtime.strftime('%Y-%m-%d %H:%M:%S')
-            )
+            msgs.append(_("Forum is going to be unlocked at %s") % localtime.strftime("%Y-%m-%d %H:%M:%S"))
     elif forum.lock_date and forum.lock_date > now:
         localtime = timezone.localtime(forum.lock_date)
-        msgs.append(
-            _("Forum is going to be locked at %s")
-            % localtime.strftime('%Y-%m-%d %H:%M:%S')
-        )
+        msgs.append(_("Forum is going to be locked at %s") % localtime.strftime("%Y-%m-%d %H:%M:%S"))
 
     return msgs
 
@@ -183,8 +162,8 @@ def annotate_posts_with_current_user_reactions(request, qs):
         qs = qs.annotate(user_downvoted=models.Value(False, models.BooleanField()))
     else:
         for f_name, rtype in [
-            ('user_upvoted', 'UPVOTE'),
-            ('user_downvoted', 'DOWNVOTE'),
+            ("user_upvoted", "UPVOTE"),
+            ("user_downvoted", "DOWNVOTE"),
         ]:
             qs = qs.annotate(
                 **{
@@ -192,7 +171,7 @@ def annotate_posts_with_current_user_reactions(request, qs):
                         PostReaction.objects.filter(
                             author=request.user,
                             type_of_reaction=rtype,
-                            post=models.OuterRef('pk'),
+                            post=models.OuterRef("pk"),
                         )
                     )
                 }
@@ -205,7 +184,7 @@ def get_forum_message(request):
     return get_public_message(
         request,
         ForumMessage,
-        'forum_message',
+        "forum_message",
     )
 
 
@@ -213,8 +192,9 @@ def get_new_post_message(request):
     return get_public_message(
         request,
         NewPostMessage,
-        'forum_new_post_message',
+        "forum_new_post_message",
     )
+
 
 def is_forum_moderator(request, user):
     request.user = user

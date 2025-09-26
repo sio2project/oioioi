@@ -17,39 +17,35 @@ from oioioi.programs.models import ModelProgramSubmission, Test
 
 
 class TestUserContestAuthBackend(TestCase):
-    fixtures = ['test_users', 'test_usercontest']
+    fixtures = ["test_users", "test_usercontest"]
 
     def test_permissions_on(self):
         user = User.objects.get(pk=1001)
         contest = Contest.objects.get(pk="uc")
 
-        self.assertFalse(user.has_perm('contests.contest_admin', contest))
-        self.assertTrue(user.has_perm('contests.contest_basicadmin', contest))
-        self.assertFalse(user.has_perm('contests.contest_observer', contest))
+        self.assertFalse(user.has_perm("contests.contest_admin", contest))
+        self.assertTrue(user.has_perm("contests.contest_basicadmin", contest))
+        self.assertFalse(user.has_perm("contests.contest_observer", contest))
 
     @override_settings(
-        AUTHENTICATION_BACKENDS=[
-            backend
-            for backend in settings.AUTHENTICATION_BACKENDS
-            if backend != 'oioioi.usercontests.auth.UserContestAuthBackend'
-        ]
+        AUTHENTICATION_BACKENDS=[backend for backend in settings.AUTHENTICATION_BACKENDS if backend != "oioioi.usercontests.auth.UserContestAuthBackend"]
     )
     def test_permissions_off(self):
         user = User.objects.get(pk=1001)
         contest = Contest.objects.get(pk="uc")
 
-        self.assertFalse(user.has_perm('contests.contest_admin', contest))
-        self.assertFalse(user.has_perm('contests.contest_basicadmin', contest))
-        self.assertFalse(user.has_perm('contests.contest_observer', contest))
+        self.assertFalse(user.has_perm("contests.contest_admin", contest))
+        self.assertFalse(user.has_perm("contests.contest_basicadmin", contest))
+        self.assertFalse(user.has_perm("contests.contest_observer", contest))
 
     @override_settings(ARCHIVE_USERCONTESTS=True)
     def test_permissions_archived(self):
         user = User.objects.get(pk=1001)
         contest = Contest.objects.get(pk="uc")
 
-        self.assertFalse(user.has_perm('contests.contest_admin', contest))
-        self.assertFalse(user.has_perm('contests.contest_basicadmin', contest))
-        self.assertTrue(user.has_perm('contests.contest_observer', contest))
+        self.assertFalse(user.has_perm("contests.contest_admin", contest))
+        self.assertFalse(user.has_perm("contests.contest_basicadmin", contest))
+        self.assertTrue(user.has_perm("contests.contest_observer", contest))
 
     def test_utils_on(self):
         user = User.objects.get(pk=1001)
@@ -64,11 +60,7 @@ class TestUserContestAuthBackend(TestCase):
         self.assertFalse(is_contest_observer(request))
 
     @override_settings(
-        AUTHENTICATION_BACKENDS=[
-            backend
-            for backend in settings.AUTHENTICATION_BACKENDS
-            if backend != 'oioioi.usercontests.auth.UserContestAuthBackend'
-        ]
+        AUTHENTICATION_BACKENDS=[backend for backend in settings.AUTHENTICATION_BACKENDS if backend != "oioioi.usercontests.auth.UserContestAuthBackend"]
     )
     def test_utils_off(self):
         user = User.objects.get(pk=1001)
@@ -97,35 +89,35 @@ class TestUserContestAuthBackend(TestCase):
 
 
 class TestUserContestCreationForm(TestCase):
-    fixtures = ['test_users']
+    fixtures = ["test_users"]
 
     def _get_future_date(self):
-        date = '2037-04-19'   # far in the future and in 32bit timestamp range.
-        assert datetime.strptime(date, '%Y-%M-%d') > datetime.now()
+        date = "2037-04-19"  # far in the future and in 32bit timestamp range.
+        assert datetime.strptime(date, "%Y-%M-%d") > datetime.now()
         return date
 
     def test_controller_type_hidden(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('oioioiadmin:contests_contest_add')
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("oioioiadmin:contests_contest_add")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'id_controller_name')
+        self.assertNotContains(response, "id_controller_name")
 
-        self.assertTrue(self.client.login(username='test_admin'))
+        self.assertTrue(self.client.login(username="test_admin"))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'id_controller_name')
+        self.assertContains(response, "id_controller_name")
 
     def test_contest_creation(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('oioioiadmin:contests_contest_add')
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("oioioiadmin:contests_contest_add")
 
         data = {
-            'name': 'test usercontest',
-            'id': 'test-usercontest',
-            'default_submissions_limit': 0,
-            'start_date_0': self._get_future_date(),
-            'start_date_1': '00:00:00',
+            "name": "test usercontest",
+            "id": "test-usercontest",
+            "default_submissions_limit": 0,
+            "start_date_0": self._get_future_date(),
+            "start_date_1": "00:00:00",
             "round_set-TOTAL_FORMS": 0,
             "round_set-INITIAL_FORMS": 0,
             "round_set-MIN_NUM_FORMS": 0,
@@ -160,83 +152,83 @@ class TestUserContestCreationForm(TestCase):
         contest = Contest.objects.get()
         self.assertEqual(
             contest.controller_name,
-            'oioioi.usercontests.controllers.UserContestController',
+            "oioioi.usercontests.controllers.UserContestController",
         )
 
     @override_settings(ARCHIVE_USERCONTESTS=True)
     def test_archived(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('oioioiadmin:contests_contest_add')
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("oioioiadmin:contests_contest_add")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
 
 class TestUserContestController(TestCase):
-    fixtures = ['test_users', 'test_usercontest']
+    fixtures = ["test_users", "test_usercontest"]
 
     def test_can_submit(self):
-        self.assertTrue(self.client.login(username='test_user2'))
-        url = reverse('submit', kwargs={'contest_id': 'uc'})
+        self.assertTrue(self.client.login(username="test_user2"))
+        url = reverse("submit", kwargs={"contest_id": "uc"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Sorry, there are no problems')
+        self.assertNotContains(response, "Sorry, there are no problems")
 
     @override_settings(ARCHIVE_USERCONTESTS=True)
     def test_cannot_submit(self):
-        self.assertTrue(self.client.login(username='test_user2'))
-        url = reverse('submit', kwargs={'contest_id': 'uc'})
+        self.assertTrue(self.client.login(username="test_user2"))
+        url = reverse("submit", kwargs={"contest_id": "uc"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Sorry, there are no problems')
+        self.assertContains(response, "Sorry, there are no problems")
 
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('submit', kwargs={'contest_id': 'uc'})
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("submit", kwargs={"contest_id": "uc"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Sorry, there are no problems')
+        self.assertContains(response, "Sorry, there are no problems")
 
 
 @override_settings(ARCHIVE_USERCONTESTS=True)
 class TestUserContestArchived(TestCase):
-    fixtures = ['test_users', 'test_usercontest', 'test_model_submissions']
+    fixtures = ["test_users", "test_usercontest", "test_model_submissions"]
 
     def test_can_see_problems(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('problemset_my_problems')
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("problemset_my_problems")
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "XYZ")
 
     def test_can_see_submissions(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get("/c/c/")
 
-        url = reverse('show_submission_source', args=(1,))
+        url = reverse("show_submission_source", args=(1,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
-        url = reverse('show_submission_source', args=(2,))
+        url = reverse("show_submission_source", args=(2,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
     def test_can_see_modelsolutions(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get("/c/c/")
 
         submission_id = ModelProgramSubmission.objects.first().id
-        url = reverse('show_submission_source', args=(submission_id,))
+        url = reverse("show_submission_source", args=(submission_id,))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)
 
     def test_can_see_tests(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get("/c/c/")
 
         test_id = Test.objects.first().id
-        url = reverse('download_input_file', args=(test_id,))
+        url = reverse("download_input_file", args=(test_id,))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)
 
-        url = reverse('download_output_file', args=(test_id,))
+        url = reverse("download_output_file", args=(test_id,))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)

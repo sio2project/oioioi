@@ -6,7 +6,7 @@ from mistune import Markdown
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 
-check_django_app_dependencies(__name__, ['oioioi.portals'])
+check_django_app_dependencies(__name__, ["oioioi.portals"])
 
 
 class News(models.Model):
@@ -31,7 +31,7 @@ class NewsLanguageVersion(models.Model):
     News may have multiple versions - each in another language.
     """
 
-    news = models.ForeignKey(News, related_name='versions', on_delete=models.CASCADE)
+    news = models.ForeignKey(News, related_name="versions", on_delete=models.CASCADE)
     language = models.CharField(max_length=6, verbose_name=_("language code"))
     title = models.CharField(max_length=255, verbose_name=_("title"))
     content = models.TextField(verbose_name=_("content"))
@@ -43,11 +43,7 @@ class NewsLanguageVersion(models.Model):
         try:
             existing_language_version = self.news.versions.get(language=self.language)
             if self != existing_language_version:
-                raise ValueError(
-                    'Creating NewsLanguageVersion for News object'
-                    ' that already has a NewsLanguageVersion with'
-                    ' the given language.'
-                )
+                raise ValueError("Creating NewsLanguageVersion for News object that already has a NewsLanguageVersion with the given language.")
         except NewsLanguageVersion.DoesNotExist:
             pass
 

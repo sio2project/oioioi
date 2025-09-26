@@ -10,21 +10,19 @@ def ordered_col(GET, col_name, desc_default=False):
     params = GET.dict()
 
     # Invert order if clicked again
-    if params.get('order_by') == col_name:
-        if 'desc' in params:
-            del params['desc']
+    if params.get("order_by") == col_name:
+        if "desc" in params:
+            del params["desc"]
         else:
-            params['desc'] = None
+            params["desc"] = None
     else:
-        params['order_by'] = col_name
+        params["order_by"] = col_name
         if desc_default:
-            params['desc'] = None
-        elif 'desc' in params:
-            del params['desc']
+            params["desc"] = None
+        elif "desc" in params:
+            del params["desc"]
 
-    return format_html(
-        u'?{}', '&'.join((k + ('=' + v if v else '')) for k, v in params.items())
-    )
+    return format_html("?{}", "&".join((k + ("=" + v if v else "")) for k, v in params.items()))
 
 
 @register.simple_tag
@@ -32,8 +30,6 @@ def prob_filter(GET, filter_name):
     # Preserve all unrelated GET parameters
     params = GET.dict()
 
-    params['filter'] = filter_name
+    params["filter"] = filter_name
 
-    return format_html(
-        u'?{}', '&'.join((k + ('=' + v if v else '')) for k, v in params.items())
-    )
+    return format_html("?{}", "&".join((k + ("=" + v if v else "")) for k, v in params.items()))

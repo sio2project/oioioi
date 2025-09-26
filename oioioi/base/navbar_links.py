@@ -3,27 +3,26 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.menu import navbar_links_registry
-from oioioi.contests.current_contest import ContestMode, reverse
-
+from oioioi.contests.current_contest import ContestMode
 
 if settings.CONTEST_MODE == ContestMode.neutral:
     navbar_links_registry.register(
-        name='contests_list',
+        name="contests_list",
         text=_("Contests"),
-        url_generator=lambda request: reverse('select_contest'),
+        url_generator=lambda request: reverse("select_contest"),
         order=100,
     )
 
 navbar_links_registry.register(
-    name='problemset',
+    name="problemset",
     text=_("Problemset"),
-    url_generator=lambda request: reverse('problemset_main'),
+    url_generator=lambda request: reverse("problemset_main"),
     order=200,
 )
 
 navbar_links_registry.register(
-    name='task_archive',
+    name="task_archive",
     text=_("Task archive"),
-    url_generator=lambda request: reverse('task_archive'),
+    url_generator=lambda request: reverse("task_archive"),
     order=300,
 )

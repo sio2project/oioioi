@@ -7,7 +7,7 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def active_url(context, pattern_or_urlname, returned_class='active'):
+def active_url(context, pattern_or_urlname, returned_class="active"):
     """
     Returns returned_class if given pattern or url matches
     context active url.
@@ -27,18 +27,18 @@ def active_url(context, pattern_or_urlname, returned_class='active'):
         pattern = reverse(pattern_or_urlname)
     except NoReverseMatch:
         pattern = pattern_or_urlname
-    path = context['request'].path
+    path = context["request"].path
     if pattern == path:
         return returned_class
-    return ''
+    return ""
 
 
 @register.simple_tag(takes_context=True)
 def site_displayed_tag(context):
-    request = context['request']
-    if 'first_view_after_logging' in request.session:
-        del request.session['first_view_after_logging']
-    return ''
+    request = context["request"]
+    if "first_view_after_logging" in request.session:
+        del request.session["first_view_after_logging"]
+    return ""
 
 
 # https://stackoverflow.com/questions/28513528/passing-arguments-to-model-methods-in-django-templates

@@ -10,8 +10,8 @@ from oioioi.base.utils import jsonify
 @jsonify
 def notifications_authenticate_view(request):
     try:
-        session = Session.objects.get(notificationssession__uid=request.POST['nsid'])
-        user_id = session.get_decoded().get('_auth_user_id')
-        return {'user': user_id, 'status': 'OK'}
+        session = Session.objects.get(notificationssession__uid=request.POST["nsid"])
+        user_id = session.get_decoded().get("_auth_user_id")
+        return {"user": user_id, "status": "OK"}
     except Session.DoesNotExist:
-        return {'status': 'UNAUTHORIZED'}
+        return {"status": "UNAUTHORIZED"}

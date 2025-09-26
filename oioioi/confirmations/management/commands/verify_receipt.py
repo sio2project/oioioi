@@ -18,16 +18,16 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
-        parser.add_argument('source_file', type=str, help='Source file')
+        parser.add_argument("source_file", type=str, help="Source file")
 
     def handle(self, *args, **options):
-        filename = options['source_file']
+        filename = options["source_file"]
         if not os.path.exists(filename):
             raise CommandError(_("File not found: %s") % filename)
-        source = open(filename, 'r').read()
+        source = open(filename).read()
 
         match = re.search(
-            r'--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---',
+            r"--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---",
             sys.stdin.read(),
             re.DOTALL,
         )

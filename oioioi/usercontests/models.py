@@ -5,14 +5,8 @@ from django.db import models
 
 from oioioi.contests.models import Contest
 
-if (
-    'oioioi.usercontests.auth.UserContestAuthBackend'
-    not in settings.AUTHENTICATION_BACKENDS
-):
-    raise ImproperlyConfigured(
-        "When using the 'usercontests' module "
-        "you have to activate UserContestAuthBackend"
-    )
+if "oioioi.usercontests.auth.UserContestAuthBackend" not in settings.AUTHENTICATION_BACKENDS:
+    raise ImproperlyConfigured("When using the 'usercontests' module you have to activate UserContestAuthBackend")
 
 
 class UserContest(models.Model):

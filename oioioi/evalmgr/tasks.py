@@ -4,11 +4,11 @@ import sys
 from uuid import uuid4
 
 import six
-from celery.exceptions import Ignore
-from celery import shared_task
 from django.db import transaction
 from django.utils.module_loading import import_string
 
+from celery import shared_task
+from celery.exceptions import Ignore
 from oioioi.base.utils.db import require_transaction
 from oioioi.base.utils.loaders import load_modules
 from oioioi.evalmgr import logger
@@ -23,7 +23,7 @@ def _placeholder(environ, **kwargs):
 
 
 def _find_placeholder(recipe, name):
-    placeholder = 'oioioi.evalmgr.tasks._placeholder'
+    placeholder = "oioioi.evalmgr.tasks._placeholder"
     for i, entry in enumerate(recipe):
         if entry[0] == name and entry[1] == placeholder:
             return i
@@ -38,7 +38,7 @@ def find_recipe_entry(recipe, name):
 
 
 def recipe_placeholder(name):
-    return (name, 'oioioi.evalmgr.tasks._placeholder')
+    return (name, "oioioi.evalmgr.tasks._placeholder")
 
 
 def create_environ():
@@ -48,11 +48,11 @@ def create_environ():
     - error_handlers
     """
     return {
-        'job_id': uuid4().urn,
-        'error_handlers': [
+        "job_id": uuid4().urn,
+        "error_handlers": [
             (
-                'remove_queuedjob_on_error',
-                'oioioi.evalmgr.handlers.remove_queuedjob_on_error',
+                "remove_queuedjob_on_error",
+                "oioioi.evalmgr.handlers.remove_queuedjob_on_error",
             )
         ],
     }
@@ -87,58 +87,54 @@ def transfer_job(environ, transfer_func, restore_func, transfer_kwargs=None):
 
     For details see ``evalmgr_job`` and ``delay_environ``.
     """
-    if 'transfer' in environ:
-        raise RuntimeError(
-            'Tried to transfer environ again, with {func}({args})'.format(
-                func=transfer_func, args=repr(transfer_kwargs)
-            )
-        )
-    environ['transfer'] = {
-        'transfer_func': transfer_func,
-        'transfer_kwargs': transfer_kwargs or {},
+    if "transfer" in environ:
+        raise RuntimeError(f"Tried to transfer environ again, with {transfer_func}({repr(transfer_kwargs)})")
+    environ["transfer"] = {
+        "transfer_func": transfer_func,
+        "transfer_kwargs": transfer_kwargs or {},
     }
-    environ['restore_environ_func'] = restore_func
+    environ["restore_environ_func"] = restore_func
     return environ
 
 
 def add_after_placeholder(environ, name, entry):
-    recipe = environ['recipe']
+    recipe = environ["recipe"]
     index = _find_placeholder(recipe, name)
     recipe.insert(index + 1, entry)
 
 
 def add_before_placeholder(environ, name, entry):
-    recipe = environ['recipe']
+    recipe = environ["recipe"]
     index = _find_placeholder(recipe, name)
     recipe.insert(index, entry)
 
 
 def extend_after_placeholder(environ, name, entries):
-    recipe = environ['recipe']
+    recipe = environ["recipe"]
     index = _find_placeholder(recipe, name)
     recipe[index + 1 : index + 1] = entries
 
 
 def extend_before_placeholder(environ, name, entries):
-    recipe = environ['recipe']
+    recipe = environ["recipe"]
     index = _find_placeholder(recipe, name)
     recipe[index:index] = entries
 
 
 def add_after_recipe_entry(environ, name, entry):
-    recipe = environ['recipe']
+    recipe = environ["recipe"]
     index = find_recipe_entry(recipe, name)
     recipe.insert(index + 1, entry)
 
 
 def add_before_recipe_entry(environ, name, entry):
-    recipe = environ['recipe']
+    recipe = environ["recipe"]
     index = find_recipe_entry(recipe, name)
     recipe.insert(index, entry)
 
 
 def replace_recipe_entry(environ, name, new_entry):
-    recipe = environ['recipe']
+    recipe = environ["recipe"]
     index = find_recipe_entry(recipe, name)
     recipe[index] = new_entry
 
@@ -147,7 +143,7 @@ def _run_phase(env, phase, extra_kwargs=None):
     phaseName = phase[0]
     handlerName = phase[1]
     if len(phase) not in [2, 3]:
-        raise TypeError('Receipt element has length neither 2 nor 3: %r' % phase)
+        raise TypeError("Receipt element has length neither 2 nor 3: %r" % phase)
     if len(phase) == 2:
         kwargs = {}
     if len(phase) == 3:
@@ -157,10 +153,7 @@ def _run_phase(env, phase, extra_kwargs=None):
     handler_func = import_string(handlerName)
     env = handler_func(env, **kwargs)
     if env is None:
-        raise RuntimeError(
-            'Evaluation handler "%s" (%s) '
-            'forgot to return the environment.' % (phaseName, handlerName)
-        )
+        raise RuntimeError('Evaluation handler "%s" (%s) forgot to return the environment.' % (phaseName, handlerName))
     return env
 
 
@@ -169,21 +162,15 @@ def _resume_job(environ):
     """Restores saved environ, returns environ or None, when a matching
     SavedEnviron wasn't found.
     """
-    saved_environ_id = environ.pop('saved_environ_id')
-    saved_environ_object = SavedEnviron.objects.filter(
-        id=saved_environ_id
-    ).select_for_update()
+    saved_environ_id = environ.pop("saved_environ_id")
+    saved_environ_object = SavedEnviron.objects.filter(id=saved_environ_id).select_for_update()
     if not saved_environ_object.exists():
-        logger.info(
-            'Job with environ id %s already resumed, ignoring.', str(saved_environ_id)
-        )
+        logger.info("Job with environ id %s already resumed, ignoring.", str(saved_environ_id))
         return None
     saved_environ_object = saved_environ_object.get()
     saved_environ = saved_environ_object.load_environ()
     saved_environ_object.delete()
-    environ = import_string(saved_environ.pop('restore_environ_func'))(
-        saved_environ, environ
-    )
+    environ = import_string(saved_environ.pop("restore_environ_func"))(saved_environ, environ)
     # There is no need for removing 'saved_environ_id' from merged environ,
     # as it wasn't saved in database.
     return environ
@@ -191,18 +178,18 @@ def _resume_job(environ):
 
 @transaction.atomic
 def _job_finished(environ):
-    QueuedJob.objects.filter(job_id=environ['job_id']).delete()
+    QueuedJob.objects.filter(job_id=environ["job_id"]).delete()
     return environ
 
 
 def _transfer_job(environ, transfer_func, transfer_kwargs):
     with transaction.atomic():
-        marked = mark_job_state(environ, 'WAITING')
+        marked = mark_job_state(environ, "WAITING")
         if marked:
             # Save without ``environ['transfer']`` or
             # ``environ['saved_environ_id']``.
             saved_environ = SavedEnviron.save_environ(environ)
-            environ['saved_environ_id'] = saved_environ.id
+            environ["saved_environ_id"] = saved_environ.id
     if not marked:
         raise Ignore
     try:
@@ -210,7 +197,7 @@ def _transfer_job(environ, transfer_func, transfer_kwargs):
     # pylint: disable=broad-except
     except Exception:
         with transaction.atomic():
-            SavedEnviron.objects.filter(id=environ.pop('saved_environ_id')).delete()
+            SavedEnviron.objects.filter(id=environ.pop("saved_environ_id")).delete()
         raise
     return environ
 
@@ -228,7 +215,7 @@ def _run_error_handlers(env, exc_info):
         exc_info[0],
         pprint.pformat(env, indent=4),
     )
-    error_handlers = env.get('error_handlers', [])
+    error_handlers = env.get("error_handlers", [])
     try:
         for phase in error_handlers:
             env = _run_phase(env, phase, extra_kwargs=dict(exc_info=exc_info))
@@ -239,7 +226,7 @@ def _run_error_handlers(env, exc_info):
             pprint.pformat(env, indent=4),
             exc_info=True,
         )
-    if not env.get('ignore_errors'):
+    if not env.get("ignore_errors"):
         logger.error(
             "Exception occured in job:\n%s",
             pprint.pformat(env, indent=4),
@@ -257,16 +244,14 @@ def delay_environ(environ, **evalmgr_extra_args):
 
     Requires to be called from transaction.
     """
-    if 'saved_environ_id' in environ:
+    if "saved_environ_id" in environ:
         environ = _resume_job(environ)
         if environ is None:
             return None
-    if not mark_job_state(environ, 'QUEUED'):
+    if not mark_job_state(environ, "QUEUED"):
         return None
     async_result = evalmgr_job.apply_async((environ,), **evalmgr_extra_args)
-    QueuedJob.objects.filter(job_id=environ['job_id']).update(
-        celery_task_id=async_result.id
-    )
+    QueuedJob.objects.filter(job_id=environ["job_id"]).update(celery_task_id=async_result.id)
     return async_result
 
 
@@ -325,35 +310,29 @@ def evalmgr_job(env):
 
     # load controllers to avoid late mix-ins to them
     if not loaded_controllers:
-        load_modules('controllers')
+        load_modules("controllers")
         loaded_controllers = True
 
     env = copy.deepcopy(env)
 
     try:
-        if 'job_id' not in env:
-            raise RuntimeError('No job_id found in environ')
-        if 'recipe' not in env:
-            raise RuntimeError(
-                'No recipe found in job environment. '
-                'Did you forget to set environ["run_externally"]?'
-            )
-        if 'error' in env:
-            raise RuntimeError(
-                'Error from workers:\n%s\nTB:\n%s'
-                % (env['error']['message'], env['error']['traceback'])
-            )
-        _mark_job_state(env, 'PROGRESS')
+        if "job_id" not in env:
+            raise RuntimeError("No job_id found in environ")
+        if "recipe" not in env:
+            raise RuntimeError('No recipe found in job environment. Did you forget to set environ["run_externally"]?')
+        if "error" in env:
+            raise RuntimeError("Error from workers:\n%s\nTB:\n%s" % (env["error"]["message"], env["error"]["traceback"]))
+        _mark_job_state(env, "PROGRESS")
         while True:
-            recipe = env.get('recipe')
+            recipe = env.get("recipe")
             if not recipe:
                 env = _job_finished(env)
                 break
             phase = recipe[0]
-            env['recipe'] = recipe[1:]
+            env["recipe"] = recipe[1:]
             env = _run_phase(env, phase)
-            if 'transfer' in env:
-                env = _transfer_job(env, **env.pop('transfer'))
+            if "transfer" in env:
+                env = _transfer_job(env, **env.pop("transfer"))
                 break
         return env
 

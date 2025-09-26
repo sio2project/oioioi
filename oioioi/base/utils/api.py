@@ -1,9 +1,7 @@
 from rest_framework.compat import coreapi, coreschema
 
 
-def make_path_coreapi_schema(
-    name, title=None, description=None, required=True, **kwargs
-):
+def make_path_coreapi_schema(name, title=None, description=None, required=True, **kwargs):
     """This function helps to create documentation for path parameter.
 
     By default they get no description unless it is model based view.
@@ -16,4 +14,4 @@ def make_path_coreapi_schema(
     https://github.com/encode/django-rest-framework/blob/5c2290d97380ca15005f7d42ffceae04dc817dba/rest_framework/schemas/inspectors.py#L149
     """
     schema = coreschema.String(title=title, description=description, **kwargs)
-    return coreapi.Field(name=name, location='path', required=required, schema=schema)
+    return coreapi.Field(name=name, location="path", required=required, schema=schema)

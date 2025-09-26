@@ -1,7 +1,8 @@
+from django.utils.translation import gettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.forms import AlwaysChangedModelForm
 from oioioi.ipauthsync.models import IpAuthSyncConfig
-from django.utils.translation import gettext_lazy as _
 
 
 class IpAuthSyncConfigInline(admin.TabularInline):
@@ -20,7 +21,7 @@ class IpAuthSyncConfigInline(admin.TabularInline):
         return request.user.is_superuser
 
 
-class ContestAdminWithIpAuthSyncInlineMixin(object):
+class ContestAdminWithIpAuthSyncInlineMixin:
     """Adds :class:`~oioioi.ipauthsync.models.IpAuthSyncConfig` to an admin
     panel.
     """

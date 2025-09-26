@@ -7,11 +7,11 @@ import re
 import shutil
 import sys
 import tempfile
+import urllib.parse
 from contextlib import contextmanager
 from importlib import import_module
 
 import six
-import urllib.parse
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -34,7 +34,7 @@ class ClassInitMeta(type):
         cls.__classinit__()
 
 
-class ClassInitBase(object, metaclass=ClassInitMeta):
+class ClassInitBase(metaclass=ClassInitMeta):
     """Abstract base class injecting ClassInitMeta meta class."""
 
     @classmethod
@@ -86,34 +86,28 @@ class RegisteredSubclassesBase(ClassInitBase):
 
     @classmethod
     def __classinit__(cls):
-        this_cls = globals().get('RegisteredSubclassesBase', cls)
+        this_cls = globals().get("RegisteredSubclassesBase", cls)
         super(this_cls, cls).__classinit__()
         if this_cls is cls:
             # This is RegisteredSubclassesBase class.
             return
 
-        if '__unmixed_class__' in cls.__dict__ and cls.__unmixed_class__ is not cls:
+        if "__unmixed_class__" in cls.__dict__ and cls.__unmixed_class__ is not cls:
             # This is an artificial class created by mixins mechanism
             return
 
-        assert 'subclasses' not in cls.__dict__, (
-            '%s defines attribute subclasses, but has '
-            'RegisteredSubclassesMeta metaclass' % (cls,)
-        )
+        assert "subclasses" not in cls.__dict__, "%s defines attribute subclasses, but has RegisteredSubclassesMeta metaclass" % (cls,)
         cls.subclasses = []
-        cls.abstract = cls.__dict__.get('abstract', False)
+        cls.abstract = cls.__dict__.get("abstract", False)
 
         def find_superclass(cls):
             superclasses = [c for c in cls.__bases__ if issubclass(c, this_cls)]
             if not superclasses:
                 return None
             if len(superclasses) > 1:
-                raise AssertionError(
-                    '%s derives from more than one '
-                    'RegisteredSubclassesBase' % (cls.__name__,)
-                )
+                raise AssertionError("%s derives from more than one RegisteredSubclassesBase" % (cls.__name__,))
             superclass = superclasses[0]
-            if '__unmixed_class__' in superclass.__dict__:
+            if "__unmixed_class__" in superclass.__dict__:
                 superclass = superclass.__unmixed_class__
             return superclass
 
@@ -131,22 +125,22 @@ class RegisteredSubclassesBase(ClassInitBase):
             return
         from django.conf import settings
 
-        modules_to_load = getattr(cls, 'modules_with_subclasses', [])
+        modules_to_load = getattr(cls, "modules_with_subclasses", [])
         if isinstance(modules_to_load, str):
             modules_to_load = [modules_to_load]
         for app_module in list(settings.INSTALLED_APPS):
             for name in modules_to_load:
                 try:
-                    module = '%s.%s' % (app_module, name)
+                    module = "%s.%s" % (app_module, name)
                     import_module(module)
                 except ImportError:
                     continue
         cls._subclasses_loaded = True
 
 
-class _RemoveMixinsFromInitMixin(object):
+class _RemoveMixinsFromInitMixin:
     def __init__(self, *args, **kwargs):
-        kwargs.pop('mixins', None)
+        kwargs.pop("mixins", None)
         super(_RemoveMixinsFromInitMixin, self).__init__(*args, **kwargs)
 
 
@@ -225,19 +219,19 @@ class ObjectWithMixins(ClassInitBase):
 
     @classmethod
     def __classinit__(cls):
-        this_cls = globals().get('ObjectWithMixins', cls)
+        this_cls = globals().get("ObjectWithMixins", cls)
         super(this_cls, cls).__classinit__()
         if this_cls is cls:
             # This is ObjectWithMixins class.
             return
-        if '__unmixed_class__' in cls.__dict__:
+        if "__unmixed_class__" in cls.__dict__:
             # This is an artificially created class with mixins already
             # applied.
             return
         cls._mx_class = None
         cls._direct_subclasses = []
         cls.__unmixed_class__ = cls
-        cls.mixins = cls.__dict__.get('mixins', [])
+        cls.mixins = cls.__dict__.get("mixins", [])
         for base in cls.__bases__:
             if issubclass(base, this_cls) and base is not this_cls:
                 base.__unmixed_class__._direct_subclasses.append(cls)
@@ -247,8 +241,8 @@ class ObjectWithMixins(ClassInitBase):
         for c in cls.__mro__:
             if issubclass(c, ObjectWithMixins):
                 c._has_instances = True
-        if 'mixins' in kwargs:
-            mixins = [_RemoveMixinsFromInitMixin] + list(kwargs['mixins'])
+        if "mixins" in kwargs:
+            mixins = [_RemoveMixinsFromInitMixin] + list(kwargs["mixins"])
         else:
             mixins = []
         mixins.extend(cls.mixins)
@@ -259,7 +253,7 @@ class ObjectWithMixins(ClassInitBase):
         if mixins:
             bases = tuple(mixins) + (cls,)
             return type(
-                cls.__name__ + 'WithMixins',
+                cls.__name__ + "WithMixins",
                 bases,
                 dict(__module__=cls.__module__, __unmixed_class__=cls),
             )
@@ -297,9 +291,7 @@ class ObjectWithMixins(ClassInitBase):
     def mix_in(cls, mixin):
         """Appends the given mixin to the list of class mixins."""
         assert cls.__unmixed_class__ is cls
-        assert (
-            cls.allow_too_late_mixins or '_has_instances' not in cls.__dict__
-        ), "Adding mixin %r to %r too late. The latter already has instances." % (
+        assert cls.allow_too_late_mixins or "_has_instances" not in cls.__dict__, "Adding mixin %r to %r too late. The latter already has instances." % (
             mixin,
             cls,
         )
@@ -311,7 +303,7 @@ class ObjectWithMixins(ClassInitBase):
 # Memoized-related bits copied from SqlAlchemy.
 
 
-class memoized_property(object):  # Copied from SqlAlchemy
+class memoized_property:  # Copied from SqlAlchemy
     """A read-only @property that is only evaluated once."""
 
     def __init__(self, fget, doc=None):
@@ -356,8 +348,8 @@ def request_cached(fn):
 
     @functools.wraps(fn)
     def cacher(request):
-        if not hasattr(request, '_cache'):
-            setattr(request, '_cache', {})
+        if not hasattr(request, "_cache"):
+            request._cache = {}
         if fn not in request._cache:
             request._cache[fn] = fn(request)
         return request._cache[fn]
@@ -373,8 +365,8 @@ def request_cached_complex(fn):
 
     @functools.wraps(fn)
     def cacher(request, *args, **kwargs):
-        if not hasattr(request, '_cache'):
-            setattr(request, '_cache', {})
+        if not hasattr(request, "_cache"):
+            request._cache = {}
         key = (fn, tuple(args), tuple(kwargs.items()))
         if key not in request._cache:
             request._cache[key] = fn(request, *args, **kwargs)
@@ -386,17 +378,15 @@ def request_cached_complex(fn):
 # Generating HTML
 
 
-def make_html_link(href, name, method='GET', extra_attrs=None):
-    if method == 'GET':
-        attrs = {'href': href}
-    elif method == 'POST':
-        attrs = {'data-post-url': href, 'href': '#'}
+def make_html_link(href, name, method="GET", extra_attrs=None):
+    if method == "GET":
+        attrs = {"href": href}
+    elif method == "POST":
+        attrs = {"data-post-url": href, "href": "#"}
     if not extra_attrs:
         extra_attrs = {}
     attrs.update(extra_attrs)
-    return mark_safe(
-        u'<a %s>%s</a>' % (flatatt(attrs), conditional_escape(force_str(name)))
-    )
+    return mark_safe("<a %s>%s</a>" % (flatatt(attrs), conditional_escape(force_str(name))))
 
 
 def make_html_links(links, extra_attrs=None):
@@ -405,14 +395,12 @@ def make_html_links(links, extra_attrs=None):
     html_links = []
     for link in links:
         html_links.append(make_html_link(*link, extra_attrs=extra_attrs))
-    return mark_safe(' | '.join(html_links))
+    return mark_safe(" | ".join(html_links))
 
 
 def make_navbar_badge(link, text, id=None):
     if link is not None or text is not None:
-        return render_to_string(
-            'utils/navbar-badge.html', context={'link': link, 'text': text, 'id': id}
-        )
+        return render_to_string("utils/navbar-badge.html", context={"link": link, "text": text, "id": id})
     return ""
 
 
@@ -444,22 +432,14 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
             a link to the tab. It should contain a proper path
             and the appropriate 'key' parameter.
     """
-    tabs = [
-        t
-        for t in tabs
-        if not hasattr(t, 'condition')
-        or 'problem' not in context
-        or t.condition(request, context['problem'])
-    ]
-    if 'key' not in request.GET:
+    tabs = [t for t in tabs if not hasattr(t, "condition") or "problem" not in context or t.condition(request, context["problem"])]
+    if "key" not in request.GET:
         if not tabs:
             raise Http404
         qs = request.GET.dict()
-        qs['key'] = next(iter(tabs)).key
-        return HttpResponseRedirect(
-            request.path + '?' + urllib.parse.urlencode(qs)
-        )
-    key = request.GET['key']
+        qs["key"] = next(iter(tabs)).key
+        return HttpResponseRedirect(request.path + "?" + urllib.parse.urlencode(qs))
+    key = request.GET["key"]
     for tab in tabs:
         if tab.key == key:
             current_tab = tab
@@ -476,12 +456,12 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
     else:
         content = response
 
-    tabs_context = [{'obj': tab, 'link': link_builder(tab)} for tab in tabs]
+    tabs_context = [{"obj": tab, "link": link_builder(tab)} for tab in tabs]
     context.update(
         {
-            'current_tab': current_tab,
-            'tabs': tabs_context,
-            'content': mark_safe(force_str(content)),
+            "current_tab": current_tab,
+            "tabs": tabs_context,
+            "content": mark_safe(force_str(content)),
         }
     )
     return TemplateResponse(request, template, context)
@@ -492,7 +472,7 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
 
 @contextmanager
 def uploaded_file_name(uploaded_file):
-    if hasattr(uploaded_file, 'temporary_file_path'):
+    if hasattr(uploaded_file, "temporary_file_path"):
         yield uploaded_file.temporary_file_path()
     else:
         f = tempfile.NamedTemporaryFile(suffix=os.path.basename(uploaded_file.name))
@@ -503,7 +483,7 @@ def uploaded_file_name(uploaded_file):
 
 
 def split_extension(filename):
-    special_extensions = ['.tar.gz', '.tar.bz2', '.tar.xz']
+    special_extensions = [".tar.gz", ".tar.bz2", ".tar.xz"]
     for ext in special_extensions:
         if filename.endswith(ext):
             return (filename.rstrip(ext), ext)
@@ -511,8 +491,8 @@ def split_extension(filename):
 
 
 # https://docs.djangoproject.com/en/1.8/ref/files/storage/#django.core.files.storage.Storage.get_available_name
-_STRIP_NUM_RE = re.compile(r'^(.*)_\d+$')
-_STRIP_HASH_RE = re.compile(r'^(.*)_[a-zA-Z0-9]{7}$')
+_STRIP_NUM_RE = re.compile(r"^(.*)_\d+$")
+_STRIP_HASH_RE = re.compile(r"^(.*)_[a-zA-Z0-9]{7}$")
 
 
 def strip_num_or_hash(filename):
@@ -529,10 +509,10 @@ def strip_num_or_hash(filename):
 
 def naturalsort_key(key):
     convert = lambda text: int(text) if text.isdigit() else text
-    return [convert(c) for c in re.split('([0-9]+)', key)]
+    return [convert(c) for c in re.split("([0-9]+)", key)]
 
 
-class ProgressBar(object):
+class ProgressBar:
     """Displays simple textual progress bar."""
 
     def __init__(self, max_value, length=20):
@@ -544,14 +524,14 @@ class ProgressBar(object):
     def _show(self, preserve=False):
         done_p = 100 * self.value / self.max_value
         done_l = self.length * self.value / self.max_value
-        s = '|' + '=' * done_l + ' ' * (self.length - done_l) + '|  %d%%' % done_p
+        s = "|" + "=" * done_l + " " * (self.length - done_l) + "|  %d%%" % done_p
         self.to_clear = 0 if preserve else len(s)
-        sys.stdout.write(s + ('\n' if preserve else ''))
+        sys.stdout.write(s + ("\n" if preserve else ""))
         sys.stdout.flush()
 
     def _clear(self):
         if self.to_clear:
-            sys.stdout.write('\b' * self.to_clear)
+            sys.stdout.write("\b" * self.to_clear)
             sys.stdout.flush()
 
     def update(self, value=None, preserve=False):
@@ -581,7 +561,7 @@ def jsonify(view):
     @functools.wraps(view)
     def inner(*args, **kwargs):
         data = view(*args, **kwargs)
-        return HttpResponse(json.dumps(data), content_type='application/json')
+        return HttpResponse(json.dumps(data), content_type="application/json")
 
     return inner
 
@@ -599,7 +579,7 @@ def add_header(header, value):
     return decorator
 
 
-def allow_cross_origin(arg='*'):
+def allow_cross_origin(arg="*"):
     """Add Access-Control-Allow-Origin header with given value,
     or '*' if none given.
 
@@ -611,12 +591,12 @@ def allow_cross_origin(arg='*'):
     """
     if callable(arg):
         return allow_cross_origin()(arg)
-    return add_header('Access-Control-Allow-Origin', arg)
+    return add_header("Access-Control-Allow-Origin", arg)
 
 
 def is_ajax(request):
     """Check if 'request' is an jQuery AJAX call."""
-    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    return request.headers.get("x-requested-with") == "XMLHttpRequest"
 
 
 def generate_key():

@@ -8,7 +8,7 @@ import six
 # There is a slight chance it may work on non-Unix platforms, but
 # I wouldn't count on it. Either way tests will show.
 
-_safechars = frozenset(string.ascii_letters + string.digits + '@%_-+=:,./')
+_safechars = frozenset(string.ascii_letters + string.digits + "@%_-+=:,./")
 
 
 def quote(file):
@@ -35,7 +35,7 @@ def execute(
     split_lines=False,
     ignore_errors=False,
     errors_to_ignore=(),
-    stdin=b'',
+    stdin=b"",
     cwd=None,
     capture_output=True,
 ):
@@ -62,14 +62,14 @@ def execute(
         env = os.environ.copy()
 
     # We don't want gettext to get in the way, so let's disable it altogether
-    env['LC_ALL'] = 'C'
-    env['LANG'] = 'C'
+    env["LC_ALL"] = "C"
+    env["LANG"] = "C"
 
     # Although there is some kind of support for "sequence" commands in the
     # subprocess module, it works kinda wonky. If you want to investigate,
     # comment the following two lines and see the tests blow up.
     if isinstance(command, (list, tuple)):
-        command = ' '.join(quote(x) for x in command)
+        command = " ".join(quote(x) for x in command)
 
     def set_cwd():
         if cwd:
@@ -102,6 +102,6 @@ def execute(
     if split_lines:
         stdout = stdout.splitlines()
     if rc and not ignore_errors and rc not in errors_to_ignore:
-        raise ExecuteError('Failed to execute command: %s\n%s' % (command, stdout))
+        raise ExecuteError("Failed to execute command: %s\n%s" % (command, stdout))
 
     return stdout

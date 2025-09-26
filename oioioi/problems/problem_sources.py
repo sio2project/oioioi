@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,6 +11,7 @@ from django.utils.encoding import smart_str
 from django.utils.http import urlencode
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+
 from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import is_contest_basicadmin
@@ -45,12 +45,12 @@ def problem_sources(request, existing_problem=False):
     return list(filter(is_source, sources))
 
 
-class ProblemSource(object):
+class ProblemSource:
     #: A simple identifier, which may appear in the URL.
-    key = '__override_in_a_subclass__'
+    key = "__override_in_a_subclass__"
 
     #: A human-readable description, which will be displayed in a tab.
-    short_description = '__override_in_a_subclass__'
+    short_description = "__override_in_a_subclass__"
 
     def view(self, request, contest, existing_problem=None):
         """Renders the view where the user can upload the file or
@@ -81,11 +81,11 @@ class ProblemSource(object):
 
 
 class PackageSource(ProblemSource):
-    key = 'upload'
+    key = "upload"
     short_description = _("Upload package")
 
     #: Template to use for rendering the form.
-    template_name = 'problems/package-source.html'
+    template_name = "problems/package-source.html"
 
     def make_form(self, request, contest, existing_problem=None):
         """Creates a form, which can be later filled in by the user with
@@ -130,15 +130,13 @@ class PackageSource(ProblemSource):
         """
         return backend_for_package(path, original_filename)
 
-    def create_package_instance(
-        self, user, contest, path, existing_problem=None, original_filename=None
-    ):
+    def create_package_instance(self, user, contest, path, existing_problem=None, original_filename=None):
         """Creates a :class:`~oioioi.problems.models.ProblemPackage` instance
         from a given package file.
         """
         package = ProblemPackage.objects.create(contest=contest, created_by=user)
         package_name = original_filename or path
-        package.package_file.save(package_name, File(open(path, 'rb')))
+        package.package_file.save(package_name, File(open(path, "rb")))
         if existing_problem:
             package.problem = existing_problem
         package.save()
@@ -167,40 +165,31 @@ class PackageSource(ProblemSource):
             package.problem_name = backend.get_short_name(path, original_filename)
         package.save()
         env = {
-            'post_upload_handlers': [
-                'oioioi.problems.handlers.update_problem_instance'
-            ],
-            'backend_name': backend_name,
-            'package_id': package.id,
-            'round_id': round_id,
+            "post_upload_handlers": ["oioioi.problems.handlers.update_problem_instance"],
+            "backend_name": backend_name,
+            "package_id": package.id,
+            "round_id": round_id,
         }
         if contest:
-            env['contest_id'] = contest.id
-        env['author'] = user.username
+            env["contest_id"] = contest.id
+        env["author"] = user.username
         if existing_problem:
-            env['is_reupload'] = True
+            env["is_reupload"] = True
         else:
-            env['is_reupload'] = False
-        env['visibility'] = visibility
+            env["is_reupload"] = False
+        env["visibility"] = visibility
 
         return env
 
     def _redirect_response(self, request):
-        return redirect(
-            'oioioiadmin:problems_%sproblempackage_changelist'
-            % ('' if request.user.is_superuser else 'contest')
-        )
+        return redirect("oioioiadmin:problems_%sproblempackage_changelist" % ("" if request.user.is_superuser else "contest"))
 
     def handle_form(self, form, request, contest, existing_problem=None):
         if form.is_valid():
             try:
-                original_filename, file_manager = self.get_package_file(
-                    request, contest, form, existing_problem
-                )
-                round_id = form.cleaned_data.get('round_id', None)
-                visibility = form.cleaned_data.get(
-                    'visibility', Problem.VISIBILITY_FRIENDS
-                )
+                original_filename, file_manager = self.get_package_file(request, contest, form, existing_problem)
+                round_id = form.cleaned_data.get("round_id", None)
+                visibility = form.cleaned_data.get("visibility", Problem.VISIBILITY_FRIENDS)
                 package_id = self.process_package(
                     request,
                     file_manager,
@@ -220,9 +209,9 @@ class PackageSource(ProblemSource):
                 logger.error(
                     "Error processing package",
                     exc_info=True,
-                    extra={'omit_sentry': True},
+                    extra={"omit_sentry": True},
                 )
-                form._errors['__all__'] = form.error_class([smart_str(e)])
+                form._errors["__all__"] = form.error_class([smart_str(e)])
 
         return None
 
@@ -242,9 +231,7 @@ class PackageSource(ProblemSource):
         # database before the Celery task starts.
         with transaction.atomic():
             with file_manager as path:
-                package = self.create_package_instance(
-                    user, contest, path, existing_problem, original_filename
-                )
+                package = self.create_package_instance(user, contest, path, existing_problem, original_filename)
                 env = self.create_env(
                     user,
                     contest,
@@ -261,9 +248,7 @@ class PackageSource(ProblemSource):
                 package.save()
             async_task = unpackmgr_job.s(env)
             async_result = async_task.freeze()
-            ProblemPackage.objects.filter(id=package.id).update(
-                celery_task_id=async_result.task_id
-            )
+            ProblemPackage.objects.filter(id=package.id).update(celery_task_id=async_result.task_id)
         async_task.delay()
 
         return package.id
@@ -272,26 +257,21 @@ class PackageSource(ProblemSource):
         form = self.make_form(request, contest, existing_problem)
         if contest:
             contest.controller.adjust_upload_form(request, existing_problem, form)
-        if request.method == 'POST':
+        if request.method == "POST":
             if self.handle_form(form, request, contest, existing_problem) is not None:
-                if request.user.is_superuser or (
-                    request.contest and is_contest_basicadmin(request)
-                ):
+                if request.user.is_superuser or (request.contest and is_contest_basicadmin(request)):
                     messages.success(request, _("Package queued for processing."))
                     return self._redirect_response(request)
                 messages.success(
                     request,
-                    _(
-                        "Package queued for processing. It will appear in "
-                        "problem list when ready. Please be patient."
-                    ),
+                    _("Package queued for processing. It will appear in problem list when ready. Please be patient."),
                 )
-        return TemplateResponse(request, self.template_name, {'form': form})
+        return TemplateResponse(request, self.template_name, {"form": form})
 
 
 class UploadedPackageSource(PackageSource):
     def make_form(self, request, contest, existing_problem=None):
-        if request.method == 'POST':
+        if request.method == "POST":
             return PackageUploadForm(
                 contest,
                 existing_problem,
@@ -303,7 +283,7 @@ class UploadedPackageSource(PackageSource):
             return PackageUploadForm(contest, existing_problem, user=request.user)
 
     def get_package_file(self, request, contest, form, existing_problem=None):
-        package_file = request.FILES['package_file']
+        package_file = request.FILES["package_file"]
         return package_file.name, uploaded_file_name(package_file)
 
     def is_available(self, request):
@@ -313,7 +293,7 @@ class UploadedPackageSource(PackageSource):
 
 
 class ProblemsetSource(ProblemSource):
-    key = 'problemset_source'
+    key = "problemset_source"
     short_description = _("Add from Problemset")
 
     def view(self, request, contest, existing_problem=None):
@@ -321,7 +301,7 @@ class ProblemsetSource(ProblemSource):
             messages.warning(request, _("Option not available"))
             path = request.path
             if existing_problem:
-                path += '?' + urlencode({'problem': existing_problem.id})
+                path += "?" + urlencode({"problem": existing_problem.id})
             return safe_redirect(request, path)
 
         is_reupload = existing_problem is not None
@@ -329,28 +309,24 @@ class ProblemsetSource(ProblemSource):
             url_key = existing_problem.problemsite.url_key
         else:
             # take url_key form form
-            url_key = request.POST.get('url_key', None)
+            url_key = request.POST.get("url_key", None)
         if url_key is None:
             # take url_key from Problemset
-            url_key = request.GET.get('url_key', None)
+            url_key = request.GET.get("url_key", None)
 
         form = ProblemsetSourceForm(url_key)
-        post_data = {'form': form, 'is_reupload': is_reupload}
+        post_data = {"form": form, "is_reupload": is_reupload}
 
         if request.POST:
             if not Problem.objects.filter(problemsite__url_key=url_key).exists():
                 messages.warning(request, _("Given url key is invalid"))
-                return TemplateResponse(
-                    request, "problems/problemset-source.html", post_data
-                )
+                return TemplateResponse(request, "problems/problemset-source.html", post_data)
 
             problem = Problem.objects.get(problemsite__url_key=url_key)
             if existing_problem:
                 assert problem == existing_problem
-                assert 'instance_id' in request.GET
-                pi = problem.probleminstance_set.get(
-                    contest=contest, id=request.GET['instance_id']
-                )
+                assert "instance_id" in request.GET
+                pi = problem.probleminstance_set.get(contest=contest, id=request.GET["instance_id"])
                 update_tests_from_main_pi(pi)
                 # limits could be changed
                 pi.needs_rejudge = True
@@ -359,8 +335,6 @@ class ProblemsetSource(ProblemSource):
             else:
                 pi = get_new_problem_instance(problem, contest)
                 messages.success(request, _("Problem successfully uploaded"))
-            return safe_redirect(
-                request, reverse('oioioiadmin:contests_probleminstance_changelist')
-            )
+            return safe_redirect(request, reverse("oioioiadmin:contests_probleminstance_changelist"))
 
         return TemplateResponse(request, "problems/problemset-source.html", post_data)

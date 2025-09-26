@@ -1,5 +1,3 @@
-from django.utils.translation import gettext_lazy as _
-
 from oioioi.base import admin
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.szkopul.forms import MAPCourseRegistrationForm
@@ -8,12 +6,12 @@ from oioioi.szkopul.models import MAPCourseRegistration
 
 class MAPCourseRegistrationInline(admin.StackedInline):
     model = MAPCourseRegistration
-    fk_name = 'participant'
+    fk_name = "participant"
     form = MAPCourseRegistrationForm
     can_delete = False
-    inline_classes = ('collapse open',)
+    inline_classes = ("collapse open",)
     # We don't allow admins to change users' acceptance of contest's terms.
-    exclude = ('terms_accepted',)
+    exclude = ("terms_accepted",)
 
 
 class MAPCourseRegistrationParticipantAdmin(ParticipantAdmin):
@@ -21,7 +19,7 @@ class MAPCourseRegistrationParticipantAdmin(ParticipantAdmin):
     #     'not_primaryschool',
     # ]
     inlines = tuple(ParticipantAdmin.inlines) + (MAPCourseRegistrationInline,)
-    readonly_fields = ['user']
+    readonly_fields = ["user"]
 
     # def get_custom_list_select_related(self):
     #     return super(
@@ -56,11 +54,11 @@ class MAPCourseRegistrationParticipantAdmin(ParticipantAdmin):
     def has_add_permission(self, request):
         return request.user.is_superuser
 
-    def has_delete_permission(self, request, obj = None):
+    def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
 
     def get_actions(self, request):
         actions = super(MAPCourseRegistrationParticipantAdmin, self).get_actions(request)
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
+        if "delete_selected" in actions:
+            del actions["delete_selected"]
         return actions

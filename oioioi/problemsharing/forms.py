@@ -10,4 +10,4 @@ class AddFriendshipForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(AddFriendshipForm, self).__init__(*args, **kwargs)
-        self.fields['user'].hints_url = reverse('problemsharing_friend_hints')
+        self.fields["user"].hints_url = reverse("problemsharing_friend_hints")

@@ -3,7 +3,7 @@ import sys
 from oioioi.base.menu import OrderedRegistry
 
 
-class AttachmentRegistry(object):
+class AttachmentRegistry:
     """Maintains a collection of functions that
     return attachments for 'Downloads' view.
     """

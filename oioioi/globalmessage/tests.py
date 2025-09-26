@@ -17,14 +17,14 @@ class TestVisible(TestCase):
         yesterday = self.now - day
 
         tests = (
-            (None, None, True, 'test_no_dates'),
-            (tomorrow, None, False, 'test_start_in_future'),
-            (yesterday, None, True, 'test_start_in_past'),
-            (None, tomorrow, True, 'test_end_in_future'),
-            (None, yesterday, False, 'test_end_in_past'),
-            (yesterday, tomorrow, True, 'test_start_past_end_future'),
-            (yesterday - day, yesterday, False, 'test_start_past_end_past'),
-            (tomorrow, tomorrow + day, False, 'test_start_future_end_future'),
+            (None, None, True, "test_no_dates"),
+            (tomorrow, None, False, "test_start_in_future"),
+            (yesterday, None, True, "test_start_in_past"),
+            (None, tomorrow, True, "test_end_in_future"),
+            (None, yesterday, False, "test_end_in_past"),
+            (yesterday, tomorrow, True, "test_start_past_end_future"),
+            (yesterday - day, yesterday, False, "test_start_past_end_past"),
+            (tomorrow, tomorrow + day, False, "test_start_future_end_future"),
         )
 
         for test in tests:
@@ -32,7 +32,7 @@ class TestVisible(TestCase):
 
     def check_dates(self, start, end, expected, desc):
         msg = GlobalMessage(
-            message='Test',
+            message="Test",
             enabled=True,
             start=start,
             end=end,
@@ -44,7 +44,7 @@ class TestVisible(TestCase):
 
     def test_disabled(self):
         msg = GlobalMessage(
-            message='Test',
+            message="Test",
             enabled=False,
             start=None,
             end=None,
@@ -54,27 +54,27 @@ class TestVisible(TestCase):
 
 
 class TestOnPage(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ["test_users.json"]
 
     def setUp(self):
         self.msg = GlobalMessage.get_singleton()
 
-        self.msg.message = 'Example global message'
+        self.msg.message = "Example global message"
         self.msg.enabled = True
 
         self.msg.save()
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_visible_on_user_pages(self):
-        url = reverse('index')
+        url = reverse("index")
 
-        self.assertTrue(self.client.login(username='test_user'))
+        self.assertTrue(self.client.login(username="test_user"))
         response = self.client.get(url)
         self.assertContains(response, self.msg.message)
 
     def test_visible_on_admin_pages(self):
-        url = reverse('admin:index')
+        url = reverse("admin:index")
 
-        self.assertTrue(self.client.login(username='test_admin'))
+        self.assertTrue(self.client.login(username="test_admin"))
         response = self.client.get(url)
         self.assertContains(response, self.msg.message)

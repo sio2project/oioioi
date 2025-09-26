@@ -1,4 +1,4 @@
-class ProblemInstanceController(object):
+class ProblemInstanceController:
     """
     ``ProblemInstanceController`` decides whether to call problem
     controller or contest controller. Problem controller will be chosen
@@ -34,8 +34,6 @@ class ProblemInstanceController(object):
         problem = self.problem_instance.problem
         contest = self.problem_instance.contest
         if contest is not None:
-            assert hasattr(contest.controller, name) or not hasattr(
-                problem.controller, name
-            )
+            assert hasattr(contest.controller, name) or not hasattr(problem.controller, name)
             return getattr(contest.controller, name)
         return getattr(problem.controller, name)

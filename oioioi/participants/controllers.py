@@ -1,5 +1,6 @@
 import logging
 import urllib.parse
+
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Q
@@ -14,7 +15,7 @@ from oioioi.base.utils import get_user_display_name, request_cached
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import ContestController, RegistrationController
-from oioioi.contests.models import RegistrationAvailabilityConfig
+from oioioi.contests.models import RegistrationAvailabilityConfig, RegistrationStatus
 from oioioi.contests.utils import can_see_personal_data, is_contest_admin, is_contest_archived
 from oioioi.participants.models import (
     OnsiteRegistration,
@@ -22,12 +23,12 @@ from oioioi.participants.models import (
     RegistrationModel,
     TermsAcceptedPhrase,
 )
-from oioioi.contests.models import RegistrationStatus
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 
+
 class ParticipantsController(RegistrationController):
-    registration_template = 'participants/registration.html'
+    registration_template = "participants/registration.html"
 
     @property
     def form_class(self):
@@ -50,14 +51,12 @@ class ParticipantsController(RegistrationController):
         return False
 
     def filter_participants(self, queryset):
-        return queryset.filter(
-            participant__contest=self.contest, participant__status='ACTIVE'
-        )
+        return queryset.filter(participant__contest=self.contest, participant__status="ACTIVE")
 
     def user_contests_query(self, request):
         if not request.user.is_authenticated:
-            return Q(pk__isnull=True) # (False)
-        return Q(participant__user__id=request.user.id, participant__status='ACTIVE')
+            return Q(pk__isnull=True)  # (False)
+        return Q(participant__user__id=request.user.id, participant__status="ACTIVE")
 
     def filter_users_with_accessible_personal_data(self, queryset):
         return self.filter_participants(queryset)
@@ -70,7 +69,7 @@ class ParticipantsController(RegistrationController):
             return False
         if is_contest_admin(request):
             return True
-        if participant.status == 'BANNED':
+        if participant.status == "BANNED":
             return False
         return bool(request.user == participant.user)
 
@@ -80,11 +79,7 @@ class ParticipantsController(RegistrationController):
     def no_entry_view(self, request):
         if self.can_register(request):
             url = (
-                reverse('participants_register', kwargs={'contest_id': self.contest.id})
-                + '?'
-                + urllib.parse.urlencode(
-                    {'next': request.build_absolute_uri()}
-                )
+                reverse("participants_register", kwargs={"contest_id": self.contest.id}) + "?" + urllib.parse.urlencode({"next": request.build_absolute_uri()})
             )
             return HttpResponseRedirect(url)
         return super(ParticipantsController, self).no_entry_view(request)
@@ -99,14 +94,9 @@ class ParticipantsController(RegistrationController):
         """
         if self.form_class is None:
             return None
-        assert issubclass(
-            self.form_class, forms.ModelForm
-        ), 'ParticipantsController.form_class must be a ModelForm'
+        assert issubclass(self.form_class, forms.ModelForm), "ParticipantsController.form_class must be a ModelForm"
         model_class = self.form_class._meta.model
-        assert issubclass(model_class, RegistrationModel), (
-            'ParticipantsController.form_class\'s model must be a '
-            'subclass of RegistrationModel'
-        )
+        assert issubclass(model_class, RegistrationModel), "ParticipantsController.form_class's model must be a subclass of RegistrationModel"
         return model_class
 
     def get_form(self, request, participant=None):
@@ -119,21 +109,18 @@ class ParticipantsController(RegistrationController):
             except ObjectDoesNotExist:
                 pass
         # pylint: disable=not-callable
-        if request.method == 'POST':
+        if request.method == "POST":
             form = self.form_class(request.POST, request.FILES, instance=instance)
         else:
             form = self.form_class(instance=instance)
 
         if self.allow_login_as_public_name():
             initial = participant.anonymous if participant else False
-            form.fields['anonymous'] = forms.BooleanField(
+            form.fields["anonymous"] = forms.BooleanField(
                 required=False,
                 label=_("Anonymous"),
                 initial=initial,
-                help_text=_(
-                    "Anonymous participant uses the account name "
-                    "instead of the real name in rankings."
-                ),
+                help_text=_("Anonymous participant uses the account name instead of the real name in rankings."),
             )
         return form
 
@@ -141,14 +128,12 @@ class ParticipantsController(RegistrationController):
         instance = form.save(commit=False)
         instance.participant = participant
         instance.save()
-        participant.anonymous = form.cleaned_data.get('anonymous', False)
+        participant.anonymous = form.cleaned_data.get("anonymous", False)
         participant.save()
 
     def _get_participant_for_form(self, request):
         try:
-            participant = Participant.objects.get(
-                contest=self.contest, user=request.user
-            )
+            participant = Participant.objects.get(contest=self.contest, user=request.user)
             if not self.can_edit_registration(request, participant):
                 raise PermissionDenied
         except Participant.DoesNotExist:
@@ -161,28 +146,23 @@ class ParticipantsController(RegistrationController):
         participant = self._get_participant_for_form(request)
 
         form = self.get_form(request, participant)
-        assert form is not None, (
-            "can_register or can_edit_registration "
-            "returned True, but controller returns no registration form"
-        )
+        assert form is not None, "can_register or can_edit_registration returned True, but controller returns no registration form"
 
-        if request.method == 'POST':
+        if request.method == "POST":
             if form.is_valid():
-                participant, created = Participant.objects.get_or_create(
-                    contest=self.contest, user=request.user
-                )
+                participant, created = Participant.objects.get_or_create(contest=self.contest, user=request.user)
                 self.handle_validated_form(request, form, participant)
-                if 'next' in request.GET:
-                    return safe_redirect(request, request.GET['next'])
+                if "next" in request.GET:
+                    return safe_redirect(request, request.GET["next"])
                 else:
-                    return redirect('default_contest_view', contest_id=self.contest.id)
+                    return redirect("default_contest_view", contest_id=self.contest.id)
         can_unregister = False
         if participant:
             can_unregister = self.can_unregister(request, participant)
         context = {
-            'form': form,
-            'participant': participant,
-            'can_unregister': can_unregister,
+            "form": form,
+            "participant": participant,
+            "can_unregister": can_unregister,
         }
         return TemplateResponse(request, self.registration_template, context)
 
@@ -253,19 +233,12 @@ class OpenParticipantsController(ParticipantsController):
 
 @request_cached
 def anonymous_participants(request):
-    if not hasattr(request, 'contest'):
+    if not hasattr(request, "contest"):
         return frozenset({})
-    return frozenset(
-        (
-            p.user
-            for p in Participant.objects.filter(
-                contest=request.contest, anonymous=True
-            ).select_related('user')
-        )
-    )
+    return frozenset(p.user for p in Participant.objects.filter(contest=request.contest, anonymous=True).select_related("user"))
 
 
-class EmailShowContestControllerMixin(object):
+class EmailShowContestControllerMixin:
     """Contest controller defines whether in participants' data view email
     should be shown. That is a case in OI-type contest.
     """
@@ -276,32 +249,24 @@ class EmailShowContestControllerMixin(object):
 ContestController.mix_in(EmailShowContestControllerMixin)
 
 
-class AnonymousContestControllerMixin(object):
+class AnonymousContestControllerMixin:
     """ContestController mixin that adds participants info for anonymous
     contests.
     """
 
     def get_user_public_name(self, request, user):
         assert self.contest == request.contest
-        if (
-            request.user.is_superuser
-            or can_see_personal_data(request)
-            or user not in anonymous_participants(request)
-        ):
+        if request.user.is_superuser or can_see_personal_data(request) or user not in anonymous_participants(request):
             return get_user_display_name(user)
         else:
             return user.username
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(
-            AnonymousContestControllerMixin, self
-        ).get_contest_participant_info_list(request, user)
+        prev = super(AnonymousContestControllerMixin, self).get_contest_participant_info_list(request, user)
         try:
             part = Participant.objects.get(user=user, contest=request.contest)
-            context = {'participant': part}
-            rendered_info = render_to_string(
-                'participants/participant_info.html', context=context, request=request
-            )
+            context = {"participant": part}
+            rendered_info = render_to_string("participants/participant_info.html", context=context, request=request)
             prev.append((98, rendered_info))
         except Participant.DoesNotExist:
             pass
@@ -328,25 +293,19 @@ class OnsiteRegistrationController(ParticipantsController):
         return False
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(
-            OnsiteRegistrationController, self
-        ).get_contest_participant_info_list(request, user)
+        prev = super(OnsiteRegistrationController, self).get_contest_participant_info_list(request, user)
 
-        info = OnsiteRegistration.objects.filter(
-            participant__user=user, participant__contest=request.contest
-        )
+        info = OnsiteRegistration.objects.filter(participant__user=user, participant__contest=request.contest)
 
         if info.exists():
-            context = {'model': info[0]}
-            rendered_info = render_to_string(
-                'oi/participant_info.html', context=context, request=request
-            )
+            context = {"model": info[0]}
+            rendered_info = render_to_string("oi/participant_info.html", context=context, request=request)
             prev.append((98, rendered_info))
 
         return prev
 
 
-class OnsiteContestControllerMixin(object):
+class OnsiteContestControllerMixin:
     """ContestController mixin that sets up an onsite contest."""
 
     create_forum = False
