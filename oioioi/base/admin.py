@@ -363,8 +363,8 @@ class OioioiUserAdmin(UserAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
     )
     add_fieldsets = (
         (None, {
-            'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2'),
+            "classes": ("wide",),
+            "fields": ("username", "password1", "password2"),
         }),
     )
     list_filter = ['is_superuser', 'is_active']
