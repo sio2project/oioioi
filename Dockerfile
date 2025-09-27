@@ -58,22 +58,17 @@ RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 
-COPY --chown=oioioi:oioioi setup.py requirements.txt ./
-RUN pip3 install -r requirements.txt --user filetracker[server]
-COPY --chown=oioioi:oioioi requirements_static.txt ./
-RUN pip3 install -r requirements_static.txt --user
+COPY --chown=oioioi:oioioi . ./
+RUN pip3 install --user -r requirements.txt filetracker[server]
+RUN pip3 install --user -r requirements_static.txt
 RUN pip3 install --user -U "gevent==25.5.1"  # override version of gevent
 
 # Installing node dependencies
 ENV PATH $PATH:/sio2/oioioi/node_modules/.bin
 
-COPY --chown=oioioi:oioioi package.json package-lock.json ./
 RUN npm ci
-
-COPY --chown=oioioi:oioioi . /sio2/oioioi
-
 RUN npm run build
-RUN pip3 install --user -e .
+
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
