@@ -73,6 +73,7 @@ RUN npm ci
 COPY --chown=oioioi:oioioi . /sio2/oioioi
 
 RUN npm run build
+RUN pip3 install --user -e .
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
