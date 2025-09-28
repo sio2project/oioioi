@@ -40,7 +40,7 @@ class Command(BaseCommand):
             try:
                 r = requests.get(
                     f"http://{region.region_server}/ipauthsync/list",
-                    headers=dict(Host="oireg"),
+                    headers={"Host": "oireg"},
                 )
                 r.raise_for_status()
 
@@ -53,16 +53,16 @@ class Command(BaseCommand):
                         reg = OnsiteRegistration.objects.select_related("participant__user").get(number=zaw_id, region=region)
                         user = reg.participant.user
                     except OnsiteRegistration.DoesNotExist:
-                        warnings.append("* No user found for ZAW=%s (IP=%s)" % (zaw_id, ip))
+                        warnings.append(f"* No user found for ZAW={zaw_id} (IP={ip})")
                         continue
 
                     try:
                         rc.ipauthsync_validate_ip(region, ip, user)
                     # pylint: disable=broad-except
                     except Exception as e:
-                        warnings.append("Invalid IP=%s (ZAW=%s): %s" % (ip, zaw_id, e))
+                        warnings.append(f"Invalid IP={ip} (ZAW={zaw_id}): {e}")
 
-                    mapping.append("%s %s %s" % (zaw_id, ip, user.username))
+                    mapping.append(f"{zaw_id} {ip} {user.username}")
 
                     yield user, ip
 
@@ -73,21 +73,21 @@ class Command(BaseCommand):
                     msgs.warnings = warnings
                     msgs.save()
                     mail_admins(
-                        "ipauthsyncd: Warnings for region %s" % (region.short_name,),
+                        f"ipauthsyncd: Warnings for region {region.short_name}",
                         warnings,
                     )
                 if mapping != msgs.mapping:
                     msgs.mapping = mapping
                     msgs.save()
                     mail_admins(
-                        "ipauthsyncd: Mapping for region %s" % (region.short_name,),
+                        f"ipauthsyncd: Mapping for region {region.short_name}",
                         mapping,
                     )
 
                 if region.short_name in self.failing_regions:
                     self.failing_regions.remove(region.short_name)
                     mail_admins(
-                        "ipauthsyncd: Sync now OK for region %s" % (region.short_name,),
+                        f"ipauthsyncd: Sync now OK for region {region.short_name}",
                         "(Intentionally left blank)",
                     )
             # pylint: disable=broad-except
@@ -96,7 +96,7 @@ class Command(BaseCommand):
                     continue
                 self.failing_regions.add(region.short_name)
                 mail_admins(
-                    "ipauthsyncd: Sync failing for region %s" % (region.short_name,),
+                    f"ipauthsyncd: Sync failing for region {region.short_name}",
                     traceback.format_exc(),
                 )
 

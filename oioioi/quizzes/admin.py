@@ -23,7 +23,7 @@ from oioioi.quizzes.models import (
 
 class QuizAnswerFormset(NestedInlineFormSet):
     def clean(self):
-        super(QuizAnswerFormset, self).clean()
+        super().clean()
         is_empty = True
         for form in self.forms:
             if form.cleaned_data and not form.cleaned_data.get("DELETE"):
@@ -103,7 +103,7 @@ class QuizModelAdmin(nested.NestedModelAdmin):
         css = {"all": ("quizzes/quizadmin.css",)}
 
     def __init__(self, parent_model, admin_site):
-        super(QuizModelAdmin, self).__init__(parent_model, admin_site)
+        super().__init__(parent_model, admin_site)
         self.exclude = [f.name for f in Quiz._meta.get_fields()]
 
     def has_delete_permission(self, request, obj=None):
@@ -146,7 +146,7 @@ class QuizInline(admin.StackedInline):
         return mark_safe('<a href="{url}">{text}</a>'.format(url=url, text=_("Edit quiz questions")))
 
     def __init__(self, parent_model, admin_site):
-        super(QuizInline, self).__init__(parent_model, admin_site)
+        super().__init__(parent_model, admin_site)
         self.exclude = [f.name for f in Quiz._meta.get_fields()]
 
 
@@ -154,5 +154,5 @@ class QuizAdminMixin:
     """Adds :class:`~oioioi.quizzes.models.Quiz` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(QuizAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (QuizInline,)

@@ -67,7 +67,7 @@ def _get_user_hints(substr, queryset, user_field_name=None):
             _prefix(user_field_name, "last_name"),
         )
     )
-    return ["%s (%s %s)" % u for u in users[:num_hints]]
+    return ["{} ({} {})".format(*u) for u in users[:num_hints]]
 
 
 @jsonify
@@ -109,10 +109,10 @@ class UserSelectionWidget(forms.TextInput):
         else:
             attrs = dict(attrs)
         attrs.setdefault("autocomplete", "off")
-        super(UserSelectionWidget, self).__init__(attrs)
+        super().__init__(attrs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        html = super(UserSelectionWidget, self).render(name, value, attrs, renderer)
+        html = super().render(name, value, attrs, renderer)
         html += mark_safe(
             self.html_template
             % {
@@ -127,7 +127,7 @@ class UserSelectionField(forms.CharField):
     widget = UserSelectionWidget
 
     def __init__(self, hints_url=None, queryset=None, user_field_name=None, **kwargs):
-        super(UserSelectionField, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.hints_url = hints_url
         self.queryset = queryset
         self.user_field_name = user_field_name
@@ -148,10 +148,10 @@ class UserSelectionField(forms.CharField):
                 return User.objects.get(id=value).username
             except User.DoesNotExist:
                 pass
-        return super(UserSelectionField, self).prepare_value(value)
+        return super().prepare_value(value)
 
     def to_python(self, value):
-        value = super(UserSelectionField, self).to_python(value)
+        value = super().to_python(value)
         if isinstance(value, User):
             user = value
         else:

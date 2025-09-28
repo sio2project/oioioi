@@ -10,10 +10,7 @@ from oioioi.filetracker.fields import FileField
 
 
 def make_logo_filename(instance, filename):
-    return "logo/%s/%s" % (
-        instance.contest.id,
-        get_valid_filename(os.path.basename(filename)),
-    )
+    return f"logo/{instance.contest.id}/{get_valid_filename(os.path.basename(filename))}"
 
 
 class ContestLogo(models.Model):
@@ -24,7 +21,7 @@ class ContestLogo(models.Model):
 
     def save(self, *args, **kwargs):
         self.updated_at = timezone.now()
-        return super(ContestLogo, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     @property
     def filename(self):
@@ -36,10 +33,7 @@ class ContestLogo(models.Model):
 
 
 def make_icon_filename(instance, filename):
-    return "icons/%s/%s" % (
-        instance.contest.id,
-        get_valid_filename(os.path.basename(filename)),
-    )
+    return f"icons/{instance.contest.id}/{get_valid_filename(os.path.basename(filename))}"
 
 
 class ContestIcon(models.Model):
@@ -49,7 +43,7 @@ class ContestIcon(models.Model):
 
     def save(self, *args, **kwargs):
         self.updated_at = timezone.now()
-        return super(ContestIcon, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     @property
     def filename(self):

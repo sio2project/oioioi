@@ -28,10 +28,10 @@ class ScoreDistribution:
             self.scores[10 - score] += 1
 
     def __repr__(self):
-        return "ScoreDistribution(%s)" % ", ".join(["%d: %d" % p for p in zip(reversed(list(range(1, 11))), self.scores, strict=False)])
+        return "ScoreDistribution({})".format(", ".join(["%d: %d" % p for p in zip(reversed(list(range(1, 11))), self.scores, strict=False)]))  # noqa: UP031
 
     def _to_repr(self):
-        return ":".join(["%05d" % p for p in self.scores])
+        return ":".join([f"{p:05d}" for p in self.scores])
 
     @classmethod
     def _from_repr(cls, value):
@@ -82,7 +82,7 @@ class PAScore(ScoreValue):
         return str(self.points)
 
     def __repr__(self):
-        return "PAScore(%r, %r)" % (self.points, self.distribution)
+        return f"PAScore({self.points!r}, {self.distribution!r})"
 
     def __str__(self):
         return str(self.points)
@@ -96,7 +96,7 @@ class PAScore(ScoreValue):
         )
 
     def _to_repr(self):
-        return "%s;%s" % (self.points._to_repr(), self.distribution._to_repr())
+        return f"{self.points._to_repr()};{self.distribution._to_repr()}"
 
     def to_int(self):
         return self.points.to_int()

@@ -89,7 +89,7 @@ def statistics_view(request, category=statistics_categories["CONTEST"][1], objec
     else:
         raise Http404
 
-    if (category, object_name) not in set((c, o) for (c, o, d) in controller.statistics_available_plot_groups(request)):
+    if (category, object_name) not in {(c, o) for (c, o, d) in controller.statistics_available_plot_groups(request)}:
         raise PermissionDenied(_("You have no access to those charts"))
 
     plots = controller.statistics_available_plots(request, category, object)
@@ -223,7 +223,7 @@ def get_tests_info(request):
             lambda: {
                 "problem_name": None,
                 "testrun_config": None,
-                "tests": list(),
+                "tests": [],
                 "submissions_limit": None,
                 "solved": False,
             }
@@ -263,6 +263,6 @@ def get_tests_info(request):
     for s in solved_qs:
         tests_info[s.submission_report.submission.problem_instance.round.name][s.submission_report.submission.problem_instance.id]["solved"] = True
 
-    tests_info = dict({r: dict(t) for r, t in tests_info.items()})
+    tests_info = {r: dict(t) for r, t in tests_info.items()}
 
     return tests_info

@@ -48,11 +48,11 @@ def _make_filename(env, base_name):
     if "eval_dir" not in env:
         eval_dir = "/eval"
         if "contest_id" in env:
-            eval_dir += "/%s" % env["contest_id"]
+            eval_dir += "/{}".format(env["contest_id"])
         if "submission_id" in env:
-            eval_dir += "/%s" % env["submission_id"]
+            eval_dir += "/{}".format(env["submission_id"])
         env["eval_dir"] = eval_dir
-    return "%s/%s-%s" % (env["eval_dir"], env["job_id"], base_name)
+    return "{}/{}-{}".format(env["eval_dir"], env["job_id"], base_name)
 
 
 def _skip_on_compilation_error(fn):
@@ -256,7 +256,7 @@ def run_tests(env, kind=None, **kwargs):
 
         If the dictionary already exists, new test results are appended.
     """
-    jobs = dict()
+    jobs = {}
     not_to_judge = []
     for test_name, test_env in env["tests"].items():
         if kind and test_env["kind"] != kind:
@@ -336,8 +336,8 @@ def grade_tests(env, **kwargs):
     for test_name, test_result in env["test_results"].items():
         if tests[test_name]["to_judge"]:
             score, max_score, status = fun(tests[test_name], test_result)
-            assert isinstance(score, (type(None), ScoreValue))
-            assert isinstance(max_score, (type(None), ScoreValue))
+            assert isinstance(score, type(None) | ScoreValue)
+            assert isinstance(max_score, type(None) | ScoreValue)
             test_result["score"] = score and score.serialize()
             test_result["max_score"] = max_score and max_score.serialize()
             test_result["status"] = status
@@ -388,17 +388,17 @@ def grade_groups(env, **kwargs):
             continue
         fun = import_string(env.get("group_scorer", settings.DEFAULT_GROUP_SCORER))
         score, max_score, status = fun(results)
-        if not isinstance(score, (type(None), ScoreValue)):
-            raise TypeError("Group scorer returned %r as score, not None or ScoreValue" % (type(score),))
-        if not isinstance(max_score, (type(None), ScoreValue)):
-            raise TypeError("Group scorer returned %r as max_score, not None or ScoreValue" % (type(max_score),))
+        if not isinstance(score, type(None) | ScoreValue):
+            raise TypeError(f"Group scorer returned {type(score)!r} as score, not None or ScoreValue")
+        if not isinstance(max_score, type(None) | ScoreValue):
+            raise TypeError(f"Group scorer returned {type(max_score)!r} as max_score, not None or ScoreValue")
         group_result = {}
         group_result["score"] = score and score.serialize()
         group_result["max_score"] = max_score and max_score.serialize()
         group_result["status"] = status
         one_of_tests = env["tests"][next(iter(results.keys()))]
         if not all(env["tests"][key]["kind"] == one_of_tests["kind"] for key in results.keys()):
-            raise ValueError("Tests in group '%s' have different kinds. This is not supported." % (group_name,))
+            raise ValueError(f"Tests in group '{group_name}' have different kinds. This is not supported.")
         group_result["kind"] = one_of_tests["kind"]
         env["group_results"][group_name] = group_result
 
@@ -437,11 +437,11 @@ def grade_submission(env, kind="NORMAL", **kwargs):
     if kind is None:
         group_results = env["group_results"]
     else:
-        group_results = dict((name, res) for (name, res) in env["group_results"].items() if res["kind"] == kind)
+        group_results = {name: res for (name, res) in env["group_results"].items() if res["kind"] == kind}
 
     score, max_score, status = fun(group_results)
-    assert isinstance(score, (type(None), ScoreValue))
-    assert isinstance(max_score, (type(None), ScoreValue))
+    assert isinstance(score, type(None) | ScoreValue)
+    assert isinstance(max_score, type(None) | ScoreValue)
     env["score"] = score and score.serialize()
     env["max_score"] = max_score and max_score.serialize()
     env["status"] = status
@@ -633,9 +633,8 @@ def insert_existing_submission_link(env, src_submission, **kwargs):
     test_names = ", ".join(list(env.get("test_results", {}).keys()))
 
     # Note that the comment is overwritten by safe string.
-    src_submission.comment = "This is an internal submission created after someone requested to generate user output on tests: %s, related to %s" % (
-        test_names,
-        html_link,
+    src_submission.comment = (
+        f"This is an internal submission created after someone requested to generate user output on tests: {test_names}, related to {html_link}"
     )
     src_submission.save()
 

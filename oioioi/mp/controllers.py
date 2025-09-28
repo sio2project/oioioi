@@ -89,7 +89,7 @@ class MPRegistrationController(ParticipantsController):
     def mixins_for_admin(self):
         from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
 
-        return super(MPRegistrationController, self).mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
+        return super().mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
 
     def can_change_terms_accepted_phrase(self, request):
         return not MPRegistration.objects.filter(participant__contest=request.contest).exists()
@@ -185,7 +185,7 @@ class MPContestController(ProgrammingContestController):
             contest=problem_instance.contest,
             end_date__gte=request.timestamp,
         )
-        return super(MPContestController, self).can_submit(request, problem_instance, check_round_times) or round_over_contest_running
+        return super().can_submit(request, problem_instance, check_round_times) or round_over_contest_running
 
 
 class MPRankingController(DefaultRankingController):

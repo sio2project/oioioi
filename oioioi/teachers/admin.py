@@ -35,10 +35,10 @@ class TeacherAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "user":
             kwargs["queryset"] = User.objects.all().order_by("username")
-        return super(TeacherAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_custom_list_select_related(self):
-        return super(TeacherAdmin, self).get_custom_list_select_related() + ["user"]
+        return super().get_custom_list_select_related() + ["user"]
 
     def teacher_first_name(self, instance):
         if not instance.user:
@@ -85,7 +85,7 @@ class ContestAdminMixin:
     def has_add_permission(self, request):
         if request.user.has_perm("teachers.teacher"):
             return True
-        return super(ContestAdminMixin, self).has_add_permission(request)
+        return super().has_add_permission(request)
 
     def save_model(self, request, obj, form, change):
         # Superusers are allowed to add contest of any type.
@@ -94,7 +94,7 @@ class ContestAdminMixin:
         # don't want to change the current type.
         if request.user.has_perm("teachers.teacher") and (not change and not request.user.is_superuser):
             obj.controller_name = "oioioi.teachers.controllers.TeacherContestController"
-        super(ContestAdminMixin, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
         if not change and request.user.has_perm("teachers.teacher"):
             try:
                 teacher_obj = Teacher.objects.get(user=request.user)
@@ -105,13 +105,13 @@ class ContestAdminMixin:
 
     def get_fieldsets(self, request, obj=None):
         if obj or request.user.is_superuser or not request.user.has_perm("teachers.teacher"):
-            return super(ContestAdminMixin, self).get_fieldsets(request, obj)
+            return super().get_fieldsets(request, obj)
         fields = list(TeacherContestForm().base_fields.keys())
         return [(None, {"fields": fields})]
 
     def get_form(self, request, obj=None, **kwargs):
         if obj or request.user.is_superuser or not request.user.has_perm("teachers.teacher"):
-            return super(ContestAdminMixin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
         return modelform_factory(
             self.model,
             form=TeacherContestForm,
@@ -120,12 +120,12 @@ class ContestAdminMixin:
 
     def response_add(self, request, obj, post_url_continue=None):
         if request.user.is_superuser or not request.user.has_perm("teachers.teacher"):
-            return super(ContestAdminMixin, self).response_add(request, obj, post_url_continue)
+            return super().response_add(request, obj, post_url_continue)
         self.message_user(request, _("Contest added successfully."))
         return redirect("show_members", contest_id=obj.id, member_type="pupil")
 
     def __init__(self, *args, **kwargs):
-        super(ContestAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 ContestAdmin.mix_in(ContestAdminMixin)

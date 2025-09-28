@@ -9,7 +9,7 @@ from oioioi.programs.models import Test
 
 class ProblemInstanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(ProblemInstanceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["round"].queryset = Round.objects.filter(contest=kwargs["instance"].contest)
 
     class Meta:
@@ -19,7 +19,7 @@ class ProblemInstanceForm(forms.ModelForm):
 
 class TestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(TestForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = kwargs["instance"]
         self.fields["input_file"].link = self.input_file_link(instance)
         self.fields["output_file"].link = self.output_file_link(instance)

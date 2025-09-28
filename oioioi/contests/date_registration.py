@@ -57,13 +57,19 @@ class DateRegistry:
             return decorator
 
         if name_generator is None:
-            name_generator = lambda obj: str(model._meta.verbose_name) + " " + str(model._meta.get_field(date_field).verbose_name)
+
+            def name_generator(obj):
+                return str(model._meta.verbose_name) + " " + str(model._meta.get_field(date_field).verbose_name)
 
         if round_chooser is None:
-            round_chooser = lambda obj: None
+
+            def round_chooser(obj):
+                return None
 
         if qs_filter is None:
-            qs_filter = lambda qs, contest_id: qs.filter(contest=contest_id)
+
+            def qs_filter(qs, contest_id):
+                return qs.filter(contest=contest_id)
 
         date_item = self.DateItem(date_field, name_generator, round_chooser, qs_filter, model)
         self._registry.register(date_item, order)
@@ -76,15 +82,15 @@ class DateRegistry:
             instances = item.qs_filter(model.objects.all(), contest_id)
             for instance in instances:
                 context_items.append(
-                    dict(
-                        text=item.name_generator(instance),
-                        date=getattr(instance, item.date_field),
-                        date_field=item.date_field,
-                        model=model,
-                        id=instance.id,
-                        round=item.round_chooser(instance),
-                        order=self._registry.keys[idx],
-                    )
+                    {
+                        "text": item.name_generator(instance),
+                        "date": getattr(instance, item.date_field),
+                        "date_field": item.date_field,
+                        "model": model,
+                        "id": instance.id,
+                        "round": item.round_chooser(instance),
+                        "order": self._registry.keys[idx],
+                    }
                 )
         return context_items
 

@@ -104,7 +104,7 @@ class Archive:
             base, ext = os.path.splitext(base)
             cls = extension_map.get(ext)
         if not cls:
-            raise UnrecognizedArchiveFormat("Path not a recognized archive format: %s" % filename)
+            raise UnrecognizedArchiveFormat(f"Path not a recognized archive format: {filename}")
         return cls
 
     def extract(self, *args, **kwargs):
@@ -177,7 +177,7 @@ class BaseArchive:
             extract_path = os.path.join(target_path, filename)
             extract_path = os.path.normpath(os.path.realpath(extract_path))
             if not extract_path.startswith(target_path):
-                raise UnsafeArchive("Archive member destination is outside the target directory.  member: %s" % filename)
+                raise UnsafeArchive(f"Archive member destination is outside the target directory.  member: {filename}")
 
 
 class TarArchive(BaseArchive):

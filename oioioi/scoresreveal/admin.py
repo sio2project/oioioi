@@ -34,7 +34,7 @@ class ScoresRevealProblemInstanceAdminMixin:
     """Adds `ScoreRevealConfigForInstance` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(ScoresRevealProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ScoresRevealConfigInline,)
 
 
@@ -45,13 +45,13 @@ class ScoresRevealSubmissionAdminMixin:
     """Adds reveal info and filter to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(ScoresRevealSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_list_display(self, request):
-        return super(ScoresRevealSubmissionAdminMixin, self).get_list_display(request) + ["reveal_display"]
+        return super().get_list_display(request) + ["reveal_display"]
 
     def get_list_filter(self, request):
-        return super(ScoresRevealSubmissionAdminMixin, self).get_list_filter(request) + [RevealedFilter]
+        return super().get_list_filter(request) + [RevealedFilter]
 
     def reveal_display(self, instance):
         return is_revealed(instance)
@@ -61,7 +61,7 @@ class ScoresRevealSubmissionAdminMixin:
     reveal_display.boolean = True
 
     def get_custom_list_select_related(self):
-        return super(ScoresRevealSubmissionAdminMixin, self).get_custom_list_select_related() + ["revealed"]
+        return super().get_custom_list_select_related() + ["revealed"]
 
 
 SubmissionAdmin.mix_in(ScoresRevealSubmissionAdminMixin)

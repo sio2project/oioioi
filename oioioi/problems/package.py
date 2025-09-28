@@ -26,7 +26,7 @@ class ProblemPackageError(Exception):
 
 class PackageProcessingError(ProblemPackageError):
     def __init__(self, func_name, func_doc):
-        super(PackageProcessingError, self).__init__()
+        super().__init__()
         self.original_exception_info = sys.exc_info()
         self.raiser = func_name
         self.raiser_desc = " ".join(func_doc.split())

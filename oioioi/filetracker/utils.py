@@ -38,14 +38,14 @@ def django_to_filetracker_path(django_file):
     """Returns the filetracker path of a :class:`django.core.files.File`."""
     storage = getattr(django_file, "storage", None)
     if not storage:
-        raise ValueError("File of type %r is not stored in Filetracker" % (type(django_file),))
+        raise ValueError(f"File of type {type(django_file)!r} is not stored in Filetracker")
     name = django_file.name
     if hasattr(name, "versioned_name"):
         name = name.versioned_name
     try:
         return storage._make_filetracker_path(name)
     except AttributeError:
-        raise ValueError("File is stored in %r, not Filetracker" % (storage,))
+        raise ValueError(f"File is stored in {storage!r}, not Filetracker")
 
 
 def filetracker_to_django_file(filetracker_path, storage=None):
@@ -57,7 +57,7 @@ def filetracker_to_django_file(filetracker_path, storage=None):
 
     prefix_len = len(storage.prefix.rstrip("/"))
     if not filetracker_path.startswith(storage.prefix) or filetracker_path[prefix_len : prefix_len + 1] != "/":
-        raise ValueError("Path %s is outside of storage prefix %s" % (filetracker_path, storage.prefix))
+        raise ValueError(f"Path {filetracker_path} is outside of storage prefix {storage.prefix}")
     return FileInFiletracker(storage, FiletrackerFilename(filetracker_path[prefix_len + 1 :]))
 
 

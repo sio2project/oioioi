@@ -49,7 +49,7 @@ class EmptyQuizSource(ProblemSource):
 
                 algorithm_tag, created = AlgorithmTag.objects.get_or_create(name="quiz")
                 if created:
-                    for language_code, language in LANGUAGES:
+                    for language_code, _language in LANGUAGES:
                         AlgorithmTagLocalization.objects.get_or_create(
                             algorithm_tag=algorithm_tag,
                             language=language_code,

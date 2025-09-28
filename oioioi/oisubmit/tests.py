@@ -206,7 +206,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
 
     def _assertUnsupportedExtension(self, contest, pi, name, ext):
         submission_number = Submission.objects.all().count()
-        response = self.submit_file(contest, pi.short_name, file_name="%s.%s" % (name, ext))
+        response = self.submit_file(contest, pi.short_name, file_name=f"{name}.{ext}")
         self._assertNotSubmitted(response, submission_number)
 
     def test_extension_checking(self):

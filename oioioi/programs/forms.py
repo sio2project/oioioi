@@ -9,7 +9,7 @@ from oioioi.programs.utils import get_submittable_languages
 
 class CompilerInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(CompilerInlineForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.language_choices = [("", "Choose language")]
         default_compilers = settings.DEFAULT_COMPILERS
         model = self._meta.model
@@ -54,7 +54,7 @@ class ProblemCompilerInlineForm(CompilerInlineForm):
 
 class ProblemAllowedLanguageInlineForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(ProblemAllowedLanguageInlineForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         submittable_languages = get_submittable_languages().items()
         self.language_choices = [(lang, lang_info["display_name"]) for lang, lang_info in submittable_languages]
         self.fields["language"] = forms.ChoiceField(choices=self.language_choices)

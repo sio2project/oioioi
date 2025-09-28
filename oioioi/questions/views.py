@@ -126,7 +126,7 @@ def process_filter_form(request):
     message_type = form.cleaned_data.get("message_type", FilterMessageForm.TYPE_ALL_MESSAGES)
     message_kind = "PUBLIC" if message_type == FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS else None
 
-    all_errors = ["%s: %s" % (form.fields[field].label, ",".join(errors)) for field, errors in form.errors.items()]
+    all_errors = ["{}: {}".format(form.fields[field].label, ",".join(errors)) for field, errors in form.errors.items()]
     are_all_values_default = (
         (not category or category == FilterMessageForm.TYPE_ALL_CATEGORIES)
         and (not message_type or message_type == FilterMessageForm.TYPE_ALL_MESSAGES)
@@ -215,10 +215,15 @@ def all_messages_view(request):
             tree[m.id] = entry
 
     if is_contest_basicadmin(request):
-        sort_key = lambda x: (x["needs_reply"], x["has_new_message"], x["timestamp"])
+
+        def sort_key(x):
+            return (x["needs_reply"], x["has_new_message"], x["timestamp"])
     else:
-        sort_key = lambda x: (x["has_new_message"], x["needs_reply"], x["timestamp"])
-    tree_list = sorted(list(tree.values()), key=sort_key, reverse=True)
+
+        def sort_key(x):
+            return (x["has_new_message"], x["needs_reply"], x["timestamp"])
+
+    tree_list = sorted(tree.values(), key=sort_key, reverse=True)
     for entry in tree_list:
         entry["replies"].sort(key=sort_key, reverse=True)
 

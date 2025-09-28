@@ -197,8 +197,8 @@ class TestSubmissionListOrder(TestCase):
     def check_id_order_in_response(self, response, ids):
         self.check_order_in_response(
             response,
-            ["/submission/%d/change" % x for x in ids],
-            "Submission with id %d should be displayed before submission with id %d" % tuple(ids),
+            [f"/submission/{x}/change" for x in ids],
+            f"Submission with id {ids[0]} should be displayed before submission with id {ids[1]}",
         )
 
     @pytest.mark.skip(reason="TODO: Repair the ordering platform-wide.")
@@ -240,12 +240,12 @@ class TestSubmissionListOrder(TestCase):
         self.assertIn(
             test_first,
             table_content,
-            "Fixtures should contain submission with %s" % test_first,
+            f"Fixtures should contain submission with {test_first}",
         )
         self.assertIn(
             test_second,
             table_content,
-            "Fixtures should contain submission with %s" % test_second,
+            f"Fixtures should contain submission with {test_second}",
         )
 
         test_first_index = table_content.index(test_first)
@@ -576,8 +576,8 @@ class TestContestViews(TestCase):
         invisible_contest.save()
 
         self.assertTrue(self.client.login(username="test_admin"))
-        self.client.get("/c/%s/dashboard/" % contest.id)
-        self.client.get("/c/%s/dashboard/" % invisible_contest.id)
+        self.client.get(f"/c/{contest.id}/dashboard/")
+        self.client.get(f"/c/{invisible_contest.id}/dashboard/")
         response = self.client.get(reverse("select_contest"))
         self.assertEqual(len(response.context["contests"]), 2)
         self.assertContains(response, "Test contest")
@@ -585,15 +585,15 @@ class TestContestViews(TestCase):
         self.client.logout()
 
         self.assertTrue(self.client.login(username="test_admin"))
-        response = self.client.get("/c/%s/dashboard/" % contest.id)
+        response = self.client.get(f"/c/{contest.id}/dashboard/")
         self.assertContains(response, "dropdown open")
-        response = self.client.get("/c/%s/dashboard/" % contest.id)
+        response = self.client.get(f"/c/{contest.id}/dashboard/")
         self.assertNotContains(response, "dropdown open")
 
         contests = [cv.contest for cv in ContestView.objects.all()]
         self.assertEqual(contests, [contest, invisible_contest])
 
-        self.client.get("/c/%s/dashboard/" % invisible_contest.id)
+        self.client.get(f"/c/{invisible_contest.id}/dashboard/")
         response = self.client.get(reverse("select_contest"))
         self.assertEqual(len(response.context["contests"]), 2)
         contests = [cv.contest for cv in ContestView.objects.all()]
@@ -1176,7 +1176,7 @@ def failing_handler(env):
 
 class BrokenContestController(ProgrammingContestController):
     def fill_evaluation_environ(self, environ, submission):
-        super(BrokenContestController, self).fill_evaluation_environ(environ, submission)
+        super().fill_evaluation_environ(environ, submission)
         environ.setdefault("recipe", []).append(("failing_handler", "oioioi.contests.tests.tests.failing_handler"))
 
 
@@ -1642,17 +1642,17 @@ class TestAttachments(TestCase, TestStreamingMixin):
             # File list
             response = self.client.get(list_url)
             self.assertEqual(response.status_code, 200)
-            for att, content, name in visible:
+            for att, _content, name in visible:
                 self.assertContains(response, name)
                 self.assertContains(response, att.description)
-            for att, content, name in invisible:
+            for att, _content, name in invisible:
                 self.assertNotContains(response, name)
                 self.assertNotContains(response, att.description)
             for f in response.context["files"]:
                 self.assertEqual(f["admin_only"], False)
 
             # Actual accessibility
-            for att, content, name in visible:
+            for att, content, _name in visible:
                 response = self.client.get(
                     reverse(
                         get_attachment_urlpattern_name(att),
@@ -1660,7 +1660,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
                     )
                 )
                 self.assertStreamingEqual(response, content)
-            for att, content, name in invisible:
+            for att, _content, _name in invisible:
                 check_not_accessible(
                     self,
                     get_attachment_urlpattern_name(att),
@@ -1671,15 +1671,15 @@ class TestAttachments(TestCase, TestStreamingMixin):
             self.assertTrue(self.client.login(username="test_admin"))
             response = self.client.get(list_url)
             self.assertEqual(response.status_code, 200)
-            for att, content, name in visible + invisible:
+            for att, _content, name in visible + invisible:
                 self.assertContains(response, name)
                 self.assertContains(response, att.description)
-            invisible_names = set([f[2] for f in invisible])
+            invisible_names = {f[2] for f in invisible}
             for f in response.context["files"]:
                 self.assertEqual(f["admin_only"], f["name"] in invisible_names)
 
             # Actual accessibility as an admin
-            for att, content, name in visible + invisible:
+            for att, content, _name in visible + invisible:
                 response = self.client.get(
                     reverse(
                         get_attachment_urlpattern_name(att),
@@ -3819,7 +3819,7 @@ def see_link_for_submission_on_problem_list(self, username, should_see):
     contest = Contest.objects.get(pk="c")
     problems_url = reverse("problems_list", kwargs={"contest_id": contest.id})
     submission_url = reverse("submission", kwargs={"contest_id": contest.id, "submission_id": 1})
-    expected_hyperlink = '<a href="%s">' % submission_url
+    expected_hyperlink = f'<a href="{submission_url}">'
 
     response = self.client.get(problems_url, follow=True)
 
@@ -3903,7 +3903,7 @@ class TestAPISubmitBase(APITestCase):
 
     def __init__(self, *args, **kwargs):
         self.fixtures += self.extra_fixtures
-        super(TestAPISubmitBase, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def setUp(self):
         self.client.force_authenticate(user=User.objects.get(username="test_user"))
@@ -3988,7 +3988,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
         self._assertSubmitted(response, 2)
 
     def _assertUnsupportedExtension(self, contest, problem_instance, name, ext):
-        response = self.contest_submit(contest, problem_instance, file_name="%s.%s" % (name, ext))
+        response = self.contest_submit(contest, problem_instance, file_name=f"{name}.{ext}")
         self.assertContains(response, "Unknown or not supported file extension.", status_code=400)
 
     def test_limiting_extensions(self):

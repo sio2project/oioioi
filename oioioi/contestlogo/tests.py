@@ -97,7 +97,7 @@ class TestUpdatedAt(TestCase):
         icon = ContestIcon.objects.get()
         icon.image = ContentFile(b"eloziom", name="foo")
         icon.save()
-        self.request_file("/c/c/icons/%d/" % icon.pk, icon.updated_at)
+        self.request_file(f"/c/c/icons/{icon.pk}/", icon.updated_at)
 
     def test_logo_last_modified(self):
         logo = ContestLogo.objects.get()

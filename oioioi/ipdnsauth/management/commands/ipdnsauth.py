@@ -72,7 +72,7 @@ class Command(BaseCommand):
                 binding.save()
             # pylint: disable=broad-except
             except Exception as e:
-                self.stderr.write("Error for %s: %s\n" % (row, e))
+                self.stderr.write(f"Error for {row}: {e}\n")
 
     def load(self, module, modelMgr, filename):
         self.load_data(module, modelMgr, self._read(filename))
@@ -87,7 +87,7 @@ class Command(BaseCommand):
                     modelMgr.get(user__username=row[0], dns_name=row[1]).delete()
             # pylint: disable=broad-except
             except Exception as e:
-                self.stderr.write("Error for %s: %s\n" % (row, e))
+                self.stderr.write(f"Error for {row}: {e}\n")
 
     def unload(self, module, modelMgr, filename):
         self.unload_data(module, modelMgr, self._read(filename))

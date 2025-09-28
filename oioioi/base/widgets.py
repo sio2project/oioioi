@@ -26,11 +26,11 @@ class DateTimePicker(forms.widgets.DateTimeInput):
 
 class AceEditorWidget(forms.widgets.Textarea):
     def __init__(self, attrs, default_state=False):
-        super(AceEditorWidget, self).__init__(attrs={"rows": 10, "class": "monospace"})
+        super().__init__(attrs={"rows": 10, "class": "monospace"})
         self.default_state = default_state
 
     def render(self, name, value, attrs=None, renderer=None):
-        return super(AceEditorWidget, self).render(name, value, attrs=attrs, renderer=renderer) + render_to_string(
+        return super().render(name, value, attrs=attrs, renderer=renderer) + render_to_string(
             "widgets/aceeditor.html",
             {
                 "editor_id": "editor",

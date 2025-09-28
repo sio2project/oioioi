@@ -237,7 +237,7 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertTrue(self.client.login(username="test_admin"))
         # Visit contest page to register it in recent contests
         contest = Contest.objects.get()
-        self.client.get("/c/%s/dashboard/" % contest.id)
+        self.client.get(f"/c/{contest.id}/dashboard/")
         url = reverse("problemset_all_problems")
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -253,7 +253,7 @@ class TestAddToContestFromProblemset(TestCase):
     def test_add_from_problemsite(self):
         self.assertTrue(self.client.login(username="test_admin"))
         contest = Contest.objects.get()
-        self.client.get("/c/%s/dashboard/" % contest.id)
+        self.client.get(f"/c/{contest.id}/dashboard/")
         url = reverse("problem_site", kwargs={"site_key": "123"})
         response = self.client.get(url + "?key=settings", follow=True)
         self.assertEqual(response.status_code, 200)

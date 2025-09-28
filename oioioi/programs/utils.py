@@ -68,7 +68,7 @@ def min_group_scorer(test_results):
     if max_score != max(max_scores):
         raise UnequalMaxScores("Tests in one group cannot have different max scores.")
 
-    sorted_results = sorted(list(test_results.values()), key=itemgetter("order"))
+    sorted_results = sorted(test_results.values(), key=itemgetter("order"))
     status = aggregate_statuses([result["status"] for result in sorted_results])
 
     return score, max_score, status
@@ -144,7 +144,7 @@ def has_report_actions_config(problem):
 
 
 def is_problem_with_library(problem):
-    if isinstance(problem, (int, str)):
+    if isinstance(problem, int | str):
         return LibraryProblemData.objects.filter(problem_id=problem).exists()
 
     try:

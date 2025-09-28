@@ -1,10 +1,7 @@
-from __future__ import print_function
-
 import pytest
-
+from django.conf import settings
 from oioioi.base.tests import pytest_plugin as base_plugin
 from oioioi.contests.tests import pytest_plugin as contests_plugin
-from django.conf import settings
 
 
 def pytest_addoption(parser):

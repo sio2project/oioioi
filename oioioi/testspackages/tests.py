@@ -156,7 +156,7 @@ class TestTestsPackages(TestCase):
             for i in visible + invisible:
                 self.assertContains(response, i.name + ".zip")
                 check_accessibility(i.id, True)
-            invisible_names = set([i.name + ".zip" for i in invisible])
+            invisible_names = {i.name + ".zip" for i in invisible}
             for f in response.context["files"]:
                 self.assertEqual(f["admin_only"], f["name"] in invisible_names)
 

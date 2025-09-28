@@ -24,7 +24,7 @@ from oioioi.contests.utils import can_enter_contest, contest_exists, is_contest_
 @make_request_condition
 def has_balloons_cookie(request):
     try:
-        key = request.COOKIES["balloons_access_%s" % request.contest.id]
+        key = request.COOKIES[f"balloons_access_{request.contest.id}"]
         access_data = BalloonsDeliveryAccessData.objects.get(contest__id=request.contest.id, access_key=key)
     except (KeyError, BalloonsDeliveryAccessData.DoesNotExist):
         return False
@@ -115,7 +115,7 @@ def balloons_access_cookie_view(request, access_key):
     access_data.save()
     response = redirect("balloons_delivery_panel", contest_id=request.contest.id)
     response.set_cookie(
-        key="balloons_access_%s" % request.contest.id,
+        key=f"balloons_access_{request.contest.id}",
         value=access_key,
         expires=validity_date,
     )

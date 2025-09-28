@@ -1,5 +1,3 @@
-from django.core.files.base import ContentFile
-from django.db.models import Q
 from django.urls import reverse
 
 from oioioi.base.utils.query_helpers import Q_always_false
@@ -81,7 +79,7 @@ def make_empty_contest_formset():
         ("contestcompiler_set", 0, 0, 0, 1000),
         ("checkerformatforcontest", 0, 0, 0, 1),
     )
-    data = dict()
+    data = {}
     for name, total, initial, min_num, max_num in formsets:
         data[f"{name}-TOTAL_FORMS"] = total
         data[f"{name}-INITIAL_FORMS"] = initial

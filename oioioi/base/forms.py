@@ -178,7 +178,7 @@ class RegistrationFormWithNames(RegistrationForm):
 
     def __init__(self, *args, **kwargs):
         extra = kwargs.pop("extra", {})
-        super(RegistrationFormWithNames, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         adjust_username_field(self)
         tmp_fields = list(self.fields.items())
         tmp_fields[1:1] = [
@@ -200,7 +200,7 @@ class UserForm(forms.ModelForm):
         self.allow_login_change = kwargs.pop("allow_login_change", False)
         extra = kwargs.pop("extra", {})
 
-        super(UserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         adjust_username_field(self)
         adjust_name_fields(self)
@@ -220,7 +220,7 @@ class UserForm(forms.ModelForm):
             return self.cleaned_data["username"]
 
     def save(self, *args, **kwargs):
-        instance = super(UserForm, self).save(*args, **kwargs)
+        instance = super().save(*args, **kwargs)
         PreferencesSaved.send(self, user=instance)
         return instance
 
@@ -232,7 +232,7 @@ class OioioiUserForm(UserForm):
         js = ("js/email-change.js",)
 
     def __init__(self, *args, **kwargs):
-        super(OioioiUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.user = kwargs.pop("instance", None)
 
     def clean_confirm_password(self):
@@ -254,13 +254,13 @@ class OioioiUserForm(UserForm):
 
 class OioioiUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
-        super(OioioiUserCreationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         adjust_username_field(self)
 
 
 class OioioiUserChangeForm(UserChangeForm):
     def __init__(self, *args, **kwargs):
-        super(OioioiUserChangeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         adjust_username_field(self)
         adjust_name_fields(self)
         self.fields["user_permissions"].queryset = Permission.objects.filter(codename="can_modify_tags")
@@ -344,7 +344,7 @@ class PublicMessageForm(forms.ModelForm):
             return tag
 
     def __init__(self, request, *args, **kwargs):
-        super(PublicMessageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["content"].widget.attrs["class"] = "monospace"
         self.contest = request.contest
         self.fields["content"].help_text = _("You can use the following tags and attributes: {}.").format(
@@ -360,7 +360,7 @@ class PublicMessageForm(forms.ModelForm):
         )
 
     def save(self, commit=True, *args, **kwargs):
-        instance = super(PublicMessageForm, self).save(commit=False, *args, **kwargs)
+        instance = super().save(commit=False, *args, **kwargs)
         instance.contest = self.contest
         if commit:
             instance.save()

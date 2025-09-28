@@ -107,7 +107,7 @@ class OIRegistrationController(ParticipantsController):
         return TemplateResponse(request, self.registration_template, context)
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(OIRegistrationController, self).get_contest_participant_info_list(request, user)
+        prev = super().get_contest_participant_info_list(request, user)
 
         if can_see_personal_data(request):
             sensitive_info = OIRegistration.objects.filter(participant__user=user, participant__contest=request.contest)
@@ -125,7 +125,7 @@ class OIRegistrationController(ParticipantsController):
     def mixins_for_admin(self):
         from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
 
-        return super(OIRegistrationController, self).mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
+        return super().mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
 
     def can_change_terms_accepted_phrase(self, request):
         return not OIRegistration.objects.filter(participant__contest=request.contest).exists()
@@ -145,7 +145,7 @@ class OIContestController(ProgrammingContestController):
     )
 
     def fill_evaluation_environ(self, environ, submission):
-        super(OIContestController, self).fill_evaluation_environ(environ, submission)
+        super().fill_evaluation_environ(environ, submission)
 
         environ["group_scorer"] = "oioioi.programs.utils.min_group_scorer"
         environ["test_scorer"] = "oioioi.programs.utils.threshold_linear_test_scorer"
@@ -160,7 +160,7 @@ class OIContestController(ProgrammingContestController):
             return True
         if not is_participant(request):
             return False
-        return super(OIContestController, self).can_submit(request, problem_instance, check_round_times)
+        return super().can_submit(request, problem_instance, check_round_times)
 
     def can_see_stats(self, request):
         return is_contest_admin(request) or is_contest_observer(request)
@@ -194,10 +194,10 @@ class OIContestController(ProgrammingContestController):
         return is_contest_admin(request) or is_contest_observer(request)
 
     def default_contestlogo_url(self):
-        return "%(url)soi/logo.png" % {"url": settings.STATIC_URL}
+        return f"{settings.STATIC_URL}oi/logo.png"
 
     def default_contesticons_urls(self):
-        return ["%(url)simages/menu/menu-icon-%(i)d.png" % {"url": settings.STATIC_URL, "i": i} for i in range(1, 4)]
+        return [f"{settings.STATIC_URL}images/menu/menu-icon-{i}.png" for i in range(1, 4)]
 
 
 class OIOnsiteContestController(OIContestController):
@@ -264,7 +264,7 @@ class BOIOnsiteContestController(OIOnsiteContestController):
         return is_contest_admin(request) or self.results_visible(request, submission)
 
     def reveal_score(self, request, submission):
-        super(BOIOnsiteContestController, self).reveal_score(request, submission)
+        super().reveal_score(request, submission)
         self.update_user_results(submission.user, submission.problem_instance)
 
     def update_user_result_for_problem(self, result):
@@ -314,7 +314,7 @@ class BOIOnsiteContestController(OIOnsiteContestController):
         return []
 
     def fill_evaluation_environ(self, environ, submission):
-        super(BOIOnsiteContestController, self).fill_evaluation_environ(environ, submission)
+        super().fill_evaluation_environ(environ, submission)
 
         environ["test_scorer"] = "oioioi.programs.utils.discrete_test_scorer"
 

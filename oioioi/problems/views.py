@@ -133,7 +133,7 @@ def download_package_traceback_view(request, package_id):
         raise Http404
     return stream_file(
         package.traceback,
-        "package_%s_%d_traceback.txt" % (package.problem_name, package.id),
+        f"package_{package.problem_name!s}_{package.id}_traceback.txt",
     )
 
 
@@ -219,7 +219,7 @@ def filter_problems_by_origin(problems, origin_tags):
 
     for tag, categories in info.items():
         problems = problems.filter(origintag__name=tag)
-        for category, q in categories.items():
+        for q in categories.values():
             problems = problems.filter(q)
 
     return problems
@@ -889,7 +889,7 @@ def get_last_submissions(request):
 def uniquefy_tag_names(fn):
     @wraps(fn)
     def decorated(*args, **kwargs):
-        return list(set(tag_name for tag_name in fn(*args, **kwargs)))
+        return list(set(fn(*args, **kwargs)))
 
     return decorated
 

@@ -35,7 +35,7 @@ class Condition:
     """
 
     def __init__(self, condition, *args, **kwargs):
-        super(Condition, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.condition = condition
 
     def __call__(self, *args, **kwargs):
@@ -44,17 +44,25 @@ class Condition:
     def __or__(self, other):
         if not isinstance(other, Condition):
             return NotImplemented
-        condition_or = lambda *args, **kwargs: self(*args, **kwargs) or other(*args, **kwargs)
+
+        def condition_or(*args, **kwargs):
+            return self(*args, **kwargs) or other(*args, **kwargs)
+
         return Condition(condition_or)
 
     def __and__(self, other):
         if not isinstance(other, Condition):
             return NotImplemented
-        condition_and = lambda *args, **kwargs: self(*args, **kwargs) and other(*args, **kwargs)
+
+        def condition_and(*args, **kwargs):
+            return self(*args, **kwargs) and other(*args, **kwargs)
+
         return Condition(condition_and)
 
     def __invert__(self):
-        condition_inverted = lambda *args, **kwargs: not self(*args, **kwargs)
+        def condition_inverted(*args, **kwargs):
+            return not self(*args, **kwargs)
+
         return Condition(condition_inverted)
 
 

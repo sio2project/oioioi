@@ -38,7 +38,7 @@ class MailSubmissionConfigAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(MailSubmissionConfigAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (MailSubmissionConfigInline,)
 
 
@@ -62,7 +62,7 @@ class MailSubmissionAdmin(admin.ModelAdmin):
     search_fields = ["user__username", "user__last_name"]
 
     def get_custom_list_select_related(self):
-        return super(MailSubmissionAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "user",
             "accepted_by",
             "problem_instance__problem",
@@ -118,13 +118,13 @@ class MailSubmissionAdmin(admin.ModelAdmin):
     accept_action.short_description = _("Accept selected submissions")
 
     def get_queryset(self, request):
-        queryset = super(MailSubmissionAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         queryset = queryset.filter(problem_instance__contest=request.contest)
         queryset = queryset.order_by("-id")
         return queryset
 
     def changelist_view(self, request, extra_context=None):
-        return super(MailSubmissionAdmin, self).changelist_view(request, extra_context=extra_context)
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 contest_site.contest_register(MailSubmission, MailSubmissionAdmin)

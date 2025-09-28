@@ -86,7 +86,7 @@ class StatementConfigAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(StatementConfigAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (StatementConfigInline,)
 
 
@@ -115,7 +115,7 @@ class RankingVisibilityConfigAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(RankingVisibilityConfigAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (RankingVisibilityConfigInline,)
 
 
@@ -144,7 +144,7 @@ class LimitsVisibilityConfigAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(LimitsVisibilityConfigAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (LimitsVisibilityConfigInline,)
 
 
@@ -173,7 +173,7 @@ class RegistrationAvailabilityConfigAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(RegistrationAvailabilityConfigAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (RegistrationAvailabilityConfigInline,)
 
 
@@ -348,7 +348,7 @@ class OriginTagAdmin(BaseTagAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(OriginTagAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(OriginTag, OriginTagAdmin)
@@ -387,7 +387,7 @@ class OriginInfoValueAdmin(admin.ModelAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(OriginInfoValueAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
@@ -413,7 +413,7 @@ class DifficultyTagAdmin(BaseTagAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(DifficultyTagAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(DifficultyTag, DifficultyTagAdmin)
@@ -439,7 +439,7 @@ class AlgorithmTagAdmin(BaseTagAdmin):
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         _update_queryset_if_problems(db_field, **kwargs)
-        return super(AlgorithmTagAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
 admin.site.register(AlgorithmTag, AlgorithmTagAdmin)
@@ -500,7 +500,7 @@ class ProblemAdmin(admin.ModelAdmin):
         if "_continue" not in request.POST and obj.problemsite:
             return redirect("problem_site", obj.problemsite.url_key)
         else:
-            return super(ProblemAdmin, self).response_change(request, obj)
+            return super().response_change(request, obj)
 
     def add_view(self, request, form_url="", extra_context=None):
         if request.contest:
@@ -521,7 +521,7 @@ class ProblemAdmin(admin.ModelAdmin):
             return self.redirect_to_list(request, problem)
 
     def get_queryset(self, request):
-        queryset = super(ProblemAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         if request.user.is_anonymous:
             combined = queryset.none()
         else:
@@ -536,7 +536,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def delete_view(self, request, object_id, extra_context=None):
         obj = self.get_object(request, unquote(object_id))
-        response = super(ProblemAdmin, self).delete_view(request, object_id, extra_context)
+        response = super().delete_view(request, object_id, extra_context)
         if isinstance(response, HttpResponseRedirect):
             return self.redirect_to_list(request, obj)
         return response
@@ -549,12 +549,12 @@ class ProblemAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url="", extra_context=None):
         problem = self.get_object(request, unquote(object_id))
         extra_context = extra_context or {}
-        extra_context["categories"] = sorted(set([getattr(inline, "category", None) for inline in self.get_inlines(request, problem)]))
+        extra_context["categories"] = sorted({getattr(inline, "category", None) for inline in self.get_inlines(request, problem)})
         if problem is not None and can_admin_problem(request, problem):
             extra_context["no_category"] = NO_CATEGORY
         if request.user.has_perm("problems.problems_db_admin"):
             extra_context["no_category"] = NO_CATEGORY
-        return super(ProblemAdmin, self).change_view(request, object_id, form_url, extra_context=extra_context)
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def get_inlines(self, request, obj):
         if obj is not None and can_admin_problem(request, obj):
@@ -581,7 +581,7 @@ class BaseProblemAdmin(admin.MixinsAdmin):
         return model_admin.download_view(request, object_id)
 
     def get_urls(self):
-        urls = super(BaseProblemAdmin, self).get_urls()
+        urls = super().get_urls()
         extra_urls = [
             re_path(
                 r"^(\d+)/download/$",
@@ -608,7 +608,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
     actions = ["delete_selected"]  # This allows us to override the action
 
     def __init__(self, *args, **kwargs):
-        super(ProblemPackageAdmin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.list_display_links = None
 
     def has_add_permission(self, request):
@@ -686,21 +686,21 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         return inner
 
     def get_list_display(self, request):
-        items = super(ProblemPackageAdmin, self).get_list_display(request) + [self.actions_field(request.contest)]
+        items = super().get_list_display(request) + [self.actions_field(request.contest)]
         if not is_contest_admin(request):
             disallowed_items = ["created_by", "actions_field"]
             items = [item for item in items if item not in disallowed_items]
         return items
 
     def get_list_filter(self, request):
-        items = super(ProblemPackageAdmin, self).get_list_filter(request)
+        items = super().get_list_filter(request)
         if not is_contest_admin(request):
             disallowed_items = ["created_by"]
             items = [item for item in items if item not in disallowed_items]
         return items
 
     def get_custom_list_select_related(self):
-        return super(ProblemPackageAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "problem",
             "problem__contest",
         ]
@@ -727,11 +727,11 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
     list_filter = [x for x in ProblemPackageAdmin.list_filter if x != "contest"]
 
     def __init__(self, *args, **kwargs):
-        super(ContestProblemPackageAdmin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.list_display_links = None
 
     def get_queryset(self, request):
-        qs = super(ContestProblemPackageAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.filter(Q(contest=request.contest) | Q(problem__contest=request.contest))
 
     def has_change_permission(self, request, obj=None):
@@ -746,7 +746,7 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
         return reverse("oioioiadmin:problems_contestproblempackage_changelist")
 
     def get_actions(self, request):
-        actions = super(ContestProblemPackageAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
@@ -784,7 +784,7 @@ class MainProblemInstanceAdmin(admin.ModelAdmin):
         if "_continue" not in request.POST:
             return redirect("problem_site", obj.problem.problemsite.url_key)
         else:
-            return super(MainProblemInstanceAdmin, self).response_change(request, obj)
+            return super().response_change(request, obj)
 
 
 admin.site.register(MainProblemInstance, MainProblemInstanceAdmin)

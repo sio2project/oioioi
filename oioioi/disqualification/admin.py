@@ -49,7 +49,7 @@ class DisqualificationAdmin(admin.ModelAdmin):
             if request.contest:
                 qs = request.contest.controller.registration_controller().filter_participants(qs)
             kwargs["queryset"] = qs
-        return super(DisqualificationAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def submission_link(self, instance):
         if instance.submission is None:
@@ -60,11 +60,7 @@ class DisqualificationAdmin(admin.ModelAdmin):
         }
         return make_html_link(
             reverse("submission", kwargs=reverse_kwargs),
-            "%d (%s)"
-            % (
-                instance.submission_id,
-                force_str(instance.submission.problem_instance),
-            ),
+            f"{instance.submission_id} ({force_str(instance.submission.problem_instance)})",
         )
 
     submission_link.short_description = _("Submission")
@@ -82,14 +78,14 @@ class DisqualificationAdmin(admin.ModelAdmin):
     guilty_text.admin_order_field = "guilty"
 
     def get_custom_list_select_related(self):
-        return super(DisqualificationAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "submission",
             "user",
             "submission__problem_instance",
         ]
 
     def get_queryset(self, request):
-        return super(DisqualificationAdmin, self).get_queryset(request).filter(contest=request.contest).order_by("-id")
+        return super().get_queryset(request).filter(contest=request.contest).order_by("-id")
 
 
 contest_site.contest_register(Disqualification, DisqualificationAdmin)
@@ -124,7 +120,7 @@ class DisqualificationsAdminMixin:
     to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(DisqualificationsAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (DisqualificationsConfigInline,)
 
 

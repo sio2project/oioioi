@@ -219,7 +219,7 @@ def json_parse(value):
     """
     This is a correct way of embedding json inside js in an HTML template.
     """
-    return mark_safe("JSON.parse('%s')" % escapejs(json.dumps(value)))
+    return mark_safe(f"JSON.parse('{escapejs(json.dumps(value))}')")
 
 
 @register.filter

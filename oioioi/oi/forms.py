@@ -24,14 +24,14 @@ def city_options(all_schools, province):
 
 def school_options(all_schools, province, city):
     schools = all_schools.filter(province=province, city=city).order_by("name").only("name", "address")
-    schools = [(s.id, "%s (%s)" % (s.name, s.address)) for s in schools]
+    schools = [(s.id, f"{s.name} ({s.address})") for s in schools]
     schools.insert(0, ("", _("-- Choose school --")))
     return schools
 
 
 class SchoolSelect(forms.Select):
     def __init__(self, is_contest_with_coordinator=False, is_coordinator=False, *args, **kwargs):
-        super(SchoolSelect, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.is_contest_with_coordinator = is_contest_with_coordinator
         self.is_coordinator = is_coordinator
 
@@ -85,7 +85,7 @@ class OIRegistrationForm(forms.ModelForm):
         js = ("oi/reg.js",)
 
     def __init__(self, *args, **kwargs):
-        super(OIRegistrationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         this_year = datetime.date.today().year
         years = list(reversed(range(this_year - 100, this_year + 1)))

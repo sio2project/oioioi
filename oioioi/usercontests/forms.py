@@ -11,7 +11,7 @@ class UserContestForm(SimpleContestForm):
 
     def clean(self):
         if not hasattr(settings, "USER_CONTEST_TIMEOUT"):
-            return super(UserContestForm, self).clean()
+            return super().clean()
 
         if "end_date" in self.cleaned_data.keys():
             if self.cleaned_data["end_date"] is None:
@@ -23,4 +23,4 @@ class UserContestForm(SimpleContestForm):
                     code="invalid",
                 )
 
-        return super(UserContestForm, self).clean()
+        return super().clean()

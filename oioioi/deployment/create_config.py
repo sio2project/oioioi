@@ -134,7 +134,7 @@ def main():
     absolute_dir = os.path.abspath(args.dir)
 
     if os.path.exists(absolute_dir):
-        error("%s already exists; please specify another location" % (absolute_dir,))
+        error(f"{absolute_dir} already exists; please specify another location")
 
     os.makedirs(absolute_dir)
 

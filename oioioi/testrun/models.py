@@ -21,7 +21,7 @@ submission_report_kinds.register("TESTRUN", _("Test run report"))
 def make_custom_input_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return "testruns/%s/%d/in" % (instance.problem_instance.contest.id, instance.id)
+    return f"testruns/{instance.problem_instance.contest.id}/{instance.id}/in"
 
 
 class TestRunProgramSubmission(ProgramSubmission):
@@ -33,11 +33,7 @@ def make_custom_output_filename(instance, filename):
     # This code is dead (it's result is ignored) with current implementation
     # of assigning file from filetracker to a FileField.
     submission = instance.submission_report.submission
-    return "testruns/%s/%d/%d-out" % (
-        submission.problem_instance.contest.id,
-        submission.id,
-        instance.submission_report.id,
-    )
+    return f"testruns/{submission.problem_instance.contest.id}/{submission.id}/{instance.submission_report.id}-out"
 
 
 class TestRunConfig(models.Model):

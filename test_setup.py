@@ -11,8 +11,6 @@ The script assumes that there is no contest (this is a clean oioioi
 installation).
 """
 
-from __future__ import absolute_import
-
 import argparse
 import time
 
@@ -142,7 +140,7 @@ def main():
         "user": USERNAME,
         "kind": "NORMAL",
     }
-    with open(SAMPLE_SOLUTION, "r") as f:
+    with open(SAMPLE_SOLUTION) as f:
         r = s.post(SUBMIT, data=params, files={"file": f})
     assert r.url == SUBMISSIONS
 

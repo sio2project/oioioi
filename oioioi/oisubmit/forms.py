@@ -9,7 +9,7 @@ from oioioi.contests.models import ProblemInstance
 
 class OISubmitSubmissionForm(SubmissionForm):
     def __init__(self, request, *args, **kwargs):
-        super(OISubmitSubmissionForm, self).__init__(request, *args, **kwargs)
+        super().__init__(request, *args, **kwargs)
         self.fields["problem_shortname"] = forms.CharField(label=_("problem short name"))
         self.fields["localtime"] = forms.DateTimeField(label=_("local time"), required=False)
         self.fields["siotime"] = forms.DateTimeField(label=_("sio time"), required=False)
@@ -39,4 +39,4 @@ class OISubmitSubmissionForm(SubmissionForm):
                 del cleaned_data["problem_instance_id"]
             return cleaned_data
 
-        return super(OISubmitSubmissionForm, self).clean(check_submission_limit=False, check_round_times=False)
+        return super().clean(check_submission_limit=False, check_round_times=False)

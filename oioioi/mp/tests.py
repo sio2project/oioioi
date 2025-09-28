@@ -33,7 +33,7 @@ class TestMPRanking(TestCase):
             self.assertTrue(pattern_match)
 
             pos = pattern_match.start()
-            self.assertGreater(pos, prev_pos, msg=("Round %s has incorrect position" % (round_name,)))
+            self.assertGreater(pos, prev_pos, msg=(f"Round {round_name} has incorrect position"))
             prev_pos = pos
 
     def test_rounds_order(self):

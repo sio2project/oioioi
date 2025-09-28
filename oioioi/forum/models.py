@@ -31,7 +31,7 @@ class Forum(models.Model):
         verbose_name_plural = _("forums")
 
     def __str__(self):
-        return "%(name)s" % {"name": self.contest.name}
+        return f"{self.contest.name}"
 
     def is_autolocked(self, now=None):
         """Returns true if forum is locked"""
@@ -65,7 +65,7 @@ class Category(models.Model):
         ordering = ("order",)
 
     def __str__(self):
-        return "%s" % self.name
+        return f"{self.name}"
 
     def count_threads(self):
         return self.thread_set.count()
@@ -99,7 +99,7 @@ class Category(models.Model):
             else:
                 self.order = 0
 
-        super(Category, self).save(**kwargs)
+        super().save(**kwargs)
 
 
 class Thread(models.Model):
@@ -121,7 +121,7 @@ class Thread(models.Model):
         verbose_name_plural = _("threads")
 
     def __str__(self):
-        return "%(name)s" % {"name": self.name}
+        return f"{self.name}"
 
     def count_posts(self):
         return self.post_set.count()
@@ -194,10 +194,7 @@ class Post(models.Model):
         verbose_name_plural = _("posts")
 
     def __str__(self):
-        return "%(content)s in %(thread)s" % {
-            "content": self.content,
-            "thread": self.thread,
-        }
+        return f"{self.content} in {self.thread}"
 
     def get_admin_url(self):
         return reverse("oioioiadmin:forum_post_change", args=(self.id,))
@@ -212,7 +209,7 @@ class Post(models.Model):
                 "thread_id": thread.id,
             },
         )
-        post_url = "%s#forum-post-%d" % (thread_url, self.id)
+        post_url = f"{thread_url!s}#forum-post-{self.id}"
         return post_url
 
     def can_be_removed(self):

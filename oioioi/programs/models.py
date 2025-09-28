@@ -62,7 +62,7 @@ def validate_memory_limit(value):
     if value is None or value <= 0:
         raise ValidationError(_("Memory limit must be a positive number."))
     if value > settings.MAX_MEMORY_LIMIT_FOR_TEST:
-        raise ValidationError(_("Memory limit mustn't be greater than %dKiB." % settings.MAX_MEMORY_LIMIT_FOR_TEST))
+        raise ValidationError(_(f"Memory limit mustn't be greater than {settings.MAX_MEMORY_LIMIT_FOR_TEST}KiB."))
 
 
 class Test(models.Model):
@@ -237,7 +237,7 @@ def make_submission_filename(instance, filename):
         folder = instance.problem_instance.contest.id
     else:
         folder = "main_problem_instance"
-    return "submissions/%s/%d%s" % (folder, instance.id, os.path.splitext(filename)[1])
+    return f"submissions/{folder!s}/{instance.id}{os.path.splitext(filename)[1]}"
 
 
 class ProgramSubmission(Submission):
@@ -249,7 +249,7 @@ class ProgramSubmission(Submission):
     def save(self, *args, **kwargs):
         if self.source_file:
             self.source_length = self.source_file.size
-        super(ProgramSubmission, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def extension(self):
@@ -294,11 +294,7 @@ def make_output_filename(instance, filename):
     # This code is dead (it's result is ignored) with current implementation
     # of assigning file from filetracker to a FileField.
     submission = instance.submission_report.submission
-    return "userouts/%s/%d/%d-out" % (
-        submission.problem_instance.contest.id,
-        submission.id,
-        instance.submission_report.id,
-    )
+    return f"userouts/{submission.problem_instance.contest.id!s}/{submission.id}/{instance.submission_report.id}-out"
 
 
 class TestReport(models.Model):
@@ -425,7 +421,7 @@ def check_compilers_config():
         if not compilers_for_lang:
             raise ImproperlyConfigured
         else:
-            for compiler, compiler_info in compilers_for_lang.items():
+            for _compiler, compiler_info in compilers_for_lang.items():
                 if "display_name" not in compiler_info:
                     raise ImproperlyConfigured
         if not DEFAULT_COMPILERS.get(language):

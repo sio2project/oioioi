@@ -14,8 +14,6 @@ the appropriate options to ``use_setuptools()``.
 This file can also be run as a script to install or upgrade setuptools.
 """
 
-from __future__ import print_function
-
 import os
 import sys
 
@@ -25,7 +23,7 @@ except ImportError:
     from md5 import md5
 
 DEFAULT_VERSION = "0.6c11"
-DEFAULT_URL = "http://pypi.python.org/packages/%s/s/setuptools/" % sys.version[:3]
+DEFAULT_URL = f"http://pypi.python.org/packages/{sys.version[:3]}/s/setuptools/"
 
 md5_data = {
     "setuptools-0.6b1-py2.3.egg": "8822caf901250d848b996b7f25c6e6ca",
@@ -78,7 +76,7 @@ def _validate_md5(egg_name, data):
         digest = md5(data).hexdigest()
         if digest != md5_data[egg_name]:
             print(
-                ("md5 validation of %s failed!  (Possible download problem?)" % egg_name),
+                (f"md5 validation of {egg_name} failed!  (Possible download problem?)"),
                 file=sys.stderr,
             )
             sys.exit(2)
@@ -122,12 +120,11 @@ def use_setuptools(
         if was_imported:
             print(
                 (
-                    "The required version of setuptools (>=%s) is not available, and\n"
+                    f"The required version of setuptools (>={version}) is not available, and\n"
                     "can't be installed while this script is running. Please install\n"
                     " a more recent version first, using 'easy_install -U setuptools'."
-                    "\n\n(Currently using %r)"
-                )
-                % (version, e.args[0]),
+                    f"\n\n(Currently using {e.args[0]!r})"
+                ),
                 file=sys.stderr,
             )
             sys.exit(2)
@@ -148,7 +145,7 @@ def download_setuptools(version=DEFAULT_VERSION, download_base=DEFAULT_URL, to_d
     """
     import urllib.request
 
-    egg_name = "setuptools-%s-py%s.egg" % (version, sys.version[:3])
+    egg_name = f"setuptools-{version}-py{sys.version[:3]}.egg"
     url = download_base + egg_name
     saveto = os.path.join(to_dir, egg_name)
     src = dst = None
@@ -251,7 +248,7 @@ def update_md5(filenames):
         md5_data[base] = md5(f.read()).hexdigest()
         f.close()
 
-    data = ["    %r: %r,\n" % it for it in md5_data.items()]
+    data = ["    {!r}: {!r},\n".format(*it) for it in md5_data.items()]
     data.sort()
     repl = "".join(data)
 

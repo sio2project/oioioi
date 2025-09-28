@@ -36,6 +36,6 @@ class Command(BaseCommand):
 
         problem = backend.simple_unpack(filename)
         if problem is not None:
-            self.stdout.write("%d\n" % (problem.id,))
+            self.stdout.write(f"{problem.id}\n")
         elif throw_on_problem_not_added:
             raise CommandError(_("There was an error adding the problem"))

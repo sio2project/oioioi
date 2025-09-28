@@ -30,7 +30,7 @@ def add_extra_execution_files(environ):
             extra_files = ExtraFile.objects.filter(problem_id=environ.get("problem_id"), name__in=extra_file_names).all()
             if len(extra_file_names) != len(extra_files):
                 raise RuntimeError("Did not find expected extra files: " + ", ".join(extra_file_names))
-            job["extra_execution_files"] = dict((ef.name, django_to_filetracker_path(ef.file)) for ef in extra_files)
+            job["extra_execution_files"] = {ef.name: django_to_filetracker_path(ef.file) for ef in extra_files}
     return environ
 
 
@@ -53,7 +53,7 @@ def add_extra_files(environ, problem, additional_args=None):
     extra_files = ExtraFile.objects.filter(problem=problem, name__in=extra_file_names).all()
     if len(extra_file_names) != len(extra_files):
         raise RuntimeError("Did not find expected extra files: " + ", ".join(extra_file_names))
-    environ["extra_files"] = dict((ef.name, django_to_filetracker_path(ef.file)) for ef in extra_files)
+    environ["extra_files"] = {ef.name: django_to_filetracker_path(ef.file) for ef in extra_files}
 
     if "recipe" in environ:
         try:

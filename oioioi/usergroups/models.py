@@ -31,7 +31,7 @@ class ActionConfig(models.Model):
     key = models.CharField(max_length=40, unique=True)
 
     def __init__(self, *args, **kwargs):
-        super(ActionConfig, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if not self.key:
             self.key = generate_key()

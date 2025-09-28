@@ -45,15 +45,13 @@ class MossClient:
         try:
             sock.connect((self.HOSTNAME, self.PORT))
 
-            prelude = "moss %(userid)d\ndirectory %(directory_mode)d\nX %(experimental)d\nmaxmatches %(maxmatches)d\nshow %(show)d\nlanguage %(language)s\n" % {
-                # default MOSS settings taken from the official script
-                "userid": self.userid,
-                "directory_mode": 0,
-                "experimental": 0,
-                "maxmatches": 10,
-                "show": 250,
-                "language": self.lang,
-            }
+            # default MOSS settings taken from the official script
+            directory_mode = 0
+            experimental = 0
+            maxmatches = 10
+            show = 250
+
+            prelude = f"moss {self.userid}\ndirectory {directory_mode}\nX {experimental}\nmaxmatches {maxmatches}\nshow {show}\nlanguage {self.lang}\n"
             sock.sendall(six.ensure_binary(prelude))
             response = sock.recv(32)
             if not response.startswith(b"yes"):
@@ -64,12 +62,7 @@ class MossClient:
                 raise MossException(_("Can't make a query with no submissions."))
             for i, (path, name) in enumerate(self.files):
                 size = os.path.getsize(path)
-                message = "file %d %s %d %s\n" % (
-                    i + 1,  # file id
-                    self.lang,  # programming language
-                    size,  # file size
-                    name,  # name of the submission
-                )
+                message = f"file {i + 1} {self.lang!s} {size} {name!s}\n"
                 sock.sendall(six.ensure_binary(message))
                 with open(path, "rb") as f:
                     if hasattr(sock, "sendfile"):  # new in Python 3.5
@@ -79,7 +72,7 @@ class MossClient:
                         for chunk in iter(lambda: f.read(4096), b""):
                             sock.sendall(chunk)
 
-            sock.sendall(six.ensure_binary("query 0 %s\n" % query_comment))
+            sock.sendall(six.ensure_binary(f"query 0 {query_comment}\n"))
 
             url = sock.recv(256)
             try:

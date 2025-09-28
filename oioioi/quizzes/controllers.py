@@ -200,10 +200,10 @@ class QuizProblemController(ProblemController):
     def mixins_for_admin(self):
         from oioioi.quizzes.admin import QuizAdminMixin
 
-        return super(QuizProblemController, self).mixins_for_admin() + (QuizAdminMixin,)
+        return super().mixins_for_admin() + (QuizAdminMixin,)
 
     def get_extra_problem_site_actions(self, problem):
-        parent_extras = super(QuizProblemController, self).get_extra_problem_site_actions(problem)
+        parent_extras = super().get_extra_problem_site_actions(problem)
         change_url = reverse("oioioiadmin:quizzes_quiz_change", args=[problem.quiz.pk])
         return parent_extras + [(change_url, _("Edit questions"))]
 
@@ -242,7 +242,7 @@ class QuizProblemController(ProblemController):
         return render_to_string("quizzes/submission_header.html", request=request, context=context)
 
     def render_submission_footer(self, request, submission):
-        super_footer = super(QuizProblemController, self).render_submission_footer(request, submission)
+        super_footer = super().render_submission_footer(request, submission)
         queryset = (
             Submission.objects.filter(problem_instance__contest=request.contest)
             .filter(user=submission.user)

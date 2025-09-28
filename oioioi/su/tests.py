@@ -366,7 +366,7 @@ class TestContestAdminsSu(TestCase):
     def superusers_cant_su(self):
         # Tests if superusers switched to contest admins can't switch to other contest admins.
         self.assertTrue(self.client.login(username="test_admin"))
-        contest = Contest.objects.get()
+        Contest.objects.get()
         self._add_user_to_contest("test_contest_admin")
         self._add_user_to_contest("test_contest_basicadmin")
         self._do_su("test_contest_admin", "django.contrib.auth.backends.ModelBackend", False)

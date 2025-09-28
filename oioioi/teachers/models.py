@@ -35,7 +35,7 @@ class ContestTeacher(models.Model):
         unique_together = ("contest", "teacher")
 
     def __str__(self):
-        return "%s/%s" % (self.contest_id, self.teacher.user)
+        return f"{self.contest_id}/{self.teacher.user}"
 
 
 class RegistrationConfig(models.Model):
@@ -46,7 +46,7 @@ class RegistrationConfig(models.Model):
     teacher_key = models.CharField(max_length=40)
 
     def __init__(self, *args, **kwargs):
-        super(RegistrationConfig, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.teacher_key:
             self.teacher_key = generate_key()
         if not self.pupil_key:

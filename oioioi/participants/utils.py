@@ -135,7 +135,7 @@ def get_related_paths(model, prefix="", depth=5, visited=None):
     paths = []
     try:
         for field in model._meta.get_fields():
-            if isinstance(field, (ForeignKey, OneToOneField)) and not field.auto_created:
+            if isinstance(field, ForeignKey | OneToOneField) and not field.auto_created:
                 related_model = field.related_model
                 if related_model == Participant:
                     continue  # skip backward pointer to Participant
@@ -178,7 +178,7 @@ def serialize_participants_data(request):
     folded_participants = [(participant, _fold_registration_models_tree(participant)) for participant in participants]
 
     set_of_keys = set(keys)
-    for participant, folded in folded_participants:
+    for _participant, folded in folded_participants:
         for key in map(key_name, folded):
             if key not in set_of_keys:
                 set_of_keys.add(key)
@@ -205,7 +205,7 @@ def serialize_participants_data(request):
 def render_participants_data_csv(request, name):
     data = serialize_participants_data(request)
     response = HttpResponse(content_type="text/csv")
-    response["Content-Disposition"] = "attachment; filename=%s-%s.csv" % (
+    response["Content-Disposition"] = "attachment; filename={}-{}.csv".format(
         name,
         "personal-data",
     )

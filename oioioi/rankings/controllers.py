@@ -32,7 +32,7 @@ class RankingMixinForContestController:
         return DefaultRankingController(self.contest)
 
     def update_user_results(self, user, problem_instance, *args, **kwargs):
-        super(RankingMixinForContestController, self).update_user_results(user, problem_instance, *args, **kwargs)
+        super().update_user_results(user, problem_instance, *args, **kwargs)
         Ranking.invalidate_contest(problem_instance.round.contest)
 
 
@@ -279,7 +279,7 @@ class DefaultRankingController(RankingController):
         data = self.serialize_ranking(key)
 
         response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = make_content_disposition_header("attachment", "%s-%s-%s.csv" % (_("ranking"), self.contest.id, key))
+        response["Content-Disposition"] = make_content_disposition_header("attachment", "{}-{}-{}.csv".format(_("ranking"), self.contest.id, key))
         writer = unicodecsv.writer(response)
 
         writer.writerow(list(map(force_str, self._get_csv_header(key, data))))

@@ -65,7 +65,7 @@ class SinolpackProblemAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(SinolpackProblemAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (
             SinolpackConfigInline,
             SinolpackExtraFilesInline,

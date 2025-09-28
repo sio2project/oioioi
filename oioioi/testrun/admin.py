@@ -15,11 +15,11 @@ class TestRunAdminMixin:
     """Adds `TestRunConfigForInstance` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(TestRunAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (TestRunConfigInline,)
 
     def get_inlines(self, request, obj=None):
-        inlines = super(TestRunAdminMixin, self).get_inlines(request, obj)
+        inlines = super().get_inlines(request, obj)
         if not obj:
             return inlines
         if not obj.problem.controller.allow_test_runs(request):

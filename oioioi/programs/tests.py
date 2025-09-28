@@ -658,7 +658,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self.assertContains(response, "Submission limit for the problem")
 
     def _assertUnsupportedExtension(self, contest, problem_instance, name, ext):
-        response = self.submit_file(contest, problem_instance, file_name="%s.%s" % (name, ext))
+        response = self.submit_file(contest, problem_instance, file_name=f"{name}.{ext}")
         self.assertContains(response, "Unknown or not supported file extension.")
 
     def test_extension_checking(self):
@@ -1067,7 +1067,7 @@ class TestScorers(TestCase):
     def g_results_ok(self):
         # Tested elsewhere
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_ok[:4], strict=False))))
-        dicts = [dict(score=sc.serialize(), max_score=msc.serialize(), status=st, order=i) for i, (sc, msc, st) in enumerate(results)]
+        dicts = [{"score": sc.serialize(), "max_score": msc.serialize(), "status": st, "order": i} for i, (sc, msc, st) in enumerate(results)]
         return dict(list(zip(list(range(len(dicts))), dicts, strict=False)))
 
     @memoized_property
@@ -1075,12 +1075,12 @@ class TestScorers(TestCase):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_wrong, strict=False))))
         dicts = list(self.g_results_ok.values())
         dicts += [
-            dict(
-                score=sc.serialize(),
-                max_score=msc.serialize(),
-                status=st,
-                order=(i + 10),
-            )
+            {
+                "score": sc.serialize(),
+                "max_score": msc.serialize(),
+                "status": st,
+                "order": (i + 10),
+            }
             for i, (sc, msc, st) in enumerate(results)
         ]
         return dict(list(zip(list(range(len(dicts))), dicts, strict=False)))
@@ -1090,12 +1090,12 @@ class TestScorers(TestCase):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_unequal_max_scores, strict=False))))
         dicts = list(self.g_results_wrong.values())
         dicts += [
-            dict(
-                score=sc.serialize(),
-                max_score=msc.serialize(),
-                status=st,
-                order=(i + 20),
-            )
+            {
+                "score": sc.serialize(),
+                "max_score": msc.serialize(),
+                "status": st,
+                "order": (i + 20),
+            }
             for i, (sc, msc, st) in enumerate(results)
         ]
         return dict(list(zip(list(range(len(dicts))), dicts, strict=False)))
@@ -1261,7 +1261,7 @@ class ContestWithJudgeInfoController(ProgrammingContestController):
     judged = False
 
     def submission_judged(self, submission, rejudged=False):
-        super(ContestWithJudgeInfoController, self).submission_judged(submission, rejudged)
+        super().submission_judged(submission, rejudged)
         ContestWithJudgeInfoController.judged = True
 
 
@@ -1482,7 +1482,7 @@ class TestLimitsLimits(TestCase):
         response = self.edit_settings()
         self.assertContains(
             response,
-            escape("Memory limit mustn't be greater than %dKiB." % settings.MAX_MEMORY_LIMIT_FOR_TEST),
+            escape(f"Memory limit mustn't be greater than {settings.MAX_MEMORY_LIMIT_FOR_TEST}KiB."),
         )
 
 

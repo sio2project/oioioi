@@ -12,5 +12,5 @@ class ExportSubmissionsForm(forms.Form):
     only_final = forms.BooleanField(label=_("Only submissions used for final scoring"), required=False, initial=True)
 
     def __init__(self, request, *args, **kwargs):
-        super(ExportSubmissionsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["round"].queryset = request.contest.round_set

@@ -23,10 +23,10 @@ def get_client():
     if isinstance(factory, str):
         factory = import_string(factory)
     if not callable(factory):
-        raise ImproperlyConfigured("The FILETRACKER_CLIENT_FACTORY setting refers to non-callable: %r" % (factory,))
+        raise ImproperlyConfigured(f"The FILETRACKER_CLIENT_FACTORY setting refers to non-callable: {factory!r}")
     client = factory()
     if not isinstance(client, FiletrackerClient):
-        raise ImproperlyConfigured("The factory pointed by FILETRACKER_CLIENT_FACTORY returned non-FiletrackerClient: %r" % (client,))
+        raise ImproperlyConfigured(f"The factory pointed by FILETRACKER_CLIENT_FACTORY returned non-FiletrackerClient: {client!r}")
 
     # Needed for oioioi.sioworkers.backends.LocalBackend so that both Django
     # and sioworkers use the same Filetracker client

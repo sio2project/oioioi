@@ -20,7 +20,7 @@ class NodeForm(ModelForm):
         fields = ("short_name",)
 
     def __init__(self, *args, **kwargs):
-        super(NodeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         instance = kwargs.pop("instance", None)
         if instance is not None and instance.parent is None:
@@ -81,7 +81,7 @@ class PortalsSearchForm(Form):
 
     def __init__(self, *args, **kwargs):
         self.query = kwargs.pop("query")
-        super(PortalsSearchForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["q"].initial = self.query
 
 

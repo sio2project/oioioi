@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # OIOIOI documentation build configuration file, created by
 # sphinx-quickstart on Fri Nov 26 22:38:45 2010.

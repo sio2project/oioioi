@@ -154,7 +154,7 @@ class Command(BaseCommand):
         parser.add_argument("--ttl", type=int, default=60, help="Specify TTL for returned records")
 
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.options = None
 
     def handle(self, *args, **options):

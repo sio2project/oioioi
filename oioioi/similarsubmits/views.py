@@ -25,7 +25,7 @@ def bulk_add_similarities_view(request):
                 entries = SubmissionsSimilarityEntry.objects.filter(submission__in=group).select_related("group")
 
                 if entries.exists():
-                    groups = set([entry.group for entry in entries])
+                    groups = {entry.group for entry in entries}
                     group_model = groups.pop()
                     # If group contains submissions from multiple existing
                     # groups then merge all of them.

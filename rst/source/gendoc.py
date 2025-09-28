@@ -4,8 +4,6 @@
 # in modules.rst file for each oioioi module.
 
 
-from __future__ import print_function
-
 import os
 import sys
 
@@ -28,10 +26,10 @@ OIOIOI Modules
 .. list-table::
    :widths: 25 75
    :header-rows: 1
-   
+
    * - Module
      - Implements
-     
+
 """
 ]
 missing = []

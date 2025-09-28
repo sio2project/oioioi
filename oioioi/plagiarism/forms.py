@@ -28,5 +28,5 @@ class MossSubmitForm(forms.Form):
     )
 
     def __init__(self, problem_instances, *args, **kwargs):
-        super(MossSubmitForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["problem_instance"].queryset = problem_instances

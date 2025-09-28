@@ -63,7 +63,7 @@ class Node(MPTTModel):
             else:
                 return Node.objects.none()
         else:
-            return super(Node, self).get_siblings(include_self)
+            return super().get_siblings(include_self)
 
     def get_path(self):
         return "/".join(node.short_name for node in self.get_ancestors(include_self=True)).lstrip("/")
@@ -103,6 +103,6 @@ class Portal(models.Model):
     )
 
     def clean(self):
-        super(Portal, self).clean()
+        super().clean()
         if (self.owner is None) == (self.link_name is None):  # !xor
             raise ValidationError(_("Exactly one from the following should be chosen: owner, link_name"))

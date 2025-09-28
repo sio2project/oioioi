@@ -61,4 +61,4 @@ class Command(BaseCommand):
             new_score = new_report.score_report.score
 
             if old_score != new_score:
-                print("%s: %s -> %s" % (s, old_score, new_score))
+                print(f"{s}: {old_score} -> {new_score}")

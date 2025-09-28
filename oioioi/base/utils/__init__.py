@@ -14,8 +14,6 @@ from importlib import import_module
 import six
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.template import Template
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.encoding import force_str
@@ -30,7 +28,7 @@ class ClassInitMeta(type):
     """Meta class triggering __classinit__ on class intialization."""
 
     def __init__(cls, class_name, bases, new_attrs):
-        super(ClassInitMeta, cls).__init__(class_name, bases, new_attrs)
+        super().__init__(class_name, bases, new_attrs)
         cls.__classinit__()
 
 
@@ -96,7 +94,7 @@ class RegisteredSubclassesBase(ClassInitBase):
             # This is an artificial class created by mixins mechanism
             return
 
-        assert "subclasses" not in cls.__dict__, "%s defines attribute subclasses, but has RegisteredSubclassesMeta metaclass" % (cls,)
+        assert "subclasses" not in cls.__dict__, f"{cls} defines attribute subclasses, but has RegisteredSubclassesMeta metaclass"
         cls.subclasses = []
         cls.abstract = cls.__dict__.get("abstract", False)
 
@@ -105,7 +103,7 @@ class RegisteredSubclassesBase(ClassInitBase):
             if not superclasses:
                 return None
             if len(superclasses) > 1:
-                raise AssertionError("%s derives from more than one RegisteredSubclassesBase" % (cls.__name__,))
+                raise AssertionError(f"{cls.__name__} derives from more than one RegisteredSubclassesBase")
             superclass = superclasses[0]
             if "__unmixed_class__" in superclass.__dict__:
                 superclass = superclass.__unmixed_class__
@@ -131,7 +129,7 @@ class RegisteredSubclassesBase(ClassInitBase):
         for app_module in list(settings.INSTALLED_APPS):
             for name in modules_to_load:
                 try:
-                    module = "%s.%s" % (app_module, name)
+                    module = f"{app_module}.{name}"
                     import_module(module)
                 except ImportError:
                     continue
@@ -141,7 +139,7 @@ class RegisteredSubclassesBase(ClassInitBase):
 class _RemoveMixinsFromInitMixin:
     def __init__(self, *args, **kwargs):
         kwargs.pop("mixins", None)
-        super(_RemoveMixinsFromInitMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class ObjectWithMixins(ClassInitBase):
@@ -255,7 +253,7 @@ class ObjectWithMixins(ClassInitBase):
             return type(
                 cls.__name__ + "WithMixins",
                 bases,
-                dict(__module__=cls.__module__, __unmixed_class__=cls),
+                {"__module__": cls.__module__, "__unmixed_class__": cls},
             )
         else:
             return cls
@@ -291,9 +289,8 @@ class ObjectWithMixins(ClassInitBase):
     def mix_in(cls, mixin):
         """Appends the given mixin to the list of class mixins."""
         assert cls.__unmixed_class__ is cls
-        assert cls.allow_too_late_mixins or "_has_instances" not in cls.__dict__, "Adding mixin %r to %r too late. The latter already has instances." % (
-            mixin,
-            cls,
+        assert cls.allow_too_late_mixins or "_has_instances" not in cls.__dict__, (
+            f"Adding mixin {mixin!r} to {cls!r} too late. The latter already has instances."
         )
         cls.mixins.append(mixin)
         cls._mx_class = None
@@ -386,7 +383,7 @@ def make_html_link(href, name, method="GET", extra_attrs=None):
     if not extra_attrs:
         extra_attrs = {}
     attrs.update(extra_attrs)
-    return mark_safe("<a %s>%s</a>" % (flatatt(attrs), conditional_escape(force_str(name))))
+    return mark_safe(f"<a {flatatt(attrs)}>{conditional_escape(force_str(name))}</a>")
 
 
 def make_html_links(links, extra_attrs=None):
@@ -508,7 +505,9 @@ def strip_num_or_hash(filename):
 
 
 def naturalsort_key(key):
-    convert = lambda text: int(text) if text.isdigit() else text
+    def convert(text):
+        return int(text) if text.isdigit() else text
+
     return [convert(c) for c in re.split("([0-9]+)", key)]
 
 
@@ -524,7 +523,7 @@ class ProgressBar:
     def _show(self, preserve=False):
         done_p = 100 * self.value / self.max_value
         done_l = self.length * self.value / self.max_value
-        s = "|" + "=" * done_l + " " * (self.length - done_l) + "|  %d%%" % done_p
+        s = f"|{'=' * done_l}{' ' * (self.length - done_l)}|  {done_p}%"
         self.to_clear = 0 if preserve else len(s)
         sys.stdout.write(s + ("\n" if preserve else ""))
         sys.stdout.flush()

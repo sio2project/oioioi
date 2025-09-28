@@ -15,7 +15,7 @@ from oioioi.oisubmit.models import OISubmitExtraData
 
 @jsonify
 def oisubmit_response(error_occured, comment):
-    return dict(error_occured=error_occured, comment=comment)
+    return {"error_occured": error_occured, "comment": comment}
 
 
 @csrf_exempt

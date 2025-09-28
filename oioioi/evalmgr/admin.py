@@ -97,7 +97,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
     actions = ["remove_from_queue", "delete_selected"]
 
     def __init__(self, *args, **kwargs):
-        super(SystemJobsQueueAdmin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.list_display_links = None
 
     def _get_link(self, caption, app, *args, **kwargs):
@@ -173,14 +173,14 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
     remove_from_queue.short_description = _("Remove selected submissions from the queue")
 
     def get_queryset(self, request):
-        qs = super(SystemJobsQueueAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.exclude(state="CANCELLED")
 
     def has_delete_permission(self, request, obj=None):
         return is_contest_admin(request)
 
     def get_custom_list_select_related(self):
-        return super(SystemJobsQueueAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "submission__problem_instance",
             "submission__problem_instance__contest",
             "submission__problem_instance__problem",
@@ -205,7 +205,7 @@ class ContestQueuedJob(QueuedJob):
 
 class ContestJobsQueueAdmin(SystemJobsQueueAdmin):
     def __init__(self, *args, **kwargs):
-        super(ContestJobsQueueAdmin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.list_display = [x for x in self.list_display if x not in ("contest", "celery_task_id_link")]
         self.list_display_links = None
         self.list_filter = self.list_filter + [UserListFilter]
@@ -216,7 +216,7 @@ class ContestJobsQueueAdmin(SystemJobsQueueAdmin):
         return is_contest_admin(request)
 
     def get_queryset(self, request):
-        qs = super(ContestJobsQueueAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.filter(submission__problem_instance__contest=request.contest)
 
 

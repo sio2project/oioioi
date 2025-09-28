@@ -32,7 +32,7 @@ class ZeusProblemDataInline(admin.StackedInline):
     def zeus_instance(self, instance):
         zeus_id = instance.zeus_id
         if zeus_id in settings.ZEUS_INSTANCES:
-            return "%s: %s" % (zeus_id, settings.ZEUS_INSTANCES[zeus_id][0])
+            return f"{zeus_id}: {settings.ZEUS_INSTANCES[zeus_id][0]}"
         return zeus_id
 
 
@@ -40,5 +40,5 @@ class ZeusProblemAdminMixin:
     """Adds :class:`~oioioi.zeus.models.ZeusProblemData` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(ZeusProblemAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ZeusProblemDataInline,)

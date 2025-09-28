@@ -70,7 +70,7 @@ class TestSuspending(TestSuspendjudgeSuper):
             (
                 "check_problem_instance_state",
                 "oioioi.suspendjudge.handlers.check_problem_instance_state",
-                dict(suspend_init_tests=True),
+                {"suspend_init_tests": True},
             ),
             env["recipe"],
         )

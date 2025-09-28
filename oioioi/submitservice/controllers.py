@@ -11,7 +11,7 @@ class SubmitServiceMixinForProgrammingContestController:
     """
 
     def adjust_submission_form(self, request, form, problem_instance):
-        super(SubmitServiceMixinForProgrammingContestController, self).adjust_submission_form(request, form, problem_instance)
+        super().adjust_submission_form(request, form, problem_instance)
         form.fields["file"].help_text = mark_safe(
             form.fields["file"].help_text
             + _(" Alternatively, you can <a href='%s'>submit your solutions from terminal</a>.")

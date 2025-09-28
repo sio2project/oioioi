@@ -13,5 +13,5 @@ def delete_related_participants_handler(sender, instance, **kwargs):
 
 class OneToOneBothHandsCascadingParticipantField(models.OneToOneField):
     def contribute_to_class(self, cls, name):
-        super(OneToOneBothHandsCascadingParticipantField, self).contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name)
         post_delete.connect(delete_related_participants_handler, sender=cls)

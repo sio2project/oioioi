@@ -96,7 +96,7 @@ class SchoolAdmin(admin.ModelAdmin):
 
         # http://stackoverflow.com/questions/3393378/django-merging-objects
         related = get_all_related_objects(approved)
-        valnames = dict()
+        valnames = {}
         for r in related:
             valnames.setdefault(r.related_model, []).append(r.field.name)
 
@@ -145,7 +145,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
     list_filter = ParticipantAdmin.list_filter + ["oi_oiregistration__school__province"]
 
     def get_custom_list_select_related(self):
-        return super(OIRegistrationParticipantAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "oi_oiregistration",
             "oi_oiregistration__school",
         ]
@@ -179,7 +179,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
         return request.user.is_superuser
 
     def get_actions(self, request):
-        actions = super(OIRegistrationParticipantAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions

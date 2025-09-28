@@ -12,7 +12,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 class TSolutionOIContestController(OIContestController):
     def can_see_publicsolutions(self, request, round):
-        r_times = super(TSolutionOIContestController, self).get_round_times(request, round)
+        r_times = super().get_round_times(request, round)
         return r_times.show_results <= request.timestamp
 
     def solutions_must_be_public(self, qs):
@@ -24,7 +24,7 @@ class TSolutionOIContestController(OIContestController):
 
 class TSolutionSimpleContestController(ProgrammingContestController):
     def can_see_publicsolutions(self, request, round):
-        r_times = super(TSolutionSimpleContestController, self).get_round_times(request, round)
+        r_times = super().get_round_times(request, round)
         return r_times.show_results <= request.timestamp
 
     def solutions_must_be_public(self, qs):
@@ -63,7 +63,7 @@ class TestPublicSolutions(TestCase):
 
     def assertUserSubmissionHTMLDataCount(self, html, username, count):
         actual = len(re.findall((r'username.*"' + username + r'"').encode("utf-8"), html))
-        self.assertEqual(actual, count, "Expected %d html data, got %d in %s" % (count, actual, html))
+        self.assertEqual(actual, count, f"Expected {count} html data, got {actual} in {html!s}")
 
     def test_solutions_in_menu(self):
         contest = Contest.objects.get()

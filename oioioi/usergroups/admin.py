@@ -13,7 +13,7 @@ from oioioi.usergroups.models import UserGroup, UserGroupRanking
 
 
 def get_user_name_and_login_bounded(self, user):
-    return "%s (%s)" % (user.get_full_name(), user.username)
+    return f"{user.get_full_name()} ({user.username})"
 
 
 class UserGroupAdmin(admin.ModelAdmin):
@@ -22,7 +22,7 @@ class UserGroupAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
-        formfield = super(UserGroupAdmin, self).formfield_for_dbfield(db_field, request, **kwargs)
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
 
         if db_field.name == "owners":
             formfield.queryset = User.objects.exclude(teacher=None) | User.objects.filter(is_superuser=True)
@@ -60,12 +60,12 @@ class UserGroupRankingInline(admin.StackedInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "user_group":
             kwargs["queryset"] = UserGroup.objects.filter(contests=request.contest)
-        return super(UserGroupRankingInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class UserGroupRankingsContestAdminMixin:
     def __init__(self, *args, **kwargs):
-        super(UserGroupRankingsContestAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (UserGroupRankingInline,)
 
 
