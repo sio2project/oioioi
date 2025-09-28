@@ -1,6 +1,6 @@
+from celery.exceptions import Ignore
 from django.urls import reverse
 
-from celery.exceptions import Ignore
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.evalmgr.tasks import create_environ
