@@ -1,6 +1,6 @@
 import oauth2_provider.views as oauth2_views
 from django.conf import settings
-from django.urls import include, re_path
+from django.urls import include, path, re_path
 
 from .middleware import (
     AdminApplicationDelete,
@@ -34,5 +34,5 @@ if settings.DEBUG:
     ]
 
 urlpatterns = [
-    re_path(r"^o/", include((oauth2_endpoint_views, "oauth2_provider"), namespace="oauth2_provider")),
+    path("o/", include((oauth2_endpoint_views, "oauth2_provider"), namespace="oauth2_provider")),
 ]
