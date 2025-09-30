@@ -41,11 +41,11 @@ class TestTimelineView(TestCase):
         contest = Contest.objects.get()
 
         self.assertTrue(self.client.login(username="test_user"))
-        response = self.client.get("/c/%s/dashboard/" % contest.id)
+        response = self.client.get(f"/c/{contest.id}/dashboard/")
         self.assertNotContains(response, "Timeline")
 
         self.assertTrue(self.client.login(username="test_admin"))
-        response = self.client.get("/c/%s/dashboard/" % contest.id)
+        response = self.client.get(f"/c/{contest.id}/dashboard/")
         self.assertContains(response, "Timeline")
 
 

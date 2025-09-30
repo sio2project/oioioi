@@ -24,7 +24,7 @@ class AttachmentRegistry:
 
     def to_list(self, **kwargs):
         attachments = []
-        for idx, gen in enumerate(self._registry):
+        for _idx, gen in enumerate(self._registry):
             attachments.extend(gen(**kwargs))
         return attachments
 

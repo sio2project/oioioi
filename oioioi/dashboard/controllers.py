@@ -13,7 +13,7 @@ class DashboardDefaultViewMixin:
         if request.contest and can_enter_contest(request):
             return reverse("contest_dashboard", kwargs={"contest_id": self.contest.id})
         else:
-            return super(DashboardDefaultViewMixin, self).default_view(request)
+            return super().default_view(request)
 
 
 ContestController.mix_in(DashboardDefaultViewMixin)

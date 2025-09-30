@@ -163,7 +163,6 @@ class ProgrammingProblemController(ProblemController):
         environ["compiler"] = problem_instance.controller.get_compiler_for_submission(submission)
 
     def generate_base_environ(self, environ, submission, **kwargs):
-        contest = submission.problem_instance.contest
         self.generate_initial_evaluation_environ(environ, submission)
         environ.setdefault("recipe", []).extend(
             [
@@ -191,7 +190,7 @@ class ProgrammingProblemController(ProblemController):
                     (
                         "initial_run_tests",
                         "oioioi.programs.handlers.run_tests",
-                        dict(kind="EXAMPLE"),
+                        {"kind": "EXAMPLE"},
                     ),
                     ("initial_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("initial_grade_tests", "oioioi.programs.handlers.grade_tests"),
@@ -199,12 +198,12 @@ class ProgrammingProblemController(ProblemController):
                     (
                         "initial_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
-                        dict(kind="EXAMPLE"),
+                        {"kind": "EXAMPLE"},
                     ),
                     (
                         "initial_make_report",
                         "oioioi.programs.handlers.make_report",
-                        dict(kind="INITIAL"),
+                        {"kind": "INITIAL"},
                     ),
                     recipe_placeholder("after_initial_tests"),
                 ]
@@ -216,7 +215,7 @@ class ProgrammingProblemController(ProblemController):
                     (
                         "userout_run_tests",
                         "oioioi.programs.handlers.run_tests",
-                        dict(kind=None),
+                        {"kind": None},
                     ),
                     ("userout_run_tests", "oioioi.programs.handlers.run_tests_end"),
                     ("userout_grade_tests", "oioioi.programs.handlers.grade_tests"),
@@ -224,12 +223,12 @@ class ProgrammingProblemController(ProblemController):
                     (
                         "userout_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
-                        dict(kind=None),
+                        {"kind": None},
                     ),
                     (
                         "userout_make_report",
                         "oioioi.programs.handlers.make_report",
-                        dict(kind="USER_OUTS", save_scores=False),
+                        {"kind": "USER_OUTS", "save_scores": False},
                     ),
                     (
                         "userout_fill_outfile_in_existing_test_reports",
@@ -251,7 +250,7 @@ class ProgrammingProblemController(ProblemController):
                     (
                         "final_run_tests",
                         "oioioi.programs.handlers.run_tests",
-                        dict(kind="NORMAL"),
+                        {"kind": "NORMAL"},
                     ),
                     ("final_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("final_grade_tests", "oioioi.programs.handlers.grade_tests"),
@@ -275,12 +274,12 @@ class ProgrammingProblemController(ProblemController):
                     (
                         "hidden_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
-                        dict(kind=None),
+                        {"kind": None},
                     ),
                     (
                         "hidden_make_report",
                         "oioioi.programs.handlers.make_report",
-                        dict(kind="HIDDEN"),
+                        {"kind": "HIDDEN"},
                     ),
                     recipe_placeholder("after_all_tests"),
                 ]
@@ -296,12 +295,12 @@ class ProgrammingProblemController(ProblemController):
                     (
                         "full_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
-                        dict(kind=None),
+                        {"kind": None},
                     ),
                     (
                         "full_make_report",
                         "oioioi.programs.handlers.make_report",
-                        dict(kind="FULL"),
+                        {"kind": "FULL"},
                     ),
                     recipe_placeholder("after_full_tests"),
                 ]
@@ -443,7 +442,7 @@ class ProgrammingProblemController(ProblemController):
             for line in lines:
                 md5.update(line)
             md5 = md5.hexdigest()
-            session_md5_key = "programs_%d_md5" % cleaned_data["problem_instance"].id
+            session_md5_key = f"programs_{cleaned_data['problem_instance'].id}_md5"
 
             if session_md5_key in request.session and md5 == request.session[session_md5_key]:
                 del request.session[session_md5_key]
@@ -457,7 +456,7 @@ class ProgrammingProblemController(ProblemController):
     def mixins_for_admin(self):
         from oioioi.programs.admin import ProgrammingProblemAdminMixin
 
-        return super(ProgrammingProblemController, self).mixins_for_admin() + (ProgrammingProblemAdminMixin,)
+        return super().mixins_for_admin() + (ProgrammingProblemAdminMixin,)
 
     def create_submission(self, request, problem_instance, form_data, judge_after_create=True, **kwargs):
         submission = ProgramSubmission(
@@ -501,7 +500,7 @@ class ProgrammingProblemController(ProblemController):
             langs = get_submittable_languages()
             lang_display = langs[lang]["display_name"]
             if compiler_name is not None:
-                choices.append((lang, "%s (%s)" % (lang_display, compiler_name)))
+                choices.append((lang, f"{lang_display} ({compiler_name})"))
             else:
                 choices.append((lang, lang_display))
 
@@ -649,7 +648,7 @@ class ProgrammingProblemController(ProblemController):
         test_reports = TestReport.objects.filter(submission_report=report).select_related("userout_status").order_by("test__order", "test_group", "test_name")
         group_reports = GroupReport.objects.filter(submission_report=report)
         show_scores = any(gr.score is not None for gr in group_reports)
-        group_reports = dict((g.group, g) for g in group_reports)
+        group_reports = {g.group: g for g in group_reports}
 
         picontroller = problem_instance.controller
         pcontroller = problem_instance.problem.controller
@@ -760,7 +759,7 @@ class ProgrammingProblemController(ProblemController):
         return main_languages_only
 
     def render_submission_footer(self, request, submission):
-        super_footer = super(ProgrammingProblemController, self).render_submission_footer(request, submission)
+        super_footer = super().render_submission_footer(request, submission)
         queryset = (
             Submission.objects.filter(problem_instance__contest=request.contest)
             .filter(user=submission.user)
@@ -859,7 +858,7 @@ class ProgrammingContestController(ContestController):
                 (
                     "send_notification_initial_tests_judged",
                     "oioioi.contests.handlers.send_notification_judged",
-                    dict(kind="INITIAL"),
+                    {"kind": "INITIAL"},
                 ),
             )
 
@@ -911,7 +910,7 @@ class ProgrammingContestController(ContestController):
     def filter_my_visible_submissions(self, request, queryset, filter_user=True):
         if not is_contest_basicadmin(request):
             queryset = queryset.exclude(kind="USER_OUTS")
-        return super(ProgrammingContestController, self).filter_my_visible_submissions(request, queryset, filter_user)
+        return super().filter_my_visible_submissions(request, queryset, filter_user)
 
     def can_generate_user_out(self, request, submission_report):
         """Determines if the current user is allowed to generate outs from
@@ -999,7 +998,7 @@ class ProgrammingContestController(ContestController):
         return report.submission.problem_instance.problem.controller.render_report(request, report)
 
     def render_submission_footer(self, request, submission):
-        return super(ProgrammingContestController, self).render_submission_footer(request, submission)
+        return super().render_submission_footer(request, submission)
 
     def valid_kinds_for_submission(self, submission):
         if ModelProgramSubmission.objects.filter(id=submission.id).exists():
@@ -1008,7 +1007,7 @@ class ProgrammingContestController(ContestController):
         if submission.kind == "USER_OUTS":
             return ["USER_OUTS"]
 
-        return super(ProgrammingContestController, self).valid_kinds_for_submission(submission)
+        return super().valid_kinds_for_submission(submission)
 
     def get_safe_exec_mode(self):
         """Determines execution mode when `USE_UNSAFE_EXEC` is False.

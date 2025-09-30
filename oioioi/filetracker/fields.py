@@ -11,7 +11,7 @@ class FieldFile(files.FieldFile):
     def __init__(self, instance, field, name):
         if name is not None:
             name = FiletrackerFilename(name)
-        super(FieldFile, self).__init__(instance, field, name)
+        super().__init__(instance, field, name)
 
     def read_using_cache(self):
         """Opens a file using a cache (if it's possible)"""
@@ -23,7 +23,7 @@ class FieldFile(files.FieldFile):
 class _FileDescriptor(files.FileDescriptor):
     def __get__(self, instance=None, owner=None):
         if instance is None:
-            raise AttributeError("The '%s' attribute can only be accessed from %s instances." % (self.field.name, owner.__name__))
+            raise AttributeError(f"The '{self.field.name}' attribute can only be accessed from {owner.__name__} instances.")
         file = instance.__dict__[self.field.name]
         if isinstance(file, str) and file == "none":
             instance.__dict__[self.field.name] = None
@@ -69,12 +69,12 @@ class FileField(files.FileField):
     def __init__(self, *args, **kwargs):
         # Default value max_length=100 is not sufficient.
         kwargs.setdefault("max_length", 255)
-        super(FileField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
         if hasattr(value, "name") and isinstance(value.name, FiletrackerFilename):
             value = value.name.versioned_name
-        return super(FileField, self).get_prep_value(value)
+        return super().get_prep_value(value)
 
     def value_to_string(self, obj):
         value = self.value_from_object(obj)

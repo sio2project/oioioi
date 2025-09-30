@@ -14,10 +14,10 @@ class MailSubmissionForm(SubmissionForm):
 
     def __init__(self, request, *args, **kwargs):
         self.kind = "MAILSUBMIT"
-        super(MailSubmissionForm, self).__init__(request, *args, add_kind_and_user_fields=False, **kwargs)
+        super().__init__(request, *args, add_kind_and_user_fields=False, **kwargs)
 
     def clean(self):
-        cleaned_data = super(MailSubmissionForm, self).clean(check_submission_limit=False, check_round_times=False)
+        cleaned_data = super().clean(check_submission_limit=False, check_round_times=False)
 
         decision = is_mailsubmit_allowed(self.request)
         if not decision:
@@ -39,11 +39,11 @@ class AcceptMailSubmissionForm(forms.Form):
     )
 
     def __init__(self, request, *args, **kwargs):
-        super(AcceptMailSubmissionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.request = request
 
     def clean(self):
-        cleaned_data = super(AcceptMailSubmissionForm, self).clean()
+        cleaned_data = super().clean()
         if "mailsubmission_id" not in cleaned_data or "submission_hash" not in cleaned_data:
             return cleaned_data
 

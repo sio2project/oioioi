@@ -76,7 +76,7 @@ class Region(models.Model):
         unique_together = ("contest", "short_name")
 
     def __str__(self):
-        return "%s" % (self.short_name,)
+        return f"{self.short_name}"
 
 
 class RegistrationModel(models.Model):

@@ -36,13 +36,13 @@ def get_times_status(request, response):
     timestamp = getattr(request, "timestamp", None)
     contest = getattr(request, "contest", None)
     response.update(
-        dict(
-            time=0,
-            round_start_date=0,
-            round_end_date=0,
-            is_time_admin=False,
-            is_admin_time_set=False,
-        )
+        {
+            "time": 0,
+            "round_start_date": 0,
+            "round_end_date": 0,
+            "is_time_admin": False,
+            "is_admin_time_set": False,
+        }
     )
 
     if getattr(request, "real_user", None) and is_real_superuser(request):

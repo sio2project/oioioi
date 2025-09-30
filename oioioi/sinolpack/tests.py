@@ -76,8 +76,8 @@ def no_makefiles(fn):
 def enable_both_unpack_configurations(cls):
     for name, fn in list(cls.__dict__.items()):
         if getattr(fn, BOTH_CONFIGURATIONS, False):
-            setattr(cls, "%s_safe" % (name), no_makefiles(fn))
-            setattr(cls, "%s_unsafe" % (name), use_makefiles(fn))
+            setattr(cls, f"{name}_safe", no_makefiles(fn))
+            setattr(cls, f"{name}_unsafe", use_makefiles(fn))
             delattr(cls, name)
     return cls
 
@@ -576,14 +576,14 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         tests = Test.objects.filter(problem_instance=problem.main_problem_instance)
         overriden_tests = LanguageOverrideForTest.objects.filter(test__in=tests)
         self.assertEqual(len(overriden_tests), 5)
-        self.assertTrue(all([t.language == "cpp" for t in overriden_tests]))
+        self.assertTrue(all(t.language == "cpp" for t in overriden_tests))
         # New global time limit
-        self.assertTrue(all([t.time_limit == 1000 for t in overriden_tests]))
+        self.assertTrue(all(t.time_limit == 1000 for t in overriden_tests))
         # New group-specific memory limits
         overriden_memory_group = overriden_tests.filter(test__group=1)
-        self.assertTrue(all([t.memory_limit == 6000 for t in overriden_memory_group]))
+        self.assertTrue(all(t.memory_limit == 6000 for t in overriden_memory_group))
         overriden_memory_group2 = overriden_tests.filter(test__group=2)
-        self.assertTrue(all([t.memory_limit == 2000 for t in overriden_memory_group2]))
+        self.assertTrue(all(t.memory_limit == 2000 for t in overriden_memory_group2))
 
         filename = get_test_filename("test_limits_overriden_for_cpp_and_py.zip")
         call_command("updateproblem", str(problem.id), filename)
@@ -592,12 +592,12 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         for lang in ("cpp", "py"):
             self.assertEqual(overriden_tests.filter(language=lang).count(), 5)
         # New and halved global time limit
-        self.assertTrue(all([t.time_limit == 500 for t in overriden_tests]))
+        self.assertTrue(all(t.time_limit == 500 for t in overriden_tests))
         # New and halved memory limits for a different set of groups
         overriden_memory_group = overriden_tests.filter(test__group=0)
-        self.assertTrue(all([t.memory_limit == 3000 for t in overriden_memory_group]))
+        self.assertTrue(all(t.memory_limit == 3000 for t in overriden_memory_group))
         overriden_memory_group2 = overriden_tests.filter(test__group=2)
-        self.assertTrue(all([t.memory_limit == 1000 for t in overriden_memory_group2]))
+        self.assertTrue(all(t.memory_limit == 1000 for t in overriden_memory_group2))
 
     @both_configurations
     def test_simple_interactive_package(self):
@@ -955,5 +955,5 @@ class TestLimits(TestCase):
         response = self.upload_package()
         self.assertContains(
             response,
-            escape("Memory limit mustn't be greater than %dKiB" % settings.MAX_MEMORY_LIMIT_FOR_TEST),
+            escape(f"Memory limit mustn't be greater than {settings.MAX_MEMORY_LIMIT_FOR_TEST}KiB."),
         )

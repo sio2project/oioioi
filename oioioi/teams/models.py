@@ -27,7 +27,7 @@ class Team(models.Model):
             self.user.save()
         if not self.join_key:
             self.join_key = generate_key()
-        super(Team, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class TeamMembership(models.Model):
@@ -40,7 +40,7 @@ class TeamMembership(models.Model):
         unique_together = ("user", "team")
 
     def validate_unique(self, *args, **kwargs):
-        super(TeamMembership, self).validate_unique(*args, **kwargs)
+        super().validate_unique(*args, **kwargs)
 
         query = TeamMembership.objects.filter(user=self.user, team__contest=self.team.contest)
         # Excluding unsaved object excludes everything see:

@@ -43,7 +43,7 @@ class GroupsAddView(FormView):
     from_contest = False
 
     def __init__(self, *args, **kwargs):
-        super(GroupsAddView, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.from_contest = False
 
     def get_success_url(self):
@@ -75,7 +75,7 @@ class GroupsAddView(FormView):
         else:
             messages.success(self.request, _("New user group created successfully!"))
 
-        return super(GroupsAddView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 @method_decorator(enforce_condition(not_anonymous & is_teacher), name="dispatch")
@@ -85,7 +85,7 @@ class GroupsDetailView(UpdateView):
     template_name = "usergroups/teacher_usergroup_detail.html"
 
     def get_context_data(self, **kwargs):
-        context = super(GroupsDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["addition_link"] = self.request.build_absolute_uri(
             reverse(
@@ -119,7 +119,7 @@ class GroupsDetailView(UpdateView):
         if not is_usergroup_owner(self.request.user, self.kwargs["usergroup_id"]):
             raise PermissionDenied
 
-        return super(GroupsDetailView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
 
 @method_decorator(enforce_condition(not_anonymous & is_teacher), name="dispatch")
@@ -133,7 +133,7 @@ class GroupsDeleteView(DeleteView):
         return get_object_or_404(UserGroup, id=self.kwargs["usergroup_id"])
 
     def get_context_data(self, **kwargs):
-        context = super(GroupsDeleteView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["object_name"] = _("User group")
 
         return context
@@ -141,7 +141,7 @@ class GroupsDeleteView(DeleteView):
     def post(self, request, *args, **kwargs):
         group_name = self.get_object().name
 
-        response = super(GroupsDeleteView, self).post(request, *args, **kwargs)
+        response = super().post(request, *args, **kwargs)
 
         messages.success(request, _("Successfully deleted group %s!") % group_name)
         return response
@@ -150,7 +150,7 @@ class GroupsDeleteView(DeleteView):
         if not is_usergroup_owner(self.request.user, self.kwargs["usergroup_id"]):
             raise PermissionDenied
 
-        return super(GroupsDeleteView, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
 
 @require_POST

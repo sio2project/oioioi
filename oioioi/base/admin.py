@@ -74,10 +74,10 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
             return HttpResponseRedirect(request.get_full_path())
         if "came_from" in request.GET and "_continue" not in request.POST and "_saveasnew" not in request.POST and "_addanother" not in request.POST:
             return safe_redirect(request, request.GET.get("came_from"))
-        return super(ModelAdmin, self).response_change(request, obj)
+        return super().response_change(request, obj)
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        response = super(ModelAdmin, self).change_view(request, object_id, form_url, extra_context)
+        response = super().change_view(request, object_id, form_url, extra_context)
         if isinstance(response, TemplateResponse) and "came_from" in request.GET:
             response.context_data["form_url"] += "?" + urllib.parse.urlencode({"came_from": request.GET.get("came_from")})
         return response
@@ -90,7 +90,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
             return HttpResponseRedirect(reverse("admin:index", current_app=self.admin_site.name))
         return HttpResponseRedirect(
             reverse(
-                "admin:%s_%s_changelist" % (opts.app_label, opts.model_name),
+                f"admin:{opts.app_label}_{opts.model_name}_changelist",
                 current_app=self.admin_site.name,
             )
         )
@@ -134,8 +134,8 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
             request,
             self.delete_confirmation_template
             or [
-                "admin/%s/%s/delete_confirmation.html" % (app_label, opts.object_name.lower()),
-                "admin/%s/delete_confirmation.html" % app_label,
+                f"admin/{app_label}/{opts.object_name.lower()}/delete_confirmation.html",
+                f"admin/{app_label}/delete_confirmation.html",
                 "admin/delete_confirmation.html",
             ],
             context,
@@ -149,7 +149,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
         return []
 
     def get_queryset(self, request):
-        qs = super(ModelAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         list_select_related = self.get_custom_list_select_related()
         if list_select_related:
             return qs.select_related(*list_select_related)
@@ -238,8 +238,8 @@ def delete_selected(modeladmin, request, queryset, **kwargs):
         request,
         custom_template
         or [
-            "admin/%s/%s/delete_selected_confirmation.html" % (app_label, opts.model_name),
-            "admin/%s/delete_selected_confirmation.html" % app_label,
+            f"admin/{app_label}/{opts.model_name}/delete_selected_confirmation.html",
+            f"admin/{app_label}/delete_selected_confirmation.html",
             "admin/delete_selected_confirmation.html",
         ],
         context,
@@ -274,7 +274,7 @@ def collect_deleted_objects(modeladmin, request, queryset):
             if not request.user.is_superuser and not model_admin.has_delete_permission(request, obj):
                 perms_needed.add(opts.verbose_name)
 
-        return "%s: %s" % (capfirst(force_str(opts.verbose_name)), force_str(obj))
+        return f"{capfirst(force_str(opts.verbose_name))}: {force_str(obj)}"
 
     # Get a nested list of dependent objects
     to_delete = collector.nested(format_callback)
@@ -286,7 +286,7 @@ def collect_deleted_objects(modeladmin, request, queryset):
 
 class AdminSite(DjangoAdminSite):
     def __init__(self, *args, **kwargs):
-        super(AdminSite, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # Override default delete_selected action handler
         # See delete_selected() docstring for further information
         self._actions["delete_selected"] = delete_selected
@@ -303,7 +303,7 @@ class AdminSite(DjangoAdminSite):
 
     def get_urls(self):
         self._reinit_model_admins()
-        return super(AdminSite, self).get_urls()
+        return super().get_urls()
 
     def login(self, request, extra_context=None):
         next_url = request.GET.get("next", None)
@@ -427,7 +427,7 @@ class ConsentsInline(StackedInline):
 
 class UserWithConsentsAdminMixin:
     def __init__(self, *args, **kwargs):
-        super(UserWithConsentsAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ConsentsInline,)
 
 

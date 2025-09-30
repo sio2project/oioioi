@@ -41,7 +41,7 @@ def show_info_about_workers(request):
             )
             delete = True
         if request.POST.get("confirm"):
-            selected = [x for x in get_all_names() if request.POST.get("work-%s" % x)]
+            selected = [x for x in get_all_names() if request.POST.get(f"work-{x}")]
             del_worker(selected)
             announce = _("Successfully deleted selected workers")
     workers_info = get_info_about_workers()

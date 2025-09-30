@@ -125,7 +125,7 @@ def _serialize_report(user, problem_instances, test_groups):
             .filter(submission_report__kind__in=["INITIAL", "NORMAL"])
             .filter(group__in=groups)
         )
-        group_reports = dict((g.group, g) for g in group_reports)
+        group_reports = {g.group: g for g in group_reports}
         groups = []
         for group_name, tests in itertools.groupby(test_reports, attrgetter("test_group")):
             groups.append({"tests": list(tests), "report": group_reports[group_name]})
@@ -147,15 +147,15 @@ def _serialize_report(user, problem_instances, test_groups):
                 max_problem_score += group_max_score
 
         resultsets.append(
-            dict(
-                result=r,
-                score=problem_score,
-                max_score=max_problem_score,
-                compilation_report=compilation_report,
-                groups=groups,
-                code=six.ensure_text(source_file.read(), errors="replace"),
-                codefile=source_file.file.name,
-            )
+            {
+                "result": r,
+                "score": problem_score,
+                "max_score": max_problem_score,
+                "compilation_report": compilation_report,
+                "groups": groups,
+                "code": six.ensure_text(source_file.read(), errors="replace"),
+                "codefile": source_file.file.name,
+            }
         )
         if total_score is None:
             total_score = problem_score
@@ -212,7 +212,7 @@ def _report_text(request, template_file, report_form):
 
 def generate_pdfreport(request, report_form):
     report = _report_text(request, "oireports/pdfreport.tex", report_form)
-    filename = "%s-%s-%s.pdf" % (
+    filename = "{}-{}-{}.pdf".format(
         request.contest.id,
         report_form.cleaned_data["report_round"],
         report_form.cleaned_data["report_region"],
@@ -223,7 +223,7 @@ def generate_pdfreport(request, report_form):
 
 def generate_xmlreport(request, report_form):
     report = _report_text(request, "oireports/xmlreport.xml", report_form)
-    filename = "%s-%s-%s.xml" % (
+    filename = "{}-{}-{}.xml".format(
         request.contest.id,
         report_form.cleaned_data["report_round"],
         report_form.cleaned_data["report_region"],

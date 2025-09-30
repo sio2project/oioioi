@@ -106,7 +106,7 @@ class PARegistrationController(ParticipantsController):
     def mixins_for_admin(self):
         from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
 
-        return super(PARegistrationController, self).mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
+        return super().mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
 
     def can_change_terms_accepted_phrase(self, request):
         return not PARegistration.objects.filter(participant__contest=request.contest).exists()
@@ -125,10 +125,10 @@ class PAContestController(ProgrammingContestController):
     def fill_evaluation_environ(self, environ, submission):
         environ["test_scorer"] = "oioioi.pa.utils.pa_test_scorer"
 
-        super(PAContestController, self).fill_evaluation_environ(environ, submission)
+        super().fill_evaluation_environ(environ, submission)
 
     def update_user_result_for_problem(self, result):
-        super(PAContestController, self).update_user_result_for_problem(result)
+        super().update_user_result_for_problem(result)
         if result.score is not None:
             result.score = PAScore(result.score)
 
@@ -148,7 +148,7 @@ class PAContestController(ProgrammingContestController):
             return True
         if not is_participant(request):
             return False
-        return super(PAContestController, self).can_submit(request, problem_instance, check_round_times)
+        return super().can_submit(request, problem_instance, check_round_times)
 
     def can_see_publicsolutions(self, request, round):
         if all_non_trial_public_results_visible(request):
@@ -168,7 +168,7 @@ class PAContestController(ProgrammingContestController):
         return [("A", _("A")), ("B", _("B")), ("NONE", _("None"))]
 
     def adjust_upload_form(self, request, existing_problem, form):
-        super(PAContestController, self).adjust_upload_form(request, existing_problem, form)
+        super().adjust_upload_form(request, existing_problem, form)
         initial = "NONE"
         if existing_problem:
             try:
@@ -184,7 +184,7 @@ class PAContestController(ProgrammingContestController):
         )
 
     def fill_upload_environ(self, request, form, env):
-        super(PAContestController, self).fill_upload_environ(request, form, env)
+        super().fill_upload_environ(request, form, env)
         env["division"] = form.cleaned_data["division"]
         env["post_upload_handlers"] += ["oioioi.pa.handlers.save_division"]
 
@@ -225,7 +225,7 @@ class PARankingController(DefaultRankingController):
     description = _("PA style ranking")
 
     def _rounds_for_ranking(self, request, partial_key=CONTEST_RANKING_KEY):
-        method = super(PARankingController, self)._rounds_for_ranking
+        method = super()._rounds_for_ranking
         if partial_key not in [A_PLUS_B_RANKING_KEY, B_RANKING_KEY]:
             return method(request, partial_key)
         else:
@@ -233,7 +233,7 @@ class PARankingController(DefaultRankingController):
             return (r for r in rounds if not r.is_trial)
 
     def _rounds_for_key(self, key):
-        method = super(PARankingController, self)._rounds_for_key
+        method = super()._rounds_for_key
         partial_key = self.get_partial_key(key)
         if partial_key not in [A_PLUS_B_RANKING_KEY, B_RANKING_KEY]:
             return method(key)

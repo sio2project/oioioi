@@ -35,7 +35,7 @@ class ScoreValue(ClassInitBase):
     #: representation of the value. This must be overridden in all subclasses.
     symbol = "__override_in_subclasses__"
 
-    _subclasses = dict()
+    _subclasses = {}
 
     @classmethod
     def __classinit__(cls):
@@ -49,14 +49,14 @@ class ScoreValue(ClassInitBase):
             return
 
         if cls.symbol == this_class.symbol:
-            raise AssertionError("Symbol attribute not defined in %r" % (cls,))
+            raise AssertionError(f"Symbol attribute not defined in {cls!r}")
         if cls.symbol in this_class._subclasses:
-            raise AssertionError("Duplicate symbol '%s' used in both %r and %r" % (cls.symbol, this_class._subclasses[cls.symbol], cls))
+            raise AssertionError(f"Duplicate symbol '{cls.symbol}' used in both {this_class._subclasses[cls.symbol]!r} and {cls!r}")
         this_class._subclasses[cls.symbol] = cls
 
     def serialize(self):
         """Converts the instance of any subclass to string."""
-        return "%s:%s" % (self.symbol, self._to_repr())
+        return f"{self.symbol}:{self._to_repr()}"
 
     def __repr__(self):
         return self.serialize()
@@ -68,7 +68,7 @@ class ScoreValue(ClassInitBase):
             return None
         parts = serialized.split(":", 1)
         if len(parts) < 2:
-            raise ValidationError(_("Score must look like this: '<type>:<value>', for example 'int:100', not '%s'." % (serialized,)))
+            raise ValidationError(_("Score must look like this: '<type>:<value>', for example 'int:100', not '{}'.".format(serialized)))
         symbol, value = parts
         if symbol in ScoreValue._subclasses:
             return ScoreValue._subclasses[symbol]._from_repr(value)
@@ -164,14 +164,14 @@ class IntegerScore(ScoreValue):
         return str(self.value)
 
     def __repr__(self):
-        return "IntegerScore(%s)" % (self.value,)
+        return f"IntegerScore({self.value})"
 
     @classmethod
     def _from_repr(cls, value):
         return cls(int(value))
 
     def _to_repr(self):
-        return "%019d" % self.value
+        return f"{self.value:019d}"
 
     def to_int(self):
         return self.value

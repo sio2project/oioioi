@@ -41,7 +41,7 @@ class AMPPZContestController(ACMContestController):
         return is_contest_admin(request) or is_contest_observer(request)
 
     def default_contestlogo_url(self):
-        return "%samppz/images/logo-cropped.png" % settings.STATIC_URL
+        return f"{settings.STATIC_URL}amppz/images/logo-cropped.png"
 
     def default_contesticons_urls(self):
-        return ["%samppz/images/menu-icon.png" % settings.STATIC_URL]
+        return [f"{settings.STATIC_URL}amppz/images/menu-icon.png"]

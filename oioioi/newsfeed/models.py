@@ -47,4 +47,4 @@ class NewsLanguageVersion(models.Model):
         except NewsLanguageVersion.DoesNotExist:
             pass
 
-        return super(NewsLanguageVersion, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

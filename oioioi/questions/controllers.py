@@ -10,7 +10,7 @@ class QuestionsContestControllerMixin:
     def get_contest_participant_info_list(self, request, user):
         messages = messages_template_context(request, visible_messages(request, author=user))
 
-        prev = super(QuestionsContestControllerMixin, self).get_contest_participant_info_list(request, user)
+        prev = super().get_contest_participant_info_list(request, user)
         if messages:
             prev.append(
                 (

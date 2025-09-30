@@ -394,7 +394,7 @@ class TestProblemInstanceSettings(TestProblemInstance):
         )
         self.assertContains(
             response,
-            "Memory limit mustn't be greater than %dKiB." % settings.MAX_MEMORY_LIMIT_FOR_TEST,
+            f"Memory limit mustn't be greater than {settings.MAX_MEMORY_LIMIT_FOR_TEST}KiB.",
             html=True,
         )
 

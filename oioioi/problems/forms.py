@@ -16,7 +16,7 @@ class ProblemUploadForm(forms.Form):
 
     def __init__(self, contest, existing_problem, *args, **kwargs):
         user = kwargs.pop("user", None)
-        super(ProblemUploadForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.round_id = None
         self.visibility = None
 
@@ -55,7 +55,7 @@ class ProblemUploadForm(forms.Form):
                 )
 
     def clean(self):
-        cleaned_data = super(ProblemUploadForm, self).clean()
+        cleaned_data = super().clean()
         if self.round_id:
             cleaned_data["round_id"] = self.round_id
         if self.visibility:
@@ -117,7 +117,7 @@ class ProblemsetSourceForm(forms.Form):
     )
 
     def __init__(self, url_key, *args, **kwargs):
-        super(ProblemsetSourceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if url_key:
             self.initial = {"url_key": url_key}
 
@@ -127,7 +127,7 @@ class ProblemStatementReplaceForm(forms.Form):
     file_replacement = forms.FileField(label=_("Replacement file"), required=True)
 
     def __init__(self, file_names, *args, **kwargs):
-        super(ProblemStatementReplaceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         upload_file_field = self.fields["file_replacement"]
         file_name_field = self.fields["file_name"]
         file_name_field.choices = [("", "")] + [(name, name) for name in file_names]
@@ -145,7 +145,7 @@ class PackageFileReuploadForm(forms.Form):
     file_replacement = forms.FileField(label=_("Replacement file"), required=False)
 
     def __init__(self, file_names, *args, **kwargs):
-        super(PackageFileReuploadForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         upload_file_field = self.fields["file_replacement"]
         file_name_field = self.fields["file_name"]
         file_name_field.choices = [("", "")] + [(name, name) for name in file_names]
@@ -165,7 +165,7 @@ def _localized_formset_get_initial(localized_objects):
 class ProblemNameInlineFormSet(forms.models.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         kwargs["initial"] = _localized_formset_get_initial(kwargs["instance"].names)
-        super(ProblemNameInlineFormSet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.max_num = len(settings.LANGUAGES)
 
 
@@ -173,7 +173,7 @@ class LocalizationFormset(forms.models.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         if kwargs["instance"].pk:
             kwargs["initial"] = _localized_formset_get_initial(kwargs["instance"].localizations)
-        super(LocalizationFormset, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.min_num = self.max_num = len(settings.LANGUAGES)
         for form in self.forms:
             form.empty_permitted = False
@@ -182,7 +182,7 @@ class LocalizationFormset(forms.models.BaseInlineFormSet):
 class OriginInfoValueForm(forms.ModelForm):
     @transaction.atomic
     def save(self, commit=True):
-        instance = super(OriginInfoValueForm, self).save(commit=False)
+        instance = super().save(commit=False)
 
         # Ensure parent_tag exists on problems
         category = self.cleaned_data["category"]
@@ -210,7 +210,7 @@ def _label_from_instance(obj):
 
 class OriginTagThroughForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(OriginTagThroughForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["origintag"].label_from_instance = _label_from_instance
 
     class Meta:
@@ -220,7 +220,7 @@ class OriginTagThroughForm(forms.ModelForm):
 
 class OriginInfoValueThroughForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(OriginInfoValueThroughForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["origininfovalue"].label_from_instance = _label_from_instance
 
     class Meta:
@@ -230,7 +230,7 @@ class OriginInfoValueThroughForm(forms.ModelForm):
 
 class DifficultyTagThroughForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(DifficultyTagThroughForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["tag"].label_from_instance = _label_from_instance
 
     class Meta:
@@ -248,7 +248,7 @@ class DifficultyTagThroughForm(forms.ModelForm):
 
 class AlgorithmTagThroughForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(AlgorithmTagThroughForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["tag"].label_from_instance = _label_from_instance
 
     class Meta:

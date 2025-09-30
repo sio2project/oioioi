@@ -66,7 +66,7 @@ def mail_submission_hashes(mailsubmission):
 
     pi = mailsubmission.problem_instance
 
-    msg = "%d-%s-%d-%s" % (mailsubmission.id, pi.contest.id, pi.id, source_hash)
+    msg = f"{mailsubmission.id}-{pi.contest.id}-{pi.id}-{source_hash}"
     msg = msg.encode("utf-8")
 
     submission_hash = hmac.new(

@@ -13,7 +13,7 @@ class ZeusProblemSource(UploadedPackageSource):
 
     def __init__(self, zeus_instances=None):
         if zeus_instances is None:
-            zeus_instances = [(zeus_id, "%s: %s" % (zeus_id, url)) for zeus_id, (url, _login, _secret) in settings.ZEUS_INSTANCES.items()]
+            zeus_instances = [(zeus_id, f"{zeus_id}: {url}") for zeus_id, (url, _login, _secret) in settings.ZEUS_INSTANCES.items()]
         self.zeus_instances = zeus_instances
 
     def choose_backend(self, path, original_filename=None):
@@ -31,7 +31,7 @@ class ZeusProblemSource(UploadedPackageSource):
         existing_problem=None,
         original_filename=None,
     ):
-        env = super(ZeusProblemSource, self).create_env(
+        env = super().create_env(
             user,
             contest,
             path,

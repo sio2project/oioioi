@@ -16,7 +16,7 @@ class SubmissionSerializer(serializers.Serializer):
         if pi is not None:
             self.problem_instance_id = serializers.HiddenField(default=pi.pk)
         self.problem_instance = pi
-        super(SubmissionSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def validate(self, data):
         for field in SubmissionSerializer.Meta.fields:

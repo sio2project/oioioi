@@ -24,6 +24,6 @@ def all_with_prefix(parser, token):
     try:
         _tag_name, prefix = token.split_contents()
     except ValueError:
-        msg = "%r tag requires a single argument" % token.split_contents()[0]
+        msg = f"{token.split_contents()[0]!r} tag requires a single argument"
         raise TemplateSyntaxError(msg)
     return AllWithPrefixNode(prefix)

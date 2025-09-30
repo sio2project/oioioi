@@ -78,7 +78,7 @@ class TestRankingViews(TestCase):
 
         # Create all users with scores 0..number_of_users-1
         for i in range(number_of_users):
-            users.append(create_score("find_user_generated%s" % i, i))
+            users.append(create_score(f"find_user_generated{i}", i))
 
         self.assertTrue(self.client.login(username="test_contest_admin"))
 
@@ -140,7 +140,7 @@ class TestRankingViews(TestCase):
             response = self.client.get(get_url_for_user(user.username))
             # Checking if user wasn't redirected (is on page 1)
             # User with the highest score should be visible
-            self.assertContains(response, '<tr id="ranking_row_%s"' % users[-1].id)
+            self.assertContains(response, f'<tr id="ranking_row_{users[-1].id}"')
 
         # Test if user who is not in the ranking receives error message.
         self.assertTrue(self.client.login(username=user_not_in_ranking.username))
@@ -209,7 +209,7 @@ class TestRankingViews(TestCase):
                 pattern_match = re.search(pattern, content)
                 self.assertTrue(pattern_match)
                 pos = pattern_match.start()
-                self.assertGreater(pos, prev_pos, msg=("User %s has incorrect position" % (user,)))
+                self.assertGreater(pos, prev_pos, msg=(f"User {user} has incorrect position"))
                 prev_pos = pos
 
             response = self.client.get(reverse("ranking", kwargs={"contest_id": contest.id, "key": "1"}))
@@ -255,10 +255,10 @@ class TestRankingViews(TestCase):
             prev_pos = 0
             content = response.content.decode("utf-8")
             for user in expected_order:
-                pattern = "%s," % (user,)
+                pattern = f"{user},"
                 self.assertContains(response, user)
                 pos = content.find(pattern)
-                self.assertGreater(pos, prev_pos, msg=("User %s has incorrect position" % (user,)))
+                self.assertGreater(pos, prev_pos, msg=(f"User {user} has incorrect position"))
                 prev_pos = pos
 
             for task in ["zad1", "zad2", "zad3", "zad3"]:
@@ -284,7 +284,7 @@ class TestRankingViews(TestCase):
             self.assertTrue(ranking.is_up_to_date())
             recalc = choose_for_recalculation()
             self.assertIsNone(recalc)
-            response = self.client.post(url, key="key")
+            self.client.post(url, key="key")
             ranking.refresh_from_db()
             self.assertFalse(ranking.is_up_to_date())
             recalc = choose_for_recalculation()

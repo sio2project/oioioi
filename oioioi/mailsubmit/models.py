@@ -16,11 +16,7 @@ check_django_app_dependencies(__name__, ["oioioi.contests", "oioioi.programs"])
 def make_submission_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return "mailsubmissions/%s/%d%s" % (
-        instance.problem_instance.contest.id,
-        instance.id,
-        os.path.splitext(filename)[1],
-    )
+    return f"mailsubmissions/{instance.problem_instance.contest.id!s}/{instance.id}{os.path.splitext(filename)[1]!s}"
 
 
 class MailSubmission(models.Model):

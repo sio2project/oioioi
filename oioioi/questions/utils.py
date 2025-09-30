@@ -16,16 +16,16 @@ def log_addition(request, object):
 
 
 def get_categories(request):
-    categories = [("p_%d" % (pi.id,), _("Problem %s") % (pi.problem.name,)) for pi in visible_problem_instances(request)]
-    categories += [("r_%d" % (round.id,), _("General, %s") % (round.name,)) for round in visible_rounds(request)]
+    categories = [(f"p_{pi.id}", _("Problem %s") % (pi.problem.name,)) for pi in visible_problem_instances(request)]
+    categories += [(f"r_{round.id}", _("General, %s") % (round.name,)) for round in visible_rounds(request)]
     return categories
 
 
 def get_category(message):
     if message.problem_instance:
-        return "p_%d" % message.problem_instance.id
+        return f"p_{message.problem_instance.id}"
     if message.round:
-        return "r_%d" % message.round.id
+        return f"r_{message.round.id}"
     return None
 
 

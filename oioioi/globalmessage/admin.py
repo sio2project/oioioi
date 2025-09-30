@@ -25,7 +25,7 @@ class GlobalMessageAdmin(admin.ModelAdmin):
         # Global Message singleton always has primary_key = 1
         # @see GlobalMessage.get_singleton
         pk = "1"
-        urls = super(GlobalMessageAdmin, self).get_urls()
+        urls = super().get_urls()
 
         custom_urls = [
             path("", self.admin_site.admin_view(self.change_view), {"object_id": pk}),

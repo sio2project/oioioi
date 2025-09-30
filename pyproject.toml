@@ -12,28 +12,13 @@ lint.select = [
 src = ["oioioi"]
 exclude = [
     "migrations",
-    "oioioi/**/*settings.py"
+    "oioioi/**/*settings.py",
+    "extra/sample-configs/runnable-test-settings.py",
+    "oioioi/problems/tests/__init__.py"
 ]
 target-version = "py311"
 lint.ignore = [
     "B904",
     "B026",
     "C416",
-    # TW, 2025-07-14, TODO fix those issues
-    "B007",  # Loop control variable
-    "UP008",  # Use `super()` instead of `super(__class__, self)`
-    "UP031",  # Use format specifiers instead of percent format
-    "C402",  # Unnecessary generator (rewrite as a dict comprehension)
-    "C408",  # Unnecessary `dict()` call (rewrite as a literal)
-    "C419",  # Unnecessary list comprehension
-    "C401",  # Unnecessary generator (rewrite as a set comprehension)
-    "C414",  # Unnecessary `list()` call within `sorted()`
-    "C417",  # Unnecessary `map()` usage (rewrite using a generator expression)
-    "C418",  # Unnecessary dict comprehension passed to `dict()` (remove the outer call to `dict()`)
-    "C403",  # Unnecessary list comprehension (rewrite as a set comprehension)
-    "E402",  # Module level import not at top of file
-    "E731",  # Do not assign a `lambda` expression, use a `def`
-    "F401",  # imported but unused
-    "F841", #  Local variable is assigned to but never used
-    "UP038", # Use `X | Y` in `isinstance` call instead of `(X, Y)`
 ]

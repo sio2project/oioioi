@@ -58,20 +58,20 @@ def rest_handler(env, **kwargs):
 class TestLocalJobs(TestCase):
     def test_evalmgr_job(self):
         env = create_environ()
-        env.update(dict(recipe=hunting, area="forest"))
+        env.update({"recipe": hunting, "area": "forest"})
         env = delay_environ_wrapper(env).get()
         self.assertEqual("Hedgehog hunted.", env["output"])
 
     def test_cascade_job(self):
         env = create_environ()
-        env.update(dict(recipe=hunting, area="forest"))
+        env.update({"recipe": hunting, "area": "forest"})
         env = delay_environ_wrapper(env).get()
         self.assertEqual("Hedgehog hunted.", env["output"])
 
     def test_multiple_jobs(self):
-        city_result = delay_environ_wrapper(dict(job_id=42, recipe=hunting, area="city"))
-        forest_result = delay_environ_wrapper(dict(job_id=43, recipe=hunting, area="forest"))
-        jungle_result = delay_environ_wrapper(dict(job_id=44, recipe=hunting, area="jungle"))
+        city_result = delay_environ_wrapper({"job_id": 42, "recipe": hunting, "area": "city"})
+        forest_result = delay_environ_wrapper({"job_id": 43, "recipe": hunting, "area": "forest"})
+        jungle_result = delay_environ_wrapper({"job_id": 44, "recipe": hunting, "area": "jungle"})
         self.assertEqual("Hedgehog hunted.", forest_result.get()["output"])
         self.assertEqual("Epic fail.", city_result.get()["output"])
         self.assertEqual("Epic fail.", jungle_result.get()["output"])
@@ -85,12 +85,12 @@ def upload_source(env, **kwargs):
 
 def compile_source(env, **kwargs):
     env.update(
-        dict(
-            source_file=env["remote_source_file"],
-            out_file=env["binary_file"],
-            compiler="system-gcc",
-            job_type="compile",
-        )
+        {
+            "source_file": env["remote_source_file"],
+            "out_file": env["binary_file"],
+            "compiler": "system-gcc",
+            "job_type": "compile",
+        }
     )
     return run_sioworkers_job(env)
 
@@ -104,7 +104,7 @@ def upload_inout(env, **kwargs):
 
 
 def run(env, **kwargs):
-    env.update(dict(exe_file=env["binary_file"], check_output=True, job_type="unsafe-exec"))
+    env.update({"exe_file": env["binary_file"], "check_output": True, "job_type": "unsafe-exec"})
     return run_sioworkers_job(env)
 
 
@@ -142,17 +142,17 @@ class TestRemoteJobs(TestCase):
         ("upload test", "oioioi.evalmgr.tests.tests.upload_inout"),
         ("run", "oioioi.evalmgr.tests.tests.run"),
     ]
-    evaluation_env = dict(
-        job_id=42,
-        recipe=evaluation_recipe,
-        local_source_file=local_source_file,
-        remote_source_file=remote_source_file,
-        binary_file=binary_file,
-        local_in_file=local_in_file,
-        remote_in_file=remote_in_file,
-        local_out_file=local_out_file,
-        remote_out_file=remote_out_file,
-    )
+    evaluation_env = {
+        "job_id": 42,
+        "recipe": evaluation_recipe,
+        "local_source_file": local_source_file,
+        "remote_source_file": remote_source_file,
+        "binary_file": binary_file,
+        "local_in_file": local_in_file,
+        "remote_in_file": remote_in_file,
+        "local_out_file": local_out_file,
+        "remote_out_file": remote_out_file,
+    }
 
     def tearDown(self):
         fc = get_client()
@@ -233,35 +233,35 @@ class TestErrorBehavior(TestCase):
         case = 1
         tests = [  # evaluation error
             (
-                dict(recipe=hunting, area="elevator", error_handlers=self.error_handlers),
+                {"recipe": hunting, "area": "elevator", "error_handlers": self.error_handlers},
                 HuntingException,
                 "ARRESTED",
                 "ashamed",
             ),
             # job with no recipe
             (
-                dict(
-                    very_important_task="kill another hedgehog remotely",
-                    error_handlers=self.arrest,
-                ),
+                {
+                    "very_important_task": "kill another hedgehog remotely",
+                    "error_handlers": self.arrest,
+                },
                 RuntimeError,
                 "ARRESTED",
                 None,
             ),
             # handler not returning environment
             (
-                dict(recipe=hunting, area="blackhole", error_handlers=self.arrest),
+                {"recipe": hunting, "area": "blackhole", "error_handlers": self.arrest},
                 RuntimeError,
                 "ARRESTED",
                 None,
             ),
             # corrupted error handler
             (
-                dict(
-                    recipe=hunting,
-                    area="elevator",
-                    error_handlers=self.corrupted_error_handler,
-                ),
+                {
+                    "recipe": hunting,
+                    "area": "elevator",
+                    "error_handlers": self.corrupted_error_handler,
+                },
                 HuntingException,
                 None,
                 None,

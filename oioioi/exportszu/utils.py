@@ -61,7 +61,6 @@ class SubmissionsWithUserDataCollector:
         return self.contest.id
 
     def collect_list(self):
-        ccontroller = self.contest.controller
         q_expressions = Q(user__isnull=False)
 
         if self.round:
@@ -75,7 +74,7 @@ class SubmissionsWithUserDataCollector:
         if self.lang_exts:
             q_expr_langs = Q()
             for ext in self.lang_exts:
-                q_expr_langs |= Q(source_file__contains=".%s@" % ext)
+                q_expr_langs |= Q(source_file__contains=f".{ext}@")
             q_expressions &= q_expr_langs
 
         if self.only_final:
@@ -170,12 +169,7 @@ def build_submissions_archive(out_file, submission_collector):
                 index_csv.writerow([encode(col) for col in index_entry])
 
         for s in submission_list:
-            filename = "%s:%s:%s.%s" % (
-                s.submission_id,
-                s.username,
-                s.problem_short_name,
-                s.solution_language,
-            )
+            filename = f"{s.submission_id}:{s.username}:{s.problem_short_name}.{s.solution_language}"
             dest = os.path.join(files_dir, filename)
             submission_collector.get_submission_source(dest, s.source_file)
 

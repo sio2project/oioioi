@@ -24,11 +24,7 @@ class ZeusProblemData(models.Model):
 def make_custom_library_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return "testruns/%s/%d/lib%s" % (
-        instance.problem_instance.contest.id,
-        instance.id,
-        os.path.splitext(filename)[1],
-    )
+    return f"testruns/{instance.problem_instance.contest.id}/{instance.id}/lib{os.path.splitext(filename)[1]}"
 
 
 class ZeusTestReport(TestReport):

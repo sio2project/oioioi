@@ -57,7 +57,7 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
             if request.contest:
                 qs = qs.filter(contest=request.contest)
             kwargs["queryset"] = qs
-        return super(SubmissionsSimilarityEntryAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def group_link(self, instance):
         return make_html_link(
@@ -74,10 +74,10 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
         return make_html_link(
             reverse(
                 "submission",
-                kwargs=dict(
-                    contest_id=instance.submission.problem_instance.contest_id,
-                    submission_id=instance.submission_id,
-                ),
+                kwargs={
+                    "contest_id": instance.submission.problem_instance.contest_id,
+                    "submission_id": instance.submission_id,
+                },
             ),
             instance.submission_id,
         )
@@ -92,10 +92,7 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
 
     def submission_problem_instance(self, instance):
         if instance.submission.kind != "NORMAL":
-            return "%s (%s)" % (
-                force_str(instance.submission.problem_instance),
-                force_str(instance.submission.get_kind_display()),
-            )
+            return f"{force_str(instance.submission.problem_instance)} ({force_str(instance.submission.get_kind_display())})"
         else:
             return instance.submission.problem_instance
 
@@ -103,14 +100,14 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
     submission_problem_instance.admin_order_field = "submission__problem_instance"
 
     def get_custom_list_select_related(self):
-        return super(SubmissionsSimilarityEntryAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "submission",
             "submission__user",
             "submission__problem_instance",
         ]
 
     def get_queryset(self, request):
-        queryset = super(SubmissionsSimilarityEntryAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         queryset = queryset.filter(submission__problem_instance__contest=request.contest)
         queryset = queryset.order_by("-id")
         return queryset
@@ -138,7 +135,7 @@ class SubmisionsSimilarityEntryInline(admin.TabularInline):
                 qs = qs.filter(problem_instance__contest=request.contest)
                 kwargs["initial"] = request.contest
             kwargs["queryset"] = qs
-        return super(SubmisionsSimilarityEntryInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class SubmissionsSimilarityGroupAdmin(admin.ModelAdmin):
@@ -167,20 +164,20 @@ class SubmissionsSimilarityGroupAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         if self._interrupt_redirection(request):
             return redirect("oioioiadmin:similarsubmits_submissionssimilarityentry_changelist")
-        return super(SubmissionsSimilarityGroupAdmin, self).response_add(request, obj, post_url_continue)
+        return super().response_add(request, obj, post_url_continue)
 
     def response_change(self, request, obj):
         if self._interrupt_redirection(request):
             return redirect("oioioiadmin:similarsubmits_submissionssimilarityentry_changelist")
-        return super(SubmissionsSimilarityGroupAdmin, self).response_change(request, obj)
+        return super().response_change(request, obj)
 
     def response_delete(self, request):
         if self._interrupt_redirection(request):
             return redirect("oioioiadmin:similarsubmits_submissionssimilarityentry_changelist")
-        return super(SubmissionsSimilarityGroupAdmin, self).response_delete(request)
+        return super().response_delete(request)
 
     def get_queryset(self, request):
-        queryset = super(SubmissionsSimilarityGroupAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         queryset = queryset.filter(contest=request.contest)
         queryset = queryset.order_by("-id")
         return queryset

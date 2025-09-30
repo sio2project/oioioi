@@ -35,7 +35,7 @@ class TestRunProblemControllerMixin:
 
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         if submission.kind != "TESTRUN":
-            return super(TestRunProblemControllerMixin, self).fill_evaluation_environ(environ, submission, **kwargs)
+            return super().fill_evaluation_environ(environ, submission, **kwargs)
         # This *must be* called after that if above, we do not want
         # `generate_base_environ` to be called twice per environ.
         self.generate_base_environ(environ, submission, **kwargs)
@@ -60,7 +60,7 @@ class TestRunProblemControllerMixin:
 
     def get_submissions_limit(self, request, problem_instance, kind="NORMAL", noadmin=False):
         if kind != "TESTRUN":
-            return super(TestRunProblemControllerMixin, self).get_submissions_limit(request, problem_instance, kind, noadmin)
+            return super().get_submissions_limit(request, problem_instance, kind, noadmin)
 
         if can_admin_problem(request, problem_instance.problem) and not noadmin:
             return None
@@ -97,7 +97,7 @@ class TestRunContestControllerMixin:
 
     def fill_evaluation_environ_post_problem(self, environ, submission):
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).fill_evaluation_environ_post_problem(environ, submission)
+            return super().fill_evaluation_environ_post_problem(environ, submission)
 
     def get_testrun_input_limit(self):
         return getattr(settings, "TESTRUN_INPUT_LIMIT", 100 * 1024)
@@ -109,7 +109,7 @@ class TestRunContestControllerMixin:
         return getattr(settings, "TESTRUN_UNZIPPED_INPUT_LIMIT", 10 * 1024 * 1024)
 
     def adjust_submission_form(self, request, form, problem_instance):
-        super(TestRunContestControllerMixin, self).adjust_submission_form(request, form, problem_instance)
+        super().adjust_submission_form(request, form, problem_instance)
 
         if form.kind != "TESTRUN":
             return
@@ -206,7 +206,7 @@ class TestRunContestControllerMixin:
 
     def update_submission_score(self, submission):
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).update_submission_score(submission)
+            return super().update_submission_score(submission)
 
         try:
             report = SubmissionReport.objects.filter(submission=submission, status="ACTIVE", kind="TESTRUN").get()
@@ -222,27 +222,27 @@ class TestRunContestControllerMixin:
 
     def update_report_statuses(self, submission, queryset):
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).update_report_statuses(submission, queryset)
+            return super().update_report_statuses(submission, queryset)
 
         self._activate_newest_report(submission, queryset, kind=["TESTRUN", "FAILURE"])
 
     def can_see_submission_status(self, request, submission):
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).can_see_submission_status(request, submission)
+            return super().can_see_submission_status(request, submission)
 
         return True
 
     def get_visible_reports_kinds(self, request, submission):
-        return ["TESTRUN"] + super(TestRunContestControllerMixin, self).get_visible_reports_kinds(request, submission)
+        return ["TESTRUN"] + super().get_visible_reports_kinds(request, submission)
 
     def get_supported_extra_args(self, submission):
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).get_supported_extra_args(submission)
+            return super().get_supported_extra_args(submission)
         return {}
 
     def render_submission(self, request, submission):
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).render_submission(request, submission)
+            return super().render_submission(request, submission)
 
         sbm_testrun = submission.programsubmission.testrunprogramsubmission
 
@@ -281,7 +281,7 @@ class TestRunContestControllerMixin:
 
     def render_report(self, request, report, *args, **kwargs):
         if report.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).render_report(request, report, *args, **kwargs)
+            return super().render_report(request, report, *args, **kwargs)
 
         # It may not exists when compilation error occurs
         try:
@@ -293,7 +293,7 @@ class TestRunContestControllerMixin:
 
     def valid_kinds_for_submission(self, submission):
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).valid_kinds_for_submission(submission)
+            return super().valid_kinds_for_submission(submission)
 
         assert submission.kind == "TESTRUN"
         return ["TESTRUN"]
@@ -310,7 +310,7 @@ class TestRunContestControllerMixin:
         """
 
         if submission.kind != "TESTRUN":
-            return super(TestRunContestControllerMixin, self).get_notification_message_submission_judged(submission)
+            return super().get_notification_message_submission_judged(submission)
 
         if submission.problem_instance.contest:
             message = gettext_noop("%(contest_name)s, %(task_name)s: Your submission was judged.\n")

@@ -50,7 +50,7 @@ class Base64String:
         return str(self.string)
 
     def __repr__(self):
-        return "Base64String(%s)" % self.string
+        return f"Base64String({self.string})"
 
     def __eq__(self, other):
         return self.string == other.string
@@ -74,17 +74,17 @@ def _json_base64_decode(o, wrap=False):
 
 def _get_key(dictionary, key):
     if key not in dictionary:
-        raise ZeusKeyError("Key %s not found in result" % key)
+        raise ZeusKeyError(f"Key {key} not found in result")
     return dictionary[key]
 
 
 class EagerHTTPBasicAuthHandler(urllib.request.BaseHandler):
     def __init__(self, user, passwd):
-        cred = "%s:%s" % (user, passwd)
-        self.auth_string = "Basic %s" % base64.b64encode(cred)
+        cred = f"{user}:{passwd}"
+        self.auth_string = f"Basic {base64.b64encode(cred)}"
 
     def http_open(self, req):
-        assert isinstance(req, urllib.request.Request), "Incorrect request type: %s" % type(req)
+        assert isinstance(req, urllib.request.Request), f"Incorrect request type: {type(req)}"
         if "Authorization" not in req.headers:
             req.add_header("Authorization", self.auth_string)
 
@@ -144,9 +144,9 @@ class ZeusServer:
         return code, decoded_res
 
     def send_regular(self, zeus_problem_id, kind, source_code, language, submission_id, return_url):
-        assert kind in ("INITIAL", "NORMAL"), "Invalid kind: %s" % kind
-        assert language in zeus_language_map, "Invalid language: %s" % language
-        url = urllib.parse.urljoin(self.url, "dcj_problem/%d/submissions" % (zeus_problem_id,))
+        assert kind in ("INITIAL", "NORMAL"), f"Invalid kind: {kind}"
+        assert language in zeus_language_map, f"Invalid language: {language}"
+        url = urllib.parse.urljoin(self.url, f"dcj_problem/{zeus_problem_id}/submissions")
         data = {
             "submission_type": Base64String("SMALL" if kind == "INITIAL" else "LARGE"),
             "return_url": Base64String(return_url),
@@ -181,7 +181,7 @@ class ZeusTestServer(ZeusServer):
 
         decoded_data = _json_base64_decode(data)
 
-        command = 'curl -H "Content-Type: application/json" -X ' + 'POST -d \'{"compilation_output":"Q1BQ"}\' %s' % decoded_data["return_url"]
+        command = 'curl -H "Content-Type: application/json" -X ' + 'POST -d \'{{"compilation_output":"Q1BQ"}}\' {}'.format(decoded_data["return_url"])
 
         print("Encoded data: ", data)
         print("Decoded data: ", decoded_data)

@@ -50,7 +50,7 @@ def ranking_view(request, key=None):
     if key not in next(zip(*choices, strict=False)):
         raise Http404
 
-    context = dict()
+    context = {}
 
     ranking = None
 

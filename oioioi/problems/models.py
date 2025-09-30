@@ -34,11 +34,8 @@ def make_problem_filename(instance, filename):
         try:
             instance = instance.problem
         except AttributeError:
-            assert hasattr(instance, "problem"), "problem_file_generator used on object %r which does not have 'problem' attribute" % (instance,)
-    return "problems/%d/%s" % (
-        instance.id,
-        get_valid_filename(os.path.basename(filename)),
-    )
+            assert hasattr(instance, "problem"), f"problem_file_generator used on object {instance!r} which does not have 'problem' attribute"
+    return f"problems/{instance.id}/{get_valid_filename(os.path.basename(filename))!s}"
 
 
 class Problem(models.Model):
@@ -157,14 +154,11 @@ class Problem(models.Model):
         )
 
     def __str__(self):
-        return "%(name)s (%(short_name)s)" % {
-            "short_name": self.short_name,
-            "name": self.name,
-        }
+        return f"{self.name} ({self.short_name})"
 
     def save(self, *args, **kwargs):
         self.ascii_name = unidecode(str(self.name))
-        super(Problem, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 @receiver(post_save, sender=Problem)
@@ -234,7 +228,7 @@ class ProblemStatement(models.Model):
         verbose_name_plural = _("problem statements")
 
     def __str__(self):
-        return "%s / %s" % (self.problem.name, self.filename)
+        return f"{self.problem.name} / {self.filename}"
 
 
 class ProblemAttachment(models.Model):
@@ -262,7 +256,7 @@ class ProblemAttachment(models.Model):
         verbose_name_plural = _("attachments")
 
     def __str__(self):
-        return "%s / %s" % (self.problem.name, self.filename)
+        return f"{self.problem.name} / {self.filename}"
 
 
 def _make_package_filename(instance, filename):
@@ -270,10 +264,7 @@ def _make_package_filename(instance, filename):
         contest_name = instance.contest.id
     else:
         contest_name = "no_contest"
-    return "package/%s/%s" % (
-        contest_name,
-        get_valid_filename(os.path.basename(filename)),
-    )
+    return f"package/{contest_name}/{get_valid_filename(os.path.basename(filename))}"
 
 
 package_statuses = EnumRegistry()
@@ -364,19 +355,18 @@ class ProblemPackage(models.Model):
                 try:
                     # This will work if a PackageProcessingError was thrown
                     info = _(
-                        "Failed operation: %(name)s\n"
-                        "Operation description: %(desc)s\n \n"
-                        "Error description: %(error)r\n \n"
-                        % dict(
-                            name=value.raiser,
-                            desc=value.raiser_desc,
-                            error=value.original_exception_info[1],
+                        "Failed operation: {name}\nOperation description: {desc}\n \nError description: {error!r}\n \n".format(
+                            **{
+                                "name": value.raiser,
+                                "desc": value.raiser_desc,
+                                "error": value.original_exception_info[1],
+                            }
                         )
                     )
 
                     type, value, _old_traceback = value.original_exception_info
                 except AttributeError:
-                    info = _("Failed operation unknown.\nError description: %(error)s\n \n" % dict(error=value))
+                    info = _("Failed operation unknown.\nError description: {error}\n \n".format(**{"error": value}))
 
                 # Truncate error so it doesn't take up whole page in list
                 # view (or much space in the database).

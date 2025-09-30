@@ -36,7 +36,7 @@ class PublicSolutionsContestControllerMixin:
         return qs.none()
 
     def filter_visible_sources(self, request, qs):
-        prev = super(PublicSolutionsContestControllerMixin, self).filter_visible_sources(request, qs)
+        prev = super().filter_visible_sources(request, qs)
 
         public = filter_public_solutions(request, qs)
         return (prev.distinct() | public.distinct()).distinct()

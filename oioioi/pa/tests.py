@@ -198,7 +198,7 @@ class TestPARanking(TestCase):
                 self.assertContains(response, user)
 
                 pos = pattern_match.start()
-                self.assertGreater(pos, prev_pos, msg=("User %s has incorrect position" % (user,)))
+                self.assertGreater(pos, prev_pos, msg=(f"User {user} has incorrect position"))
                 prev_pos = pos
 
         self.assertTrue(self.client.login(username="test_user"))

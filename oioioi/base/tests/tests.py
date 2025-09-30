@@ -91,8 +91,8 @@ class TestPermsTemplateTags(TestCase):
         admin = User.objects.get(username="test_admin")
         user = User.objects.get(username="test_user")
         template = Template('{% load check_perm %}{% check_perm "auth.add_user" for "whatever" as p %}{% if p %}yes{% endif %}')
-        self.assertEqual(template.render(Context(dict(user=admin))), "yes")
-        self.assertEqual(template.render(Context(dict(user=user))), "")
+        self.assertEqual(template.render(Context({"user": admin})), "yes")
+        self.assertEqual(template.render(Context({"user": user})), "")
 
 
 class TestIndex(TestCase):
@@ -558,7 +558,7 @@ else:
 class TestAllWithPrefix(TestCase):
     def test_all_with_prefix(self):
         t = Template("{% load all_with_prefix %}{% all_with_prefix a_ %}")
-        context = Context(dict(a_foo="foo", a_bar="bar", b_baz="baz"))
+        context = Context({"a_foo": "foo", "a_bar": "bar", "b_baz": "baz"})
         rendered = t.render(context)
         self.assertIn("foo", rendered)
         self.assertIn("bar", rendered)
@@ -610,7 +610,7 @@ class TestEnumField(TestCase):
 
     def test_basic_usage(self):
         field = EnumField(self.registry)
-        self.assertEqual(sorted(list(field.choices)), [("ERR", "Error"), ("OK", "OK")])
+        self.assertEqual(sorted(field.choices), [("ERR", "Error"), ("OK", "OK")])
         with self.assertRaises(ValidationError):
             field.validate("FOO", None)
 
@@ -717,7 +717,7 @@ class TestRegistration(TestCase):
         clear_url_caches()
 
     def _register_user(self, terms_accepted=True, pass_captcha=True):
-        response = self.client.get(reverse("sign-up"))
+        self.client.get(reverse("sign-up"))
         captcha_count = CaptchaStore.objects.count()
         self.assertEqual(captcha_count, 1)
         captcha = CaptchaStore.objects.all()[0]
@@ -1232,9 +1232,9 @@ class TestLoginChange(TestCase):
             # The html strings underneath may change with any django upgrade.
             self.assertContains(
                 response,
-                '<input type="text" name="username" value="%s" '
+                f'<input type="text" name="username" value="{value}" '
                 'maxlength="150" class="form-control" required="" '
-                'aria-describedby="id_username_helptext" id="id_username">' % value,
+                'aria-describedby="id_username_helptext" id="id_username">',
                 html=True,
             )
 
@@ -1265,9 +1265,9 @@ class TestLoginChange(TestCase):
             response = self.client.get(self.url_edit_profile)
             self.assertContains(
                 response,
-                '<input type="text" name="username" value="%s" '
+                f'<input type="text" name="username" value="{value}" '
                 'maxlength="150" readonly="" class="form-control" required="" '
-                'aria-describedby="id_username_helptext" id="id_username">' % value,
+                'aria-describedby="id_username_helptext" id="id_username">',
                 html=True,
             )
 

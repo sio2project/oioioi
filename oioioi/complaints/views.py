@@ -50,7 +50,7 @@ def email_template_context(request, message):
         participant = Participant.objects.get(user=user, contest=contest)
         participant_status = participant.get_status_display()
         try:
-            participant_status += _(" (%(registration)s)") % dict(registration=participant.registration_model)
+            participant_status += _(" (%(registration)s)") % {"registration": participant.registration_model}
         except ObjectDoesNotExist:
             pass
     except Participant.DoesNotExist:
@@ -61,7 +61,7 @@ def email_template_context(request, message):
         "user": user,
         "contest": contest,
         "message": message.strip(),
-        "user_info": "%s (%s)" % (user.get_full_name(), user),
+        "user_info": f"{user.get_full_name()} ({user})",
         "participant": participant,
         "participant_status": participant_status,
         "complaints_email": get_complaints_email(request),
@@ -85,8 +85,8 @@ def notify_complainer(request, body, message_id, ref_id):
         headers={
             "Errors-To": context["complaints_email"],
             "Reply-To": context["complaints_email"],
-            "Message-ID": "<%s@oioioi>" % message_id,
-            "References": "<%s@oioioi>" % ref_id,
+            "Message-ID": f"<{message_id}@oioioi>",
+            "References": f"<{ref_id}@oioioi>",
         },
     )
     message.send()
@@ -105,8 +105,8 @@ def notify_jury(request, body, message_id, ref_id):
         (context["complaints_email"],),
         headers={
             "Reply-To": request.user.email,
-            "Message-ID": "<%s@oioioi>" % message_id,
-            "References": "<%s@oioioi>" % ref_id,
+            "Message-ID": f"<{message_id}@oioioi>",
+            "References": f"<{ref_id}@oioioi>",
         },
     )
     message.send()

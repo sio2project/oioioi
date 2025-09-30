@@ -350,7 +350,7 @@ class Command(BaseCommand):
         DRY_RUN = dry_run
         first_import = kwargs["first_import"]
         backup_path = kwargs["backup_filename"]
-        VERBOSITY = kwargs["verbosity"]
+        kwargs["verbosity"]
 
         prepare_dir(BASE_DIR)
 

@@ -474,10 +474,7 @@ class TestPost(TestCase):
         )
         response = self.client.post(url, follow=True)
 
-        reported_pattern = r"was reported\s*by\s*<a[^>]*>\s*%s %s\s*<\/a>" % (
-            name,
-            surname,
-        )
+        reported_pattern = rf"was reported\s*by\s*<a[^>]*>\s*{name} {surname}\s*<\/a>"
         self.assertTrue(re.search(reported_pattern, response.content.decode("utf-8")))
 
     def test_approve_after_report(self):

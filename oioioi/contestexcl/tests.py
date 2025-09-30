@@ -191,7 +191,7 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
             ("contestcompiler_set", 0, 0, 0, 1000),
             ("checkerformatforcontest", 0, 0, 0, 1),
         )
-        data = dict()
+        data = {}
         for name, total, initial, min_num, max_num in formsets:
             data.update(
                 {

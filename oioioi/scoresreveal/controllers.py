@@ -16,11 +16,7 @@ class ScoresRevealContestControllerMixin:
     """ContestController mixin that sets up scoresreveal app."""
 
     def can_see_submission_score(self, request, submission):
-        return (
-            super(ScoresRevealContestControllerMixin, self).can_see_submission_score(request, submission)
-            or is_revealed(submission)
-            or self.is_score_auto_revealed(request, submission)
-        )
+        return super().can_see_submission_score(request, submission) or is_revealed(submission) or self.is_score_auto_revealed(request, submission)
 
     def reveal_score(self, request, submission):
         assert has_scores_reveal(submission.problem_instance)
@@ -101,7 +97,7 @@ class ScoresRevealContestControllerMixin:
         return rtimes.is_past(submission.date + timedelta(minutes=disable_time))
 
     def render_submission_footer(self, request, submission):
-        super_footer = super(ScoresRevealContestControllerMixin, self).render_submission_footer(request, submission)
+        super_footer = super().render_submission_footer(request, submission)
 
         if not has_scores_reveal(submission.problem_instance) or submission.kind != "NORMAL" or submission.user is None:
             return super_footer

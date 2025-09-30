@@ -28,12 +28,9 @@ from oioioi.filetracker.fields import FileField
 
 def make_contest_filename(instance, filename):
     if not isinstance(instance, Contest):
-        assert hasattr(instance, "contest"), "contest_file_generator used on object %r which does not have 'contest' attribute" % (instance,)
+        assert hasattr(instance, "contest"), f"contest_file_generator used on object {instance!r} which does not have 'contest' attribute"
         instance = instance.contest
-    return "contests/%s/%s" % (
-        instance.id,
-        get_valid_filename(os.path.basename(filename)),
-    )
+    return f"contests/{instance.id}/{get_valid_filename(os.path.basename(filename))}"
 
 
 class Contest(models.Model):
@@ -92,7 +89,7 @@ class Contest(models.Model):
     def save(self, *args, **kwargs):
         if not self.controller_name:
             self.controller_name = "oioioi.teachers.controllers.TeacherContestController"
-        super(Contest, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def controller(self):
@@ -505,13 +502,8 @@ class Submission(models.Model):
         return self.problem_instance.controller.render_submission_score(self)
 
     def __str__(self):
-        return "Submission(%d, %s, %s, %s, %s, %s)" % (
-            self.id,
-            self.problem_instance.problem.name,
-            self.user.username if self.user else None,
-            self.date,
-            self.kind,
-            self.status,
+        return (
+            f"Submission({self.id}, {self.problem_instance.problem.name}, {self.user.username if self.user else None}, {self.date}, {self.kind}, {self.status})"
         )
 
 
@@ -657,7 +649,7 @@ class ContestPermission(models.Model):
         verbose_name_plural = _("contest permissions")
 
     def __str__(self):
-        return "%s/%s: %s" % (self.contest, self.permission, self.user)
+        return f"{self.contest}/{self.permission}: {self.user}"
 
 
 class ContestView(models.Model):
@@ -672,7 +664,7 @@ class ContestView(models.Model):
         ordering = ("-timestamp",)
 
     def __str__(self):
-        return "%s,%s" % (self.user, self.contest)
+        return f"{self.user},{self.contest}"
 
 
 class ContestLink(models.Model):
@@ -694,9 +686,11 @@ def contest_links_generator(request):
     for link in links:
         # pylint: disable=cell-var-from-loop
         # http://docs.python-guide.org/en/latest/writing/gotchas/#late-binding-closures
-        url_generator = lambda request, url=link.url: url
+        def url_generator(request, url=link.url):
+            return url
+
         item = MenuItem(
-            name="contest_link_%d" % link.id,
+            name=f"contest_link_{link.id}",
             text=link.description,
             url_generator=url_generator,
             order=link.order,

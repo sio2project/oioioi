@@ -231,7 +231,7 @@ class TestQuestions(TestCase):
         self.assertEqual(len(form.fields["category"].choices) - 1, 2)
 
         post_data = {
-            "category": "p_%d" % (pi.id,),
+            "category": f"p_{pi.id}",
             "topic": "the-new-question",
             "content": "the-new-body",
         }
@@ -338,7 +338,7 @@ class TestQuestions(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post_data = {
-            "category": "p_%d" % (pi.id,),
+            "category": f"p_{pi.id}",
             "topic": "the-new-question",
             "content": "the-new-body",
         }
@@ -402,7 +402,7 @@ class TestQuestions(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post_data = {
-            "category": "p_%d" % (pi.id,),
+            "category": f"p_{pi.id}",
             "topic": "the-new-question",
             "content": "the-new-body",
         }
@@ -523,7 +523,7 @@ class TestQuestions(TestCase):
             self.assertEqual(response.status_code, 302)
 
         # Change a1 to round question
-        change_category(a1, "r_%d" % r.id)
+        change_category(a1, f"r_{r.id}")
         q = Message.objects.get(topic="problem-question")
         a1, a2 = Message.objects.filter(top_reference=q)
         self.assertEqual(a1.round, r)
@@ -533,7 +533,7 @@ class TestQuestions(TestCase):
         self.assertTrue(a2.problem_instance is None)
         self.assertTrue(q.problem_instance is None)
         # Change q to problem question
-        change_category(q, "p_%d" % pi.id)
+        change_category(q, f"p_{pi.id}")
         q = Message.objects.get(topic="problem-question")
         a1, a2 = Message.objects.filter(top_reference=q)
         self.assertEqual(a1.problem_instance, pi)

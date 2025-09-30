@@ -66,7 +66,7 @@ class DisqualificationContestControllerMixin:
     def change_submission_kind(self, submission, kind):
         """Changing the kind of submission should undisqualify given submission"""
         old_kind = submission.kind
-        super(DisqualificationContestControllerMixin, self).change_submission_kind(submission, kind)
+        super().change_submission_kind(submission, kind)
 
         if submission.kind != old_kind:
             Disqualification.objects.filter(submission=submission).update(guilty=False)
@@ -134,7 +134,7 @@ class DisqualificationContestControllerMixin:
         )
 
     def render_my_submissions_header(self, request, submissions):
-        header = super(DisqualificationContestControllerMixin, self).render_my_submissions_header(request, submissions)
+        header = super().render_my_submissions_header(request, submissions)
         disq_header = self.render_disqualifications(request, request.user, submissions)
         if disq_header:
             header += disq_header
@@ -181,7 +181,7 @@ class DisqualificationContestControllerMixin:
     def get_contest_participant_info_list(self, request, user):
         submissions = Submission.objects.filter(problem_instance__contest=request.contest, user=user).order_by("-date").select_related()
 
-        info_list = super(DisqualificationContestControllerMixin, self).get_contest_participant_info_list(request, user)
+        info_list = super().get_contest_participant_info_list(request, user)
 
         disqualification = self.render_disqualifications(request, user, submissions)
         if disqualification:
@@ -196,7 +196,7 @@ class DisqualificationProgrammingContestControllerMixin:
     """ContestController mixin that renders submission disqualification info."""
 
     def render_submission(self, request, submission):
-        prev = super(DisqualificationProgrammingContestControllerMixin, self).render_submission(request, submission)
+        prev = super().render_submission(request, submission)
 
         if self.is_submission_disqualified(submission) or (is_contest_admin(request) and self.has_disqualification_history(submission)):
             return prev + self.render_submission_disqualifiaction(request, submission)
@@ -220,7 +220,7 @@ class WithDisqualificationRankingControllerMixin:
         return self.is_admin_key(key)
 
     def filter_users_for_ranking(self, key, queryset):
-        qs = super(WithDisqualificationRankingControllerMixin, self).filter_users_for_ranking(key, queryset)
+        qs = super().filter_users_for_ranking(key, queryset)
 
         if not self._show_disqualified(key):
             qs = self.contest.controller.exclude_disqualified_users(qs)
@@ -229,26 +229,26 @@ class WithDisqualificationRankingControllerMixin:
 
     def _render_ranking_page(self, key, data, page):
         if not self._show_disqualified(key):
-            return super(WithDisqualificationRankingControllerMixin, self)._render_ranking_page(key, data, page)
+            return super()._render_ranking_page(key, data, page)
 
         request = self._fake_request(page)
         data["is_admin"] = self.is_admin_key(key)
         return render_to_string("disqualification/default-ranking.html", context=data, request=request)
 
     def _get_csv_header(self, key, data):
-        header = super(WithDisqualificationRankingControllerMixin, self)._get_csv_header(key, data)
+        header = super()._get_csv_header(key, data)
         if self._show_disqualified(key):
             header.append(_("Disqualified"))
         return header
 
     def _get_csv_row(self, key, row):
-        line = super(WithDisqualificationRankingControllerMixin, self)._get_csv_row(key, row)
+        line = super()._get_csv_row(key, row)
         if self._show_disqualified(key):
             line.append(_("Yes") if row.get("disqualified") else _("No"))
         return line
 
     def serialize_ranking(self, key):
-        data = super(WithDisqualificationRankingControllerMixin, self).serialize_ranking(key)
+        data = super().serialize_ranking(key)
         if not self._show_disqualified(key):
             return data
         return self._annotate_disqualified(key, data)
@@ -262,7 +262,7 @@ class WithDisqualificationRankingControllerMixin:
         return data
 
     def _ignore_in_ranking_places(self, data_row):
-        prev = super(WithDisqualificationRankingControllerMixin, self)._ignore_in_ranking_places(data_row)
+        prev = super()._ignore_in_ranking_places(data_row)
         return prev or data_row.get("disqualified", False)
 
 

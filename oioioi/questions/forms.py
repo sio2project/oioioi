@@ -28,7 +28,7 @@ class AddContestMessageForm(forms.ModelForm):
     category = forms.ChoiceField(choices=[], label=_("Category"))
 
     def __init__(self, request, *args, **kwargs):
-        super(AddContestMessageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["content"].widget.attrs["class"] = "monospace"
 
         if not is_contest_basicadmin(request):
@@ -49,7 +49,7 @@ class AddContestMessageForm(forms.ModelForm):
             self.fields["category"].choices = [("", "")] + get_categories(request)
 
     def save(self, commit=True, *args, **kwargs):
-        instance = super(AddContestMessageForm, self).save(commit=False, *args, **kwargs)
+        instance = super().save(commit=False, *args, **kwargs)
         instance.contest = self.request.contest
         if "category" in self.cleaned_data:
             category = self.cleaned_data["category"]
@@ -73,13 +73,13 @@ class AddReplyForm(AddContestMessageForm):
     save_template = forms.BooleanField(required=False, widget=forms.HiddenInput, label=_("Save as template"))
 
     def __init__(self, *args, **kwargs):
-        super(AddReplyForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         del self.fields["category"]
         self.fields["kind"].choices = [c for c in message_kinds.entries if c[0] != "QUESTION"]
         narrow_input_field(self.fields["kind"])
 
     def save(self, commit=True, *args, **kwargs):
-        instance = super(AddReplyForm, self).save(commit=False, *args, **kwargs)
+        instance = super().save(commit=False, *args, **kwargs)
         if self.cleaned_data["save_template"]:
             ReplyTemplate.objects.get_or_create(contest=instance.contest, content=instance.content)
         if commit:
@@ -92,7 +92,7 @@ class ChangeContestMessageForm(AddContestMessageForm):
         fields = ["category", "kind", "topic", "content", "pub_date"]
 
     def __init__(self, kind, *args, **kwargs):
-        super(ChangeContestMessageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if kind == "QUESTION":
             self.fields["kind"].choices = [c for c in message_kinds.entries if c[0] == "QUESTION"]
         else:
@@ -115,7 +115,7 @@ class FilterMessageForm(forms.Form):
     category = forms.ChoiceField(choices=[], label=_("Category"), required=False)
 
     def __init__(self, request, *args, **kwargs):
-        super(FilterMessageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         choices = get_categories(request)
         choices.insert(0, (self.TYPE_ALL_CATEGORIES, _("All categories")))
         self.fields["category"].choices = choices
@@ -125,7 +125,7 @@ class FilterMessageAdminForm(FilterMessageForm):
     author = UserSelectionField(label=_("Author username"), required=False)
 
     def __init__(self, request, *args, **kwargs):
-        super(FilterMessageAdminForm, self).__init__(request, *args, **kwargs)
+        super().__init__(request, *args, **kwargs)
         self.fields["author"].hints_url = reverse("get_messages_authors", kwargs={"contest_id": request.contest.id})
         self.fields["author"].widget.attrs["placeholder"] = _("Author username")
 

@@ -22,7 +22,7 @@ class TestMainPageView(TestCase):
     ]
 
     def setUp(self):
-        super(TestMainPageView, self).setUp()
+        super().setUp()
         unregister_main_page_view(welcome_page_view)
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)

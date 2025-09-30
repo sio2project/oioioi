@@ -82,7 +82,7 @@ class ParticipantsController(RegistrationController):
                 reverse("participants_register", kwargs={"contest_id": self.contest.id}) + "?" + urllib.parse.urlencode({"next": request.build_absolute_uri()})
             )
             return HttpResponseRedirect(url)
-        return super(ParticipantsController, self).no_entry_view(request)
+        return super().no_entry_view(request)
 
     def get_model_class(self):
         """Returns registration model class used within current registration
@@ -262,7 +262,7 @@ class AnonymousContestControllerMixin:
             return user.username
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(AnonymousContestControllerMixin, self).get_contest_participant_info_list(request, user)
+        prev = super().get_contest_participant_info_list(request, user)
         try:
             part = Participant.objects.get(user=user, contest=request.contest)
             context = {"participant": part}
@@ -293,7 +293,7 @@ class OnsiteRegistrationController(ParticipantsController):
         return False
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(OnsiteRegistrationController, self).get_contest_participant_info_list(request, user)
+        prev = super().get_contest_participant_info_list(request, user)
 
         info = OnsiteRegistration.objects.filter(participant__user=user, participant__contest=request.contest)
 

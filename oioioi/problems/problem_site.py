@@ -69,7 +69,9 @@ def problem_site_tab(title, key, order=sys.maxsize, condition=None):
     Tab = namedtuple("Tab", ["view", "title", "key", "condition"])
 
     if condition is None:
-        condition = lambda request, problem: True
+
+        def condition(request, problem):
+            return True
 
     def decorator(func):
         problem_site_tab_registry.register(Tab(func, title, key, condition), order)
@@ -266,7 +268,7 @@ def problem_site_add_to_contest(request, problem):
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
     tests_package = TestsPackage.objects.filter(problem=problem)
-    tests_package_visible = any([tp.is_visible(request.timestamp) for tp in tests_package])
+    tests_package_visible = any(tp.is_visible(request.timestamp) for tp in tests_package)
     return TemplateResponse(
         request,
         "problems/add-to-contest.html",

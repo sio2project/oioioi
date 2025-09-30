@@ -9,7 +9,7 @@ class IpAuthSyncControllerMixin:
     def mixins_for_admin(self):
         from oioioi.ipauthsync.admin import ContestAdminWithIpAuthSyncInlineMixin
 
-        mixins = super(IpAuthSyncControllerMixin, self).mixins_for_admin()
+        mixins = super().mixins_for_admin()
         if is_onsite_contest(self.contest):
             mixins = mixins + (ContestAdminWithIpAuthSyncInlineMixin,)
         return mixins

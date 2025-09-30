@@ -5,11 +5,10 @@ from contextlib import contextmanager
 from unittest import mock
 
 import pytest
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.db import DEFAULT_DB_ALIAS, connections
-from django.template.loaders.cached import Loader as CachedLoader
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
@@ -27,16 +26,16 @@ class _AssertNumQueriesLessThanContext(CaptureQueriesContext):
     def __init__(self, test_case, num, connection):
         self.test_case = test_case
         self.num = num
-        super(_AssertNumQueriesLessThanContext, self).__init__(connection)
+        super().__init__(connection)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        super(_AssertNumQueriesLessThanContext, self).__exit__(exc_type, exc_value, traceback)
+        super().__exit__(exc_type, exc_value, traceback)
         if exc_type is not None:
             return
         executed = len(self)
         self.test_case.assertTrue(
             executed < self.num,
-            "%d queries executed, expected less than %d" % (executed, self.num),
+            f"{executed} queries executed, expected less than {self.num}",
         )
 
 
@@ -86,7 +85,7 @@ class IgnorePasswordAuthBackend:
             return User.objects.get(username=username)
         except User.DoesNotExist:
             raise AssertionError(
-                "Tried to log in as %r without password, but such a user does not exist. Probably the test forgot to import a database fixture." % (username,)
+                f"Tried to log in as {username!r} without password, but such a user does not exist. Probably the test forgot to import a database fixture."
             )
 
     def get_user(self, user_id):

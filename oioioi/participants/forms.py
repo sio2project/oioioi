@@ -54,7 +54,7 @@ class ExtendRoundForm(forms.Form):
     extra_time = forms.IntegerField(min_value=1, label=_("Extra time (in minutes)"))
 
     def __init__(self, request_contest, *args, **kwargs):
-        super(ExtendRoundForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["round"] = forms.ModelChoiceField(queryset=Round.objects.filter(contest=request_contest))
 
 
@@ -99,7 +99,7 @@ class TermsAcceptedPhraseForm(forms.ModelForm):
         verbose_name = "fsaf"
 
     def __init__(self, *args, **kwargs):
-        super(TermsAcceptedPhraseForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if "text" in self.fields:
             self.fields["text"].widget.attrs["class"] = "monospace"

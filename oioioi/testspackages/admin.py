@@ -37,13 +37,13 @@ class TestsPackageInline(admin.TabularInline):
 
     def get_formset(self, request, obj=None, **kwargs):
         self.problem = obj
-        return super(TestsPackageInline, self).get_formset(request, obj, **kwargs)
+        return super().get_formset(request, obj, **kwargs)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         # It should filter tests from main_problem_instance
         if db_field.name == "tests" and getattr(self, "problem", None):
             kwargs["queryset"] = Test.objects.filter(problem_instance=self.problem.main_problem_instance)
-        return super(TestsPackageInline, self).formfield_for_manytomany(db_field, request, **kwargs)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
 
     def package_link(self, instance):
         if instance.id is not None:
@@ -66,7 +66,7 @@ class TestsPackageAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(TestsPackageAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (TestsPackageInline,)
 
 

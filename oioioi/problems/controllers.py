@@ -188,7 +188,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                 (
                     "dump_final_env",
                     "oioioi.evalmgr.handlers.dump_env",
-                    dict(message="Finished evaluation"),
+                    {"message": "Finished evaluation"},
                 ),
             ]
         )
@@ -403,7 +403,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                 pass
             elif isinstance(kind, str):
                 queryset = queryset.filter(kind=kind)
-            elif isinstance(kind, (list, tuple)):
+            elif isinstance(kind, list | tuple):
                 queryset = queryset.filter(kind__in=kind)
             else:
                 raise TypeError(

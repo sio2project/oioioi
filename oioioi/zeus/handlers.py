@@ -27,7 +27,7 @@ def from_csv_metadata(metadata):
         data = metadata.split(",")
         test, group, max_score = [f.strip() for f in data]
     except Exception:
-        test, group, max_score = ("unknown-%d" % random.randint(1, 100000)), "", "1"
+        test, group, max_score = f"unknown-{random.randint(1, 100000)}", "", "1"
     if group == "":
         group = test
     return {
@@ -165,7 +165,7 @@ def import_results(env, **kwargs):
     test_results = env.setdefault("test_results", {})
     for order, result in enumerate(zeus_results):
         test = decoder(result["metadata"])
-        error = "Not enough data decoded from: %s" % result["metadata"]
+        error = "Not enough data decoded from: {}".format(result["metadata"])
         assert "name" in test, error
         assert "group" in test, error
         assert "max_score" in test, error
@@ -289,14 +289,14 @@ def update_problem_tests_set(env, kind, **kwargs):
         # we have no information about them.
         logger.info("%s: %s tests set changed", problem.short_name, kind)
 
-        title = "Zeus problem %s: %s tests set changed" % (problem.short_name, kind)
-        content = ["%s tests set for zeus problem %s has changed:" % (kind, problem.short_name)]
+        title = f"Zeus problem {problem.short_name}: {kind} tests set changed"
+        content = [f"{kind} tests set for zeus problem {problem.short_name} has changed:"]
         for name, old_dict in new_tests:
-            content.append("    + added test %s: %s" % (name, old_dict))
+            content.append(f"    + added test {name}: {old_dict}")
         for name, old_dict in deleted_tests:
-            content.append("    - deleted test %s: %s" % (name, old_dict))
+            content.append(f"    - deleted test {name}: {old_dict}")
         for name, old_dict, new_dict in updated_tests:
-            content.append("    * changed test %s: %s -> %s" % (name, old_dict, new_dict))
+            content.append(f"    * changed test {name}: {old_dict} -> {new_dict}")
         try:
             mail_admins(title, "\n".join(content))
         except (OSError, SMTPException):

@@ -33,7 +33,7 @@ def get_unique_candidate(candidate_fn, uniqueness_fn, max_attempts=10):
     Repeatedly calls candidate_fn() until uniqueness_fn(candidate) is True,
     or max_attempts is reached. Raises CommandError if no unique candidate is found.
     """
-    for attempt in range(max_attempts):
+    for _attempt in range(max_attempts):
         candidate = candidate_fn()
         if uniqueness_fn(candidate):
             return candidate
@@ -94,7 +94,10 @@ class Command(BaseCommand):
 
         objs = []
         for i in range(count):
-            candidate_fn = lambda: candidate_prefix + "".join(random.choices(string.ascii_lowercase, k=random_length))
+
+            def candidate_fn():
+                return candidate_prefix + "".join(random.choices(string.ascii_lowercase, k=random_length))
+
             try:
                 unique_candidate = get_unique_candidate(candidate_fn, uniqueness_fn)
             except CommandError as e:

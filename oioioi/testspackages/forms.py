@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 class TestsPackageInlineFormSet(forms.models.BaseInlineFormSet):
     @property
     def empty_form(self):
-        form = super(TestsPackageInlineFormSet, self).empty_form
+        form = super().empty_form
         form.initial = {
-            "name": "%s_tests" % self.instance.short_name,
+            "name": f"{self.instance.short_name}_tests",
             "description": _("Tests for task %s") % self.instance.name,
             "tests": form.fields["tests"].queryset,
         }

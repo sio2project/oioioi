@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = "TODO"
 
     def __init__(self, *args, **kwargs):
-        super(Command, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.server = Server(settings.SIOWORKERSD_URL)
 
     def add_arguments(self, parser):
@@ -79,11 +79,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if not options["command"]:
             cmds = [i[4:] for i in dir(self) if i.startswith("cmd_")]
-            self.stdout.write("Available commands: %s\n" % ", ".join(cmds))
+            self.stdout.write("Available commands: {}\n".format(", ".join(cmds)))
             return
         cmd = options["command"]
         try:
             f = getattr(self, "cmd_" + cmd)
         except AttributeError:
-            raise CommandError("Invalid command: %s" % cmd)
+            raise CommandError(f"Invalid command: {cmd}")
         f(*args, **options)

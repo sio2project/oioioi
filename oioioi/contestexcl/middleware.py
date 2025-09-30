@@ -56,7 +56,9 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
         if selector is None:
             final_selector = _default_selector
         else:
-            final_selector = lambda user, contest: _default_selector(user, contest) and selector(user, contest)
+
+            def final_selector(user, contest):
+                return _default_selector(user, contest) and selector(user, contest)
 
         if settings.ONLY_DEFAULT_CONTEST and (request.user is None or not request.user.is_superuser):
             qs = [Contest.objects.get(id=settings.DEFAULT_CONTEST)]

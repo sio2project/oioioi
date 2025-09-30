@@ -81,7 +81,7 @@ class Message(models.Model):
             problem_instance=self.problem_instance,
         )
 
-        super(Message, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def can_have_replies(self):
         return self.kind == "QUESTION"
@@ -90,7 +90,7 @@ class Message(models.Model):
         return self.round is not None or self.problem_instance is not None
 
     def __str__(self):
-        return "%s - %s" % (message_kinds.get(self.kind, self.kind), self.topic)
+        return f"{message_kinds.get(self.kind, self.kind)} - {self.topic}"
 
     @property
     def to_quote(self):
@@ -123,7 +123,7 @@ class ReplyTemplate(models.Model):
     usage_count = models.IntegerField(verbose_name=_("usage count"), default=0)
 
     def __str__(self):
-        return "%s: %s" % (self.visible_name, self.content)
+        return f"{self.visible_name}: {self.content}"
 
     @property
     def visible_name(self):

@@ -92,7 +92,10 @@ class MenuRegistry:
     def __init__(self, text=None, condition=None, show_icons=False):
         self.text = text
         if condition is None:
-            condition = lambda request: True
+
+            def condition(request):
+                return True
+
         self.condition = condition
         self.show_icons = show_icons
         self._registry = []
@@ -175,15 +178,15 @@ class MenuRegistry:
         context_items = []
         for item in sorted(items, key=attrgetter("order")):
             if item.condition(request):
-                attrs_str = " ".join(['%s="%s"' % (escape(k), escape(v)) for (k, v) in item.attrs.items()])
+                attrs_str = " ".join([f'{escape(k)}="{escape(v)}"' for (k, v) in item.attrs.items()])
                 attrs_str = mark_safe(attrs_str)
                 context_items.append(
-                    dict(
-                        url=item.url_generator(request),
-                        text=item.text,
-                        attrs=attrs_str,
-                        has_icon=self.show_icons,
-                    )
+                    {
+                        "url": item.url_generator(request),
+                        "text": item.text,
+                        "attrs": attrs_str,
+                        "has_icon": self.show_icons,
+                    }
                 )
         return context_items
 

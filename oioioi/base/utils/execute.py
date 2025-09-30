@@ -68,7 +68,7 @@ def execute(
     # Although there is some kind of support for "sequence" commands in the
     # subprocess module, it works kinda wonky. If you want to investigate,
     # comment the following two lines and see the tests blow up.
-    if isinstance(command, (list, tuple)):
+    if isinstance(command, list | tuple):
         command = " ".join(quote(x) for x in command)
 
     def set_cwd():
@@ -102,6 +102,6 @@ def execute(
     if split_lines:
         stdout = stdout.splitlines()
     if rc and not ignore_errors and rc not in errors_to_ignore:
-        raise ExecuteError("Failed to execute command: %s\n%s" % (command, stdout))
+        raise ExecuteError(f"Failed to execute command: {command}\n{stdout}")
 
     return stdout

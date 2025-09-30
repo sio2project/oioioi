@@ -11,7 +11,7 @@ check_django_app_dependencies(__name__, ["oioioi.newsfeed", "oioioi.teachers"])
 
 def make_consent_filename(instance, filename):
     stem, ext = os.path.splitext(filename)
-    return "consents/%s/%s/%s" % (
+    return "consents/{}/{}/{}".format(
         instance.participant.contest.id,
         instance.participant.user.id,
         "zgoda" + ext,

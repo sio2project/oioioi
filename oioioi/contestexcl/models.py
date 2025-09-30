@@ -56,7 +56,7 @@ class ExclusivenessConfig(models.Model):
         verbose_name_plural = _("exclusiveness configs")
 
     def __str__(self):
-        return "%s (%s): %s - %s" % (
+        return "{} ({}): {} - {}".format(
             self.contest,
             "enabled" if self.enabled else "disabled",
             self.start_date,

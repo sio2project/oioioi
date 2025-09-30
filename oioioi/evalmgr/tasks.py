@@ -4,11 +4,11 @@ import sys
 from uuid import uuid4
 
 import six
+from celery.exceptions import Ignore
 from django.db import transaction
 from django.utils.module_loading import import_string
 
 from celery import shared_task
-from celery.exceptions import Ignore
 from oioioi.base.utils.db import require_transaction
 from oioioi.base.utils.loaders import load_modules
 from oioioi.evalmgr import logger
@@ -27,14 +27,14 @@ def _find_placeholder(recipe, name):
     for i, entry in enumerate(recipe):
         if entry[0] == name and entry[1] == placeholder:
             return i
-    raise IndexError("Placeholder '%s' not found in recipe" % (name,))
+    raise IndexError(f"Placeholder '{name}' not found in recipe")
 
 
 def find_recipe_entry(recipe, name):
     for i, entry in enumerate(recipe):
         if entry[0] == name:
             return i
-    raise IndexError("Entry '%s' not found in recipe" % (name,))
+    raise IndexError(f"Entry '{name}' not found in recipe")
 
 
 def recipe_placeholder(name):
@@ -143,7 +143,7 @@ def _run_phase(env, phase, extra_kwargs=None):
     phaseName = phase[0]
     handlerName = phase[1]
     if len(phase) not in [2, 3]:
-        raise TypeError("Receipt element has length neither 2 nor 3: %r" % phase)
+        raise TypeError(f"Receipt element has length neither 2 nor 3: {phase!r}")
     if len(phase) == 2:
         kwargs = {}
     if len(phase) == 3:
@@ -153,7 +153,7 @@ def _run_phase(env, phase, extra_kwargs=None):
     handler_func = import_string(handlerName)
     env = handler_func(env, **kwargs)
     if env is None:
-        raise RuntimeError('Evaluation handler "%s" (%s) forgot to return the environment.' % (phaseName, handlerName))
+        raise RuntimeError(f'Evaluation handler "{phaseName}" ({handlerName}) forgot to return the environment.')
     return env
 
 
@@ -218,7 +218,7 @@ def _run_error_handlers(env, exc_info):
     error_handlers = env.get("error_handlers", [])
     try:
         for phase in error_handlers:
-            env = _run_phase(env, phase, extra_kwargs=dict(exc_info=exc_info))
+            env = _run_phase(env, phase, extra_kwargs={"exc_info": exc_info})
     # pylint: disable=broad-except
     except Exception:
         logger.error(
@@ -321,7 +321,7 @@ def evalmgr_job(env):
         if "recipe" not in env:
             raise RuntimeError('No recipe found in job environment. Did you forget to set environ["run_externally"]?')
         if "error" in env:
-            raise RuntimeError("Error from workers:\n%s\nTB:\n%s" % (env["error"]["message"], env["error"]["traceback"]))
+            raise RuntimeError("Error from workers:\n{}\nTB:\n{}".format(env["error"]["message"], env["error"]["traceback"]))
         _mark_job_state(env, "PROGRESS")
         while True:
             recipe = env.get("recipe")

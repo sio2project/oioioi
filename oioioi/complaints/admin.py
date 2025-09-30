@@ -26,7 +26,7 @@ class ComplaintsAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(ComplaintsAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ComplaintsConfigInline,)
 
 

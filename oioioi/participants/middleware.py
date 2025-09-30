@@ -36,9 +36,11 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin:
         if selector is None:
             final_selector = _participants_selector
         else:
-            final_selector = lambda user, contest: _participants_selector(user, contest) and selector(user, contest)
 
-        return super(ExclusiveContestsWithParticipantsMiddlewareMixin, self).process_view(request, view_func, view_args, view_kwargs, selector=final_selector)
+            def final_selector(user, contest):
+                return _participants_selector(user, contest) and selector(user, contest)
+
+        return super().process_view(request, view_func, view_args, view_kwargs, selector=final_selector)
 
     def _error_email_message(self, context):
         return render_to_string("participants/exclusive-contests-error-email.txt", context)
