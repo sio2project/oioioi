@@ -41,7 +41,7 @@ def generate_pdf(tex_code, filename, extra_args=None, num_passes=3):
 
 
 def extract_text_from_pdf(pdf_file):
-    # pdf_file must be a a file-like object
+    # pdf_file must be a file-like object
     # returns a list of strings, each string containing text from one page
 
     # the char_margin is needed because pdfminer.six has a problem

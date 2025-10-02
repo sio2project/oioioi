@@ -37,7 +37,7 @@ DATABASES = {
 #
 
 #
-# To workarund a bug, where sioworkers is not passed
+# To workaround a bug, where sioworkers is not passed
 # FILETRACKER_CACHE_ROOT, use this to start the website:
 #
 # FILETRACKER_URL=/tmp/oioioi-filetracker-cache ./manage.py runserver
