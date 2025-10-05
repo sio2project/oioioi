@@ -1,7 +1,13 @@
 import { enable, disable } from 'darkreader';
 
+const darkModeConfig = {
+  fixes: {
+    css: '.texmath img { filter: invert(1) brightness(0.8) !important; }'
+  }
+};
+
 if (localStorage.getItem("dark-mode") === "enabled") {
-  enable();
+  enable({}, darkModeConfig.fixes);
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -11,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
           disable();
           localStorage.setItem("dark-mode", "disabled");
       } else {
-          enable();
+          enable({}, darkModeConfig.fixes);
           localStorage.setItem("dark-mode", "enabled");
       }
   });
