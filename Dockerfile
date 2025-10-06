@@ -98,6 +98,8 @@ FROM base AS development
 COPY --from=development-sandboxes /sio2/sandboxes /sio2/sandboxes
 RUN chmod +x /sio2/oioioi/download_sandboxes.sh
 
+# For production: Upload sandboxes to built-in filetracker during build
+# For dev: These will be re-uploaded to s3dedup at runtime via oioioi_init.sh
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
     /sio2/oioioi/wait-for-it.sh -t 60 "127.0.0.1:9999" && \
     ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes && \
