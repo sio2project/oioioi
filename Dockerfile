@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED 1
 
 #RUN dpkg --add-architecture i386
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install --no-install-recommends -y \
         git \
         libpq-dev \
         postgresql-client \
@@ -16,8 +16,9 @@ RUN apt-get update && \
         texlive-lang-european \
         texlive-lang-czechslovak \
         texlive-pstricks \
-        ghostscript \
         texlive-fonts-recommended \
+        tex-gyre \
+        ghostscript \
         gcc \
         sudo \
         libstdc++6 \
@@ -28,7 +29,8 @@ RUN apt-get update && \
         python3-pip \
         nodejs \
         npm && \
-    apt-get clean
+    apt-get distclean && \
+    rm -rf /usr/share/doc/texlive*
 
 # This is oioioi user linux uid. Setting it is useful in development.
 # By default we use an unused uid of 1234.
@@ -93,7 +95,10 @@ RUN chmod +x /download_sandboxes.sh
 # Run script to download sandbox data from the given Manifest.
 RUN ./download_sandboxes.sh -q -y -d $DOWNLOAD_DIR -m $MANIFEST_URL
 
-FROM base AS development
+# This additional stage allows for not including the downloaded sandboxes twice
+# in the final image. When BuildKit will be more widespread as the default
+# in docker installations, this can be replaced with `RUN --mount`.
+FROM base AS populated_filetracker
 
 COPY --from=development-sandboxes /sio2/sandboxes /sio2/sandboxes
 RUN chmod +x /sio2/oioioi/download_sandboxes.sh
@@ -102,3 +107,6 @@ RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
     /sio2/oioioi/wait-for-it.sh -t 60 "127.0.0.1:9999" && \
     ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes && \
     ./manage.py supervisor stop all
+
+FROM base AS development
+COPY --from=populated_filetracker /sio2/deployment/media /sio2/deployment/media
