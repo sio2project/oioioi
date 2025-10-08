@@ -53,19 +53,25 @@ RUN sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
     locale-gen
 
 # Installing python dependencies
+RUN pip3 install uv
+
 USER oioioi
 
-ENV PATH=$PATH:/home/oioioi/.local/bin/
+ENV UV_NO_CACHE=1
+ENV VIRTUAL_ENV=/home/oioioi/venv
+RUN uv venv $VIRTUAL_ENV
+# The python executable from the venv must have priority over the system one.
+ENV PATH=$VIRTUAL_ENV/bin/:$PATH
 
 ENV BERKELEYDB_DIR=/usr
-RUN pip3 install --user psycopg2-binary twisted uwsgi
-RUN pip3 install --user bsddb3==6.2.7
+RUN uv pip install psycopg2-binary twisted uwsgi
+RUN uv pip install bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 
 COPY --chown=oioioi:oioioi . ./
-RUN pip3 install --user -r requirements.txt filetracker[server]
-RUN pip3 install --user -r requirements_static.txt
+RUN uv pip install -r requirements.txt filetracker[server]
+RUN uv pip install -r requirements_static.txt
 
 # Installing node dependencies
 ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin
