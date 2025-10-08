@@ -114,7 +114,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """Fills a minimal environment with evaluation receipt and other values
         required by the evaluation machinery.
 
-        Passed ``environ`` should already contain entries for the actiual
+        Passed ``environ`` should already contain entries for the actual
         data to be judged (for example the source file to evaluate).
 
         Details on which keys need to be present should be specified by
