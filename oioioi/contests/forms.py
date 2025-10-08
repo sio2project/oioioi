@@ -46,8 +46,7 @@ class SimpleContestForm(forms.ModelForm):
 
     school_year = forms.CharField(
         required=False,
-        label=_('School year (format: yyyy/yyyy)'),   
-
+        label=_("School year (format: yyyy/yyyy)"),
         validators=[
             RegexValidator(
                 regex=r"^[0-9]{4}[/][0-9]{4}$",
