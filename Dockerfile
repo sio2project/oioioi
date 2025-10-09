@@ -106,7 +106,8 @@ FROM base AS populated_filetracker
 COPY --from=development-sandboxes /sio2/sandboxes /sio2/sandboxes
 RUN chmod +x /sio2/oioioi/download_sandboxes.sh
 
-RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
+RUN ./manage.py supervisor > /dev/null --daemonize \
+    --nolaunch={uwsgi,unpackmgr,evalmgr,rankingsd,mailnotifyd,sioworkersd,receive_from_workers} && \
     /sio2/oioioi/wait-for-it.sh -t 60 "127.0.0.1:9999" && \
     ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes && \
     ./manage.py supervisor stop all
