@@ -130,7 +130,7 @@ We only need to build (here comes the magic word) SIO dependent images.
 Once you built the image, you can set the container up. 
 Remember - things like dependencies (`requirements[_static].txt`, `setup.py`) are downloaded during the built, 
 so if you changed something in those places you either need to build the image again, 
-or apply these changes by hand (e.g. do `pip install`). 
+or apply these changes by hand (e.g. do `uv pip install`).
 If you have good internet connection and adequate CPU, it shouldn't be hard to build the image again, 
 especially that it is more stable approach. 
 
