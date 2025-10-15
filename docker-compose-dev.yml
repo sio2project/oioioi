@@ -1,5 +1,5 @@
 x-common-envs: &common-envs
- FILETRACKER_URL: 'http://web:9999'
+ FILETRACKER_URL: 'http://s3dedup:9999/ft'
  DATABASE_HOST: 'db'
  DATABASE_PORT: '5432'
 
@@ -30,8 +30,7 @@ services:
       RABBITMQ_PORT: '5672'
       RABBITMQ_USER: 'oioioi'
       RABBITMQ_PASSWORD: 'oioioi'
-      FILETRACKER_LISTEN_ADDR: '0.0.0.0'
-      FILETRACKER_LISTEN_PORT: '9999'
+      FILETRACKER_SERVER_ENABLED: 'False'
       <<: *common-envs
     ports:
     # web server
@@ -49,6 +48,7 @@ services:
     depends_on:
       - db
       - broker
+      - s3dedup
   worker:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/worker_init.sh"]
@@ -68,8 +68,55 @@ services:
       RABBITMQ_DEFAULT_USER: oioioi
       RABBITMQ_DEFAULT_PASS: oioioi
     stop_grace_period: 1m
+  minio:
+    image: minio/minio:RELEASE.2024-10-02T17-50-41Z
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio-data-dev:/data
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"  # MinIO API
+      - "9001:9001"  # MinIO Console
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    stop_grace_period: 1m
+  s3dedup:
+    image: ghcr.io/sio2project/s3dedup:latest-dev
+    ports:
+      - "9999:9999"
+    environment:
+      LOG_LEVEL: debug
+      BUCKET_NAME: oioioi-filetracker
+      LISTEN_ADDRESS: 0.0.0.0
+      LISTEN_PORT: 9999
+      KVSTORAGE_TYPE: sqlite
+      SQLITE_PATH: /app/data/kv.db
+      SQLITE_MAX_CONNECTIONS: 10
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_FORCE_PATH_STYLE: "true"
+      CLEANER_ENABLED: "true"
+      CLEANER_INTERVAL: 3600
+      CLEANER_BATCH_SIZE: 1000
+      CLEANER_MAX_DELETES: 10000
+    volumes:
+      - s3dedup-data-dev:/app/data
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: on-failure:5
+    stop_grace_period: 1m
 volumes:
   postgress-data-dev:
   filetracker-data-dev:
   node_modules-dev:
   dist_webpack-dev:
+  minio-data-dev:
+  s3dedup-data-dev:

@@ -1121,3 +1121,49 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# )
 
      * Remove all sentry and raven reminiscent from settings.py in LOGGING SECTION.
+
+Migrating from Filetracker to s3dedup (currently only for docker-compose-dev.yml deployments)
+----------------------------------------------------------------
+
+This guide covers migrating from the built-in Filetracker to s3dedup in Docker Compose
+development deployments. This is currently only needed deployments using ``docker-compose-dev.yml``.
+If you don't have any data you want to keep, you don't have to do anything.
+
+#. Stop the s3dedup container::
+
+    docker-compose -f docker-compose-dev.yml stop s3dedup
+
+#. In ``docker-compose-dev.yml``, modify the web container environment variables:
+
+   * Remove ``FILETRACKER_SERVER_ENABLED=False`` (or set to ``True``)
+   * Set ``FILETRACKER_LISTEN_ADDR=0.0.0.0``
+   * Set ``FILETRACKER_LISTEN_PORT=9999``
+
+#. Restart the web container::
+
+    docker-compose -f docker-compose-dev.yml down web
+    docker-compose -f docker-compose-dev.yml up -d web
+
+#. Run the migration::
+
+    docker-compose -f docker-compose-dev.yml run --rm s3dedup migrate --env \
+      --filetracker-url http://web:9999 \
+      --max-concurrency 10
+
+   The migration will display progress and statistics about files migrated and
+   deduplication savings.
+
+#. Once migration completes, restore the environment variables in ``docker-compose-dev.yml``:
+
+   * Remove or comment out ``FILETRACKER_LISTEN_ADDR`` and ``FILETRACKER_LISTEN_PORT``
+   * Set ``FILETRACKER_SERVER_ENABLED=False``
+
+#. Restart the web container and start s3dedup::
+
+    docker-compose -f docker-compose-dev.yml down web
+    docker-compose -f docker-compose-dev.yml up -d web s3dedup
+
+#. Verify the migration by checking that files are accessible through s3dedup.
+
+For more details about the migration process, see the s3dedup documentation at
+``https://github.com/sio2project/s3dedup``.
