@@ -9,8 +9,8 @@ $(function(){
         var e = $(this);
 
         //All buttons triggerring same location
-        var s = $('.btn[data-async-toggle=collapse][data-target=' +
-                  e.data('target')+']');
+        var s = $('.btn[data-async-toggle=collapse][data-target=\'' +
+                  e.data('target')+'\']');
         s.each(function() {
             var e = $(this);
             e.removeAttr('data-async-toggle');
