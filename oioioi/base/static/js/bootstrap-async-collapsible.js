@@ -5,12 +5,12 @@ $(function(){
     Trigerrer: data-async-toggle="collapse" data-target="`JQuery selector`"
     Dynamic collapsible: class="collapse" data-loadurl="http://url/with/html"
 */
-    $('body').on('click', '.btn[data-async-toggle=collapse]', function() {
+    $('body').on('click', '.btn[data-async-toggle="collapse"]', function() {
         var e = $(this);
 
-        //All buttons triggerring same location
-        var s = $('.btn[data-async-toggle=collapse][data-target=\'' +
-                  e.data('target')+'\']');
+        // All buttons triggering same location
+        var s = $('.btn[data-async-toggle="collapse"][data-target="' +
+                  e.data('target')+'"]');
         s.each(function() {
             var e = $(this);
             e.removeAttr('data-async-toggle');
