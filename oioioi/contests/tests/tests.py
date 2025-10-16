@@ -1381,6 +1381,35 @@ class TestContestAdmin(TestCase):
         """
         # pylint: enable=pointless-string-statement
 
+    def test_admin_contest_create_invalid_data(self):
+        self.assertTrue(self.client.login(username="test_admin"))
+        url = reverse("oioioiadmin:contests_contest_add")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Start date")
+        self.assertNotContains(response, "Judging priority")
+        self.assertNotContains(response, "Judging weight")
+
+        post_data = make_empty_contest_formset()
+        post_data.update(
+            {
+                "name": "cname",
+                "id": "cid",
+                "start_date_0": "2012-02-03",
+                "start_date_1": "04:05:06",
+                "end_date_0": "2012-02-04",
+                "end_date_1": "05:06:07",
+                "results_date_0": "2012-02-05",
+                "results_date_1": "06:07:08",
+                "school_year": "not_a_number",
+                "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+                "is_archived": "False",
+            }
+        )
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contest.objects.count(), 0)
+
     def test_programs_config_creation(self):
         self.assertTrue(self.client.login(username="test_admin"))
 
