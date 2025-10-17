@@ -147,8 +147,13 @@ def run_command(command) -> None:
         width = os.get_terminal_size().columns
         print("=" * width)
 
-    exit_code = os.system(command)
-    sys.exit(exit_code)
+
+    if sys.platform == "win32":
+        # for Windows, a different syntax for exiting is needed
+        exit_code = os.system(command)
+        sys.exit(exit_code)
+    else:
+        sys.exit(os.WEXITSTATUS(os.system(command)))
 
 
 def warn_user(action: Option) -> bool:
