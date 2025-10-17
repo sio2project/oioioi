@@ -19,7 +19,13 @@ import os
 import sys
 from shlex import quote
 
-BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker compose" + " -f docker-compose-dev.yml"
+if sys.platform == "win32":
+    # for Windows, a different syntax command_prefix is needed
+    command_prefix = "set OIOIOI_UID=1000 &&"
+else:
+    command_prefix = "OIOIOI_UID=$(id -u)"
+
+BASE_DOCKER_COMMAND = f"{command_prefix} docker compose" + " -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),
@@ -132,7 +138,7 @@ def get_action_from_gui() -> Option:
         ),
     ]
     answers = inquirer.prompt(questions)
-    return answers["action"]
+    return COMMANDS[answers["action"]]
 
 
 def run_command(command) -> None:
@@ -140,7 +146,9 @@ def run_command(command) -> None:
     if not NO_INPUT:
         width = os.get_terminal_size().columns
         print("=" * width)
-    sys.exit(os.WEXITSTATUS(os.system(command)))
+
+    exit_code = os.system(command)
+    sys.exit(exit_code)
 
 
 def warn_user(action: Option) -> bool:
@@ -188,7 +196,6 @@ def main() -> None:
         print_help()
     except Exception as e:
         print(f"An error occurred during execution: {e}", file=sys.stderr)
-
 
 if __name__ == "__main__":
     main()
