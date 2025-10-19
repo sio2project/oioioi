@@ -25,7 +25,7 @@ if sys.platform == "win32":
 else:
     command_prefix = "OIOIOI_UID=$(id -u)"
 
-BASE_DOCKER_COMMAND = f"{command_prefix} docker compose" + " -f docker-compose-dev.yml"
+BASE_DOCKER_COMMAND = f"{command_prefix} docker compose -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [
     ("build", "Build OIOIOI container from source.", "build", True),
