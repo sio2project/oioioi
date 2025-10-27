@@ -39,6 +39,12 @@ class SimpleContestForm(forms.ModelForm):
     results_date = forms.SplitDateTimeField(required=False, label=_("Results date"), widget=widgets.AdminSplitDateTime())
 
     def validate_years(year):
+        validator = RegexValidator(
+            regex=r"^[0-9]{4}[/][0-9]{4}$",
+            message="Enter a valid school year in the format 2021/2022.",
+            code="invalid_school_year",
+        )
+        validator(year)
         year1 = int(year[:4])
         year2 = int(year[5:])
         if year1 + 1 != year2:
@@ -48,11 +54,6 @@ class SimpleContestForm(forms.ModelForm):
         required=False,
         label=_("School year"),
         validators=[
-            RegexValidator(
-                regex=r"^[0-9]{4}[/][0-9]{4}$",
-                message="Enter a valid school year in the format 2021/2022.",
-                code="invalid_school_year",
-            ),
             validate_years,
         ],
     )
