@@ -1,0 +1,7 @@
+# This file exists for multi-system support
+
+# default file behaviour
+* text=auto
+
+# make all '.sh' files LF, regardless of users' OS
+*.sh text eol=lf
