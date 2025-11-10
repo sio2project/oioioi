@@ -1,6 +1,6 @@
 FROM python:3.11-slim AS base
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 #RUN dpkg --add-architecture i386
 RUN apt-get update && \
@@ -55,9 +55,9 @@ RUN sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
 # Installing python dependencies
 USER oioioi
 
-ENV PATH $PATH:/home/oioioi/.local/bin/
+ENV PATH=$PATH:/home/oioioi/.local/bin/
 
-ENV BERKELEYDB_DIR /usr
+ENV BERKELEYDB_DIR=/usr
 RUN pip3 install --user psycopg2-binary twisted uwsgi
 RUN pip3 install --user bsddb3==6.2.7
 
@@ -68,7 +68,7 @@ RUN pip3 install --user -r requirements.txt filetracker[server]
 RUN pip3 install --user -r requirements_static.txt
 
 # Installing node dependencies
-ENV PATH $PATH:/sio2/oioioi/node_modules/.bin
+ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin
 
 RUN npm ci
 RUN npm run build
