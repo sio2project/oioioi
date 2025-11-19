@@ -780,7 +780,7 @@ RANKING_MIN_COOLDOWN = 5  # seconds
 RANKING_MAX_COOLDOWN = 100  # seconds
 
 # Notifications configuration (client)
-# This one is for JavaScript socket.io client.
+# This one is for JavaScript WebSocket client.
 # It should contain actual URL available from remote machines.
 NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 

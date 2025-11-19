@@ -425,7 +425,7 @@ CACHES = {
 }
 
 # Notifications configuration (client)
-# This one is for JavaScript socket.io client.
+# This one is for JavaScript WebSocket client.
 # It should contain actual URL available from remote machines.
 # NOTIFICATIONS_SERVER_URL = '//szkopul-notifications.dasie.mimuw.edu.pl/'
 NOTIFICATIONS_SERVER_URL = '/'
