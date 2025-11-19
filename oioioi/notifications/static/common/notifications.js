@@ -87,7 +87,7 @@ NotificationsClient.prototype.socketInit = function () {
 
     this.socket.onopen = () => this.authenticate();
     this.socket.onclose = () => {
-        this.setErrorState();
+        this.setSocketErrorState();
 
         console.warn("WebSocket connection closed. Attempting to reconnect...");
         setTimeout(() => this.socketInit(), 10000); 
@@ -103,12 +103,12 @@ NotificationsClient.prototype.socketInit = function () {
     };
 }
 
-NotificationsClient.prototype.setErrorState = function () {
+NotificationsClient.prototype.setSocketErrorState = function () {
     this.DROPDOWN_DISCONNECTED.show();
     this.DROPDOWN_ICON.addClass("text-warning");
 };
 
-NotificationsClient.prototype.clearErrorState = function () {
+NotificationsClient.prototype.clearSocketErrorState = function () {
     this.DROPDOWN_DISCONNECTED.hide();
     this.DROPDOWN_ICON.removeClass("text-warning");
 };
@@ -121,7 +121,7 @@ NotificationsClient.prototype.authenticateCallback = function (result) {
     if (result.status === 'OK') {
         this.notifCount = 0;
         this.updateNotifCount();
-        this.clearErrorState();
+        this.clearSocketErrorState();
     } else {
         console.warn("WebSocket authentication failed.");
 
@@ -163,7 +163,6 @@ NotificationsClient.prototype.renderMessages = function () {
             console.warn(err);
             this.dropdownLoading = false;
             this.HEADER_REFRESH_SPINNER.removeClass("spinner");
-            this.setErrorState();
             let text = gettext("A network error occurred. Recent submissions list could not be loaded");
             this.TABLE_NOTIFICATIONS.html(
                 $("<span></span>").addClass("dropdown-item-text").text(text)
