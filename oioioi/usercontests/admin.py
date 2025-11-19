@@ -48,7 +48,7 @@ else:
 
 class UserRoundInlineFormset(RoundInline.formset):
     def clean(self):
-        super(UserRoundInlineFormset, self).clean()
+        super().clean()
 
         if not hasattr(settings, "USER_CONTEST_TIMEOUT"):
             return
@@ -81,29 +81,29 @@ class UserContestAdminMixin:
 
     def has_add_permission(self, request):
         if not use_usercontest_admin_form(request):
-            return super(UserContestAdminMixin, self).has_add_permission(request)
+            return super().has_add_permission(request)
 
         return True
 
     def get_fieldsets(self, request, obj=None):
         if obj or not use_usercontest_admin_form(request):
-            return super(UserContestAdminMixin, self).get_fieldsets(request, obj)
+            return super().get_fieldsets(request, obj)
 
         fields = list(UserContestForm().base_fields.keys())
         return [(None, {"fields": fields})]
 
     def save_model(self, request, obj, form, change):
         if change or not use_usercontest_admin_form(request):
-            return super(UserContestAdminMixin, self).save_model(request, obj, form, change)
+            return super().save_model(request, obj, form, change)
 
         obj.controller_name = "oioioi.usercontests.controllers.UserContestController"
-        ret = super(UserContestAdminMixin, self).save_model(request, obj, form, change)
+        ret = super().save_model(request, obj, form, change)
         UserContest.objects.create(contest=obj, user=request.user)
         return ret
 
     def get_form(self, request, obj=None, **kwargs):
         if obj or not use_usercontest_admin_form(request):
-            return super(UserContestAdminMixin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
 
         return modelform_factory(
             self.model,
@@ -113,9 +113,9 @@ class UserContestAdminMixin:
 
     def get_inline_instances(self, request, obj=None):
         if not use_usercontest_admin_form(request):
-            return super(UserContestAdminMixin, self).get_inline_instances(request, obj)
+            return super().get_inline_instances(request, obj)
 
-        _inlines = super(UserContestAdminMixin, self).get_inline_instances(request, obj)
+        _inlines = super().get_inline_instances(request, obj)
         custom_inline = UserRoundInline(self.model, self.admin_site)
         modified_inlines = []
         for inline in _inlines:

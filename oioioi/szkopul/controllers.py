@@ -76,7 +76,7 @@ class MAPCourse2024RegistrationController(ParticipantsController):
         return TemplateResponse(request, self.registration_template, context)
 
     def get_contest_participant_info_list(self, request, user):
-        prev = super(MAPCourse2024RegistrationController, self).get_contest_participant_info_list(request, user)
+        prev = super().get_contest_participant_info_list(request, user)
 
         if can_see_personal_data(request):
             sensitive_info = MAPCourseRegistration.objects.filter(participant__user=user, participant__contest=request.contest)
@@ -94,7 +94,7 @@ class MAPCourse2024RegistrationController(ParticipantsController):
     def mixins_for_admin(self):
         from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
 
-        return super(MAPCourse2024RegistrationController, self).mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
+        return super().mixins_for_admin() + (TermsAcceptedPhraseAdminMixin,)
 
     def can_change_terms_accepted_phrase(self, request):
         return not MAPCourseRegistration.objects.filter(participant__contest=request.contest).exists()
@@ -114,7 +114,7 @@ class MAPCourse2024ContestController(ProgrammingContestController):
             return True
         if not is_participant(request):
             return False
-        return super(MAPCourse2024ContestController, self).can_submit(request, problem_instance, check_round_times)
+        return super().can_submit(request, problem_instance, check_round_times)
 
     def can_see_stats(self, request):
         return is_contest_admin(request) or is_contest_observer(request)

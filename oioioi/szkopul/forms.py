@@ -9,8 +9,8 @@ class MAPCourseRegistrationForm(forms.ModelForm):
         exclude = ["participant"]
 
     def __init__(self, *args, **kwargs):
-        super(MAPCourseRegistrationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["not_primaryschool"].label = "Uczęszczam do szkoły średniej"
 
     def clean(self):
-        super(MAPCourseRegistrationForm, self).clean()
+        super().clean()

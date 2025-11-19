@@ -50,7 +50,7 @@ class Command(BaseCommand):
         all_files = get_client().list_local_files()
         max_date_to_delete = datetime.datetime.now() - datetime.timedelta(days=options["days"])
 
-        diff = set([f[0] for f in all_files]) - set(needed_files)
+        diff = {f[0] for f in all_files} - set(needed_files)
         to_delete = [f[0] for f in all_files if f[0] in diff and datetime.datetime.fromtimestamp(f[1]) < max_date_to_delete]
 
         files_count = len(to_delete)

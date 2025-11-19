@@ -113,7 +113,7 @@ def _generate_pdfdoc(request, mailsubmission):
         },
     )
 
-    filename = "%s-%s-%s.pdf" % (
+    filename = "{}-{}-{}.pdf".format(
         _("confirmation"),
         mailsubmission.problem_instance.short_name,
         mailsubmission.id,

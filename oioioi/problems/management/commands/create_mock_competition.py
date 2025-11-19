@@ -323,7 +323,7 @@ WORDS = [
 ]
 
 
-# Helper command, which finds the the smallest natural number n, such that
+# Helper command, which finds the smallest natural number n, such that
 # no object from the model model_class has a field equal to [base_value]n.
 # This function is to be used for finding anyname that isn't
 # used in the database yet.
@@ -354,7 +354,7 @@ def create_origin_tag(competition_name):
     if competition_name is not None:
         # Disallow duplicate origin tags, and raise an exception
         if OriginTag.objects.filter(name=competition_name).exists():
-            raise Exception("An origin_tag with competition name '%s' already exists, choose a non-duplicate name for the competition." % competition_name)
+            raise Exception(f"An origin_tag with competition name '{competition_name}' already exists, choose a non-duplicate name for the competition.")
     else:
         # Find a unique name of the form 'mock%d'
         competition_name = get_unique_field_value(OriginTag, "name", "mock")
@@ -373,7 +373,7 @@ def create_origin_info_categories(origin_tag, levels):
     """Create an OriginInfoCategory for each level described by levels"""
     categories = []
     for level in range(len(levels)):
-        category = OriginInfoCategory(parent_tag=origin_tag, name="level%d" % level, order=level)
+        category = OriginInfoCategory(parent_tag=origin_tag, name=f"level{level}", order=level)
         category.save()
         categories.append(category)
 
@@ -387,7 +387,7 @@ def create_origin_info_values(origin_tag, levels, categories):
         for i in range(levels[level]):
             # Create an OriginInfoValue for each branch in the current level
             info_value = OriginInfoValue(
-                value="%d_%d" % (level, i),
+                value=f"{level}_{i}",
                 parent_tag=origin_tag,
                 category=categories[level],
             )
@@ -395,7 +395,7 @@ def create_origin_info_values(origin_tag, levels, categories):
             info_values[level].append(info_value)
 
             # Name the OriginInfoValue in the default language
-            localization = OriginInfoValueLocalization(origin_info_value=info_value, language=get_language(), full_value="Level %d - %d" % (level, i))
+            localization = OriginInfoValueLocalization(origin_info_value=info_value, language=get_language(), full_value=f"Level {level} - {i}")
             localization.save()
 
     return info_values
@@ -462,9 +462,9 @@ class Command(BaseCommand):
 
             if level == len(levels):
                 # Reached bottom level - create problems
-                for i in range(PROBLEMS_PER_LEAF):
+                for _i in range(PROBLEMS_PER_LEAF):
                     words = [random.choice(WORDS), random.choice(WORDS)]
-                    problem_name = "Problem %s %s %s" % (words[0], words[1], "".join(random.choices(string.digits, k=6)))
+                    problem_name = "Problem {} {} {}".format(words[0], words[1], "".join(random.choices(string.digits, k=6)))
                     p = Problem(
                         # The short name will be the first word in lower case
                         short_name=words[0].lower()
@@ -485,7 +485,7 @@ class Command(BaseCommand):
                 return problems
             else:
                 for i in range(levels[level]):
-                    subname = "%s_%d" % (name, i)
+                    subname = f"{name}_{i}"
                     # Recurse for each of levels[level] branches
                     subproblems = recurse(level + 1, subname)
 

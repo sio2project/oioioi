@@ -41,7 +41,7 @@ class TestLivedata(TestCase):
         contest = Contest.objects.get()
         round = Round.objects.filter(contest_id=contest.id).get()
         view_name = "livedata_teams_view"
-        cache_key = "%s/%s/%s" % (view_name, contest.id, round.id)
+        cache_key = f"{view_name}/{contest.id}/{round.id}"
         url = reverse(view_name, kwargs={"contest_id": contest.id, "round_id": round.id})
         # For users that aren't admins or observers, the second request will
         # come from the cache, this verifies if the cached result's content is

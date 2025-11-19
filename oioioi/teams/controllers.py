@@ -54,10 +54,10 @@ class TeamsMixinForContestController:
         except TeamMembership.DoesNotExist:
             qs = queryset
 
-        return super(TeamsMixinForContestController, self).filter_my_visible_submissions(request, qs, filter_user)
+        return super().filter_my_visible_submissions(request, qs, filter_user)
 
     def adjust_submission_form(self, request, form, problem_instance):
-        super(TeamsMixinForContestController, self).adjust_submission_form(request, form, problem_instance)
+        super().adjust_submission_form(request, form, problem_instance)
         try:
             tm = TeamMembership.objects.get(user_id=request.user.id, team__contest=request.contest)
             if not is_contest_admin(request):
@@ -90,7 +90,7 @@ class TeamsMixinForContestController:
             pass
 
     def create_submission(self, request, problem_instance, form_data, **kwargs):
-        submission = super(TeamsMixinForContestController, self).create_submission(request, problem_instance, form_data, **kwargs)
+        submission = super().create_submission(request, problem_instance, form_data, **kwargs)
         if not is_contest_admin:
             try:
                 tm = TeamMembership.objects.get(user=request.user, team__contest=request.contest)

@@ -18,12 +18,12 @@ class ExclusivenessConfigForm(AlwaysChangedModelForm):
         model = ExclusivenessConfig
 
     def clean(self):
-        super(ExclusivenessConfigForm, self).clean()
+        super().clean()
         if self.cleaned_data["disable"] and not self.instance.enabled:
             raise ValidationError(_("This exclusiveness config is already disabled!"))
 
     def save(self, commit=True):
-        instance = super(ExclusivenessConfigForm, self).save(commit=False)
+        instance = super().save(commit=False)
         if self.cleaned_data["disable"]:
             instance.enabled = False
         if commit:

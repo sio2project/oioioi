@@ -45,7 +45,7 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
     color_display.short_description = _("Color")
 
     def get_queryset(self, request):
-        qs = super(ProblemBalloonsConfigAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.filter(problem_instance__contest=request.contest)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -54,7 +54,7 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
             if request.contest:
                 qs = qs.filter(contest=request.contest)
             kwargs["queryset"] = qs
-        return super(ProblemBalloonsConfigAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 contest_site.contest_register(ProblemBalloonsConfig, ProblemBalloonsConfigAdmin)
@@ -85,7 +85,7 @@ class BalloonsDisplayAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def get_queryset(self, request):
-        qs = super(BalloonsDisplayAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         if request.contest is None:
             return qs
         return qs.filter(contest=request.contest)
@@ -101,7 +101,7 @@ class BalloonsDisplayAdmin(admin.ModelAdmin):
                 if qs or not request.user.is_superuser:
                     kwargs["queryset"] = qs
 
-        return super(BalloonsDisplayAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 admin.site.register(BalloonsDisplay, BalloonsDisplayAdmin)
@@ -159,7 +159,7 @@ class BalloonsDeliveryAccessDataAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(BalloonsDeliveryAccessDataAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (BalloonsDeliveryAccessDataInline,)
 
 

@@ -210,7 +210,7 @@ def mail_admins_on_error(env, submission, exc_info, **kwargs):
 
     try:
         mail_admins(
-            "System Error evaluating submission #%s" % env.get("submission_id", "???"),
+            "System Error evaluating submission #{}".format(env.get("submission_id", "???")),
             "".join(traceback.format_exception(*exc_info)),
         )
     except (OSError, SMTPException) as e:

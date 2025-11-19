@@ -11,13 +11,13 @@ class OISubmitSubmissionAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(OISubmitSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_list_display(self, request):
-        return super(OISubmitSubmissionAdminMixin, self).get_list_display(request) + ["received_suspected"]
+        return super().get_list_display(request) + ["received_suspected"]
 
     def get_list_filter(self, request):
-        return super(OISubmitSubmissionAdminMixin, self).get_list_filter(request) + ["oisubmitextradata__received_suspected"]
+        return super().get_list_filter(request) + ["oisubmitextradata__received_suspected"]
 
     def received_suspected(self, instance):
         received_suspected = getattr(instance.oisubmitextradata, "received_suspected", None)
@@ -37,7 +37,7 @@ class OISubmitSubmissionAdminMixin:
     received_suspected.short_description = _("Received suspected")
 
     def get_custom_list_select_related(self):
-        return super(OISubmitSubmissionAdminMixin, self).get_custom_list_select_related() + ["oisubmitextradata"]
+        return super().get_custom_list_select_related() + ["oisubmitextradata"]
 
 
 SubmissionAdmin.mix_in(OISubmitSubmissionAdminMixin)

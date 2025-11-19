@@ -49,14 +49,14 @@ class PortalInlineLexer(InlineLexer):
         self.request = request
         if rules is None:
             rules = PortalInlineGrammar()
-        super(PortalInlineLexer, self).__init__(renderer, rules, **kwargs)
+        super().__init__(renderer, rules, **kwargs)
 
 
 class PortalBlockLexer(BlockLexer):
     default_rules = BlockLexer.default_rules[:]
 
     def __init__(self, *args, **kwargs):
-        super(PortalBlockLexer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._blockspoiler_depth = 0
 
         self.rules.block_spoiler = re.compile(
@@ -98,7 +98,7 @@ class PortalMarkdown(Markdown):
         renderer = PortalRenderer(escape=True)
         inline_lexer = PortalInlineLexer(request, renderer)
         block_lexer = PortalBlockLexer()
-        super(PortalMarkdown, self).__init__(renderer, inline=inline_lexer, block=block_lexer)
+        super().__init__(renderer, inline=inline_lexer, block=block_lexer)
 
     def output_block_center(self):
         return self.renderer.block_center(self.inline(self.token["text"]))
@@ -129,7 +129,7 @@ def register_widget(widget):
             parameter (named 'm').  Should return a string (rendered widget).
     """
     if hasattr(PortalInlineGrammar, widget.name):
-        raise ValueError("Inline tag for widget named %s has already been registered." % widget.name)
+        raise ValueError(f"Inline tag for widget named {widget.name} has already been registered.")
     PortalInlineLexer.default_rules.insert(0, widget.name)
     setattr(PortalInlineGrammar, widget.name, widget.compiled_tag_regex)
 
@@ -159,7 +159,7 @@ class YouTubeWidget:
         except KeyError:
             return ""
         # 'https://www.youtube.com/embed/dVDk7PXNXB8'
-        youtube_embed_url = "https://www.youtube.com/embed/%s" % video_id
+        youtube_embed_url = f"https://www.youtube.com/embed/{video_id}"
         return render_to_string("portals/widgets/youtube.html", {"youtube_embed_url": youtube_embed_url})
 
 

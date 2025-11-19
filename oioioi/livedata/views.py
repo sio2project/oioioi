@@ -26,7 +26,7 @@ def cache_unless_admin_or_observer(view):
         if not should_cache:
             return view(request, round_id)
 
-        cache_key = "%s/%s/%s" % (view.__name__, request.contest.id, round_id)
+        cache_key = f"{view.__name__}/{request.contest.id}/{round_id}"
         result = cache.get(cache_key)
         if result is None:
             result = view(request, round_id)

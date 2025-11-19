@@ -26,7 +26,7 @@ class ContestLogoAdminMixin:
     """Adds :class:`~oioioi.contestlogo.models.ContestLogo` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(ContestLogoAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ContestLogoInline,)
 
 
@@ -59,7 +59,7 @@ class ContestIconAdminMixin:
     """Adds :class:`~oioioi.contestlogo.models.ContestIcon` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(ContestIconAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ContestIconInline,)
 
 

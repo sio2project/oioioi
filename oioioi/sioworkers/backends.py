@@ -34,7 +34,7 @@ class LocalBackend:
         return results
 
     def send_async_jobs(self, env, **kwargs):
-        res = self.run_jobs(env["workers_jobs"], **(env.get("workers_jobs.extra_args", dict())))
+        res = self.run_jobs(env["workers_jobs"], **(env.get("workers_jobs.extra_args", {})))
         env["workers_jobs.results"] = res
         del env["workers_jobs"]
         if "workers_jobs.extra_args" in env:
@@ -56,7 +56,7 @@ class SioworkersdBackend:
         env["contest_weight"] = settings.OIOIOI_INSTANCE_WEIGHT_BONUS + settings.NON_CONTEST_WEIGHT
         ans = SioworkersdBackend.server.sync_run_group(json.dumps(env))
         if "error" in ans:
-            raise RuntimeError("Error from workers:\n%s\nTB:\n%s" % (ans["error"]["message"], ans["error"]["traceback"]))
+            raise RuntimeError("Error from workers:\n{}\nTB:\n{}".format(ans["error"]["message"], ans["error"]["traceback"]))
         return ans["workers_jobs.results"]["dummy_name"]
 
     def run_jobs(self, dict_of_jobs, **kwargs):
@@ -66,7 +66,7 @@ class SioworkersdBackend:
         env["contest_weight"] = settings.OIOIOI_INSTANCE_WEIGHT_BONUS + settings.NON_CONTEST_WEIGHT
         ans = SioworkersdBackend.server.sync_run_group(json.dumps(env))
         if "error" in ans:
-            raise RuntimeError("Error from workers:\n%s\nTB:\n%s" % (ans["error"]["message"], ans["error"]["traceback"]))
+            raise RuntimeError("Error from workers:\n{}\nTB:\n{}".format(ans["error"]["message"], ans["error"]["traceback"]))
         return ans["workers_jobs.results"]
 
     def send_async_jobs(self, env, **kwargs):

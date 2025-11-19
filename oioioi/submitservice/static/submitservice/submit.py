@@ -32,7 +32,7 @@ class MultiPartForm:
         return "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n))
 
     def get_content_type(self):
-        return "multipart/form-data; boundary=%s" % self.boundary
+        return f"multipart/form-data; boundary={self.boundary}"
 
     def add_field(self, name, value):
         """Add a simple field to the form data."""
@@ -61,7 +61,7 @@ class MultiPartForm:
         parts.extend(
             [
                 part_boundary,
-                'Content-Disposition: form-data; name="%s"' % name,
+                f'Content-Disposition: form-data; name="{name}"',
                 "",
                 value,
             ]
@@ -72,8 +72,8 @@ class MultiPartForm:
         parts.extend(
             [
                 part_boundary,
-                'Content-Disposition: file; name="%s"; filename="%s"' % (field_name, filename),
-                "Content-Type: %s" % content_type,
+                f'Content-Disposition: file; name="{field_name}"; filename="{filename}"',
+                f"Content-Type: {content_type}",
                 "",
                 body,
             ]
@@ -191,7 +191,7 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
             form.add_field("task", task_name)
             form.add_file("file", solution_file.name, filehandle=solution_file)
             body = str(form)
-            request = urllib.request.Request("%ssubmitservice/submit/" % contest_url)
+            request = urllib.request.Request(f"{contest_url}submitservice/submit/")
             request.add_header("Content-Type", form.get_content_type())
             request.add_header("Content-Length", str(len(body)))
             request.add_data(body)
@@ -199,7 +199,7 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
             result = json.loads(urllib.request.urlopen(request).read())
         base_url = urllib.parse.urlparse(contest_url)
         if "error_code" not in result:
-            result_url = "%s://%s%s" % (
+            result_url = "{}://{}{}".format(
                 base_url.scheme,
                 base_url.netloc,
                 result["result_url"],
@@ -218,7 +218,7 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
 
 
 def query(key, value_friendly_name, mask_old_value=False):
-    print("Enter new value for %s or press Enter." % value_friendly_name, file=sys.stderr)
+    print(f"Enter new value for {value_friendly_name} or press Enter.", file=sys.stderr)
     old_value = configuration.get(key)
     if not old_value:
         old_value = ""
@@ -247,7 +247,7 @@ def save_configuration():
         print("Configuration has been saved successfully.", file=sys.stderr)
         return 0
     except Exception as e:
-        print("Could not write configuration: %s" % e, file=sys.stderr)
+        print(f"Could not write configuration: {e}", file=sys.stderr)
         return 1
 
 

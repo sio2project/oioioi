@@ -1,6 +1,6 @@
+from celery.exceptions import Ignore
 from django.db import transaction
 
-from celery.exceptions import Ignore
 from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.evalmgr.utils import mark_job_state
 from oioioi.programs.models import ModelProgramSubmission

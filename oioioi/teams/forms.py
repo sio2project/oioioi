@@ -21,7 +21,7 @@ class CreateTeamForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request", None)
-        super(CreateTeamForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_name(self):
         name = self.cleaned_data["name"]

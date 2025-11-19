@@ -8,7 +8,7 @@ class FilterPublicSolutionsForm(forms.Form):
     category = forms.ChoiceField(choices=[], label=_("Problem"), required=False)
 
     def __init__(self, request, *args, **kwargs):
-        super(FilterPublicSolutionsForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         pis = problem_instances_with_any_public_solutions(request).select_related("problem")
         choices = [(pi.id, pi) for pi in pis]
 

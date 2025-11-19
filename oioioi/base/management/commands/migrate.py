@@ -28,9 +28,9 @@ class Command(migrate.Command):
                         "based on version 1.5 or 1.6 of the "
                         "Django framework. You'll have to make "
                         "an extra step before syncing your "
-                        "database. Consult %s for "
-                        "instructions." % GITHUB_LINK
+                        f"database. Consult {GITHUB_LINK} for "
+                        "instructions."
                     )
 
                     return
-        super(Command, self).handle(*args, **options)
+        super().handle(*args, **options)

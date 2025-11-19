@@ -93,8 +93,8 @@ def timeline_view(request):
             except ValidationError as e:
                 object_name = getattr(obj, "name", None)
                 if not object_name:
-                    object_name = "%s (%s)" % (obj._meta.verbose_name.title(), obj.id)
-                message_dict = dict((_translate_field(field, obj), value) for (field, value) in e.message_dict.items())
+                    object_name = f"{obj._meta.verbose_name.title()} ({obj.id})"
+                message_dict = {_translate_field(field, obj): value for (field, value) in e.message_dict.items()}
                 error_list.append((object_name, message_dict))
 
         if error_list:

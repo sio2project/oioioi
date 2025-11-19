@@ -8,7 +8,7 @@ class TextInputWithGenerate(forms.TextInput):
     def __init__(self, *args, **kwargs):
         attrs = kwargs.setdefault("attrs", {})
         attrs.setdefault("style", "width:200px;")
-        super(TextInputWithGenerate, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None, renderer=None):
         if self.attrs is not None and "id" in self.attrs:
@@ -19,7 +19,7 @@ class TextInputWithGenerate(forms.TextInput):
             id = "id"
         id += "_input-with-generate"
 
-        html = super(TextInputWithGenerate, self).render(name, value, attrs, renderer)
+        html = super().render(name, value, attrs, renderer)
 
         html = mark_safe(self.html_template.format(id=id, input_html=html))
         return html

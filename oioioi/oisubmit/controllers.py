@@ -10,7 +10,7 @@ class OiSubmitContestControllerMixin:
     """
 
     def render_submission_footer(self, request, submission):
-        super_footer = super(OiSubmitContestControllerMixin, self).render_submission_footer(request, submission)
+        super_footer = super().render_submission_footer(request, submission)
 
         if not hasattr(submission, "oisubmitextradata") or submission.oisubmitextradata is None or not is_contest_admin(request):
             return super_footer

@@ -468,8 +468,8 @@ class TestMarkdown(TestCase):
         self.request = MockRequest()
 
         for i in range(1, 5):
-            name = "problem_%s_name" % i
-            url_key = "problem_%s_key" % i
+            name = f"problem_{i}_name"
+            url_key = f"problem_{i}_key"
             problem = Problem(legacy_name=name, short_name=name, visibility=Problem.VISIBILITY_PUBLIC)
             problem.save()
             site = ProblemSite(problem=problem, url_key=url_key)
@@ -485,8 +485,8 @@ class TestMarkdown(TestCase):
     def test_youtube_widget(self):
         url = "https://www.youtube.com/watch?v=pB0CTz5QlOw"
         embed_url = "https://www.youtube.com/embed/pB0CTz5QlOw"
-        rendered = render_panel(self.request, "[[YouTube|%s]]" % url)
-        self.assertIn('<iframe src="%s"' % embed_url, rendered)
+        rendered = render_panel(self.request, f"[[YouTube|{url}]]")
+        self.assertIn(f'<iframe src="{embed_url}"', rendered)
 
     def test_problemtable_widget(self):
         urls = [
@@ -498,7 +498,7 @@ class TestMarkdown(TestCase):
             "zabawa.pl/problemset/problem/problem_3_name/site/",
             "zabawa.pl/problemset/problem/problem_4_key/site/?key=statement",
         ]
-        tag = "[[ProblemTable|%s]]" % ";".join(urls)
+        tag = "[[ProblemTable|{}]]".format(";".join(urls))
 
         rendered = render_panel(self.request, tag)
         self.assertEqual(rendered.count("<tr>"), 6)

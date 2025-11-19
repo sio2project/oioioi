@@ -16,7 +16,7 @@ class BalloonsDeliveryACMControllerMixin:
     """
 
     def submission_judged(self, submission, rejudged=False):
-        super(BalloonsDeliveryACMControllerMixin, self).submission_judged(submission, rejudged)
+        super().submission_judged(submission, rejudged)
         self._create_balloon_delivery(submission)
 
     @transaction.atomic

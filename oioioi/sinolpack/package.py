@@ -67,7 +67,7 @@ class TaskType(Enum):
 
 
 def _stringify_keys(dictionary):
-    return dict((str(k), v) for k, v in dictionary.items())
+    return {str(k): v for k, v in dictionary.items()}
 
 
 def _determine_encoding(title, file):
@@ -90,10 +90,10 @@ def _decode(title, file):
 
 
 def _make_filename_in_job_dir(env, base_name):
-    env["unpack_dir"] = "/unpack/%s" % (env["package_id"])
+    env["unpack_dir"] = "/unpack/{}".format(env["package_id"])
     if "job_id" not in env:
         env["job_id"] = "local"
-    return "%s/%s-%s" % (env["unpack_dir"], env["job_id"], base_name)
+    return "{}/{}-{}".format(env["unpack_dir"], env["job_id"], base_name)
 
 
 def _remove_from_zip(zipfname, *filenames):
@@ -161,7 +161,7 @@ class SinolPackage:
 
         dirs = list(map(os.path.normcase, self.archive.dirnames()))
         dirs = list(map(os.path.normpath, dirs))
-        toplevel_dirs = set(f.split(os.sep)[0] for f in dirs)
+        toplevel_dirs = {f.split(os.sep)[0] for f in dirs}
         toplevel_dirs = list(filter(slug_re.match, toplevel_dirs))
         problem_dirs = []
         for dir in toplevel_dirs:
@@ -196,12 +196,12 @@ class SinolPackage:
 
     def _compile_using_make(self, command, cwd, suffix):
         renv = None
-        if glob.glob(os.path.join(self.rootdir, "prog", "%s%s.*" % (self.short_name, suffix))):
+        if glob.glob(os.path.join(self.rootdir, "prog", f"{self.short_name}{suffix}.*")):
             logger.info("%s: %s", self.filename, command)
             renv = {}
             if not cwd:
                 cwd = self.rootdir
-            renv["stdout"] = execute("make %s" % (command), cwd=cwd).decode("utf-8", "replace")
+            renv["stdout"] = execute(f"make {command}", cwd=cwd).decode("utf-8", "replace")
             logger.info(renv["stdout"])
         return renv
 
@@ -211,7 +211,7 @@ class SinolPackage:
         lang_exts_list = getattr(settings, "SUBMITTABLE_EXTENSIONS", {}).values()
         exts = [ext for lang_exts in lang_exts_list for ext in lang_exts]
         for ext in exts:
-            src = os.path.join(self.rootdir, "prog", "%s.%s" % (name, ext))
+            src = os.path.join(self.rootdir, "prog", f"{name}.{ext}")
             if os.path.isfile(src):
                 renv = self._compile(src, name, ext, out_name)
                 logger.info("%s: %s", self.filename, command)
@@ -220,11 +220,11 @@ class SinolPackage:
 
     def _compile(self, filename, prog_name, ext, out_name=None):
         client = get_client()
-        source_name = "%s.%s" % (prog_name, ext)
+        source_name = f"{prog_name}.{ext}"
         ft_source_name = client.put_file(_make_filename_in_job_dir(self.env, source_name), filename)
 
         if not out_name:
-            out_name = _make_filename_in_job_dir(self.env, "%s.e" % prog_name)
+            out_name = _make_filename_in_job_dir(self.env, f"{prog_name}.e")
 
         new_env = self._run_compilation_job(ext, ft_source_name, out_name)
         client.delete_file(ft_source_name)
@@ -336,7 +336,7 @@ class SinolPackage:
         if existing_problem.short_name != self.short_name:
             raise ProblemPackageError(
                 _("Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, changing problem short name is not possible.")
-                % dict(oldname=existing_problem.short_name, newname=self.short_name)
+                % {"oldname": existing_problem.short_name, "newname": self.short_name}
             )
 
     def _create_problem_instance(self):
@@ -445,7 +445,7 @@ class SinolPackage:
 
     @_describe_processing_error
     def _detect_task_type(self):
-        if any(map(lambda name: self.short_name + "soc" in name, self.archive.filenames())):
+        if any(self.short_name + "soc" in name for name in self.archive.filenames()):
             self.task_type = TaskType.INTERACTIVE
 
     @_describe_processing_error
@@ -476,8 +476,8 @@ class SinolPackage:
         (keys matching the pattern ``title_[a-z]{2}``, where ``[a-z]{2}`` represents
         two-letter language code defined in ``settings.py``), if any such key is given.
         """
-        for lang_code, lang in settings.LANGUAGES:
-            key = "title_%s" % lang_code
+        for lang_code, _lang in settings.LANGUAGES:
+            key = f"title_{lang_code}"
             if key in self.config:
                 ProblemName.objects.get_or_create(problem=self.problem, name=self.config[key], language=lang_code)
 
@@ -533,7 +533,7 @@ class SinolPackage:
         if not os.path.exists(makefile_in):
             with open(makefile_in, "w") as f:
                 f.write("MODE=wer\n")
-                f.write("ID=%s\n" % (self.short_name,))
+                f.write(f"ID={self.short_name}\n")
                 f.write("SIG=xxxx000\n")
 
     @_describe_processing_error
@@ -710,7 +710,7 @@ class SinolPackage:
         indir = os.path.join(self.rootdir, "in")
         outdir = os.path.join(self.rootdir, "out")
 
-        re_string = r"^(%s(([0-9]+)([a-z]?[a-z0-9]*))).in$" % (re.escape(self.short_name))
+        re_string = rf"^({re.escape(self.short_name)}(([0-9]+)([a-z]?[a-z0-9]*))).in$"
         names_re = re.compile(re_string)
 
         collected_ins = self._make_ins(re_string)
@@ -875,7 +875,7 @@ class SinolPackage:
         else:
             outs_to_make.append(
                 (
-                    _make_filename_in_job_dir(self.env, "out/%s" % (outname_base)),
+                    _make_filename_in_job_dir(self.env, f"out/{outname_base}"),
                     instance,
                 )
             )
@@ -932,7 +932,7 @@ class SinolPackage:
 
     @_describe_processing_error
     def _get_time_limit(self, created, name, group):
-        """If we find the time limit specified anywhere in in the ``config.yml``
+        """If we find the time limit specified anywhere in the ``config.yml``
         then we overwrite potential manual changes.
 
         The time limit is more important the more specific it is.
@@ -1122,7 +1122,7 @@ class SinolPackage:
     @_describe_processing_error
     def _process_checkers(self):
         """Compiles an output checker and saves its binary."""
-        checker_name = "%schk.e" % (self.short_name)
+        checker_name = f"{self.short_name}chk.e"
         out_name = _make_filename_in_job_dir(self.env, checker_name)
         instance = OutputChecker.objects.get_or_create(problem=self.problem)[0]
         env = self._find_and_compile(
@@ -1140,7 +1140,7 @@ class SinolPackage:
 
     @_describe_processing_error
     def _process_interactive_checkers(self):
-        interactor_name = "%ssoc.e" % (self.short_name)
+        interactor_name = f"{self.short_name}soc.e"
         out_name = _make_filename_in_job_dir(self.env, interactor_name)
         instance = Interactor.objects.get_or_create(problem=self.problem)[0]
         env = self._find_and_compile(
@@ -1279,7 +1279,7 @@ class SinolPackageCreator:
             self._pack_tests()
             self._pack_model_solutions()
             self.zip.close()
-            zip_filename = "%s.zip" % self.short_name
+            zip_filename = f"{self.short_name}.zip"
             return stream_file(File(open(tmp_filename, "rb"), name=zip_filename))
         finally:
             os.unlink(tmp_filename)
@@ -1292,10 +1292,10 @@ class SinolPackageCreator:
                 filename = os.path.join(
                     self.short_name,
                     "doc",
-                    "%szad-%s.pdf" % (self.short_name, statement.language),
+                    f"{self.short_name}zad-{statement.language}.pdf",
                 )
             else:
-                filename = os.path.join(self.short_name, "doc", "%szad.pdf" % (self.short_name,))
+                filename = os.path.join(self.short_name, "doc", f"{self.short_name}zad.pdf")
             self._pack_django_file(statement.content, filename)
 
     def _pack_django_file(self, django_file, arcname):
@@ -1318,7 +1318,7 @@ class SinolPackageCreator:
     def _pack_tests(self):
         # Takes tests from main_problem_instance
         for test in Test.objects.filter(problem_instance=self.problem.main_problem_instance):
-            basename = "%s%s" % (self.short_name, test.name)
+            basename = f"{self.short_name}{test.name}"
             self._pack_django_file(test.input_file, os.path.join(self.short_name, "in", basename + ".in"))
             self._pack_django_file(
                 test.output_file,

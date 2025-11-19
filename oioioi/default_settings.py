@@ -39,7 +39,7 @@ PUBLIC_ROOT_URL = 'http://localhost'
 # The server to be run. Options are:
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
-# 'uwsgi-http' - uwsgi deamon with built-in http server
+# 'uwsgi-http' - uwsgi daemon with built-in http server
 # 'none' - nothing will be ran
 SERVER = os.getenv('OIOIOI_SERVER_MODE', 'none')
 
@@ -359,7 +359,7 @@ STORAGES = {
     },
 }
 
-FILETRACKER_SERVER_ENABLED = True
+FILETRACKER_SERVER_ENABLED = os.getenv('FILETRACKER_SERVER_ENABLED', 'True').lower() not in ('false', '0', 'no', 'off')
 FILETRACKER_LISTEN_ADDR = os.getenv('FILETRACKER_LISTEN_ADDR', '127.0.0.1')
 FILETRACKER_LISTEN_PORT = os.getenv('FILETRACKER_LISTEN_PORT', 9999)
 
@@ -368,7 +368,7 @@ FILETRACKER_LISTEN_PORT = os.getenv('FILETRACKER_LISTEN_PORT', 9999)
 # this also defines the filetracker server oioioi should connect to.
 FILETRACKER_URL = os.getenv('FILETRACKER_URL', 'http://127.0.0.1:9999')
 
-# When using a remote storage it's recommended to enable a cache cleaner deamon
+# When using a remote storage it's recommended to enable a cache cleaner daemon
 # which will periodically scan cache directory and remove files what aren't
 # used. For a detailed description of each option, please read a cache cleaner
 # configuration section in the sioworkersd documentation. Please note that

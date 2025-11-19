@@ -77,20 +77,20 @@ class ParticipantAdmin(admin.ModelAdmin):
     user_full_name.admin_order_field = "user__last_name"
 
     def get_custom_list_select_related(self):
-        return super(ParticipantAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "contest",
             "user",
         ]
 
     def get_list_display(self, request):
-        ld = super(ParticipantAdmin, self).get_list_display(request)
+        ld = super().get_list_display(request)
         rcontroller = request.contest.controller.registration_controller()
         if rcontroller.allow_login_as_public_name():
             return ld + ["anonymous"]
         return ld
 
     def get_queryset(self, request):
-        qs = super(ParticipantAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         qs = qs.filter(contest=request.contest)
         return qs
 
@@ -100,9 +100,9 @@ class ParticipantAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
-            return super(ParticipantAdmin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
 
-        Form = super(ParticipantAdmin, self).get_form(request, obj, **kwargs)
+        Form = super().get_form(request, obj, **kwargs)
 
         def form_wrapper(*args, **kwargs):
             form = Form(*args, **kwargs)
@@ -114,7 +114,7 @@ class ParticipantAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "user":
             kwargs["queryset"] = User.objects.all().order_by("username")
-        return super(ParticipantAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def make_active(self, request, queryset):
         queryset.update(status="ACTIVE")
@@ -254,7 +254,7 @@ class RegionAdmin(admin.ModelAdmin):
         return self.has_change_permission(request, obj)
 
     def get_queryset(self, request):
-        qs = super(RegionAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         qs = qs.filter(contest=request.contest)
         return qs
 
@@ -264,9 +264,9 @@ class RegionAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
-            return super(RegionAdmin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
 
-        Form = super(RegionAdmin, self).get_form(request, obj, **kwargs)
+        Form = super().get_form(request, obj, **kwargs)
 
         def form_wrapper(*args, **kwargs):
             form = Form(*args, **kwargs)
@@ -300,12 +300,12 @@ class OnsiteRegistrationInline(admin.TabularInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "region":
             kwargs["queryset"] = Region.objects.filter(contest=request.contest)
-        return super(OnsiteRegistrationInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class RegionFilter(RelatedFieldListFilter):
     def __init__(self, field, request, *args, **kwargs):
-        super(RegionFilter, self).__init__(field, request, *args, **kwargs)
+        super().__init__(field, request, *args, **kwargs)
         contest = request.contest
         self.lookup_choices = [(r.id, str(r)) for r in contest.regions.all()]
 
@@ -319,7 +319,7 @@ class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     autocomplete_fields = ["user"]
 
     def get_custom_list_select_related(self):
-        return super(OnsiteRegistrationParticipantAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "participants_onsiteregistration",
             "participants_onsiteregistration__region",
         ]
@@ -366,10 +366,10 @@ class OnsiteSubmissionAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(OnsiteSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_list_filter(self, request):
-        return super(OnsiteSubmissionAdminMixin, self).get_list_filter(request) + [RegionListFilter]
+        return super().get_list_filter(request) + [RegionListFilter]
 
 
 SubmissionAdmin.mix_in(OnsiteSubmissionAdminMixin)
@@ -379,7 +379,7 @@ class UserWithParticipantsAdminMixin:
     """Adds :class:`~oioioi.participants.models.Participant` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(UserWithParticipantsAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ParticipantInline,)
 
 
@@ -395,7 +395,7 @@ class ParticipantsRoundTimeExtensionMixin:
                 kwargs["queryset"] = User.objects.filter(id__in=Participant.objects.filter(contest=request.contest).values_list("user", flat=True)).order_by(
                     "username"
                 )
-        return super(ParticipantsRoundTimeExtensionMixin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 RoundTimeExtensionAdmin.mix_in(ParticipantsRoundTimeExtensionMixin)
@@ -426,7 +426,7 @@ class TermsAcceptedPhraseInline(admin.StackedInline):
     # phrase, if some participant has already registered.
     # This is because we cannot assume participants would accept the new one.
     def get_readonly_fields(self, request, obj=None):
-        result = super(TermsAcceptedPhraseInline, self).get_readonly_fields(request, obj)
+        result = super().get_readonly_fields(request, obj)
 
         if not is_contest_admin(request) or not request.contest.controller.registration_controller().can_change_terms_accepted_phrase(request):
             result = result + ("text",)
@@ -440,5 +440,5 @@ class TermsAcceptedPhraseAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(TermsAcceptedPhraseAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (TermsAcceptedPhraseInline,)

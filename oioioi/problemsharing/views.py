@@ -28,7 +28,7 @@ class FriendshipsView(TemplateView):
     template_name = "problemsharing/friendship.html"
 
     def get_context_data(self, **kwargs):
-        ctx = super(FriendshipsView, self).get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         ctx["form"] = AddFriendshipForm()
         ctx["friends"] = User.objects.filter(friendships_received__creator=self.request.user)
         return ctx

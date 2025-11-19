@@ -58,21 +58,16 @@ RUN pip3 install --user bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 
-COPY --chown=oioioi:oioioi setup.py requirements.txt ./
-RUN pip3 install -r requirements.txt --user filetracker[server]
-COPY --chown=oioioi:oioioi requirements_static.txt ./
-RUN pip3 install -r requirements_static.txt --user
-RUN pip3 install --user -U "gevent==25.5.1"  # override version of gevent
+COPY --chown=oioioi:oioioi . ./
+RUN pip3 install --user -r requirements.txt filetracker[server]
+RUN pip3 install --user -r requirements_static.txt
 
 # Installing node dependencies
 ENV PATH $PATH:/sio2/oioioi/node_modules/.bin
 
-COPY --chown=oioioi:oioioi package.json package-lock.json ./
 RUN npm ci
-
-COPY --chown=oioioi:oioioi . /sio2/oioioi
-
 RUN npm run build
+
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
@@ -103,6 +98,8 @@ FROM base AS development
 COPY --from=development-sandboxes /sio2/sandboxes /sio2/sandboxes
 RUN chmod +x /sio2/oioioi/download_sandboxes.sh
 
+# For production: Upload sandboxes to built-in filetracker during build
+# For dev: These will be re-uploaded to s3dedup at runtime via oioioi_init.sh
 RUN ./manage.py supervisor > /dev/null --daemonize --nolaunch=uwsgi && \
     /sio2/oioioi/wait-for-it.sh -t 60 "127.0.0.1:9999" && \
     ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes && \

@@ -80,9 +80,9 @@ class StaticHighchartsPlot(PlotType):
         # Setting axes bounds
         for a in "x", "y":
             for b in "min", "max":
-                key = "%s_%s" % (a, b)
+                key = f"{a}_{b}"
                 if key in data:
-                    options["%sAxis" % a][b] = data[key]
+                    options[f"{a}Axis"][b] = data[key]
         # Setting axes titles
         if "titles" in data:
             for key, title in data["titles"].items():
@@ -110,7 +110,7 @@ class ColumnStaticHighchartsPlot(StaticHighchartsPlot):
     """
 
     def highcharts_options(self, data):
-        options = super(ColumnStaticHighchartsPlot, self).highcharts_options(data)
+        options = super().highcharts_options(data)
         options["chart"]["type"] = "column"
         options["plotOptions"]["column"] = {
             "stacking": "normal",
@@ -128,7 +128,7 @@ class BarPercentStaticHighchartsPlot(StaticHighchartsPlot):
     """
 
     def highcharts_options(self, data):
-        options = super(BarPercentStaticHighchartsPlot, self).highcharts_options(data)
+        options = super().highcharts_options(data)
         options["chart"]["type"] = "bar"
         options["chart"]["height"] = 20 * len(data["keys"]) + 120
         options["plotOptions"]["series"] = {
@@ -143,7 +143,7 @@ class BarPercentStaticHighchartsPlot(StaticHighchartsPlot):
 
 class XYStaticHighchartsPlot(StaticHighchartsPlot):
     def highcharts_options(self, data):
-        options = super(XYStaticHighchartsPlot, self).highcharts_options(data)
+        options = super().highcharts_options(data)
         options["chart"].update({"type": "scatter", "zoomType": "xy"})
         options["yAxis"].update({"allowDecimals": False})
         options["plotOptions"]["scatter"] = {
@@ -157,12 +157,12 @@ class XYStaticHighchartsPlot(StaticHighchartsPlot):
 
 class PointsToSourceLengthProblemPlot(XYStaticHighchartsPlot):
     def head_libraries(self):
-        libs = super(PointsToSourceLengthProblemPlot, self).head_libraries()
+        libs = super().head_libraries()
         libs += ["statistics/functions.js"]
         return libs
 
     def highcharts_options(self, data):
-        options = super(PointsToSourceLengthProblemPlot, self).highcharts_options(data)
+        options = super().highcharts_options(data)
 
         options["plotOptions"].setdefault("series", {}).setdefault("point", {})
         options["plotOptions"]["series"]["point"]["events"] = {"click": "onPointClick"}

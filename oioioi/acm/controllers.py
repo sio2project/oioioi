@@ -66,7 +66,7 @@ class ACMContestController(ProgrammingContestController):
         environ["score_aggregator"] = "oioioi.acm.utils.acm_score_aggregator"
         environ["report_kinds"] = ["FULL"]
 
-        super(ACMContestController, self).fill_evaluation_environ(environ, submission)
+        super().fill_evaluation_environ(environ, submission)
 
     def update_report_statuses(self, submission, queryset):
         if submission.kind == "TESTRUN":
@@ -77,7 +77,7 @@ class ACMContestController(ProgrammingContestController):
 
     def update_submission_score(self, submission):
         if submission.kind == "TESTRUN":
-            super(ACMContestController, self).update_submission_score(submission)
+            super().update_submission_score(submission)
             return
         try:
             report = SubmissionReport.objects.get(submission=submission, status="ACTIVE", kind="FULL")
@@ -111,7 +111,7 @@ class ACMContestController(ProgrammingContestController):
 
     def _fill_user_result_for_problem(self, result, pi_submissions):
         if pi_submissions:
-            for penalties_count, submission in enumerate(pi_submissions, 1):
+            for penalties_count, submission in enumerate(pi_submissions, 1):  # noqa: B007
                 if submission.status == "IGN":
                     # We have found IGNORED submission before accepted one.
                     # This means, that some other
@@ -213,7 +213,7 @@ class ACMOpenContestController(ACMContestController):
             return True
         if not is_participant(request):
             return False
-        return super(ACMOpenContestController, self).can_submit(request, problem_instance, check_round_times)
+        return super().can_submit(request, problem_instance, check_round_times)
 
 
 class _FakeUserResultForProblem:

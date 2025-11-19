@@ -40,7 +40,7 @@ class Disqualification(models.Model):
             assert self.contest.id == self.submission.problem_instance.contest_id
             assert self.user.id == self.submission.user_id
 
-        super(Disqualification, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class DisqualificationsConfig(models.Model):

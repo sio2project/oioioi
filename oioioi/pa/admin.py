@@ -28,7 +28,7 @@ class PARegistrationParticipantAdmin(ParticipantAdmin):
         return request.user.is_superuser
 
     def get_actions(self, request):
-        actions = super(PARegistrationParticipantAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
@@ -43,7 +43,7 @@ class PAProblemInstanceInline(admin.TabularInline):
 
     def get_readonly_fields(self, request, obj=None):
         if is_contest_admin(request):
-            return super(PAProblemInstanceInline, self).get_readonly_fields(request, obj)
+            return super().get_readonly_fields(request, obj)
         return self.get_fields(request, obj)
 
 
@@ -51,7 +51,7 @@ class PAProblemInstanceAdminMixin:
     """Adds :class:`~oioioi.pa.models.PAProblemInstanceData` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(PAProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (PAProblemInstanceInline,)
 
 

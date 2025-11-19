@@ -33,7 +33,7 @@ class BulkAddSubmissionsSimilarityForm(forms.Form):
     )
 
     def __init__(self, request, *args, **kwargs):
-        super(BulkAddSubmissionsSimilarityForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.contest = request.contest
 
     def clean_similar_groups(self):
@@ -46,7 +46,7 @@ class BulkAddSubmissionsSimilarityForm(forms.Form):
 
             if len(matches) < 2:
                 if line.strip():
-                    raise ValidationError(_("Can't parse nonempty line:\n%(line)s") % dict(line=line))
+                    raise ValidationError(_("Can't parse nonempty line:\n%(line)s") % {"line": line})
                 else:
                     continue
 
@@ -55,23 +55,22 @@ class BulkAddSubmissionsSimilarityForm(forms.Form):
                 try:
                     submission = submissions_qs.get(id=match["submission_id"])
                 except Submission.DoesNotExist:
-                    raise ValidationError(_("Submission %(id)s does not exists in line: %(line)s") % dict(id=match["submission_id"], line=line))
+                    raise ValidationError(_("Submission %(id)s does not exists in line: %(line)s") % {"id": match["submission_id"], "line": line})
 
                 if submission.user is None:
                     raise ValidationError(
-                        _("You can't say that this guy cooperated with model solution author.... It's ridiculous! In line: %(line)s") % dict(line=line)
+                        _("You can't say that this guy cooperated with model solution author.... It's ridiculous! In line: %(line)s") % {"line": line}
                     )
                 if submission.user.username != match["username"]:
                     raise ValidationError(
                         _(
-                            "Submission's %(id)s incorrect author:\n"
-                            "Expected: %(expected)s, but got %(given)s"
-                            " in line %(line)s."
-                            % dict(
-                                id=match["submission_id"],
-                                expected=submission.user.username,
-                                given=match["username"],
-                                line=line,
+                            "Submission's {id} incorrect author:\nExpected: {expected}, but got {given} in line {line}.".format(
+                                **{
+                                    "id": match["submission_id"],
+                                    "expected": submission.user.username,
+                                    "given": match["username"],
+                                    "line": line,
+                                }
                             )
                         )
                     )
@@ -86,7 +85,7 @@ class BulkAddSubmissionsSimilarityForm(forms.Form):
         return groups
 
     def clean(self):
-        cleaned_data = super(BulkAddSubmissionsSimilarityForm, self).clean()
+        cleaned_data = super().clean()
 
         if "similar_groups" in cleaned_data and cleaned_data.get("find_transitive_closure"):
             cleaned_data["similar_groups"] = find_closure(cleaned_data["similar_groups"])

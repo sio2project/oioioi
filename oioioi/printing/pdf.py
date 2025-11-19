@@ -20,7 +20,7 @@ class PrintPDF(FPDF):
 
     def __init__(self, *args, **kwargs):
         self.header_text = kwargs.pop("header", "")
-        super(PrintPDF, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.alias_nb_pages()
         self.initial_l_margin = self.l_margin
         self.background_gray = 200  # The gray level. Value between 0 and 255

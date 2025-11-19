@@ -40,7 +40,7 @@ class MessageAdmin(admin.ModelAdmin):
         return self.has_change_permission(request, obj)
 
     def get_queryset(self, request):
-        queryset = super(MessageAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         queryset = queryset.filter(contest=request.contest)
         return queryset
 
@@ -48,7 +48,7 @@ class MessageAdmin(admin.ModelAdmin):
         return redirect("add_contest_message", contest_id=request.contest.id)
 
     def get_custom_list_select_related(self):
-        return super(MessageAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "author",
             "problem_instance",
             "contest",
@@ -75,7 +75,7 @@ class MessageAdmin(admin.ModelAdmin):
                 else:
                     form.save()
 
-                super(MessageAdmin, self).log_change(request, message, change_message)
+                super().log_change(request, message, change_message)
                 return redirect("contest_messages", contest_id=request.contest.id)
         else:
             form = ChangeContestMessageForm(message.kind, request, instance=message)
@@ -86,7 +86,7 @@ class MessageAdmin(admin.ModelAdmin):
         )
 
     def response_delete(self, request):
-        super(MessageAdmin, self).response_delete(request)
+        super().response_delete(request)
         return redirect("contest_messages", contest_id=request.contest.id)
 
 
@@ -122,7 +122,7 @@ class MessageNotifierConfigInline(admin.TabularInline):
         if db_field.name == "user":
             kwargs["queryset"] = User.objects.filter(id__in=admin_ids).order_by("username")
 
-        return super(MessageNotifierConfigInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class MessageNotifierContestAdminMixin:
@@ -131,7 +131,7 @@ class MessageNotifierContestAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(MessageNotifierContestAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (MessageNotifierConfigInline,)
 
 
@@ -157,9 +157,9 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
-            return super(ReplyTemplateAdmin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
 
-        form = super(ReplyTemplateAdmin, self).get_form(request, obj, **kwargs)
+        form = super().get_form(request, obj, **kwargs)
         if "contest" in form.base_fields:
             if not is_superuser(request):
                 qs = Contest.objects.filter(pk=request.contest.pk)
@@ -182,7 +182,7 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
         return self.has_change_permission(request, obj)
 
     def get_queryset(self, request):
-        queryset = super(ReplyTemplateAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         if not is_superuser(request):
             queryset = queryset.filter(contest=request.contest)
         return queryset

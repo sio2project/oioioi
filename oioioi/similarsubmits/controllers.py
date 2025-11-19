@@ -15,16 +15,16 @@ class SimilarityDisqualificationMixin:
     """ContestController mixin that sets up similarsubmits app."""
 
     def is_submission_disqualified(self, submission):
-        prev = super(SimilarityDisqualificationMixin, self).is_submission_disqualified(submission)
+        prev = super().is_submission_disqualified(submission)
 
         return prev or SubmissionsSimilarityEntry.objects.filter(submission=submission, guilty=True).exists()
 
     def has_disqualification_history(self, submission):
-        prev = super(SimilarityDisqualificationMixin, self).has_disqualification_history(submission)
+        prev = super().has_disqualification_history(submission)
         return prev or SubmissionsSimilarityEntry.objects.filter(submission=submission).exists()
 
     def is_any_submission_to_problem_disqualified(self, user, problem_instance):
-        prev = super(SimilarityDisqualificationMixin, self).is_any_submission_to_problem_disqualified(user, problem_instance)
+        prev = super().is_any_submission_to_problem_disqualified(user, problem_instance)
 
         return (
             prev
@@ -37,7 +37,7 @@ class SimilarityDisqualificationMixin:
         )
 
     def is_user_disqualified(self, request, user):
-        prev = super(SimilarityDisqualificationMixin, self).is_user_disqualified(request, user)
+        prev = super().is_user_disqualified(request, user)
 
         return (
             prev
@@ -50,7 +50,7 @@ class SimilarityDisqualificationMixin:
         )
 
     def user_has_disqualification_history(self, request, user):
-        prev = super(SimilarityDisqualificationMixin, self).user_has_disqualification_history(request, user)
+        prev = super().user_has_disqualification_history(request, user)
 
         return (
             prev
@@ -62,19 +62,19 @@ class SimilarityDisqualificationMixin:
 
     def change_submission_kind(self, submission, kind):
         old_kind = submission.kind
-        super(SimilarityDisqualificationMixin, self).change_submission_kind(submission, kind)
+        super().change_submission_kind(submission, kind)
         if submission.kind != old_kind:
             SubmissionsSimilarityEntry.objects.filter(submission=submission).update(guilty=False)
 
     def exclude_disqualified_users(self, queryset):
         return (
-            super(SimilarityDisqualificationMixin, self)
+            super()
             .exclude_disqualified_users(queryset)
             .exclude(submission__in=Submission.objects.filter(similarities__guilty=True, problem_instance__contest=self.contest))
         )
 
     def filter_visible_sources(self, request, queryset):
-        prev = super(SimilarityDisqualificationMixin, self).filter_visible_sources(request, queryset).distinct()
+        prev = super().filter_visible_sources(request, queryset).distinct()
 
         if not request.user.is_authenticated:
             return prev
@@ -88,7 +88,7 @@ class SimilarityDisqualificationMixin:
         return (prev | similar).distinct()
 
     def _render_disqualification_reason(self, request, submission):
-        prev = super(SimilarityDisqualificationMixin, self)._render_disqualification_reason(request, submission)
+        prev = super()._render_disqualification_reason(request, submission)
 
         if is_contest_admin(request):
             q_expression = Q(submissions__submission=submission)

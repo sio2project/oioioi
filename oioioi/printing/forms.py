@@ -26,7 +26,7 @@ class PrintForm(forms.Form):
 
     def __init__(self, user, *args, **kwargs):
         self.user = user
-        super(PrintForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_file(self):
         cleaned_data = self.cleaned_data
@@ -34,7 +34,7 @@ class PrintForm(forms.Form):
         try:
             cleaned_data["file"] = generator(
                 source=orig.expandtabs(4),
-                header=str("%s (%s)" % (self.user.get_full_name(), self.user)),
+                header=str(f"{self.user.get_full_name()} ({self.user})"),
             )
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))

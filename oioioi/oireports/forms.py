@@ -70,7 +70,7 @@ report_types = (
 
 class OIReportCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
     def render(self, *args, **kwargs):
-        output = super(OIReportCheckboxSelectMultiple, self).render(*args, **kwargs)
+        output = super().render(*args, **kwargs)
         return mark_safe(output.replace("<ul>", '<ul class="unstyled">').replace("<label", '<label class="checkbox"'))
 
 
@@ -84,7 +84,7 @@ class OIReportForm(forms.Form):
     form_type = forms.ChoiceField(choices=report_types, label=_("Report type"))
 
     def __init__(self, request, *args, **kwargs):
-        super(OIReportForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         rounds = _rounds(request)
         last_finished_round_id = _last_finished_round_id(request)
         regions = _regions(request)
@@ -97,7 +97,7 @@ class OIReportForm(forms.Form):
 
         for round in testgroups:
             for task in round["tasks"]:
-                field_name = "testgroup[%s]" % (task["short_name"])
+                field_name = "testgroup[{}]".format(task["short_name"])
                 field_choices = [(group, group) for group in task["testgroups"]]
                 self.fields[field_name] = forms.MultipleChoiceField(
                     choices=field_choices,
@@ -122,7 +122,7 @@ class OIReportForm(forms.Form):
                 continue
 
     def clean(self):
-        cleaned_data = super(OIReportForm, self).clean()
+        cleaned_data = super().clean()
 
         if cleaned_data["is_single_report"]:
             report_user = cleaned_data.get("single_report_user")

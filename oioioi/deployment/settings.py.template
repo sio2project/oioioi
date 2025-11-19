@@ -38,7 +38,7 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 # The server to be run. Options are:
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
-# 'uwsgi-http' - uwsgi deamon with built-in http server
+# 'uwsgi-http' - uwsgi daemon with built-in http server
 # 'none' - nothing will be ran
 # SERVER = 'none'
 
@@ -257,7 +257,7 @@ AUTHENTICATION_BACKENDS += (
 # in which the necessary files will be stored.
 FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
-# When using a remote storage it's recommended to enable a cache cleaner deamon
+# When using a remote storage it's recommended to enable a cache cleaner daemon
 # which will periodically scan cache directory and remove files what aren't
 # used. For a detailed description of each option, please read a cache cleaner
 # configuration section in the sioworkersd documentation. Please note that

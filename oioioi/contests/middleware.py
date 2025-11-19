@@ -59,7 +59,7 @@ class CurrentContestMiddleware:
     Then, if there is no contest ID in a request's URL, but the URL
     also comes with a contest-specific version and a contest exists,
     a redirection is performed to one of the existing contests. Which one
-    it is is determined by the following algorithm:
+    it is determined by the following algorithm:
 
      #. If last contest is saved in session, this value is used.
      #. If the session value is not available or invalid,

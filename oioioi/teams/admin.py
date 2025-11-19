@@ -35,12 +35,12 @@ class TeamsAdmin(admin.ModelAdmin):
         return self.has_change_permission(request, obj)
 
     def get_queryset(self, request):
-        qs = super(TeamsAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         qs = qs.filter(contest=request.contest)
         return qs
 
     def save_form(self, request, *args, **kwargs):
-        obj = super(TeamsAdmin, self).save_form(request, *args, **kwargs)
+        obj = super().save_form(request, *args, **kwargs)
         obj.contest = request.contest
         return obj
 
@@ -73,7 +73,7 @@ class TeamsAdminMixin:
     """Adds :class:`~oioioi.teams.models.TeamsConfig` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(TeamsAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (TeamsConfigInline,)
 
 

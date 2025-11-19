@@ -11,12 +11,12 @@ USER_GROUP_RANKING_PREFIX = "g"
 
 class UserGroupsParticipantsControllerMixin:
     def filter_participants(self, queryset):
-        base_qs = super(UserGroupsParticipantsControllerMixin, self).filter_participants(queryset)
+        base_qs = super().filter_participants(queryset)
         groups_qs = queryset.filter(usergroups__contests__id=self.contest.id)
         return base_qs | groups_qs
 
     def user_contests_query(self, request):
-        base_query = super(UserGroupsParticipantsControllerMixin, self).user_contests_query(request)
+        base_query = super().user_contests_query(request)
         if not request.user.is_authenticated:
             return base_query
         return base_query | Q(usergroups__members__id=request.user.id)
@@ -51,7 +51,7 @@ class UserGroupsDefaultRankingControllerMixin:
         return self._iter_rounds(can_see_all, timezone.now(), partial_key)
 
     def available_rankings(self, request):
-        rankings = super(UserGroupsDefaultRankingControllerMixin, self).available_rankings(request)
+        rankings = super().available_rankings(request)
         if len(rankings) == 0:
             # User cannot see any rounds.
             return []
@@ -61,7 +61,7 @@ class UserGroupsDefaultRankingControllerMixin:
         return rankings
 
     def filter_users_for_ranking(self, key, queryset):
-        queryset = super(UserGroupsDefaultRankingControllerMixin, self).filter_users_for_ranking(key, queryset)
+        queryset = super().filter_users_for_ranking(key, queryset)
         partial_key = self.get_partial_key(key)
 
         if partial_key[0] == USER_GROUP_RANKING_PREFIX:

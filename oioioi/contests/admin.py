@@ -65,7 +65,7 @@ from oioioi.programs.models import Test, TestReport
 
 class ContestProxyAdminSite(admin.AdminSite):
     def __init__(self, orig):
-        super(ContestProxyAdminSite, self).__init__(orig.name)
+        super().__init__(orig.name)
         self._orig = orig
 
     def register(self, model_or_iterable, admin_class=None, **options):
@@ -74,28 +74,28 @@ class ContestProxyAdminSite(admin.AdminSite):
     def unregister(self, model_or_iterable):
         self._orig.unregister(model_or_iterable)
         try:
-            super(ContestProxyAdminSite, self).unregister(model_or_iterable)
+            super().unregister(model_or_iterable)
         except NotRegistered:
             pass
 
     def contest_register(self, model_or_iterable, admin_class=None, **options):
-        super(ContestProxyAdminSite, self).register(model_or_iterable, admin_class, **options)
+        super().register(model_or_iterable, admin_class, **options)
 
     def contest_unregister(self, model_or_iterable):
-        super(ContestProxyAdminSite, self).unregister(model_or_iterable)
+        super().unregister(model_or_iterable)
 
     def get_urls(self):
         self._registry.update(self._orig._registry)
-        return super(ContestProxyAdminSite, self).get_urls()
+        return super().get_urls()
 
     def index(self, request, extra_context=None):
         if request.contest:
-            return super(ContestProxyAdminSite, self).index(request, extra_context)
+            return super().index(request, extra_context)
         return self._orig.index(request, extra_context)
 
     def app_index(self, request, app_label, extra_context=None):
         if request.contest:
-            return super(ContestProxyAdminSite, self).app_index(request, app_label, extra_context)
+            return super().app_index(request, app_label, extra_context)
         return self._orig.app_index(request, app_label, extra_context)
 
 
@@ -180,7 +180,7 @@ class AttachmentInline(admin.StackedInline):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "round":
             kwargs["queryset"] = Round.objects.filter(contest=request.contest)
-        return super(AttachmentInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class ContestLinkInline(admin.TabularInline):
@@ -218,7 +218,7 @@ class ContestAdmin(admin.ModelAdmin):
 
     def get_fieldsets(self, request, obj=None):
         if obj and not request.GET.get("simple", False):
-            return super(ContestAdmin, self).get_fieldsets(request, obj)
+            return super().get_fieldsets(request, obj)
         fields = list(SimpleContestForm().base_fields.keys())
         return [(None, {"fields": fields})]
 
@@ -242,10 +242,10 @@ class ContestAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if not self.has_change_permission(request, obj):
-            return super(ContestAdmin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
 
         if obj and not request.GET.get("simple", False):
-            return super(ContestAdmin, self).get_form(request, obj, **kwargs)
+            return super().get_form(request, obj, **kwargs)
         return modelform_factory(
             self.model,
             form=SimpleContestForm,
@@ -255,7 +255,7 @@ class ContestAdmin(admin.ModelAdmin):
 
     def get_formsets(self, request, obj=None):
         if obj and not request.GET.get("simple", False):
-            return super(ContestAdmin, self).get_formsets(request, obj)
+            return super().get_formsets(request, obj)
         return []
 
     def response_change(self, request, obj):
@@ -263,10 +263,10 @@ class ContestAdmin(admin.ModelAdmin):
         # view.
         if "_popup" not in request.POST:
             return HttpResponseRedirect(request.get_full_path())
-        return super(ContestAdmin, self).response_change(request, obj)
+        return super().response_change(request, obj)
 
     def response_add(self, request, obj, post_url_continue=None):
-        default_redirection = super(ContestAdmin, self).response_add(request, obj, post_url_continue)
+        default_redirection = super().response_add(request, obj, post_url_continue)
         if "_continue" in request.POST or "_addanother" in request.POST:
             return default_redirection
         else:
@@ -274,17 +274,17 @@ class ContestAdmin(admin.ModelAdmin):
 
     def response_delete(self, request):
         set_cc_id(None)
-        return super(ContestAdmin, self).response_delete(request)
+        return super().response_delete(request)
 
     def _get_extra_context(self, extra_context):
         extra_context = extra_context or {}
-        extra_context["categories"] = sorted(set([getattr(inline, "category", None) for inline in self.inlines]))
+        extra_context["categories"] = sorted({getattr(inline, "category", None) for inline in self.inlines})
         extra_context["no_category"] = NO_CATEGORY
         return extra_context
 
     def add_view(self, request, form_url="", extra_context=None):
         extra_context = self._get_extra_context(extra_context)
-        ret = super(ContestAdmin, self).add_view(request, form_url, extra_context)
+        ret = super().add_view(request, form_url, extra_context)
         create_contest_attributes(request, True)
         return ret
 
@@ -296,7 +296,7 @@ class ContestAdmin(admin.ModelAdmin):
         create_contest_attributes(request, False)
         if not request.contest or request.contest.id != contest_id:
             return redirect("oioioiadmin:contests_contest_change", object_id, contest_id=contest_id)
-        return super(ContestAdmin, self).change_view(request, object_id, form_url, extra_context)
+        return super().change_view(request, object_id, form_url, extra_context)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
         if not add:
@@ -315,7 +315,7 @@ class ContestAdmin(admin.ModelAdmin):
 
     def get_actions(self, request):
         # Use delete_selected with a custom redirect.
-        actions = super(ContestAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         actions["delete_selected"] = (
             self.delete_selected_contests,
             "delete_selected",
@@ -357,7 +357,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         # Attach problem ids as arguments to the URL
         base_url = reverse(url_name)
         query_string = urlencode({"ids": ",".join(str(i) for i in ids)}, doseq=True)
-        return "%s?%s" % (base_url, query_string)
+        return f"{base_url}?{query_string}"
 
     @action(description=_("Attach problems to another contest"))
     def attach_problems_to_another_contest(self, request, queryset):
@@ -375,7 +375,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         # creating a thread local variable to store the request
         self._request_local = threading.local()
         self._request_local.request = None
-        super(ProblemInstanceAdmin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def has_add_permission(self, request):
         return False
@@ -393,13 +393,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def has_view_permission(self, request, obj=None):
         if is_contest_archived(request):
             return is_contest_basicadmin(request)
-        return super(ProblemInstanceAdmin, self).has_view_permission(request, obj)
+        return super().has_view_permission(request, obj)
 
     def _problem_change_href(self, instance):
         came_from = reverse("oioioiadmin:contests_probleminstance_changelist")
         came_from_arg = urllib.parse.urlencode({"came_from": came_from})
         problem_change_base_href = reverse("oioioiadmin:problems_problem_change", args=(instance.problem_id,))
-        return "%s?%s" % (problem_change_base_href, came_from_arg)
+        return f"{problem_change_base_href}?{came_from_arg}"
 
     def _rejudge_all_submissions_for_problem_href(self, instance):
         return reverse("rejudge_all_submissions_for_problem", args=(instance.id,))
@@ -420,7 +420,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         base_url = reverse("reattach_problem_contest_list")
         query_string = urlencode({"ids": instance.id})
         # Attach problem id as an argument to the URL
-        return "%s?%s" % (base_url, query_string)
+        return f"{base_url}?{query_string}"
 
     def _add_or_update_href(self, instance):
         return reverse("problemset_add_or_update") + "?" + urllib.parse.urlencode({"problem": instance.problem_id, "key": "upload"})
@@ -438,7 +438,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse("oioioiadmin:contests_probleminstance_change", args=(instance.id,))
 
     def get_list_display(self, request):
-        items = super(ProblemInstanceAdmin, self).get_list_display(request)
+        items = super().get_list_display(request)
         if not is_contest_admin(request):
             disallowed_items = ["package"]
             items = [item for item in items if item not in disallowed_items]
@@ -522,20 +522,20 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def get_actions(self, request):
         self._request_local.request = request
         # Disable delete_selected.
-        actions = super(ProblemInstanceAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
 
     def get_custom_list_select_related(self):
-        return super(ProblemInstanceAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "contest",
             "round",
             "problem",
         ]
 
     def get_queryset(self, request):
-        qs = super(ProblemInstanceAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         qs = (
             qs.filter(contest=request.contest)
             .annotate(localized_name=Subquery(ProblemName.objects.filter(problem=OuterRef("problem__pk"), language=get_language()).values("name")))
@@ -552,7 +552,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
         extra_context["show_add_button"] = not is_contest_archived(request)
-        return super(ProblemInstanceAdmin, self).changelist_view(request, extra_context=extra_context)
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 contest_site.contest_register(ProblemInstance, ProblemInstanceAdmin)
@@ -696,7 +696,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = [path("rejudge/", self.rejudge_view)]
-        return urls + super(SubmissionAdmin, self).get_urls()
+        return urls + super().get_urls()
 
     def rejudge_view(self, request):
         tests = request.POST.getlist("tests", [])
@@ -753,7 +753,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return is_contest_basicadmin(request)
 
     def get_actions(self, request):
-        actions = super(SubmissionAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         if not request.user.is_superuser:
             if not self.has_delete_permission(request):
                 del actions["delete_selected"]
@@ -779,10 +779,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def problem_instance_display(self, instance):
         if instance.kind != "NORMAL":
-            return "%s (%s)" % (
-                force_str(instance.problem_instance),
-                force_str(instance.get_kind_display()),
-            )
+            return f"{force_str(instance.problem_instance)} ({force_str(instance.get_kind_display())})"
         else:
             # return instance.problem_instance
             # FIXME: This is a temporary hack,
@@ -852,7 +849,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     rejudge_action.short_description = _("Rejudge selected submissions")
 
     def get_custom_list_select_related(self):
-        return super(SubmissionAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "user",
             "problem_instance",
             "problem_instance__problem",
@@ -860,7 +857,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         ]
 
     def get_queryset(self, request):
-        queryset = super(SubmissionAdmin, self).get_queryset(request)
+        queryset = super().get_queryset(request)
         if request.contest:
             queryset = queryset.filter(problem_instance__contest=request.contest)
         queryset = queryset.order_by("-id")
@@ -873,7 +870,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     def lookup_allowed(self, key, value, request):
         if key == "user__username":
             return True
-        return super(SubmissionAdmin, self).lookup_allowed(key, value, request)
+        return super().lookup_allowed(key, value, request)
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         _contest_id = None
@@ -977,16 +974,16 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     user_full_name.admin_order_field = "user__last_name"
 
     def get_queryset(self, request):
-        qs = super(RoundTimeExtensionAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.filter(round__contest=request.contest)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "round":
             kwargs["queryset"] = Round.objects.filter(contest=request.contest)
-        return super(RoundTimeExtensionAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_custom_list_select_related(self):
-        return super(RoundTimeExtensionAdmin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "user",
             "round__contest",
         ]
@@ -1051,7 +1048,7 @@ class ContestPermissionAdmin(admin.ModelAdmin):
         return self.has_change_permission(request, obj)
 
     def get_queryset(self, request):
-        qs = super(ContestPermissionAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         if request.contest:
             qs = qs.filter(contest=request.contest)
         return qs
@@ -1063,14 +1060,14 @@ class ContestPermissionAdmin(admin.ModelAdmin):
                 qs = qs.filter(id=request.contest.id)
                 kwargs["initial"] = request.contest
             kwargs["queryset"] = qs
-        return super(ContestPermissionAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):
         if db_field.name == "permission":
             # Contest owners musn't manage other contest owners
             if not request.user.is_superuser:
                 kwargs["choices"] = [i for i in contest_permissions if i[0] != "contests.contest_owner"]
-        return super(ContestPermissionAdmin, self).formfield_for_choice_field(db_field, request, **kwargs)
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
 
 
 contest_site.register(ContestPermission, ContestPermissionAdmin)

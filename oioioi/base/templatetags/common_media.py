@@ -14,9 +14,9 @@ def generate_styles():
     lines = []
     for path in find_common_media():
         if path.endswith(".css"):
-            lines.append('<link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}%s">' % (path,))
+            lines.append(f'<link charset="utf-8" rel="stylesheet" type="text/css" href="{{{{ STATIC_URL }}}}{path}">')
         elif path.endswith(".scss"):
-            lines.append('<link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}%s">' % (path,))
+            lines.append(f'<link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{{{ STATIC_URL }}}}{path}">')
     return "\n".join(lines)
 
 
@@ -24,7 +24,7 @@ def generate_scripts():
     lines = []
     for path in find_common_media():
         if path.endswith(".js"):
-            lines.append('<script type="text/javascript" src="{{ STATIC_URL }}%s"></script>' % (path,))
+            lines.append(f'<script type="text/javascript" src="{{{{ STATIC_URL }}}}{path}"></script>')
     return "\n".join(lines)
 
 

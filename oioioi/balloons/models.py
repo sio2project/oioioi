@@ -56,11 +56,11 @@ class BalloonDelivery(models.Model):
         ordering = ["id"]
 
     def __str__(self):
-        return "%(user)s for %(problem)s (%(delivered)s)" % {
-            "user": self.user,
-            "problem": self.problem_instance,
-            "delivered": "delivered" if self.delivered else "not delivered",
-        }
+        return "{user} for {problem} ({delivered})".format(
+            user=self.user,
+            problem=self.problem_instance,
+            delivered="delivered" if self.delivered else "not delivered",
+        )
 
 
 class BalloonsDeliveryAccessData(models.Model):

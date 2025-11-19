@@ -17,7 +17,7 @@ class SuspendJudgeProblemInstanceAdminMixin:
     """Sets up admin panel for suspendjudge app."""
 
     def __init__(self, *args, **kwargs):
-        super(SuspendJudgeProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.list_display = self.list_display + (
             "suspended_on_init_display",
             "suspended_on_final_display",
@@ -98,7 +98,7 @@ class SuspendJudgeProblemInstanceAdminMixin:
                     "POST",
                 ),
             ]
-        return super(SuspendJudgeProblemInstanceAdminMixin, self).inline_actions(instance) + actions
+        return super().inline_actions(instance) + actions
 
     def suspended_on_init_display(self, instance):
         return not is_suspended_on_init(instance)
@@ -113,7 +113,7 @@ class SuspendJudgeProblemInstanceAdminMixin:
     suspended_on_final_display.boolean = True
 
     def get_urls(self):
-        urls = super(SuspendJudgeProblemInstanceAdminMixin, self).get_urls()
+        urls = super().get_urls()
         extra_urls = [
             path(
                 "<int:problem_instance_id>/resume_and_rejudge/",

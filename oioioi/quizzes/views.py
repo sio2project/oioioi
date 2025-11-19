@@ -16,10 +16,8 @@ def picture_view(request, mode, picture_id):
         return HttpResponseNotFound()
     picture = get_object_or_404(modes[mode], id=picture_id)
     if not any(
-        [
-            pi.controller.can_submit(request, pi) or can_admin_problem_instance(request, pi)
-            for pi in picture.quiz.probleminstance_set.filter(contest=request.contest)
-        ]
+        pi.controller.can_submit(request, pi) or can_admin_problem_instance(request, pi)
+        for pi in picture.quiz.probleminstance_set.filter(contest=request.contest)
     ):
         raise PermissionDenied
     return stream_file(picture.file)

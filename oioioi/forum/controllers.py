@@ -12,7 +12,7 @@ class ContestControllerWithForum:
     create_forum = True
 
     def adjust_contest(self):
-        super(ContestControllerWithForum, self).adjust_contest()
+        super().adjust_contest()
         Forum.objects.get_or_create(contest=self.contest)
 
 

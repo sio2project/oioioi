@@ -60,8 +60,8 @@ def results_histogram_for_queryset(request, qs, max_score=None):
     max_score = int_score(max_score, None)
     keys_left, data = histogram(scores, max_result=max_score)
 
-    keys = ["[%d;%d)" % p for p in zip(keys_left[:-1], keys_left[1:], strict=False)]
-    keys.append("[%d;∞)" % keys_left[-1])
+    keys = ["[%d;%d)" % p for p in zip(keys_left[:-1], keys_left[1:], strict=False)]  # noqa: UP031
+    keys.append("[%d;∞)" % keys_left[-1])  # noqa: UP031
 
     return {
         "plot_name": _("Results histogram"),
@@ -99,9 +99,9 @@ def submissions_by_problem_histogram_for_queryset(qs):
         "status",
     ).annotate(count=Count("problem_instance"))
     agg = sorted(agg, key=itemgetter("status"))
-    statuses = list(set(a["status"] for a in agg))
+    statuses = list({a["status"] for a in agg})
     pis = list(
-        set(
+        {
             (
                 a["problem_instance"],
                 a["problem_instance__short_name"],
@@ -109,7 +109,7 @@ def submissions_by_problem_histogram_for_queryset(qs):
                 a["problem_instance__round__id"],
             )
             for a in agg
-        )
+        }
     )
 
     # Problem instances are sorted by (round start date, round id, pi name)
@@ -210,8 +210,8 @@ def test_scores(request, problem):
         .order_by()
     )
 
-    statuses = sorted(set(a["status"] for a in agg))
-    tests = set((a["test"], a["test_name"], a["test__order"]) for a in agg)
+    statuses = sorted({a["status"] for a in agg})
+    tests = {(a["test"], a["test_name"], a["test__order"]) for a in agg}
     tests = sorted(tests, key=lambda x: (x[2], x[1]))
 
     d = defaultdict(int)

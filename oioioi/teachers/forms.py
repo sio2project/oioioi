@@ -23,7 +23,7 @@ class AddTeacherForm(forms.ModelForm):
     user = UserSelectionField(label=_("Username"))
 
     def __init__(self, *args, **kwargs):
-        super(AddTeacherForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["user"].hints_url = reverse("user_search")
 
     school = forms.CharField(
@@ -53,7 +53,7 @@ class AdminTeacherForm(forms.ModelForm):
     user = UserSelectionField(label=_("Username"))
 
     def __init__(self, *args, **kwargs):
-        super(AdminTeacherForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["user"].hints_url = reverse("user_search")
         instance_user = None
         if "instance" in kwargs:
@@ -82,7 +82,7 @@ class AddUserToContestForm(forms.Form):
     def __init__(self, member_type, contest, *args, **kwargs):
         self.member_type = member_type
         self.contest = contest
-        super(AddUserToContestForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         clean_data = super().clean()

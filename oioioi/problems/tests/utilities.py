@@ -67,7 +67,7 @@ def dummy_handler(env):
 
 class DummySource(UploadedPackageSource):
     def create_env(self, *args, **kwargs):
-        env = super(DummySource, self).create_env(*args, **kwargs)
+        env = super().create_env(*args, **kwargs)
         env["post_upload_handlers"] += ["oioioi.problems.tests.dummy_handler"]
         return env
 

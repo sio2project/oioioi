@@ -39,6 +39,12 @@ class SimpleContestForm(forms.ModelForm):
     results_date = forms.SplitDateTimeField(required=False, label=_("Results date"), widget=widgets.AdminSplitDateTime())
 
     def validate_years(year):
+        validator = RegexValidator(
+            regex=r"^[0-9]{4}[/][0-9]{4}$",
+            message="Enter a valid school year in the format 2021/2022.",
+            code="invalid_school_year",
+        )
+        validator(year)
         year1 = int(year[:4])
         year2 = int(year[5:])
         if year1 + 1 != year2:
@@ -48,11 +54,6 @@ class SimpleContestForm(forms.ModelForm):
         required=False,
         label=_("School year"),
         validators=[
-            RegexValidator(
-                regex=r"^[0-9]{4}[/][0-9]{4}$",
-                message="Enter a valid school year in the format 2021/2022.",
-                code="invalid_school_year",
-            ),
             validate_years,
         ],
     )
@@ -68,7 +69,7 @@ class SimpleContestForm(forms.ModelForm):
             setattr(round, date, self.cleaned_data.get(date))
 
     def __init__(self, *args, **kwargs):
-        super(SimpleContestForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         instance = kwargs.get("instance", None)
         if instance is not None:
             rounds = instance.round_set.all()
@@ -85,14 +86,14 @@ class SimpleContestForm(forms.ModelForm):
             self._generate_default_dates()
 
     def clean(self):
-        cleaned_data = super(SimpleContestForm, self).clean()
+        cleaned_data = super().clean()
         round = Round()
         self._set_dates(round)
         round.clean()
         return cleaned_data
 
     def save(self, commit=True):
-        instance = super(SimpleContestForm, self).save(commit=False)
+        instance = super().save(commit=False)
         rounds = instance.round_set.all()
         if len(rounds) > 1:
             raise ValueError("SimpleContestForm does not support contests with more than one round.")
@@ -113,7 +114,7 @@ class SimpleContestForm(forms.ModelForm):
 class ProblemInstanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         instance = kwargs.get("instance")
-        super(ProblemInstanceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if instance and not instance.contest.is_archived:
             self.fields["round"].queryset = instance.contest.round_set
             self.fields["round"].required = True
@@ -174,7 +175,7 @@ class SubmissionForm(forms.Form):
         pi_choices = [(pi.id, str(pi)) for pi in pis]
 
         # init form with previously sent data
-        super(SubmissionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # prepare problem instance selector
         pi_field = self.fields["problem_instance_id"]
@@ -274,7 +275,7 @@ class SubmissionForm(forms.Form):
         return forms.Form.is_valid(self)
 
     def clean(self, check_submission_limit=True, check_round_times=True):
-        cleaned_data = super(SubmissionForm, self).clean()
+        cleaned_data = super().clean()
 
         if "kind" not in cleaned_data:
             cleaned_data["kind"] = self.kind
@@ -305,7 +306,7 @@ class SubmissionFormForProblemInstance(SubmissionForm):
     def __init__(self, request, problem_instance, *args, **kwargs):
         self.problem_instance = problem_instance
         kwargs["problem_instance"] = problem_instance
-        super(SubmissionFormForProblemInstance, self).__init__(request, *args, **kwargs)
+        super().__init__(request, *args, **kwargs)
         pis = self.fields["problem_instance_id"]
         pis.widget.attrs["readonly"] = "True"
         pis.widget.attrs["data-submit"] = "hidden"
@@ -318,13 +319,13 @@ class GetUserInfoForm(forms.Form):
     user = UserSelectionField(label=_("Username"))
 
     def __init__(self, request, *args, **kwargs):
-        super(GetUserInfoForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["user"].hints_url = reverse("contest_user_hints", kwargs={"contest_id": request.contest.id})
 
 
 class TestsSelectionForm(forms.Form):
     def __init__(self, request, queryset, pis_count, uses_is_active, *args, **kwargs):
-        super(TestsSelectionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         problem_instance = queryset[0].problem_instance
         tests = Test.objects.filter(problem_instance=problem_instance, is_active=True)
 
@@ -394,7 +395,7 @@ class RoundSelectionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         contest = kwargs.pop("contest", None)
-        super(RoundSelectionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if contest is None:
             raise ValueError("Contest must be provided to RoundSelectionForm.")
         self.fields["round"].queryset = Round.objects.filter(contest=contest)

@@ -1039,7 +1039,7 @@ class PastRoundsHiddenContestControllerMixin:
             if preparation_start < context.timestamp < preparation_end:
                 return False
 
-        return super(PastRoundsHiddenContestControllerMixin, self).can_see_round(request_or_context, round, no_admin)
+        return super().can_see_round(request_or_context, round, no_admin)
 
 
 class NotificationsMixinForContestController:

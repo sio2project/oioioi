@@ -1,5 +1,12 @@
+import logging
+
 import django.dispatch
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
 
 # pylint: disable=unused-import
 # Important. This import is to register signal handlers. Do not remove it.
@@ -13,13 +20,6 @@ from oioioi.contests.models import Contest
 setup_check()
 captcha_check()
 
-import logging
-
-from django.contrib.auth.models import User
-from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.utils.translation import gettext_lazy as _
 
 auditLogger = logging.getLogger(__name__ + ".audit")
 

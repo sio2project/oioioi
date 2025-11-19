@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import print_function
-
 try:
     from setuptools import find_packages, setup
 except ImportError:
     from ez_setup import use_setuptools
 
     use_setuptools()
-    from setuptools import setup, find_packages
+    from setuptools import find_packages, setup
 
 import os
 import sys

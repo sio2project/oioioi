@@ -11,7 +11,7 @@ from oioioi.participants.models import Participant
 
 def username_to_dns_name(username):
     hostname = username_to_hostname(username)
-    return "oi-%s.dasie.mimuw.edu.pl" % (hostname,)
+    return f"oi-{hostname}.dasie.mimuw.edu.pl"
 
 
 class Command(BaseCommand):

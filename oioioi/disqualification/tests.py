@@ -142,19 +142,28 @@ class TestViewsMixin:
 
     def test_dashboard(self):
         self.assertTrue(self.client.login(username="test_user"))
-        response_cb = lambda: self.client.get(reverse("contest_dashboard", kwargs=self.contest_kwargs), follow=True)
+
+        def response_cb():
+            return self.client.get(reverse("contest_dashboard", kwargs=self.contest_kwargs), follow=True)
+
         self._assert_disqualification_box(response_cb)
 
     def test_my_submissions(self):
         self.assertTrue(self.client.login(username="test_user"))
-        response_cb = lambda: self.client.get(reverse("my_submissions", kwargs=self.contest_kwargs))
+
+        def response_cb():
+            return self.client.get(reverse("my_submissions", kwargs=self.contest_kwargs))
+
         self._assert_disqualification_box(response_cb)
 
     def test_user_info_page(self):
         self.assertTrue(self.client.login(username="test_admin"))
         user = User.objects.get(username="test_user")
         contest = Contest.objects.get()
-        response_callback = lambda: self.client.get(reverse("user_info", kwargs={"contest_id": contest.id, "user_id": user.id}))
+
+        def response_callback():
+            return self.client.get(reverse("user_info", kwargs={"contest_id": contest.id, "user_id": user.id}))
+
         self._assert_disqualification_box(response_callback)
 
 

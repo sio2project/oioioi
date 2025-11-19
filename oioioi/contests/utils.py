@@ -138,22 +138,19 @@ def generic_rounds_times(request=None, contest=None):
     if not request or not hasattr(request, "user") or request.user.is_anonymous:
         rtexts = {}
     else:
-        rtexts = dict((x["round_id"], x) for x in RoundTimeExtension.objects.filter(user=request.user, round__id__in=rids).values())
+        rtexts = {x["round_id"]: x for x in RoundTimeExtension.objects.filter(user=request.user, round__id__in=rids).values()}
 
-    result = dict(
-        (
-            r,
-            RoundTimes(
-                r.start_date,
-                r.end_date,
-                r.contest,
-                r.results_date,
-                r.public_results_date,
-                rtexts[r.id]["extra_time"] if r.id in rtexts else 0,
-            ),
+    result = {
+        r: RoundTimes(
+            r.start_date,
+            r.end_date,
+            r.contest,
+            r.results_date,
+            r.public_results_date,
+            rtexts[r.id]["extra_time"] if r.id in rtexts else 0,
         )
         for r in rounds
-    )
+    }
     if request is not None:
         getattr(request, cache_attribute)[contest.id] = result
     return result
@@ -341,7 +338,7 @@ def get_results_visibility(request):
     """Returns the results ad ranking visibility for each round in the contest"""
     rtimes = rounds_times(request, request.contest)
 
-    dates = list()
+    dates = []
     for r in rtimes.keys():
         results_date = rtimes[r].results_date()
         public_results_date = rtimes[r].public_results_date()
@@ -581,7 +578,7 @@ def best_round_to_display(request, allow_past_rounds=False):
     past_rtimes = None
 
     if timestamp and contest:
-        rtimes = dict((round, contest.controller.get_round_times(request, round)) for round in Round.objects.filter(contest=contest))
+        rtimes = {round: contest.controller.get_round_times(request, round) for round in Round.objects.filter(contest=contest)}
         next_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [(r, rt) for r, rt in rtimes if rt.is_active(timestamp) and rt.get_end()]

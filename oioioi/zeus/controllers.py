@@ -27,25 +27,25 @@ class ZeusProblemController(ProgrammingProblemController):
                     (
                         "initial_submit_job",
                         "oioioi.zeus.handlers.submit_job",
-                        dict(kind="INITIAL"),
+                        {"kind": "INITIAL"},
                     ),
                     ("initial_import_results", "oioioi.zeus.handlers.import_results"),
                     (
                         "initial_update_tests_set",
                         "oioioi.zeus.handlers.update_problem_tests_set",
-                        dict(kind="EXAMPLE"),
+                        {"kind": "EXAMPLE"},
                     ),
                     ("initial_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("initial_grade_groups", "oioioi.programs.handlers.grade_groups"),
                     (
                         "initial_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
-                        dict(kind="EXAMPLE"),
+                        {"kind": "EXAMPLE"},
                     ),
                     (
                         "initial_make_report",
                         "oioioi.programs.handlers.make_report",
-                        dict(kind="INITIAL"),
+                        {"kind": "INITIAL"},
                     ),
                     recipe_placeholder("after_initial_tests"),
                 ]
@@ -58,13 +58,13 @@ class ZeusProblemController(ProgrammingProblemController):
                     (
                         "final_submit_job",
                         "oioioi.zeus.handlers.submit_job",
-                        dict(kind="NORMAL"),
+                        {"kind": "NORMAL"},
                     ),
                     ("final_import_results", "oioioi.zeus.handlers.import_results"),
                     (
                         "final_update_tests_set",
                         "oioioi.zeus.handlers.update_problem_tests_set",
-                        dict(kind="NORMAL"),
+                        {"kind": "NORMAL"},
                     ),
                     ("final_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("final_grade_groups", "oioioi.programs.handlers.grade_groups"),
@@ -84,36 +84,36 @@ class ZeusProblemController(ProgrammingProblemController):
                     (
                         "initial_submit_job",
                         "oioioi.zeus.handlers.submit_job",
-                        dict(kind="INITIAL"),
+                        {"kind": "INITIAL"},
                     ),
                     recipe_placeholder("before_final_tests"),
                     (
                         "final_submit_job",
                         "oioioi.zeus.handlers.submit_job",
-                        dict(kind="NORMAL"),
+                        {"kind": "NORMAL"},
                     ),
                     ("import_results", "oioioi.zeus.handlers.import_results"),
                     (
                         "initial_update_tests_set",
                         "oioioi.zeus.handlers.update_problem_tests_set",
-                        dict(kind="EXAMPLE"),
+                        {"kind": "EXAMPLE"},
                     ),
                     (
                         "final_update_tests_set",
                         "oioioi.zeus.handlers.update_problem_tests_set",
-                        dict(kind="NORMAL"),
+                        {"kind": "NORMAL"},
                     ),
                     ("hidden_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("hidden_grade_groups", "oioioi.programs.handlers.grade_groups"),
                     (
                         "hidden_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
-                        dict(kind=None),
+                        {"kind": None},
                     ),
                     (
                         "hidden_make_report",
                         "oioioi.programs.handlers.make_report",
-                        dict(kind="HIDDEN"),
+                        {"kind": "HIDDEN"},
                     ),
                     recipe_placeholder("after_all_tests"),
                 ]

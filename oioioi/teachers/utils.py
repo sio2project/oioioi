@@ -43,7 +43,6 @@ def validate_can_add_user_to_contest(user, contest, member_type):
 
 def add_user_to_contest_as(user, contest, member_type):
     validate_can_add_user_to_contest(user, contest, member_type)
-    created = False
 
     if member_type == "pupil":
         Participant.objects.get_or_create(contest=contest, user=user)

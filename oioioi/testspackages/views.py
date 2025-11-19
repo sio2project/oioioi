@@ -81,7 +81,7 @@ def get_tests_for_problem(request, problem):
 
 
 def get_tests_package_file(test_package):
-    file_name = "%s.zip" % test_package.name
+    file_name = f"{test_package.name}.zip"
     return stream_file(test_package.package, name=file_name)
 
 

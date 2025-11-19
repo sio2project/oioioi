@@ -8,7 +8,7 @@ class SuspendJudgeContestControllerMixin:
     """
 
     def finalize_evaluation_environment(self, environ):
-        super(SuspendJudgeContestControllerMixin, self).finalize_evaluation_environment(environ)
+        super().finalize_evaluation_environment(environ)
         try:
             add_before_recipe_entry(
                 environ,
@@ -16,7 +16,7 @@ class SuspendJudgeContestControllerMixin:
                 (
                     "check_problem_instance_state",
                     "oioioi.suspendjudge.handlers.check_problem_instance_state",
-                    dict(suspend_init_tests=True),
+                    {"suspend_init_tests": True},
                 ),
             )
         except IndexError:

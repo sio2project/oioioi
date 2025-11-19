@@ -62,7 +62,7 @@ class ValidationFormset(BaseInlineFormSet):
         return time_limit_sum
 
     def validate_max_scores_in_group(self):
-        score_in_group = dict()
+        score_in_group = {}
         for test_data in self.cleaned_data:
             test = test_data["id"]
             if test.group in list(score_in_group.keys()) and score_in_group[test.group] != test_data["max_score"]:
@@ -234,7 +234,7 @@ class ContestCompilerInline(admin.StackedInline):
     category = _("Advanced")
 
     def __init__(self, *args, **kwargs):
-        super(ContestCompilerInline, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.verbose_name_plural = _("Compiler overrides")
 
     def has_add_permission(self, request, obj=None):
@@ -257,7 +257,7 @@ class ProgramsContestAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(ProgramsContestAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ProgramsConfigInline, ContestCompilerInline)
 
 
@@ -270,7 +270,7 @@ class LibraryProblemDataAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(LibraryProblemDataAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (LibraryProblemDataInline,)
 
 
@@ -283,7 +283,7 @@ class ProgrammingProblemAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (
             ReportActionsConfigInline,
             OutputCheckerInline,
@@ -297,7 +297,7 @@ class ProgrammingProblemInstanceAdminMixin:
     """Adds :class:`~oioioi.programs.models.Test` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(ProgrammingProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (TestInline,)
 
 
@@ -308,7 +308,7 @@ class ProgrammingMainProblemInstanceAdminMixin:
     """Adds :class:`~oioioi.programs.models.Test` to an admin panel."""
 
     def __init__(self, *args, **kwargs):
-        super(ProgrammingMainProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (TestInline,)
 
 
@@ -319,7 +319,7 @@ class ProblemPackageAdminMixin:
     """Adds model solutions action to an admin panel."""
 
     def inline_actions(self, package_instance, contest):
-        actions = super(ProblemPackageAdminMixin, self).inline_actions(package_instance, contest)
+        actions = super().inline_actions(package_instance, contest)
         if package_instance.status == "OK":
             try:
                 problem_instance = package_instance.problem.main_problem_instance
@@ -349,11 +349,11 @@ class ModelSubmissionAdminMixin:
             if instance:
                 instance = instance.modelprogramsubmission
                 if instance:
-                    return "(%s)" % (conditional_escape(force_str(instance.model_solution.name)),)
-        return super(ModelSubmissionAdminMixin, self).user_full_name(instance)
+                    return f"({conditional_escape(force_str(instance.model_solution.name))})"
+        return super().user_full_name(instance)
 
     def get_custom_list_select_related(self):
-        return super(ModelSubmissionAdminMixin, self).get_custom_list_select_related() + [
+        return super().get_custom_list_select_related() + [
             "programsubmission",
             "programsubmission__modelprogramsubmission",
         ]
@@ -369,20 +369,20 @@ class ProgramSubmissionAdminMixin:
 
     # FIXME: see the language_display() method
     # Mapping of an extension to the display language name
-    ext_to_lang = dict()
+    ext_to_lang = {}
     for lang, exts in getattr(settings, "SUBMITTABLE_EXTENSIONS", {}).items():
         for ext in exts:
             ext_to_lang[ext] = lang
 
     def __init__(self, *args, **kwargs):
-        super(ProgramSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.actions += ["submission_diff_action"]
 
     def get_list_display(self, request):
-        return super(ProgramSubmissionAdminMixin, self).get_list_display(request) + ["language_display"]
+        return super().get_list_display(request) + ["language_display"]
 
     def get_list_filter(self, request):
-        return super(ProgramSubmissionAdminMixin, self).get_list_filter(request) + [LanguageListFilter]
+        return super().get_list_filter(request) + [LanguageListFilter]
 
     @admin.display(description=_("Language"))
     def language_display(self, instance):
@@ -427,7 +427,7 @@ class LanguageListFilter(SimpleListFilter):
         if self.value() and self.value() in exts:
             condition = Q()
             for ext in exts[self.value()]:
-                condition |= Q(programsubmission__source_file__contains=".%s@" % ext)
+                condition |= Q(programsubmission__source_file__contains=f".{ext}@")
             return queryset.filter(condition)
         else:
             return queryset
@@ -449,7 +449,7 @@ class CheckerFormatOverrideContestAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(CheckerFormatOverrideContestAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (CheckerFormatForContestInline,)
 
 
@@ -462,7 +462,7 @@ class CheckerFormatOverrideProblemAdminMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(CheckerFormatOverrideProblemAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (CheckerFormatForProblemInline,)
 
 

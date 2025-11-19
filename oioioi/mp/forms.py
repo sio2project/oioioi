@@ -38,7 +38,7 @@ class MP2025RegistrationForm(MPRegistrationForm):
         exclude = ["participant"]
 
     def __init__(self, *args, **kwargs):
-        super(MP2025RegistrationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         this_year = datetime.date.today().year
         self.fields["birth_year"].validators.extend(

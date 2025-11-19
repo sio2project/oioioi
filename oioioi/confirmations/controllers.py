@@ -11,7 +11,7 @@ class ConfirmationContestControllerMixin:
         return False
 
     def create_submission(self, request, *args, **kwargs):
-        submission = super(ConfirmationContestControllerMixin, self).create_submission(request, *args, **kwargs)
+        submission = super().create_submission(request, *args, **kwargs)
 
         if self.should_confirm_submission_receipt(request, submission):
             send_submission_receipt_confirmation(request, submission)

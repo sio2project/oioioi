@@ -15,13 +15,13 @@ class ColorField(models.CharField):
 
     def __init__(self, *args, **kwargs):
         kwargs["max_length"] = 7
-        super(ColorField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def formfield(self, **kwargs):
         kwargs["widget"] = ColorWidget
-        return super(ColorField, self).formfield(**kwargs)
+        return super().formfield(**kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(ColorField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         del kwargs["max_length"]
         return name, path, args, kwargs

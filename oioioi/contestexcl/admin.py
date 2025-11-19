@@ -16,7 +16,7 @@ class ExclusivenessConfigInline(admin.TabularInline):
     category = _("Advanced")
 
     def get_fields(self, request, obj=None):
-        fields = super(ExclusivenessConfigInline, self).get_fields(request, obj)
+        fields = super().get_fields(request, obj)
         # Superadmins don't need to see the disable field
         if obj and request.user.is_superuser:
             return [f for f in fields if f != "disable"]
@@ -49,7 +49,7 @@ class ContestAdminWithExclusivenessInlineMixin:
     """
 
     def __init__(self, *args, **kwargs):
-        super(ContestAdminWithExclusivenessInlineMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ExclusivenessConfigInline,)
 
     def _warn_on_contestexcl_overlap(self, request, ex_confs):

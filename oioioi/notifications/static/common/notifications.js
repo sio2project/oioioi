@@ -163,7 +163,8 @@ NotificationsClient.prototype.renderMessages = function () {
             console.warn(err);
             this.dropdownLoading = false;
             this.HEADER_REFRESH_SPINNER.removeClass("spinner");
-            let text = gettext("A network error occured. Recent submissions list could not be loaded");
+            this.setErrorState();
+            let text = gettext("A network error occurred. Recent submissions list could not be loaded");
             this.TABLE_NOTIFICATIONS.html(
                 $("<span></span>").addClass("dropdown-item-text").text(text)
             );

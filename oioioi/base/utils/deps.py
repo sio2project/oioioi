@@ -11,16 +11,12 @@ def check_django_app_dependencies(app_name, depends_on, strict=False):
         app_name = app_name[:-7]
     if not is_django_app_installed(app_name):
         raise ImproperlyConfigured(
-            "Django app %s is loaded (because something depends on it), but it's not in settings.INSTALLED_APPS. Please add it there." % (app_name,)
+            f"Django app {app_name} is loaded (because something depends on it), but it's not in settings.INSTALLED_APPS. Please add it there."
         )
     index = settings.INSTALLED_APPS.index(app_name)
-    assert isinstance(depends_on, (list, tuple))
+    assert isinstance(depends_on, list | tuple)
     for dep in depends_on:
         if not is_django_app_installed(dep):
-            raise ImproperlyConfigured("Django app %s requires %s, which is not present in settings.INSTALLED_APPS" % (app_name, dep))
+            raise ImproperlyConfigured(f"Django app {app_name} requires {dep}, which is not present in settings.INSTALLED_APPS")
         if strict and index > settings.INSTALLED_APPS.index(dep):
-            raise ImproperlyConfigured(
-                "Django app %(overriding)s overrides "
-                "%(overridden)s, so %(overriding)s should be placed "
-                "before %(overridden)s in settings.INSTALLED_APPS" % {"overriding": app_name, "overridden": dep}
-            )
+            raise ImproperlyConfigured(f"Django app {app_name} overrides {dep}, so {app_name} should be placed before {dep} in settings.INSTALLED_APPS")
