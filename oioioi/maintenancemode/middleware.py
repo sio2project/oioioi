@@ -28,7 +28,7 @@ class MaintenanceModeMiddleware:
                 return None
 
         # If admin logged in as another user, the information who
-        # the real user is is stored in real_user
+        # the real user is stored in real_user
         if hasattr(request, "real_user"):
             if request.real_user.is_superuser:
                 return None

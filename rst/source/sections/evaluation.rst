@@ -46,7 +46,7 @@ the evaluation process:
 
   An evaluation manager built on top of the celery_ system. It takes a task
   from `tasks queue` and processes it in loop as long as possible (until the
-  end of a recipe, or a job transfer). Tasks perfomed by evalmgr aren't cpu
+  end of a recipe, or a job transfer). Tasks performed by evalmgr aren't cpu
   consuming or blocking (such things are performed from `sioworkersd`), so
   `evalmgr` can be a single process on the same machine as `oioioi`. Instead
   it performs management steps like:
@@ -63,7 +63,7 @@ the evaluation process:
 
   `Evalmgr` provides a web interface for tracking (and managing) current jobs,
   available at ``admin/evalmgr/queuedjob/``. Possible states are `Queued` (for
-  jobs waiting in `tasks queue`), `In progress` (for jobs currenlty processed
+  jobs waiting in `tasks queue`), `In progress` (for jobs currently processed
   by `evalmgr`), `Cancelled` (for jobs that have been canceled, but haven't
   been removed from system yet) and `Waiting` (for jobs sent from `evalmgr` to
   an external evaluation system like `sioworkersd`). There is a limited
@@ -259,7 +259,7 @@ Simple environment generated when submission is being judged::
         # Job identifier in celery system
         'job_id': 'urn:uuid:2e9dd7f1-d58f-49bc-a2e3-a56dbab8047d',
 
-        # Name of web instance that created this enviroment
+        # Name of web instance that created this environment
         'oioioi_instance': 'OIOIOI',
 
         # Basic informations about the submission itself
@@ -317,7 +317,7 @@ Simple environment generated when submission is being judged::
                 {'suspend_init_tests': True}),
 
             # Steps 5-7, actual compilation ('compile' handler sends
-            # enviroment to sioworkersd) and checking its results
+            # environment to sioworkersd) and checking its results
             ('compile',
                 'oioioi.programs.handlers.compile'),
             ('compile_end',
@@ -403,7 +403,7 @@ Simple environment generated when submission is being judged::
                 'oioioi.evalmgr.handlers.dump_env',
                 {'message': 'Finished evaluation'})],
 
-        # This handlers are run, when an error occures during evaluation,
+        # This handlers are run, when an error occurs during evaluation,
         # due to a bug in oioioi code.
         'error_handlers': [
             ('remove_queuedjob_on_error',
@@ -459,32 +459,32 @@ For `sioworkersd` transfer function is defined as
 Way of a typical submission
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Scheme that a typical submission follows (components responsible for enviroment
+Scheme that a typical submission follows (components responsible for environment
 during each step are written in **bold**) is:
 
 1. **oioioi**, `filetracker`
 
-   A user submits a solution, a new evaluation enviroment is created.
+   A user submits a solution, a new evaluation environment is created.
 
 2. `oioioi`, **tasks queue**
 
-   Fresh `enviroment` gets to the `tasks queue`, where it waits for being
+   Fresh `environment` gets to the `tasks queue`, where it waits for being
    processed.
 
 3. `tasks queue`, **evalmgr**
 
-   `Evalmgr` takes `enviroment` from the `tasks queue` and processes handlers
+   `Evalmgr` takes `environment` from the `tasks queue` and processes handlers
    from its `recipe` in a loop. It prepares the submission for compilation.
 
 4. `evalmgr`, **sioworkersd**
 
-   `Evalmgr` transfers `enviroment` to `sioworkersd`.
+   `Evalmgr` transfers `environment` to `sioworkersd`.
 
 5. **sioworkersd**, `workers`, `filetracker`
 
-   `Sioworkersd` creates a compilation task from the `enviroment` and runs
+   `Sioworkersd` creates a compilation task from the `environment` and runs
    it on some free `worker`. The resulting binary is inserted into
-   `filetracker` database and `enviroment` is updated with compilation results.
+   `filetracker` database and `environment` is updated with compilation results.
 
 6. `sioworkersd`, `receive_from_workers`, **tasks queue**
 
@@ -501,7 +501,7 @@ during each step are written in **bold**) is:
 
 8. **evalmgr**
 
-   `Evalmgr` continues processing `enviroment`, now preparing it for running
+   `Evalmgr` continues processing `environment`, now preparing it for running
    the initial tests.
 
 9. `evalmgr`, **sioworkersd**
@@ -526,9 +526,9 @@ during each step are written in **bold**) is:
 
 13. `tasks queue`, **evalmgr**
 
-    `Evalmgr` takes `enviroment` from the `tasks queue` again. It saves
+    `Evalmgr` takes `environment` from the `tasks queue` again. It saves
     initial tests results in the database and optionally emits a notification
-    to the user. Then it prepares the `enviroment` for running final tests.
+    to the user. Then it prepares the `environment` for running final tests.
 
 14-17. `evalmgr`, **sioworkersd**, `receive_from_workers`, **tasks queue**
 
@@ -537,6 +537,6 @@ during each step are written in **bold**) is:
 
 18. `tasks queue`, **evalmgr**
 
-    `Evalmgr` takes `enviroment` from the `tasks queue` once again. Results
+    `Evalmgr` takes `environment` from the `tasks queue` once again. Results
     from final tests are saved into the database and optionally a notification
-    is emitted. The submission has been succesfully judged.
+    is emitted. The submission has been successfully judged.

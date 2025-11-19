@@ -222,13 +222,13 @@ def _run_error_handlers(env, exc_info):
     # pylint: disable=broad-except
     except Exception:
         logger.error(
-            "Exception occured in job's error handlers:\n%s",
+            "Exception occurred in job's error handlers:\n%s",
             pprint.pformat(env, indent=4),
             exc_info=True,
         )
     if not env.get("ignore_errors"):
         logger.error(
-            "Exception occured in job:\n%s",
+            "Exception occurred in job:\n%s",
             pprint.pformat(env, indent=4),
             exc_info=exc_info,
         )

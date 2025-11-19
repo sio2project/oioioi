@@ -14,7 +14,7 @@ Filetracker in Django
 .. _Django files docs: https://docs.djangoproject.com/en/dev/topics/files/
 
 Most of the `Django files docs`_ still apply. The only difference is that we
-use our custom model field and storage manager, as specified in ``settngs.py``::
+use our custom model field and storage manager, as specified in ``settings.py``::
 
     DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
 
@@ -37,7 +37,7 @@ it like this::
     def make_test_filename(instance, filename):
         # instance will be an instance of Test
         # filename will be the name of the file uploaded by the user
-        #   or passed programatically to instance.input_file.save()
+        #   or passed programmatically to instance.input_file.save()
         return 'problems/%d/%s' % (instance.problem.id,
                 get_valid_filename(os.path.basename(filename)))
 
