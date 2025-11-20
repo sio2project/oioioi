@@ -28,10 +28,20 @@ else:
 BASE_DOCKER_COMMAND = f"{command_prefix} docker compose -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [
-    ("build", "Build OIOIOI container from source.", "build", True),
+    (
+        "build",
+        "Build OIOIOI container from source.",
+        "build",
+        "This will rebuild the project, data will be lost.",
+    ),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop and remove all SIO2 containers", "down"),
-    ("wipe", "Stop all SIO2 containers and DESTROY all data", "down -v", True),
+    (
+        "wipe",
+        "Stop all SIO2 containers and DESTROY all data",
+        "down -v",
+        "This will stop all SIO2 containers and DESTROY all data.",
+    ),
     (
         "run",
         "Run django server and webpack",
@@ -42,7 +52,12 @@ RAW_COMMANDS = [
     ("exec", "Run a command in the web container.", "{exec} web {extra_args}"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),
+    (
+        "flush-db",
+        "Clear database.",
+        "{exec} web python manage.py flush --noinput",
+        "This will CLEAR the database.",
+    ),
     ("add-superuser", "Create admin_admin.", "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
     ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh {extra_args}"),
     ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow {extra_args}"),
@@ -67,14 +82,28 @@ longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
 class Help(Exception):
     pass
 
+class Warning:
+    def __init__(self, _msg: str):
+        self.message = _msg
+
+    @classmethod
+    def default_warning(cls, _cmd: str):
+        message = f"You are going to execute command [{_cmd}] marked as `dangerous`."
+        return cls(message)
+
+    def __str__(self) -> str:
+        return f"{self.message}\nAre you sure? [y/N]"
 
 class Option:
-    def __init__(self, _arg, _help, _command, _warn=False, extra_args=None):
+    def __init__(self, _arg, _help, _command, _warning_msg=None, extra_args=None):
         self.arg = _arg
         self.extra_args = extra_args
         self.help = _help
         self.command = _command
-        self.warn = _warn
+        if _warning_msg is None:
+            self.warning = None
+        else:
+            self.warning = Warning(_warning_msg)
 
     # If we use exec we should add -T for GitHub actions (disable tty).
     def gen_full_command(self, disable=False):
@@ -98,7 +127,7 @@ COMMANDS = {x[0]: Option(*x) for x in RAW_COMMANDS}
 NO_INPUT = False
 
 
-def get_action_from_args() -> Option:
+def get_action_from_args() -> Option | None:
     # not flags
     arguments = []
 
@@ -156,8 +185,8 @@ def run_command(command) -> None:
         sys.exit(os.WEXITSTATUS(os.system(command)))
 
 
-def warn_user(action: Option) -> bool:
-    print(f"You are going to execute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]")
+def warn_user(warning: Warning) -> bool:
+    print(warning)
     while True:
         choice = input().lower()
         if not choice or "no".startswith(choice):
@@ -171,8 +200,8 @@ def warn_user(action: Option) -> bool:
 def run() -> None:
     action = get_action_from_args() or get_action_from_gui()
     command = action.gen_full_command(disable=NO_INPUT)
-    if action.warn and not NO_INPUT:
-        if not warn_user(action):
+    if action.warning is not None and not NO_INPUT:
+        if not warn_user(action.warning):
             print("Aborting.")
             return
     run_command(f"{BASE_DOCKER_COMMAND} {command}")
