@@ -644,6 +644,28 @@ class SystemErrorListFilter(SimpleListFilter):
             return queryset
 
 
+class LastSubmissionFilter(SimpleListFilter):
+    title = _("include last submission only")
+    parameter_name = "last_submission_only"
+
+    def lookups(self, request, model_admin):
+        return [("yes", _("Yes")), ("no", _("No"))]
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            last_subquery = (
+                Submission.objects.filter(
+                    user=OuterRef("user"),
+                    problem_instance=OuterRef("problem_instance"),
+                )
+                .order_by("-date")
+                .values("id")[:1]
+            )
+            return queryset.filter(id=Subquery(last_subquery))
+        else:
+            return queryset
+
+
 class SubmissionAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
     actions = ["rejudge_action"]
@@ -687,6 +709,7 @@ class SubmissionAdmin(admin.ModelAdmin):
             "status",
             SubmissionRoundListFilter,
             SystemErrorListFilter,
+            LastSubmissionFilter,
         ]
         if request.contest:
             list_filter.remove(ContestListFilter)
