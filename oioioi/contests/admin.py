@@ -649,7 +649,7 @@ class LastSubmissionFilter(SimpleListFilter):
     parameter_name = "last_submission_only"
 
     def lookups(self, request, model_admin):
-        return [("yes", _("Yes")), ("no", _("No"))]
+        return [("yes", _("Last only"))]
 
     def queryset(self, request, queryset):
         if self.value() == "yes":
