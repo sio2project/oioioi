@@ -13,6 +13,7 @@ from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
+from django.utils.dateparse import parse_date
 from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.http import urlencode
@@ -666,6 +667,29 @@ class LastSubmissionFilter(SimpleListFilter):
             return queryset
 
 
+class SubmissionDateRangeFilter(SimpleListFilter):
+    title = _("submission date range")
+    parameter_name = "date_range"
+
+    def lookups(self, request, model_admin):
+        return (("range", _("Select range")),)
+
+    def queryset(self, request, queryset):
+        print(request.GET)
+        start_date_str = request.GET.get("date_range_start")
+        end_date_str = request.GET.get("date_range_end")
+        print(start_date_str, end_date_str)
+        start = parse_date(start_date_str) if start_date_str else None
+        end = parse_date(end_date_str) if end_date_str else None
+
+        if start:
+            queryset = queryset.filter(date__date__gte=start)
+        if end:
+            queryset = queryset.filter(date__date__lte=end)
+
+        return queryset
+
+
 class SubmissionAdmin(admin.ModelAdmin):
     date_hierarchy = "date"
     actions = ["rejudge_action"]
@@ -710,6 +734,7 @@ class SubmissionAdmin(admin.ModelAdmin):
             SubmissionRoundListFilter,
             SystemErrorListFilter,
             LastSubmissionFilter,
+            SubmissionDateRangeFilter,
         ]
         if request.contest:
             list_filter.remove(ContestListFilter)
