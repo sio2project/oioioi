@@ -32,7 +32,7 @@ RAW_COMMANDS = [
         "build",
         "Build OIOIOI container from source.",
         "build",
-        "This will rebuild the project, data will be lost.",
+        "This may result in the loss of local modifications inside containers.",
     ),
     ("up", "Run all SIO2 containers", "up -d"),
     ("down", "Stop and remove all SIO2 containers", "down"),
