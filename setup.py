@@ -32,7 +32,7 @@ requirements = [
     "django-compressor>=4.5,<4.6",
     "Pygments>=2.15,<2.16",
     "django-libsass>=0.9,<0.10",
-    "django-debug-toolbar",
+    "django-debug-toolbar<6.0.0",  # 6.1.0 causes an obscure test failure.
     "django-extensions>=3.2,<3.3",
     "djangorestframework>=3.14,<3.15",
     "django-oauth-toolkit>=3.0,<3.1",
