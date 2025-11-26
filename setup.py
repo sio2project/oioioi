@@ -70,6 +70,10 @@ requirements = [
     "importlib-metadata==4.13.0",
     "supervisor==4.2.5",  # previously http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
     "django-supervisor@git+https://github.com/sio2project/django-supervisor#egg=django-supervisor",  # previously http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
+    "websockets>=15.0.1,<15.1.0",
+    "aio-pika>=9.5.5,<9.6.0",
+    "aiohttp>=3.12.2,<3.13.0",
+    "cachetools>=6.0.0,<6.1.0",
     # Takes too much time during deployment
     "cffi==1.16.0",
     "django-appconf==1.0.6",
