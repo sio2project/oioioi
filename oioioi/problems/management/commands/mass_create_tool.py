@@ -6,6 +6,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 
+from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.participants.models import Participant
 from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagProposal,
@@ -50,6 +52,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--wipe", "-w", action="store_true", help="Remove all previously generated mock data before creating new data")
+        # FIXME: not implemented yet
+        parser.add_argument("--createcontest", "-cc", action="store_true", help="Adds created problems and users to a new contest")
+        parser.add_argument("--contestname", "-cn", type=str, help="Name of the contest to create (default: random ID)")
         parser.add_argument("--problems", "-p", type=unsigned_int, default=0, metavar="N", help="Number of problems to create (default: 0)")
         parser.add_argument("--users", "-u", type=unsigned_int, default=0, metavar="N", help="Number of users to create (default: 0)")
         parser.add_argument("--algotags", "-at", type=unsigned_int, default=0, metavar="N", help="Number of algorithm tags to create (default: 0)")
@@ -149,6 +154,38 @@ class Command(BaseCommand):
             )
         return created_problems
 
+    def create_and_populate_contest(self, problems, users, verbose_name, verbosity, contest_name=None):
+        """
+        Creates a Contest and adds all provided problems and users to it.
+        Returns the created Contest object.
+        """
+        if contest_name is None:
+            candidate_prefix, random_length = "contest_", 10
+        else:
+            candidate_prefix, random_length = contest_name, 0
+            
+        contests = self.create_unique_objects(
+            count=1,
+            candidate_prefix=candidate_prefix,
+            random_length=random_length,
+            uniqueness_fn=lambda s: not Contest.objects.filter(id=s).exists(),
+            create_instance_fn=lambda candidate: Contest(id=candidate, name=contest_name),
+            verbose_name="Contest",
+            verbosity=verbosity,
+        )
+        contest = contests[0]
+
+        for problem in problems:
+            ProblemInstance.objects.create(contest=contest, problem=problem, short_name=problem.short_name)
+
+        for user in users:
+            Participant.objects.create(contest=contest, user=user)
+
+        if verbosity >= 2:
+            self.stdout.write(f"Created {verbose_name}: {contest.name} (ID: {contest.id}) with {len(problems)} problems and {len(users)} users")
+
+        return contest
+
     def create_through_records(self, count, problems, tags, through_model, verbose_name, verbosity):
         """
         Creates exactly `count` distinct through-records connecting problems and tags.
@@ -231,6 +268,11 @@ class Command(BaseCommand):
         user_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {user_count} Users"))
 
+        contest_qs = Contest.objects.filter(name__startswith=self.auto_prefix)
+        contest_count = contest_qs.count()
+        contest_qs.delete()
+        self.stdout.write(self.style.SUCCESS(f"Deleted {contest_count} Contests"))
+
         algo_tag_qs = AlgorithmTag.objects.filter(name__startswith=self.auto_prefix)
         algo_tag_count = algo_tag_qs.count()
         algo_tag_qs.delete()
@@ -251,6 +293,8 @@ class Command(BaseCommand):
         self.auto_prefix = "_auto_"
 
         wipe = options["wipe"]
+        create_contest = options["createcontest"]
+        contest_name = options["contestname"]
         num_problems = options["problems"]
         num_users = options["users"]
         num_algotags = options["algotags"]
@@ -263,7 +307,7 @@ class Command(BaseCommand):
         verbosity = int(options.get("verbosity", 1))
 
         total_objects_to_create = (
-            num_problems + num_users + num_algotags + num_difftags + num_algothrough + num_diffthrough + num_algoproposals + num_diffproposals
+            int(bool(create_contest is not None)) + num_problems + num_users + num_algotags + num_difftags + num_algothrough + num_diffthrough + num_algoproposals + num_diffproposals
         )
         max_algothrough = num_problems * num_algotags
         max_diffthrough = num_problems
@@ -320,6 +364,15 @@ class Command(BaseCommand):
             verbose_name="User",
             verbosity=verbosity,
         )
+
+        if create_contest:
+            created_contest = self.create_and_populate_contest(
+                contest_name=contest_name,
+                problems=created_problems,
+                users=created_users,
+                verbose_name="Contest",
+                verbosity=verbosity,
+            )
 
         created_algotags = self.create_unique_objects(
             count=num_algotags,
