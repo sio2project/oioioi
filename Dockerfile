@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS base
+FROM ghcr.io/astral-sh/uv:python3.11-trixie AS base
 
 ENV PYTHONUNBUFFERED=1
 
@@ -29,7 +29,6 @@ RUN apt-get update && \
         sox \
         flite \
         locales \
-        python3-pip \
         nodejs \
         npm && \
     apt-get clean && \
@@ -53,8 +52,6 @@ RUN sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
     locale-gen
 
 # Installing python dependencies
-RUN pip3 install uv
-
 USER oioioi
 
 ENV UV_NO_CACHE=1
