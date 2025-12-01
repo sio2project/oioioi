@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -14,6 +15,17 @@ module.exports = {
     path: path.resolve(__dirname, 'dist_webpack'),
     asyncChunks: false,
   },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'node_modules/mathjax',
+          to: 'mathjax',
+          info: { minimized: true },
+        },
+      ],
+    }),
+  ],
   externals: {
     jquery: 'jQuery',
   },
