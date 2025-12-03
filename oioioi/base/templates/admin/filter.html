@@ -1,9 +1,8 @@
 {% load i18n %}
 <a href="#" 
-   class="dropdown-item dropdown-toggle d-flex justify-content-between align-items-center filter-toggle"
+   class="dropdown-item-text dropdown-toggle d-flex justify-content-between align-items-center filter-toggle text-nowrap mb-1 btn mb-2 js-category-filter-toggle"
    role="button"
-   data-toggle="collapse"
-   data-target="#filter-{{ title|slugify }}"
+   onclick="event.preventDefault(); event.stopPropagation(); $('#filter-{{ title|slugify }}').collapse('toggle');"
    aria-expanded="false"
    aria-controls="filter-{{ title|slugify }}">
     <span>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</span>
@@ -12,8 +11,8 @@
 <div class="collapse pl-3" id="filter-{{ title|slugify }}">
     {% for choice in choices %}
         <a class="dropdown-item dropdown-item-action filter-option {% if choice.selected %}filter-option-selected{% endif %}" 
-           href="{{ choice.query_string|iriencode }}">
-           {{ choice.display }}
+            href="{{ choice.query_string|iriencode }}">
+            {{ choice.display }}
         </a>
     {% endfor %}
 </div>
