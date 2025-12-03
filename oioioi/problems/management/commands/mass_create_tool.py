@@ -1,10 +1,13 @@
 import random
 import string
 import sys
+import os
+from django.utils.module_loading import import_string
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.participants.models import Participant
@@ -19,6 +22,8 @@ from oioioi.problems.models import (
     ProblemName,
     ProblemSite,
 )
+from oioioi.problems.package import backend_for_package
+from oioioi.problems.utils import get_new_problem_instance
 
 User = get_user_model()
 
@@ -52,10 +57,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--wipe", "-w", action="store_true", help="Remove all previously generated mock data before creating new data")
-        # FIXME: not implemented yet
         parser.add_argument("--createcontest", "-cc", action="store_true", help="Adds created problems and users to a new contest")
         parser.add_argument("--contestname", "-cn", type=str, help="Name of the contest to create (default: random ID)")
         parser.add_argument("--problems", "-p", type=unsigned_int, default=0, metavar="N", help="Number of problems to create (default: 0)")
+        parser.add_argument(
+            '--problempackages', '-pp',
+            nargs='+',
+            type=str,
+            help='List of problem package files to upload to contest'
+        )
         parser.add_argument("--users", "-u", type=unsigned_int, default=0, metavar="N", help="Number of users to create (default: 0)")
         parser.add_argument("--algotags", "-at", type=unsigned_int, default=0, metavar="N", help="Number of algorithm tags to create (default: 0)")
         parser.add_argument("--difftags", "-dt", type=unsigned_int, default=0, metavar="N", help="Number of difficulty tags to create (default: 0)")
@@ -137,7 +147,10 @@ class Command(BaseCommand):
             candidate_prefix="prob_",
             random_length=10,
             uniqueness_fn=lambda s: not Problem.objects.filter(short_name=s).exists(),
-            create_instance_fn=lambda candidate: Problem.create(short_name=candidate),
+            create_instance_fn=lambda candidate: Problem.create(
+                short_name=candidate,
+                controller_name='oioioi.problems.controllers.ProblemController'
+            ),
             verbose_name="Problem",
             verbosity=verbosity,
         )
@@ -153,30 +166,92 @@ class Command(BaseCommand):
                 url_key=f"{problem.short_name}_site",
             )
         return created_problems
+    
+    def create_problems_from_package(self, package_file_names, verbosity):
+        """
+        Creates problems from package files.
+        Ensures that the controller_name is properly set after unpacking.
+        """
+        if not package_file_names:
+            return []
+        
+        TEST_FILES_DIR = os.path.join(settings.BASE_DIR, 'oioioi', 'sinolpack', 'files')
+        created_problems = []
+
+        for package_file_name in package_file_names:
+            package_path = os.path.join(TEST_FILES_DIR, package_file_name)
+
+            backend_path = backend_for_package(package_path)
+            backend_class = import_string(backend_path)
+            backend = backend_class()
+            problem = backend.simple_unpack(package_path)
+            if problem:
+                # Ensure controller_name is set - refresh from DB and verify
+                problem.refresh_from_db()
+                if not problem.controller_name:
+                    # Set a default controller if it's not set
+                    problem.controller_name = 'oioioi.problems.controllers.ProblemController'
+                    problem.save()
+                    if verbosity >= 2:
+                        self.stdout.write(self.style.WARNING(f"Warning: Set default controller_name for problem {problem.short_name}"))
+                
+                created_problems.append(problem)
+
+                if verbosity >= 2:
+                    self.stdout.write(f"Created problem: {problem.short_name} (ID: {problem.id}, controller: {problem.controller_name}) from package {package_file_name}")
+            else:
+                self.stderr.write(self.style.ERROR(f"Failed to unpack package {package_file_name} located at {package_path} using backend {backend_class}."))
+            
+        return created_problems
+    
+    def add_problems_to_new_round(self, problems, contest, verbosity):
+        """
+        Adds all provided problems to a new round in the given contest.
+        Returns the created Round object.
+        """
+        with transaction.atomic():
+            round_number = contest.round_set.count() + 1
+            new_round = contest.round_set.create(name=f"Round {round_number}")
+
+            for problem in problems:
+                pi = get_new_problem_instance(problem, contest)
+                pi.short_name = problem.short_name
+                pi.round = new_round
+                pi.save()
+
+            if verbosity >= 2:
+                self.stdout.write(f"Added {len(problems)} problems to new round '{new_round.name}' in contest '{contest.name}' (ID: {contest.id})")
+
+        return new_round
 
     def create_and_populate_contest(self, problems, users, verbose_name, verbosity, contest_name=None):
         """
-        Creates a Contest and adds all provided problems and users to it.
+        Creates an OI like Contest with a given (or generated) name and an auto-preixed ID.
+        Then adds all provided problems and users to it.
+        
         Returns the created Contest object.
         """
         if contest_name is None:
             candidate_prefix, random_length = "contest_", 10
         else:
             candidate_prefix, random_length = contest_name, 0
-            
-        contests = self.create_unique_objects(
+
+        created_contests = self.create_unique_objects(
             count=1,
             candidate_prefix=candidate_prefix,
             random_length=random_length,
             uniqueness_fn=lambda s: not Contest.objects.filter(id=s).exists(),
-            create_instance_fn=lambda candidate: Contest(id=candidate, name=contest_name),
-            verbose_name="Contest",
+            create_instance_fn=lambda candidate: Contest(
+                id=candidate,
+                name=contest_name or candidate,
+                controller_name='oioioi.oi.controllers.OIContestController'
+            ),
+            verbose_name=verbose_name,
             verbosity=verbosity,
         )
-        contest = contests[0]
-
-        for problem in problems:
-            ProblemInstance.objects.create(contest=contest, problem=problem, short_name=problem.short_name)
+        
+        contest = created_contests[0]
+        self.add_problems_to_new_round(problems, contest, verbosity)
 
         for user in users:
             Participant.objects.create(contest=contest, user=user)
@@ -268,7 +343,8 @@ class Command(BaseCommand):
         user_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {user_count} Users"))
 
-        contest_qs = Contest.objects.filter(name__startswith=self.auto_prefix)
+        contest_qs = Contest.objects.filter(id__startswith=self.auto_prefix)
+        self.stdout.write(self.style.WARNING(f"Deleting the following contests: {contest_qs.values_list('id', flat=True)}"))
         contest_count = contest_qs.count()
         contest_qs.delete()
         self.stdout.write(self.style.SUCCESS(f"Deleted {contest_count} Contests"))
@@ -296,6 +372,7 @@ class Command(BaseCommand):
         create_contest = options["createcontest"]
         contest_name = options["contestname"]
         num_problems = options["problems"]
+        package_file_names = options["problempackages"]
         num_users = options["users"]
         num_algotags = options["algotags"]
         num_difftags = options["difftags"]
@@ -352,6 +429,11 @@ class Command(BaseCommand):
 
         created_problems = self.create_problems(
             count=num_problems,
+            verbosity=verbosity,
+        )
+
+        created_problems += self.create_problems_from_package(
+            package_file_names=package_file_names,
             verbosity=verbosity,
         )
 
