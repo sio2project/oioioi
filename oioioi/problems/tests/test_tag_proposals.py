@@ -266,3 +266,31 @@ class TestSaveProposals(TestCase):
         for q_data in invalid_query_data:
             response = self.client.post(self.url, q_data)
             self.assertEqual(response.status_code, 400)
+
+    def test_duplicate_difficulty_proposal_rejected(self):
+        problem = Problem.objects.get(pk=0)
+        user = User.objects.get(username="test_admin")
+
+        response = self.client.post(
+            self.url,
+            {
+                "tags[]": ["Dynamic programming"],
+                "difficulty": "Easy",
+                "user": "test_admin",
+                "problem": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(DifficultyTagProposal.objects.filter(problem=problem, user=user).count(), 1)
+
+        response = self.client.post(
+            self.url,
+            {
+                "tags[]": ["Greedy"],
+                "difficulty": "Medium",
+                "user": "test_admin",
+                "problem": "0",
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(DifficultyTagProposal.objects.filter(problem=problem, user=user).count(), 1)
