@@ -774,6 +774,7 @@ CACHES = {
 }
 
 # Ranking
+RANKINGSD_CONCURRENCY = 1 # Number of rankingsd instances to start.
 RANKINGSD_POLLING_INTERVAL = 0.5  # seconds
 RANKING_COOLDOWN_FACTOR = 2  # seconds
 RANKING_MIN_COOLDOWN = 5  # seconds
