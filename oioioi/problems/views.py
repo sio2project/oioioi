@@ -1156,8 +1156,16 @@ def save_proposals_view(request):
         if not tags or not difficulty or not user or not problem:
             return HttpResponseBadRequest()
 
+        if DifficultyTagProposal.objects.filter(problem=problem, user=user).exists():
+            return HttpResponseBadRequest()
+
         for tag in tags:
             algorithm_tag = AlgorithmTagLocalization.objects.filter(full_name=tag, language=get_language()).first().algorithm_tag
+
+
+            if AlgorithmTagProposal.objects.filter(problem=problem, tag=algorithm_tag, user=user).exists():
+                return HttpResponseBadRequest()
+
             algorithm_tag_proposal = AlgorithmTagProposal(problem=problem, tag=algorithm_tag, user=user)
             algorithm_tag_proposal.save()
 
