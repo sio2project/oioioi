@@ -140,7 +140,16 @@ def clamp(minimum, x, maximum):
 @transaction.atomic
 def choose_for_recalculation():
     now = timezone.now()
-    r = Ranking.objects.filter(needs_recalculation=True, cooldown_date__lt=now).order_by("last_recalculation_date").select_for_update().first()
+    r = (
+        Ranking.objects.filter(
+            needs_recalculation=True,
+            cooldown_date__lt=now,
+            recalc_in_progress=None,
+        )
+        .order_by("last_recalculation_date")
+        .select_for_update()
+        .first()
+    )
     if r is None:
         return None
     cooldown_duration = clamp(
