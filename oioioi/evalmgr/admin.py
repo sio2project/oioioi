@@ -111,6 +111,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    @_require_submission
     def submit_id(self, instance):
         res = instance.submission.id
         return self._get_link(
