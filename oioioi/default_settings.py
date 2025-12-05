@@ -836,9 +836,8 @@ NON_CONTEST_WEIGHT = 1000
 # for new messages to notify about
 MAILNOTIFYD_INTERVAL = 60
 
-# If your contest has no access to the internet and you need MathJax typesetting,
-# either whitelist this link or download your own copy of MathJax and link it here.
-MATHJAX_LOCATION = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/"
+# Serve MathJax library from local static files
+MATHJAX_LOCATION = '/static/mathjax/tex-chtml.js'
 
 # Django message framework CSS classes
 # https://docs.djangoproject.com/en/1.9/ref/contrib/messages/#message-tags
