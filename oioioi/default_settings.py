@@ -837,7 +837,7 @@ NON_CONTEST_WEIGHT = 1000
 MAILNOTIFYD_INTERVAL = 60
 
 # Serve MathJax library from local static files
-MATHJAX_LOCATION = '/static/mathjax/MathJax.js'
+MATHJAX_LOCATION = '/static/mathjax/tex-chtml.js'
 
 # Django message framework CSS classes
 # https://docs.djangoproject.com/en/1.9/ref/contrib/messages/#message-tags

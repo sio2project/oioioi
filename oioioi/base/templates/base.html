@@ -116,17 +116,20 @@
             <script>const oioioi_base_url = "{{ base_url | escapejs }}";</script>
             <script src="{% url 'javascript_catalog' %}"></script>
             <script src="{% static 'index.bundle.js' %}"></script>
-            <script type="text/x-mathjax-config">
-                MathJax.Hub.Config({
-                    extensions: ["tex2jax.js"],
-                       jax: ["input/TeX", "output/HTML-CSS"],
-                       tex2jax: {
-                       inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-                       displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-                       processEscapes: true
+            <script>
+                window.MathJax = {
+                    tex: {
+                      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+                      displayMath: [ ['$$','$$'], ['\\[','\\]'] ],
+                      processEscapes: true
                     },
-                });
+                    options: {
+                        ignoreHtmlClass: 'tex2jax_ignore',
+                        processHtmlClass: 'tex2jax_process'
+                    }
+                };
             </script>
-            <script type="text/javascript" src="{% static 'mathjax/MathJax.js' %}"></script>{% endblock %}
+            <script type="text/javascript" id="MathJax-script" src="{% static 'mathjax/tex-chtml.js' %}"></script>
+        {% endblock %}
     </body>
 </html>
