@@ -3,15 +3,19 @@ import string
 import sys
 import os
 from io import StringIO
+from types import SimpleNamespace
+
 from django.utils.module_loading import import_string
 
+from django.core.files.base import ContentFile
+from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from oioioi.contests.models import Contest, ProblemInstance, RegistrationAvailabilityConfig
+from oioioi.contests.models import Contest, ProblemInstance, RegistrationAvailabilityConfig, Submission
 from oioioi.participants.models import Participant
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -68,6 +72,8 @@ class Command(BaseCommand):
             help='List of problem package files to upload to contest'
         )
         parser.add_argument("--users", "-u", type=unsigned_int, default=0, metavar="N", help="Number of users to create (default: 0)")
+        parser.add_argument("--submission_files", "-sf", nargs='+', type=str, help="List of source code files to use for submissions")
+        parser.add_argument("--submissions_per_user", "-spu", type=unsigned_int, default=0, metavar="N", help="Number of submissions per user to create (default: 0)")
         parser.add_argument("--algotags", "-at", type=unsigned_int, default=0, metavar="N", help="Number of algorithm tags to create (default: 0)")
         parser.add_argument("--difftags", "-dt", type=unsigned_int, default=0, metavar="N", help="Number of difficulty tags to create (default: 0)")
         parser.add_argument(
@@ -224,11 +230,60 @@ class Command(BaseCommand):
                 self.stdout.write(f"Added {len(problems)} problems to new round '{new_round.name}' in contest '{contest.name}' (ID: {contest.id})")
 
         return new_round
-
-    def create_and_populate_contest(self, problems, users, verbose_name, verbosity, contest_name=None):
+    
+    def fetch_submission_files(self, submission_file_names):
         """
-        Creates an OI like Contest with a given (or generated) name and an auto-preixed ID.
-        Then adds all provided problems and users to it.
+        Fetches submission files from the specified file names.
+        Returns a list of tuples (file_name, source_code).
+        """
+        if not submission_file_names:
+            return []
+        TEST_FILES_DIR = os.path.join(settings.BASE_DIR, 'oioioi', 'sinolpack', 'files')
+        submission_files = []
+        for file_name in submission_file_names:
+            file_path = os.path.join(TEST_FILES_DIR, file_name)
+            try:
+                with open(file_path, 'r') as f:
+                    source_code = f.read()
+                    submission_files.append((file_name, source_code))
+                    if verbosity >= 2:
+                        self.stdout.write(f"Loaded submission file: {file_name}")
+            except Exception as e:
+                self.stderr.write(self.style.ERROR(f"Failed to read submission file {file_name} located at {file_path}. Error: {e}"))
+        return submission_files
+    
+    def submit_by_user(self, user, problem_instance, source_code, source_code_name, verbosity=0):
+        """
+        Submits source code to a problem instance on behalf of a user.
+        """
+        # Mock request object with necessary attributes
+        request = SimpleNamespace()
+        request.user = user
+        request.timestamp = timezone.now()
+        request.contest = problem_instance.contest
+        request.COOKIES = {settings.LANGUAGE_COOKIE_NAME: 'en'}
+        request._cache = {}
+
+        if verbosity >= 3:
+            self.stdout.write(self.style.SUCCESS(f"User {user.username} is submitting to problem {problem_instance.problem.short_name} in contest {problem_instance.contest.id}"))
+        with transaction.atomic():
+            submission = problem_instance.controller.create_submission(
+                request=request,
+                problem_instance=problem_instance,
+                form_data={
+                    'user': user,
+                    'file': ContentFile(source_code, source_code_name),
+                    'kind': 'NORMAL'
+                },
+                judge_after_create=False
+            )
+            submission.refresh_from_db()
+            problem_instance.controller.judge(submission)
+
+    def create_and_populate_contest(self, problems, users, verbose_name, verbosity, contest_name=None, submission_file_names=None, num_submissions_per_user=0):
+        """
+        Creates a Contest with a given (or generated) name and an auto-preixed ID.
+        Then adds all provided problems, users and submissions to it.
         
         Returns the created Contest object.
         """
@@ -259,9 +314,19 @@ class Command(BaseCommand):
         )
         
         self.add_problems_to_new_round(problems, contest, verbosity)
+        submission_files = self.fetch_submission_files(submission_file_names)
 
         for user in users:
             Participant.objects.create(contest=contest, user=user)
+
+            for submission_no in range(num_submissions_per_user):
+                file_name, source_code = random.choice(submission_files)
+                for problem in problems:
+                    try:
+                        pi = ProblemInstance.objects.get(problem=problem, contest=contest)
+                        self.submit_by_user(user, pi, source_code, file_name, verbosity=verbosity)
+                    except ProblemInstance.DoesNotExist:
+                        self.stderr.write(self.style.ERROR(f"ProblemInstance does not exist for problem {problem.short_name} in contest {contest.id}. Skipping submission."))
 
         if verbosity >= 2:
             self.stdout.write(f"Created {verbose_name}: {contest.name} (ID: {contest.id}) with {len(problems)} problems and {len(users)} users")
@@ -340,6 +405,13 @@ class Command(BaseCommand):
         Removes all mass-generated mock data created using this tool.
         """
 
+        submission_qs = Submission.objects.filter(user__username__startswith=self.auto_prefix)
+        submission_count = submission_qs.count()
+        if submission_count:
+            self.stdout.write(self.style.WARNING(f"Deleting {submission_count} Submissions for generated users"))
+        submission_qs.delete()
+        self.stdout.write(self.style.SUCCESS(f"Deleted {submission_count} Submissions"))
+
         prob_qs = Problem.objects.filter(short_name__startswith=self.auto_prefix)
         prob_count = prob_qs.count()
         prob_qs.delete()
@@ -381,6 +453,8 @@ class Command(BaseCommand):
         num_problems = options["problems"]
         package_file_names = options["problempackages"]
         num_users = options["users"]
+        submission_file_names = options["submission_files"]
+        num_submissions_per_user = options["submissions_per_user"]
         num_algotags = options["algotags"]
         num_difftags = options["difftags"]
         num_algothrough = options["algothrough"]
@@ -459,6 +533,8 @@ class Command(BaseCommand):
                 contest_name=contest_name,
                 problems=created_problems,
                 users=created_users,
+                submission_file_names=submission_file_names,
+                num_submissions_per_user=num_submissions_per_user,
                 verbose_name="Contest",
                 verbosity=verbosity,
             )
