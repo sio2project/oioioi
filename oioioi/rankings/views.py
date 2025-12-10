@@ -127,11 +127,14 @@ def ranking_csv_view(request, key):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 @require_POST
-def ranking_invalidate_view(request, key):
-    rcontroller = request.contest.controller.ranking_controller()
-    full_keys = rcontroller.construct_all_full_keys([key])
-    rankings = Ranking.objects.filter(key__in=full_keys, contest=request.contest)
-    Ranking.invalidate_queryset(rankings)
+def ranking_invalidate_view(request, key, invalidate_whole_contest=False):
+    if invalidate_whole_contest:
+        Ranking.invalidate_contest(request.contest)
+    else:
+        rcontroller = request.contest.controller.ranking_controller()
+        full_keys = rcontroller.construct_all_full_keys([key])
+        rankings = Ranking.objects.filter(key__in=full_keys, contest=request.contest)
+        Ranking.invalidate_queryset(rankings)
     return redirect("ranking", key=key)
 
 
