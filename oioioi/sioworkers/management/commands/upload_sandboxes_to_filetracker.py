@@ -1,9 +1,14 @@
-import os
-import os.path
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
 from oioioi.filetracker.client import get_client
+
+
+def upload_sandbox(file):
+    filetracker = get_client()
+    filetracker.put_file("/sandboxes/" + file.name, str(file))
 
 
 class Command(BaseCommand):
@@ -19,17 +24,12 @@ class Command(BaseCommand):
 
     help = "Upload sandboxes to the Filetracker."
 
-    def handle(self, *args, **options):
-        filetracker = get_client()
 
+    def handle(self, *args, **options):
         print("--- Saving sandboxes to the Filetracker ...", file=self.stdout)
 
-        sandboxes_dir = os.fsencode(options["sandboxes_dir"])
-        for file in os.listdir(sandboxes_dir):
-            filename = os.fsdecode(file)
-            if not filename.endswith(".tar.gz"):
-                continue
-
-            filetracker.put_file("/sandboxes/" + filename, os.path.join(options["sandboxes_dir"], filename))
+        sandboxes_dir = Path(options["sandboxes_dir"])
+        with ProcessPoolExecutor() as executor:
+            executor.map(upload_sandbox, sandboxes_dir.glob('*.tar.gz'))
 
         print("--- Done.", file=self.stdout)

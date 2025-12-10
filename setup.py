@@ -32,7 +32,7 @@ requirements = [
     "django-compressor>=4.5,<4.6",
     "Pygments>=2.15,<2.16",
     "django-libsass>=0.9,<0.10",
-    "django-debug-toolbar",
+    "django-debug-toolbar<6.0.0",  # 6.1.0 causes an obscure test failure.
     "django-extensions>=3.2,<3.3",
     "djangorestframework>=3.14,<3.15",
     "django-oauth-toolkit>=3.0,<3.1",
@@ -70,11 +70,15 @@ requirements = [
     "importlib-metadata==4.13.0",
     "supervisor==4.2.5",  # previously http://github.com/Supervisor/supervisor/zipball/master#egg=supervisor==4.0.0.dev0
     "django-supervisor@git+https://github.com/sio2project/django-supervisor#egg=django-supervisor",  # previously http://github.com/badochov/djsupervisor/zipball/master#egg=djsupervisor==0.4.0
+    "websockets>=15.0.1,<15.1.0",
+    "aio-pika>=9.5.5,<9.6.0",
+    "aiohttp>=3.12.2,<3.13.0",
+    "cachetools>=6.0.0,<6.1.0",
     # Takes too much time during deployment
     "cffi==1.16.0",
     "django-appconf==1.0.6",
     "django-phonenumber-field==6.4.0",
-    "cryptography==42.0.7",
+    "cryptography==44.0.1",
     "charset-normalizer==3.3.2",
     "click==8.1.7",
     "certifi==2024.7.4",

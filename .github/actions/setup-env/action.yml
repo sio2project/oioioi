@@ -1,0 +1,38 @@
+name: Setup enviroment
+description: Setup python environment with uv and install apt depdendencies
+
+inputs:
+  install-texlive:
+    description: "Whether to install texlive dependencies"
+    required: false
+    # Composite actions don't support boolean inputs yet.
+    # See https://github.com/actions/runner/issues/2238
+    default: "false"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Install apt dependencies
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y curl libpq-dev libdb-dev
+    shell: sh
+
+  - name: Install texlive
+    if: inputs.install-texlive == 'true'
+    run: |
+      sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-lang-czechslovak texlive-latex-extra texlive-pstricks texlive-luatex
+    shell: sh
+
+  - name: Install uv
+    uses: astral-sh/setup-uv@v6
+    with:
+      version: "latest"
+      python-version: "3.11"
+      activate-environment: true
+
+  - name: Install python dependencies
+    run: |
+      uv pip install -r requirements.txt
+    shell: sh

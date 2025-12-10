@@ -64,12 +64,6 @@ function NotificationsClient(serverUrl, sessionId) {
     this.waitingPermissions = [];
     this.permissionBanner = null;
 
-    if (typeof (io) === 'undefined') {
-        this.setErrorState();
-        this.DROPDOWN_DISCONNECTED.show();
-        return;
-    }
-
     this.DROPDOWN_PANEL.on("show.bs.dropdown", this.renderMessages.bind(this));
     this.DROPDOWN_PANEL.on("shown.bs.dropdown", this.acknowledgeMessages.bind(this));
     this.DROPDOWN_PANEL.on("hidden.bs.dropdown", this.acknowledgeMessages.bind(this));
@@ -82,55 +76,63 @@ function NotificationsClient(serverUrl, sessionId) {
         this.dropdownUpToDate = false;
         this.renderMessages();
     });
-    console.log("notif url: " + this.NOTIF_SERVER_URL);
-    this.socket = io.connect(this.NOTIF_SERVER_URL);
-    console.log(this.socket);
-    this.socket.on('connect', this.authenticate.bind(this));
-    this.socket.emits = function (k, v) {
-        this.socket.emit(k, JSON.stringify(v));
-    }.bind(this);
-    setInterval(this.notifWatchdog.bind(this), 2000);
-    this.socket.on("message", this.onMessageReceived.bind(this));
+
+    this.socketInit();
 }
 
 NotificationsClient.prototype.constructor = NotificationsClient;
 
-NotificationsClient.prototype.notifWatchdog = function () {
-    if (!this.socket || !this.socket.connected) {
-        this.setErrorState();
-        this.DROPDOWN_DISCONNECTED.show();
+NotificationsClient.prototype.socketInit = function () {
+    this.socket = new WebSocket(this.NOTIF_SERVER_URL);
+
+    this.socket.onopen = () => this.authenticate();
+    this.socket.onclose = () => {
+        this.setSocketErrorState();
+
+        console.warn("WebSocket connection closed. Attempting to reconnect...");
+        setTimeout(() => this.socketInit(), 10000); 
     }
-};
 
-NotificationsClient.prototype.clearNumberBadgeClasses = function () {
-    this.DROPDOWN.removeClass("btn btn-danger");
-    this.DROPDOWN_ICON.removeClass("text-warning");
-    this.DROPDOWN_DISCONNECTED.hide();
-};
+    this.socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
 
-NotificationsClient.prototype.setErrorState = function () {
-    this.clearNumberBadgeClasses();
+        if (data.type === "SOCKET_AUTH_RESULT") 
+            this.authenticateCallback(data)
+        else 
+            this.onMessageReceived(data);           
+    };
+}
+
+NotificationsClient.prototype.setSocketErrorState = function () {
+    this.DROPDOWN_DISCONNECTED.show();
     this.DROPDOWN_ICON.addClass("text-warning");
 };
 
+NotificationsClient.prototype.clearSocketErrorState = function () {
+    this.DROPDOWN_DISCONNECTED.hide();
+    this.DROPDOWN_ICON.removeClass("text-warning");
+};
+
 NotificationsClient.prototype.authenticate = function () {
-    let me = this;
-    const sid = this.NOTIF_SESSION;
-    this.socket.emits("authenticate", { session_id: sid });
-    this.socket.on("authenticate", function (result) {
-        if (result.status !== 'OK') {
-            me.setErrorState();
-            me.DROPDOWN_DISCONNECTED.show();
-        }
-        else {
-            me.notifCount = 0;
-            me.updateNotifCount();
-        }
-    });
+    this.socket?.send(JSON.stringify({ type: "SOCKET_AUTH", session_id: this.NOTIF_SESSION }));
+};
+
+NotificationsClient.prototype.authenticateCallback = function (result) {
+    if (result.status === 'OK') {
+        this.notifCount = 0;
+        this.updateNotifCount();
+        this.clearSocketErrorState();
+    } else {
+        console.warn("WebSocket authentication failed.");
+
+        // Close the socket to attempt to reconnect
+        this.socket?.close();
+    }
 };
 
 NotificationsClient.prototype.updateNotifCount = function () {
-    this.clearNumberBadgeClasses();
+    this.DROPDOWN.removeClass("btn btn-danger");
+
     if (this.notifCount > 0)
         this.DROPDOWN.addClass("btn btn-danger");
 };
@@ -161,7 +163,6 @@ NotificationsClient.prototype.renderMessages = function () {
             console.warn(err);
             this.dropdownLoading = false;
             this.HEADER_REFRESH_SPINNER.removeClass("spinner");
-            this.setErrorState();
             let text = gettext("A network error occurred. Recent submissions list could not be loaded");
             this.TABLE_NOTIFICATIONS.html(
                 $("<span></span>").addClass("dropdown-item-text").text(text)
