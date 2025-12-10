@@ -58,6 +58,7 @@ class Command(BaseCommand):
         "Allows the creation of mock data for testing purposes. "
         "Creates Problems, Users, Algorithm Tags, Difficulty Tags, Algorithm Tag Proposals, and "
         "Algorithm Tag Through and Difficulty Tag Through records to assign tags to problems. Use with caution in production environments. "
+        "Additionally, can create a Contest and add created Problems and Users to it, along with Submissions. "
     )
 
     def add_arguments(self, parser):
@@ -178,6 +179,9 @@ class Command(BaseCommand):
         """
         Creates problems from package files.
         Ensures that the controller_name is properly set after unpacking.
+        Returns a list of created Problem objects.
+        - package_file_names: List of package file names to unpack.
+        - verbosity: The current verbosity level.
         """
         if not package_file_names:
             return []
@@ -215,6 +219,9 @@ class Command(BaseCommand):
         """
         Adds all provided problems to a new round in the given contest.
         Returns the created Round object.
+        - problems: List of Problem objects to add.
+        - contest: Contest object to which the round will be added.
+        - verbosity: The current verbosity level.
         """
         with transaction.atomic():
             round_number = contest.round_set.count() + 1
@@ -231,10 +238,12 @@ class Command(BaseCommand):
 
         return new_round
     
-    def fetch_submission_files(self, submission_file_names):
+    def fetch_submission_files(self, submission_file_names, verbosity):
         """
         Fetches submission files from the specified file names.
         Returns a list of tuples (file_name, source_code).
+        - submission_file_names: List of submission file names to read.
+        - verbosity: The current verbosity level.
         """
         if not submission_file_names:
             return []
@@ -252,9 +261,14 @@ class Command(BaseCommand):
                 self.stderr.write(self.style.ERROR(f"Failed to read submission file {file_name} located at {file_path}. Error: {e}"))
         return submission_files
     
-    def submit_by_user(self, user, problem_instance, source_code, source_code_name, verbosity=0):
+    def submit_by_user(self, user, problem_instance, source_code, source_code_name, verbosity):
         """
         Submits source code to a problem instance on behalf of a user.
+        - user: User object submitting the code.
+        - problem_instance: ProblemInstance object to which the code is submitted.
+        - source_code: The source code string to submit.
+        - source_code_name: The filename to use for the submitted source code.
+        - verbosity: The current verbosity level.
         """
         # Mock request object with necessary attributes
         request = SimpleNamespace()
@@ -284,6 +298,14 @@ class Command(BaseCommand):
         """
         Creates a Contest with a given (or generated) name and an auto-preixed ID.
         Then adds all provided problems, users and submissions to it.
+        - problems: List of Problem objects to add.
+        - users: List of User objects to add.
+        - verbose_name: A description used in output.
+        - verbosity: The current verbosity level.
+        - contest_name: Optional name for the contest. If None, a random ID is used.
+        - submission_file_names: List of submission file names to use for submissions
+                (could be None if num_submissions_per_user = 0).
+        - num_submissions_per_user: Number of submissions to create per user.
         
         Returns the created Contest object.
         """
