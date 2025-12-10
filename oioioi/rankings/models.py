@@ -1,3 +1,4 @@
+import logging
 import pickle
 from datetime import timedelta  # pylint: disable=E0611
 
@@ -175,17 +176,21 @@ def save_pages(ranking, pages_list):
 
 
 @transaction.atomic
-def save_recalc_results(recalc, date_before, date_after, serialized, pages_list):
+def save_recalc_results(recalc, date_before, date_after, serialized, pages_list, cooldown_date):
     try:
         r = Ranking.objects.filter(recalc_in_progress=recalc).select_for_update().get()
     except Ranking.DoesNotExist:
         return
-    r.serialized_data = pickle.dumps(serialized)
-    save_pages(r, pages_list)
+    if serialized is not None:
+        assert pages_list is not None
+        r.serialized_data = pickle.dumps(serialized)
+        save_pages(r, pages_list)
     r.last_recalculation_date = date_before
     r.last_recalculation_duration = date_after - date_before
     old_recalc = r.recalc_in_progress
     r.recalc_in_progress = None
+    if cooldown_date is not None:
+        r.cooldown_date = cooldown_date
     r.save()
     old_recalc.delete()
 
@@ -197,9 +202,19 @@ def recalculate(recalc):
     except Ranking.DoesNotExist:
         return
     ranking_controller = r.controller()
-    serialized, pages_list = ranking_controller.build_ranking(r.key)
+    try:
+        serialized, pages_list = ranking_controller.build_ranking(r.key)
+        cooldown_date = None
+    except Exception as e:
+        if getattr(settings, "MOCK_RANKINGSD", False):
+            raise
+        logger = logging.getLogger(__name__ + ".recalculation")
+        logger.exception("An error occurred while recalculating ranking", e)
+        cooldown_duration = timedelta(seconds=settings.RANKINGS_ERROR_COOLDOWN)
+        cooldown_date = timezone.now() + cooldown_duration
+        serialized, pages_list = (None, None)
     date_after = timezone.now()
-    save_recalc_results(recalc, date_before, date_after, serialized, pages_list)
+    save_recalc_results(recalc, date_before, date_after, serialized, pages_list, cooldown_date)
 
 
 class RankingMessage(PublicMessage):
