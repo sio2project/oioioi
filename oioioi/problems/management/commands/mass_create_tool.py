@@ -191,9 +191,18 @@ class Command(BaseCommand):
         """
         objs = []
         for i in range(count):
-            problem = random.choice(problems)
-            user = random.choice(users)
-            tag = random.choice(tags)
+            def candidate_fn():
+                return (random.choice(problems), random.choice(users), random.choice(tags))
+
+            def uniqueness_fn(candidate):
+                problem, user, tag = candidate
+                if proposal_model.__name__ == 'AlgorithmTagProposal':
+                    return not proposal_model.objects.filter(problem=problem, user=user, tag=tag).exists()
+                elif proposal_model.__name__ == 'DifficultyTagProposal':
+                    return not proposal_model.objects.filter(problem=problem, user=user).exists()
+                return True
+
+            problem, user, tag = get_unique_candidate(candidate_fn, uniqueness_fn)
             proposal = proposal_model(problem=problem, user=user, tag=tag)
             proposal.save()
             objs.append(proposal)
