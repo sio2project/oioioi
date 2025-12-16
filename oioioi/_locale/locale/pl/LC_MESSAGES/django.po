@@ -5009,6 +5009,10 @@ msgstr "-- szkoła usunięta --"
 msgid "School"
 msgstr "Szkola"
 
+msgctxt "teacher object"
+msgid "Active"
+msgstr "Aktywny"
+
 #: oi/controllers.py:148
 msgid "Polish Olympiad in Informatics - Online"
 msgstr "Olimpiada Informatyczna – zdalnie"
