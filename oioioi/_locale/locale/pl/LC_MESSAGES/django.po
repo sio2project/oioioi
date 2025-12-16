@@ -1039,6 +1039,11 @@ msgstr "Zapisz jako nowy"
 msgid "Save and add another"
 msgstr "Zapisz i dodaj do innego"
 
+#: teachers/templates/teachers/change_form.py
+msgctxt "teacher object"
+msgid "Save and add another"
+msgstr "Zapisz i dodaj kolejnego"
+
 #: base/templates/admin/submit_line.html:14
 #: base/templates/admin/submit_line.html:30
 #| msgid "Saved for diffing"
@@ -5007,7 +5012,7 @@ msgstr "-- szkoła usunięta --"
 #: oi/admin.py:177 oi/templates/oi/sensitive_participant_info.html:15
 #: teachers/forms.py:32 teachers/forms.py:76
 msgid "School"
-msgstr "Szkola"
+msgstr "Szkoła"
 
 msgctxt "teacher object"
 msgid "Active"

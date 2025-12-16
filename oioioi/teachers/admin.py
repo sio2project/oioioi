@@ -22,6 +22,7 @@ class TeacherAdmin(admin.ModelAdmin):
     search_fields = ["school", "user__username", "user__first_name", "user__last_name", "user__email", "join_date"]
 
     form = AdminTeacherForm
+    change_form_template = "teachers/change_form.html"
 
     # Override parent's function to ensure proper translation
     def get_actions(self, request):
