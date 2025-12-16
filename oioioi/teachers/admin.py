@@ -23,6 +23,15 @@ class TeacherAdmin(admin.ModelAdmin):
 
     form = AdminTeacherForm
 
+    # Override parent's function to ensure proper translation
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            function, name, short_description = actions['delete_selected']
+            new_description = _("Delete selected teachers")
+            actions['delete_selected'] = (function, name, new_description)
+        return actions
+
     def has_add_permission(self, request):
         return request.user.is_superuser
 

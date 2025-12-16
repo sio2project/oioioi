@@ -3,7 +3,6 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
-# Translators:
 # Accounts-Payable - Alkemics, 2015
 # Alek Tudruj <aleksanderwt@gmail.com>, 2022
 # Alicja Kluczek <alicja2602@gmail.com>, 2021-2022
@@ -29,6 +28,7 @@
 # Jan Jakubowski, 2023
 # Joanna Wojciechowska, 2021
 # Kacper Lewandowski, 2022
+# Kamila Godlewska, 2025
 # Kamil Szymczak, 2024-2025
 # konrad … <konrad.krulikowski@gmail.com>, 2016-2020
 # Maciej Dębski <md319428@students.mimuw.edu.pl>, 2014
@@ -4840,6 +4840,20 @@ msgstr "miasto"
 #: mp/models.py:29 oi/models.py:149 teachers/models.py:26
 msgid "school"
 msgstr "szkoła"
+
+#: teacher translation is needed in places when "dopełniacz" form is needed
+msgid "teacher"
+msgstr "nauczyciela"
+
+msgid "teachers"
+msgstr "nauczyciele"
+
+msgid "join date"
+msgstr "data dołączenia"
+
+#: mp/models.py:29 oi/models.py:149 teachers/admin.py:26
+msgid "Delete selected teachers"
+msgstr "Usuń wybranych nauczycieli"
 
 #: mp/models.py:34
 #| msgid "team name"
