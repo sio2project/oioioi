@@ -16,15 +16,13 @@ def cleanup_duplicate_proposals(apps, schema_editor):
     )
 
     for duplicate in duplicates:
-        proposals = AlgorithmTagProposal.objects.filter(
-            problem=duplicate['problem'],
-            tag=duplicate['tag'],
-            user=duplicate['user']
-        ).order_by('id')
-        
-        # Keep the first one, delete the rest
-        for proposal in proposals[1:]:
-            proposal.delete()
+        AlgorithmTagProposal.objects.filter(
+            pk__in=AlgorithmTagProposal.objects.filter(
+                problem=duplicate["problem"],
+                tag=duplicate["tag"],
+                user=duplicate["user"]
+            ).values_list("id", flat=True)[1:]
+        ).delete()
 
     # Cleanup DifficultyTagProposal
     duplicates = (
@@ -34,14 +32,12 @@ def cleanup_duplicate_proposals(apps, schema_editor):
     )
 
     for duplicate in duplicates:
-        proposals = DifficultyTagProposal.objects.filter(
-            problem=duplicate['problem'],
-            user=duplicate['user']
-        ).order_by('id')
-
-        # Keep the first one, delete the rest
-        for proposal in proposals[1:]:
-            proposal.delete()
+        DifficultyTagProposal.objects.filter(
+            pk__in=DifficultyTagProposal.objects.filter(
+                problem=duplicate["problem"],
+                user=duplicate["user"]
+            ).values_list("id", flat=True)[1:]
+        ).delete()
 
 
 class Migration(migrations.Migration):
