@@ -1,21 +1,24 @@
+import os
 import random
 import string
 import sys
-import os
 from io import StringIO
 from types import SimpleNamespace
 
-from django.utils.module_loading import import_string
-
-from django.core.files.base import ContentFile
-from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils import timezone
 
-from oioioi.contests.models import Contest, ProblemInstance, RegistrationAvailabilityConfig, Submission
+from oioioi.contests.models import (
+    Contest,
+    ProblemInstance,
+    RegistrationAvailabilityConfig,
+    Submission,
+)
 from oioioi.participants.models import Participant
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -72,9 +75,18 @@ class Command(BaseCommand):
             type=str,
             help='List of problem package files to upload to contest'
         )
-        parser.add_argument("--users", "-u", type=unsigned_int, default=0, metavar="N", help="Number of users to create (default: 0)")
-        parser.add_argument("--submission_files", "-sf", nargs='+', type=str, help="List of source code files to use for submissions")
-        parser.add_argument("--submissions_per_user", "-spu", type=unsigned_int, default=0, metavar="N", help="Number of submissions per user to create (default: 0)")
+        parser.add_argument(
+            "--users", "-u", type=unsigned_int, default=0, metavar="N",
+            help="Number of users to create (default: 0)"
+        )
+        parser.add_argument(
+            "--submission_files", "-sf", nargs='+', type=str,
+            help="List of source code files to use for submissions"
+        )
+        parser.add_argument(
+            "--submissions_per_user", "-spu", type=unsigned_int, default=0, metavar="N",
+            help="Number of submissions per user to create (default: 0)"
+        )
         parser.add_argument("--algotags", "-at", type=unsigned_int, default=0, metavar="N", help="Number of algorithm tags to create (default: 0)")
         parser.add_argument("--difftags", "-dt", type=unsigned_int, default=0, metavar="N", help="Number of difficulty tags to create (default: 0)")
         parser.add_argument(
@@ -174,7 +186,7 @@ class Command(BaseCommand):
                 url_key=f"{problem.short_name}_site",
             )
         return created_problems
-    
+
     def create_problems_from_package(self, package_file_names, verbosity):
         """
         Creates problems from package files.
@@ -185,7 +197,7 @@ class Command(BaseCommand):
         """
         if not package_file_names:
             return []
-        
+
         TEST_FILES_DIR = os.path.join(settings.BASE_DIR, 'oioioi', 'sinolpack', 'files')
         created_problems = []
 
@@ -205,16 +217,16 @@ class Command(BaseCommand):
                     problem.save()
                     if verbosity >= 2:
                         self.stdout.write(self.style.WARNING(f"Warning: Set default controller_name for problem {problem.short_name}"))
-                
+
                 created_problems.append(problem)
 
                 if verbosity >= 2:
-                    self.stdout.write(f"Created problem: {problem.short_name} (ID: {problem.id}, controller: {problem.controller_name}) from package {package_file_name}")
+                    self.stdout.write(f"Created problem: {problem.short_name}, {problem.id}, {problem.controller_name}) from package {package_file_name}")
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"Failed to unpack package {package_file_name} located at {package_path}. Error: {e}"))
-            
+
         return created_problems
-    
+
     def add_problems_to_new_round(self, problems, contest, verbosity):
         """
         Adds all provided problems to a new round in the given contest.
@@ -237,7 +249,7 @@ class Command(BaseCommand):
                 self.stdout.write(f"Added {len(problems)} problems to new round '{new_round.name}' in contest '{contest.name}' (ID: {contest.id})")
 
         return new_round
-    
+
     def fetch_submission_files(self, submission_file_names, verbosity):
         """
         Fetches submission files from the specified file names.
@@ -252,7 +264,7 @@ class Command(BaseCommand):
         for file_name in submission_file_names:
             file_path = os.path.join(TEST_FILES_DIR, file_name)
             try:
-                with open(file_path, 'r') as f:
+                with open(file_path) as f:
                     source_code = f.read()
                     submission_files.append((file_name, source_code))
                     if verbosity >= 2:
@@ -260,7 +272,7 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"Failed to read submission file {file_name} located at {file_path}. Error: {e}"))
         return submission_files
-    
+
     def submit_by_user(self, user, problem_instance, source_code, source_code_name, verbosity):
         """
         Submits source code to a problem instance on behalf of a user.
@@ -279,7 +291,11 @@ class Command(BaseCommand):
         request._cache = {}
 
         if verbosity >= 3:
-            self.stdout.write(self.style.SUCCESS(f"User {user.username} is submitting to problem {problem_instance.problem.short_name} in contest {problem_instance.contest.id}"))
+            msg = (
+                f"User {user.username} is submitting to problem "
+                f"{problem_instance.problem.short_name} in contest {problem_instance.contest.id}"
+            )
+            self.stdout.write(self.style.SUCCESS(msg))
         with transaction.atomic():
             submission = problem_instance.controller.create_submission(
                 request=request,
@@ -306,7 +322,7 @@ class Command(BaseCommand):
         - submission_file_names: List of submission file names to use for submissions
                 (could be None if num_submissions_per_user = 0).
         - num_submissions_per_user: Number of submissions to create per user.
-        
+
         Returns the created Contest object.
         """
         if contest_name is None:
@@ -327,28 +343,32 @@ class Command(BaseCommand):
             verbose_name=verbose_name,
             verbosity=verbosity,
         )
-        
+
         contest = created_contests[0]
-        
+
         RegistrationAvailabilityConfig.objects.create(
             contest=contest,
             enabled='YES'
         )
-        
+
         self.add_problems_to_new_round(problems, contest, verbosity)
         submission_files = self.fetch_submission_files(submission_file_names)
 
         for user in users:
             Participant.objects.create(contest=contest, user=user)
 
-            for submission_no in range(num_submissions_per_user):
+            for _submission_no in range(num_submissions_per_user):
                 file_name, source_code = random.choice(submission_files)
                 for problem in problems:
                     try:
                         pi = ProblemInstance.objects.get(problem=problem, contest=contest)
                         self.submit_by_user(user, pi, source_code, file_name, verbosity=verbosity)
                     except ProblemInstance.DoesNotExist:
-                        self.stderr.write(self.style.ERROR(f"ProblemInstance does not exist for problem {problem.short_name} in contest {contest.id}. Skipping submission."))
+                        err_msg = (
+                            f"ProblemInstance does not exist for problem {problem.short_name} "
+                            f"in contest {contest.id}. Skipping submission."
+                        )
+                        self.stderr.write(self.style.ERROR(err_msg))
 
         if verbosity >= 2:
             self.stdout.write(f"Created {verbose_name}: {contest.name} (ID: {contest.id}) with {len(problems)} problems and {len(users)} users")
@@ -487,7 +507,8 @@ class Command(BaseCommand):
         verbosity = int(options.get("verbosity", 1))
 
         total_objects_to_create = (
-            int(bool(create_contest is not None)) + num_problems + num_users + num_algotags + num_difftags + num_algothrough + num_diffthrough + num_algoproposals + num_diffproposals
+            int(bool(create_contest is not None)) + num_problems + num_users + num_algotags +
+            num_difftags + num_algothrough + num_diffthrough + num_algoproposals + num_diffproposals
         )
         max_algothrough = num_problems * num_algotags
         max_diffthrough = num_problems
@@ -560,6 +581,10 @@ class Command(BaseCommand):
                 verbose_name="Contest",
                 verbosity=verbosity,
             )
+            if (verbosity >= 1) and created_contest:
+                self.stdout.write(
+                    self.style.SUCCESS(f"Created Contest: {created_contest.name} (ID: {created_contest.id})")
+                )
 
         created_algotags = self.create_unique_objects(
             count=num_algotags,
