@@ -4851,7 +4851,7 @@ msgid "teacher"
 msgstr "nauczyciela"
 
 msgid "teachers"
-msgstr "nauczyciele"
+msgstr "nauczycieli"
 
 msgid "join date"
 msgstr "data dołączenia"
