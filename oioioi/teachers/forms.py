@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import pgettext_lazy as p_, gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, pgettext_lazy as p_
 
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.forms import SimpleContestForm
