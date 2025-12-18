@@ -2,7 +2,7 @@
 set -e
 set -x
 
-/sio2/oioioi/wait-for-it.sh -t 60 "db:5432"
+/sio2/oioioi/wait-for-it.sh -t 60 "${DATABASE_HOST:-db}:${DATABASE_PORT:-5432}"
 
 if [ "$1" == "--dev" ]; then
     echo "Checking frontend dependencies..."
