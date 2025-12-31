@@ -3858,6 +3858,45 @@ def see_link_for_submission_on_problem_list(self, username, should_see):
         self.assertNotContains(response, expected_hyperlink)
 
 
+class TestStatusOnProblemsList(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def test_status_hidden_for_anonymous(self):
+        see_status_on_problems_list(self, None, False)
+
+    def test_status_visible_for_user(self):
+        see_status_on_problems_list(self, "test_user", True, expected_status="OK")
+
+    def test_status_visible_for_admin(self):
+        see_status_on_problems_list(self, "test_admin", True, expected_status="OK")
+
+
+def see_status_on_problems_list(self, username, should_see, expected_status=None):
+    if username is None:
+        self.client.logout()
+    else:
+        self.assertTrue(self.client.login(username=username))
+
+    contest = Contest.objects.get(pk="c")
+    problems_url = reverse("problems_list", kwargs={"contest_id": contest.id})
+
+    response = self.client.get(problems_url, follow=True)
+    # Header presence
+    if should_see:
+        self.assertContains(response, '<th class="text-right">Status</th>')
+        if expected_status:
+            self.assertContains(response, expected_status)
+    else:
+        # No status header for anonymous users
+        self.assertNotContains(response, '<th class="text-right">Status</th>')
+
+
 class TestSubmissionsLinksOnListView(TestCase):
     fixtures = [
         "test_users",
