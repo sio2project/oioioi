@@ -3887,9 +3887,8 @@ def see_status_on_problems_list(self, username, should_see, expected_status=None
     problems_url = reverse("problems_list", kwargs={"contest_id": contest.id})
 
     response = self.client.get(problems_url, follow=True)
-    # Header presence
+    # badge presence
     if should_see:
-        self.assertContains(response, '<th class="text-right">Status</th>')
         if expected_status:
             self.assertContains(response, expected_status)
     else:

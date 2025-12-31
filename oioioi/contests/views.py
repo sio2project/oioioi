@@ -175,7 +175,11 @@ def problems_list_view(request):
         # date descending, so the first occurrence for a given problem_instance
         # is the latest one.
         submissions_qs = (
-            Submission.objects.filter(user__id=request.user.id, problem_instance_id__in=pi_ids)
+            Submission.objects.filter(
+                user__id=request.user.id, 
+                problem_instance_id__in=pi_ids, 
+                kind="NORMAL" # ignore ignored submissions
+                )
             .order_by("-date")
         )
         for s in submissions_qs:
@@ -204,10 +208,8 @@ def problems_list_view(request):
     show_submissions_limit = any(p[6] for p in problems_statements)
     show_submit_button = any(p[7] for p in problems_statements)
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
-    # Placeholder flag for status column. Real status fetching belongs to backend logic
-    # and will be implemented later. For now, show status only to authenticated users.
-    show_status = request.user.is_authenticated
-    table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button) + int(show_status)
+    show_status = request.user.is_authenticated # Always show status for authenticated users
+    table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
 
     return TemplateResponse(
         request,
