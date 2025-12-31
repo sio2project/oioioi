@@ -176,8 +176,8 @@ def problems_list_view(request):
         # is the latest one.
         submissions_qs = (
             Submission.objects.filter(
-                user__id=request.user.id, 
-                problem_instance_id__in=pi_ids, 
+                user__id=request.user.id,
+                problem_instance_id__in=pi_ids,
                 kind="NORMAL" # ignore ignored submissions
                 )
             .order_by("-date")
