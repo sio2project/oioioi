@@ -3873,8 +3873,8 @@ class TestStatusOnProblemsList(TestCase):
     def test_status_visible_for_user(self):
         see_status_on_problems_list(self, "test_user", True, expected_status="OK")
 
-    def test_status_visible_for_admin(self):
-        see_status_on_problems_list(self, "test_admin", True, expected_status="OK")
+    def test_status_hidden_for_admin(self):
+        see_status_on_problems_list(self, "test_admin", False)
 
 
 def see_status_on_problems_list(self, username, should_see, expected_status=None):
