@@ -73,6 +73,9 @@
                         {% endif %}
                         </th>
                     {% endif %}
+                    {% if show_status %}
+                        <th class="text-right">{% trans "Status" %}</th>
+                    {% endif %}
                     <th class="text-right">{% trans "Score" %}</th>
                     {% if show_submit_button %}
                         <th class="text-right"></th>
@@ -80,7 +83,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit in problem_instances %}
+                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit, last_submission in problem_instances %}
                     {% if show_rounds %}
                         {% ifchanged pi.round %}
                             <tr class="problemlist-subheader">
@@ -128,6 +131,29 @@
                                     {% endif %}
                                 {% else %}
                                     {{ submissions_left }} {% trans "of" %} {{ submissions_limit }}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                        {% if show_status %}
+                            <td class="text-right">
+                                {# Prefer to show last submission status if available, otherwise fallback to UserResultForProblem.status #}
+                                {% if last_submission and last_submission.can_see_status %}
+                                    {% if not is_admin %}
+                                        <a href="{{ last_submission.link }}">
+                                    {% endif %}
+                                    <span class="submission--{{ last_submission.display_type }}">{{ last_submission.message }}</span>
+                                    {% if not is_admin %}
+                                        </a>
+                                    {% endif %}
+                                {% elif result and result.status %}
+                                    {% if not is_admin and result.submission_report %}
+                                        {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
+                                        <a href="{{ link }}">
+                                    {% endif %}
+                                        <span class="submission--{{ result.status }}">{{ result.get_status_display }}</span>
+                                    {% if not is_admin and result.submission_report %}
+                                        </a>
+                                    {% endif %}
                                 {% endif %}
                             </td>
                         {% endif %}
