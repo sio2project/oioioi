@@ -352,7 +352,7 @@ class Command(BaseCommand):
         )
 
         self.add_problems_to_new_round(problems, contest, verbosity)
-        submission_files = self.fetch_submission_files(submission_file_names)
+        submission_files = self.fetch_submission_files(submission_file_names, verbosity=verbosity)
 
         for user in users:
             Participant.objects.create(contest=contest, user=user)
