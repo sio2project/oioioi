@@ -140,8 +140,13 @@ def problems_list_view(request):
 
     show_problems_limits = controller.can_see_problems_limits(request)
     problems_limits = {}
+
+    multiple_limits = False
     if show_problems_limits:
         problems_limits = stringify_problems_limits(controller.get_problems_limits(request))
+        for limit in problems_limits.values():
+            if len(limit) > 1:
+                multiple_limits = True
 
     problem_instances = visible_problem_instances(request)
 
@@ -199,6 +204,7 @@ def problems_list_view(request):
             "show_submit_button": show_submit_button,
             "table_columns": table_columns,
             "problems_on_page": getattr(settings, "PROBLEMS_ON_PAGE", 100),
+            "multiple_limits": multiple_limits,
         },
     )
 
