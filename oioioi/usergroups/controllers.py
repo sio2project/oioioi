@@ -65,9 +65,8 @@ class UserGroupsDefaultRankingControllerMixin:
         partial_keys = super().partial_keys_for_probleminstance(pi)
         keys = Ranking.objects.filter(
             contest_id=pi.contest_id,
-            # Quite hacky.
+            # Somewhat hacky.
             key__contains=self.construct_full_key("", USER_GROUP_RANKING_PREFIX),
-            # TODO: WIP: Does this work lol
         ).values_list("key", flat=True)
         partial_keys.extend(self.get_partial_key(key) for key in keys)
         return partial_keys

@@ -255,7 +255,7 @@ class DefaultRankingController(RankingController):
     def invalidate_pi(self, pi):
         Ranking.invalidate_queryset(
             Ranking.objects.filter(
-                contest_id=pi.round.contest_id,
+                contest_id=pi.contest_id,
                 key__in=self.keys_for_probleminstance(pi),
             )
         )
