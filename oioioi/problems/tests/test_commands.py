@@ -47,7 +47,7 @@ class TestMassCreateTool(TestCase):
             expected_count = expected_counts.get(name, 0)
             assert count == expected_count, f"Expected {expected_count} {name}, got {count}"
 
-        # Validation for i18n problem names, can be ommited (e.g. for problems for packages).
+        # Validation for i18n problem names, can be omitted (e.g. for problems for packages).
         if check_problem_names:
             problem_amount: int = expected_counts.get("problems", Problem.objects.count())
             expected_probname_count = len(settings.LANGUAGES) * problem_amount

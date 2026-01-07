@@ -73,7 +73,7 @@ class Command(BaseCommand):
             '--problempackages', '-pp',
             nargs='+',
             type=str,
-            help='List of problem package files to upload to contest'
+            help='List of problem package files to create problems from (optionally added to a new contest when --createcontest is used)'
         )
         parser.add_argument(
             "--users", "-u", type=unsigned_int, default=0, metavar="N",
@@ -221,7 +221,7 @@ class Command(BaseCommand):
                 created_problems.append(problem)
 
                 if verbosity >= 2:
-                    self.stdout.write(f"Created problem: {problem.short_name}, {problem.id}, {problem.controller_name}) from package {package_file_name}")
+                    self.stdout.write(f"Created problem: {problem.short_name}, {problem.id}, {problem.controller_name} from package {package_file_name}")
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"Failed to unpack package {package_file_name} located at {package_path}. Error: {e}"))
 
@@ -271,6 +271,10 @@ class Command(BaseCommand):
                         self.stdout.write(f"Loaded submission file: {file_name}")
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"Failed to read submission file {file_name} located at {file_path}. Error: {e}"))
+        if submission_file_names and not submission_files:
+            raise CommandError(
+                "No submission files could be loaded. Please verify the file names and paths."
+            )
         return submission_files
 
     def submit_by_user(self, user, problem_instance, source_code, source_code_name, verbosity):
@@ -312,7 +316,7 @@ class Command(BaseCommand):
 
     def create_and_populate_contest(self, problems, users, verbose_name, verbosity, contest_name=None, submission_file_names=None, num_submissions_per_user=0):
         """
-        Creates a Contest with a given (or generated) name and an auto-preixed ID.
+        Creates a Contest with a given (or generated) name and an auto-prefixed ID.
         Then adds all provided problems, users and submissions to it.
         - problems: List of Problem objects to add.
         - users: List of User objects to add.
@@ -507,7 +511,7 @@ class Command(BaseCommand):
         verbosity = int(options.get("verbosity", 1))
 
         total_objects_to_create = (
-            int(bool(create_contest is not None)) + num_problems + num_users + num_algotags +
+            int(bool(create_contest)) + num_problems + num_users + num_algotags +
             num_difftags + num_algothrough + num_diffthrough + num_algoproposals + num_diffproposals
         )
         max_algothrough = num_problems * num_algotags
@@ -571,6 +575,11 @@ class Command(BaseCommand):
             verbosity=verbosity,
         )
 
+        if create_contest and num_submissions_per_user > 0 and not submission_file_names:
+            raise CommandError(
+                "When creating a contest with submissions, --submission-file-names must be provided "
+                "and contain at least one file."
+            )
         if create_contest:
             created_contest = self.create_and_populate_contest(
                 contest_name=contest_name,
