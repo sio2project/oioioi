@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from oioioi.testrun import views
 
@@ -6,6 +6,11 @@ app_name = "testrun"
 
 contest_patterns = [
     path("testrun_submit/", views.testrun_submit_view, name="testrun_submit"),
+    re_path(
+        r"^testrun_submit/(?P<problem_instance_id>[a-z0-9_-]+)/$",
+        views.testrun_submit_view,
+        name="testrun_submit",
+    ),
     path(
         "s/<int:submission_id>/tr/input/",
         views.show_input_file_view,
