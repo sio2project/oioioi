@@ -15,7 +15,7 @@ from oioioi.base.tests import (
     fake_timezone_now,
 )
 from oioioi.base.tests.tests import TestPublicMessage
-from oioioi.contests.models import Contest, ProblemInstance, UserResultForProblem
+from oioioi.contests.models import Contest, ProblemInstance, Round, UserResultForProblem
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
 from oioioi.programs.controllers import ProgrammingContestController
@@ -269,6 +269,9 @@ class TestRankingViews(TestCase):
             for task in ["zad2", "zad3", "zad3"]:
                 self.assertNotContains(response, task)
 
+    def make_ranking(self, contest, key):
+        return Ranking.objects.get_or_create(contest=contest, key=key, needs_recalculation=False)[0]
+
     def test_invalidate_view(self):
         contest = Contest.objects.get()
         url = reverse("ranking_invalidate", kwargs={"contest_id": contest.id, "key": "key"})
@@ -279,14 +282,49 @@ class TestRankingViews(TestCase):
 
         self.assertTrue(self.client.login(username="test_admin"))
         with fake_time(datetime(2019, 1, 27, tzinfo=UTC)):
-            ranking, _ = Ranking.objects.get_or_create(contest=contest, key="admin#key", needs_recalculation=False)
-            ranking.save()
+            ranking = self.make_ranking(contest, "admin#key")
+            ranking2 = self.make_ranking(contest, "observer#key")
+            ranking3 = self.make_ranking(contest, "admin#key2")
             self.assertTrue(ranking.is_up_to_date())
+            self.assertTrue(ranking2.is_up_to_date())
+            self.assertTrue(ranking3.is_up_to_date())
             recalc = choose_for_recalculation()
             self.assertIsNone(recalc)
             self.client.post(url, key="key")
             ranking.refresh_from_db()
+            ranking2.refresh_from_db()
+            ranking3.refresh_from_db()
             self.assertFalse(ranking.is_up_to_date())
+            self.assertFalse(ranking2.is_up_to_date())
+            self.assertTrue(ranking3.is_up_to_date())
+            recalc = choose_for_recalculation()
+            self.assertIsNotNone(recalc)
+
+    def test_invalidate_contest_view(self):
+        contest = Contest.objects.get()
+        url = reverse("ranking_invalidate_contest", kwargs={"contest_id": contest.id, "key": "key"})
+
+        self.assertTrue(self.client.login(username="test_user"))
+        with fake_time(datetime(2019, 1, 27, tzinfo=UTC)):
+            check_not_accessible(self, url)
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        with fake_time(datetime(2019, 1, 27, tzinfo=UTC)):
+            ranking = self.make_ranking(contest, "admin#key")
+            ranking2 = self.make_ranking(contest, "observer#key")
+            ranking3 = self.make_ranking(contest, "admin#key2")
+            self.assertTrue(ranking.is_up_to_date())
+            self.assertTrue(ranking2.is_up_to_date())
+            self.assertTrue(ranking3.is_up_to_date())
+            recalc = choose_for_recalculation()
+            self.assertIsNone(recalc)
+            self.client.post(url, key="key")
+            ranking.refresh_from_db()
+            ranking2.refresh_from_db()
+            ranking3.refresh_from_db()
+            self.assertFalse(ranking.is_up_to_date())
+            self.assertFalse(ranking2.is_up_to_date())
+            self.assertFalse(ranking3.is_up_to_date())
             recalc = choose_for_recalculation()
             self.assertIsNotNone(recalc)
 
@@ -356,6 +394,37 @@ class TestRecalc(TestCase):
         self.assertFalse(ranking.is_up_to_date())
         recalc = choose_for_recalculation()
         self.assertIsNotNone(recalc)
+
+    def test_probleminstance_invalidation(self):
+        contest = Contest.objects.get()
+        rc = contest.controller.ranking_controller()
+        r1 = Round.objects.get(id=1)
+        r2 = Round.objects.get(id=2)
+        pi = ProblemInstance.objects.get(round=r1)
+
+        def make_ranking_for_key(perm, partial_key):
+            key = perm + "#" + partial_key
+            return Ranking.objects.get_or_create(contest=contest, key=key, needs_recalculation=False)[0]
+
+        contest_ranking = make_ranking_for_key("admin", "c")
+        r1_ranking = make_ranking_for_key("admin", str(r1.id))
+        r2_ranking = make_ranking_for_key("admin", str(r2.id))
+        self.assertTrue(contest_ranking.is_up_to_date())
+        self.assertTrue(r1_ranking.is_up_to_date())
+        self.assertTrue(r2_ranking.is_up_to_date())
+
+        rc.invalidate_pi(pi)
+        contest_ranking.refresh_from_db()
+        r1_ranking.refresh_from_db()
+        r2_ranking.refresh_from_db()
+        self.assertFalse(contest_ranking.is_up_to_date())
+        self.assertFalse(r1_ranking.is_up_to_date())
+        self.assertTrue(r2_ranking.is_up_to_date())
+
+        pi.round = None
+        rc.invalidate_pi(pi)
+        r2_ranking.refresh_from_db()
+        self.assertTrue(r2_ranking.is_up_to_date())
 
     def test_invalidate_preferences_saved(self):
         # PreferencesSaved signal is sent after user changes their preferences
