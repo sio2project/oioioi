@@ -1,0 +1,69 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls %}
+
+{# Override buttons so they can be translated properly #}
+{% block submit_buttons_bottom %}
+<div class="submit-row d-none d-md-flex breadcrumb">
+    {% if show_delete_link and original %}
+        {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+        <a class="btn btn-danger deletelink" href="{% add_preserved_filters delete_url %}" class="deletelink">{% translate "Delete" %}</a>
+    {% endif %}
+
+    <div class="ml-auto">
+    {% if show_archive %}<a class="btn btn-warning" href="{% url 'confirm_archive_contest' %}">{% translate "Archive" %}</a>{% endif %}
+    {% if show_unarchive %}<a class="btn btn-warning" href="{% url 'unarchive_contest' %}">{% translate "Unarchive" %}</a>{% endif %}
+
+    {% if has_add_permission and change and save_as %}
+        <input class="btn btn-secondary" type="submit" value="{% translate 'Save as new' %}" name="_saveasnew">
+    {% endif %}
+
+    {% if has_add_permission %}
+        <input class="btn btn-secondary" type="submit" value="{% translate 'Save and add another' context 'teacher object' %}" name="_addanother">
+    {% endif %}
+
+    {% if has_change_permission or has_add_permission %}
+        <input class="btn btn-secondary" type="submit" value="{% if can_change %}{% translate 'Save and continue editing' %}{% else %}{% translate 'Save and view' %}{% endif %}" name="_continue">
+    {% endif %}
+
+    {% if has_change_permission or has_add_permission %}
+        <input type="submit" value="{% translate 'Save' %}" class="btn btn-primary" name="_save">
+    {% endif %}
+
+    {% if show_close %}
+        <a class="btn btn-warning" href="{% url opts|admin_urlname:'changelist' %}" class="closelink">{% translate 'Close' %}</a>
+    {% endif %}
+    </div>
+</div>
+
+<div class="submit-row d-md-none breadcrumb py-2 px-3">
+    <div class="nav nav-pills nav-fill flex-fill">
+        {% if show_delete_link and original %}
+            {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+            <a class="nav-item m-1 btn btn-danger deletelink" href="{% add_preserved_filters delete_url %}" class="deletelink">{% translate "Delete" %}</a>
+        {% endif %}
+
+        {% if show_archive %}<a class="nav-item m-1 btn btn-warning" href="{% url 'confirm_archive_contest' %}">{% translate "Archive" %}</a>{% endif %}
+        {% if show_unarchive %}<a class="nav-item m-1 btn btn-warning" href="{% url 'unarchive_contest' %}">{% translate "Unarchive" %}</a>{% endif %}
+
+        {% if has_add_permission and change and save_as %}
+            <input class="nav-item m-1 btn btn-secondary" type="submit" value="{% translate 'Save as new' %}" name="_saveasnew">
+        {% endif %}
+
+        {% if has_add_permission %}
+            <input class="nav-item m-1 btn btn-secondary" type="submit" value="{% translate 'Save and add another' context 'teacher object' %}" name="_addanother">
+        {% endif %}
+
+        {% if has_change_permission or has_add_permission %}
+            <input class="nav-item m-1 btn btn-secondary" type="submit" value="{% if can_change %}{% translate 'Save and continue editing' %}{% else %}{% translate 'Save and view' %}{% endif %}" name="_continue">
+        {% endif %}
+
+        {% if has_change_permission or has_add_permission %}
+            <input type="submit" value="{% translate 'Save' %}" class="nav-item m-1 btn btn-primary" name="_save">
+        {% endif %}
+
+        {% if show_close %}
+            <a class="nav-item m-1 btn btn-warning" href="{% url opts|admin_urlname:'changelist' %}" class="closelink">{% translate 'Close' %}</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
