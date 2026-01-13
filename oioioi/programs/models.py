@@ -312,6 +312,20 @@ class TestReport(models.Model):
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return f"TestReport(submission_report_id={self.submission_report_id}, test_name={self.test_name}, \
+            status={self.status}, score={self.score}, max_score={self.max_score})"
+
+    def get_status_display(self):
+        if self.status == "OK":
+            try:
+                score_percentage = round((self.score.to_int() / self.max_score.to_int()) * 100)
+                if score_percentage < 100:
+                    return _("Partially OK")
+            except (ZeroDivisionError, AttributeError):
+                pass
+        return submission_statuses.get(self.status, self.status)
+
 
 class GroupReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
