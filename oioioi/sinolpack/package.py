@@ -447,17 +447,17 @@ class SinolPackage:
     @_describe_processing_error
     def _validate_package_naming_consistency(self):
         """Validates folder name matches file prefixes and sinol_task_id if present."""
-        
+
         expected_prefix = self.config.get('sinol_task_id')
         detected_prefixes = set()
-        
+
         prog_dir = os.path.join(self.rootdir, "prog")
         if os.path.isdir(prog_dir):
             for f in os.listdir(prog_dir):
                 m = re.match(r'^(\w+)(ingen|inwer|chk|soc)\.', f)
                 if m:
                     detected_prefixes.add(m.group(1))
-        
+
         doc_dir = os.path.join(self.rootdir, "doc")
         if os.path.isdir(doc_dir):
             for f in os.listdir(doc_dir):
@@ -473,13 +473,13 @@ class SinolPackage:
                     if m:
                         detected_prefixes.add(m.group(1))
                         break
-        
+
         if len(detected_prefixes) > 1:
             raise ProblemPackageError(
                 _("Inconsistent file prefixes found: %(prefixes)s. All files must use '%(expected)s'.")
                 % {'prefixes': ', '.join(sorted(detected_prefixes)), 'expected': self.short_name}
             )
-        
+
         if detected_prefixes:
             detected = detected_prefixes.pop()
             if detected != self.short_name:
@@ -499,7 +499,7 @@ class SinolPackage:
                         "Rename folder to '%(prefix)s/'."
                     ) % {'folder': self.short_name, 'prefix': detected}
                 raise ProblemPackageError(error_msg)
-        
+
         elif expected_prefix and expected_prefix != self.short_name:
             raise ProblemPackageError(
                 _("Folder '%(folder)s' doesn't match sinol_task_id '%(id)s' in config.yml. Rename folder to '%(id)s/'.")
