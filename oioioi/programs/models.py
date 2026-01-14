@@ -326,6 +326,31 @@ class TestReport(models.Model):
                 pass
         return submission_statuses.get(self.status, self.status)
 
+    def should_display_comment(self):
+        if self.comment is not None and self.comment != "":
+            return True
+        if self.status != "TLE":
+            try:
+                if self.score < self.max_score and self.time_used * 2 > self.test_time_limit:
+                    return True
+            except (TypeError, AttributeError):
+                pass
+        return False
+
+    def get_comment_display(self):
+        print(self.comment, self.time_used, self.test_time_limit, self.should_display_comment())
+        comment = self.comment if self.comment else ""
+        if comment and not comment.endswith("."):
+            comment += "."
+        if self.status != "TLE":
+            try:
+                # In this case threshold linear scoring was used.
+                if self.score < self.max_score and self.time_used * 2 > self.test_time_limit:
+                    comment += _(" Half of the time limit exceeded.")
+            except (TypeError, AttributeError):
+                pass
+        return comment
+
 
 class GroupReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
