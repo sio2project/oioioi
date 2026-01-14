@@ -249,7 +249,7 @@ def filter_problems_by_query(problems, datadict):
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
     if algorithm_tags:
-        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict["include_proposals"] == "1":
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict.get("include_proposals", "0") == "1":
             proposal_match_problem_ids = AggregatedAlgorithmTagProposal.objects.filter(
                 tag__name__in=algorithm_tags, amount__gte=settings.PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL
             ).values_list("problem_id", flat=True)
