@@ -312,6 +312,45 @@ class TestReport(models.Model):
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
 
+    def __str__(self):
+        return f"TestReport(submission_report_id={self.submission_report_id}, test_name={self.test_name}, \
+            status={self.status}, score={self.score}, max_score={self.max_score})"
+
+    def get_status_display(self):
+        if self.status == "OK":
+            try:
+                score_percentage = round((self.score.to_int() / self.max_score.to_int()) * 100)
+                if score_percentage < 100:
+                    return _("Partially OK")
+            except (ZeroDivisionError, AttributeError):
+                pass
+        return submission_statuses.get(self.status, self.status)
+
+    def should_display_comment(self):
+        if self.comment is not None and self.comment != "":
+            return True
+        if self.status != "TLE":
+            try:
+                if self.score < self.max_score and self.time_used * 2 > self.test_time_limit:
+                    return True
+            except (TypeError, AttributeError):
+                pass
+        return False
+
+    def get_comment_display(self):
+        print(self.comment, self.time_used, self.test_time_limit, self.should_display_comment())
+        comment = self.comment if self.comment else ""
+        if comment and not comment.endswith("."):
+            comment += "."
+        if self.status != "TLE":
+            try:
+                # In this case threshold linear scoring was used.
+                if self.score < self.max_score and self.time_used * 2 > self.test_time_limit:
+                    comment += _(" Half of the time limit exceeded.")
+            except (TypeError, AttributeError):
+                pass
+        return comment
+
 
 class GroupReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)

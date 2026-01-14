@@ -1120,6 +1120,92 @@ class TestScorers(TestCase):
         )
 
 
+class TestReportDisplay(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def test_get_status_display(self):
+        """Test TestReport.get_status_display() method"""
+        from oioioi.contests.models import SubmissionReport
+
+        submission = ProgramSubmission.objects.get(pk=1)
+        submission_report = SubmissionReport.objects.create(submission=submission, status="ACTIVE", kind="NORMAL")
+
+        test_report = TestReport.objects.create(
+            submission_report=submission_report,
+            status="OK",
+            test_name="test1",
+            test_group="0",
+            score=IntegerScore(100),
+            max_score=IntegerScore(100),
+            time_used=100,
+            test_time_limit=1000,
+        )
+        self.assertEqual(test_report.get_status_display(), "OK")
+
+        test_report.score = IntegerScore(50)
+        test_report.save()
+        self.assertEqual(test_report.get_status_display(), "Partially OK")
+
+        test_report.status = "WA"
+        test_report.save()
+        self.assertEqual(test_report.get_status_display(), "Wrong answer")
+
+    def test_get_comment_display(self):
+        from oioioi.contests.models import SubmissionReport
+
+        submission = ProgramSubmission.objects.get(pk=1)
+        submission_report = SubmissionReport.objects.create(submission=submission, status="ACTIVE", kind="NORMAL")
+
+        # Test with existing comment
+        test_report = TestReport.objects.create(
+            submission_report=submission_report,
+            status="OK",
+            test_name="test1",
+            test_group="0",
+            comment="Test comment",
+            score=IntegerScore(100),
+            max_score=IntegerScore(100),
+            time_used=100,
+            test_time_limit=1000,
+        )
+        comment = test_report.get_comment_display()
+        self.assertEqual(comment, "Test comment.")
+
+        # Test with no comment and time under half limit
+        test_report.comment = ""
+        test_report.time_used = 400
+        test_report.test_time_limit = 1000
+        test_report.save()
+        self.assertEqual(test_report.get_comment_display(), "")
+
+        # Test with no comment but time exceeds half limit
+        test_report.score = IntegerScore(50)
+        test_report.time_used = 600
+        test_report.test_time_limit = 1000
+        test_report.save()
+        comment = test_report.get_comment_display()
+        self.assertIn("Half of the time limit exceeded", comment)
+
+        # Test with comment and time exceeds half limit
+        test_report.comment = "Some issue"
+        test_report.save()
+        comment = test_report.get_comment_display()
+        self.assertIn("Some issue", comment)
+        self.assertIn("Half of the time limit exceeded", comment)
+
+        # Test with TLE status (should not add half time limit message)
+        test_report.status = "TLE"
+        test_report.comment = ""
+        test_report.save()
+        self.assertEqual(test_report.get_comment_display(), "")
+
+
 class TestUserOutsGenerating(TestCase):
     fixtures = [
         "test_users",
