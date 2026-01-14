@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load pagination_tags %}
 {% load format_data_range %}
+{% load humanize %}
 
 {% block styles %}
     {{ block.super }}
@@ -103,7 +104,7 @@
                             {% if show_status %}
                                 {% if last_submission and last_submission.can_see_status %}
                                     <a href="{{ last_submission.link }}">
-                                        <span class="badge {{ last_submission.badge_class }}">{{ last_submission.message }}</span>
+                                        <span class="badge {{ last_submission.badge_class }}" title="{{ last_submission.submission.date|naturaltime }} ({{ last_submission.submission.date|date:'Y-m-d H:i:s' }})">{{ last_submission.message }}</span>
                                     </a>
                                 {% endif %}
                             {% endif %}
