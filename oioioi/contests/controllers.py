@@ -58,6 +58,34 @@ def export_entries(registry, values):
     return result
 
 
+STATUS_CLASSES = {
+    "OK100": "badge-success",
+    "OK": "badge-success",
+    "INI_OK": "badge-success",
+    "TESTRUN_OK": "badge-success",
+    "OK75": "badge-warning",
+    "OK50": "badge-warning",
+    "OK25": "badge-danger",
+    "OK0": "badge-danger",
+    "ERR": "badge-danger",
+    "WA": "badge-danger",
+    "TLE": "badge-danger",
+    "RE": "badge-danger",
+    "CE": "badge-danger",
+    "MLE": "badge-danger",
+    "OLE": "badge-danger",
+    "SE": "badge-danger",
+    "RV": "badge-danger",
+    "INI_ERR": "badge-danger",
+    "MSE": "badge-danger",
+    "MCE": "badge-danger",
+}
+
+
+def get_badge_class(display_type):
+    return STATUS_CLASSES.get(display_type, "badge-secondary")
+
+
 def submission_template_context(request, submission):
     pi = submission.problem_instance
     controller = pi.controller
@@ -108,12 +136,15 @@ def submission_template_context(request, submission):
     else:
         display_type = submission.status
 
+    badge_class = get_badge_class(display_type)
+
     return {
         "submission": submission,
         "can_see_status": can_see_status,
         "can_see_score": can_see_score,
         "can_see_comment": can_see_comment,
         "display_type": display_type,
+        "badge_class": badge_class,
         "message": message,
         "link": link,
         "valid_kinds_for_submission": valid_kinds_for_submission,
