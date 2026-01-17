@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.11-trixie AS base
+FROM python:3.13 AS base
 
 ENV PYTHONUNBUFFERED=1
 
@@ -83,7 +83,7 @@ WORKDIR /sio2/deployment
 RUN mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # The stage below is independent of base and can be built in parallel to optimize build time.
-FROM python:3.11-slim AS development-sandboxes
+FROM python:3.13 AS development-sandboxes
 
 ENV DOWNLOAD_DIR=/sio2/sandboxes
 ENV MANIFEST_URL=https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest

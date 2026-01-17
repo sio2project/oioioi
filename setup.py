@@ -75,7 +75,7 @@ requirements = [
     "aiohttp>=3.12.2,<3.13.0",
     "cachetools>=6.0.0,<6.1.0",
     # Takes too much time during deployment
-    "cffi==1.16.0",
+    "cffi==1.17.1",
     "django-appconf==1.0.6",
     "django-phonenumber-field==6.4.0",
     "cryptography==44.0.1",
@@ -90,6 +90,7 @@ requirements = [
     "exceptiongroup>=1.2.1",
     "attrs>=23.2.0",
     "Automat>=22.10.0",
+    "legacy-cgi"
 ]
 
 setup(
