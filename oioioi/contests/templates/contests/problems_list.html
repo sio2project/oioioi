@@ -13,7 +13,7 @@
             animation-iteration-count: 6;
             background-color: rgba(255, 255, 0 , .4);
         }
-        
+
         @keyframes target-glow {
             0%, 100% {
                 background-color: rgba(255, 255, 0 , .4);
@@ -23,6 +23,12 @@
                 background-color: rgba(255, 255, 0 , .8);
                 box-shadow: 0px 0px 4px 6px rgba(255, 255, 0, .8);
             }
+        }
+
+        td.problem-limits-column {
+            white-space: nowrap;
+            overflow-wrap: break-word;
+            text-align: left;
         }
     </style>
 {% endblock %}
@@ -60,9 +66,15 @@
                     <th></th>
                     <th class="problem-name-column">{% trans "Name" %}</th>
                     {% if show_problems_limits %}
-                        <th>
-                            {% trans "Limits" %}
-                        </th>
+                        {% if multiple_limits %}
+                            <th>
+                                {% trans "Limits" %}
+                            </th>
+                        {% else %}
+                            <th colspan="2">
+                                {% trans "Limits" %}
+                            </th>
+                        {% endif %}
                     {% endif %}
                     {% if show_submissions_limit %}
                         <th class="text-right">
@@ -102,21 +114,34 @@
                             {% endif %}
                         </td>
                         {% if show_problems_limits %}
-                            <td class="text-right">
-                                {% if problem_limits %}
-                                    <table>
-                                        {% for row in problem_limits %}
-                                            <tr class="problem-limits-row">
-                                                {% for entry in row %}
-                                                    <td>
-                                                        {{ entry }}
-                                                    </td>
-                                                {% endfor %}
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
+                            {% if multiple_limits %}
+                                <td class="text-right">
+                                    {% if problem_limits %}
+                                        <table>
+                                            {% for row in problem_limits %}
+                                                <tr class="problem-limits-row">
+                                                    {% for entry in row %}
+                                                        <td>
+                                                            {{ entry }}
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </table>
+                                    {% endif %}
+                                </td>
+                            {% else %}
+                                {% if problem_limits and problem_limits.0 %}
+                                    <td class="problem-limits-column">
+                                        {{ problem_limits.0.1 }}
+                                    </td>
+                                    <td class="problem-limits-column">
+                                        {{ problem_limits.0.2 }}
+                                    </td>
+                                {% else %}
+                                    <td colspan="2"> </td>
                                 {% endif %}
-                            </td>
+                            {% endif %}
                         {% endif %}
                         {% if show_submissions_limit %}
                             <td class="text-right">
