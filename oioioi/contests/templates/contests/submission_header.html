@@ -65,7 +65,7 @@
             {% if submission.submission.problem_instance.problem.problemsite %}
                 <a role="button"
                     class="btn btn-sm btn-outline-secondary"
-                    href= "{% url 'problem_site' site_key=submission.submission.problem_instance.problem.problemsite.url_key %}">
+                    href= "{% url 'problem_site' site_key=submission.submission.problem_instance.problem.problemsite.url_key %}?key=submit">
                     <i class="fa-regular fa-circle-up"></i>
                     {% trans "Submit another" %}
                 </a>

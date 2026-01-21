@@ -13,6 +13,7 @@ from oioioi.contests.utils import (
     contest_exists,
     get_submission_or_error,
     is_contest_admin,
+    is_contest_archived,
 )
 from oioioi.filetracker.utils import stream_file
 from oioioi.programs.utils import decode_str
@@ -28,7 +29,7 @@ from oioioi.testrun.utils import (
     lambda request: reverse("testrun_submit", kwargs={"contest_id": request.contest.id}),
     order=300,
 )
-@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest & ~is_contest_archived)
 @enforce_condition(has_any_testrun_problem, template="testrun/no-testrun-problems.html")
 def testrun_submit_view(request, problem_instance_id=None):
     if request.method == "POST":

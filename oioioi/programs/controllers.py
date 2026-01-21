@@ -638,9 +638,6 @@ class ProgrammingProblemController(ProblemController):
     def render_report_failure(self, request, report):
         return ProblemController.render_report(self, request, report)
 
-    def is_admin(self, request, report):
-        return can_admin_problem(request, self.problem)
-
     def render_report(self, request, report):
         problem_instance = report.submission.problem_instance
         if report.kind == "FAILURE":
