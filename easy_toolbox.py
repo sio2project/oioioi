@@ -76,12 +76,12 @@ RAW_COMMANDS = [
     ),
     (
         "populate-sample-data",
-        "Creates a contest with the sample problem package and 10 users, with 3 submissions each.",
+        "Create a contest with the sample problem package and 10 users, with 3 submissions each.",
         "{exec} web python manage.py mass_create_tool -cn demo -cc -pp test_full_package.tgz -u 10 -sf sum-correct.cpp sum-various-results.cpp -spu 3 -v 0",
     ),
     (
         "wipe-sample-data",
-        "Wipes all contests, problems, users and submissions created with `populate-sample-data`.",
+        "Wipe all contests, problems, users and submissions created with `populate-sample-data`.",
         "{exec} web python manage.py mass_create_tool --wipe",
         "Warning: This will wipe all data created using the mass_create_tool. Are you sure you want to proceed?"
     )
