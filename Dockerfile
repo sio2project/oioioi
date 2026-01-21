@@ -1,4 +1,4 @@
-FROM python:3.13 AS base
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm AS base
 
 ENV PYTHONUNBUFFERED=1
 
@@ -9,6 +9,7 @@ RUN apt-get update && \
         libpq-dev \
         postgresql-client \
         libdb-dev \
+        libmemcached-dev \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \

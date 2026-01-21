@@ -157,7 +157,7 @@ class BaseArchive:
 
         # Only apply the filter if archive is tar
         # zip extraction raises TypeError while tar extraction
-        # raises warnings and crashes tests        
+        # raises warnings and crashes tests
         if isinstance(self._archive, tarfile.TarFile):
             kwargs['filter'] = 'data'
 
