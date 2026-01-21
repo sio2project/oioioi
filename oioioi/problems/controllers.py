@@ -52,6 +52,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     def __init__(self, problem):
         self.problem = problem
 
+    def is_admin(self, request, report):
+        return can_admin_problem(request, self.problem)
+
     def adjust_problem(self):
         """Called whan a (usually new) problem has just got the controller
         attached or after the problem has been modified.
