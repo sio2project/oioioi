@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.schemas import AutoSchema
 from rest_framework.views import APIView
 
-from oioioi.base.utils.api import make_path_coreapi_schema
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import can_admin_contest
 from oioioi.problems.forms import PackageUploadForm
@@ -43,15 +42,15 @@ class PackageUploadQueryView(APIView):
     """
 
     permission_classes = (IsAuthenticated,)
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
-                name="package_id",
-                title="Package id",
-                description="Id of the package whose status you can get.",
-            ),
-        ]
-    )
+    # schema = AutoSchema(
+    #     [
+    #         make_path_coreapi_schema(
+    #             name="package_id",
+    #             title="Package id",
+    #             description="Id of the package whose status you can get.",
+    #         ),
+    #     ]
+    # )
 
     @staticmethod
     def check_permissions(request, contest=None, existing_problem=None):

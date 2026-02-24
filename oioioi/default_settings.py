@@ -319,7 +319,7 @@ INSTALLED_APPS = (
     'two_factor.plugins.phonenumber',
 
     'nested_admin',
-    'coreapi',
+    'drf_spectacular',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -860,7 +860,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
 }
 
 # If set to True, usercontests will become read-only: it will be impossible to

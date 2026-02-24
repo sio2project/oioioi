@@ -45,7 +45,7 @@ if settings.USE_API:
     noncontest_patterns += [
         # the c prefix doesn't make sense for non contest related endpoints as
         # well as for the documentation which anyway does not require authorization
-        re_path(r"^api/docs/", include_docs_urls(title="OIOIOI API"), name="api_docs"),
+        # re_path(r"^api/docs/", include_docs_urls(title="OIOIOI API"), name="api_docs"),
         re_path(r"^api/ping", api.ping),
         re_path(r"^api/auth_ping", api.auth_ping),
     ]

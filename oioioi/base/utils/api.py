@@ -1,4 +1,3 @@
-from rest_framework.compat import coreapi, coreschema
 
 
 def make_path_coreapi_schema(name, title=None, description=None, required=True, **kwargs):
@@ -13,5 +12,5 @@ def make_path_coreapi_schema(name, title=None, description=None, required=True, 
     You can see more in Django Rest Framework code:
     https://github.com/encode/django-rest-framework/blob/5c2290d97380ca15005f7d42ffceae04dc817dba/rest_framework/schemas/inspectors.py#L149
     """
-    schema = coreschema.String(title=title, description=description, **kwargs)
-    return coreapi.Field(name=name, location="path", required=required, schema=schema)
+    # schema = coreschema.String(title=title, description=description, **kwargs)
+    # return coreapi.Field(name=name, location="path", required=required, schema=schema)
