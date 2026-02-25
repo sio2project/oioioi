@@ -159,6 +159,39 @@ def problems_list_view(request):
     # 6) submissions_limit
     # 7) can_submit
     # Sorted by (start_date, end_date, round name, problem name)
+    # Preload user-related data to avoid N+1 queries
+    pi_ids = [pi.id for pi in problem_instances]
+    results_map = {}
+    last_submission_map = {}
+    if request.user.is_authenticated:
+        # Bulk fetch UserResultForProblem objects. We only keep those for which
+        # the user can see the submission score.
+        user_results_qs = (
+            UserResultForProblem.objects.filter(user__id=request.user.id, problem_instance_id__in=pi_ids)
+            .select_related("submission_report__submission")
+        )
+        for r in user_results_qs:
+            # Some controllers may hide score even if UserResultForProblem exists
+            if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission):
+                results_map[r.problem_instance_id] = r
+
+        # Bulk fetch user's submissions for the problem instances and build a map
+        # of latest submission per problem instance. Submissions are ordered by
+        # date descending, so the first occurrence for a given problem_instance
+        # is the latest one.
+        submissions_qs = (
+            Submission.objects.filter(
+                user__id=request.user.id,
+                problem_instance_id__in=pi_ids,
+                kind="NORMAL" # ignore ignored submissions
+                )
+            .order_by("-date")
+        )
+        for s in submissions_qs:
+            pid = s.problem_instance_id
+            if pid not in last_submission_map:
+                last_submission_map[pid] = s
+
     problems_statements = sorted(
         [
             (
@@ -166,21 +199,11 @@ def problems_list_view(request):
                 controller.can_see_statement(request, pi),
                 controller.get_round_times(request, pi.round),
                 problems_limits.get(pi.pk, None),
-                # Because this view can be accessed by an anynomous user we can't
-                # use `user=request.user` (it would cause TypeError). Surprisingly
-                # using request.user.id is ok since for AnynomousUser id is set
-                # to None.
-                next(
-                    (
-                        r
-                        for r in UserResultForProblem.objects.filter(user__id=request.user.id, problem_instance=pi)
-                        if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission)
-                    ),
-                    None,
-                ),
+                results_map.get(pi.id),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
                 controller.can_submit(request, pi) and not is_contest_archived(request),
+                submission_template_context(request, last_submission_map[pi.id]) if pi.id in last_submission_map else None,
             )
             for pi in problem_instances
         ],
@@ -190,6 +213,7 @@ def problems_list_view(request):
     show_submissions_limit = any(p[6] for p in problems_statements)
     show_submit_button = any(p[7] for p in problems_statements)
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
+    show_status = request.user.is_authenticated # Always show status for authenticated users
     table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
 
     return TemplateResponse(
@@ -201,6 +225,7 @@ def problems_list_view(request):
             "show_rounds": show_rounds,
             "show_scores": request.user.is_authenticated,
             "show_submissions_limit": show_submissions_limit,
+            "show_status": show_status,
             "show_submit_button": show_submit_button,
             "table_columns": table_columns,
             "problems_on_page": getattr(settings, "PROBLEMS_ON_PAGE", 100),
