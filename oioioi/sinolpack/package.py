@@ -478,7 +478,7 @@ class SinolPackage:
                 _("Folder '%(folder)s' doesn't match sinol_task_id '%(id)s' in config.yml. Make sure they are consistent.")
                 % {'folder': self.short_name, 'id': expected_prefix}
             )
-        
+
         if len(detected_prefixes) > 1:
             raise ProblemPackageError(
                 _("Inconsistent file prefixes found: %(prefixes)s. All files must use '%(expected)s'.")
