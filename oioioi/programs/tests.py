@@ -3,6 +3,7 @@ import re
 import urllib
 from collections import defaultdict
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
+from unittest import mock
 
 import pytest
 import six
@@ -1184,20 +1185,21 @@ class TestReportDisplay(TestCase):
         test_report.save()
         self.assertEqual(test_report.get_comment_display(), "")
 
-        # Test with no comment but time exceeds half limit
-        test_report.score = IntegerScore(50)
-        test_report.time_used = 600
-        test_report.test_time_limit = 1000
-        test_report.save()
-        comment = test_report.get_comment_display()
-        self.assertIn("Half of the time limit exceeded", comment)
+        with mock.patch.object(ProgrammingContestController, "uses_threshold_linear_scoring", return_value=True):
+            # Test with no comment but time exceeds half limit
+            test_report.score = IntegerScore(50)
+            test_report.time_used = 600
+            test_report.test_time_limit = 1000
+            test_report.save()
+            comment = test_report.get_comment_display()
+            self.assertIn("Half of the time limit exceeded", comment)
 
-        # Test with comment and time exceeds half limit
-        test_report.comment = "Some issue"
-        test_report.save()
-        comment = test_report.get_comment_display()
-        self.assertIn("Some issue", comment)
-        self.assertIn("Half of the time limit exceeded", comment)
+            # Test with comment and time exceeds half limit
+            test_report.comment = "Some issue"
+            test_report.save()
+            comment = test_report.get_comment_display()
+            self.assertIn("Some issue", comment)
+            self.assertIn("Half of the time limit exceeded", comment)
 
         # Test with TLE status (should not add half time limit message)
         test_report.status = "TLE"
