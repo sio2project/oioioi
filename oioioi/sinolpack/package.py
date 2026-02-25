@@ -469,7 +469,7 @@ class SinolPackage:
         if os.path.isdir(in_dir):
             for f in os.listdir(in_dir):
                 if f.endswith('.in'):
-                    m = re.match(r'^(\w+)\d+[a-z]*\.in$', f)
+                    m = re.match(r'^([a-zA-Z_]+)\d+[a-z]*\.in$', f)
                     if m:
                         detected_prefixes.add(m.group(1))
 
