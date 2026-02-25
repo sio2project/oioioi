@@ -61,14 +61,15 @@ RUN uv venv $VIRTUAL_ENV
 ENV PATH=$VIRTUAL_ENV/bin/:$PATH
 
 ENV BERKELEYDB_DIR=/usr
-RUN uv pip install psycopg2-binary twisted uwsgi
-RUN uv pip install bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 
+COPY --chown=oioioi:oioioi pyproject.toml uv.lock ./
+RUN uv sync --all-groups --no-install-project
+
 COPY --chown=oioioi:oioioi . ./
-RUN uv pip install -r requirements.txt filetracker[server]
-RUN uv pip install -r requirements_static.txt
+RUN uv sync --all-groups
+RUN uv pip install psycopg2-binary twisted uwsgi bsddb3==6.2.7 filetracker[server]
 
 # Installing node dependencies
 ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin

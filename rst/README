@@ -4,9 +4,9 @@ OIOIOI DEVELOPER DOCUMENTATION
 
 REQUIREMENTS
 ============
-Generation of documentation requires a sphinx package, you can install it with:
-$ pip install sphinx
-You may need to add sudo command.
+Generation of documentation requires sphinx and related packages.
+You can install them with:
+$ uv sync --group docs
 
 BUILDING HTML DOC
 =================

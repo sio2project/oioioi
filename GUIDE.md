@@ -59,6 +59,23 @@ or
 
 Now visit `localhost:8000` and start exploring OIOIOI.
 
+## Local Development (Alternative to Docker)
+
+For local development without Docker, you can use **uv** for faster dependency management:
+
+```bash
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create a virtual environment & install dependencies
+uv sync --all-groups
+```
+
+- `uv sync` - Install main dependencies only
+- `uv sync --group dev` - Install main + dev dependencies
+- `uv sync --group docs` - Install main + docs dependencies
+- `uv sync --all-groups` - Install all dependencies
+
 ## Run unit tests
 In order to run unit tests Docker installation is required.
 To do it just run
@@ -128,9 +145,9 @@ Postgres and RabbitMQ already have existing docker images on Docker Hub.
 We only need to build (here comes the magic word) SIO dependent images. 
 `Dockerfile` defines what steps are to be done in order to create the environment. 
 Once you built the image, you can set the container up. 
-Remember - things like dependencies (`requirements[_static].txt`, `setup.py`) are downloaded during the built, 
-so if you changed something in those places you either need to build the image again, 
-or apply these changes by hand (e.g. do `uv pip install`).
+Remember - things like dependencies (defined in `pyproject.toml`) are downloaded during the build,
+so if you changed something in those places you either need to build the image again,
+or apply these changes by hand (e.g. do `uv sync`).
 If you have good internet connection and adequate CPU, it shouldn't be hard to build the image again, 
 especially that it is more stable approach. 
 

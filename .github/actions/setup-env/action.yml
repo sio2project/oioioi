@@ -34,5 +34,5 @@ runs:
 
   - name: Install python dependencies
     run: |
-      uv pip install -r requirements.txt
+      uv sync
     shell: sh
