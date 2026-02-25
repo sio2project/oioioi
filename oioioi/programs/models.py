@@ -317,27 +317,21 @@ class TestReport(models.Model):
             status={self.status}, score={self.score}, max_score={self.max_score})"
 
     def get_status_display(self):
-        if self.status == "OK":
-            try:
-                score_percentage = round((self.score.to_int() / self.max_score.to_int()) * 100)
-                if score_percentage < 100:
-                    return _("Partially OK")
-            except (ZeroDivisionError, AttributeError):
-                pass
+        if self.status == "OK" and self.score is not None and self.max_score is not None and self.max_score.to_int() != 0:
+            if self.score.to_int() < self.max_score.to_int():
+                return _("Partially OK")
         return submission_statuses.get(self.status, self.status)
 
     def was_half_time_limit_exceeded(self):
         """
         Returns True only for contests with threshold linear scoring and if the time used exceeded half of the time limit.
         """
-        if self.status == "OK":
-            try:
-                contest = self.submission_report.submission.problem_instance.contest
-                if contest.controller.uses_threshold_linear_scoring() and self.time_used * 2 > self.test_time_limit:
-                    return True
-            except (TypeError, AttributeError):
-                pass
-        return False
+        if self.status != "OK":
+            return False
+        contest = self.submission_report.submission.problem_instance.contest
+        if contest is None or self.test_time_limit is None:
+            return False
+        return contest.controller.uses_threshold_linear_scoring() and self.time_used * 2 > self.test_time_limit
 
     def should_display_comment(self):
         return (self.comment is not None and len(self.comment) > 0) or self.was_half_time_limit_exceeded()
