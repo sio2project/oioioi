@@ -21,11 +21,11 @@ requirements = [
     "SQLAlchemy<2.1.0",
     "beautifulsoup4>=4.12,<4.13",
     "PyYAML>=6.0.3,<6.1",
-    "python-dateutil>=2.8,<2.9",  # ?
+    "python-dateutil>=2.8,<2.9",
     "django-two-factor-auth==1.18.0",
-    "django-otp==1.2.2",  # ?
-    "django-formtools>=2.4,<2.5",  # ?
-    "django-registration-redux>=2.12,<2.13",  # ?
+    "django-otp==1.2.2",
+    "django-formtools>=2.4,<2.5",
+    "django-registration-redux>=2.12,<2.13",
     "Celery>=5.5,<5.6",
     "coreapi>=2.3,<2.4",
     "dj-pagination>=2.5,<2.6",
@@ -63,7 +63,7 @@ requirements = [
     "humanize<=4.9.0",
     # SIO2 dependencies:
     "filetracker>=2.2.0,<3.0",
-    "django-simple-captcha>=0.6,<0.7",
+    "django-simple-captcha>=0.6.1,<0.7",
     "phonenumbers>=8.13,<8.14",
     "pdfminer.six==20260107",
     # https://stackoverflow.com/questions/73929564/entrypoints-object-has-no-attribute-get-digital-ocean
