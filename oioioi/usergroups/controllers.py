@@ -3,6 +3,7 @@ from django.utils import timezone
 
 from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
 from oioioi.rankings.controllers import CONTEST_RANKING_KEY, DefaultRankingController
+from oioioi.rankings.models import Ranking
 from oioioi.teachers.controllers import TeacherRegistrationController
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
 
@@ -59,6 +60,16 @@ class UserGroupsDefaultRankingControllerMixin:
         for user_group in self._user_groups_for_ranking(request):
             rankings.append((user_group_ranking_id(user_group.id), user_group.name))
         return rankings
+
+    def partial_keys_for_probleminstance(self, pi):
+        partial_keys = super().partial_keys_for_probleminstance(pi)
+        keys = Ranking.objects.filter(
+            contest_id=pi.contest_id,
+            # Somewhat hacky.
+            key__contains=self.construct_full_key("", USER_GROUP_RANKING_PREFIX),
+        ).values_list("key", flat=True)
+        partial_keys.extend(self.get_partial_key(key) for key in keys)
+        return partial_keys
 
     def filter_users_for_ranking(self, key, queryset):
         queryset = super().filter_users_for_ranking(key, queryset)

@@ -25,9 +25,11 @@ stderr_logfile={{ PROJECT_DIR }}/logs/runserver-err.log
 [program:rankingsd]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
 startretries=0
+numprocs={{ settings.RANKINGSD_CONCURRENCY }}
 redirect_stderr=false
-stdout_logfile={{ PROJECT_DIR }}/logs/rankingsd.log
-stderr_logfile={{ PROJECT_DIR }}/logs/rankingsd-err.log
+process_name=rankingsd_%(process_num)d
+stdout_logfile={{ PROJECT_DIR }}/logs/rankingsd_%(process_num)d.log
+stderr_logfile={{ PROJECT_DIR }}/logs/rankingsd_%(process_num)d-err.log
 
 [program:mailnotifyd]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py mailnotifyd

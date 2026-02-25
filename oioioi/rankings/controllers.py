@@ -33,7 +33,7 @@ class RankingMixinForContestController:
 
     def update_user_results(self, user, problem_instance, *args, **kwargs):
         super().update_user_results(user, problem_instance, *args, **kwargs)
-        Ranking.invalidate_contest(problem_instance.round.contest)
+        self.ranking_controller().invalidate_pi(problem_instance)
 
 
 ContestController.mix_in(RankingMixinForContestController)
@@ -55,11 +55,19 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
 
     modules_with_subclasses = ["controllers"]
     abstract = True
+    PERMISSION_LEVELS = [
+        "admin",
+        "observer",
+        "regular",
+    ]
     PERMISSION_CHECKERS = [
         lambda request: "admin" if is_contest_basicadmin(request) else None,
         lambda request: "observer" if is_contest_observer(request) else None,
         lambda request: "regular",
     ]
+
+    def construct_full_key(self, perm_level, partial_key):
+        return perm_level + "#" + partial_key
 
     def get_partial_key(self, key):
         """Extracts partial key from a full key."""
@@ -67,14 +75,21 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def replace_partial_key(self, key, new_partial):
         """Replaces partial key in a full key"""
-        return key.split("#")[0] + "#" + new_partial
+        return self.construct_full_key(self._key_permission(key), new_partial)
 
     def get_full_key(self, request, partial_key):
         """Returns a full key associated with request and partial_key"""
         for checker in self.PERMISSION_CHECKERS:
             res = checker(request)
             if res is not None:
-                return res + "#" + partial_key
+                return self.construct_full_key(res, partial_key)
+
+    def construct_all_full_keys(self, partial_keys):
+        fulls = []
+        for perm in self.PERMISSION_LEVELS:
+            for partial in partial_keys:
+                fulls.append(self.construct_full_key(perm, partial))
+        return fulls
 
     def _key_permission(self, key):
         """Returns a permission level associated with given full key"""
@@ -227,6 +242,23 @@ class DefaultRankingController(RankingController):
             # Only a single round => call this "contest ranking".
             return rankings[:1]
         return rankings
+
+    # Rankings with different partial key logic need must override this
+    # or invalidate_pi accordingly. As a last resort, the all rankings
+    # for the given contest may be invalidated.
+    def partial_keys_for_probleminstance(self, pi):
+        return [CONTEST_RANKING_KEY, str(pi.round_id)]
+
+    def keys_for_probleminstance(self, pi):
+        return self.construct_all_full_keys(self.partial_keys_for_probleminstance(pi))
+
+    def invalidate_pi(self, pi):
+        Ranking.invalidate_queryset(
+            Ranking.objects.filter(
+                contest_id=pi.contest_id,
+                key__in=self.keys_for_probleminstance(pi),
+            )
+        )
 
     def can_search_for_users(self):
         return True

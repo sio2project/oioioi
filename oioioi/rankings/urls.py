@@ -27,4 +27,10 @@ contest_patterns = [
         views.ranking_invalidate_view,
         name="ranking_invalidate",
     ),
+    re_path(
+        r"^ranking/(?P<key>[a-z0-9_-]+)/invalidate_contest/$",
+        views.ranking_invalidate_view,
+        {"invalidate_whole_contest": True},
+        name="ranking_invalidate_contest",
+    ),
 ]

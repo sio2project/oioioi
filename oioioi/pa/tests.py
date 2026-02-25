@@ -13,6 +13,7 @@ from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import (
     Contest,
     ProblemInstance,
+    Round,
     Submission,
     UserResultForProblem,
 )
@@ -23,6 +24,7 @@ from oioioi.pa.models import PAProblemInstanceData, PARegistration
 from oioioi.pa.score import PAScore, ScoreDistribution
 from oioioi.participants.models import Participant, TermsAcceptedPhrase
 from oioioi.problems.models import Problem
+from oioioi.rankings.models import Ranking
 
 
 class TestPAScore(TestCase):
@@ -177,6 +179,48 @@ class TestPARanking(TestCase):
             # Round 3 is trial
             response = self.client.get(self._ranking_url(3))
             check_visibility(["NONE"], response)
+
+    def test_probleminstance_invalidation(self):
+        contest = Contest.objects.get()
+
+        rc = contest.controller.ranking_controller()
+        trial_r = Round.objects.get(id=3)
+        self.assertTrue(trial_r.is_trial)
+        a_pi = ProblemInstance.objects.get(id=1)
+        b_pi = ProblemInstance.objects.get(id=3)
+        trial_pi = ProblemInstance.objects.get(id=5)
+
+        def make_ranking_for_key(perm, partial_key):
+            key = perm + "#" + partial_key
+            return Ranking.objects.get_or_create(contest=contest, key=key, needs_recalculation=False)[0]
+
+        ab_ranking = make_ranking_for_key("admin", A_PLUS_B_RANKING_KEY)
+        b_ranking = make_ranking_for_key("admin", B_RANKING_KEY)
+        trial_ranking = make_ranking_for_key("admin", str(trial_r.id))
+
+        rankings = (b_ranking, ab_ranking, trial_ranking)
+
+        def uninvalidate():
+            for r in rankings:
+                r.needs_recalculation = False
+                r.save()
+                self.assertTrue(r.is_up_to_date())
+
+        def test_pi_invalidation(pi, invalid_mask):
+            uninvalidate()
+            rc.invalidate_pi(pi)
+            i = 0
+            for r in rankings:
+                r.refresh_from_db()
+                self.assertEqual(r.is_up_to_date(), 0 == invalid_mask[i])
+                i += 1
+
+        test_pi_invalidation(a_pi, (0, 1, 0))
+        test_pi_invalidation(b_pi, (1, 1, 0))
+        test_pi_invalidation(trial_pi, (0, 0, 1))
+        trial_pi.round = None
+        trial_pi.save()
+        test_pi_invalidation(trial_pi, (0, 0, 0))
 
     def test_no_zero_scores_in_ranking(self):
         self.assertTrue(self.client.login(username="test_user"))
