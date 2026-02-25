@@ -108,6 +108,36 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, "Testowe")
 
+    def test_file_naming_inconsistent_prefixes(self):
+        filename = get_test_filename("test_file_naming_inconsistency.zip")
+        self.assertRaises(CommandError, call_command, "addproblem", filename)
+        call_command("addproblem", filename, "nothrow")
+        self.assertEqual(Problem.objects.count(), 0)
+        package = ProblemPackage.objects.get()
+        self.assertEqual(package.status, "ERR")
+        # Check if error message is relevant to the issue
+        self.assertIn("Inconsistent file prefixes found", package.info)
+
+    def test_package_naming_mismatch_folder_vs_files(self):
+        filename = get_test_filename("test_package_naming_inconsistency_vs_files.zip")
+        self.assertRaises(CommandError, call_command, "addproblem", filename)
+        call_command("addproblem", filename, "nothrow")
+        self.assertEqual(Problem.objects.count(), 0)
+        package = ProblemPackage.objects.get()
+        self.assertEqual(package.status, "ERR")
+        # Check if error message is relevant to the issue
+        self.assertIn("Package naming mismatch", package.info)
+
+    def test_package_naming_mismatch_folder_vs_task_id(self):
+        filename = get_test_filename("test_package_naming_inconsistency_vs_task_id.zip")
+        self.assertRaises(CommandError, call_command, "addproblem", filename)
+        call_command("addproblem", filename, "nothrow")
+        self.assertEqual(Problem.objects.count(), 0)
+        package = ProblemPackage.objects.get()
+        self.assertEqual(package.status, "ERR")
+        # Check if error message is relevant to the issue
+        self.assertIn("doesn't match sinol_task_id", package.info)
+
     @override_settings(CONTEST_MODE=ContestMode.neutral, USE_SINOLPACK_MAKEFILES=False)
     def test_single_file_replacement(self):
         filename = get_test_filename("test_simple_package.zip")

@@ -472,39 +472,25 @@ class SinolPackage:
                     m = re.match(r'^(\w+)\d+[a-z]*\.in$', f)
                     if m:
                         detected_prefixes.add(m.group(1))
-                        break
 
+        if expected_prefix and expected_prefix != self.short_name:
+            raise ProblemPackageError(
+                _("Folder '%(folder)s' doesn't match sinol_task_id '%(id)s' in config.yml. Make sure they are consistent.")
+                % {'folder': self.short_name, 'id': expected_prefix}
+            )
+        
         if len(detected_prefixes) > 1:
             raise ProblemPackageError(
                 _("Inconsistent file prefixes found: %(prefixes)s. All files must use '%(expected)s'.")
                 % {'prefixes': ', '.join(sorted(detected_prefixes)), 'expected': self.short_name}
             )
-
-        if detected_prefixes:
+        elif detected_prefixes:
             detected = detected_prefixes.pop()
             if detected != self.short_name:
-                if expected_prefix:
-                    error_msg = _(
-                        "Package naming mismatch. "
-                        "Folder name: '%(folder)s', "
-                        "config.yml sinol_task_id: '%(id)s', "
-                        "Files use prefix: '%(prefix)s'. "
-                        "Rename folder to '%(prefix)s/'."
-                    ) % {'folder': self.short_name, 'id': expected_prefix, 'prefix': detected}
-                else:
-                    error_msg = _(
-                        "Package naming mismatch. "
-                        "Folder name: '%(folder)s', "
-                        "Files use prefix: '%(prefix)s'. "
-                        "Rename folder to '%(prefix)s/'."
-                    ) % {'folder': self.short_name, 'prefix': detected}
-                raise ProblemPackageError(error_msg)
-
-        elif expected_prefix and expected_prefix != self.short_name:
-            raise ProblemPackageError(
-                _("Folder '%(folder)s' doesn't match sinol_task_id '%(id)s' in config.yml. Rename folder to '%(id)s/'.")
-                % {'folder': self.short_name, 'id': expected_prefix}
-            )
+                raise ProblemPackageError(
+                    _("Package naming mismatch. Folder name: '%(folder)s', Files use prefix: '%(prefix)s'. "
+                    "Make sure they are consistent.") % {'folder': self.short_name, 'prefix': detected}
+                )
 
     @_describe_processing_error
     def _detect_task_type(self):
