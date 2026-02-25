@@ -144,6 +144,9 @@ class OIContestController(ProgrammingContestController):
         "Full scoring is available after the end of the contest."
     )
 
+    def uses_threshold_linear_scoring(self):
+        return True
+
     def fill_evaluation_environ(self, environ, submission):
         super().fill_evaluation_environ(environ, submission)
 
@@ -258,6 +261,9 @@ class OIFinalOnsiteContestController(OIOnsiteContestController):
 class BOIOnsiteContestController(OIOnsiteContestController):
     description = _("Baltic Olympiad in Informatics")
     create_forum = False
+
+    def uses_threshold_linear_scoring(self):
+        return False
 
     def can_see_test_comments(self, request, submissionreport):
         submission = submissionreport.submission

@@ -8,7 +8,7 @@
     {% for group in groups %}
         {% for record in group.tests %}
         {% with test=record.test %}
-            {% if test.comment and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
+            {% if test.comment and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test or test.should_display_comment %}
             <li class="small text-muted">
                 <span>{{ test.test_name }}</span>
                 {% if allow_download_out and test.test %}
@@ -26,8 +26,8 @@
                         </a>
                     {% endif %}
                 {% endif %}
-                {% if allow_test_comments %}
-                    <span>{{ test.comment }}</span>
+                {% if test.should_display_comment and allow_test_comments %}
+                    <span>{{ test.get_comment_display }}</span>
                 {% endif %}
             </li>
             {% endif %}

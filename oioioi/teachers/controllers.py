@@ -35,6 +35,9 @@ class TeacherContestController(ProgrammingContestController):
     description = _("Contest for teachers")
     create_forum = True
 
+    def uses_threshold_linear_scoring(self):
+        return True
+
     def fill_evaluation_environ(self, environ, submission):
         environ["group_scorer"] = "oioioi.programs.utils.min_group_scorer"
         environ["test_scorer"] = "oioioi.programs.utils.threshold_linear_test_scorer"

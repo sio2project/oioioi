@@ -809,6 +809,11 @@ class ProgrammingContestController(ContestController):
         "The full scoring is available after the results date for the round."
     )
 
+    def uses_threshold_linear_scoring(self):
+        """Returns True if this contest uses linear score reduction when
+        time used exceeds half of the time limit. False by default."""
+        return False
+
     def get_compiler_for_submission(self, submission):
         problem_instance = submission.problem_instance
         return problem_instance.problem.controller.get_compiler_for_submission(submission)
