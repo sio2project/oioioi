@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-11 17:16+0000\n"
+"POT-Creation-Date: 2026-02-25 16:31+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
 "Last-Translator: Michal Boron <beredentod@gmail.com>, 2019\n"
 "Language-Team: German (http://app.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -190,25 +190,25 @@ msgid_plural "You have %(sub_num)s submissions left."
 msgstr[0] ""
 msgstr[1] ""
 
-#: notifications/static/common/notifications.js:155
+#: notifications/static/common/notifications.js:157
 msgid "You don't have any submissions."
 msgstr ""
 
-#: notifications/static/common/notifications.js:165
-msgid "A network error occured. Recent submissions list could not be loaded"
+#: notifications/static/common/notifications.js:166
+msgid "A network error occurred. Recent submissions list could not be loaded"
 msgstr ""
 
-#: notifications/static/common/notifications.js:175
+#: notifications/static/common/notifications.js:176
 msgid ""
 "Would you like to enable desktop notifications (for submission results and "
 "more)?"
 msgstr ""
 
-#: notifications/static/common/notifications.js:178
+#: notifications/static/common/notifications.js:179
 msgid "Yes, please!"
 msgstr ""
 
-#: notifications/static/common/notifications.js:194
+#: notifications/static/common/notifications.js:195
 msgid "Never ask again on this computer"
 msgstr ""
 
