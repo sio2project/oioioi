@@ -326,29 +326,28 @@ class TestReport(models.Model):
                 pass
         return submission_statuses.get(self.status, self.status)
 
-    def should_display_comment(self):
-        if self.comment is not None and self.comment != "":
-            return True
-        if self.status != "TLE":
+    def was_half_time_limit_exceeded(self):
+        """
+        Returns True only for contests with threshold linear scoring and if the time used exceeded half of the time limit.
+        """
+        if self.status == "OK":
             try:
-                if self.score < self.max_score and self.time_used * 2 > self.test_time_limit:
+                contest = self.submission_report.submission.problem_instance.contest
+                if contest.controller.uses_threshold_linear_scoring() and self.time_used * 2 > self.test_time_limit:
                     return True
             except (TypeError, AttributeError):
                 pass
         return False
 
+    def should_display_comment(self):
+        return (self.comment is not None and len(self.comment) > 0) or self.was_half_time_limit_exceeded()
+
     def get_comment_display(self):
-        print(self.comment, self.time_used, self.test_time_limit, self.should_display_comment())
         comment = self.comment if self.comment else ""
         if comment and not comment.endswith("."):
             comment += "."
-        if self.status != "TLE":
-            try:
-                # In this case threshold linear scoring was used.
-                if self.score < self.max_score and self.time_used * 2 > self.test_time_limit:
-                    comment += _(" Half of the time limit exceeded.")
-            except (TypeError, AttributeError):
-                pass
+        if self.was_half_time_limit_exceeded():
+            comment += _(" Half of the time limit exceeded.")
         return comment
 
 
