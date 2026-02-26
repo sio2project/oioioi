@@ -4322,19 +4322,19 @@ class TestOpenRegistration(TestCase):
         check_registration(self, 403, "NO")
 
     def test_configured_registration_opened(self):
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         available_from = now - timedelta(days=1)
         available_to = now + timedelta(days=1)
         check_registration(self, 200, "CONFIG", available_from, available_to)
 
     def test_configured_registration_closed_before(self):
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         available_from = now + timedelta(hours=1)
         available_to = now + timedelta(days=1)
         check_registration(self, 200, "CONFIG", available_from, available_to, "registration_not_open_yet")
 
     def test_configured_registration_closed_after(self):
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         available_from = now - timedelta(hours=1)
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, "CONFIG", available_from, available_to)

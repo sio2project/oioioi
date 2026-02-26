@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.11-trixie AS base
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm AS base
 
 ENV PYTHONUNBUFFERED=1
 
@@ -9,6 +9,7 @@ RUN apt-get update && \
         libpq-dev \
         postgresql-client \
         libdb-dev \
+        libmemcached-dev \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
@@ -86,7 +87,7 @@ WORKDIR /sio2/deployment
 RUN mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # The stage below is independent of base and can be built in parallel to optimize build time.
-FROM python:3.11-slim AS development-sandboxes
+FROM python:3.13-slim AS development-sandboxes
 
 ENV DOWNLOAD_DIR=/sio2/sandboxes
 ENV MANIFEST_URL=https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest
