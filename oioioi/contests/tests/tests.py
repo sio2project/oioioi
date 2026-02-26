@@ -4904,30 +4904,30 @@ class TestProblemsLimits(TestCase):
     def test_stringify_limits(self):
         raw_limits = {
             "1": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (1000, 2000, 1000, 2000),
-                "py": (1000, 2000, 1000, 2000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (1000, 2000, 1024, 2048),
+                "py": (1000, 2000, 1024, 2048),
             },
-            "2": {"default": (2000, 4000, 2000, 4000), "cpp": (1000, 3000, 1000, 4000), "py": (3000, 5000, 2000, 5000)},
+            "2": {"default": (2000, 4000, 2048, 4096), "cpp": (1000, 3000, 1024, 4096), "py": (3000, 5000, 2048, 5120)},
             "3": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (500, 2000, 500, 1000),
-                "py": (1000, 3000, 1000, 3000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (500, 2000, 512, 1024),
+                "py": (1000, 3000, 1024, 3072),
             },
             "4": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (500, 2000, 2000, 3000),
-                "py": (1000, 2000, 1000, 2000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (500, 2000, 2048, 3072),
+                "py": (1000, 2000, 1024, 2048),
             },
             "5": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (1000, 2000, 1000, 2000),
-                "py": (3000, 4000, 1000, 3000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (1000, 2000, 1024, 2048),
+                "py": (3000, 4000, 1024, 3072),
             },
             "6": {
-                "default": (1000, 2000, 500, 2000),
-                "cpp": (100, 500, 100, 200),
-                "py": (1000, 2000, 500, 2000),
+                "default": (1000, 2000, 512, 2048),
+                "cpp": (100, 500, 128, 256),
+                "py": (1000, 2000, 512, 2048),
             },
         }
 
@@ -4937,49 +4937,49 @@ class TestProblemsLimits(TestCase):
         self.assertEqual(len(stringified["1"]), 1)
         self.assertEqual(stringified["1"][0][0], "")
         self.assertEqual(stringified["1"][0][1], "1-2 s")
-        self.assertEqual(stringified["1"][0][2], "1-2 MB")
+        self.assertEqual(stringified["1"][0][2], "1-2 MiB")
 
         # Test two simple overrides
         self.assertEqual(len(stringified["2"]), 2)
         self.assertEqual(stringified["2"][0][0], "C++:")
         self.assertEqual(stringified["2"][0][1], "1-3 s")
-        self.assertEqual(stringified["2"][0][2], "1-4 MB")
+        self.assertEqual(stringified["2"][0][2], "1-4 MiB")
         self.assertEqual(stringified["2"][1][0], "Python:")
         self.assertEqual(stringified["2"][1][1], "3-5 s")
-        self.assertEqual(stringified["2"][1][2], "2-5 MB")
+        self.assertEqual(stringified["2"][1][2], "2-5 MiB")
 
         # Test two overrides, one with small memory limit
         self.assertEqual(len(stringified["3"]), 2)
         self.assertEqual(stringified["3"][0][0], "C++:")
         self.assertEqual(stringified["3"][0][1], "0.5-2 s")
-        self.assertEqual(stringified["3"][0][2], "500-1000 KiB")
+        self.assertEqual(stringified["3"][0][2], "512-1024 KiB")
         self.assertEqual(stringified["3"][1][0], "Python:")
         self.assertEqual(stringified["3"][1][1], "1-3 s")
-        self.assertEqual(stringified["3"][1][2], "1-3 MB")
+        self.assertEqual(stringified["3"][1][2], "1-3 MiB")
 
         # Test one override, cpp
         self.assertEqual(len(stringified["4"]), 2)
         self.assertEqual(stringified["4"][0][0], "Default:")
         self.assertEqual(stringified["4"][0][1], "1-2 s")
-        self.assertEqual(stringified["4"][0][2], "1-2 MB")
+        self.assertEqual(stringified["4"][0][2], "1-2 MiB")
         self.assertEqual(stringified["4"][1][0], "C++:")
         self.assertEqual(stringified["4"][1][1], "0.5-2 s")
-        self.assertEqual(stringified["4"][1][2], "2-3 MB")
+        self.assertEqual(stringified["4"][1][2], "2-3 MiB")
 
         # Test one override, python
         self.assertEqual(len(stringified["5"]), 2)
         self.assertEqual(stringified["5"][0][0], "Default:")
         self.assertEqual(stringified["5"][0][1], "1-2 s")
-        self.assertEqual(stringified["5"][0][2], "1-2 MB")
+        self.assertEqual(stringified["5"][0][2], "1-2 MiB")
         self.assertEqual(stringified["5"][1][0], "Python:")
         self.assertEqual(stringified["5"][1][1], "3-4 s")
-        self.assertEqual(stringified["5"][1][2], "1-3 MB")
+        self.assertEqual(stringified["5"][1][2], "1-3 MiB")
 
         # Test small memory limits
         self.assertEqual(len(stringified["6"]), 2)
         self.assertEqual(stringified["6"][0][0], "Default:")
         self.assertEqual(stringified["6"][0][1], "1-2 s")
-        self.assertEqual(stringified["6"][0][2], "500-2000 KiB")
+        self.assertEqual(stringified["6"][0][2], "512-2048 KiB")
         self.assertEqual(stringified["6"][1][0], "C++:")
         self.assertEqual(stringified["6"][1][1], "0.1-0.5 s")
-        self.assertEqual(stringified["6"][1][2], "100-200 KiB")
+        self.assertEqual(stringified["6"][1][2], "128-256 KiB")
