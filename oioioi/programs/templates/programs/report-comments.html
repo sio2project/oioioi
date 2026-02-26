@@ -8,7 +8,7 @@
     {% for group in groups %}
         {% for record in group.tests %}
         {% with test=record.test %}
-            {% if test.comment and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
+            {% if test.comment or test.result_percentage and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
             <li class="small text-muted">
                 <span>{{ test.test_name }}</span>
                 {% if allow_download_out and test.test %}
@@ -27,7 +27,22 @@
                     {% endif %}
                 {% endif %}
                 {% if allow_test_comments %}
-                    <span>{{ test.comment }}</span>
+                    <span>
+                    {% if test.comment %}
+                        {% if test.result_percentage %}
+                            {% blocktranslate with test.result_percentage as percentage %}
+                                Granted <b>{{ percentage }}%</b> points, comment:
+                            {% endblocktranslate %}
+                        {% endif %}
+                        {{ test.comment }}
+                    {% else %}
+                        {% if test.result_percentage %}
+                            {% blocktranslate with test.result_percentage as percentage %}
+                                Granted <b>{{ percentage }}%</b> points.
+                            {% endblocktranslate %}
+                        {% endif %}
+                    {% endif %}
+                    </span>
                 {% endif %}
             </li>
             {% endif %}
