@@ -11,9 +11,10 @@ from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import RoundTimeExtensionAdmin, SubmissionAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.models import RoundTimeExtension
+from oioioi.contests.models import RoundStartDelay, RoundTimeExtension
 from oioioi.contests.utils import is_contest_admin
 from oioioi.participants.forms import (
+    DelayRoundForm,
     ExtendRoundForm,
     ParticipantForm,
     RegionForm,
@@ -42,7 +43,7 @@ class ParticipantAdmin(admin.ModelAdmin):
         ("user", "status"),
     ]
     search_fields = ["user__username", "user__last_name"]
-    actions = ("make_active", "make_banned", "delete_selected", "extend_round")
+    actions = ("make_active", "make_banned", "delete_selected", "extend_round", "delay_round")
     form = ParticipantForm
 
     def has_add_permission(self, request):
@@ -185,6 +186,64 @@ class ParticipantAdmin(admin.ModelAdmin):
         return TemplateResponse(request, "admin/participants/extend_round.html", {"form": form})
 
     extend_round.short_description = _("Extend round")
+
+    def delay_round(self, request, queryset):
+        form = None
+
+        if "submit" in request.POST:
+            form = DelayRoundForm(request.contest, request.POST)
+
+            if form.is_valid():
+                round = form.cleaned_data["round"]
+                delay = form.cleaned_data["delay"]
+
+                users = [participant.user for participant in queryset]
+                existing_delays = RoundStartDelay.objects.filter(round=round, user__in=users)
+                for existing in existing_delays:
+                    existing.delay += delay
+                    existing.save()
+                existing_count = existing_delays.count()
+
+                new_delays = [RoundStartDelay(user=user, round=round, delay=delay) for user in users if not existing_delays.filter(user=user).exists()]
+                RoundStartDelay.objects.bulk_create(new_delays)
+
+                if existing_count:
+                    if existing_count > 1:
+                        name = capfirst(RoundStartDelay._meta.verbose_name_plural)
+                    else:
+                        name = RoundStartDelay._meta.verbose_name
+                    self.message_user(
+                        request,
+                        ngettext_lazy(
+                            "Updated one %(name)s.",
+                            "%(name)s updated: %(existing_count)d.",
+                            existing_count,
+                        )
+                        % {"existing_count": existing_count, "name": name},
+                    )
+                if new_delays:
+                    if len(new_delays) > 1:
+                        name = capfirst(RoundStartDelay._meta.verbose_name_plural)
+                    else:
+                        name = RoundStartDelay._meta.verbose_name
+                    self.message_user(
+                        request,
+                        ngettext_lazy(
+                            "Created one %(name)s.",
+                            "%(name)s created: %(new_count)d.",
+                            len(new_delays),
+                        )
+                        % {"new_count": len(new_delays), "name": name},
+                    )
+
+                return HttpResponseRedirect(request.get_full_path())
+
+        if not form:
+            form = DelayRoundForm(request.contest, initial={"_selected_action": [p.id for p in queryset]})
+
+        return TemplateResponse(request, "admin/participants/delay_round.html", {"form": form})
+
+    delay_round.short_description = _("Delay round start")
 
 
 class NoParticipantAdmin(ParticipantAdmin):
