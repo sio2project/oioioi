@@ -626,6 +626,25 @@ class RoundTimeExtension(models.Model):
         return str(self.round) + ": " + str(self.user)
 
 
+class RoundStartDelay(models.Model):
+    """Represents the delay of the round start for a certain user.
+
+    The delay is given in minutes and shifts the round start time later.
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    delay = models.PositiveIntegerField(_("Delay (in minutes)"))
+
+    class Meta:
+        unique_together = ("user", "round")
+        verbose_name = _("round start delay")
+        verbose_name_plural = _("round start delays")
+
+    def __str__(self):
+        return str(self.round) + ": " + str(self.user)
+
+
 contest_permissions = EnumRegistry()
 contest_permissions.register("contests.contest_owner", _("Owner"))
 contest_permissions.register("contests.contest_admin", _("Admin"))
