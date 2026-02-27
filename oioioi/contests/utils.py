@@ -17,6 +17,7 @@ from oioioi.contests.models import (
     FilesMessage,
     ProblemInstance,
     Round,
+    RoundStartDelay,
     RoundTimeExtension,
     Submission,
     SubmissionMessage,
@@ -37,6 +38,7 @@ class RoundTimes:
         show_results=None,
         show_public_results=None,
         extra_time=0,
+        delay_time=0,
     ):
         self.start = start
         self.end = end
@@ -44,6 +46,7 @@ class RoundTimes:
         self.show_public_results = show_public_results
         self.contest = contest
         self.extra_time = extra_time
+        self.delay_time = delay_time
 
     def is_past(self, current_datetime):
         """Returns True if the round is over for a user"""
@@ -103,14 +106,17 @@ class RoundTimes:
         return self.show_public_results
 
     def get_start(self):
+        """Returns start of user roundtime having regard to the delay."""
+        if self.start:
+            return self.start + timedelta(minutes=self.delay_time)
         return self.start
 
     def get_end(self):
         """Returns end of user roundtime
-        having regard to the extension of the rounds
+        having regard to the extension of the rounds and delay of the start.
         """
         if self.end:
-            return self.end + timedelta(minutes=self.extra_time)
+            return self.end + timedelta(minutes=self.delay_time) + timedelta(minutes=self.extra_time)
         else:
             return self.end
 
@@ -137,8 +143,10 @@ def generic_rounds_times(request=None, contest=None):
     rids = [r.id for r in rounds]
     if not request or not hasattr(request, "user") or request.user.is_anonymous:
         rtexts = {}
+        rdelays = {}
     else:
         rtexts = {x["round_id"]: x for x in RoundTimeExtension.objects.filter(user=request.user, round__id__in=rids).values()}
+        rdelays = {x["round_id"]: x for x in RoundStartDelay.objects.filter(user=request.user, round__id__in=rids).values()}
 
     result = {
         r: RoundTimes(
@@ -148,6 +156,7 @@ def generic_rounds_times(request=None, contest=None):
             r.results_date,
             r.public_results_date,
             rtexts[r.id]["extra_time"] if r.id in rtexts else 0,
+            rdelays[r.id]["delay"] if r.id in rdelays else 0,
         )
         for r in rounds
     }

@@ -26,6 +26,7 @@ from oioioi.contests.models import (
     ProblemStatementConfig,
     RankingVisibilityConfig,
     Round,
+    RoundStartDelay,
     RoundTimeExtension,
     ScoreReport,
     Submission,
@@ -372,6 +373,18 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                     render_to_string(
                         "contests/roundtimeextension_info.html",
                         {"request": request, "extensions": exts, "user": request.user},
+                    ),
+                )
+            )
+
+        delays = RoundStartDelay.objects.filter(user=user, round__contest=request.contest)
+        if delays.exists():
+            res.append(
+                (
+                    98,
+                    render_to_string(
+                        "contests/roundstartdelay_info.html",
+                        {"request": request, "delays": delays, "user": request.user},
                     ),
                 )
             )

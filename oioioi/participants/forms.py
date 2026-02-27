@@ -58,6 +58,15 @@ class ExtendRoundForm(forms.Form):
         self.fields["round"] = forms.ModelChoiceField(queryset=Round.objects.filter(contest=request_contest))
 
 
+class DelayRoundForm(forms.Form):
+    _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
+    delay = forms.IntegerField(min_value=1, label=_("Delay (in minutes)"))
+
+    def __init__(self, request_contest, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["round"] = forms.ModelChoiceField(queryset=Round.objects.filter(contest=request_contest))
+
+
 class TermsAcceptedPhraseForm(forms.ModelForm):
     allowed_tags = [
         "a",
