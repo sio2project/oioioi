@@ -9,7 +9,7 @@ from django.utils.translation import ngettext_lazy
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import RoundTimeExtensionAdmin, SubmissionAdmin, contest_site
+from oioioi.contests.admin import RoundStartDelayAdmin, RoundTimeExtensionAdmin, SubmissionAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import RoundStartDelay, RoundTimeExtension
 from oioioi.contests.utils import is_contest_admin
@@ -458,6 +458,7 @@ class ParticipantsRoundTimeExtensionMixin:
 
 
 RoundTimeExtensionAdmin.mix_in(ParticipantsRoundTimeExtensionMixin)
+RoundStartDelayAdmin.mix_in(ParticipantsRoundTimeExtensionMixin)
 
 
 # Normally it would be better to use TabularInline,
