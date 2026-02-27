@@ -1,0 +1,18 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Delay round start for participants" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Delay round start for participants" %}</h1>
+<form method="post">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <input type="hidden" name="action" value="delay_round" />
+    <div class="form-group">
+        <button type="submit" name="submit" class="btn btn-primary">
+            {% trans "Delay" %}
+        </button>
+    </div>
+</form>
+{% endblock %}
