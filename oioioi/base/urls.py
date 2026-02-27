@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.urls import include, path, re_path
-from drf_spectacular.views import SpectacularSwaggerView, SpectacularAPIView, SpectacularRedocView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
 from two_factor.urls import urlpatterns as tf_urls
 
 from oioioi.base import admin, api, views
@@ -45,9 +45,8 @@ if settings.USE_API:
     noncontest_patterns += [
         # the c prefix doesn't make sense for non contest related endpoints as
         # well as for the documentation which anyway does not require authorization
-        re_path(r"^api/schema/$", SpectacularAPIView.as_view(), name="schema"),
-        re_path(r"^api/docs", SpectacularSwaggerView.as_view(url_name="schema"), name="api_docs"),
-        re_path(r"^api/redoc/$", SpectacularRedocView.as_view(url_name="schema")),
+        re_path(r"^api/schema", SpectacularAPIView.as_view(), name="schema"),
+        re_path(r"^api/docs", SpectacularRedocView.as_view(url_name="schema")),
 
         re_path(r"^api/ping", api.ping),
         re_path(r"^api/auth_ping", api.auth_ping),
