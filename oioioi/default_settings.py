@@ -319,7 +319,7 @@ INSTALLED_APPS = (
     'two_factor.plugins.phonenumber',
 
     'nested_admin',
-    'coreapi',
+    'drf_spectacular',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -860,7 +860,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'OIOIOI API',
+    'VERSION': '1..0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 # If set to True, usercontests will become read-only: it will be impossible to

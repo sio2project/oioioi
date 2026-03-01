@@ -27,7 +27,7 @@ requirements = [
     "django-formtools>=2.4,<2.5",
     "django-registration-redux>=2.12,<2.13",
     "Celery<5.4.0",
-    "coreapi>=2.3,<2.4",
+    "drf_spectacular>=0.28.0",
     "dj-pagination>=2.5,<2.6",
     "django-compressor>=4.5,<4.6",
     "Pygments>=2.15,<2.16",
