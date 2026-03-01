@@ -47,7 +47,6 @@ if settings.USE_API:
         # well as for the documentation which anyway does not require authorization
         re_path(r"^api/schema", SpectacularAPIView.as_view(), name="schema"),
         re_path(r"^api/docs", SpectacularRedocView.as_view(url_name="schema")),
-
         re_path(r"^api/ping", api.ping),
         re_path(r"^api/auth_ping", api.auth_ping),
     ]

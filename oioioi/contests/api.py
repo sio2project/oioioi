@@ -1,7 +1,7 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import permissions, status, views
 from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser
@@ -293,7 +293,8 @@ class SubmitContestSolutionView(SubmitSolutionView):
                 name="contest_name",
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.PATH,
-                description="Name of the contest to which you want to submit a solution. You can find it after /c/ in urls when using the SIO2 web interface.",
+                description="Name of the contest to which you want to submit a solution. "
+                "You can find it after /c/ in urls when using the SIO2 web interface.",
             ),
             OpenApiParameter(
                 name="problem_short_name",

@@ -1,5 +1,3 @@
-
-
 def make_path_coreapi_schema(name, title=None, description=None, required=True, **kwargs):
     """This function helps to create documentation for path parameter.
 
