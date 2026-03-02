@@ -1,6 +1,7 @@
 import functools
 import logging
 from collections import defaultdict
+from fractions import Fraction
 
 from django.conf import settings
 from django.db import transaction
@@ -530,6 +531,10 @@ def make_report(env, kind="NORMAL", save_scores=True, **kwargs):
         test_report.score = result["score"] if save_scores else None
         test_report.status = result["status"]
         test_report.time_used = result["time_used"]
+        percentage = Fraction(*result.get("result_percentage", (0, 1)))
+        if percentage != 100 and percentage != 0:
+            test_report.result_percentage_numerator = percentage.numerator
+            test_report.result_percentage_denominator = percentage.denominator
 
         comment = result.get("result_string", "")
         if comment.lower() in ["ok", "time limit exceeded"]:  # Annoying
