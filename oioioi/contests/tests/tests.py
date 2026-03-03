@@ -3896,6 +3896,90 @@ def see_status_on_problems_list(self, username, should_see, expected_status=None
         self.assertNotContains(response, '<th class="text-right">Status</th>')
 
 
+class TestStatusBadgeDoesNotLeakScore(TestCase):
+    """Verify that the last-submission badge on the problems list reflects
+    the *initial* status, not the final score, when the contest hides scores.
+
+    ProgrammingContestController always exposes submission status
+    (can_see_submission_status -> True) but hides the score until
+    results_date.  The badge colour must follow the status, never the
+    score.
+    """
+
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+    ]
+
+    def _set_future_results_date(self):
+        """Push results_date into the future so scores stay hidden."""
+        Round.objects.filter(pk=1).update(
+            results_date=datetime(2099, 1, 1, tzinfo=UTC)
+        )
+
+    def _create_submission_with_score(self, status, score_value, max_score_value):
+        """Create a submission for test_user with given status and score.
+
+        Reports are set up so that the score-based display_type path
+        *would* produce a different badge if the visibility check were
+        ever bypassed — this is what makes the test meaningful.
+        """
+        from oioioi.contests.models import ScoreReport, SubmissionReport
+
+        user = User.objects.get(username="test_user")
+        pi = ProblemInstance.objects.get(pk=1)
+
+        sub = Submission.objects.create(
+            problem_instance=pi,
+            user=user,
+            status=status,
+            score=IntegerScore(score_value),
+            kind="NORMAL",
+            date=datetime(2012, 7, 20, tzinfo=UTC),
+        )
+
+        report = SubmissionReport.objects.create(
+            submission=sub, status="ACTIVE", kind="INITIAL"
+        )
+        ScoreReport.objects.create(
+            submission_report=report,
+            status="OK",
+            score=IntegerScore(score_value),
+            max_score=IntegerScore(max_score_value),
+        )
+        return sub
+
+    def test_ini_ok_zero_points_badge_is_success(self):
+        """INI_OK + 0 pts: badge must be green (status), not red (score)."""
+        self._set_future_results_date()
+        self._create_submission_with_score("INI_OK", 0, 100)
+
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("problems_list", kwargs={"contest_id": "c"})
+
+        with fake_time(datetime(2012, 8, 5, tzinfo=UTC)):
+            response = self.client.get(url, follow=True)
+
+        self.assertContains(response, "badge-success")
+        self.assertNotContains(response, "badge-danger")
+
+    def test_ini_err_full_points_badge_is_danger(self):
+        """INI_ERR + 100 pts: badge must be red (status), not green (score)."""
+        self._set_future_results_date()
+        self._create_submission_with_score("INI_ERR", 100, 100)
+
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("problems_list", kwargs={"contest_id": "c"})
+
+        with fake_time(datetime(2012, 8, 5, tzinfo=UTC)):
+            response = self.client.get(url, follow=True)
+
+        self.assertContains(response, "badge-danger")
+        self.assertNotContains(response, "badge-success")
+
+
 class TestSubmissionsLinksOnListView(TestCase):
     fixtures = [
         "test_users",
