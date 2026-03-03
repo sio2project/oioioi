@@ -3,6 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 # 
 # Translators:
+# Translators:
 # Accounts-Payable - Alkemics, 2015
 # Alek Tudruj <aleksanderwt@gmail.com>, 2022
 # Alicja Kluczek <alicja2602@gmail.com>, 2021-2022
@@ -28,7 +29,6 @@
 # Jan Jakubowski, 2023
 # Joanna Wojciechowska, 2021
 # Kacper Lewandowski, 2022
-# Kamila Godlewska, 2025
 # Kamil Szymczak, 2024-2025
 # konrad … <konrad.krulikowski@gmail.com>, 2016-2020
 # Maciej Dębski <md319428@students.mimuw.edu.pl>, 2014
@@ -1038,11 +1038,6 @@ msgstr "Zapisz jako nowy"
 #: base/templates/admin/submit_line.html:29
 msgid "Save and add another"
 msgstr "Zapisz i dodaj do innego"
-
-#: teachers/templates/teachers/change_form.py
-msgctxt "teacher object"
-msgid "Save and add another"
-msgstr "Zapisz i dodaj kolejnego"
 
 #: base/templates/admin/submit_line.html:14
 #: base/templates/admin/submit_line.html:30
@@ -4846,20 +4841,6 @@ msgstr "miasto"
 msgid "school"
 msgstr "szkoła"
 
-#: teacher translation is needed in places when "dopełniacz" form is needed
-msgid "teacher"
-msgstr "nauczyciela"
-
-msgid "teachers"
-msgstr "nauczycieli"
-
-msgid "join date"
-msgstr "data dołączenia"
-
-#: mp/models.py:29 oi/models.py:149 teachers/admin.py:26
-msgid "Delete selected teachers"
-msgstr "Usuń wybranych nauczycieli"
-
 #: mp/models.py:34
 #| msgid "team name"
 msgid "teacher's name"
@@ -5012,11 +4993,7 @@ msgstr "-- szkoła usunięta --"
 #: oi/admin.py:177 oi/templates/oi/sensitive_participant_info.html:15
 #: teachers/forms.py:32 teachers/forms.py:76
 msgid "School"
-msgstr "Szkoła"
-
-msgctxt "teacher object"
-msgid "Active"
-msgstr "Aktywny"
+msgstr "Szkola"
 
 #: oi/controllers.py:148
 msgid "Polish Olympiad in Informatics - Online"
