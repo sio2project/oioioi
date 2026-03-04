@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
 from oioioi.base.tests import TestCase
-from oioioi.contests.models import Contest
+from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.participants.models import Participant
 from oioioi.rankings.models import Ranking
@@ -582,6 +582,38 @@ class TestUserGroupRankings(TestCase):
         self.assertTrue(self.client.login(username="test_user2"))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    def test_probleminstance_invalidation(self):
+        contest = Contest.objects.get(id="c")
+
+        rc = contest.controller.ranking_controller()
+        pi = ProblemInstance.objects.filter(contest=contest).first()
+
+        def make_ranking_for_key(perm, partial_key):
+            key = perm + "#" + partial_key
+            return Ranking.objects.get_or_create(contest=contest, key=key, needs_recalculation=False)[0]
+
+        usergroup_ranking = make_ranking_for_key("admin", "g2001")
+        contest_ranking = make_ranking_for_key("admin", "c")
+        self.assertTrue(contest_ranking.is_up_to_date())
+        self.assertTrue(usergroup_ranking.is_up_to_date())
+
+        round = pi.round
+        self.assertIsNotNone(round)
+        pi.round = None
+        pi.save()
+        rc.invalidate_pi(pi)
+        self.assertTrue(contest_ranking.is_up_to_date())
+        self.assertTrue(usergroup_ranking.is_up_to_date())
+
+        pi.round = round
+        pi.save()
+        rc.invalidate_pi(pi)
+        contest_ranking.refresh_from_db()
+        usergroup_ranking.refresh_from_db()
+        self.assertFalse(contest_ranking.is_up_to_date())
+        self.assertFalse(usergroup_ranking.is_up_to_date())
+
 
 
 class RemoveUserGroupRankingsTest(TestCase):
