@@ -24,7 +24,6 @@ requirements = [
     "python-dateutil>=2.8,<2.9",
     "django-two-factor-auth==1.15.4",
     "django-otp==1.2.2",
-    "django-formtools>=2.4,<2.5",
     "django-registration-redux>=2.12,<2.13",
     "Celery<5.4.0",
     "drf_spectacular>=0.28.0",

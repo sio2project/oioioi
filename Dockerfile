@@ -70,10 +70,6 @@ COPY --chown=oioioi:oioioi . ./
 RUN uv pip install -r requirements.txt filetracker[server]
 RUN uv pip install -r requirements_static.txt
 
-# Pin the version of setuptools to <81 because the project still relies on pkg_resources
-# which haslong  been depracated and finally removed in the newer versions of setuptools
-RUN uv pip install "setuptools<81"
-
 # Installing node dependencies
 ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin
 
