@@ -3,7 +3,6 @@ import re
 import urllib
 from collections import defaultdict
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
-from unittest import mock
 
 import pytest
 import six
@@ -1150,7 +1149,7 @@ class TestReportDisplay(TestCase):
         self.assertEqual(test_report.get_status_display(), "OK")
 
         test_report.score = IntegerScore(0)
-        test_report.max_score = IntegerScore(0) # like in sample tests
+        test_report.max_score = IntegerScore(0)  # like in sample tests
         test_report.result_percentage_numerator = 50
         test_report.result_percentage_denominator = 1
         test_report.save()
@@ -1160,7 +1159,6 @@ class TestReportDisplay(TestCase):
         test_report.save()
         self.assertEqual(test_report.get_status_display(), "Wrong answer")
 
-    
 
 class TestUserOutsGenerating(TestCase):
     fixtures = [
@@ -1848,7 +1846,7 @@ class TestReportDisplayTypes(TestCase):
         # Test 1a (pk=57) has result_percentage_numerator=75, result_percentage_denominator=1
         # so result_percentage="75" → "Checker granted <b>75%</b> points." appears once.
         self.assertContains(response, "Checker granted", count=1)
-        self.assertContains(response, "75%", count=2) # once in the table and once in the comment
+        self.assertContains(response, "75%", count=2)  # once in the table and once in the comment
 
 
 class TestAllowedLanguages(TestCase, SubmitFileMixin):
