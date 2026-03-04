@@ -45,3 +45,6 @@ class ScoreField(models.CharField):
             return None
 
         return ScoreValue.deserialize(value)
+
+    def to_int(self):
+        return int(self)
