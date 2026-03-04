@@ -162,6 +162,9 @@ class ProgrammingProblemController(ProblemController):
 
         environ["compiler"] = problem_instance.controller.get_compiler_for_submission(submission)
 
+        config = ExtraConfig.objects.get(problem_id=problem.id)
+        environ["randomize_time"] =  config.parsed_config.get("randomize_time", False)
+
     def generate_base_environ(self, environ, submission, **kwargs):
         self.generate_initial_evaluation_environ(environ, submission)
         environ.setdefault("recipe", []).extend(
@@ -676,6 +679,11 @@ class ProgrammingProblemController(ProblemController):
                         signals_to_explain.add(signal)
                     except ValueError:
                         pass
+                if test.result_percentage_numerator and test.result_percentage_denominator:
+                    test.result_percentage = f"""{round(
+                        test.result_percentage_numerator / test.result_percentage_denominator,
+                        2
+                    ):g}"""
 
             tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
 

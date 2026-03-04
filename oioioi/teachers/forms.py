@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy as p_
 
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.forms import SimpleContestForm
@@ -49,6 +50,9 @@ class AdminTeacherForm(forms.ModelForm):
     class Meta:
         model = Teacher
         fields = ["user", "school", "is_active"]
+        labels = { # Needed for the ability of proper translation of 'is_active' to PL
+            "is_active": p_("teacher object", "Active"),
+        }
 
     user = UserSelectionField(label=_("Username"))
 

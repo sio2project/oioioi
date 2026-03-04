@@ -16,7 +16,7 @@ runs:
   - name: Install apt dependencies
     run: |
       sudo apt-get update
-      sudo apt-get install -y curl libpq-dev libdb-dev
+      sudo apt-get install -y curl libpq-dev libdb-dev libmemcached-dev
     shell: sh
 
   - name: Install texlive
@@ -29,7 +29,7 @@ runs:
     uses: astral-sh/setup-uv@v6
     with:
       version: "latest"
-      python-version: "3.11"
+      python-version: "3.13"
       activate-environment: true
 
   - name: Install python dependencies
