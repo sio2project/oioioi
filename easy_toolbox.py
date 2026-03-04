@@ -74,6 +74,17 @@ RAW_COMMANDS = [
         "Run Ruff, a linter and formatter. You can add `--fix` to automatically fix some errors.",
         "{exec} -w /sio2/oioioi web bash -c 'ruff check . {extra_args} ; echo ; ruff format .'",
     ),
+    (
+        "populate-sample-data",
+        "Create a contest with the sample problem package and 10 users, with 3 submissions each.",
+        "{exec} web python manage.py mass_create_tool -cn demo -cc -pp test_full_package.tgz -u 10 -sf sum-correct.cpp sum-various-results.cpp -spu 3 -v 0",
+    ),
+    (
+        "wipe-sample-data",
+        "Wipe all contests, problems, users and submissions created with `populate-sample-data`.",
+        "{exec} web python manage.py mass_create_tool --wipe",
+        "Warning: This will wipe all data created using the mass_create_tool. Are you sure you want to proceed?"
+    )
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])

@@ -30,7 +30,7 @@ from oioioi.testrun.utils import (
 )
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(has_any_testrun_problem, template="testrun/no-testrun-problems.html")
-def testrun_submit_view(request):
+def testrun_submit_view(request, problem_instance_id=None):
     if request.method == "POST":
         form = SubmissionForm(
             request,
@@ -43,7 +43,10 @@ def testrun_submit_view(request):
             request.contest.controller.create_testrun(request, form.cleaned_data["problem_instance"], form.cleaned_data)
             return redirect("my_submissions", contest_id=request.contest.id)
     else:
-        form = SubmissionForm(request, kind="TESTRUN", problem_filter=filter_testrun_problem_instances)
+        initial = {}
+        if problem_instance_id is not None:
+            initial = {"problem_instance_id": int(problem_instance_id)}
+        form = SubmissionForm(request, kind="TESTRUN", problem_filter=filter_testrun_problem_instances, initial=initial)
 
     problem_instances = filter_testrun_problem_instances(form.get_problem_instances())
 

@@ -162,6 +162,9 @@ class ProgrammingProblemController(ProblemController):
 
         environ["compiler"] = problem_instance.controller.get_compiler_for_submission(submission)
 
+        config = ExtraConfig.objects.get(problem_id=problem.id)
+        environ["randomize_time"] =  config.parsed_config.get("randomize_time", False)
+
     def generate_base_environ(self, environ, submission, **kwargs):
         self.generate_initial_evaluation_environ(environ, submission)
         environ.setdefault("recipe", []).extend(

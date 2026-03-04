@@ -249,7 +249,7 @@ def filter_problems_by_query(problems, datadict):
     if origin_tags:
         problems = filter_problems_by_origin(problems, origin_tags)
     if algorithm_tags:
-        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict["include_proposals"] == "1":
+        if settings.SHOW_TAG_PROPOSALS_IN_PROBLEMSET and datadict.get("include_proposals", "0") == "1":
             proposal_match_problem_ids = AggregatedAlgorithmTagProposal.objects.filter(
                 tag__name__in=algorithm_tags, amount__gte=settings.PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL
             ).values_list("problem_id", flat=True)
@@ -1156,8 +1156,16 @@ def save_proposals_view(request):
         if not tags or not difficulty or not user or not problem:
             return HttpResponseBadRequest()
 
+        if DifficultyTagProposal.objects.filter(problem=problem, user=user).exists():
+            return HttpResponseBadRequest()
+
         for tag in tags:
             algorithm_tag = AlgorithmTagLocalization.objects.filter(full_name=tag, language=get_language()).first().algorithm_tag
+
+
+            if AlgorithmTagProposal.objects.filter(problem=problem, tag=algorithm_tag, user=user).exists():
+                return HttpResponseBadRequest()
+
             algorithm_tag_proposal = AlgorithmTagProposal(problem=problem, tag=algorithm_tag, user=user)
             algorithm_tag_proposal.save()
 

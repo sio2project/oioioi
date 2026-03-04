@@ -819,23 +819,33 @@ def stringify_problems_limits(raw_limits):
               - For mixed limits (one language differs): (('Default:', time_limit, memory_limit), language_limits)
     """
 
-    def KiB_to_MB(KiBs):
-        return (KiBs * 1024) // 1000000
+    def KiB_to_MiB(KiBs):
+        return (KiBs) // 1024
+
+    def ms_to_seconds(ms: int) -> str:
+        seconds: int = ms // 1000
+        ms %= 1000
+        if ms == 0:
+            return str(seconds)
+        return f"{seconds}.{str(ms).rjust(3, '0').rstrip('0')}"
 
     def format_limits(pi_limits):
-        time_lower = f"{pi_limits[0] / 1000:.1g}"
-        time_higher = f"{pi_limits[1] / 1000:.1g}"
+        lower_ms = pi_limits[0]
+        higher_ms = pi_limits[1]
 
-        time_limit = f"{time_lower} s" if time_lower == time_higher else f"{time_lower}-{time_higher} s"
+        time_lower = ms_to_seconds(lower_ms)
+        time_higher = ms_to_seconds(higher_ms)
 
-        if pi_limits[2] < 1000000 / 1024:  # lower memory limit is smaller than 1MB, display KiB
+        time_limit = f"{time_lower} s" if lower_ms == higher_ms else f"{time_lower}-{time_higher} s"
+
+        if pi_limits[2] < 1024:  # lower memory limit is smaller than 1MiB, display KiB
             unit = "KiB"
             memory_lower = pi_limits[2]
             memory_higher = pi_limits[3]
         else:
-            unit = "MB"
-            memory_lower = KiB_to_MB(pi_limits[2])
-            memory_higher = KiB_to_MB(pi_limits[3])
+            unit = "MiB"
+            memory_lower = KiB_to_MiB(pi_limits[2])
+            memory_higher = KiB_to_MiB(pi_limits[3])
 
         memory_limit = f"{memory_lower} {unit}" if memory_lower == memory_higher else f"{memory_lower}-{memory_higher} {unit}"
 
