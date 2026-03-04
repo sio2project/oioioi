@@ -25,7 +25,7 @@ requirements = [
     "django-two-factor-auth==1.18.0",
     "django-otp==1.2.2",
     "django-registration-redux>=2.12,<2.13",
-    "Celery<5.4.0",
+    "Celery>=5.5,<5.6",
     "drf_spectacular>=0.28.0",
     "dj-pagination>=2.5,<2.6",
     "django-compressor>=4.6,<4.7",
