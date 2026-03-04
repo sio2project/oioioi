@@ -10,7 +10,7 @@
   "devDependencies": {
     "@eslint/js": "^9.23.0",
     "concurrently": "^9.1.2",
-    "copy-webpack-plugin": "^13.0.1",
+    "copy-webpack-plugin": "^14.0.0",
     "eslint": "^9.23.0",
     "expose-loader": "^5.0.1",
     "globals": "^16.0.0",
