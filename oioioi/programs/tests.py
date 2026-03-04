@@ -1149,64 +1149,18 @@ class TestReportDisplay(TestCase):
         )
         self.assertEqual(test_report.get_status_display(), "OK")
 
-        test_report.score = IntegerScore(50)
+        test_report.score = IntegerScore(0)
+        test_report.max_score = IntegerScore(0) # like in sample tests
+        test_report.result_percentage_numerator = 50
+        test_report.result_percentage_denominator = 1
         test_report.save()
-        self.assertEqual(test_report.get_status_display(), "Partially OK")
+        self.assertEqual(test_report.get_status_display(), "Partially OK (50%)")
 
         test_report.status = "WA"
         test_report.save()
         self.assertEqual(test_report.get_status_display(), "Wrong answer")
 
-    def test_get_comment_display(self):
-        from oioioi.contests.models import SubmissionReport
-
-        submission = ProgramSubmission.objects.get(pk=1)
-        submission_report = SubmissionReport.objects.create(submission=submission, status="ACTIVE", kind="NORMAL")
-
-        # Test with existing comment
-        test_report = TestReport.objects.create(
-            submission_report=submission_report,
-            status="OK",
-            test_name="test1",
-            test_group="0",
-            comment="Test comment",
-            score=IntegerScore(100),
-            max_score=IntegerScore(100),
-            time_used=100,
-            test_time_limit=1000,
-        )
-        comment = test_report.get_comment_display()
-        self.assertEqual(comment, "Test comment.")
-
-        # Test with no comment and time under half limit
-        test_report.comment = ""
-        test_report.time_used = 400
-        test_report.test_time_limit = 1000
-        test_report.save()
-        self.assertEqual(test_report.get_comment_display(), "")
-
-        with mock.patch.object(ProgrammingContestController, "uses_threshold_linear_scoring", return_value=True):
-            # Test with no comment but time exceeds half limit
-            test_report.score = IntegerScore(50)
-            test_report.time_used = 600
-            test_report.test_time_limit = 1000
-            test_report.save()
-            comment = test_report.get_comment_display()
-            self.assertIn("Half of the time limit exceeded", comment)
-
-            # Test with comment and time exceeds half limit
-            test_report.comment = "Some issue"
-            test_report.save()
-            comment = test_report.get_comment_display()
-            self.assertIn("Some issue", comment)
-            self.assertIn("Half of the time limit exceeded", comment)
-
-        # Test with TLE status (should not add half time limit message)
-        test_report.status = "TLE"
-        test_report.comment = ""
-        test_report.save()
-        self.assertEqual(test_report.get_comment_display(), "")
-
+    
 
 class TestUserOutsGenerating(TestCase):
     fixtures = [
@@ -1869,6 +1823,32 @@ class TestReportDisplayTypes(TestCase):
         self.assertNotContains(response, "submission--OK50")
         self.assertContains(response, "submission--OK25", count=1)
         self.assertNotContains(response, "submission--OK0")
+
+    def test_half_time_exceeded_shown_for_threshold_contest(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("submission", kwargs={"contest_id": "oi", "submission_id": 7})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        # Tests 1c (7216ms), 1b (5159ms), 2a (8108ms), 2b (8787ms) all have
+        # time_used * 2 > test_time_limit (10000ms) and status OK.
+        self.assertContains(response, "Half of the time limit exceeded.", count=4)
+
+    def test_half_time_exceeded_not_shown_for_non_threshold_contest(self):
+        self.assertTrue(self.client.login(username="admin"))
+        url = reverse("submission", kwargs={"contest_id": "acm", "submission_id": 9})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Half of the time limit exceeded.")
+
+    def test_checker_graded_verdict(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("submission", kwargs={"contest_id": "oi", "submission_id": 7})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        # Test 1a (pk=57) has result_percentage_numerator=75, result_percentage_denominator=1
+        # so result_percentage="75" → "Checker granted <b>75%</b> points." appears once.
+        self.assertContains(response, "Checker granted", count=1)
+        self.assertContains(response, "75%", count=2) # once in the table and once in the comment
 
 
 class TestAllowedLanguages(TestCase, SubmitFileMixin):

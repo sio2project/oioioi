@@ -877,7 +877,9 @@
          "test" : 11,
          "score" : "int:0000000000000000025",
          "time_used" : 1238,
-         "comment" : ""
+         "comment" : "",
+         "result_percentage_numerator" : 75,
+         "result_percentage_denominator" : 1
       },
       "model" : "programs.testreport"
    },
