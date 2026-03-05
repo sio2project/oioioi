@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load pagination_tags %}
 {% load format_data_range %}
+{% load humanize %}
 
 {% block styles %}
     {{ block.super }}
@@ -92,7 +93,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit in problem_instances %}
+                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit, last_submission in problem_instances %}
                     {% if show_rounds %}
                         {% ifchanged pi.round %}
                             <tr class="problemlist-subheader">
@@ -111,6 +112,13 @@
                                 <a href="{{ link }}">{{ pi.problem.name }}</a>
                             {% else %}
                                 {{ pi.problem.name }}
+                            {% endif %}
+                            {% if show_status %}
+                                {% if last_submission and last_submission.can_see_status %}
+                                    <a href="{{ last_submission.link }}">
+                                        <span class="badge {{ last_submission.badge_class }}" title="{{ last_submission.submission.date|naturaltime }} ({{ last_submission.submission.date|date:'Y-m-d H:i:s' }})">{{ last_submission.message }}</span>
+                                    </a>
+                                {% endif %}
                             {% endif %}
                         </td>
                         {% if show_problems_limits %}
