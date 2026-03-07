@@ -9,6 +9,7 @@ from oioioi.contests.models import (
     Contest,
     ProblemInstance,
     Round,
+    RoundStartDelay,
     RoundTimeExtension,
     Submission,
 )
@@ -92,6 +93,24 @@ class TestScoresManualReveal(TestCase):
 
         with fake_time(datetime(2012, 8, 9, 23, 10, tzinfo=UTC)):
             self.reveal_submit(1)
+
+    def test_round_start_delay(self):
+        user = User.objects.get(username="test_user")
+        round_obj = Round.objects.get()
+
+        date = datetime(2012, 8, 9, 23, 5, tzinfo=UTC)
+        submission = Submission.objects.get(pk=1)
+        submission.date = date
+        submission.save()
+
+        with fake_time(datetime(2012, 8, 10, 0, 2, tzinfo=UTC)):
+            self.reveal_submit(1, success=False)
+
+        RoundStartDelay(user=user, round=round_obj, delay=10).save()
+
+        with fake_time(datetime(2012, 8, 10, 0, 2, tzinfo=UTC)):
+            response = self.reveal_submit(1)
+            self.assertContains(response, "34")
 
     def test_reveal_limit(self):
         with fake_time(datetime(2012, 8, 8, tzinfo=UTC)):
@@ -203,6 +222,25 @@ class TestScoresAutoReveal(TestCase):
             submission.save()
             self.assertContains(self.get_submission_page(1), "34")
 
+    def test_round_start_delay(self):
+        user = User.objects.get(username="test_user")
+        round_obj = Round.objects.get()
+
+        date = datetime(2012, 8, 9, 23, 5, tzinfo=UTC)
+        submission = Submission.objects.get(pk=1)
+        submission.date = date
+        submission.save()
+
+        with fake_time(datetime(2012, 8, 10, 0, 2, tzinfo=UTC)):
+            response = self.get_submission_page(1)
+            self.assertNotIn("<td>34</td>", self.no_whitespaces(response))
+            self.assertContains(response, "is disabled during the last <strong>60</strong>")
+
+        RoundStartDelay(user=user, round=round_obj, delay=10).save()
+
+        with fake_time(datetime(2012, 8, 10, 0, 2, tzinfo=UTC)):
+            self.assertIn("<td>34</td>", self.no_whitespaces(self.get_submission_page(1)))
+
     def test_compilation_error(self):
         with fake_time(datetime(2012, 8, 8, tzinfo=UTC)):
             self.assertContains(
@@ -219,6 +257,49 @@ class TestScoresAutoReveal(TestCase):
             response = self.get_submission_page(4)
             no_whitespaces_response = re.sub(r"\s*", "", response.content.decode("utf-8"))
             self.assertIn("<td>100</td>", no_whitespaces_response)
+
+
+class TestRoundStartDelayProperties(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+    ]
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        self.user = User.objects.get(username="test_user")
+        self.contest = Contest.objects.get()
+        self.round = Round.objects.get()
+        self.round.start_date = datetime(2012, 7, 31, tzinfo=UTC)
+        self.round.end_date = datetime(2012, 8, 10, tzinfo=UTC)
+        self.round.results_date = datetime(2012, 8, 12, tzinfo=UTC)
+        self.round.save()
+
+    def test_task_is_hidden_until_delayed_start(self):
+        RoundStartDelay(user=self.user, round=self.round, delay=10).save()
+        submit_url = reverse("submit", kwargs={"contest_id": self.contest.id})
+
+        with fake_time(datetime(2012, 7, 31, 0, 5, tzinfo=UTC)):
+            response = self.client.get(submit_url)
+            self.assertContains(response, "Sorry, there are no problems")
+
+        with fake_time(datetime(2012, 7, 31, 0, 11, tzinfo=UTC)):
+            response = self.client.get(submit_url)
+            self.assertNotContains(response, "Sorry, there are no problems")
+
+    def test_submit_window_ends_later_for_delayed_start(self):
+        RoundStartDelay(user=self.user, round=self.round, delay=10).save()
+        submit_url = reverse("submit", kwargs={"contest_id": self.contest.id})
+
+        with fake_time(datetime(2012, 8, 10, 0, 5, tzinfo=UTC)):
+            response = self.client.get(submit_url)
+            self.assertNotContains(response, "Sorry, there are no problems")
+
+        with fake_time(datetime(2012, 8, 10, 0, 11, tzinfo=UTC)):
+            response = self.client.get(submit_url)
+            self.assertContains(response, "Sorry, there are no problems")
 
 
 class TestRevealQuiz(TestCase):
