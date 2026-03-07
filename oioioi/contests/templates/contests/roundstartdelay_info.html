@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load check_perm %}
+
+{% check_perm 'contests.personal_data' for request.contest as can_see_personal_data %}
+
+<h4>{% trans "User's round start delays" %}:</h4>
+{% for delay in delays %}
+    <p>{% trans "Round" %}: {{ delay.round.name }}</p>
+    <p>{% trans "Delay" %}: {{ delay.delay }}</p>
+{% endfor %}
