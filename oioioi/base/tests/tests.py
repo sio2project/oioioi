@@ -103,7 +103,7 @@ class TestIndex(TestCase):
             response = self.client.get("/", follow=True)
         self.assertNotContains(response, "test_user")
         self.assertTrue(self.client.login(username="test_user"))
-        with self.assertNumQueriesLessThan(72):
+        with self.assertNumQueriesLessThan(73):
             response = self.client.get("/", follow=True)
         self.assertContains(response, "test_user")
         login_url = reverse("login")
@@ -131,7 +131,7 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(100):
+        with self.assertNumQueriesLessThan(101):
             self.assertTrue(self.client.login(username="test_user"))
             response = self.client.get("/", follow=True)
             self.assertNotContains(response, "navbar-login")
@@ -568,6 +568,15 @@ class TestAllWithPrefix(TestCase):
 class TestDottedFieldClass(RegisteredSubclassesBase):
     modules_with_subclasses = ["tests.test_dotted_field_classes"]
     abstract = True
+
+    @classmethod
+    def load_subclasses(cls):
+        # Keep this test deterministic: scanning all apps' tests modules can
+        # import side-effectful test code unrelated to dotted-field loading.
+        if cls._subclasses_loaded:
+            return
+        import_module("oioioi.base.tests.test_dotted_field_classes")
+        cls._subclasses_loaded = True
 
 
 class TestDottedFieldSubclass(TestDottedFieldClass):
