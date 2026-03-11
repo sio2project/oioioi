@@ -8,7 +8,7 @@
     {% for group in groups %}
         {% for record in group.tests %}
         {% with test=record.test %}
-            {% if test.comment or test.result_percentage and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
+            {% if test.comment or test.result_percentage or test.was_half_time_limit_exceeded and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
             <li class="small text-muted">
                 <span>{{ test.test_name }}</span>
                 {% if allow_download_out and test.test %}
@@ -29,16 +29,26 @@
                 {% if allow_test_comments %}
                     <span>
                     {% if test.comment %}
+                        {% if test.was_half_time_limit_exceeded %}
+                            {% blocktranslate %}
+                                Half of the time limit exceeded.
+                            {% endblocktranslate %}
+                        {% endif %}
                         {% if test.result_percentage %}
                             {% blocktranslate with test.result_percentage as percentage %}
-                                Granted <b>{{ percentage }}%</b> points, comment:
+                                Checker granted <b>{{ percentage }}%</b> points, comment:
                             {% endblocktranslate %}
                         {% endif %}
                         {{ test.comment }}
                     {% else %}
+                        {% if test.was_half_time_limit_exceeded %}
+                            {% blocktranslate %}
+                                Half of the time limit exceeded.
+                            {% endblocktranslate %}
+                        {% endif %}
                         {% if test.result_percentage %}
                             {% blocktranslate with test.result_percentage as percentage %}
-                                Granted <b>{{ percentage }}%</b> points.
+                                Checker granted <b>{{ percentage }}%</b> points.
                             {% endblocktranslate %}
                         {% endif %}
                     {% endif %}
