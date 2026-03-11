@@ -13,6 +13,10 @@ CONFIG_VERSION = 49
 
 SITE_ID = 1
 
+# Django 6.x now defaults to BigAutoField (64-bit integers) for primary keys
+# so we need to force AutoField (32-bit) so as not to have to migrate tables.
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 SERVER = 'uwsgi'
 
 # Enable debugging features.
