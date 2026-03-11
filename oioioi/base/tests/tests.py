@@ -569,15 +569,6 @@ class TestDottedFieldClass(RegisteredSubclassesBase):
     modules_with_subclasses = ["tests.test_dotted_field_classes"]
     abstract = True
 
-    @classmethod
-    def load_subclasses(cls):
-        # Keep this test deterministic: scanning all apps' tests modules can
-        # import side-effectful test code unrelated to dotted-field loading.
-        if cls._subclasses_loaded:
-            return
-        import_module("oioioi.base.tests.test_dotted_field_classes")
-        cls._subclasses_loaded = True
-
 
 class TestDottedFieldSubclass(TestDottedFieldClass):
     description = "Description"
