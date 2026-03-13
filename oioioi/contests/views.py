@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -155,14 +155,16 @@ def problems_list_view(request):
     # 7) can_submit
     # Sorted by (start_date, end_date, round name, problem name)
     # Preload user-related data to avoid N+1 queries
-    pi_ids = [pi.id for pi in problem_instances]
     results_map = {}
     last_submission_map = {}
     if request.user.is_authenticated:
         # Bulk fetch UserResultForProblem objects. We only keep those for which
         # the user can see the submission score.
         user_results_qs = (
-            UserResultForProblem.objects.filter(user__id=request.user.id, problem_instance_id__in=pi_ids)
+            UserResultForProblem.objects.filter(
+                user=request.user,
+                problem_instance__in=problem_instances,
+            )
             .select_related("submission_report__submission")
         )
         for r in user_results_qs:
@@ -170,22 +172,26 @@ def problems_list_view(request):
             if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission):
                 results_map[r.problem_instance_id] = r
 
-        # Bulk fetch user's submissions for the problem instances and build a map
-        # of latest submission per problem instance. Submissions are ordered by
-        # date descending, so the first occurrence for a given problem_instance
-        # is the latest one.
-        submissions_qs = (
+        # For each problem instance, fetch only the single latest NORMAL
+        # submission by this user using a correlated subquery
+        latest_sub_id_sq = (
             Submission.objects.filter(
-                user__id=request.user.id,
-                problem_instance_id__in=pi_ids,
-                kind="NORMAL" # ignore ignored submissions
-                )
+                user=request.user,
+                problem_instance=OuterRef("problem_instance"),
+                kind="NORMAL",
+            )
             .order_by("-date")
+            .values("id")[:1]
         )
-        for s in submissions_qs:
-            pid = s.problem_instance_id
-            if pid not in last_submission_map:
-                last_submission_map[pid] = s
+        last_submission_map = {
+            s.problem_instance_id: s
+            for s in Submission.objects.filter(
+                user=request.user,
+                problem_instance__in=problem_instances,
+                kind="NORMAL",
+                id=Subquery(latest_sub_id_sq),
+            )
+        }
 
     problems_statements = sorted(
         [
