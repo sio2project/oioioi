@@ -8,6 +8,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from oioioi.api_schemas import contest_id_parameter
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
@@ -55,16 +56,7 @@ class GetContestRounds(views.APIView):
         CanEnterContest,
     )
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="contest_id",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.PATH,
-                description="Id of the contest from contest_list endpoint",
-            ),
-        ]
-    )
+    @extend_schema(parameters=[contest_id_parameter("The Id of the contest which you want to get the round list for.")])
     def get(self, request, contest_id):
         contest = get_object_or_404(Contest, id=contest_id)
         rounds = contest.round_set.all()
@@ -78,16 +70,7 @@ class GetContestProblems(views.APIView):
         CanEnterContest,
     )
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="contest_id",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.PATH,
-                description="Id of the contest from contest_list endpoint",
-            ),
-        ]
-    )
+    @extend_schema(parameters=[contest_id_parameter("The Id of the contest which you want to get the problem list for.")])
     def get(self, request, contest_id):
         contest: Contest = get_object_or_404(Contest, id=contest_id)
         controller = contest.controller
@@ -123,14 +106,7 @@ class GetUserProblemSubmissionList(views.APIView):
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(
-                name="contest_id",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.PATH,
-                description="Id of the contest to which the problem you want to "
-                "query belongs. You can find this id after /c/ in urls "
-                "when using SIO 2 web interface.",
-            ),
+            contest_id_parameter("The Id of the contest which you want to get the problem submission list for."),
             OpenApiParameter(
                 name="problem_short_name",
                 type=OpenApiTypes.STR,
@@ -178,14 +154,7 @@ class GetUserProblemSubmissionCode(views.APIView):
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(
-                name="contest_id",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.PATH,
-                description="Id of the contest to which the problem you want to "
-                "query belongs. You can find this id after /c/ in urls "
-                "when using SIO 2 web interface.",
-            ),
+            contest_id_parameter("The Id of the contest that your query belongs to."),
             OpenApiParameter(
                 name="submission_id",
                 type=OpenApiTypes.INT,
@@ -222,14 +191,7 @@ class GetProblemIdView(views.APIView):
 
     @extend_schema(
         parameters=[
-            OpenApiParameter(
-                name="contest_id",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.PATH,
-                description="Id of the contest to which the problem you want to "
-                "query belongs. You can find this id after /c/ in urls "
-                "when using SIO 2 web interface.",
-            ),
+            contest_id_parameter("The Id of the contest that your query belongs to."),
             OpenApiParameter(
                 name="problem_short_name",
                 type=OpenApiTypes.STR,
@@ -293,8 +255,7 @@ class SubmitContestSolutionView(SubmitSolutionView):
                 name="contest_name",
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.PATH,
-                description="Name of the contest to which you want to submit a solution. "
-                "You can find it after /c/ in urls when using the SIO2 web interface.",
+                description="Name of the contest to which you want to submit a solution. You can find it after /c/ in urls when using the SIO2 web interface.",
             ),
             OpenApiParameter(
                 name="problem_short_name",
