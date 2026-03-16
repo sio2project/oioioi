@@ -64,6 +64,7 @@ class GetContestRounds(views.APIView):
         return Response(serializer.data)
 
 
+@extend_schema(responses={200: OpenApiTypes.STR})
 class GetContestProblems(views.APIView):
     permission_classes = (
         IsAuthenticated,
