@@ -5,9 +5,17 @@
     "fields": {
       "legacy_name": "Test quiz",
       "contest": null,
-      "author":1001,
+      "author": 1001,
       "short_name": "qui",
-      "controller_name": "oioioi.quizzes.controllers.QuizProblemController"
+      "controller_name": "oioioi.quizzes.controllers.QuizProblemController",
+      "main_problem_instance": 101
+    }
+  },
+  {
+    "pk": 101,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 101
     }
   },
   {
