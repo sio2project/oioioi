@@ -2171,7 +2171,7 @@ msgid "Reupload package"
 msgstr "Wgraj ponownie paczkę"
 
 #: contests/admin.py:476
-msgid "Rejudge all submissions for problem"
+msgid "Rejudge submissions for problem"
 msgstr "Oceń ponownie wszystkie zgłoszenia zadania"
 
 #: contests/admin.py:478

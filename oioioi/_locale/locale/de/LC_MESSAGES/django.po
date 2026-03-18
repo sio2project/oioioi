@@ -2092,7 +2092,7 @@ msgid "Reupload package"
 msgstr ""
 
 #: contests/admin.py:476
-msgid "Rejudge all submissions for problem"
+msgid "Rejudge submissions for problem"
 msgstr ""
 
 #: contests/admin.py:478

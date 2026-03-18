@@ -474,7 +474,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             result.append((add_or_update_href, _("Reupload package")))
         if instance.needs_rejudge:
             rejudge_all_href = self._rejudge_all_submissions_for_problem_href(instance)
-            result.append((rejudge_all_href, _("Rejudge all submissions for problem")))
+            result.append((rejudge_all_href, _("Rejudge submissions for problem")))
             rejudge_not_needed_href = self._set_needs_rejudge_to_false_href(instance)
             result.append((rejudge_not_needed_href, _("Rejudge not needed")))
 
