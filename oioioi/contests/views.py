@@ -700,9 +700,32 @@ def user_info_redirect_view(request):
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
     problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
-    count = problem_instance.submission_set.count()
+
+    params = request.POST if request.POST else request.GET
+    date_from = params.get('date_from', '').strip()
+    date_to = params.get('date_to', '').strip()
+    last_only = params.get('last_only') == 'on'
+    is_partial = ((date_from is not None) or (date_to is not None) or (last_only is not None))
+
+    submissions = problem_instance.submission_set.all()
+    if date_from:
+        submissions = submissions.filter(date__gte=date_from)
+    if date_to:
+        submissions = submissions.filter(date__lte=date_to)
+    if last_only:
+        last_subquery = (
+            Submission.objects.filter(
+                user=OuterRef("user"),
+                problem_instance=OuterRef("problem_instance"),
+            )
+            .order_by("-date")
+            .values("id")[:1]
+        )
+        submissions = submissions.filter(id=Subquery(last_subquery))
+    count = submissions.count()
+
     if request.POST:
-        for submission in problem_instance.submission_set.all():
+        for submission in submissions:
             problem_instance.controller.judge(submission, request.GET.dict(), is_rejudge=True)
         messages.info(
             request,
@@ -713,11 +736,16 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
             )
             % {"count": count},
         )
-        problem_instance.needs_rejudge = False
-        problem_instance.save(update_fields=["needs_rejudge"])
+        if not is_partial:
+            problem_instance.needs_rejudge = False
+            problem_instance.save(update_fields=["needs_rejudge"])
         return safe_redirect(request, reverse("oioioiadmin:contests_probleminstance_changelist"))
 
-    return TemplateResponse(request, "contests/confirm_rejudge.html", {"count": count})
+    return TemplateResponse(
+        request,
+        "contests/confirm_rejudge.html",
+        {"count": count, "date_from": date_from, "date_to": date_to, "last_only": last_only},
+    )
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
