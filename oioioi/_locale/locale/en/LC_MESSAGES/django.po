@@ -1642,8 +1642,8 @@ msgid "Reupload package"
 msgstr "Reupload package"
 
 #: contests/admin.py:335
-msgid "Rejudge all submissions for problem"
-msgstr "Rejudge all submissions for problem"
+msgid "Rejudge submissions for problem"
+msgstr "Rejudge submissions for problem"
 
 #: contests/admin.py:341 contests/templates/contests/submission.html:46
 #: problems/admin.py:332
