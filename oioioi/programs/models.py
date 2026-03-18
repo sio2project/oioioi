@@ -321,7 +321,7 @@ class TestReport(models.Model):
     def get_status_display(self):
         if self.status == "OK" and self.result_percentage_numerator and self.result_percentage_denominator and self.result_percentage_denominator != 0:
             result_percentage = int(round(self.result_percentage_numerator / self.result_percentage_denominator, 2))
-            return _("Partially OK") + f" ({result_percentage}%)"
+            return _("Partially OK ({pr}%)").format(pr=result_percentage)
         return submission_statuses.get(self.status, self.status)
 
     def was_half_time_limit_exceeded(self):
