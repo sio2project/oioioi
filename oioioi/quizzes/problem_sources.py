@@ -67,6 +67,9 @@ class EmptyQuizSource(ProblemSource):
 
                 messages.success(request, _("Quiz successfully added"))
 
-                return safe_redirect(request, reverse("oioioiadmin:contests_probleminstance_changelist"))
+                return safe_redirect(
+                    request,
+                    reverse("oioioiadmin:contests_probleminstance_changelist", kwargs={"contest_id": request.contest.id}),
+                )
 
         return TemplateResponse(request, "quizzes/emptyquiz-source.html", post_data)
