@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import ScoreReport, Submission, SubmissionReport
-from oioioi.contests.utils import get_submission_message, is_contest_basicadmin
+from oioioi.contests.utils import get_submission_message, is_contest_archived, is_contest_basicadmin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.utils import can_admin_problem_instance
 from oioioi.programs.controllers import ContestController
@@ -237,6 +237,7 @@ class QuizProblemController(ProblemController):
             "submission": submission_template_context(request, submission.quizsubmission),
             "supported_extra_args": problem_instance.controller.get_supported_extra_args(submission),
             "can_admin": can_admin,
+            "is_contest_archived": is_contest_archived(request),
             "message": get_submission_message(submission),
         }
         return render_to_string("quizzes/submission_header.html", request=request, context=context)
