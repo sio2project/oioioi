@@ -32,6 +32,7 @@ dependencies = [
     "djangorestframework>=3.14,<3.15",
     "django-oauth-toolkit>=3.0,<3.1",
     "Werkzeug",
+    "setuptools>=61.0",
     "pytest>=7.2,<8.0",
     "pytest-cov>=4.0,<5.0",
     "pytest-django>=4.11,<5.0",
@@ -43,7 +44,7 @@ dependencies = [
     "unicodecsv>=0.14,<0.15",
     "dnslib>=0.9,<0.10",
     "bleach>=6.0,<6.1",
-    "chardet>=5.1,<5.2",
+    "chardet>=5.1",
     "django-gravatar2>=1.4,<1.5",
     "django-mptt>=0.16,<0.17",
     "mistune<2.0",
@@ -77,6 +78,11 @@ dependencies = [
     "Automat>=22.10.0",
     "sioworkers@https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.5.tar.gz",
     "pylibmc",
+    "psycopg2-binary",
+    "aiohttp>=3.8,<4.0",
+    "aio-pika>=9.0,<10.0",
+    "cachetools>=5.0",
+    "websockets>=13.0",
 ]
 
 [dependency-groups]
@@ -85,6 +91,8 @@ dev = [
     "elastic-apm",
     "python-memcached",
     "pre-commit==4.2.0",
+    "tox>=4.0.0",
+    "tox-uv>=1.0.0",
 ]
 docs = [
     "sphinx>7.1.0",
