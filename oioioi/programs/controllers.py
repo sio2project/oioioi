@@ -660,6 +660,8 @@ class ProgrammingProblemController(ProblemController):
         allow_test_comments = picontroller.can_see_test_comments(request, report)
         all_outs_generated = allow_download_out
 
+        show_mem_used = any(test.mem_used for test in test_reports)
+
         groups = []
         signals_to_explain = set()
         # Sioworkers doesn't give us exit codes or signals explicitly. Neither does sio2jail.
@@ -680,10 +682,7 @@ class ProgrammingProblemController(ProblemController):
                     except ValueError:
                         pass
                 if test.result_percentage_numerator and test.result_percentage_denominator:
-                    test.result_percentage = f"""{round(
-                        test.result_percentage_numerator / test.result_percentage_denominator,
-                        2
-                    ):g}"""
+                    test.result_percentage = f"""{round(test.result_percentage_numerator / test.result_percentage_denominator, 2):g}"""
 
             tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
 
@@ -703,6 +702,7 @@ class ProgrammingProblemController(ProblemController):
                 "all_outs_generated": all_outs_generated,
                 "is_admin": picontroller.is_admin(request, report),
                 "signals_to_explain": signals_to_explain,
+                "show_mem_used": show_mem_used,
             },
         )
 

@@ -305,6 +305,7 @@ class TestReport(models.Model):
     score = ScoreField(null=True, blank=True)
     max_score = ScoreField(null=True, blank=True)
     time_used = models.IntegerField(blank=True)
+    mem_used = models.IntegerField(blank=True)
     output_file = FileField(upload_to=make_output_filename, null=True, blank=True)
     result_percentage_numerator = models.IntegerField(null=True, blank=True)
     result_percentage_denominator = models.IntegerField(null=True, blank=True)
@@ -313,6 +314,7 @@ class TestReport(models.Model):
     test_name = models.CharField(max_length=30)
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
+    test_mem_limit = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"TestReport(submission_report_id={self.submission_report_id}, test_name={self.test_name}, \
