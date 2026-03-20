@@ -836,6 +836,7 @@
          "comment" : "",
          "score" : "int:0000000000000000000",
          "time_used" : 3,
+         "mem_used" : 0,
          "test" : 10,
          "test_group" : "0",
          "submission_report" : 13,
@@ -853,6 +854,7 @@
          "comment" : "",
          "score" : "int:0000000000000000014",
          "time_used" : 7216,
+         "mem_used" : 0,
          "test" : 13,
          "test_group" : "1",
          "submission_report" : 14,
@@ -877,6 +879,7 @@
          "test" : 11,
          "score" : "int:0000000000000000025",
          "time_used" : 1238,
+         "mem_used" : 0,
          "comment" : "",
          "result_percentage_numerator" : 75,
          "result_percentage_denominator" : 1
@@ -888,6 +891,7 @@
          "comment" : "program exited due to signal 6",
          "score" : "int:0000000000000000000",
          "time_used" : 2,
+         "mem_used" : 0,
          "test_name" : "3",
          "test_time_limit" : 10000,
          "test_group" : "3",
@@ -913,6 +917,7 @@
          "submission_report" : 14,
          "comment" : "",
          "time_used" : 5159,
+         "mem_used" : 0,
          "score" : "int:0000000000000000024"
       },
       "model" : "programs.testreport"
@@ -928,6 +933,7 @@
          "test_group" : "2",
          "test" : 14,
          "time_used" : 8108,
+         "mem_used" : 0,
          "score" : "int:0000000000000000010",
          "comment" : ""
       },
@@ -937,6 +943,7 @@
    {
       "fields" : {
          "time_used" : 8787,
+         "mem_used" : 0,
          "score" : "int:0000000000000000006",
          "comment" : "",
          "status" : "OK",
@@ -956,6 +963,7 @@
       "fields" : {
          "comment" : "",
          "time_used" : 9995,
+         "mem_used" : 0,
          "score" : "int:0000000000000000000",
          "test" : 16,
          "test_group" : "2",
@@ -982,6 +990,7 @@
          "test_time_limit" : 10000,
          "score" : "int:0000000000000000000",
          "time_used" : 0,
+         "mem_used" : 0,
          "comment" : ""
       }
    },
@@ -989,6 +998,7 @@
       "fields" : {
          "score" : null,
          "time_used" : 4,
+         "mem_used" : 0,
          "comment" : "program exited due to signal 6",
          "output_file" : "none",
          "status" : "RE",
@@ -1015,7 +1025,8 @@
          "test_time_limit" : 10000,
          "comment" : "",
          "score" : null,
-         "time_used" : 1370
+         "time_used" : 1370,
+         "mem_used" : 0
       },
       "model" : "programs.testreport"
    },
@@ -1032,6 +1043,7 @@
          "test_name" : "0",
          "comment" : "",
          "time_used" : 3,
+         "mem_used" : 0,
          "score" : null
       },
       "pk" : 75
@@ -1048,6 +1060,7 @@
          "test_name" : "1c",
          "score" : null,
          "time_used" : 7202,
+         "mem_used" : 0,
          "comment" : ""
       },
       "pk" : 76,
@@ -1064,6 +1077,7 @@
          "test_name" : "1b",
          "test_time_limit" : 10000,
          "time_used" : 5182,
+         "mem_used" : 0,
          "score" : null,
          "comment" : ""
       },
@@ -1074,6 +1088,7 @@
       "fields" : {
          "comment" : "",
          "time_used" : 7994,
+         "mem_used" : 0,
          "score" : null,
          "test_name" : "2a",
          "test_time_limit" : 10000,
@@ -1099,6 +1114,7 @@
          "test_name" : "2b",
          "score" : null,
          "time_used" : 8664,
+         "mem_used" : 0,
          "comment" : ""
       },
       "pk" : 79,
@@ -1109,6 +1125,7 @@
       "fields" : {
          "comment" : "",
          "time_used" : 9970,
+         "mem_used" : 0,
          "score" : null,
          "test_time_limit" : 10000,
          "test_name" : "2c",
@@ -1135,6 +1152,7 @@
          "test_name" : "4",
          "score" : null,
          "time_used" : 0,
+         "mem_used" : 0,
          "comment" : ""
       }
    },
@@ -1142,6 +1160,7 @@
       "fields" : {
          "comment" : "",
          "time_used" : 2,
+         "mem_used" : 0,
          "score" : "int:0000000000000000000",
          "test_time_limit" : 10000,
          "test_name" : "0",
@@ -1159,6 +1178,7 @@
       "fields" : {
          "score" : "int:0000000000000000001",
          "time_used" : 7291,
+         "mem_used" : 0,
          "comment" : "",
          "test_time_limit" : 10000,
          "test_name" : "1c",
@@ -1185,6 +1205,7 @@
          "test_name" : "1a",
          "comment" : "",
          "time_used" : 1264,
+         "mem_used" : 0,
          "score" : "int:0000000000000000001"
       },
       "pk" : 93
@@ -1200,6 +1221,7 @@
          "test_group" : "3",
          "test" : 35,
          "time_used" : 3,
+         "mem_used" : 0,
          "score" : "int:0000000000000000000",
          "comment" : "program exited due to signal 6"
       },
@@ -1219,6 +1241,7 @@
          "test_name" : "1b",
          "test_time_limit" : 10000,
          "time_used" : 5358,
+         "mem_used" : 0,
          "score" : "int:0000000000000000001",
          "comment" : ""
       }
@@ -1235,6 +1258,7 @@
          "max_score" : "int:0000000000000000001",
          "comment" : "",
          "time_used" : 8284,
+         "mem_used" : 0,
          "score" : "int:0000000000000000001"
       },
       "pk" : 96,
@@ -1244,6 +1268,7 @@
       "model" : "programs.testreport",
       "fields" : {
          "time_used" : 9276,
+         "mem_used" : 0,
          "score" : "int:0000000000000000001",
          "comment" : "",
          "test_time_limit" : 10000,
@@ -1271,6 +1296,7 @@
          "submission_report" : 20,
          "comment" : "",
          "time_used" : 9996,
+         "mem_used" : 0,
          "score" : "int:0000000000000000000"
       }
    },
@@ -1285,6 +1311,7 @@
          "test" : 36,
          "test_group" : "4",
          "time_used" : 1,
+         "mem_used" : 0,
          "score" : "int:0000000000000000000",
          "comment" : ""
       },
