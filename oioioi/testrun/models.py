@@ -68,4 +68,5 @@ class TestRunReport(models.Model):
     time_used = models.IntegerField(blank=True)
     mem_used = models.IntegerField(blank=True)
     test_time_limit = models.IntegerField(null=True, blank=True)
+    test_mem_limit = models.IntegerField(null=True, blank=True)
     output_file = FileField(upload_to=make_custom_output_filename)
