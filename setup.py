@@ -16,7 +16,7 @@ if os.getuid() == 0 and not os.getenv("ALLOW_ROOT") == "1":  # root
     sys.exit(2)
 
 requirements = [
-    "Django>=6.0,<6.1",
+    "Django>=5.2,<5.3", # Szkopul is now compatible with Django 6.0
     "pytz>=2023.3,<2023.4",
     "SQLAlchemy<2.1.0",
     "beautifulsoup4>=4.12,<4.13",
