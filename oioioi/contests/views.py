@@ -741,21 +741,32 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
-def rejudge_not_needed_view(request, problem_instance_id):
+def change_needs_rejudge_val(request, problem_instance_id, val: bool):
     problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
 
     if request.POST:
-        problem_instance.needs_rejudge = False
+        problem_instance.needs_rejudge = val
         problem_instance.save(update_fields=["needs_rejudge"])
-        messages.success(request, _("Needs rejudge flag turned off."))
+        if val:
+            messages.success(request, _("Needs rejudge flag turned on."))
+        else:
+            messages.success(request, _("Needs rejudge flag turned off."))
 
         return safe_redirect(
             request,
             reverse("oioioiadmin:contests_probleminstance_changelist"),
         )
 
-    return TemplateResponse(request, "contests/confirm_rejudge_not_needed.html")
+    if val:
+        return TemplateResponse(request, "contests/confirm_mark_for_rejudge.html")
+    else:
+        return TemplateResponse(request, "contests/confirm_rejudge_not_needed.html")
 
+def rejudge_not_needed_view(request, problem_instance_id):
+    return change_needs_rejudge_val(request, problem_instance_id, False)
+
+def mark_for_rejudge_view(request, problem_instance_id):
+    return change_needs_rejudge_val(request, problem_instance_id, True)
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):

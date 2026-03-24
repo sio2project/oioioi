@@ -2172,7 +2172,7 @@ msgstr "Wgraj ponownie paczkę"
 
 #: contests/admin.py:476
 msgid "Rejudge submissions for problem"
-msgstr "Oceń ponownie wszystkie zgłoszenia zadania"
+msgstr "Oceń ponownie zgłoszenia do zadania"
 
 #: contests/admin.py:478
 #| msgid "Rejudge request received."
@@ -10894,3 +10894,30 @@ msgstr "Liczba węzłów"
 #: zeus/templates/zeus/program-report.html:21
 msgid "Zeus id"
 msgstr "ID Zeusa"
+
+msgid "Mark for rejudge"
+msgstr "Oznacz do ponownej oceny"
+
+msgid "Needs rejudge flag turned on."
+msgstr "Włączono flagę wymaganej ponownej oceny."
+
+msgid "Confirm marking for rejudge"
+msgstr "Potwierdź oznaczenie do ponownej oceny"
+
+msgid "Marking the problem for rejudge essentially indicates that the tests have changed, or some other serious change has happened."
+msgstr "Oznaczenie zadania do ponownej oceny zasadniczo oznacza, że testy się zmieniły, lub nastąpiła inna poważna zmiana."
+
+msgid "You are going to mark this problem as needing a rejudge."
+msgstr "Zamierzasz oznaczyć to zadanie jako wymagające ponownej oceny."
+
+msgid "From date"
+msgstr "Zgłoszenia od"
+
+msgid "To date"
+msgstr "Zgłoszenia do"
+
+msgid "Last submission per user only"
+msgstr "Tylko ostatnie zgłoszenia użytkowników"
+
+msgid "Preview count"
+msgstr "Pokaż liczbę zgłoszeń"

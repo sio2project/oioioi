@@ -3107,21 +3107,28 @@ class TestProblemInstanceView(TestCase):
         )
         self.assertNotEqual(problem_instance.test_set.count(), 0)
 
-    def test_rejudge_not_needed(self):
+    def _test_needs_rejudge_action(self, action_name: str, desired_state: bool):
+        """Helper method to test rejudge actions (see below)."""
         pi = ProblemInstance.objects.get()
-        pi.needs_rejudge = True
+        pi.needs_rejudge = not desired_state  # Set to opposite of desired state
         pi.save()
 
         self.assertTrue(self.client.login(username="test_admin"))
         self.client.get(f"/c/{pi.contest.pk}/")
         response = self.client.post(
-            reverse("rejudge_not_needed", args=(pi.id,)),
+            reverse(action_name, args=(pi.id,)),
             data={"submit": True},
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
         pi.refresh_from_db()
-        self.assertFalse(pi.needs_rejudge)
+        self.assertEqual(pi.needs_rejudge, desired_state)
+
+    def test_rejudge_not_needed(self):
+        self._test_needs_rejudge_action("rejudge_not_needed", False)
+
+    def test_mark_for_rejudge(self):
+        self._test_needs_rejudge_action("mark_for_rejudge", True)
 
 
 class TestReattachingProblems(TestCase):

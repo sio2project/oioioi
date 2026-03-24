@@ -409,6 +409,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def _set_needs_rejudge_to_false_href(self, instance):
         return reverse("rejudge_not_needed", args=(instance.id,))
 
+    def _mark_for_rejudge_href(self, instance):
+        return reverse("mark_for_rejudge", args=(instance.id,))
+
     def _model_solutions_href(self, instance):
         return reverse("model_solutions", args=(instance.id,))
 
@@ -478,6 +481,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             result.append((rejudge_all_href, _("Rejudge submissions for problem")))
             rejudge_not_needed_href = self._set_needs_rejudge_to_false_href(instance)
             result.append((rejudge_not_needed_href, _("Rejudge not needed")))
+        else:
+            mark_for_rejudge_href = self._mark_for_rejudge_href(instance)
+            result.append((mark_for_rejudge_href, _("Mark for rejudge")))
 
         problem_change_href = self._problem_change_href(instance)
         replace_statement_href = self._replace_statement_href(instance)
