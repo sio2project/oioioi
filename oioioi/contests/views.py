@@ -762,11 +762,14 @@ def change_needs_rejudge_val(request, problem_instance_id, val: bool):
     else:
         return TemplateResponse(request, "contests/confirm_rejudge_not_needed.html")
 
+
 def rejudge_not_needed_view(request, problem_instance_id):
     return change_needs_rejudge_val(request, problem_instance_id, False)
 
+
 def mark_for_rejudge_view(request, problem_instance_id):
     return change_needs_rejudge_val(request, problem_instance_id, True)
+
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):

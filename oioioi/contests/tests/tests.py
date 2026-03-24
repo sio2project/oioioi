@@ -2359,7 +2359,8 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertIn("Suspend final tests", html[pos:pos2])
         self.assertIn("Edit package", html[pos:pos2])
         self.assertIn("Replace statement", html[pos:pos2])
-        self.assertEqual(html[pos:pos2].count("|"), 9)
+        self.assertIn("Mark for rejudge", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count("|"), 10)
 
     def test_problem_admin(self):
         self.assertTrue(self.client.login(username="test_contest_basicadmin"))
@@ -2685,7 +2686,8 @@ class TestProblemsMenuWithQuizzes(TestCase):
         self.assertIn("Suspend final tests", html[pos:pos2])
         self.assertIn("Edit package", html[pos:pos2])
         self.assertIn("Replace statement", html[pos:pos2])
-        self.assertEqual(html[pos:pos2].count("|"), 7)
+        self.assertIn("Mark for rejudge", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count("|"), 8)
 
 
 class TestSubmissionChangeKind(TestCase):
