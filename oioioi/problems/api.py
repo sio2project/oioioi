@@ -56,7 +56,11 @@ class PackageUploadQueryView(APIView):
                 location=OpenApiParameter.PATH,
                 description="Id of the package whose status you can get.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
     )
     def get(self, request, package_id):
         package = get_object_or_404(ProblemPackage, id=package_id)

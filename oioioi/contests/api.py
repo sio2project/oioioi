@@ -56,7 +56,12 @@ class GetContestRounds(views.APIView):
         CanEnterContest,
     )
 
-    @extend_schema(parameters=[contest_id_parameter("The Id of the contest which you want to get the round list for.")])
+    @extend_schema(
+        parameters=[contest_id_parameter("The Id of the contest which you want to get the round list for.")],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
+    )
     def get(self, request, contest_id):
         contest = get_object_or_404(Contest, id=contest_id)
         rounds = contest.round_set.all()
@@ -107,7 +112,7 @@ class GetUserProblemSubmissionList(views.APIView):
 
     @extend_schema(
         parameters=[
-            contest_id_parameter("The Id of the contest which you want to get the problem submission list for."),
+            contest_id_parameter("The Id of the contest which you want to get the submissions for."),
             OpenApiParameter(
                 name="problem_short_name",
                 type=OpenApiTypes.STR,
@@ -116,7 +121,10 @@ class GetUserProblemSubmissionList(views.APIView):
                 "You can find it for example the in first column "
                 "of the problem list when using SIO 2 web interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
     )
     def get(self, request, contest_id, problem_short_name):
         contest = get_object_or_404(Contest, id=contest_id)
@@ -155,14 +163,19 @@ class GetUserProblemSubmissionCode(views.APIView):
 
     @extend_schema(
         parameters=[
-            contest_id_parameter("The Id of the contest that your query belongs to."),
+            contest_id_parameter("The ID of the contest that your query belongs to."),
             OpenApiParameter(
                 name="submission_id",
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
-                description="You can query submission ID list at problem_submission_list endpoint.",
+                description="You can query submission ID list at problem_submission_list endpoint. "
+                "The submission ID can also be found inside the submission URL.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.STR,
+            500: OpenApiTypes.OBJECT,
+        },
     )
     def get(self, request, contest_id, submission_id):
         # Make sure user made this submission, not somebody else.
@@ -201,7 +214,10 @@ class GetProblemIdView(views.APIView):
                 "You can find it for example the in first column "
                 "of the problem list when using SIO 2 web interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
     )
     def get(self, request, contest_id, problem_short_name):
         """This endpoint allows you to get id of the particular problem along
@@ -226,6 +242,7 @@ class SubmitSolutionView(views.APIView):
 
     parser_classes = (MultiPartParser,)
 
+    # This method should be implemented by subclasses.
     def get_problem_instance(self, **kwargs):
         raise NotImplementedError
 
@@ -266,7 +283,10 @@ class SubmitContestSolutionView(SubmitSolutionView):
                 "solution. You can find it for example in the first column "
                 "of the problem list when using SIO 2 web interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
     )
     def get_problem_instance(self, contest_name, problem_short_name):
         return get_object_or_404(ProblemInstance, contest=contest_name, short_name=problem_short_name)
@@ -284,7 +304,11 @@ class SubmitProblemsetSolutionView(SubmitSolutionView):
                 "any site related to the problem when using the SIO2 web "
                 "interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
     )
     def get_problem_instance(self, problem_site_key):
         problem = get_object_or_404(Problem, problemsite__url_key=problem_site_key)
