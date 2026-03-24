@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
@@ -881,3 +881,16 @@ def stringify_problems_limits(raw_limits):
             stringified[pi_pk] = ((_("Default") + ":", *format_limits(pi_limits["default"])), language_limits)
 
     return stringified
+
+
+def filter_last_submissions(queryset):
+    """Filters the given Submission queryset to keep only the last submission per user and problem_instance."""
+    last_subquery = (
+        Submission.objects.filter(
+            user=OuterRef("user"),
+            problem_instance=OuterRef("problem_instance"),
+        )
+        .order_by("-date")
+        .values("id")[:1]
+    )
+    return queryset.filter(id=Subquery(last_subquery))

@@ -52,6 +52,7 @@ from oioioi.contests.models import (
 from oioioi.contests.utils import (
     can_admin_contest,
     create_contest_attributes,
+    filter_last_submissions,
     get_inline_for_contest,
     is_contest_admin,
     is_contest_archived,
@@ -654,15 +655,7 @@ class LastSubmissionFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "yes":
-            last_subquery = (
-                Submission.objects.filter(
-                    user=OuterRef("user"),
-                    problem_instance=OuterRef("problem_instance"),
-                )
-                .order_by("-date")
-                .values("id")[:1]
-            )
-            return queryset.filter(id=Subquery(last_subquery))
+            return filter_last_submissions(queryset)
         else:
             return queryset
 
