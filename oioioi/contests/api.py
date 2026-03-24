@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
+from oioioi.base.utils import request_cached
 from oioioi.base.utils.api import contest_id_parameter
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
@@ -248,7 +249,7 @@ class GetProblemIdView(views.APIView):
 # It lacks get_problem_instance, as it's specific to problem source.
 class SubmitSolutionView(views.APIView):
     permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
-
+    serializer_class = SubmissionSerializer
     parser_classes = (MultiPartParser,)
 
     # This method should be implemented by subclasses.
