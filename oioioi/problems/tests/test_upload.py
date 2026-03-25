@@ -500,7 +500,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(pi.test_set.count(), num_tests)
         self.check_models_for_simple_package(pi)
         self.assertContains(response, "1 PROBLEM NEEDS REJUDGING")
-        self.assertEqual(response.content.count("Rejudge all submissions for problem"), 1)
+        self.assertEqual(response.content.count("Rejudge submissions for problem"), 1)
 
         # reupload problem in problemset
         url = "{}?{}".format(
@@ -523,7 +523,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertContains(response, "You are going to rejudge 1")
         response = self.client.post(url, {"submit": True}, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.count("Rejudge all submissions for problem"), pi_number - 1)
+        self.assertEqual(response.content.count("Rejudge submissions for problem"), pi_number - 1)
         self.assertContains(response, "1 rejudge request received.")
 
     def test_uploading_to_contest(self):
