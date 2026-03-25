@@ -717,7 +717,7 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
 
     if request.POST:
         for submission in submissions:
-            problem_instance.controller.judge(submission, request.GET.dict(), is_rejudge=True)
+            problem_instance.controller.judge(submission, {}, is_rejudge=True)
         messages.info(
             request,
             ngettext_lazy(
