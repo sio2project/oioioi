@@ -68,7 +68,7 @@ if not getattr(settings, "TESTS", False):
         file=sys.stderr,
     )
     print(
-        "Make sure the tests are run using 'python setup.py test' or 'DJANGO_SETTINGS_MODULE=oioioi.test_settings python manage.py test'.",
+        "Make sure the tests are run using 'pytest' or 'DJANGO_SETTINGS_MODULE=oioioi.test_settings python manage.py test'.",
         file=sys.stderr,
     )
     sys.exit(1)

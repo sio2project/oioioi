@@ -118,7 +118,7 @@ To allow ruff to fix the errors, add the `--fix` flag::
 
 To avoid having to run this command every time before committing, you can install `pre-commit` along with ruff::
 
-    pip install -r requirements_static.txt
+    uv sync --group dev
 
 Then simply run the following command::
 

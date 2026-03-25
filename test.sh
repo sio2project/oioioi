@@ -2,7 +2,7 @@
 
 cd "`dirname "$0"`"
 
-python3 $(which pytest) "$@"
+uv run --no-sync pytest "$@"
 
 # This holds the exit status of the last executed command
 # Be careful when inserting new commands in between
