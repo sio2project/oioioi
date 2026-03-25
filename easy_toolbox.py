@@ -83,8 +83,8 @@ RAW_COMMANDS = [
         "wipe-sample-data",
         "Wipe all contests, problems, users and submissions created with `populate-sample-data`.",
         "{exec} web python manage.py mass_create_tool --wipe",
-        "Warning: This will wipe all data created using the mass_create_tool. Are you sure you want to proceed?"
-    )
+        "Warning: This will wipe all data created using the mass_create_tool. Are you sure you want to proceed?",
+    ),
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
@@ -92,6 +92,7 @@ longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
 
 class Help(Exception):
     pass
+
 
 class Warning:
     def __init__(self, _msg: str):
@@ -104,6 +105,7 @@ class Warning:
 
     def __str__(self) -> str:
         return f"{self.message}\nAre you sure? [y/N]"
+
 
 class Option:
     def __init__(self, _arg, _help, _command, _warning_msg=None, extra_args=None):
@@ -187,7 +189,6 @@ def run_command(command) -> None:
         width = os.get_terminal_size().columns
         print("=" * width)
 
-
     if sys.platform == "win32":
         # for Windows, a different syntax for exiting is needed
         exit_code = os.system(command)
@@ -241,6 +242,7 @@ def main() -> None:
         print_help()
     except Exception as e:
         print(f"An error occurred during execution: {e}", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()

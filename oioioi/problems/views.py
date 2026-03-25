@@ -1162,7 +1162,6 @@ def save_proposals_view(request):
         for tag in tags:
             algorithm_tag = AlgorithmTagLocalization.objects.filter(full_name=tag, language=get_language()).first().algorithm_tag
 
-
             if AlgorithmTagProposal.objects.filter(problem=problem, tag=algorithm_tag, user=user).exists():
                 return HttpResponseBadRequest()
 

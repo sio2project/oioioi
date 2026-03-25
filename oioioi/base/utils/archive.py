@@ -159,7 +159,7 @@ class BaseArchive:
         # zip extraction raises TypeError while tar extraction
         # raises warnings and crashes tests
         if isinstance(self._archive, tarfile.TarFile):
-            kwargs['filter'] = 'data'
+            kwargs["filter"] = "data"
 
         self._archive.extractall(to_path, **kwargs)
 

@@ -332,10 +332,13 @@ class OioioiUserAdmin(UserAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
     add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": ("username", "password1", "password2"),
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("username", "password1", "password2"),
+            },
+        ),
     )
     list_filter = ["is_superuser", "is_active"]
     list_display = ["username", "email", "first_name", "last_name", "is_active"]
