@@ -319,7 +319,7 @@ INSTALLED_APPS = (
     'two_factor.plugins.phonenumber',
 
     'nested_admin',
-    'coreapi',
+    'drf_spectacular',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -658,6 +658,13 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        # Errors in recalculation of rankings are rare, but not trivial to
+        # notice.
+        'oioioi.rankings.models.recalculation': {
+            'handlers': ['mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'celery': {
             'handlers': ['console', 'emit_notification'],
             'level': 'DEBUG',
@@ -774,8 +781,10 @@ CACHES = {
 }
 
 # Ranking
+RANKINGSD_CONCURRENCY = 1 # Number of rankingsd instances to start.
 RANKINGSD_POLLING_INTERVAL = 0.5  # seconds
 RANKING_COOLDOWN_FACTOR = 2  # seconds
+RANKING_ERROR_COOLDOWN = 300  # seconds; Don't overwhelm the admins' mailbox :).
 RANKING_MIN_COOLDOWN = 5  # seconds
 RANKING_MAX_COOLDOWN = 100  # seconds
 
@@ -860,7 +869,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'OIOIOI API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 # If set to True, usercontests will become read-only: it will be impossible to

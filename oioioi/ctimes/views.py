@@ -15,21 +15,26 @@ def ctimes_view(request):
     if contest is None:
         return {"status": "NO_CONTEST"}
 
-    def end_le(a, b):
-        """Compare round ends. None means "round does not end",
-        so it ends not earlier than any other."""
-        return True if b is None else b >= a
+    def get_end(rtime):
+        """Get round end for comparisons. None means "round does not end",
+        so in comparisons it shouldn't be earlier than any other."""
+        return rtime.get_key_for_comparison()[1]
 
     ccontroller = contest.controller
     rounds = [(ccontroller.get_round_times(request, round), round) for round in Round.objects.filter(contest=request.contest)]
-    rounds = [(rtime, round) for (rtime, round) in rounds if end_le(now - timedelta(minutes=30), rtime.get_end())]
+
+    end_cutoff = now - timedelta(minutes=5)
+    rounds = [(rtime, round) for (rtime, round) in rounds if not rtime.is_past(end_cutoff)]
 
     def ctimes_sort_key(round_time):
-        return (
-            not (round_time.get_start() <= now and end_le(now, round_time.get_end())),
-            not round_time.get_start() - timedelta(minutes=5) <= now,
-            round_time.get_end(),
-        )
+        # See README.rst for an explanation of the ordering.
+        if round_time.is_active(now):
+            return (0, get_end(round_time))
+        if round_time.is_past(now):
+            # Of past rounds, we want the one that ended last.
+            return (2, now - get_end(round_time))
+        starts_soon = not round_time.is_future(now + timedelta(minutes=5))
+        return (1 if starts_soon else 3, round_time.get_start())
 
     try:
         (rtime, round) = min(rounds, key=lambda x: ctimes_sort_key(x[0]))

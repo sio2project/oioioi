@@ -22,6 +22,16 @@ class TeacherAdmin(admin.ModelAdmin):
     search_fields = ["school", "user__username", "user__first_name", "user__last_name", "user__email", "join_date"]
 
     form = AdminTeacherForm
+    change_form_template = "teachers/change_form.html"
+
+    # Override parent's function to ensure proper translation
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            function, name, short_description = actions['delete_selected']
+            new_description = _("Delete selected teachers")
+            actions['delete_selected'] = (function, name, new_description)
+        return actions
 
     def has_add_permission(self, request):
         return request.user.is_superuser

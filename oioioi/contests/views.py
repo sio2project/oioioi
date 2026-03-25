@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -140,8 +140,13 @@ def problems_list_view(request):
 
     show_problems_limits = controller.can_see_problems_limits(request)
     problems_limits = {}
+
+    multiple_limits = False
     if show_problems_limits:
         problems_limits = stringify_problems_limits(controller.get_problems_limits(request))
+        for limit in problems_limits.values():
+            if len(limit) > 1:
+                multiple_limits = True
 
     problem_instances = visible_problem_instances(request)
 
@@ -154,6 +159,45 @@ def problems_list_view(request):
     # 6) submissions_limit
     # 7) can_submit
     # Sorted by (start_date, end_date, round name, problem name)
+    # Preload user-related data to avoid N+1 queries
+    results_map = {}
+    last_submission_map = {}
+    if request.user.is_authenticated:
+        # Bulk fetch UserResultForProblem objects. We only keep those for which
+        # the user can see the submission score.
+        user_results_qs = (
+            UserResultForProblem.objects.filter(
+                user=request.user,
+                problem_instance__in=problem_instances,
+            )
+            .select_related("submission_report__submission")
+        )
+        for r in user_results_qs:
+            # Some controllers may hide score even if UserResultForProblem exists
+            if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission):
+                results_map[r.problem_instance_id] = r
+
+        # For each problem instance, fetch only the single latest NORMAL
+        # submission by this user using a correlated subquery
+        latest_sub_id_sq = (
+            Submission.objects.filter(
+                user=request.user,
+                problem_instance=OuterRef("problem_instance"),
+                kind="NORMAL",
+            )
+            .order_by("-date")
+            .values("id")[:1]
+        )
+        last_submission_map = {
+            s.problem_instance_id: s
+            for s in Submission.objects.filter(
+                user=request.user,
+                problem_instance__in=problem_instances,
+                kind="NORMAL",
+                id=Subquery(latest_sub_id_sq),
+            )
+        }
+
     problems_statements = sorted(
         [
             (
@@ -161,21 +205,11 @@ def problems_list_view(request):
                 controller.can_see_statement(request, pi),
                 controller.get_round_times(request, pi.round),
                 problems_limits.get(pi.pk, None),
-                # Because this view can be accessed by an anynomous user we can't
-                # use `user=request.user` (it would cause TypeError). Surprisingly
-                # using request.user.id is ok since for AnynomousUser id is set
-                # to None.
-                next(
-                    (
-                        r
-                        for r in UserResultForProblem.objects.filter(user__id=request.user.id, problem_instance=pi)
-                        if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission)
-                    ),
-                    None,
-                ),
+                results_map.get(pi.id),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
                 controller.can_submit(request, pi) and not is_contest_archived(request),
+                submission_template_context(request, last_submission_map[pi.id]) if pi.id in last_submission_map else None,
             )
             for pi in problem_instances
         ],
@@ -185,6 +219,7 @@ def problems_list_view(request):
     show_submissions_limit = any(p[6] for p in problems_statements)
     show_submit_button = any(p[7] for p in problems_statements)
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
+    show_status = request.user.is_authenticated # Always show status for authenticated users
     table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
 
     return TemplateResponse(
@@ -196,9 +231,11 @@ def problems_list_view(request):
             "show_rounds": show_rounds,
             "show_scores": request.user.is_authenticated,
             "show_submissions_limit": show_submissions_limit,
+            "show_status": show_status,
             "show_submit_button": show_submit_button,
             "table_columns": table_columns,
             "problems_on_page": getattr(settings, "PROBLEMS_ON_PAGE", 100),
+            "multiple_limits": multiple_limits,
         },
     )
 

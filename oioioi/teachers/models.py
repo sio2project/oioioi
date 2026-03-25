@@ -18,10 +18,12 @@ class Teacher(models.Model):
     user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"), on_delete=models.CASCADE)
     is_active = models.BooleanField(default=False, verbose_name=_("active"))
     school = models.CharField(max_length=255, verbose_name=_("school"))
-    join_date = models.DateField(auto_now_add=True)
+    join_date = models.DateField(auto_now_add=True, verbose_name=_("join date"))
 
     class Meta:
         permissions = (("teacher", _("Is a teacher")),)
+        verbose_name = _("teacher")
+        verbose_name_plural = _("teachers")
 
     def __str__(self):
         return str(self.user)

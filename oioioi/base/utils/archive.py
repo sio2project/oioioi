@@ -153,7 +153,15 @@ class BaseArchive:
         we don't recurse when subclasses don't declare their own 'extract'
         method.
         """
-        self._archive.extractall(to_path)
+        kwargs = {}
+
+        # Only apply the filter if archive is tar
+        # zip extraction raises TypeError while tar extraction
+        # raises warnings and crashes tests
+        if isinstance(self._archive, tarfile.TarFile):
+            kwargs['filter'] = 'data'
+
+        self._archive.extractall(to_path, **kwargs)
 
     def extract(self, to_path="", method="safe"):
         if method == "safe":

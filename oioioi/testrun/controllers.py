@@ -15,16 +15,16 @@ from oioioi.base.utils import is_ajax
 from oioioi.base.utils.archive import Archive
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import ScoreReport, SubmissionReport
-from oioioi.contests.utils import get_submission_message
+from oioioi.contests.utils import get_submission_message, is_contest_archived
 from oioioi.evalmgr.tasks import extend_after_placeholder
-from oioioi.problems.utils import can_admin_problem
+from oioioi.problems.utils import can_admin_problem, can_admin_problem_instance
 from oioioi.programs.controllers import (
     ProgrammingContestController,
     ProgrammingProblemController,
 )
 from oioioi.programs.models import CompilationReport
 from oioioi.programs.problem_instance_utils import get_allowed_languages_extensions
-from oioioi.programs.utils import form_field_id_for_langs
+from oioioi.programs.utils import form_field_id_for_langs, get_problem_link_or_name
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 
 
@@ -238,22 +238,28 @@ class TestRunContestControllerMixin:
     def get_supported_extra_args(self, submission):
         if submission.kind != "TESTRUN":
             return super().get_supported_extra_args(submission)
-        return {}
+
+        return {"hidden_judge": _("Visible only for admins")}
 
     def render_submission(self, request, submission):
         if submission.kind != "TESTRUN":
             return super().render_submission(request, submission)
 
         sbm_testrun = submission.programsubmission.testrunprogramsubmission
+        can_admin = can_admin_problem_instance(request, submission.problem_instance)
 
         return render_to_string(
             "testrun/submission-header.html",
             request=request,
             context={
                 "submission": submission_template_context(request, sbm_testrun),
+                "problem": get_problem_link_or_name(request, submission),
+                "saved_diff_id": request.session.get("saved_diff_id"),
                 "supported_extra_args": self.get_supported_extra_args(submission),
-                "input_is_zip": is_zipfile(sbm_testrun.input_file.read_using_cache()),
+                "can_admin": can_admin,
+                "is_contest_archived": is_contest_archived(request),
                 "message": get_submission_message(submission),
+                "input_is_zip": is_zipfile(sbm_testrun.input_file.read_using_cache()),
             },
         )
 
