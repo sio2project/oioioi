@@ -47,12 +47,6 @@ The created *deployment* directory looks like a new Django project, but already
 configured to serve the OIOIOI portal. You need to at least set the `database
 configuration`_ in *settings.py*.
 
-In case of using PostgreSQL, install Psycopg2::
-
-  uv pip install psycopg2-binary
-
-Note: With uv, you can also add this to your pyproject.toml dependencies and run `uv sync`.
-
 Finally initialize the database::
 
   ./manage.py migrate
