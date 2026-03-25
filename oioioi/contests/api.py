@@ -9,7 +9,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.base.utils import request_cached
 from oioioi.base.utils.api import contest_id_parameter
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
