@@ -33,17 +33,12 @@ from oioioi.programs.models import ProgramSubmission
 from oioioi.programs.utils import decode_str, get_submission_source_file_or_error
 
 
-class GetContestListView(views.APIView):
-    @extend_schema(
-        responses={
-            200: OpenApiTypes.OBJECT,
-        },
-    )
-    @enforce_condition(not_anonymous, login_redirect=False)
-    def get(self, request):
-        contests = visible_contests(request)
-        serializer = ContestSerializer(contests, many=True)
-        return Response(serializer.data)
+@api_view(["GET"])
+@enforce_condition(not_anonymous, login_redirect=False)
+def contest_list(request):
+    contests = visible_contests(request)
+    serializer = ContestSerializer(contests, many=True)
+    return Response(serializer.data)
 
 
 class CanEnterContest(permissions.BasePermission):
@@ -75,18 +70,14 @@ class GetContestRounds(views.APIView):
         return Response(serializer.data)
 
 
+@extend_schema(responses={200: OpenApiTypes.STR})
 class GetContestProblems(views.APIView):
     permission_classes = (
         IsAuthenticated,
         CanEnterContest,
     )
 
-    @extend_schema(
-        parameters=[contest_id_parameter("The Id of the contest which you want to get the problem list for.")],
-        responses={
-            200: OpenApiTypes.OBJECT,
-        },
-    )
+    @extend_schema(parameters=[contest_id_parameter("The Id of the contest which you want to get the problem list for.")])
     def get(self, request, contest_id):
         contest: Contest = get_object_or_404(Contest, id=contest_id)
         controller = contest.controller

@@ -216,7 +216,7 @@ neutral_patterns = [
 if settings.USE_API:
     nonc_patterns += [
         # the contest information is managed manually and added after api prefix
-        re_path(r"^api/contest_list", api.GetContestListView.as_view(), name="api_contest_list"),
+        re_path(r"^api/contest_list", api.contest_list, name="api_contest_list"),
         re_path(
             r"^api/c/(?P<contest_name>[a-z0-9_-]+)/submit/(?P<problem_short_name>[a-z0-9_-]+)$",
             api.SubmitContestSolutionView.as_view(),
