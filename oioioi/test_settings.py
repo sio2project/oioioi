@@ -131,8 +131,3 @@ LOGGING['loggers']['django.db.backends.schema'] = {
 REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += (
     'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
 )
-
-# debug_toolbar calls settings.MIGRATION_MODULES.setdefault() which is
-# incompatible with pytest-django's --nomigrations DisableMigrations proxy.
-# Explicitly setting it to a dict allows setdefault to work correctly.
-MIGRATION_MODULES = {'debug_toolbar': 'debug_toolbar.migrations'}
