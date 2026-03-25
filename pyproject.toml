@@ -9,7 +9,7 @@ description = "The web frontend of the SIO2 Project contesting system"
 authors = [
     {name = "The SIO2 Team", email = "sio2@sio2project.mimuw.edu.pl"}
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "Django>=5.2,<5.3", # Szkopul is now compatible with Django 6.0
     "pytz>=2023.3,<2023.4",
