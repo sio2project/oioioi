@@ -50,7 +50,7 @@ class AdminTeacherForm(forms.ModelForm):
     class Meta:
         model = Teacher
         fields = ["user", "school", "is_active"]
-        labels = { # Needed for the ability of proper translation of 'is_active' to PL
+        labels = {  # Needed for the ability of proper translation of 'is_active' to PL
             "is_active": p_("teacher object", "Active"),
         }
 

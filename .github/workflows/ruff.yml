@@ -14,5 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3
         with:
-          src: "./oioioi"
+          args: --version
           version: 0.15.1
+      - run: ruff check --fix --exit-non-zero-on-fix
+      - run: ruff format --check --diff

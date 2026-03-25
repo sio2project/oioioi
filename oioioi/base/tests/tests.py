@@ -1462,6 +1462,7 @@ class TestDocsEndpoints(APITestCase):
         response = self.client.get("/api/docs", follow=True)
         self.assertEqual(response.status_code, 200)
 
+
 class TestPingEndpointsAndAuthentication(APITestCase):
     fixtures = ["test_users"]
 

@@ -448,48 +448,48 @@ class SinolPackage:
     def _validate_package_naming_consistency(self):
         """Validates folder name matches file prefixes and sinol_task_id if present."""
 
-        expected_prefix = self.config.get('sinol_task_id')
+        expected_prefix = self.config.get("sinol_task_id")
         detected_prefixes = set()
 
         prog_dir = os.path.join(self.rootdir, "prog")
         if os.path.isdir(prog_dir):
             for f in os.listdir(prog_dir):
-                m = re.match(r'^(\w+)(ingen|inwer|chk|soc)\.', f)
+                m = re.match(r"^(\w+)(ingen|inwer|chk|soc)\.", f)
                 if m:
                     detected_prefixes.add(m.group(1))
 
         doc_dir = os.path.join(self.rootdir, "doc")
         if os.path.isdir(doc_dir):
             for f in os.listdir(doc_dir):
-                m = re.match(r'^(\w+)zad\.', f)
+                m = re.match(r"^(\w+)zad\.", f)
                 if m:
                     detected_prefixes.add(m.group(1))
 
         in_dir = os.path.join(self.rootdir, "in")
         if os.path.isdir(in_dir):
             for f in os.listdir(in_dir):
-                if f.endswith('.in'):
-                    m = re.match(r'^([a-zA-Z_]+)\d+[a-z]*\.in$', f)
+                if f.endswith(".in"):
+                    m = re.match(r"^([a-zA-Z_]+)\d+[a-z]*\.in$", f)
                     if m:
                         detected_prefixes.add(m.group(1))
 
         if expected_prefix and expected_prefix != self.short_name:
             raise ProblemPackageError(
                 _("Folder '%(folder)s' doesn't match sinol_task_id '%(id)s' in config.yml. Make sure they are consistent.")
-                % {'folder': self.short_name, 'id': expected_prefix}
+                % {"folder": self.short_name, "id": expected_prefix}
             )
 
         if len(detected_prefixes) > 1:
             raise ProblemPackageError(
                 _("Inconsistent file prefixes found: %(prefixes)s. All files must use '%(expected)s'.")
-                % {'prefixes': ', '.join(sorted(detected_prefixes)), 'expected': self.short_name}
+                % {"prefixes": ", ".join(sorted(detected_prefixes)), "expected": self.short_name}
             )
         elif detected_prefixes:
             detected = detected_prefixes.pop()
             if detected != self.short_name:
                 raise ProblemPackageError(
-                    _("Package naming mismatch. Folder name: '%(folder)s', Files use prefix: '%(prefix)s'. "
-                    "Make sure they are consistent.") % {'folder': self.short_name, 'prefix': detected}
+                    _("Package naming mismatch. Folder name: '%(folder)s', Files use prefix: '%(prefix)s'. Make sure they are consistent.")
+                    % {"folder": self.short_name, "prefix": detected}
                 )
 
     @_describe_processing_error

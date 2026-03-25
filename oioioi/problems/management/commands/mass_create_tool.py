@@ -70,22 +70,16 @@ class Command(BaseCommand):
         parser.add_argument("--contestname", "-cn", type=str, help="Name of the contest to create (default: random ID)")
         parser.add_argument("--problems", "-p", type=unsigned_int, default=0, metavar="N", help="Number of problems to create (default: 0)")
         parser.add_argument(
-            '--problempackages', '-pp',
-            nargs='+',
+            "--problempackages",
+            "-pp",
+            nargs="+",
             type=str,
-            help='List of problem package files to create problems from (optionally added to a new contest when --createcontest is used)'
+            help="List of problem package files to create problems from (optionally added to a new contest when --createcontest is used)",
         )
+        parser.add_argument("--users", "-u", type=unsigned_int, default=0, metavar="N", help="Number of users to create (default: 0)")
+        parser.add_argument("--submission_files", "-sf", nargs="+", type=str, help="List of source code files to use for submissions")
         parser.add_argument(
-            "--users", "-u", type=unsigned_int, default=0, metavar="N",
-            help="Number of users to create (default: 0)"
-        )
-        parser.add_argument(
-            "--submission_files", "-sf", nargs='+', type=str,
-            help="List of source code files to use for submissions"
-        )
-        parser.add_argument(
-            "--submissions_per_user", "-spu", type=unsigned_int, default=0, metavar="N",
-            help="Number of submissions per user to create (default: 0)"
+            "--submissions_per_user", "-spu", type=unsigned_int, default=0, metavar="N", help="Number of submissions per user to create (default: 0)"
         )
         parser.add_argument("--algotags", "-at", type=unsigned_int, default=0, metavar="N", help="Number of algorithm tags to create (default: 0)")
         parser.add_argument("--difftags", "-dt", type=unsigned_int, default=0, metavar="N", help="Number of difficulty tags to create (default: 0)")
@@ -167,10 +161,7 @@ class Command(BaseCommand):
             candidate_prefix="prob_",
             random_length=10,
             uniqueness_fn=lambda s: not Problem.objects.filter(short_name=s).exists(),
-            create_instance_fn=lambda candidate: Problem.create(
-                short_name=candidate,
-                controller_name='oioioi.problems.controllers.ProblemController'
-            ),
+            create_instance_fn=lambda candidate: Problem.create(short_name=candidate, controller_name="oioioi.problems.controllers.ProblemController"),
             verbose_name="Problem",
             verbosity=verbosity,
         )
@@ -198,7 +189,7 @@ class Command(BaseCommand):
         if not package_file_names:
             return []
 
-        TEST_FILES_DIR = os.path.join(settings.BASE_DIR, 'oioioi', 'sinolpack', 'files')
+        TEST_FILES_DIR = os.path.join(settings.BASE_DIR, "oioioi", "sinolpack", "files")
         created_problems = []
 
         for package_file_name in package_file_names:
@@ -206,14 +197,14 @@ class Command(BaseCommand):
 
             out = StringIO()
             try:
-                call_command('addproblem', package_path, stdout=out)
+                call_command("addproblem", package_path, stdout=out)
                 problem_id = int(out.getvalue().strip())
                 if verbosity >= 2:
                     self.stdout.write(f"Unpacked package {package_file_name} to create problem with ID {problem_id}")
                 problem = Problem.objects.get(id=problem_id)
 
                 if not problem.controller_name:
-                    problem.controller_name = 'oioioi.problems.controllers.ProblemController'
+                    problem.controller_name = "oioioi.problems.controllers.ProblemController"
                     problem.save()
                     if verbosity >= 2:
                         self.stdout.write(self.style.WARNING(f"Warning: Set default controller_name for problem {problem.short_name}"))
@@ -259,7 +250,7 @@ class Command(BaseCommand):
         """
         if not submission_file_names:
             return []
-        TEST_FILES_DIR = os.path.join(settings.BASE_DIR, 'oioioi', 'sinolpack', 'files')
+        TEST_FILES_DIR = os.path.join(settings.BASE_DIR, "oioioi", "sinolpack", "files")
         submission_files = []
         for file_name in submission_file_names:
             file_path = os.path.join(TEST_FILES_DIR, file_name)
@@ -272,9 +263,7 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stderr.write(self.style.ERROR(f"Failed to read submission file {file_name} located at {file_path}. Error: {e}"))
         if submission_file_names and not submission_files:
-            raise CommandError(
-                "No submission files could be loaded. Please verify the file names and paths."
-            )
+            raise CommandError("No submission files could be loaded. Please verify the file names and paths.")
         return submission_files
 
     def submit_by_user(self, user, problem_instance, source_code, source_code_name, verbosity):
@@ -291,25 +280,18 @@ class Command(BaseCommand):
         request.user = user
         request.timestamp = timezone.now()
         request.contest = problem_instance.contest
-        request.COOKIES = {settings.LANGUAGE_COOKIE_NAME: 'en'}
+        request.COOKIES = {settings.LANGUAGE_COOKIE_NAME: "en"}
         request._cache = {}
 
         if verbosity >= 3:
-            msg = (
-                f"User {user.username} is submitting to problem "
-                f"{problem_instance.problem.short_name} in contest {problem_instance.contest.id}"
-            )
+            msg = f"User {user.username} is submitting to problem {problem_instance.problem.short_name} in contest {problem_instance.contest.id}"
             self.stdout.write(self.style.SUCCESS(msg))
         with transaction.atomic():
             submission = problem_instance.controller.create_submission(
                 request=request,
                 problem_instance=problem_instance,
-                form_data={
-                    'user': user,
-                    'file': ContentFile(source_code, source_code_name),
-                    'kind': 'NORMAL'
-                },
-                judge_after_create=False
+                form_data={"user": user, "file": ContentFile(source_code, source_code_name), "kind": "NORMAL"},
+                judge_after_create=False,
             )
             submission.refresh_from_db()
             problem_instance.controller.judge(submission)
@@ -340,9 +322,7 @@ class Command(BaseCommand):
             random_length=random_length,
             uniqueness_fn=lambda s: not Contest.objects.filter(id=s).exists(),
             create_instance_fn=lambda candidate: Contest(
-                id=candidate,
-                name=contest_name or candidate,
-                controller_name='oioioi.programs.controllers.ProgrammingContestController'
+                id=candidate, name=contest_name or candidate, controller_name="oioioi.programs.controllers.ProgrammingContestController"
             ),
             verbose_name=verbose_name,
             verbosity=verbosity,
@@ -350,10 +330,7 @@ class Command(BaseCommand):
 
         contest = created_contests[0]
 
-        RegistrationAvailabilityConfig.objects.create(
-            contest=contest,
-            enabled='YES'
-        )
+        RegistrationAvailabilityConfig.objects.create(contest=contest, enabled="YES")
 
         self.add_problems_to_new_round(problems, contest, verbosity)
         submission_files = self.fetch_submission_files(submission_file_names, verbosity=verbosity)
@@ -368,10 +345,7 @@ class Command(BaseCommand):
                         pi = ProblemInstance.objects.get(problem=problem, contest=contest)
                         self.submit_by_user(user, pi, source_code, file_name, verbosity=verbosity)
                     except ProblemInstance.DoesNotExist:
-                        err_msg = (
-                            f"ProblemInstance does not exist for problem {problem.short_name} "
-                            f"in contest {contest.id}. Skipping submission."
-                        )
+                        err_msg = f"ProblemInstance does not exist for problem {problem.short_name} in contest {contest.id}. Skipping submission."
                         self.stderr.write(self.style.ERROR(err_msg))
 
         if verbosity >= 2:
@@ -421,14 +395,15 @@ class Command(BaseCommand):
         """
         objs = []
         for i in range(count):
+
             def candidate_fn():
                 return (random.choice(problems), random.choice(users), random.choice(tags))
 
             def uniqueness_fn(candidate):
                 problem, user, tag = candidate
-                if proposal_model.__name__ == 'AlgorithmTagProposal':
+                if proposal_model.__name__ == "AlgorithmTagProposal":
                     return not proposal_model.objects.filter(problem=problem, user=user, tag=tag).exists()
-                elif proposal_model.__name__ == 'DifficultyTagProposal':
+                elif proposal_model.__name__ == "DifficultyTagProposal":
                     return not proposal_model.objects.filter(problem=problem, user=user).exists()
                 return True
 
@@ -520,8 +495,15 @@ class Command(BaseCommand):
         verbosity = int(options.get("verbosity", 1))
 
         total_objects_to_create = (
-            int(bool(create_contest)) + num_problems + num_users + num_algotags +
-            num_difftags + num_algothrough + num_diffthrough + num_algoproposals + num_diffproposals
+            int(bool(create_contest))
+            + num_problems
+            + num_users
+            + num_algotags
+            + num_difftags
+            + num_algothrough
+            + num_diffthrough
+            + num_algoproposals
+            + num_diffproposals
         )
         max_algothrough = num_problems * num_algotags
         max_diffthrough = num_problems
@@ -585,10 +567,7 @@ class Command(BaseCommand):
         )
 
         if create_contest and num_submissions_per_user > 0 and not submission_file_names:
-            raise CommandError(
-                "When creating a contest with submissions, --submission-file-names must be provided "
-                "and contain at least one file."
-            )
+            raise CommandError("When creating a contest with submissions, --submission-file-names must be provided and contain at least one file.")
         if create_contest:
             created_contest = self.create_and_populate_contest(
                 contest_name=contest_name,
@@ -600,9 +579,7 @@ class Command(BaseCommand):
                 verbosity=verbosity,
             )
             if (verbosity >= 1) and created_contest:
-                self.stdout.write(
-                    self.style.SUCCESS(f"Created Contest: {created_contest.name} (ID: {created_contest.id})")
-                )
+                self.stdout.write(self.style.SUCCESS(f"Created Contest: {created_contest.name} (ID: {created_contest.id})"))
 
         created_algotags = self.create_unique_objects(
             count=num_algotags,

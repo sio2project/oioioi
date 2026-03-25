@@ -1179,6 +1179,7 @@ class BrokenContestController(ProgrammingContestController):
         super().fill_evaluation_environ(environ, submission)
         environ.setdefault("recipe", []).append(("failing_handler", "oioioi.contests.tests.tests.failing_handler"))
 
+
 class TestRejudgeView(TestCase):
     fixtures = [
         "test_users",
@@ -1195,14 +1196,10 @@ class TestRejudgeView(TestCase):
         self.pi = ProblemInstance.objects.filter(contest__isnull=False).first()
 
     def _rejudge_url(self):
-        return reverse(
-            "rejudge_all_submissions_for_problem", args=(self.pi.id,)
-        )
+        return reverse("rejudge_all_submissions_for_problem", args=(self.pi.id,))
 
     def test_rejudge_view_date_filter(self):
-        submission = Submission.objects.filter(
-            problem_instance=self.pi
-        ).first()
+        submission = Submission.objects.filter(problem_instance=self.pi).first()
         sub_date = submission.date
 
         # Date range that includes the submission
@@ -1225,9 +1222,7 @@ class TestRejudgeView(TestCase):
         self.assertContains(response, "0 submission")
 
     def test_rejudge_view_last_only_filter(self):
-        response = self.client.get(
-            self._rejudge_url(), {"last_only": "on"}
-        )
+        response = self.client.get(self._rejudge_url(), {"last_only": "on"})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "submission")
 
@@ -1235,9 +1230,7 @@ class TestRejudgeView(TestCase):
         self.pi.needs_rejudge = True
         self.pi.save()
 
-        response = self.client.post(
-            self._rejudge_url(), {"post": "yes"}
-        )
+        response = self.client.post(self._rejudge_url(), {"post": "yes"})
         self.assertEqual(response.status_code, 302)
 
         # Rejudging all submissions should clear the needs_rejudge flag
@@ -1257,6 +1250,7 @@ class TestRejudgeView(TestCase):
 
         self.pi.refresh_from_db()
         self.assertTrue(self.pi.needs_rejudge)
+
 
 class TestRejudgeAndFailure(TestCase):
     fixtures = [
@@ -4002,9 +3996,7 @@ class TestStatusBadgeDoesNotLeakScore(TestCase):
 
     def _set_future_results_date(self):
         """Push results_date into the future so scores stay hidden."""
-        Round.objects.filter(pk=1).update(
-            results_date=datetime(2099, 1, 1, tzinfo=UTC)
-        )
+        Round.objects.filter(pk=1).update(results_date=datetime(2099, 1, 1, tzinfo=UTC))
 
     def _create_submission_with_score(self, status, score_value, max_score_value):
         """Create a submission for test_user with given status and score.
@@ -4027,9 +4019,7 @@ class TestStatusBadgeDoesNotLeakScore(TestCase):
             date=datetime(2012, 7, 20, tzinfo=UTC),
         )
 
-        report = SubmissionReport.objects.create(
-            submission=sub, status="ACTIVE", kind="INITIAL"
-        )
+        report = SubmissionReport.objects.create(submission=sub, status="ACTIVE", kind="INITIAL")
         ScoreReport.objects.create(
             submission_report=report,
             status="OK",

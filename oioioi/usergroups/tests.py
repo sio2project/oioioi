@@ -615,7 +615,6 @@ class TestUserGroupRankings(TestCase):
         self.assertFalse(usergroup_ranking.is_up_to_date())
 
 
-
 class RemoveUserGroupRankingsTest(TestCase):
     fixtures = [
         "test_users",
