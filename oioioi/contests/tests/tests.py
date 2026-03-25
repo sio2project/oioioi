@@ -1179,6 +1179,84 @@ class BrokenContestController(ProgrammingContestController):
         super().fill_evaluation_environ(environ, submission)
         environ.setdefault("recipe", []).append(("failing_handler", "oioioi.contests.tests.tests.failing_handler"))
 
+class TestRejudgeView(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.contest = Contest.objects.get()
+        self.client.get(f"/c/{self.contest.pk}/")
+        self.pi = ProblemInstance.objects.filter(contest__isnull=False).first()
+
+    def _rejudge_url(self):
+        return reverse(
+            "rejudge_all_submissions_for_problem", args=(self.pi.id,)
+        )
+
+    def test_rejudge_view_date_filter(self):
+        submission = Submission.objects.filter(
+            problem_instance=self.pi
+        ).first()
+        sub_date = submission.date
+
+        # Date range that includes the submission
+        date_from = (sub_date - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M")
+        date_to = (sub_date + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M")
+        response = self.client.get(
+            self._rejudge_url(),
+            {"date_from": date_from, "date_to": date_to},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "1 submission")
+
+        # Date range that excludes all submissions (far in the future)
+        date_from_future = "2099-01-01T00:00"
+        date_to_future = "2099-12-31T23:59"
+        response = self.client.get(
+            self._rejudge_url(),
+            {"date_from": date_from_future, "date_to": date_to_future},
+        )
+        self.assertContains(response, "0 submission")
+
+    def test_rejudge_view_last_only_filter(self):
+        response = self.client.get(
+            self._rejudge_url(), {"last_only": "on"}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "submission")
+
+    def test_rejudge_post_triggers_rejudge(self):
+        self.pi.needs_rejudge = True
+        self.pi.save()
+
+        response = self.client.post(
+            self._rejudge_url(), {"post": "yes"}
+        )
+        self.assertEqual(response.status_code, 302)
+
+        # Rejudging all submissions should clear the needs_rejudge flag
+        self.pi.refresh_from_db()
+        self.assertFalse(self.pi.needs_rejudge)
+
+    def test_rejudge_post_partial_keeps_flag(self):
+        """Rejudging a subset should NOT clear the needs_rejudge flag."""
+        self.pi.needs_rejudge = True
+        self.pi.save()
+
+        response = self.client.post(
+            self._rejudge_url(),
+            {"post": "yes", "date_from": "2099-01-01T00:00"},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        self.pi.refresh_from_db()
+        self.assertTrue(self.pi.needs_rejudge)
 
 class TestRejudgeAndFailure(TestCase):
     fixtures = [
