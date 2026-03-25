@@ -1144,6 +1144,7 @@ class TestReportDisplay(TestCase):
             score=IntegerScore(100),
             max_score=IntegerScore(100),
             time_used=100,
+            mem_used=0,
             test_time_limit=1000,
         )
         self.assertEqual(test_report.get_status_display(), "OK")
