@@ -55,6 +55,11 @@ DATABASES = {
     }
 }
 
+# Django 6.x now defaults to BigAutoField (64-bit integers) for primary keys
+# so we need to force AutoField (32-bit) so as not to have to migrate tables.
+# https://docs.djangoproject.com/en/6.0/releases/6.0/#default-auto-field-setting-now-defaults-to-bigautofield
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Controls if uwsgi in default configuration shall use gevent loop.
 # To use it, you have to install gevent - please consult
 # https://github.com/surfly/gevent
