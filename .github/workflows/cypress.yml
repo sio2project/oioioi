@@ -2,14 +2,13 @@ name: Cypress nightly tests
 
 on:
   schedule:
-    - cron: '30 5 * * 1,3,5'
+    - cron: "30 5 * * 1,3,5"
   workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-#   Kill this job after 60 minutes - used when server fails, but Cypress waits on port.
+    #   Kill this job after 60 minutes - used when server fails, but Cypress waits on port.
     timeout-minutes: 60
 
     steps:
@@ -18,9 +17,6 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           version: "latest"
-      - name: Install `easy_toolbox.py` requirements
-        run: |
-          uv pip install inquirer
 
       - name: Build OIOIOI
         run: |
@@ -50,5 +46,5 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-            name: cypress-screenshots
-            path: oioioi_cypress/cypress/screenshots
+          name: cypress-screenshots
+          path: oioioi_cypress/cypress/screenshots

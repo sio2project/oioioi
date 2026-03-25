@@ -93,6 +93,7 @@ dev = [
     "pre-commit==4.2.0",
     "tox>=4.0.0",
     "tox-uv>=1.0.0",
+    "inquirer>=3.4.1",
 ]
 docs = [
     "sphinx>7.1.0",
@@ -123,6 +124,11 @@ lint.select = [
     "UP", # pyupgrade
     "C4" # flake8-comprehensions
 ]
+lint.ignore = [
+    "B904",
+    "B026",
+    "C416",
+]
 src = ["oioioi"]
 exclude = [
     "migrations",
@@ -131,8 +137,3 @@ exclude = [
     "oioioi/problems/tests/__init__.py"
 ]
 target-version = "py313"
-lint.ignore = [
-    "B904",
-    "B026",
-    "C416",
-]
