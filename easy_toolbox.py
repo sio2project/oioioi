@@ -31,7 +31,7 @@ RAW_COMMANDS = [
     (
         "build",
         "Build OIOIOI container from source.",
-        "build",
+        "build {extra_args}",
         "This may result in the loss of local modifications inside containers.",
     ),
     ("up", "Run all SIO2 containers", "up -d"),

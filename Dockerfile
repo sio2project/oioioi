@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.13-bookworm AS base
+FROM ghcr.io/astral-sh/uv:python3.13-trixie AS base
 
 ENV PYTHONUNBUFFERED=1
 
