@@ -7,15 +7,15 @@ set -x
 if [ "$1" == "--dev" ]; then
     echo "Checking frontend dependencies..."
 
-    if ! (cd ../oioioi && npm list --depth=0 > /dev/null 2>&1); then
-        echo "Dependencies mismatch or missing. Running npm install..."
-        (cd ../oioioi && npm install)
+    if ! (cd ../oioioi && pnpm list --depth=0 > /dev/null 2>&1); then
+        echo "Dependencies mismatch or missing. Running pnpm install..."
+        (cd ../oioioi && pnpm install)
     else
         echo "Dependencies are up to date."
     fi
 
     echo "Building frontend assets..."
-    (cd ../oioioi && npm run build)
+    (cd ../oioioi && pnpm run build)
 
     ./manage.py migrate 2>&1 | tee /sio2/deployment/logs/migrate.log
     ./manage.py loaddata ../oioioi/extra/dbdata/default_admin.json
