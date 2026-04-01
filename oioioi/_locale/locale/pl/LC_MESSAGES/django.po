@@ -2343,7 +2343,7 @@ msgstr "Przedłużenia rund"
 
 #: contests/admin.py:1095
 msgid "Round start delays"
-msgstr "Opóźnienia startu rund"
+msgstr "Opóźnienia startów rund"
 
 #: contests/admin.py:1176 contests/admin.py:1182
 msgid "Contest rights"
@@ -2753,12 +2753,12 @@ msgstr "Decyduje o tym, czy uczestnicy widzą ograniczenia czasu i pamięci"
 #: contests/models.py:319
 #| msgid "statements visibility"
 msgid "limits visibility config"
-msgstr "Konfiguracja widoczności limitów"
+msgstr "konfiguracja widoczności limitów"
 
 #: contests/models.py:320
 #| msgid "statements visibility"
 msgid "limits visibility configs"
-msgstr "Konfiguracje widoczności limitów"
+msgstr "konfiguracje widoczności limitów"
 
 #: contests/models.py:324
 msgid "Open"
@@ -2939,7 +2939,7 @@ msgstr "opóźnienie startu rundy"
 
 #: contests/models.py:642
 msgid "round start delays"
-msgstr "opóźnienia startu rund"
+msgstr "opóźnienia startów rund"
 
 #: contests/models.py:649
 #: portals/templates/portals/related-portal-pages.html:12
@@ -8773,7 +8773,7 @@ msgstr "Wygeneruj ranking ponownie"
 #: rankings/templates/rankings/ranking_view.html:29
 #| msgid "Regeneration link"
 msgid "Regenerate all rankings"
-msgstr "Przeładuj wszystkie rankingi"
+msgstr "Wygeneruj wszystkie rankingi ponownie"
 
 #: rankings/templates/rankings/ranking_view.html:36
 msgid "Find my place"
