@@ -64,7 +64,7 @@ dependencies = [
     "django-phonenumber-field>=8.4,<8.5",
     "cryptography==46.0.5",
     "legacy-cgi",
-    "sioworkers@https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.8.tar.gz",
+    "sioworkers@https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.9.tar.gz",
     "pylibmc",
     "psycopg2-binary",
     "aiohttp>=3.12.2,<3.13.0",
