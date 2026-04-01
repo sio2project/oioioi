@@ -33,7 +33,8 @@ RUN apt-get update && \
         nodejs \
         npm && \
     apt-get clean && \
-    rm -rf /usr/share/doc/texlive*
+    rm -rf /usr/share/doc/texlive* && \
+    npm install -g pnpm
 
 # This is oioioi user linux uid. Setting it is useful in development.
 # By default we use an unused uid of 1234.
@@ -72,8 +73,8 @@ ENV PATH=$VIRTUAL_ENV/bin:$PATH
 # Installing node dependencies
 ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin
 
-RUN npm ci
-RUN npm run build
+RUN pnpm install --frozen-lockfile
+RUN pnpm run build
 
 RUN uv run oioioi-create-config /sio2/deployment
 
