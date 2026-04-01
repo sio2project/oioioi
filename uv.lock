@@ -1928,7 +1928,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32,<2.33" },
     { name = "sentry-sdk", specifier = ">=2.16.0,<2.17.0" },
     { name = "setuptools", specifier = ">=61.0" },
-    { name = "sioworkers", url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.8.tar.gz" },
+    { name = "sioworkers", url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.9.tar.gz" },
     { name = "sqlalchemy", specifier = ">=2.0,<2.1.0" },
     { name = "supervisor", specifier = "==4.3.0" },
     { name = "unicodecsv", specifier = ">=0.14,<0.15" },
@@ -3007,8 +3007,8 @@ sdist = { url = "https://files.pythonhosted.org/packages/6c/ca/8776e0c494b7f16f9
 
 [[package]]
 name = "sioworkers"
-version = "1.5.8"
-source = { url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.8.tar.gz" }
+version = "1.5.9"
+source = { url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.9.tar.gz" }
 dependencies = [
     { name = "bsddb3" },
     { name = "filetracker", extra = ["server"] },
@@ -3019,7 +3019,7 @@ dependencies = [
     { name = "twisted" },
     { name = "urllib3" },
 ]
-sdist = { hash = "sha256:e785a0f06bc58df2c758264702da93d467909536f026798f2cd7b329eabdd89c" }
+sdist = { hash = "sha256:7c6f07974ded631cdb8aaea230e153e0f909f6b297f34c3983ed7ccedc0d7124" }
 
 [package.metadata]
 requires-dist = [
