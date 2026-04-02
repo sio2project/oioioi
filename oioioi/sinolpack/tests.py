@@ -317,6 +317,17 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
         self.assertEqual(tests.get(name="1c").time_limit, 5000)
         self.assertEqual(tests.get(name="2").time_limit, 7000)
 
+    def test_missing_in_file(self):
+        filename = get_test_filename("test_missing_in_file.zip")
+        self.assertRaises(CommandError, call_command, "addproblem", filename)
+        call_command("addproblem", filename, "nothrow")
+        self.assertEqual(Problem.objects.count(), 0)
+        package = ProblemPackage.objects.get()
+        self.assertEqual(package.status, "ERR")
+        # Check if error message is relevant to the issue
+        self.assertIn("Missing in file for test", package.info)
+        self.assertIn("1a", package.info)
+
     def test_assign_points_nonexistent(self):
         filename = get_test_filename("test_scores_nonexistent_fail.zip")
         self.assertRaises(CommandError, call_command, "addproblem", filename)

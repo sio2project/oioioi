@@ -765,6 +765,8 @@ class SinolPackage:
         collected_ins = self._make_ins(re_string)
         all_items = list(set(os.listdir(indir)) | set(collected_ins.keys()))
 
+        self._check_test_pairs(all_items, outdir)
+
         created_tests = []
         outs_to_make = []
         scored_groups = set()
@@ -787,6 +789,25 @@ class SinolPackage:
                 created_tests.append(instance)
 
         return created_tests, outs_to_make, scored_groups
+
+    @_describe_processing_error
+    def _check_test_pairs(self, all_items, outdir):
+        """Checks if all test outs have input files.
+
+        :raises: :class:`~oioioi.problems.package.ProblemPackageError`
+        """
+        if not os.path.isdir(outdir):
+            return
+
+        in_re = re.compile(rf"^({re.escape(self.short_name)}(([0-9]+)([a-z]?[a-z0-9]*))).in$")
+        out_re = re.compile(rf"^({re.escape(self.short_name)}(([0-9]+)([a-z]?[a-z0-9]*))).out$")
+
+        in_stems = {m.group(1) for f in all_items for m in [in_re.match(f)] if m}
+
+        for out_file in sorted(os.listdir(outdir), key=naturalsort_key):
+            match = out_re.match(out_file)
+            if match and match.group(1) not in in_stems:
+                raise ProblemPackageError(_("Missing in file for test %s") % match.group(2))
 
     @_describe_processing_error
     def _verify_time_limits(self, time_limit_sum):
