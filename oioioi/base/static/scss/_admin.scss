@@ -32,7 +32,7 @@
   }
 
   input[type=file] {
-    @extend .form-control-file;
+    @extend .form-control-file !optional;
   }
 
   .datetime, .datetime span {
