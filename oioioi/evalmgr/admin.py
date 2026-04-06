@@ -94,7 +94,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         "celery_task_id",
     ]
     list_filter = ["state", EvalMgrProblemNameListFilter]
-    actions = ["remove_from_queue", "delete_selected"]
+    actions = ["rejudge_selected", "remove_from_queue", "delete_selected"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -171,6 +171,37 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
             obj.save()
 
     remove_from_queue.short_description = _("Remove selected submissions from the queue")
+
+    @transaction.atomic
+    def rejudge_selected(self, request, queryset):
+        rejudged = 0
+        skipped = 0
+
+        for obj in queryset.select_related("submission__problem_instance"):
+            submission = obj.submission
+            if submission is None:
+                skipped += 1
+                continue
+
+            submission.problem_instance.controller.judge(submission, is_rejudge=True)
+
+            if obj.state != "CANCELLED":
+                obj.state = "CANCELLED"
+                obj.save(update_fields=["state"])
+            rejudged += 1
+
+        if rejudged:
+            self.message_user(
+                request,
+                _("Queued %(count)d submission(s) for rejudge.") % {"count": rejudged},
+            )
+        if skipped:
+            self.message_user(
+                request,
+                _("Skipped %(count)d queue item(s) without a submission.") % {"count": skipped},
+            )
+
+    rejudge_selected.short_description = _("Rejudge selected submissions")
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
