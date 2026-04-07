@@ -231,7 +231,8 @@ system_admin_menu_registry.register(
 class ContestQueuedJob(QueuedJob):
     class Meta:
         proxy = True
-        verbose_name = _("Contest Queued Jobs")
+        verbose_name = _("Contest Queued Job")
+        verbose_name_plural = _("Contest Queued Jobs")
 
 
 class ContestJobsQueueAdmin(SystemJobsQueueAdmin):
