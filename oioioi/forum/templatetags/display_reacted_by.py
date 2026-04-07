@@ -13,8 +13,9 @@ def display_reacted_by(context, post, rtype):
     if rtype not in POST_REACTION_TO_PREFETCH_ATTR:
         raise ValueError("Invalid reaction type in template:" + rtype)
 
-    request = context.get('request')
-    if request and hasattr(request, 'contest'):
+    request = context.get("request")
+    if request and hasattr(request, "contest"):
+        
         def get_name(user):
             return request.contest.controller.get_user_public_name(request, user)
     else:
