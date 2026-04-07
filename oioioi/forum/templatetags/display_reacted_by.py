@@ -15,7 +15,8 @@ def display_reacted_by(context, post, rtype):
 
     request = context.get('request')
     if request and hasattr(request, 'contest'):
-        get_name = lambda user: request.contest.controller.get_user_public_name(request, user)
+        def get_name(user):
+            return request.contest.controller.get_user_public_name(request, user)
     else:
         get_name = get_user_display_name
 
