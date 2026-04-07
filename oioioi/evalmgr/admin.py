@@ -176,8 +176,8 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
     def rejudge_selected(self, request, queryset):
         rejudged = 0
         skipped = 0
-
-        for obj in queryset.select_related("submission__problem_instance"):
+        cancelled_but_rejudged = 0
+        for obj in queryset.select_related(*self.get_custom_list_select_related()):
             submission = obj.submission
             if submission is None:
                 skipped += 1
@@ -188,6 +188,8 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
             if obj.state != "CANCELLED":
                 obj.state = "CANCELLED"
                 obj.save(update_fields=["state"])
+            else:
+                cancelled_but_rejudged += 1
             rejudged += 1
 
         if rejudged:
@@ -199,6 +201,11 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
             self.message_user(
                 request,
                 _("Skipped %(count)d queue item(s) without a submission.") % {"count": skipped},
+            )
+        if cancelled_but_rejudged:
+            self.message_user(
+                request,
+                _("Note: %(count)d of the rejudged submissions were already cancelled, but have been rejudged anyway.") % {"count": cancelled_but_rejudged},
             )
 
     rejudge_selected.short_description = _("Rejudge selected submissions")
