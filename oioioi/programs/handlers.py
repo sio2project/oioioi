@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base.utils import make_html_link
 from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.contests.models import ScoreReport, SubmissionReport
-from oioioi.contests.scores import ScoreValue
+from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.evalmgr.tasks import transfer_job
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import (
@@ -406,6 +406,98 @@ def grade_groups(env, **kwargs):
     return env
 
 
+@_skip_on_compilation_error
+def apply_subtask_dependencies(env, **kwargs):
+    """Adjusts group scores to account for subtask dependencies.
+
+    For each group that declares prerequisites in ``env['subtask_dependencies']``,
+    re-scores it as if the prerequisite groups' tests were physically included in
+    it. Test scores from prerequisite groups are normalized to the dependent
+    group's per-test max_score scale so that the group scorer can operate on a
+    uniform max_score.
+
+    Used ``environ`` keys:
+      * ``subtask_dependencies``: dict mapping group name (str) -> list of
+        prerequisite group names (str). Groups not listed have no dependencies.
+      * ``tests``, ``test_results``, ``group_results``, ``group_scorer``
+
+    Produced ``environ`` keys:
+      * ``groups_affected_by_dependency``: dict mapping group name -> dict with
+        keys ``prereqs`` (list) and ``affected`` (bool).
+    """
+    deps = env.get("subtask_dependencies", {})
+    if not deps:
+        return env
+
+    # Build a mapping: group_name -> {test_name: test_result}
+    group_test_results = defaultdict(dict)
+    for test_name, test in env["test_results"].items():
+        group_name = env["tests"][test_name]["group"]
+        group_test_results[group_name][test_name] = test
+
+    group_scorer = import_string(env.get("group_scorer", settings.DEFAULT_GROUP_SCORER))
+
+    env["groups_affected_by_dependency"] = {}
+
+    for group_name, prereqs in deps.items():
+        if group_name not in env.get("group_results", {}):
+            # Group not present in this report (e.g. INITIAL report has only EXAMPLE tests)
+            continue
+
+        own_tests = group_test_results.get(group_name, {})
+        if not own_tests:
+            continue
+
+        # Determine the target per-test max_score for this group.
+        # All tests in a group must have equal max_scores (enforced by min_group_scorer).
+        target_max = ScoreValue.deserialize(next(iter(own_tests.values()))["max_score"])
+        if target_max is None:
+            continue
+        target_max_value = target_max.value  # raw integer
+
+        # Build combined results: own tests + normalized prerequisite tests
+        combined_results = dict(own_tests)
+        for prereq in prereqs:
+            for prereq_test_name, prereq_result in group_test_results.get(prereq, {}).items():
+                prereq_max = ScoreValue.deserialize(prereq_result["max_score"])
+                prereq_score = ScoreValue.deserialize(prereq_result["score"])
+                if prereq_max is None or prereq_max.value == 0:
+                    normalized_value = 0
+                else:
+                    # Scale prereq score proportionally to the target max_score
+                    normalized_value = round(prereq_score.value * target_max_value / prereq_max.value) if prereq_score else 0
+
+                normalized_result = dict(prereq_result)
+                normalized_result["score"] = IntegerScore(normalized_value).serialize()
+                normalized_result["max_score"] = IntegerScore(target_max_value).serialize()
+                combined_results[prereq_test_name] = normalized_result
+
+        # Re-score the group with the combined test set
+        new_score, _new_max_score, new_status = group_scorer(combined_results)
+
+        # Guard: with sum_group_scorer, including more tests could increase
+        # the score beyond the group's original max. Clamp to original score
+        # in that case — dependencies can only lower scores, never raise them.
+        original_score_serialized = env["group_results"][group_name]["score"]
+        original_score = ScoreValue.deserialize(original_score_serialized)
+        if new_score is not None and original_score is not None and new_score > original_score:
+            new_score = original_score
+
+        new_score_serialized = new_score.serialize() if new_score else None
+        was_affected = new_score_serialized != original_score_serialized
+
+        env["groups_affected_by_dependency"][group_name] = {
+            "prereqs": list(prereqs),
+            "affected": was_affected,
+        }
+
+        if was_affected:
+            env["group_results"][group_name]["score"] = new_score_serialized
+            env["group_results"][group_name]["status"] = new_status
+
+    return env
+
+
 def grade_submission(env, kind="NORMAL", **kwargs):
     """Grades submission with specified kind of tests on a `Job` layer.
 
@@ -546,6 +638,7 @@ def make_report(env, kind="NORMAL", save_scores=True, **kwargs):
         test_report.save()
         result["report_id"] = test_report.id
 
+    dep_info = env.get("groups_affected_by_dependency", {})
     group_results = env.get("group_results", {})
     for group_name, group_result in group_results.items():
         if "report_id" in group_result:
@@ -555,6 +648,9 @@ def make_report(env, kind="NORMAL", save_scores=True, **kwargs):
         group_report.score = group_result["score"] if save_scores else None
         group_report.max_score = group_result["max_score"] if save_scores else None
         group_report.status = group_result["status"]
+        if group_name in dep_info:
+            group_report.score_affected_by_dependency = dep_info[group_name]["affected"]
+            group_report.dependency_prereqs = ", ".join(str(p) for p in dep_info[group_name]["prereqs"])
         group_report.save()
         group_result["result_id"] = group_report.id
 

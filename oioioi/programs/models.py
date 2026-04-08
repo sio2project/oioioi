@@ -342,6 +342,8 @@ class GroupReport(models.Model):
     score = ScoreField(null=True, blank=True)
     max_score = ScoreField(null=True, blank=True)
     status = EnumField(submission_statuses)
+    score_affected_by_dependency = models.BooleanField(default=False)
+    dependency_prereqs = models.CharField(max_length=255, blank=True, default="")
 
 
 class ReportActionsConfig(models.Model):

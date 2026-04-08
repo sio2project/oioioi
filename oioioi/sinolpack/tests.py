@@ -41,9 +41,11 @@ from oioioi.programs.models import (
     TestReport,
 )
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
+from oioioi.problems.package import ProblemPackageError
 from oioioi.sinolpack.package import (
     DEFAULT_MEMORY_LIMIT,
     DEFAULT_TIME_LIMIT,
+    SinolPackage,
     SinolPackageBackend,
 )
 
@@ -987,3 +989,87 @@ class TestLimits(TestCase):
             response,
             escape(f"Memory limit mustn't be greater than {settings.MAX_MEMORY_LIMIT_FOR_TEST}KiB."),
         )
+
+
+class TestValidateSubtaskDependencies(TestCase):
+    """Tests for SinolPackage._validate_subtask_dependencies()."""
+
+    def _make_package_with_config(self, config):
+        pkg = object.__new__(SinolPackage)
+        pkg.config = config
+        return pkg
+
+    def test_valid_dependencies(self):
+        pkg = self._make_package_with_config(
+            {"subtask_dependencies": {2: [1], 3: [1, 2]}}
+        )
+        pkg._validate_subtask_dependencies({"1", "2", "3"})
+
+    def test_no_dependencies_key(self):
+        pkg = self._make_package_with_config({})
+        pkg._validate_subtask_dependencies({"1", "2"})
+
+    def test_empty_dependencies(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": {}})
+        pkg._validate_subtask_dependencies({"1", "2"})
+
+    def test_invalid_type_string(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": "2: [1]"})
+        with self.assertRaises(ProblemPackageError) as cm:
+            pkg._validate_subtask_dependencies({"1", "2"})
+        self.assertIn("must be a mapping", str(cm.exception))
+
+    def test_invalid_type_list(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": [1, 2]})
+        with self.assertRaises(ProblemPackageError):
+            pkg._validate_subtask_dependencies({"1", "2"})
+
+    def test_value_not_list(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: 1}})
+        with self.assertRaises(ProblemPackageError) as cm:
+            pkg._validate_subtask_dependencies({"1", "2"})
+        self.assertIn("must be a list", str(cm.exception))
+
+    def test_nonexistent_key_group(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": {99: [1]}})
+        with self.assertRaises(ProblemPackageError) as cm:
+            pkg._validate_subtask_dependencies({"1", "2"})
+        self.assertIn("99", str(cm.exception))
+        self.assertIn("not a valid scored group", str(cm.exception))
+
+    def test_nonexistent_prereq_group(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: [99]}})
+        with self.assertRaises(ProblemPackageError) as cm:
+            pkg._validate_subtask_dependencies({"1", "2"})
+        self.assertIn("99", str(cm.exception))
+        self.assertIn("prerequisite group", str(cm.exception))
+
+    def test_self_dependency(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: [2]}})
+        with self.assertRaises(ProblemPackageError) as cm:
+            pkg._validate_subtask_dependencies({"1", "2"})
+        self.assertIn("circular dependency", str(cm.exception))
+
+    def test_circular_dependency(self):
+        pkg = self._make_package_with_config(
+            {"subtask_dependencies": {2: [3], 3: [2]}}
+        )
+        with self.assertRaises(ProblemPackageError) as cm:
+            pkg._validate_subtask_dependencies({"1", "2", "3"})
+        self.assertIn("circular dependency", str(cm.exception))
+
+    def test_transitive_circular_dependency(self):
+        pkg = self._make_package_with_config(
+            {"subtask_dependencies": {2: [1], 3: [2], 1: [3]}}
+        )
+        with self.assertRaises(ProblemPackageError) as cm:
+            pkg._validate_subtask_dependencies({"1", "2", "3"})
+        self.assertIn("circular dependency", str(cm.exception))
+
+    def test_integer_keys_converted_to_strings(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: [1]}})
+        pkg._validate_subtask_dependencies({"1", "2"})
+
+    def test_empty_prereqs_list(self):
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: []}})
+        pkg._validate_subtask_dependencies({"1", "2"})

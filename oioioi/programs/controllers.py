@@ -164,6 +164,9 @@ class ProgrammingProblemController(ProblemController):
 
         config = ExtraConfig.objects.get(problem_id=problem.id)
         environ["fake_time"] = config.parsed_config.get("fake_time", "off")
+        raw_deps = config.parsed_config.get("subtask_dependencies", {})
+        # Normalize keys and values to strings (YAML may parse bare integers as int)
+        environ["subtask_dependencies"] = {str(k): [str(v) for v in vs] for k, vs in raw_deps.items()}
 
     def generate_base_environ(self, environ, submission, **kwargs):
         self.generate_initial_evaluation_environ(environ, submission)
@@ -198,6 +201,7 @@ class ProgrammingProblemController(ProblemController):
                     ("initial_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("initial_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("initial_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("initial_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "initial_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -223,6 +227,7 @@ class ProgrammingProblemController(ProblemController):
                     ("userout_run_tests", "oioioi.programs.handlers.run_tests_end"),
                     ("userout_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("userout_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("userout_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "userout_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -258,6 +263,7 @@ class ProgrammingProblemController(ProblemController):
                     ("final_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("final_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("final_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("final_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "final_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -274,6 +280,7 @@ class ProgrammingProblemController(ProblemController):
                     ("hidden_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("hidden_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("hidden_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("hidden_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "hidden_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -295,6 +302,7 @@ class ProgrammingProblemController(ProblemController):
                     ("full_run_tests", "oioioi.programs.handlers.run_tests_end"),
                     ("full_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("full_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("full_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "full_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -681,7 +689,12 @@ class ProgrammingProblemController(ProblemController):
 
             tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
 
-            groups.append({"tests": tests_records, "report": group_reports[group_name]})
+            gr = group_reports[group_name]
+            groups.append({
+                "tests": tests_records,
+                "report": gr,
+                "has_dependency": bool(gr.dependency_prereqs),
+            })
 
         return render_to_string(
             "programs/report.html",

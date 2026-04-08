@@ -11076,3 +11076,8 @@ msgstr "Liczba węzłów"
 #: zeus/templates/zeus/program-report.html:21
 msgid "Zeus id"
 msgstr "ID Zeusa"
+
+#: programs/templates/programs/report-body.html
+#, python-format
+msgid "Score reduced due to results in prerequisite subtask(s): %(prereqs)s"
+msgstr "Wynik obniżony z powodu rezultatów w wymaganych podzadaniach: %(prereqs)s"

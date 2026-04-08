@@ -59,6 +59,12 @@
                         </td>
                         {% if show_scores and forloop.first %}
                             <td class="group-score text-right" rowspan="{{ group.tests|length }}">
+                                {% if group.has_dependency and group.report.score_affected_by_dependency %}
+                                    <span title="{% blocktrans with prereqs=group.report.dependency_prereqs %}Score reduced due to results in prerequisite subtask(s): {{ prereqs }}{% endblocktrans %}"
+                                          class="text-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </span>
+                                {% endif %}
                                 {% if group.report.score %}
                                     {{ group.report.score }} / {{ group.report.max_score }}
                                 {% endif %}
