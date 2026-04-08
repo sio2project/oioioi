@@ -31,7 +31,7 @@ from oioioi.problems.models import (
     ProblemPackage,
     ProblemStatement,
 )
-from oioioi.problems.package import NoBackend, backend_for_package
+from oioioi.problems.package import NoBackend, ProblemPackageError, backend_for_package
 from oioioi.programs.models import (
     LanguageOverrideForTest,
     ModelProgramSubmission,
@@ -41,7 +41,6 @@ from oioioi.programs.models import (
     TestReport,
 )
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
-from oioioi.problems.package import ProblemPackageError
 from oioioi.sinolpack.package import (
     DEFAULT_MEMORY_LIMIT,
     DEFAULT_TIME_LIMIT,
@@ -1000,9 +999,7 @@ class TestValidateSubtaskDependencies(TestCase):
         return pkg
 
     def test_valid_dependencies(self):
-        pkg = self._make_package_with_config(
-            {"subtask_dependencies": {2: [1], 3: [1, 2]}}
-        )
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: [1], 3: [1, 2]}})
         pkg._validate_subtask_dependencies({"1", "2", "3"})
 
     def test_no_dependencies_key(self):
@@ -1051,17 +1048,13 @@ class TestValidateSubtaskDependencies(TestCase):
         self.assertIn("circular dependency", str(cm.exception))
 
     def test_circular_dependency(self):
-        pkg = self._make_package_with_config(
-            {"subtask_dependencies": {2: [3], 3: [2]}}
-        )
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: [3], 3: [2]}})
         with self.assertRaises(ProblemPackageError) as cm:
             pkg._validate_subtask_dependencies({"1", "2", "3"})
         self.assertIn("circular dependency", str(cm.exception))
 
     def test_transitive_circular_dependency(self):
-        pkg = self._make_package_with_config(
-            {"subtask_dependencies": {2: [1], 3: [2], 1: [3]}}
-        )
+        pkg = self._make_package_with_config({"subtask_dependencies": {2: [1], 3: [2], 1: [3]}})
         with self.assertRaises(ProblemPackageError) as cm:
             pkg._validate_subtask_dependencies({"1", "2", "3"})
         self.assertIn("circular dependency", str(cm.exception))

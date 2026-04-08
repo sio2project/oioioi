@@ -1123,18 +1123,13 @@ class SinolPackage:
             return
 
         if not isinstance(raw_deps, dict):
-            raise ProblemPackageError(
-                _("subtask_dependencies must be a mapping, got %(type)s")
-                % {"type": type(raw_deps).__name__}
-            )
+            raise ProblemPackageError(_("subtask_dependencies must be a mapping, got %(type)s") % {"type": type(raw_deps).__name__})
 
         for k, vs in raw_deps.items():
             if not isinstance(vs, list):
                 raise ProblemPackageError(
-                    _(
-                        "subtask_dependencies: value for group '%(group)s' must be a list, "
-                        "got %(type)s. Use [%(value)s] instead of %(value)s."
-                    ) % {"group": k, "type": type(vs).__name__, "value": vs}
+                    _("subtask_dependencies: value for group '%(group)s' must be a list, got %(type)s. Use [%(value)s] instead of %(value)s.")
+                    % {"group": k, "type": type(vs).__name__, "value": vs}
                 )
 
         deps = {str(k): [str(v) for v in vs] for k, vs in raw_deps.items()}
@@ -1142,10 +1137,8 @@ class SinolPackage:
         for group, prereqs in deps.items():
             if group not in scored_groups:
                 raise ProblemPackageError(
-                    _(
-                        "subtask_dependencies: group '%(group)s' is not a valid scored group. "
-                        "Valid groups: %(groups)s"
-                    ) % {"group": group, "groups": sorted(scored_groups)}
+                    _("subtask_dependencies: group '%(group)s' is not a valid scored group. Valid groups: %(groups)s")
+                    % {"group": group, "groups": sorted(scored_groups)}
                 )
             for prereq in prereqs:
                 if prereq not in scored_groups:
@@ -1154,7 +1147,8 @@ class SinolPackage:
                             "subtask_dependencies: prerequisite group '%(prereq)s' "
                             "referenced by group '%(group)s' is not a valid scored group. "
                             "Valid groups: %(groups)s"
-                        ) % {"prereq": prereq, "group": group, "groups": sorted(scored_groups)}
+                        )
+                        % {"prereq": prereq, "group": group, "groups": sorted(scored_groups)}
                     )
 
         # Detect cycles using DFS
@@ -1165,11 +1159,7 @@ class SinolPackage:
             visiting.add(node)
             for neighbor in deps.get(node, []):
                 if neighbor in visiting:
-                    raise ProblemPackageError(
-                        _(
-                            "subtask_dependencies: circular dependency detected involving group '%(group)s'."
-                        ) % {"group": neighbor}
-                    )
+                    raise ProblemPackageError(_("subtask_dependencies: circular dependency detected involving group '%(group)s'.") % {"group": neighbor})
                 if neighbor not in visited:
                     dfs(neighbor)
             visiting.discard(node)

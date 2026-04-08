@@ -690,11 +690,13 @@ class ProgrammingProblemController(ProblemController):
             tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
 
             gr = group_reports[group_name]
-            groups.append({
-                "tests": tests_records,
-                "report": gr,
-                "has_dependency": bool(gr.dependency_prereqs),
-            })
+            groups.append(
+                {
+                    "tests": tests_records,
+                    "report": gr,
+                    "has_dependency": bool(gr.dependency_prereqs),
+                }
+            )
 
         return render_to_string(
             "programs/report.html",
