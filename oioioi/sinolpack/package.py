@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.validators import slug_re
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
 from oioioi.base.utils import generate_key, naturalsort_key
@@ -318,10 +319,13 @@ class SinolPackage:
         self._create_problem_or_reuse_if_exists(self.package.problem)
         return self._extract_and_process_package()
 
+    @_describe_processing_error
     def _create_problem_or_reuse_if_exists(self, existing_problem):
+        """Creating or reusing Problem instance."""
         if existing_problem:
             self.problem = existing_problem
             self._ensure_short_name_equality_with(existing_problem)
+            self._ensure_compatible_controller(existing_problem)
         else:
             self.problem = self._create_problem_instance()
             problem_site = ProblemSite(problem=self.problem, url_key=generate_key())
@@ -332,11 +336,39 @@ class SinolPackage:
         self.problem.package_backend_name = self.package_backend_name
         self.problem.save()
 
+    @_describe_processing_error
     def _ensure_short_name_equality_with(self, existing_problem):
+        """Checking if short name didn't change."""
         if existing_problem.short_name != self.short_name:
             raise ProblemPackageError(
-                _("Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, changing problem short name is not possible.")
+                _(
+                    "Tried to replace problem '%(oldname)s' with '%(newname)s'. "
+                    "For safety, changing problem short name is not possible."
+                )
                 % {"oldname": existing_problem.short_name, "newname": self.short_name}
+            )
+
+    @_describe_processing_error
+    def _ensure_compatible_controller(self, existing_problem):
+        """Checking if task type didn't change."""
+        new_controller_name = self._get_controller_name()
+        if existing_problem.controller_name != new_controller_name:
+            try:
+                old_controller_desc = existing_problem.controller.description
+            except Exception:
+                old_controller_desc = existing_problem.controller_name
+
+            try:
+                new_controller_desc = import_string(new_controller_name).description
+            except Exception:
+                new_controller_desc = new_controller_name
+
+            raise ProblemPackageError(
+                _(
+                    "The task type of the reuploaded package doesn't match "
+                    "the existing task type (%(old)s vs %(new)s)."
+                )
+                % {"old": old_controller_desc, "new": new_controller_desc}
             )
 
     def _create_problem_instance(self):
