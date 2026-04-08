@@ -87,7 +87,7 @@ class BaseRequestHandler(socketserver.BaseRequestHandler):
         return reply.pack()
 
     def handle(self):
-        now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")
+        now = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d %H:%M:%S.%f")
         logger.debug(
             "%s request %s (%s %s):",
             self.__class__.__name__[:3],
