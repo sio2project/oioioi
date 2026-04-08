@@ -94,7 +94,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         "celery_task_id",
     ]
     list_filter = ["state", EvalMgrProblemNameListFilter]
-    actions = ["remove_from_queue", "delete_selected"]
+    actions = ["rejudge_selected", "remove_from_queue", "delete_selected"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -172,6 +172,44 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
 
     remove_from_queue.short_description = _("Remove selected submissions from the queue")
 
+    @transaction.atomic
+    def rejudge_selected(self, request, queryset):
+        rejudged = 0
+        skipped = 0
+        cancelled_but_rejudged = 0
+        for obj in queryset.select_related(*self.get_custom_list_select_related()):
+            submission = obj.submission
+            if submission is None:
+                skipped += 1
+                continue
+
+            submission.problem_instance.controller.judge(submission, is_rejudge=True)
+
+            if obj.state != "CANCELLED":
+                obj.state = "CANCELLED"
+                obj.save(update_fields=["state"])
+            else:
+                cancelled_but_rejudged += 1
+            rejudged += 1
+
+        if rejudged:
+            self.message_user(
+                request,
+                _("Queued %(count)d submission(s) for rejudge.") % {"count": rejudged},
+            )
+        if skipped:
+            self.message_user(
+                request,
+                _("Skipped %(count)d queue item(s) without a submission.") % {"count": skipped},
+            )
+        if cancelled_but_rejudged:
+            self.message_user(
+                request,
+                _("Note: %(count)d of the rejudged submissions were already cancelled, but have been rejudged anyway.") % {"count": cancelled_but_rejudged},
+            )
+
+    rejudge_selected.short_description = _("Rejudge selected submissions")
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.exclude(state="CANCELLED")
@@ -200,7 +238,8 @@ system_admin_menu_registry.register(
 class ContestQueuedJob(QueuedJob):
     class Meta:
         proxy = True
-        verbose_name = _("Contest Queued Jobs")
+        verbose_name = _("Contest Queued Job")
+        verbose_name_plural = _("Contest Queued Jobs")
 
 
 class ContestJobsQueueAdmin(SystemJobsQueueAdmin):
