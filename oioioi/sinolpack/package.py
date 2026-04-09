@@ -341,10 +341,7 @@ class SinolPackage:
         """Checking if short name didn't change."""
         if existing_problem.short_name != self.short_name:
             raise ProblemPackageError(
-                _(
-                    "Tried to replace problem '%(oldname)s' with '%(newname)s'. "
-                    "For safety, changing problem short name is not possible."
-                )
+                _("Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, changing problem short name is not possible.")
                 % {"oldname": existing_problem.short_name, "newname": self.short_name}
             )
 
@@ -364,10 +361,7 @@ class SinolPackage:
                 new_controller_desc = new_controller_name
 
             raise ProblemPackageError(
-                _(
-                    "The task type of the reuploaded package doesn't match "
-                    "the existing task type (%(old)s vs %(new)s)."
-                )
+                _("The task type of the reuploaded package doesn't match the existing task type (%(old)s vs %(new)s).")
                 % {"old": old_controller_desc, "new": new_controller_desc}
             )
 

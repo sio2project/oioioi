@@ -38,6 +38,7 @@ ContestController.mix_in(QuizContestControllerMixin)
 
 class QuizProblemController(ProblemController):
     """Defines rules for quizzes."""
+
     description = _("Quiz problem")
 
     def adjust_problem(self):
