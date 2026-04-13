@@ -78,7 +78,7 @@
                         {% endif %}
                     {% endif %}
                     {% if show_submissions_limit %}
-                        <th class="text-right">
+                        <th class="text-end">
                         {% if user.is_authenticated %}
                             {% trans "Tries left" %}
                         {% else %}
@@ -87,10 +87,10 @@
                         </th>
                     {% endif %}
                     {% if user.is_authenticated %}
-                        <th class="text-right">{% trans "Score" %}</th>
+                        <th class="text-end">{% trans "Score" %}</th>
                     {% endif %}
                     {% if show_submit_button %}
-                        <th class="text-right"></th>
+                        <th class="text-end"></th>
                     {% endif %}
                 </tr>
             </thead>
@@ -125,7 +125,7 @@
                         </td>
                         {% if show_problems_limits %}
                             {% if multiple_limits %}
-                                <td class="text-right">
+                                <td class="text-end">
                                     {% if problem_limits %}
                                         <table>
                                             {% for row in problem_limits %}
@@ -154,7 +154,7 @@
                             {% endif %}
                         {% endif %}
                         {% if show_submissions_limit %}
-                            <td class="text-right">
+                            <td class="text-end">
                                 {% if submissions_left == None %}
                                     {% if not user.is_authenticated and not submissions_limit == None %}
                                         {{ submissions_limit }}
@@ -167,18 +167,18 @@
                             </td>
                         {% endif %}
                         {% if user.is_authenticated %}
-                            <td class="text-right">
+                            <td class="text-end">
                                 {% if result %}
                                     {% if not is_admin %}
                                     {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
                                     <a href="{{ link }}">
                                     {% endif %}
                                         {% if result.submission_report.score_report.score == result.submission_report.score_report.max_score %}
-                                            <div class="badge badge-success"> {{ result.score }}</div>
+                                            <div class="badge text-bg-success"> {{ result.score }}</div>
                                         {% elif result.submission_report.score_report.score > 0 %}
-                                            <div class="badge badge-warning"> {{ result.score }}</div>
+                                            <div class="badge text-bg-warning"> {{ result.score }}</div>
                                         {% else %}
-                                            <div class="badge badge-danger"> {{ result.score }}</div>
+                                            <div class="badge text-bg-danger"> {{ result.score }}</div>
                                         {% endif %}
                                     {% if not is_admin %}
                                     </a>
@@ -187,7 +187,7 @@
                             </td>
                         {% endif %}
                         {% if show_submit_button %}
-                            <td class="text-right">
+                            <td class="text-end">
                                 {% if can_submit %}
                                     {% url 'submit' problem_instance_id=pi.id as link %}
                                     <a href="{{ link }}">{% trans "Submit" %}</a>

@@ -49,8 +49,8 @@
             <div class="col-lg-11">
                 <h2 class="method-title">
                     {% trans "Groups" %}
-                    <span class="d-inline-block" tabIndex="0" data-toggle="tooltip" title='{% trans "Groups enable adding and removing many pupils at once. In the list below you can find all groups added to this contest and manage them. All pupils in the groups below have access to this contest." %}'>
-                         <button class="disabled btn btn-link help-tooltip" data-toggle="tooltip">
+                    <span class="d-inline-block" tabIndex="0" data-bs-toggle="tooltip" title='{% trans "Groups enable adding and removing many pupils at once. In the list below you can find all groups added to this contest and manage them. All pupils in the groups below have access to this contest." %}'>
+                         <button class="disabled btn btn-link help-tooltip" data-bs-toggle="tooltip">
                             <sup>
                                 <i class="fa-solid fa-circle-question"></i>
                             </sup>
@@ -62,7 +62,7 @@
                 <div class="add-group-top">
                     <form action="{% url 'usergroup_attach_to_contest' %}" method="POST">
                         {% csrf_token %}
-                        <select class="form-control" name="usergroup_id">
+                        <select class="form-select" name="usergroup_id">
                             {% for usergroup in usergroups_dropdown %}
                                 <option value="{{ usergroup.id }}">{{ usergroup.name }}</option>
                             {% endfor %}
@@ -79,7 +79,7 @@
                         <div class="usergroup">
                             <div class="text-center">
                                 <h5 class="mb-0">
-                                    <button class="usergroup-title btn btn-link collapsed" data-toggle="collapse" data-target="#collapse{{ usergroup.id }}" onclick="this.blur()">
+                                    <button class="usergroup-title btn btn-link collapsed" data-bs-toggle="collapse" data-bs-target="#collapse{{ usergroup.id }}" onclick="this.blur()">
                                         {{ usergroup.name }}
                                     </button>
                                 </h5>
@@ -114,7 +114,7 @@
                         <div class="add-group-bottom">
                             <form action="{% url 'usergroup_attach_to_contest' %}" method="POST">
                                 {% csrf_token %}
-                                <select class="form-control" name="usergroup_id">
+                                <select class="form-select" name="usergroup_id">
                                     {% for usergroup in usergroups_dropdown %}
                                         <option value="{{ usergroup.id }}">{{ usergroup.name }}</option>
                                     {% endfor %}
@@ -134,8 +134,8 @@
             {% if member_type == 'pupil' and usergroups_active and has_usergroup %}
                 <h2 class="method-title" id="members-view">
                     {% trans "Members" %}
-                    <span class="d-inline-block" tabIndex="0" data-toggle="tooltip" data-toggle="tooltip" title='{% trans "This section enables you to add pupils to contest in the old fashioned way, by sharing access link. You can also create new user group from members below, which will be automatically added to this contest." %}'>
-                        <button class="disabled btn btn-link help-tooltip" data-toggle="tooltip">
+                    <span class="d-inline-block" tabIndex="0" data-bs-toggle="tooltip" data-bs-toggle="tooltip" title='{% trans "This section enables you to add pupils to contest in the old fashioned way, by sharing access link. You can also create new user group from members below, which will be automatically added to this contest." %}'>
+                        <button class="disabled btn btn-link help-tooltip" data-bs-toggle="tooltip">
                             <sup>
                                 <i class="fa-solid fa-circle-question"></i>
                             </sup>
@@ -233,7 +233,7 @@
                     </p>
                 {% endif %}
 
-                <div class="form-group">
+                <div class="mb-3">
                     <button type="button" class="btn btn-outline-secondary btn-sm"
                         onclick="$('#delete-pupils-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
                         {% trans "Select all" %}
@@ -246,7 +246,7 @@
                     {% if other_contests %}
                         <span class="dropdown">
                             <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {% trans "Add from other contest" %}
                             </button>
                             <div class="dropdown-menu">

@@ -22,7 +22,7 @@
 
         <span 
             class="{% if post.user_upvoted %} text-success {% else %} text-muted {% endif %}"
-            data-toggle="tooltip" title="{% display_reacted_by post "UPVOTE" %}"
+            data-bs-toggle="tooltip" title="{% display_reacted_by post "UPVOTE" %}"
         >
             <i class="fa-solid fa-plus"></i> {{ post.upvotes_count }}
         </span>
@@ -37,7 +37,7 @@
 
         <span 
             class="{% if post.user_downvoted %} text-danger {% else %} text-muted {% endif %}"
-            data-toggle="tooltip" title="{% display_reacted_by post "DOWNVOTE" %}"
+            data-bs-toggle="tooltip" title="{% display_reacted_by post "DOWNVOTE" %}"
         >
             <i class="fa-solid fa-minus"></i> {{ post.downvotes_count }}
         </span>
@@ -48,7 +48,7 @@
     </span>
 {% endif %}
 
-| {% full_name post.author %} <span class="badge badge-secondary">{% user_badge post.author %}</span>
+| {% full_name post.author %} <span class="badge text-bg-secondary">{% user_badge post.author %}</span>
 
 {% if is_admin %}
     {% if post.is_author_banned %}
@@ -107,7 +107,7 @@
             {% if is_admin and post.reported_by %}
                 {% full_name post.reported_by as reporter_name %}
                 {% user_badge post.reported_by as reporter_badge %}
-                {% blocktrans trimmed %} This post was reported by {{ reporter_name }} <span class="badge badge-secondary">{{ reporter_badge }}</span>. {% endblocktrans %}
+                {% blocktrans trimmed %} This post was reported by {{ reporter_name }} <span class="badge text-bg-secondary">{{ reporter_badge }}</span>. {% endblocktrans %}
                 <abbr title="{{ post.report_reason }}">{% trans "Reason" %}</abbr>
                 {% if post.is_reporter_banned %}
                     | {% trans "Reporter was banned." %}

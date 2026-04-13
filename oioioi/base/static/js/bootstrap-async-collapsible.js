@@ -2,7 +2,7 @@ $(function(){
 /*
     Script for 'collapsibles' with asynchronously loadable data.
     After first load everything behaves like in Bootstrap.
-    Trigerrer: data-async-toggle="collapse" data-target="`JQuery selector`"
+    Trigerrer: data-async-toggle="collapse" data-bs-target="`JQuery selector`"
     Dynamic collapsible: class="collapse" data-loadurl="http://url/with/html"
 */
     $('body').on('click', '.btn[data-async-toggle="collapse"]', function() {

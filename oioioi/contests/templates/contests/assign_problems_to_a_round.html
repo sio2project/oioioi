@@ -19,10 +19,10 @@
 <form method="post">
     {% csrf_token %}
     <input type="hidden" name="post" value="yes" />
-    <div class="form-group d-flex">
+    <div class="mb-3 d-flex">
         {{ form.as_p }}
     </div>
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" class="btn btn-primary">
             {% trans "Assign" %}
         </button>

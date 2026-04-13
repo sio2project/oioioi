@@ -6,7 +6,7 @@
         <a class="btn btn-danger deletelink" href="{% add_preserved_filters delete_url %}" class="deletelink">{% translate "Delete" %}</a>
     {% endif %}
 
-    <div class="ml-auto">
+    <div class="ms-auto">
     {% if show_archive %}<a class="btn btn-warning" href="{% url 'confirm_archive_contest' %}">{% translate "Archive" %}</a>{% endif %}
     {% if show_unarchive %}<a class="btn btn-warning" href="{% url 'unarchive_contest' %}">{% translate "Unarchive" %}</a>{% endif %}
     {% if show_save_as_new %}<input class="btn btn-secondary" type="submit" value="{% translate 'Save as new' %}" name="_saveasnew">{% endif %}

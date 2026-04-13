@@ -8,7 +8,7 @@
 <form enctype="multipart/form-data" method="POST" action="#">
     {% csrf_token %}
     {% include "ingredients/form.html" with inline=True %}
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" class="btn btn-primary">
             {% trans "Save" %}
         </button>

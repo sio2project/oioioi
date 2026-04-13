@@ -59,7 +59,7 @@
         {% endif %}
 
         {% if wizard.steps.current == 'auth' %}
-          <div class="form-group">
+          <div class="mb-3">
             <p><a href="{% url 'auth_password_reset' %}">{% trans "Forgot password?" %}</a></p>
             <p><a href="{% url 'sign-up' %}">{% trans "Want to create an account?" %}</a></p>
           </div>

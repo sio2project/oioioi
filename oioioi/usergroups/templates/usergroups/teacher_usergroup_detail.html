@@ -80,7 +80,7 @@
         </p>
     {% endif %}
 
-    <div class="form-group">
+    <div class="mb-3">
         <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-members-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
             {% trans "Select all" %}
@@ -111,7 +111,7 @@
             {% endfor %}
         </div>
 
-    <div class="form-group">
+    <div class="mb-3">
         <button type="button" class="btn btn-outline-secondary btn-sm"
             onclick="$('#delete-owners-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
             {% trans "Select all" %}
@@ -130,7 +130,7 @@
     <h2>{% trans "Group modifications" %}</h2>
 
     {% include "ingredients/form.html" with focus=False display_labels=True %}
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" class="btn btn-primary">{% trans "Change group name" %}</button>
         <a role="button" class="btn btn-danger" href="{% url 'delete_usergroup_confirmation' usergroup_id=usergroup.id %}"> {% trans "Delete group" %} </a>
     </div>

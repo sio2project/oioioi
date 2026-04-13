@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block object-tools %}
-    <div class="float-right">
+    <div class="float-end">
         <a class="btn btn-sm btn-outline-danger" href="{% url opts|admin_urlname:'change' object.pk|admin_urlquote %}">
             {% trans "Go back" %}
         </a>

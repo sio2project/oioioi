@@ -6,7 +6,7 @@
 {% block forum-head %}
     <div class="clearfix">
         {% if is_admin %}
-            <div class="float-right">
+            <div class="float-end">
                 <a role="button" class="btn btn-sm btn-outline-secondary"
                     href="{% url 'edit_forum_message' %}">
                     {% trans "Edit forum message" %}
@@ -34,7 +34,7 @@
                 {% endif %}
             </div>
         {% endif %}
-        <h1 class="float-left">{% trans "Forum" %}: {{ forum }}</h1>
+        <h1 class="float-start">{% trans "Forum" %}: {{ forum }}</h1>
     </div>
     {% include "public_message/show.html" %}
 {% endblock %}
@@ -42,7 +42,7 @@
 {% block forum-contents %}
     {% if category_set.exists %}
         <div class="table-responsive-md">
-            <table class="table auto-width">
+            <table class="table auto-collapse-horizontal">
                 <thead>
                     <tr>
                         <th class="{% if is_admin %} col-md-4 {% else %} col-sm-8 {% endif %}">

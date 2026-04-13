@@ -5,7 +5,7 @@
         <a href="#">{{ contest.name }}</a>
     {% else %}
         <div class="dropdown {% if not user.is_anonymous and recent_contests and contest != recent_contests.0 %}open{% endif %}">
-            <a href="#" class="contest-picker dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            <a href="#" class="contest-picker dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                 <div class="contest-name">{{ contest.name }}</div> <div class="caret"></div>
             </a>
             <div class="dropdown-menu">
