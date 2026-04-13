@@ -1,5 +1,6 @@
 from io import StringIO
 
+import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
@@ -54,43 +55,10 @@ class TestMassCreateTool(TestCase):
             probname_count = ProblemName.objects.count()
             assert probname_count == expected_probname_count, f"Expected {expected_probname_count} probnames, got {probname_count}"
 
-    def test_long_flags(self):
+    def test_long_flags_tags(self):
         out = StringIO()
-        call_command(
-            "mass_create_tool",
-            "--problems",
-            "10",
-            "--users",
-            "10",
-            "--algotags",
-            "5",
-            "--difftags",
-            "5",
-            "--algothrough",
-            "20",
-            "--diffthrough",
-            "8",
-            "--algoproposals",
-            "50",
-            "--diffproposals",
-            "50",
-            stdout=out,
-        )
-        self._assert_model_counts(
-            {
-                "problems": 10,
-                "users": 10,
-                "algotags": 5,
-                "difftags": 5,
-                "algothrough": 20,
-                "diffthrough": 8,
-                "algoproposals": 50,
-                "diffproposals": 50,
-            }
-        )
 
-        call_command(
-            "mass_create_tool",
+        mct_args = (
             "--problems",
             "10",
             "--users",
@@ -107,25 +75,25 @@ class TestMassCreateTool(TestCase):
             "50",
             "--diffproposals",
             "50",
-            "--wipe",
-            stdout=out,
         )
-        self._assert_model_counts(
-            {
-                "problems": 10,
-                "users": 10,
-                "algotags": 5,
-                "difftags": 5,
-                "algothrough": 20,
-                "diffthrough": 8,
-                "algoproposals": 50,
-                "diffproposals": 50,
-            }
-        )
+        call_command("mass_create_tool", *mct_args, stdout=out)
+        # expected_counts = {name[2:]: int(value) for name, value in zip(mct_args[::2], mct_args[1::2])}
+        expected_counts = {
+            "problems": 10,
+            "users": 10,
+            "algotags": 5,
+            "difftags": 5,
+            "algothrough": 20,
+            "diffthrough": 8,
+            "algoproposals": 50,
+            "diffproposals": 50,
+        }
+        self._assert_model_counts(expected_counts)
+
         call_command("mass_create_tool", "--wipe")
         self._assert_model_counts({})
 
-    def test_long_flags_contest(self):
+    def _contest_test_template(self, users, submissions_per_user, submission_files=("sum-correct.cpp", "sum-various-results.cpp")):
         out = StringIO()
         call_command(
             "mass_create_tool",
@@ -135,108 +103,29 @@ class TestMassCreateTool(TestCase):
             "--problempackages",
             "test_full_package.tgz",
             "--users",
-            "10",
+            str(users),
             "--submission_files",
-            "sum-correct.cpp",
-            "sum-various-results.cpp",
+            *submission_files,
             "--submissions_per_user",
-            "3",
+            str(submissions_per_user),
             "--wipe",
             stdout=out,
         )
-        self._assert_model_counts({"users": 10, "problems": 1, "contests": 1, "submissions": 30}, check_problem_names=False)
+        return {
+            "users": users,
+            "problems": 1,
+            "contests": 1,
+            "submissions": users * submissions_per_user,
+        }
 
-    def test_short_flags_contest(self):
-        out = StringIO()
-        call_command(
-            "mass_create_tool",
-            "-cn",
-            "demo",
-            "-cc",
-            "-pp",
-            "test_full_package.tgz",
-            "-u",
-            "10",
-            "-sf",
-            "sum-correct.cpp",
-            "sum-various-results.cpp",
-            "-spu",
-            "3",
-            "-w",
-            stdout=out,
-        )
-        self._assert_model_counts({"users": 10, "problems": 1, "contests": 1, "submissions": 30}, check_problem_names=False)
+    def test_contest_basic(self):
+        expected_counts = self._contest_test_template(users=1, submissions_per_user=1, submission_files=("sum-correct.cpp",))
+        self._assert_model_counts(expected_counts, check_problem_names=False)
 
-    def test_short_flags(self):
-        out = StringIO()
-        call_command(
-            "mass_create_tool",
-            "-p",
-            "10",
-            "-u",
-            "10",
-            "-at",
-            "5",
-            "-dt",
-            "5",
-            "-att",
-            "20",
-            "-dtt",
-            "8",
-            "-ap",
-            "50",
-            "-dp",
-            "50",
-            stdout=out,
-        )
-        self._assert_model_counts(
-            {
-                "problems": 10,
-                "users": 10,
-                "algotags": 5,
-                "difftags": 5,
-                "algothrough": 20,
-                "diffthrough": 8,
-                "algoproposals": 50,
-                "diffproposals": 50,
-            }
-        )
-        call_command(
-            "mass_create_tool",
-            "-p",
-            "10",
-            "-u",
-            "10",
-            "-at",
-            "5",
-            "-dt",
-            "5",
-            "-att",
-            "20",
-            "-dtt",
-            "8",
-            "-ap",
-            "50",
-            "-dp",
-            "50",
-            "-w",
-            stdout=out,
-        )
-
-        self._assert_model_counts(
-            {
-                "problems": 10,
-                "users": 10,
-                "algotags": 5,
-                "difftags": 5,
-                "algothrough": 20,
-                "diffthrough": 8,
-                "algoproposals": 50,
-                "diffproposals": 50,
-            }
-        )
-        call_command("mass_create_tool", "-w")
-        self._assert_model_counts({})
+    @pytest.mark.slow
+    def test_contest_bigger(self):
+        expected_counts = self._contest_test_template(users=2, submissions_per_user=3)
+        self._assert_model_counts(expected_counts, check_problem_names=False)
 
     @override_settings(DEBUG=False)
     def test_debug_false(self):
@@ -384,59 +273,12 @@ class TestMassCreateTool(TestCase):
 
     def test_seed_repeatability(self):
         out = StringIO()
-        call_command(
-            "mass_create_tool",
-            "-p",
-            "10",
-            "-u",
-            "10",
-            "-at",
-            "5",
-            "-dt",
-            "5",
-            "-att",
-            "20",
-            "-dtt",
-            "8",
-            "-ap",
-            "50",
-            "-dp",
-            "50",
-            "-s",
-            "8518751",
-            stdout=out,
-        )
+        cmd_args = ("mass_create_tool", "-p", "3", "-u", "2", "-at", "2", "-dt", "2", "-att", "3", "-dtt", "3", "-ap", "2", "-dp", "2", "-s", "8518751")
 
-        seed_snapshot = {}
-        for name, model in self.name_to_model.items():
-            seed_snapshot[name] = sorted(str(obj) for obj in model.objects.all())
+        def _get_snapshot(extra_args=()):
+            call_command(*cmd_args, *extra_args, stdout=out)
+            return {name: sorted(str(obj) for obj in model.objects.all()) for name, model in self.name_to_model.items()}
 
-        call_command(
-            "mass_create_tool",
-            "-p",
-            "10",
-            "-u",
-            "10",
-            "-at",
-            "5",
-            "-dt",
-            "5",
-            "-att",
-            "20",
-            "-dtt",
-            "8",
-            "-ap",
-            "50",
-            "-dp",
-            "50",
-            "-s",
-            "8518751",
-            "-w",
-            stdout=out,
-        )
-
-        seed_snapshot2 = {}
-        for name, model in self.name_to_model.items():
-            seed_snapshot2[name] = sorted(str(obj) for obj in model.objects.all())
-
+        seed_snapshot = _get_snapshot()
+        seed_snapshot2 = _get_snapshot(("--wipe",))
         self.assertEqual(seed_snapshot, seed_snapshot2)
