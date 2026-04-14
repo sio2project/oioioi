@@ -77,20 +77,13 @@ class TestMassCreateTool(TestCase):
             "50",
         )
         call_command("mass_create_tool", *mct_args, stdout=out)
-        # expected_counts = {name[2:]: int(value) for name, value in zip(mct_args[::2], mct_args[1::2])}
         expected_counts = {
-            "problems": 10,
-            "users": 10,
-            "algotags": 5,
-            "difftags": 5,
-            "algothrough": 20,
-            "diffthrough": 8,
-            "algoproposals": 50,
-            "diffproposals": 50,
+            name[2:]: int(value)
+            for name, value in zip(mct_args[::2], mct_args[1::2])
         }
         self._assert_model_counts(expected_counts)
 
-        call_command("mass_create_tool", "--wipe")
+        call_command("mass_create_tool", "--wipe", stdout=out)
         self._assert_model_counts({})
 
     def _contest_test_template(self, users, submissions_per_user, submission_files=("sum-correct.cpp", "sum-various-results.cpp")):
