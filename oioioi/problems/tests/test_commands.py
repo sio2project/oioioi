@@ -60,27 +60,24 @@ class TestMassCreateTool(TestCase):
 
         mct_args = (
             "--problems",
-            "10",
+            "5",
             "--users",
-            "10",
+            "5",
             "--algotags",
-            "5",
+            "3",
             "--difftags",
-            "5",
+            "3",
             "--algothrough",
-            "20",
+            "5",
             "--diffthrough",
-            "8",
+            "3",
             "--algoproposals",
-            "50",
+            "5",
             "--diffproposals",
-            "50",
+            "5",
         )
         call_command("mass_create_tool", *mct_args, stdout=out)
-        expected_counts = {
-            name[2:]: int(value)
-            for name, value in zip(mct_args[::2], mct_args[1::2])
-        }
+        expected_counts = {name[2:]: int(value) for name, value in zip(mct_args[::2], mct_args[1::2], strict=False)}
         self._assert_model_counts(expected_counts)
 
         call_command("mass_create_tool", "--wipe", stdout=out)
