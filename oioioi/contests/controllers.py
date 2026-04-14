@@ -34,7 +34,6 @@ from oioioi.contests.models import (
     UserResultForContest,
     UserResultForProblem,
     UserResultForRound,
-    submission_kinds,
 )
 from oioioi.contests.utils import (
     generic_rounds_times,
@@ -49,14 +48,6 @@ from oioioi.contests.utils import (
 from oioioi.problems.controllers import ProblemController
 
 logger = logging.getLogger(__name__)
-
-
-def export_entries(registry, values):
-    result = []
-    for value, description in registry.entries:
-        if value in values:
-            result.append((value, description))
-    return result
 
 
 STATUS_CLASSES = {
@@ -101,10 +92,6 @@ def submission_template_context(request, submission):
         },
     )
 
-    valid_kinds = controller.valid_kinds_for_submission(submission)
-    valid_kinds.remove(submission.kind)
-    valid_kinds_for_submission = export_entries(submission_kinds, valid_kinds)
-
     message = submission.get_status_display
 
     if can_see_score and (submission.status == "INI_OK" or submission.status == "OK"):
@@ -148,7 +135,6 @@ def submission_template_context(request, submission):
         "badge_class": badge_class,
         "message": message,
         "link": link,
-        "valid_kinds_for_submission": valid_kinds_for_submission,
     }
 
 

@@ -469,6 +469,14 @@ submission_statuses.register("OK", _("OK"))
 submission_statuses.register("ERR", _("Error"))
 
 
+def export_entries(registry, values):
+    result = []
+    for value, description in registry.entries:
+        if value in values:
+            result.append((value, description))
+    return result
+
+
 class Submission(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance, verbose_name=_("problem"), on_delete=models.CASCADE)
     user = models.ForeignKey(User, blank=True, null=True, verbose_name=_("user"), on_delete=models.CASCADE)
@@ -500,6 +508,12 @@ class Submission(models.Model):
         if self.score is None:
             return None
         return self.problem_instance.controller.render_submission_score(self)
+
+    def valid_other_kinds(self):
+        controller = self.problem_instance.controller
+        valid_kinds = controller.valid_kinds_for_submission(self)
+        valid_kinds.remove(self.kind)
+        return export_entries(submission_kinds, valid_kinds)
 
     def __str__(self):
         return (
