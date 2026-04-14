@@ -56,7 +56,14 @@ class ParticipantsController(RegistrationController):
     def user_contests_query(self, request):
         if not request.user.is_authenticated:
             return Q(pk__isnull=True)  # (False)
-        return Q(participant__user__id=request.user.id, participant__status="ACTIVE")
+        # Django's laziness makes this execute together with the outer query.
+        participated_contest_ids = Participant.objects.filter(
+            user__id=request.user.id,
+            status="ACTIVE",
+        ).values_list("contest_id", flat=True)
+        return Q(id__in=participated_contest_ids)
+        # This made the outer query a few hundred ms on SZKOpuł.
+        # return Q(participant__user__id=request.user.id, participant__status="ACTIVE")
 
     def filter_users_with_accessible_personal_data(self, queryset):
         return self.filter_participants(queryset)
