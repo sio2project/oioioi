@@ -20,7 +20,12 @@ class UserGroupsParticipantsControllerMixin:
         base_query = super().user_contests_query(request)
         if not request.user.is_authenticated:
             return base_query
-        return base_query | Q(usergroups__members__id=request.user.id)
+        # Django's laziness makes this execute together with the outer query.
+        visible_contest_ids = UserGroup.objects.filter(
+            members__id=request.user.id,
+        ).values_list("contests__id", flat=True)
+        return base_query | Q(id__in=visible_contest_ids)
+        # return base_query | Q(usergroups__members__id=request.user.id)
 
 
 TeacherRegistrationController.mix_in(UserGroupsParticipantsControllerMixin)

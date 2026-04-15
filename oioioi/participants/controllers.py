@@ -58,7 +58,7 @@ class ParticipantsController(RegistrationController):
             return Q(pk__isnull=True)  # (False)
         # Django's laziness makes this execute together with the outer query.
         participated_contest_ids = Participant.objects.filter(
-            user__id=request.user.id,
+            user_id=request.user.id,
             status="ACTIVE",
         ).values_list("contest_id", flat=True)
         return Q(id__in=participated_contest_ids)
