@@ -66,6 +66,8 @@ class Node(MPTTModel):
             return super().get_siblings(include_self)
 
     def get_path(self):
+        if self.is_root_node():
+            return ("/" + self.short_name).lstrip("/")
         return "/".join(node.short_name for node in self.get_ancestors(include_self=True)).lstrip("/")
 
 

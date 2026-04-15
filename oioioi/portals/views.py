@@ -19,6 +19,7 @@ import oioioi.portals.handlers  # noqa: F401
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, is_superuser, not_anonymous
+from oioioi.base.utils import request_cached
 from oioioi.portals.actions import (
     DEFAULT_ACTION_NAME,
     node_actions,
@@ -319,9 +320,11 @@ def delete_portal_view(request):
             return redirect(portal_url(portal=request.portal, action="manage_portal"))
 
 
+@request_cached
 def my_portal_url(request):
     try:
-        return portal_url(portal=request.user.portal)
+        portal = Portal.objects.select_related("root", "owner").get(owner=request.user)
+        return portal_url(portal=portal)
     except Portal.DoesNotExist:
         return reverse("create_user_portal")
 

@@ -18,7 +18,7 @@ from django.utils.translation import ngettext
 
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.menu import MenuItem, menu_registry
-from oioioi.base.utils import strip_num_or_hash
+from oioioi.base.utils import request_cached, strip_num_or_hash
 from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField
@@ -711,11 +711,13 @@ class ContestLink(models.Model):
         verbose_name_plural = _("contest menu links")
 
 
+@request_cached
 def contest_links_generator(request):
     if not hasattr(request, "contest"):
-        return
+        return []
 
     links = ContestLink.objects.filter(contest=request.contest)
+    items = []
     for link in links:
         # pylint: disable=cell-var-from-loop
         # http://docs.python-guide.org/en/latest/writing/gotchas/#late-binding-closures
@@ -728,7 +730,8 @@ def contest_links_generator(request):
             url_generator=url_generator,
             order=link.order,
         )
-        yield item
+        items.append(item)
+    return items
 
 
 menu_registry.register_generator("contest_links", contest_links_generator)
