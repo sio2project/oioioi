@@ -114,7 +114,6 @@ def submissions_fragment(request):
         submissions = submissions.select_related(
             "revealed",
             "problem_instance__scores_reveal_config",
-            "problem_instance__contest__scores_reveal_config",
         )
     cc = request.contest.controller
     submissions = cc.filter_my_visible_submissions(request, submissions)
