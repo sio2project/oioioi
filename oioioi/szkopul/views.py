@@ -10,16 +10,9 @@ from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import visible_contests_queryset_old
 from oioioi.problems.utils import filter_my_all_visible_submissions
 
-# navbar_links_registry.register(
-#     name='courses',
-#     text=_("Kursy"),
-#     url_generator=lambda request: 'https://kursy.szkopul.edu.pl',
-#     order=400,
-# )
-
 navbar_links_registry.register(
     name="courses",
-    text=_("Kursy"),
+    text=_("Courses"),
     url_generator=lambda request: "https://kursy.szkopul.edu.pl",
     order=400,
 )
