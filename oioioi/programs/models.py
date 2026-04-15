@@ -306,11 +306,34 @@ class TestReport(models.Model):
     max_score = ScoreField(null=True, blank=True)
     time_used = models.IntegerField(blank=True)
     output_file = FileField(upload_to=make_output_filename, null=True, blank=True)
+    result_percentage_numerator = models.IntegerField(null=True, blank=True)
+    result_percentage_denominator = models.IntegerField(null=True, blank=True)
 
     test = models.ForeignKey(Test, blank=True, null=True, on_delete=models.SET_NULL)
     test_name = models.CharField(max_length=30)
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"TestReport(submission_report_id={self.submission_report_id}, test_name={self.test_name}, \
+            status={self.status}, score={self.score}, max_score={self.max_score})"
+
+    def get_status_display(self):
+        if self.status == "OK" and self.result_percentage_numerator and self.result_percentage_denominator and self.result_percentage_denominator != 0:
+            result_percentage = int(round(self.result_percentage_numerator / self.result_percentage_denominator, 2))
+            return _("Partially OK ({pr}%)").format(pr=result_percentage)
+        return submission_statuses.get(self.status, self.status)
+
+    def was_half_time_limit_exceeded(self):
+        """
+        Returns True only for contests with threshold linear scoring and if the time used exceeded half of the time limit.
+        """
+        if self.status != "OK":
+            return False
+        contest = self.submission_report.submission.problem_instance.contest
+        if contest is None or self.test_time_limit is None:
+            return False
+        return contest.controller.uses_threshold_linear_scoring() and self.time_used * 2 > self.test_time_limit
 
 
 class GroupReport(models.Model):

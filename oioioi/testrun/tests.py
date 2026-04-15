@@ -33,6 +33,7 @@ class TestTestrunViews(TestCase):
     ]
 
     def test_status_visible(self):
+        contest = Contest.objects.get()
         self.assertTrue(self.client.login(username="test_user"))
         submission = TestRunProgramSubmission.objects.get(pk=1)
         kwargs = {
@@ -45,6 +46,24 @@ class TestTestrunViews(TestCase):
             self.assertContains(submission_view, "Input")
             self.assertContains(submission_view, "Output")
             self.assertContains(submission_view, "OK")
+
+            rejudge_url = reverse("rejudge_submission", kwargs=kwargs)
+            self.assertTrue(self.client.login(username="test_admin"))
+            response = self.client.post(rejudge_url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "Rejudge request received.")
+            self.assertTrue(self.client.login(username="test_user"))
+
+            # Submit another button
+            submit_url = reverse(
+                "testrun_submit",
+                kwargs={
+                    "contest_id": contest.id,
+                    "problem_instance_id": submission.problem_instance.id,
+                },
+            )
+            self.assertContains(submission_view, submit_url)
+
             submission_view = self.client.get(
                 reverse(
                     "my_submissions",

@@ -103,6 +103,11 @@ c_patterns = [
         name="rejudge_not_needed",
     ),
     re_path(
+        r"p/(?P<problem_instance_id>[a-z0-9_-]+)/mark_for_rejudge",
+        views.mark_for_rejudge_view,
+        name="mark_for_rejudge",
+    ),
+    re_path(
         r"p/(?P<problem_instance_id>[a-z0-9_-]+)/reset_limits",
         views.reset_tests_limits_for_probleminstance_view,
         name="reset_tests_limits_for_probleminstance",

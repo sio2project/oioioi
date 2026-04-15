@@ -55,6 +55,11 @@ DATABASES = {
     }
 }
 
+# Django 6.x now defaults to BigAutoField (64-bit integers) for primary keys
+# so we need to force AutoField (32-bit) so as not to have to migrate tables.
+# https://docs.djangoproject.com/en/6.0/releases/6.0/#default-auto-field-setting-now-defaults-to-bigautofield
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Controls if uwsgi in default configuration shall use gevent loop.
 # To use it, you have to install gevent - please consult
 # https://github.com/surfly/gevent
@@ -319,7 +324,7 @@ INSTALLED_APPS = (
     'two_factor.plugins.phonenumber',
 
     'nested_admin',
-    'coreapi',
+    'drf_spectacular',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -658,6 +663,13 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        # Errors in recalculation of rankings are rare, but not trivial to
+        # notice.
+        'oioioi.rankings.models.recalculation': {
+            'handlers': ['mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'celery': {
             'handlers': ['console', 'emit_notification'],
             'level': 'DEBUG',
@@ -774,8 +786,10 @@ CACHES = {
 }
 
 # Ranking
+RANKINGSD_CONCURRENCY = 1 # Number of rankingsd instances to start.
 RANKINGSD_POLLING_INTERVAL = 0.5  # seconds
 RANKING_COOLDOWN_FACTOR = 2  # seconds
+RANKING_ERROR_COOLDOWN = 300  # seconds; Don't overwhelm the admins' mailbox :).
 RANKING_MIN_COOLDOWN = 5  # seconds
 RANKING_MAX_COOLDOWN = 100  # seconds
 
@@ -836,9 +850,8 @@ NON_CONTEST_WEIGHT = 1000
 # for new messages to notify about
 MAILNOTIFYD_INTERVAL = 60
 
-# If your contest has no access to the internet and you need MathJax typesetting,
-# either whitelist this link or download your own copy of MathJax and link it here.
-MATHJAX_LOCATION = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/"
+# Serve MathJax library from local static files
+MATHJAX_LOCATION = '/static/mathjax/tex-chtml.js'
 
 # Django message framework CSS classes
 # https://docs.djangoproject.com/en/1.9/ref/contrib/messages/#message-tags
@@ -861,7 +874,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'OIOIOI API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 # If set to True, usercontests will become read-only: it will be impossible to

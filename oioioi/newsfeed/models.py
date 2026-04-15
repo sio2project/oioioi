@@ -13,17 +13,15 @@ class News(models.Model):
     date = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
 
     def get_content(self, request=None):
+        # This makes .prefetch_related('versions') work. Inspired by Problem.name.
+        versions_list = [version for version in self.versions.all()]
+        versions = {version.language: version for version in versions_list}
         if request is not None:
             lang = get_language_from_request(request)
-            try:
-                return self.versions.get(language=lang)
-            except NewsLanguageVersion.DoesNotExist:
-                pass
+            if lang in versions:
+                return versions[lang]
 
-        try:
-            return self.versions.get(language=get_language())
-        except NewsLanguageVersion.DoesNotExist:
-            return self.versions.first()
+        return versions.get(get_language(), versions_list[0])
 
 
 class NewsLanguageVersion(models.Model):

@@ -418,8 +418,7 @@ def increment_template_usage_view(request, template_id=None):
 @enforce_condition(contest_exists)
 def check_new_messages_view(request, topic_id):
     timestamp = int(request.GET["timestamp"])
-    # utcfromtimestamp returns a naive datetime
-    date = datetime.utcfromtimestamp(timestamp).replace(tzinfo=UTC)
+    date = datetime.fromtimestamp(timestamp, tz=UTC)
     output = [
         [
             x.topic,

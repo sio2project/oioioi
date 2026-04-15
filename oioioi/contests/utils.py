@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
@@ -17,6 +17,7 @@ from oioioi.contests.models import (
     FilesMessage,
     ProblemInstance,
     Round,
+    RoundStartDelay,
     RoundTimeExtension,
     Submission,
     SubmissionMessage,
@@ -37,6 +38,7 @@ class RoundTimes:
         show_results=None,
         show_public_results=None,
         extra_time=0,
+        delay_time=0,
     ):
         self.start = start
         self.end = end
@@ -44,6 +46,7 @@ class RoundTimes:
         self.show_public_results = show_public_results
         self.contest = contest
         self.extra_time = extra_time
+        self.delay_time = delay_time
 
     def is_past(self, current_datetime):
         """Returns True if the round is over for a user"""
@@ -103,14 +106,17 @@ class RoundTimes:
         return self.show_public_results
 
     def get_start(self):
+        """Returns start of user roundtime having regard to the delay."""
+        if self.start:
+            return self.start + timedelta(minutes=self.delay_time)
         return self.start
 
     def get_end(self):
         """Returns end of user roundtime
-        having regard to the extension of the rounds
+        having regard to the extension of the rounds and delay of the start.
         """
         if self.end:
-            return self.end + timedelta(minutes=self.extra_time)
+            return self.end + timedelta(minutes=self.delay_time) + timedelta(minutes=self.extra_time)
         else:
             return self.end
 
@@ -137,8 +143,10 @@ def generic_rounds_times(request=None, contest=None):
     rids = [r.id for r in rounds]
     if not request or not hasattr(request, "user") or request.user.is_anonymous:
         rtexts = {}
+        rdelays = {}
     else:
         rtexts = {x["round_id"]: x for x in RoundTimeExtension.objects.filter(user=request.user, round__id__in=rids).values()}
+        rdelays = {x["round_id"]: x for x in RoundStartDelay.objects.filter(user=request.user, round__id__in=rids).values()}
 
     result = {
         r: RoundTimes(
@@ -148,6 +156,7 @@ def generic_rounds_times(request=None, contest=None):
             r.results_date,
             r.public_results_date,
             rtexts[r.id]["extra_time"] if r.id in rtexts else 0,
+            rdelays[r.id]["delay"] if r.id in rdelays else 0,
         )
         for r in rounds
     }
@@ -819,23 +828,33 @@ def stringify_problems_limits(raw_limits):
               - For mixed limits (one language differs): (('Default:', time_limit, memory_limit), language_limits)
     """
 
-    def KiB_to_MB(KiBs):
-        return (KiBs * 1024) // 1000000
+    def KiB_to_MiB(KiBs):
+        return (KiBs) // 1024
+
+    def ms_to_seconds(ms: int) -> str:
+        seconds: int = ms // 1000
+        ms %= 1000
+        if ms == 0:
+            return str(seconds)
+        return f"{seconds}.{str(ms).rjust(3, '0').rstrip('0')}"
 
     def format_limits(pi_limits):
-        time_lower = f"{pi_limits[0] / 1000:.1g}"
-        time_higher = f"{pi_limits[1] / 1000:.1g}"
+        lower_ms = pi_limits[0]
+        higher_ms = pi_limits[1]
 
-        time_limit = f"{time_lower} s" if time_lower == time_higher else f"{time_lower}-{time_higher} s"
+        time_lower = ms_to_seconds(lower_ms)
+        time_higher = ms_to_seconds(higher_ms)
 
-        if pi_limits[2] < 1000000 / 1024:  # lower memory limit is smaller than 1MB, display KiB
+        time_limit = f"{time_lower} s" if lower_ms == higher_ms else f"{time_lower}-{time_higher} s"
+
+        if pi_limits[2] < 1024:  # lower memory limit is smaller than 1MiB, display KiB
             unit = "KiB"
             memory_lower = pi_limits[2]
             memory_higher = pi_limits[3]
         else:
-            unit = "MB"
-            memory_lower = KiB_to_MB(pi_limits[2])
-            memory_higher = KiB_to_MB(pi_limits[3])
+            unit = "MiB"
+            memory_lower = KiB_to_MiB(pi_limits[2])
+            memory_higher = KiB_to_MiB(pi_limits[3])
 
         memory_limit = f"{memory_lower} {unit}" if memory_lower == memory_higher else f"{memory_lower}-{memory_higher} {unit}"
 
@@ -862,3 +881,16 @@ def stringify_problems_limits(raw_limits):
             stringified[pi_pk] = ((_("Default") + ":", *format_limits(pi_limits["default"])), language_limits)
 
     return stringified
+
+
+def filter_last_submissions(queryset):
+    """Filters the given Submission queryset to keep only the last submission per user and problem_instance."""
+    last_subquery = (
+        Submission.objects.filter(
+            user=OuterRef("user"),
+            problem_instance=OuterRef("problem_instance"),
+        )
+        .order_by("-date")
+        .values("id")[:1]
+    )
+    return queryset.filter(id=Subquery(last_subquery))

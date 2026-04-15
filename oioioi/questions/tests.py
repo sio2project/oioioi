@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from django.core import mail
 from django.test import RequestFactory
 from django.urls import reverse
-from django.utils.timezone import make_aware
 
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time
@@ -129,7 +128,7 @@ class TestQuestions(TestCase):
         self.assertTrue(self.client.login(username="test_user"))
         contest = Contest.objects.get()
         list_url = reverse("contest_messages", kwargs={"contest_id": contest.id})
-        timestamp = make_aware(datetime.utcfromtimestamp(1347025200))
+        timestamp = datetime.fromtimestamp(1347025200, tz=UTC)
         with fake_time(timestamp):
             response = self.client.get(list_url)
         self.assertContains(response, ">NEW<", count=2)

@@ -42,6 +42,7 @@ from oioioi.contests.models import (
     ContestPermission,
     ProblemInstance,
     Round,
+    RoundStartDelay,
     RoundTimeExtension,
     Submission,
     SubmissionReport,
@@ -51,6 +52,7 @@ from oioioi.contests.models import (
 from oioioi.contests.utils import (
     can_admin_contest,
     create_contest_attributes,
+    filter_last_submissions,
     get_inline_for_contest,
     is_contest_admin,
     is_contest_archived,
@@ -407,6 +409,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def _set_needs_rejudge_to_false_href(self, instance):
         return reverse("rejudge_not_needed", args=(instance.id,))
 
+    def _mark_for_rejudge_href(self, instance):
+        return reverse("mark_for_rejudge", args=(instance.id,))
+
     def _model_solutions_href(self, instance):
         return reverse("model_solutions", args=(instance.id,))
 
@@ -473,9 +478,12 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             result.append((add_or_update_href, _("Reupload package")))
         if instance.needs_rejudge:
             rejudge_all_href = self._rejudge_all_submissions_for_problem_href(instance)
-            result.append((rejudge_all_href, _("Rejudge all submissions for problem")))
+            result.append((rejudge_all_href, _("Rejudge submissions for problem")))
             rejudge_not_needed_href = self._set_needs_rejudge_to_false_href(instance)
             result.append((rejudge_not_needed_href, _("Rejudge not needed")))
+        else:
+            mark_for_rejudge_href = self._mark_for_rejudge_href(instance)
+            result.append((mark_for_rejudge_href, _("Mark for rejudge")))
 
         problem_change_href = self._problem_change_href(instance)
         replace_statement_href = self._replace_statement_href(instance)
@@ -653,15 +661,7 @@ class LastSubmissionFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == "yes":
-            last_subquery = (
-                Submission.objects.filter(
-                    user=OuterRef("user"),
-                    problem_instance=OuterRef("problem_instance"),
-                )
-                .order_by("-date")
-                .values("id")[:1]
-            )
-            return queryset.filter(id=Subquery(last_subquery))
+            return filter_last_submissions(queryset)
         else:
             return queryset
 
@@ -1019,6 +1019,83 @@ contest_admin_menu_registry.register(
     lambda request: reverse("oioioiadmin:contests_roundtimeextension_changelist"),
     is_contest_admin,
     order=50,
+)
+
+
+class RoundStartDelayAdmin(admin.ModelAdmin):
+    list_display = ["user_login", "user_full_name", "round", "delay"]
+    list_display_links = ["delay"]
+    list_filter = [RoundTimeRoundListFilter]
+    search_fields = ["user__username", "user__last_name"]
+
+    def has_add_permission(self, request):
+        if is_contest_archived(request):
+            return False
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return False
+        return self.has_change_permission(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if is_contest_archived(request):
+            return is_contest_admin(request)
+        return super().has_view_permission(request, obj)
+
+    def user_login(self, instance):
+        if not instance.user:
+            return ""
+        return make_html_link(
+            reverse(
+                "user_info",
+                kwargs={
+                    "contest_id": instance.round.contest.id,
+                    "user_id": instance.user.id,
+                },
+            ),
+            instance.user.username,
+        )
+
+    user_login.short_description = _("Login")
+    user_login.admin_order_field = "user__username"
+
+    def user_full_name(self, instance):
+        if not instance.user:
+            return ""
+        return instance.user.get_full_name()
+
+    user_full_name.short_description = _("User name")
+    user_full_name.admin_order_field = "user__last_name"
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(round__contest=request.contest)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "round":
+            kwargs["queryset"] = Round.objects.filter(contest=request.contest)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_custom_list_select_related(self):
+        return super().get_custom_list_select_related() + [
+            "user",
+            "round__contest",
+        ]
+
+
+contest_site.contest_register(RoundStartDelay, RoundStartDelayAdmin)
+contest_admin_menu_registry.register(
+    "roundstartdelay_admin",
+    _("Round start delays"),
+    lambda request: reverse("oioioiadmin:contests_roundstartdelay_changelist"),
+    is_contest_admin,
+    order=51,
 )
 
 

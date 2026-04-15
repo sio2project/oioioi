@@ -165,7 +165,7 @@ def problem_site_files(request, problem):
     _("Submissions"),
     key="submissions",
     order=300,
-    condition=lambda request, problem: not request.contest,
+    condition=lambda request, problem: True,
 )
 def problem_site_submissions(request, problem):
     controller = problem.main_problem_instance.controller
@@ -196,7 +196,7 @@ def problem_site_submissions(request, problem):
     _("Submit"),
     key="submit",
     order=400,
-    condition=lambda request, problem: not request.contest,
+    condition=lambda request, problem: True,
 )
 def problem_site_submit(request, problem):
     pi = problem.main_problem_instance

@@ -1,4 +1,0 @@
-ruff==0.13.2
-elastic-apm
-python-memcached
-pre-commit==4.2.0
