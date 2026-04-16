@@ -377,6 +377,7 @@ def my_submissions_view(request):
             "problem_instance__contest",
             "problem_instance__round",
             "problem_instance__problem",
+            "problem_instance__problem__names__name",
         )
     )
     if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
