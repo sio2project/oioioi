@@ -1,5 +1,6 @@
 import functools
 import logging
+import math
 from collections import defaultdict
 from fractions import Fraction
 
@@ -459,13 +460,10 @@ def apply_subtask_dependencies(env, **kwargs):
         combined_results = dict(own_tests)
         for prereq in prereqs:
             for prereq_test_name, prereq_result in group_test_results.get(prereq, {}).items():
-                prereq_max = ScoreValue.deserialize(prereq_result["max_score"])
-                prereq_score = ScoreValue.deserialize(prereq_result["score"])
-                if prereq_max is None or prereq_max.value == 0:
-                    normalized_value = 0
-                else:
-                    # Scale prereq score proportionally to the target max_score
-                    normalized_value = round(prereq_score.value * target_max_value / prereq_max.value) if prereq_score else 0
+                # Use the exact result_percentage from the judge (num, den) to avoid
+                # compounding rounding errors across two score-rescaling steps.
+                percentage = Fraction(*prereq_result.get("result_percentage", (0, 1)))
+                normalized_value = math.ceil(percentage / 100 * target_max_value)
 
                 normalized_result = dict(prereq_result)
                 normalized_result["score"] = IntegerScore(normalized_value).serialize()

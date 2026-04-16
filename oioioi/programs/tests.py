@@ -1970,11 +1970,16 @@ class TestApplySubtaskDependencies(TestCase):
         return {"group": group, "kind": kind, "order": order}
 
     def _make_result(self, score, max_score, status="OK", order=0):
+        if score is not None and max_score:
+            result_percentage = (100 * score, max_score)
+        else:
+            result_percentage = (0, 1)
         return {
             "score": IntegerScore(score).serialize() if score is not None else None,
             "max_score": IntegerScore(max_score).serialize() if max_score is not None else None,
             "status": status,
             "order": order,
+            "result_percentage": result_percentage,
         }
 
     def _make_group_result(self, score, max_score, status="OK"):
