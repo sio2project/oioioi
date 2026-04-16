@@ -426,6 +426,33 @@ class TestViews(TestCase):
 
         self.assertNotPresent(["In progress", "Queued"])
 
+    def test_admin_view_has_actions(self):
+        submission = Submission.objects.get(pk=1)
+        qs = QueuedJob(submission=submission, state="QUEUED", celery_task_id="dummy")
+        qs.save()
+
+        response = self._get_admin_site()
+        self.assertContains(response, "Remove selected submissions from the queue")
+        self.assertContains(response, "Rejudge selected submissions")
+
+    def test_rejudge_selected_action(self):
+        submission = Submission.objects.get(pk=1)
+        qs = QueuedJob(submission=submission, state="QUEUED", celery_task_id="213767")
+        qs.save()
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")
+        post_data = {"action": "rejudge_selected", "_selected_action": [str(qs.pk)]}
+        response = self.client.post(
+            reverse("oioioiadmin:evalmgr_queuedjob_changelist"),
+            post_data,
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        qs.refresh_from_db()
+        self.assertEqual(qs.state, "CANCELLED")
+        self.assertContains(response, "Queued 1 submission(s) for rejudge.")
+
 
 class AddHandlersController(ProgrammingContestController):
     pass

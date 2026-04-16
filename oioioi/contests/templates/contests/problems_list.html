@@ -86,7 +86,9 @@
                         {% endif %}
                         </th>
                     {% endif %}
-                    <th class="text-right">{% trans "Score" %}</th>
+                    {% if user.is_authenticated %}
+                        <th class="text-right">{% trans "Score" %}</th>
+                    {% endif %}
                     {% if show_submit_button %}
                         <th class="text-right"></th>
                     {% endif %}
@@ -164,24 +166,26 @@
                                 {% endif %}
                             </td>
                         {% endif %}
-                        <td class="text-right">
-                            {% if result %}
-                                {% if not is_admin %}
-                                {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
-                                <a href="{{ link }}">
-                                {% endif %}
-                                    {% if result.submission_report.score_report.score == result.submission_report.score_report.max_score %}
-                                        <div class="badge badge-success"> {{ result.score }}</div>
-                                    {% elif result.submission_report.score_report.score > 0 %}
-                                        <div class="badge badge-warning"> {{ result.score }}</div>
-                                    {% else %}
-                                        <div class="badge badge-danger"> {{ result.score }}</div>
+                        {% if user.is_authenticated %}
+                            <td class="text-right">
+                                {% if result %}
+                                    {% if not is_admin %}
+                                    {% url 'submission' contest_id=contest.id submission_id=result.submission_report.submission.id as link %}
+                                    <a href="{{ link }}">
                                     {% endif %}
-                                {% if not is_admin %}
-                                </a>
+                                        {% if result.submission_report.score_report.score == result.submission_report.score_report.max_score %}
+                                            <div class="badge badge-success"> {{ result.score }}</div>
+                                        {% elif result.submission_report.score_report.score > 0 %}
+                                            <div class="badge badge-warning"> {{ result.score }}</div>
+                                        {% else %}
+                                            <div class="badge badge-danger"> {{ result.score }}</div>
+                                        {% endif %}
+                                    {% if not is_admin %}
+                                    </a>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        </td>
+                            </td>
+                        {% endif %}
                         {% if show_submit_button %}
                             <td class="text-right">
                                 {% if can_submit %}

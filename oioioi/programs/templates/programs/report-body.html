@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load runtimeformat %}
+{% load memoryformat %}
 
 
 <div class="table-responsive-md">
@@ -10,6 +11,9 @@
                 <th>{% trans "Test" %}</th>
                 <th>{% trans "Result" %}</th>
                 <th>{% trans "Time" %}</th>
+                {% if show_mem_used %}
+                <th>{% trans "Memory" %}</th>
+                {% endif %}
                 {% if show_scores %}
                     <th>{% trans "Score" %}</th>
                 {% endif %}
@@ -57,6 +61,14 @@
                             {% else %}-.--s
                             {% endif %}/ {{ test.test_time_limit|runtimeformat }}
                         </td>
+                        {% if show_mem_used %}
+                        <td>
+                            {% if is_admin or test.status != 'MLE' %}
+                                {{ test.mem_used|memoryformat }}
+                            {% else %}--MiB
+                            {% endif %}/ {{ test.test_mem_limit|memoryformat }}
+                        </td>
+                        {% endif %}
                         {% if show_scores and forloop.first %}
                             <td class="group-score text-right" rowspan="{{ group.tests|length }}">
                                 {% if group.has_dependency and group.report.score_affected_by_dependency %}
