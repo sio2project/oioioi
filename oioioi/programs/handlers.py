@@ -1,6 +1,7 @@
 import functools
 import logging
 from collections import defaultdict
+from fractions import Fraction
 
 from django.conf import settings
 from django.db import transaction
@@ -351,10 +352,12 @@ def grade_tests(env, **kwargs):
             max_score = report.max_score
             status = report.status
             time_used = report.time_used
+            mem_used = report.mem_used
             test_result["score"] = score and score.serialize()
             test_result["max_score"] = max_score and max_score.serialize()
             test_result["status"] = status
             test_result["time_used"] = time_used
+            test_result["mem_used"] = mem_used
             env["test_results"][test_name] = test_result
     return env
 
@@ -526,10 +529,16 @@ def make_report(env, kind="NORMAL", save_scores=True, **kwargs):
         test_report.test_name = test_name
         test_report.test_group = test["group"]
         test_report.test_time_limit = result["exec_time_limit"]
+        test_report.test_mem_limit = result["exec_mem_limit"]
         test_report.max_score = result["max_score"]
         test_report.score = result["score"] if save_scores else None
         test_report.status = result["status"]
         test_report.time_used = result["time_used"]
+        test_report.mem_used = result["mem_used"]
+        percentage = Fraction(*result.get("result_percentage", (0, 1)))
+        if percentage != 100 and percentage != 0:
+            test_report.result_percentage_numerator = percentage.numerator
+            test_report.result_percentage_denominator = percentage.denominator
 
         comment = result.get("result_string", "")
         if comment.lower() in ["ok", "time limit exceeded"]:  # Annoying

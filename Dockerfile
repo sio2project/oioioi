@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.11-trixie AS base
+FROM ghcr.io/astral-sh/uv:python3.13-trixie AS base
 
 ENV PYTHONUNBUFFERED=1
 
@@ -9,6 +9,7 @@ RUN apt-get update && \
         libpq-dev \
         postgresql-client \
         libdb-dev \
+        libmemcached-dev \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
@@ -55,20 +56,18 @@ RUN sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen && \
 USER oioioi
 
 ENV UV_NO_CACHE=1
-ENV VIRTUAL_ENV=/home/oioioi/venv
-RUN uv venv $VIRTUAL_ENV
-# The python executable from the venv must have priority over the system one.
-ENV PATH=$VIRTUAL_ENV/bin/:$PATH
-
 ENV BERKELEYDB_DIR=/usr
-RUN uv pip install psycopg2-binary twisted uwsgi
-RUN uv pip install bsddb3==6.2.7
 
 WORKDIR /sio2/oioioi
 
 COPY --chown=oioioi:oioioi . ./
-RUN uv pip install -r requirements.txt filetracker[server]
-RUN uv pip install -r requirements_static.txt
+ENV UV_PROJECT_ENVIRONMENT=/sio2/.venv
+RUN uv sync --all-groups
+
+# needed for oioioi-create-config
+ENV VIRTUAL_ENV=/sio2/.venv
+# add the venv created by uv to PATH
+ENV PATH=$VIRTUAL_ENV/bin:$PATH
 
 # Installing node dependencies
 ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin
@@ -76,14 +75,14 @@ ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin
 RUN npm ci
 RUN npm run build
 
-RUN oioioi-create-config /sio2/deployment
+RUN uv run oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
 
 RUN mkdir -p /sio2/deployment/logs/{supervisor,runserver}
 
 # The stage below is independent of base and can be built in parallel to optimize build time.
-FROM python:3.11-slim AS development-sandboxes
+FROM python:3.13-slim AS development-sandboxes
 
 ENV DOWNLOAD_DIR=/sio2/sandboxes
 ENV MANIFEST_URL=https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest

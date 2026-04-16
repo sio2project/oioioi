@@ -24,12 +24,11 @@ class Command(BaseCommand):
 
     help = "Upload sandboxes to the Filetracker."
 
-
     def handle(self, *args, **options):
         print("--- Saving sandboxes to the Filetracker ...", file=self.stdout)
 
         sandboxes_dir = Path(options["sandboxes_dir"])
         with ProcessPoolExecutor() as executor:
-            executor.map(upload_sandbox, sandboxes_dir.glob('*.tar.gz'))
+            executor.map(upload_sandbox, sandboxes_dir.glob("*.tar.gz"))
 
         print("--- Done.", file=self.stdout)

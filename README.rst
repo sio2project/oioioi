@@ -118,7 +118,7 @@ To allow ruff to fix the errors, add the `--fix` flag::
 
 To avoid having to run this command every time before committing, you can install `pre-commit` along with ruff::
 
-    pip install -r requirements_static.txt
+    uv sync --group dev
 
 Then simply run the following command::
 
@@ -130,6 +130,19 @@ that ruff will only run on the files you have modified.
 If you want to check all files, not just the modified ones, you can run::
 
      pre-commit run --all-files
+
+Creating mock data (for development)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To quickly populate your development environment with sample data, you can use the following commands::
+
+    ./easy_toolbox.py populate-sample-data
+
+This creates a contest with a sample problem package and 10 users, each with 3 submissions.
+
+To remove all the data created by the above command (and any data created by the mass_create_tool)::
+
+    ./easy_toolbox.py wipe-sample-data
 
 Manual installation (deprecated)
 ~~~~~~~~~~~~~~~~~~~

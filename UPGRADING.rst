@@ -5,7 +5,7 @@ Upgrading OIOIOI
 Make sure you are in the *deployment* folder and the virtualenv is activated.
 Then run::
 
-  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
+  uv pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
   ./manage.py migrate
   ./manage.py collectstatic
   ./manage.py supervisor restart all
@@ -202,7 +202,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      sioworkers with::
 
         . venv/bin/activate
-        pip install -r requirements.txt
+        uv sync
 
      and remove old database file (*deployment/sioworkersd.sqlite* by default).
 

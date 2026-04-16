@@ -1180,6 +1180,78 @@ class BrokenContestController(ProgrammingContestController):
         environ.setdefault("recipe", []).append(("failing_handler", "oioioi.contests.tests.tests.failing_handler"))
 
 
+class TestRejudgeView(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.contest = Contest.objects.get()
+        self.client.get(f"/c/{self.contest.pk}/")
+        self.pi = ProblemInstance.objects.filter(contest__isnull=False).first()
+
+    def _rejudge_url(self):
+        return reverse("rejudge_all_submissions_for_problem", args=(self.pi.id,))
+
+    def test_rejudge_view_date_filter(self):
+        submission = Submission.objects.filter(problem_instance=self.pi).first()
+        sub_date = submission.date
+
+        # Date range that includes the submission
+        date_from = (sub_date - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M")
+        date_to = (sub_date + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M")
+        response = self.client.get(
+            self._rejudge_url(),
+            {"date_from": date_from, "date_to": date_to},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "1 submission")
+
+        # Date range that excludes all submissions (far in the future)
+        date_from_future = "2099-01-01T00:00"
+        date_to_future = "2099-12-31T23:59"
+        response = self.client.get(
+            self._rejudge_url(),
+            {"date_from": date_from_future, "date_to": date_to_future},
+        )
+        self.assertContains(response, "0 submission")
+
+    def test_rejudge_view_last_only_filter(self):
+        response = self.client.get(self._rejudge_url(), {"last_only": "on"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "submission")
+
+    def test_rejudge_post_triggers_rejudge(self):
+        self.pi.needs_rejudge = True
+        self.pi.save()
+
+        response = self.client.post(self._rejudge_url(), {"post": "yes"})
+        self.assertEqual(response.status_code, 302)
+
+        # Rejudging all submissions should clear the needs_rejudge flag
+        self.pi.refresh_from_db()
+        self.assertFalse(self.pi.needs_rejudge)
+
+    def test_rejudge_post_partial_keeps_flag(self):
+        """Rejudging a subset should NOT clear the needs_rejudge flag."""
+        self.pi.needs_rejudge = True
+        self.pi.save()
+
+        response = self.client.post(
+            self._rejudge_url(),
+            {"post": "yes", "date_from": "2099-01-01T00:00"},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        self.pi.refresh_from_db()
+        self.assertTrue(self.pi.needs_rejudge)
+
+
 class TestRejudgeAndFailure(TestCase):
     fixtures = [
         "test_users",
@@ -2359,7 +2431,8 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertIn("Suspend final tests", html[pos:pos2])
         self.assertIn("Edit package", html[pos:pos2])
         self.assertIn("Replace statement", html[pos:pos2])
-        self.assertEqual(html[pos:pos2].count("|"), 9)
+        self.assertIn("Mark for rejudge", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count("|"), 10)
 
     def test_problem_admin(self):
         self.assertTrue(self.client.login(username="test_contest_basicadmin"))
@@ -2685,7 +2758,8 @@ class TestProblemsMenuWithQuizzes(TestCase):
         self.assertIn("Suspend final tests", html[pos:pos2])
         self.assertIn("Edit package", html[pos:pos2])
         self.assertIn("Replace statement", html[pos:pos2])
-        self.assertEqual(html[pos:pos2].count("|"), 7)
+        self.assertIn("Mark for rejudge", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count("|"), 8)
 
 
 class TestSubmissionChangeKind(TestCase):
@@ -3107,21 +3181,28 @@ class TestProblemInstanceView(TestCase):
         )
         self.assertNotEqual(problem_instance.test_set.count(), 0)
 
-    def test_rejudge_not_needed(self):
+    def _test_needs_rejudge_action(self, action_name: str, desired_state: bool):
+        """Helper method to test rejudge actions (see below)."""
         pi = ProblemInstance.objects.get()
-        pi.needs_rejudge = True
+        pi.needs_rejudge = not desired_state  # Set to opposite of desired state
         pi.save()
 
         self.assertTrue(self.client.login(username="test_admin"))
         self.client.get(f"/c/{pi.contest.pk}/")
         response = self.client.post(
-            reverse("rejudge_not_needed", args=(pi.id,)),
+            reverse(action_name, args=(pi.id,)),
             data={"submit": True},
             follow=True,
         )
         self.assertEqual(response.status_code, 200)
         pi.refresh_from_db()
-        self.assertFalse(pi.needs_rejudge)
+        self.assertEqual(pi.needs_rejudge, desired_state)
+
+    def test_rejudge_not_needed(self):
+        self._test_needs_rejudge_action("rejudge_not_needed", False)
+
+    def test_mark_for_rejudge(self):
+        self._test_needs_rejudge_action("mark_for_rejudge", True)
 
 
 class TestReattachingProblems(TestCase):
@@ -3858,6 +3939,124 @@ def see_link_for_submission_on_problem_list(self, username, should_see):
         self.assertNotContains(response, expected_hyperlink)
 
 
+class TestStatusOnProblemsList(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def test_status_hidden_for_anonymous(self):
+        see_status_on_problems_list(self, None, False)
+
+    def test_status_visible_for_user(self):
+        see_status_on_problems_list(self, "test_user", True, expected_status="OK")
+
+    def test_status_hidden_for_admin(self):
+        see_status_on_problems_list(self, "test_admin", False)
+
+
+def see_status_on_problems_list(self, username, should_see, expected_status=None):
+    if username is None:
+        self.client.logout()
+    else:
+        self.assertTrue(self.client.login(username=username))
+
+    contest = Contest.objects.get(pk="c")
+    problems_url = reverse("problems_list", kwargs={"contest_id": contest.id})
+
+    response = self.client.get(problems_url, follow=True)
+    # badge presence
+    if should_see:
+        if expected_status:
+            self.assertContains(response, expected_status)
+    else:
+        # No status header for anonymous users
+        self.assertNotContains(response, '<th class="text-right">Status</th>')
+
+
+class TestStatusBadgeDoesNotLeakScore(TestCase):
+    """Verify that the last-submission badge on the problems list reflects
+    the *initial* status, not the final score, when the contest hides scores.
+
+    ProgrammingContestController always exposes submission status
+    (can_see_submission_status -> True) but hides the score until
+    results_date.  The badge colour must follow the status, never the
+    score.
+    """
+
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+    ]
+
+    def _set_future_results_date(self):
+        """Push results_date into the future so scores stay hidden."""
+        Round.objects.filter(pk=1).update(results_date=datetime(2099, 1, 1, tzinfo=UTC))
+
+    def _create_submission_with_score(self, status, score_value, max_score_value):
+        """Create a submission for test_user with given status and score.
+
+        Reports are set up so that the score-based display_type path
+        *would* produce a different badge if the visibility check were
+        ever bypassed — this is what makes the test meaningful.
+        """
+        from oioioi.contests.models import ScoreReport, SubmissionReport
+
+        user = User.objects.get(username="test_user")
+        pi = ProblemInstance.objects.get(pk=1)
+
+        sub = Submission.objects.create(
+            problem_instance=pi,
+            user=user,
+            status=status,
+            score=IntegerScore(score_value),
+            kind="NORMAL",
+            date=datetime(2012, 7, 20, tzinfo=UTC),
+        )
+
+        report = SubmissionReport.objects.create(submission=sub, status="ACTIVE", kind="INITIAL")
+        ScoreReport.objects.create(
+            submission_report=report,
+            status="OK",
+            score=IntegerScore(score_value),
+            max_score=IntegerScore(max_score_value),
+        )
+        return sub
+
+    def test_ini_ok_zero_points_badge_is_success(self):
+        """INI_OK + 0 pts: badge must be green (status), not red (score)."""
+        self._set_future_results_date()
+        self._create_submission_with_score("INI_OK", 0, 100)
+
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("problems_list", kwargs={"contest_id": "c"})
+
+        with fake_time(datetime(2012, 8, 5, tzinfo=UTC)):
+            response = self.client.get(url, follow=True)
+
+        self.assertContains(response, "badge-success")
+        self.assertNotContains(response, "badge-danger")
+
+    def test_ini_err_full_points_badge_is_danger(self):
+        """INI_ERR + 100 pts: badge must be red (status), not green (score)."""
+        self._set_future_results_date()
+        self._create_submission_with_score("INI_ERR", 100, 100)
+
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("problems_list", kwargs={"contest_id": "c"})
+
+        with fake_time(datetime(2012, 8, 5, tzinfo=UTC)):
+            response = self.client.get(url, follow=True)
+
+        self.assertContains(response, "badge-danger")
+        self.assertNotContains(response, "badge-success")
+
+
 class TestSubmissionsLinksOnListView(TestCase):
     fixtures = [
         "test_users",
@@ -4322,19 +4521,19 @@ class TestOpenRegistration(TestCase):
         check_registration(self, 403, "NO")
 
     def test_configured_registration_opened(self):
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         available_from = now - timedelta(days=1)
         available_to = now + timedelta(days=1)
         check_registration(self, 200, "CONFIG", available_from, available_to)
 
     def test_configured_registration_closed_before(self):
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         available_from = now + timedelta(hours=1)
         available_to = now + timedelta(days=1)
         check_registration(self, 200, "CONFIG", available_from, available_to, "registration_not_open_yet")
 
     def test_configured_registration_closed_after(self):
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         available_from = now - timedelta(hours=1)
         available_to = now - timedelta(minutes=5)
         check_registration(self, 403, "CONFIG", available_from, available_to)
@@ -4904,30 +5103,30 @@ class TestProblemsLimits(TestCase):
     def test_stringify_limits(self):
         raw_limits = {
             "1": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (1000, 2000, 1000, 2000),
-                "py": (1000, 2000, 1000, 2000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (1000, 2000, 1024, 2048),
+                "py": (1000, 2000, 1024, 2048),
             },
-            "2": {"default": (2000, 4000, 2000, 4000), "cpp": (1000, 3000, 1000, 4000), "py": (3000, 5000, 2000, 5000)},
+            "2": {"default": (2000, 4000, 2048, 4096), "cpp": (1000, 3000, 1024, 4096), "py": (3000, 5000, 2048, 5120)},
             "3": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (500, 2000, 500, 1000),
-                "py": (1000, 3000, 1000, 3000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (500, 2000, 512, 1024),
+                "py": (1000, 3000, 1024, 3072),
             },
             "4": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (500, 2000, 2000, 3000),
-                "py": (1000, 2000, 1000, 2000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (500, 2000, 2048, 3072),
+                "py": (1000, 2000, 1024, 2048),
             },
             "5": {
-                "default": (1000, 2000, 1000, 2000),
-                "cpp": (1000, 2000, 1000, 2000),
-                "py": (3000, 4000, 1000, 3000),
+                "default": (1000, 2000, 1024, 2048),
+                "cpp": (1000, 2000, 1024, 2048),
+                "py": (3000, 4000, 1024, 3072),
             },
             "6": {
-                "default": (1000, 2000, 500, 2000),
-                "cpp": (100, 500, 100, 200),
-                "py": (1000, 2000, 500, 2000),
+                "default": (1000, 2000, 512, 2048),
+                "cpp": (100, 500, 128, 256),
+                "py": (1000, 2000, 512, 2048),
             },
         }
 
@@ -4937,49 +5136,49 @@ class TestProblemsLimits(TestCase):
         self.assertEqual(len(stringified["1"]), 1)
         self.assertEqual(stringified["1"][0][0], "")
         self.assertEqual(stringified["1"][0][1], "1-2 s")
-        self.assertEqual(stringified["1"][0][2], "1-2 MB")
+        self.assertEqual(stringified["1"][0][2], "1-2 MiB")
 
         # Test two simple overrides
         self.assertEqual(len(stringified["2"]), 2)
         self.assertEqual(stringified["2"][0][0], "C++:")
         self.assertEqual(stringified["2"][0][1], "1-3 s")
-        self.assertEqual(stringified["2"][0][2], "1-4 MB")
+        self.assertEqual(stringified["2"][0][2], "1-4 MiB")
         self.assertEqual(stringified["2"][1][0], "Python:")
         self.assertEqual(stringified["2"][1][1], "3-5 s")
-        self.assertEqual(stringified["2"][1][2], "2-5 MB")
+        self.assertEqual(stringified["2"][1][2], "2-5 MiB")
 
         # Test two overrides, one with small memory limit
         self.assertEqual(len(stringified["3"]), 2)
         self.assertEqual(stringified["3"][0][0], "C++:")
         self.assertEqual(stringified["3"][0][1], "0.5-2 s")
-        self.assertEqual(stringified["3"][0][2], "500-1000 KiB")
+        self.assertEqual(stringified["3"][0][2], "512-1024 KiB")
         self.assertEqual(stringified["3"][1][0], "Python:")
         self.assertEqual(stringified["3"][1][1], "1-3 s")
-        self.assertEqual(stringified["3"][1][2], "1-3 MB")
+        self.assertEqual(stringified["3"][1][2], "1-3 MiB")
 
         # Test one override, cpp
         self.assertEqual(len(stringified["4"]), 2)
         self.assertEqual(stringified["4"][0][0], "Default:")
         self.assertEqual(stringified["4"][0][1], "1-2 s")
-        self.assertEqual(stringified["4"][0][2], "1-2 MB")
+        self.assertEqual(stringified["4"][0][2], "1-2 MiB")
         self.assertEqual(stringified["4"][1][0], "C++:")
         self.assertEqual(stringified["4"][1][1], "0.5-2 s")
-        self.assertEqual(stringified["4"][1][2], "2-3 MB")
+        self.assertEqual(stringified["4"][1][2], "2-3 MiB")
 
         # Test one override, python
         self.assertEqual(len(stringified["5"]), 2)
         self.assertEqual(stringified["5"][0][0], "Default:")
         self.assertEqual(stringified["5"][0][1], "1-2 s")
-        self.assertEqual(stringified["5"][0][2], "1-2 MB")
+        self.assertEqual(stringified["5"][0][2], "1-2 MiB")
         self.assertEqual(stringified["5"][1][0], "Python:")
         self.assertEqual(stringified["5"][1][1], "3-4 s")
-        self.assertEqual(stringified["5"][1][2], "1-3 MB")
+        self.assertEqual(stringified["5"][1][2], "1-3 MiB")
 
         # Test small memory limits
         self.assertEqual(len(stringified["6"]), 2)
         self.assertEqual(stringified["6"][0][0], "Default:")
         self.assertEqual(stringified["6"][0][1], "1-2 s")
-        self.assertEqual(stringified["6"][0][2], "500-2000 KiB")
+        self.assertEqual(stringified["6"][0][2], "512-2048 KiB")
         self.assertEqual(stringified["6"][1][0], "C++:")
         self.assertEqual(stringified["6"][1][1], "0.1-0.5 s")
-        self.assertEqual(stringified["6"][1][2], "100-200 KiB")
+        self.assertEqual(stringified["6"][1][2], "128-256 KiB")

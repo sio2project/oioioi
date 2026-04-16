@@ -797,6 +797,7 @@ class DifficultyTagProposal(models.Model):
         return str(self.problem.name) + " -- " + str(self.tag.name)
 
     class Meta:
+        unique_together = ("problem", "user")
         verbose_name = _("difficulty proposal")
         verbose_name_plural = _("difficulty proposals")
 
@@ -878,6 +879,7 @@ class AlgorithmTagProposal(models.Model):
         return str(self.problem.name) + " -- " + str(self.tag.name)
 
     class Meta:
+        unique_together = ("problem", "tag", "user")
         verbose_name = _("algorithm tag proposal")
         verbose_name_plural = _("algorithm tag proposals")
 

@@ -104,7 +104,9 @@ def make_report(env, **kwargs):
     max_comment_length = TestRunReport._meta.get_field("comment").max_length
     testrun_report.comment = (comment[: max_comment_length - 1] + "…") if len(comment) > max_comment_length else comment
     testrun_report.time_used = test_result["time_used"]
+    testrun_report.mem_used = test_result["mem_used"]
     testrun_report.test_time_limit = test.get("exec_time_limit")
+    testrun_report.test_mem_limit = test.get("exec_mem_limit")
     testrun_report.output_file = filetracker_to_django_file(test_result["out_file"])
     testrun_report.save()
 

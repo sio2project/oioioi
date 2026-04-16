@@ -162,6 +162,9 @@ class ProgrammingProblemController(ProblemController):
 
         environ["compiler"] = problem_instance.controller.get_compiler_for_submission(submission)
 
+        config = ExtraConfig.objects.get(problem_id=problem.id)
+        environ["fake_time"] = config.parsed_config.get("fake_time", "off")
+
     def generate_base_environ(self, environ, submission, **kwargs):
         self.generate_initial_evaluation_environ(environ, submission)
         environ.setdefault("recipe", []).extend(
@@ -635,9 +638,6 @@ class ProgrammingProblemController(ProblemController):
     def render_report_failure(self, request, report):
         return ProblemController.render_report(self, request, report)
 
-    def is_admin(self, request, report):
-        return can_admin_problem(request, self.problem)
-
     def render_report(self, request, report):
         problem_instance = report.submission.problem_instance
         if report.kind == "FAILURE":
@@ -656,6 +656,8 @@ class ProgrammingProblemController(ProblemController):
         allow_download_out = pcontroller.user_outs_exist() and picontroller.can_generate_user_out(request, report)
         allow_test_comments = picontroller.can_see_test_comments(request, report)
         all_outs_generated = allow_download_out
+
+        show_mem_used = any(test.mem_used for test in test_reports)
 
         groups = []
         signals_to_explain = set()
@@ -676,6 +678,8 @@ class ProgrammingProblemController(ProblemController):
                         signals_to_explain.add(signal)
                     except ValueError:
                         pass
+                if test.result_percentage_numerator and test.result_percentage_denominator:
+                    test.result_percentage = f"""{round(test.result_percentage_numerator / test.result_percentage_denominator, 2):g}"""
 
             tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
 
@@ -695,6 +699,7 @@ class ProgrammingProblemController(ProblemController):
                 "all_outs_generated": all_outs_generated,
                 "is_admin": picontroller.is_admin(request, report),
                 "signals_to_explain": signals_to_explain,
+                "show_mem_used": show_mem_used,
             },
         )
 
@@ -808,6 +813,11 @@ class ProgrammingContestController(ContestController):
         "The score is a sum of the scores of all groups. The ranking is determined by the total score.\n"
         "The full scoring is available after the results date for the round."
     )
+
+    def uses_threshold_linear_scoring(self):
+        """Returns True if this contest uses linear score reduction when
+        time used exceeds half of the time limit. False by default."""
+        return False
 
     def get_compiler_for_submission(self, submission):
         problem_instance = submission.problem_instance

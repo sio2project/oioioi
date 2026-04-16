@@ -1,6 +1,0 @@
-sphinx>7.1.0
-furo
-# sphinx extension https://sphinx-autoapi.readthedocs.io/en/latest/index.html
-sphinx-autoapi>3.5.0
-pydantic
-pydantic-settings

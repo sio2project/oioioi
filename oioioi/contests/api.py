@@ -1,14 +1,15 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import permissions, status, views
 from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.schemas import AutoSchema
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.base.utils.api import make_path_coreapi_schema
+from oioioi.base.utils.api import contest_id_parameter
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import Contest, Submission
@@ -55,16 +56,12 @@ class GetContestRounds(views.APIView):
         CanEnterContest,
     )
 
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
-                name="contest_id",
-                title="Contest id",
-                description="Id of the contest from contest_list endpoint",
-            ),
-        ]
+    @extend_schema(
+        parameters=[contest_id_parameter("The Id of the contest which you want to get the round list for.")],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
     )
-
     def get(self, request, contest_id):
         contest = get_object_or_404(Contest, id=contest_id)
         rounds = contest.round_set.all()
@@ -72,22 +69,14 @@ class GetContestRounds(views.APIView):
         return Response(serializer.data)
 
 
+@extend_schema(responses={200: OpenApiTypes.STR})
 class GetContestProblems(views.APIView):
     permission_classes = (
         IsAuthenticated,
         CanEnterContest,
     )
 
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
-                name="contest_id",
-                title="Contest id",
-                description="Id of the contest from contest_list endpoint",
-            ),
-        ]
-    )
-
+    @extend_schema(parameters=[contest_id_parameter("The Id of the contest which you want to get the problem list for.")])
     def get(self, request, contest_id):
         contest: Contest = get_object_or_404(Contest, id=contest_id)
         controller = contest.controller
@@ -121,25 +110,22 @@ class GetContestProblems(views.APIView):
 class GetUserProblemSubmissionList(views.APIView):
     permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
 
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
-                name="contest_id",
-                title="Contest id",
-                description="Id of the contest to which the problem you want to "
-                "query belongs. You can find this id after /c/ in urls "
-                "when using SIO 2 web interface.",
-            ),
-            make_path_coreapi_schema(
+    @extend_schema(
+        parameters=[
+            contest_id_parameter("The Id of the contest which you want to get the submissions for."),
+            OpenApiParameter(
                 name="problem_short_name",
-                title="Problem short name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH,
                 description="Short name of the problem you want to query. "
                 "You can find it for example the in first column "
                 "of the problem list when using SIO 2 web interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
     )
-
     def get(self, request, contest_id, problem_short_name):
         contest = get_object_or_404(Contest, id=contest_id)
         problem_instance = get_object_or_404(ProblemInstance, contest=contest, problem__short_name=problem_short_name)
@@ -175,23 +161,22 @@ class GetUserProblemSubmissionList(views.APIView):
 class GetUserProblemSubmissionCode(views.APIView):
     permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
 
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
-                name="contest_id",
-                title="Name of the contest",
-                description="Id of the contest to which the problem you want to "
-                "query belongs. You can find this id after /c/ in urls "
-                "when using SIO 2 web interface.",
-            ),
-            make_path_coreapi_schema(
+    @extend_schema(
+        parameters=[
+            contest_id_parameter("The ID of the contest that your query belongs to."),
+            OpenApiParameter(
                 name="submission_id",
-                title="Submission id",
-                description="You can query submission ID list at problem_submission_list endpoint.",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
+                description="You can query submission ID list at problem_submission_list endpoint. "
+                "The submission ID can also be found inside the submission URL.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.STR,
+            500: OpenApiTypes.OBJECT,
+        },
     )
-
     def get(self, request, contest_id, submission_id):
         # Make sure user made this submission, not somebody else.
         submission = get_object_or_404(ProgramSubmission, id=submission_id)
@@ -217,25 +202,23 @@ class GetProblemIdView(views.APIView):
         IsAuthenticated,
         CanEnterContest,
     )
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
-                name="contest_id",
-                title="Contest id",
-                description="Id of the contest to which the problem you want to "
-                "query belongs. You can find this id after /c/ in urls "
-                "when using SIO 2 web interface.",
-            ),
-            make_path_coreapi_schema(
+
+    @extend_schema(
+        parameters=[
+            contest_id_parameter("The Id of the contest that your query belongs to."),
+            OpenApiParameter(
                 name="problem_short_name",
-                title="Problem short name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH,
                 description="Short name of the problem you want to query. "
                 "You can find it for example the in first column "
                 "of the problem list when using SIO 2 web interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
     )
-
     def get(self, request, contest_id, problem_short_name):
         """This endpoint allows you to get id of the particular problem along
         with id of its corresponding problem's instance, given id of the certain
@@ -256,9 +239,10 @@ class GetProblemIdView(views.APIView):
 # It lacks get_problem_instance, as it's specific to problem source.
 class SubmitSolutionView(views.APIView):
     permission_classes = (IsAuthenticated, CanEnterContest, UnsafeApiAllowed)
-
+    serializer_class = SubmissionSerializer
     parser_classes = (MultiPartParser,)
 
+    # This method should be implemented by subclasses.
     def get_problem_instance(self, **kwargs):
         raise NotImplementedError
 
@@ -283,41 +267,49 @@ class SubmitSolutionView(views.APIView):
 
 
 class SubmitContestSolutionView(SubmitSolutionView):
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
                 name="contest_name",
-                title="Contest name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH,
                 description="Name of the contest to which you want to submit a solution. You can find it after /c/ in urls when using the SIO2 web interface.",
             ),
-            make_path_coreapi_schema(
+            OpenApiParameter(
                 name="problem_short_name",
-                title="Problem short name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH,
                 description="Short name of the problem to which you want to submit "
                 "solution. You can find it for example in the first column "
                 "of the problem list when using SIO 2 web interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+        },
     )
-
     def get_problem_instance(self, contest_name, problem_short_name):
         return get_object_or_404(ProblemInstance, contest=contest_name, short_name=problem_short_name)
 
 
 class SubmitProblemsetSolutionView(SubmitSolutionView):
-    schema = AutoSchema(
-        [
-            make_path_coreapi_schema(
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
                 name="problem_site_key",
-                title="Problem site key",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.PATH,
                 description="This is unique key for the problem in problemset. "
                 "You can find it after /problemset/problem/ in url of "
                 "any site related to the problem when using the SIO2 web "
                 "interface.",
             ),
-        ]
+        ],
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT,
+        },
     )
-
     def get_problem_instance(self, problem_site_key):
         problem = get_object_or_404(Problem, problemsite__url_key=problem_site_key)
         pi = problem.main_problem_instance

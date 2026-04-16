@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -47,6 +47,7 @@ from oioioi.contests.utils import (
     can_enter_contest,
     can_see_personal_data,
     contest_exists,
+    filter_last_submissions,
     get_contest_dates,
     get_files_message,
     get_number_of_rounds,
@@ -140,8 +141,13 @@ def problems_list_view(request):
 
     show_problems_limits = controller.can_see_problems_limits(request)
     problems_limits = {}
+
+    multiple_limits = False
     if show_problems_limits:
         problems_limits = stringify_problems_limits(controller.get_problems_limits(request))
+        for limit in problems_limits.values():
+            if len(limit) > 1:
+                multiple_limits = True
 
     problem_instances = visible_problem_instances(request)
 
@@ -154,6 +160,42 @@ def problems_list_view(request):
     # 6) submissions_limit
     # 7) can_submit
     # Sorted by (start_date, end_date, round name, problem name)
+    # Preload user-related data to avoid N+1 queries
+    results_map = {}
+    last_submission_map = {}
+    if request.user.is_authenticated:
+        # Bulk fetch UserResultForProblem objects. We only keep those for which
+        # the user can see the submission score.
+        user_results_qs = UserResultForProblem.objects.filter(
+            user=request.user,
+            problem_instance__in=problem_instances,
+        ).select_related("submission_report__submission")
+        for r in user_results_qs:
+            # Some controllers may hide score even if UserResultForProblem exists
+            if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission):
+                results_map[r.problem_instance_id] = r
+
+        # For each problem instance, fetch only the single latest NORMAL
+        # submission by this user using a correlated subquery
+        latest_sub_id_sq = (
+            Submission.objects.filter(
+                user=request.user,
+                problem_instance=OuterRef("problem_instance"),
+                kind="NORMAL",
+            )
+            .order_by("-date")
+            .values("id")[:1]
+        )
+        last_submission_map = {
+            s.problem_instance_id: s
+            for s in Submission.objects.filter(
+                user=request.user,
+                problem_instance__in=problem_instances,
+                kind="NORMAL",
+                id=Subquery(latest_sub_id_sq),
+            )
+        }
+
     problems_statements = sorted(
         [
             (
@@ -161,21 +203,11 @@ def problems_list_view(request):
                 controller.can_see_statement(request, pi),
                 controller.get_round_times(request, pi.round),
                 problems_limits.get(pi.pk, None),
-                # Because this view can be accessed by an anynomous user we can't
-                # use `user=request.user` (it would cause TypeError). Surprisingly
-                # using request.user.id is ok since for AnynomousUser id is set
-                # to None.
-                next(
-                    (
-                        r
-                        for r in UserResultForProblem.objects.filter(user__id=request.user.id, problem_instance=pi)
-                        if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission)
-                    ),
-                    None,
-                ),
+                results_map.get(pi.id),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
                 controller.can_submit(request, pi) and not is_contest_archived(request),
+                submission_template_context(request, last_submission_map[pi.id]) if pi.id in last_submission_map else None,
             )
             for pi in problem_instances
         ],
@@ -185,6 +217,7 @@ def problems_list_view(request):
     show_submissions_limit = any(p[6] for p in problems_statements)
     show_submit_button = any(p[7] for p in problems_statements)
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
+    show_status = request.user.is_authenticated  # Always show status for authenticated users
     table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
 
     return TemplateResponse(
@@ -196,9 +229,11 @@ def problems_list_view(request):
             "show_rounds": show_rounds,
             "show_scores": request.user.is_authenticated,
             "show_submissions_limit": show_submissions_limit,
+            "show_status": show_status,
             "show_submit_button": show_submit_button,
             "table_columns": table_columns,
             "problems_on_page": getattr(settings, "PROBLEMS_ON_PAGE", 100),
+            "multiple_limits": multiple_limits,
         },
     )
 
@@ -662,42 +697,78 @@ def user_info_redirect_view(request):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
+    """Rejudges selected submissions. Resets the needs_rejudge flag only if all submissions are rejudged."""
     problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
-    count = problem_instance.submission_set.count()
+
+    params = request.POST if request.POST else request.GET
+    date_from = params.get("date_from", "").strip()
+    date_to = params.get("date_to", "").strip()
+    last_only = params.get("last_only") == "on"
+
+    submissions = problem_instance.submission_set.all()
+    total_count = submissions.count()
+    if last_only:
+        submissions = filter_last_submissions(submissions)
+    if date_from:
+        submissions = submissions.filter(date__gte=date_from)
+    if date_to:
+        submissions = submissions.filter(date__lte=date_to)
+    selected_count = submissions.count()
+
     if request.POST:
-        for submission in problem_instance.submission_set.all():
-            problem_instance.controller.judge(submission, request.GET.dict(), is_rejudge=True)
+        for submission in submissions:
+            problem_instance.controller.judge(submission, {}, is_rejudge=True)
         messages.info(
             request,
             ngettext_lazy(
                 "%(count)d rejudge request received.",
                 "%(count)d rejudge requests received.",
-                count,
+                selected_count,
             )
-            % {"count": count},
+            % {"count": selected_count},
         )
-        problem_instance.needs_rejudge = False
-        problem_instance.save(update_fields=["needs_rejudge"])
+
+        if selected_count == total_count:
+            problem_instance.needs_rejudge = False
+            problem_instance.save(update_fields=["needs_rejudge"])
         return safe_redirect(request, reverse("oioioiadmin:contests_probleminstance_changelist"))
 
-    return TemplateResponse(request, "contests/confirm_rejudge.html", {"count": count})
+    return TemplateResponse(
+        request,
+        "contests/confirm_rejudge.html",
+        {"count": selected_count, "date_from": date_from, "date_to": date_to, "last_only": last_only},
+    )
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
-def rejudge_not_needed_view(request, problem_instance_id):
+def change_needs_rejudge_val(request, problem_instance_id, val: bool):
     problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
 
     if request.POST:
-        problem_instance.needs_rejudge = False
+        problem_instance.needs_rejudge = val
         problem_instance.save(update_fields=["needs_rejudge"])
-        messages.success(request, _("Needs rejudge flag turned off."))
+        if val:
+            messages.success(request, _("Needs rejudge flag turned on."))
+        else:
+            messages.success(request, _("Needs rejudge flag turned off."))
 
         return safe_redirect(
             request,
             reverse("oioioiadmin:contests_probleminstance_changelist"),
         )
 
-    return TemplateResponse(request, "contests/confirm_rejudge_not_needed.html")
+    if val:
+        return TemplateResponse(request, "contests/confirm_mark_for_rejudge.html")
+    else:
+        return TemplateResponse(request, "contests/confirm_rejudge_not_needed.html")
+
+
+def rejudge_not_needed_view(request, problem_instance_id):
+    return change_needs_rejudge_val(request, problem_instance_id, False)
+
+
+def mark_for_rejudge_view(request, problem_instance_id):
+    return change_needs_rejudge_val(request, problem_instance_id, True)
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)

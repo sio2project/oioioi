@@ -2,6 +2,8 @@ from django.conf import settings
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,16 +12,37 @@ from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 
 
+@extend_schema(responses={200: OpenApiTypes.STR}, examples=[OpenApiExample(name="response", value="pong", summary="pong")])
 @api_view()
 def ping(request):
-    """Test endpoint for unauthorized user."""
+    """Test endpoint for unauthorized user. Returns "pong" on success."""
     return Response("pong")
 
 
+@extend_schema(
+    responses={
+        200: OpenApiTypes.STR,
+        403: OpenApiTypes.OBJECT,
+    },
+    examples=[
+        OpenApiExample(
+            name="Authenticated User response",
+            value="pong oioioi",
+            summary="Success",
+            status_codes=["200"],
+        ),
+        OpenApiExample(
+            name="Unauthenticated or forbidden",
+            value={"detail": "You do not have permission to perform this action."},
+            summary="Forbidden",
+            status_codes=["403"],
+        ),
+    ],
+)
 @api_view()
 @enforce_condition(not_anonymous, login_redirect=False)
 def auth_ping(request):
-    """Test endpoint for authorized user."""
+    """Test endpoint for authorized user. Returns "pong" and a stringified Django user object of the authenticated user."""
     return Response("pong " + str(request.user))
 
 

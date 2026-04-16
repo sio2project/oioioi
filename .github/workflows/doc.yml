@@ -14,8 +14,7 @@ jobs:
 
     - name: Install python dependencies for generating docs
       run: |
-        uv pip install --upgrade -r rst/requirements.txt
-        uv pip install --upgrade -r requirements.txt
+        uv sync --group docs
 
     - name: Run Sphinx
       run: |

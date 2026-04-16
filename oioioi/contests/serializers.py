@@ -12,7 +12,7 @@ class SubmissionSerializer(serializers.Serializer):
     )
     problem_instance = None
 
-    def __init__(self, pi, *args, **kwargs):
+    def __init__(self, pi=None, *args, **kwargs):
         if pi is not None:
             self.problem_instance_id = serializers.HiddenField(default=pi.pk)
         self.problem_instance = pi
