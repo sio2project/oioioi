@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('programs', '0021_testreport_result_percentage_denominator_and_more'),
+        ('programs', '0022_testreport_mem_fields'),
     ]
 
     operations = [
