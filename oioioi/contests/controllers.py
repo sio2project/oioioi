@@ -608,6 +608,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return None
         return problem_instance.problem.controller.get_submissions_limit(request, problem_instance, kind, noadmin)
 
+    def get_submissions_count(self, request, problem_instance, kind=None):
+        # by default delegate to ProblemController
+        if kind is None:
+            kind = self.get_default_submission_kind(request)
+        return problem_instance.problem.controller.get_submissions_count(request, problem_instance, kind)
+
     def get_submissions_left(self, request, problem_instance, kind=None):
         # by default delegate to ProblemController
         if kind is None:

@@ -5,6 +5,7 @@ from collections import defaultdict
 
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
+from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.utils import translation
 
@@ -35,6 +36,19 @@ from oioioi.programs.models import (
 @request_cached
 def can_add_problems(request):
     return request.user.has_perm("problems.problems_db_admin") or is_contest_basicadmin(request)
+
+
+@request_cached
+def get_basic_user_submissions_count_bulk(request):
+    # The values() here acts like a GROUP BY.
+    qs = Submission.objects.filter(user_id=request.user.id).values("problem_instance_id", "kind").annotate(count=Count("id"))
+    return {(result["problem_instance_id"], result["kind"]): result["count"] for result in qs}
+
+
+# This is almost always called for many problem instances anyway, so it preprocesses
+# results in the first call, which is very cheap anyway if done this way.
+def get_basic_user_submissions_count(request, problem_instance, kind="NORMAL"):
+    return get_basic_user_submissions_count_bulk(request).get((problem_instance.id, kind), 0)
 
 
 def can_upload_problems(request):
