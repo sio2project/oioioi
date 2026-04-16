@@ -6,6 +6,7 @@ from oioioi.rankings.controllers import CONTEST_RANKING_KEY, DefaultRankingContr
 from oioioi.rankings.models import Ranking
 from oioioi.teachers.controllers import TeacherRegistrationController
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
+from oioioi.usergroups.utils import get_contest_ids_with_user_membership
 
 USER_GROUP_RANKING_PREFIX = "g"
 
@@ -20,11 +21,7 @@ class UserGroupsParticipantsControllerMixin:
         base_query = super().user_contests_query(request)
         if not request.user.is_authenticated:
             return base_query
-        # Django's laziness makes this execute together with the outer query.
-        visible_contest_ids = UserGroup.objects.filter(
-            members__id=request.user.id,
-        ).values_list("contests__id", flat=True)
-        return base_query | Q(id__in=visible_contest_ids)
+        return base_query | Q(id__in=get_contest_ids_with_user_membership(request))
         # return base_query | Q(usergroups__members__id=request.user.id)
 
 
