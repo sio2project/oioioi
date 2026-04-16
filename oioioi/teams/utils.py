@@ -28,15 +28,19 @@ def can_see_teams_list(request):
 
 
 @request_cached
+def get_team_membership(request):
+    # Returns None if no object is found.
+    return TeamMembership.objects.filter(user=request.user, team__contest=request.contest).first()
+
+
+@request_cached
 def team_members_count(request):
     """Returns a number of members in the team for the user and the contest
     from the request.
     If user does not belong to any team the function will return 0.
     """
-    tms = TeamMembership.objects.filter(user=request.user, team__contest=request.contest)
-    if not tms.exists():
-        return 0
-    return tms[0].team.members.count()
+    tm = get_team_membership(request)
+    return tm.team.members.count() if tm else 0
 
 
 @make_request_condition

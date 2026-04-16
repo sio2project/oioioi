@@ -109,6 +109,7 @@ def submissions_fragment(request):
         Submission.objects.filter(problem_instance__contest=request.contest)
         .order_by("-date")
         .select_related("problem_instance", "problem_instance__contest", "problem_instance__round", "problem_instance__problem")
+        .prefetch_related("problem_instance__problem__names__name")
     )
     if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
         submissions = submissions.select_related(

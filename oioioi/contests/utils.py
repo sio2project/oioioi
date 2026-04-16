@@ -183,6 +183,8 @@ def has_any_rounds(request_or_context):
 @request_cached
 def has_any_active_round(request):
     controller = request.contest.controller
+    # We can't use visible_rounds(request) here, as that causes a cycle
+    # because of PastRoundsHiddenContestControllerMixin.
     for round in Round.objects.filter(contest=request.contest):
         rtimes = controller.get_round_times(request, round)
         if rtimes.is_active(request.timestamp):
@@ -232,8 +234,7 @@ def has_any_visible_problem_instance(request):
 @request_cached
 def submittable_problem_instances(request):
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round", "contest")
-    return [pi for pi in queryset if controller.can_submit(request, pi)]
+    return [pi for pi in visible_problem_instances(request) if controller.can_submit(request, pi)]
 
 
 @request_cached_complex
