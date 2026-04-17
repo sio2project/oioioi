@@ -252,7 +252,7 @@ def visible_problem_instances(request, no_admin=False):
     queryset = (
         ProblemInstance.objects.filter(contest=request.contest)
         .select_related("problem")
-        .prefetch_related("round", "contest", "problem__contest", "problem__author", "problem__names__name")
+        .prefetch_related("round", "contest", "problem__contest", "problem__author", "problem__names")
     )
     return [
         pi
