@@ -877,6 +877,13 @@ class SubmissionAdmin(admin.ModelAdmin):
     def get_custom_list_select_related(self):
         return super().get_custom_list_select_related() + [
             "user",
+        ]
+
+    def get_custom_list_prefetch_related(self):
+        # We don't prefetch problem names here, as in absurdly large contests
+        # or the non-contest view, fetching the names only for submissions
+        # visible on the page is better.
+        return super().get_custom_list_prefetch_related() + [
             "problem_instance",
             "problem_instance__problem",
             "problem_instance__contest",
