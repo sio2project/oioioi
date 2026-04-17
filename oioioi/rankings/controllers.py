@@ -384,16 +384,17 @@ class DefaultRankingController(RankingController):
                 prev_sum = extractor(row)
             row["place"] = place
 
-    def _is_problem_statement_visible(self, key, pi, timestamp):
+    def _is_problem_statement_visible(self, context, key, pi, timestamp):
         if self.is_admin_key(key):
             return True
         ccontroller = self.contest.controller
-        context = ContestControllerContext(self.contest, timezone.now(), False)
         return ccontroller.can_see_problem(context, pi) and ccontroller.can_see_statement(context, pi)
 
     def _get_pis_with_visibility(self, key, pis):
         now = timezone.now()
-        return [(pi, self._is_problem_statement_visible(key, pi, now)) for pi in pis]
+        # Share the context to allow for caching of e.g. round times.
+        context = ContestControllerContext(self.contest, now, False)
+        return [(pi, self._is_problem_statement_visible(context, key, pi, now)) for pi in pis]
 
     def serialize_ranking(self, key):
         partial_key = self.get_partial_key(key)
