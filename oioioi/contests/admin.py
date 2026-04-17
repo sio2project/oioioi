@@ -877,6 +877,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     def get_custom_list_select_related(self):
         return super().get_custom_list_select_related() + [
             "user",
+        ]
+
+    def get_custom_list_prefetch_related(self):
+        return super().get_custom_list_prefetch_related() + [
             "problem_instance",
             "problem_instance__problem",
             "problem_instance__contest",
