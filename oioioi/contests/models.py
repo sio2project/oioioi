@@ -18,7 +18,7 @@ from django.utils.translation import ngettext
 
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.menu import MenuItem, menu_registry
-from oioioi.base.utils import strip_num_or_hash
+from oioioi.base.utils import request_cached, strip_num_or_hash
 from oioioi.base.utils.validators import validate_db_string_id, validate_whitespaces
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField
@@ -469,12 +469,21 @@ submission_statuses.register("OK", _("OK"))
 submission_statuses.register("ERR", _("Error"))
 
 
+def export_entries(registry, values):
+    result = []
+    for value, description in registry.entries:
+        if value in values:
+            result.append((value, description))
+    return result
+
+
 class Submission(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance, verbose_name=_("problem"), on_delete=models.CASCADE)
     user = models.ForeignKey(User, blank=True, null=True, verbose_name=_("user"), on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now, blank=True, verbose_name=_("date"), db_index=True)
     kind = EnumField(submission_kinds, default="NORMAL", verbose_name=_("kind"))
     score = ScoreField(blank=True, null=True, verbose_name=_("score"))
+    max_score = ScoreField(blank=True, null=True, verbose_name=_("max score"))
     status = EnumField(submission_statuses, default="?", verbose_name=_("status"))
     comment = models.TextField(blank=True, verbose_name=_("comment"))
 
@@ -500,6 +509,41 @@ class Submission(models.Model):
         if self.score is None:
             return None
         return self.problem_instance.controller.render_submission_score(self)
+
+    def valid_other_kinds(self):
+        controller = self.problem_instance.controller
+        valid_kinds = controller.valid_kinds_for_submission(self)
+        valid_kinds.remove(self.kind)
+        return export_entries(submission_kinds, valid_kinds)
+
+    def get_display_type(self):
+        if self.status == "INI_OK" or self.status == "OK":
+            try:
+                score_percentage = float(self.score.to_int()) / self.max_score.to_int()
+
+                if score_percentage < 0.25:
+                    display_type = "OK0"
+                elif score_percentage < 0.5:
+                    display_type = "OK25"
+                elif score_percentage < 0.75:
+                    display_type = "OK50"
+                elif score_percentage < 1.0:
+                    display_type = "OK75"
+                else:
+                    display_type = "OK100"
+
+            except ZeroDivisionError:
+                display_type = "IGN"
+
+            # If by any means there is no 'score' or 'max_score' field then
+            # we just treat the submission as without them
+            except AttributeError:
+                display_type = self.status
+
+        else:
+            display_type = self.status
+
+        return display_type
 
     def __str__(self):
         return (
@@ -697,11 +741,13 @@ class ContestLink(models.Model):
         verbose_name_plural = _("contest menu links")
 
 
+@request_cached
 def contest_links_generator(request):
     if not hasattr(request, "contest"):
-        return
+        return []
 
     links = ContestLink.objects.filter(contest=request.contest)
+    items = []
     for link in links:
         # pylint: disable=cell-var-from-loop
         # http://docs.python-guide.org/en/latest/writing/gotchas/#late-binding-closures
@@ -714,7 +760,8 @@ def contest_links_generator(request):
             url_generator=url_generator,
             order=link.order,
         )
-        yield item
+        items.append(item)
+    return items
 
 
 menu_registry.register_generator("contest_links", contest_links_generator)

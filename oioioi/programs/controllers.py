@@ -116,11 +116,17 @@ class ProgrammingProblemController(ProblemController):
             logger.warning("No default compiler for language %s", language)
             return "default-" + extension
 
+    def _get_problem_compilers_cached(self, problem_instance, language):
+        if not hasattr(problem_instance, "_problem_compilers_cache"):
+            qs = ProblemCompiler.objects.filter(problem_id=problem_instance.problem_id)
+            problem_instance._problem_compilers_cache = {pc.language: pc for pc in qs}
+        return problem_instance._problem_compilers_cache.get(language, None)
+
     def get_compiler_for_language(self, problem_instance, language):
-        problem = problem_instance.problem
-        problem_compiler_qs = ProblemCompiler.objects.filter(problem__exact=problem.id, language__exact=language)
-        if problem_compiler_qs.exists():
-            return problem_compiler_qs.first().compiler
+        # TODO: cross-problem_instance caching.
+        problem_compiler = self._get_problem_compilers_cached(problem_instance, language)
+        if problem_compiler is not None:
+            return problem_compiler.compiler
         else:
             default_compilers = settings.DEFAULT_COMPILERS
             compiler = default_compilers.get(language)
@@ -383,8 +389,10 @@ class ProgrammingProblemController(ProblemController):
             report = SubmissionReport.objects.filter(submission=submission, status="ACTIVE", kind="NORMAL").get()
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.score = score_report.score
+            submission.max_score = score_report.max_score
         except SubmissionReport.DoesNotExist:
             submission.score = None
+            submission.max_score = None
 
         submission.save()
 
@@ -490,6 +498,7 @@ class ProgrammingProblemController(ProblemController):
         controller = problem_instance.controller
 
         choices = [("", "")]
+        # TODO:
         for lang in get_allowed_languages_dict(problem_instance).keys():
             compiler_name = None
             compiler = controller.get_compiler_for_language(problem_instance, lang)
@@ -771,7 +780,12 @@ class ProgrammingProblemController(ProblemController):
             .filter(problem_instance=submission.problem_instance)
             .exclude(pk=submission.pk)
             .order_by("-date")
-            .select_related()
+            .prefetch_related(
+                "problem_instance",
+                "problem_instance__contest",
+                "problem_instance__round",
+                "problem_instance__problem",
+            )
         )
         if not submission.problem_instance.contest == request.contest:
             raise SuspiciousOperation
@@ -800,6 +814,7 @@ class ProgrammingProblemController(ProblemController):
         )
 
     def get_allowed_languages_for_problem(self, problem):
+        # TODO:
         allowed_langs = list(ProblemAllowedLanguage.objects.filter(problem=problem).values_list("language", flat=True))
         if not allowed_langs:
             return problem.controller.get_allowed_languages()
@@ -823,12 +838,21 @@ class ProgrammingContestController(ContestController):
         problem_instance = submission.problem_instance
         return problem_instance.problem.controller.get_compiler_for_submission(submission)
 
+    def _get_contest_compilers_cached(self, problem_instance, language):
+        c = problem_instance.contest
+        if not hasattr(c, "_contest_compilers_cache"):
+            qs = ContestCompiler.objects.filter(contest=c)
+            c._contest_compilers_cache = {cc.language: cc for cc in qs}
+        return c._contest_compilers_cache.get(language, None)
+
     def get_compiler_for_language(self, problem_instance, language):
-        contest = problem_instance.contest
         problem = problem_instance.problem
-        contest_compiler_qs = ContestCompiler.objects.filter(contest__exact=contest, language__exact=language)
-        if contest_compiler_qs.exists():
-            return contest_compiler_qs.first().compiler
+        # The caching is done in problem_instance.contest, which works great for many
+        # problem instances if prefetch_related was used for "contest" field, as
+        # then the python object is shared.
+        contest_compiler = self._get_contest_compilers_cached(problem_instance, language)
+        if contest_compiler is not None:
+            return contest_compiler.compiler
         else:
             return problem.controller.get_compiler_for_language(problem_instance, language)
 

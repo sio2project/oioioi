@@ -60,7 +60,7 @@ from oioioi.contests.utils import (
     is_contest_observer,
     is_contest_owner,
 )
-from oioioi.problems.models import ProblemName, ProblemPackage, ProblemSite
+from oioioi.problems.models import ProblemName
 from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.models import Test, TestReport
 
@@ -451,7 +451,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def inline_actions(self, instance):
         result = []
-        assert ProblemSite.objects.filter(problem=instance.problem).exists()
+        # assert ProblemSite.objects.filter(problem=instance.problem).exists()
+        assert instance.problem.problemsite is not None
         move_href = self._move_href(instance)
         result.append((move_href, _("Edit")))
         is_quiz = hasattr(instance.problem, "quiz") and instance.problem.quiz
@@ -518,7 +519,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     short_name_link.admin_order_field = "short_name"
 
     def package(self, instance):
-        problem_package = ProblemPackage.objects.filter(problem=instance.problem).first()
+        packages = instance.problem.problempackage_set.all()
+        problem_package = packages[0] if packages else None
         request = self._request_local.request
         if problem_package and problem_package.package_file and can_admin_problem(request, instance.problem):
             href = reverse("download_package", kwargs={"package_id": str(problem_package.id)})
@@ -537,15 +539,23 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def get_custom_list_select_related(self):
         return super().get_custom_list_select_related() + [
+            "problem",
+            "problem__problemsite",
+        ]
+
+    def get_custom_list_prefetch_related(self):
+        return super().get_custom_list_prefetch_related() + [
             "contest",
             "round",
-            "problem",
+            "problem__names",
+            "problem__problempackage_set",
         ]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         qs = (
             qs.filter(contest=request.contest)
+            # TODO: ???????
             .annotate(localized_name=Subquery(ProblemName.objects.filter(problem=OuterRef("problem__pk"), language=get_language()).values("name")))
             .annotate(
                 ordering_name=Case(
@@ -553,7 +563,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                     default=F("localized_name"),
                 )
             )
+            .select_related("problem__quiz", "problem__problemsite")
         )
+        if "oioioi.suspendjudge" in settings.INSTALLED_APPS:
+            qs = qs.select_related("suspended")
 
         return qs
 
@@ -874,6 +887,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     def get_custom_list_select_related(self):
         return super().get_custom_list_select_related() + [
             "user",
+        ]
+
+    def get_custom_list_prefetch_related(self):
+        return super().get_custom_list_prefetch_related() + [
             "problem_instance",
             "problem_instance__problem",
             "problem_instance__contest",

@@ -5,6 +5,6 @@ from oioioi.maintenancemode.models import is_maintenance_mode_enabled
 register = template.Library()
 
 
-@register.simple_tag
-def is_maintenance_enabled():
-    return is_maintenance_mode_enabled()
+@register.simple_tag(takes_context=True)
+def is_maintenance_enabled(context):
+    return is_maintenance_mode_enabled(context.get("request"))

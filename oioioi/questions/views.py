@@ -69,7 +69,7 @@ def visible_messages(request, author=None, category=None, kind=None):
         )
         messages = messages.filter(q_expression, q_time)
 
-    return messages.select_related("top_reference", "author", "problem_instance", "problem_instance__problem")
+    return messages.select_related("top_reference", "author", "problem_instance", "round", "problem_instance__problem")
 
 
 def new_messages(request, messages=None):
