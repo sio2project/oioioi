@@ -163,7 +163,7 @@ class Post(models.Model):
 
     class PostsWithReactionsSummaryManager(models.Manager):
         def get_queryset(self):
-            qs = super(Post.PostsWithReactionsSummaryManager, self).get_queryset()
+            qs = super().get_queryset()
 
             for rtype, attr_name in POST_REACTION_TO_COUNT_ATTR.items():
                 reaction_count_agg = {attr_name: models.Count("reactions", filter=models.Q(reactions__type_of_reaction=rtype))}
