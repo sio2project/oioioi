@@ -61,9 +61,7 @@ class SimpleContestForm(forms.ModelForm):
         fields = ["controller_name", "name", "id", "school_year"]
 
     start_date = forms.SplitDateTimeField(label=_("Start date"), widget=ResilientAdminSplitDateTime())
-
     end_date = forms.SplitDateTimeField(required=False, label=_("End date"), widget=ResilientAdminSplitDateTime())
-
     results_date = forms.SplitDateTimeField(required=False, label=_("Results date"), widget=ResilientAdminSplitDateTime())
 
     def validate_years(year):
