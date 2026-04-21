@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter, action
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
-from django.db.models import Case, Count, F, OuterRef, Q, Subquery, Value, When
+from django.db.models import Case, Count, Exists, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
 from django.forms.models import modelform_factory
@@ -40,6 +40,7 @@ from oioioi.contests.models import (
     ContestAttachment,
     ContestLink,
     ContestPermission,
+    FailureReport,
     ProblemInstance,
     Round,
     RoundStartDelay,
@@ -659,10 +660,17 @@ class SystemErrorListFilter(SimpleListFilter):
         return [("no", _("No")), ("yes", _("Yes"))]
 
     def queryset(self, request, queryset):
-        q = Q(
-            submissionreport__status="ACTIVE",
-            submissionreport__failurereport__isnull=False,
-        ) | Q(submissionreport__status="ACTIVE", submissionreport__testreport__status="SE")
+        has_failure = FailureReport.objects.filter(submission_report__submission=OuterRef("pk"), submission_report__status="ACTIVE")
+        has_se_test = TestReport.objects.filter(
+            submission_report__submission=OuterRef("pk"),
+            submission_report__status="ACTIVE",
+            status="SE",
+        )
+        q = Q(Exists(has_failure)) | Q(Exists(has_se_test))
+        # q = Q(
+        #    submissionreport__status="ACTIVE",
+        #    submissionreport__failurereport__isnull=False,
+        # ) | Q(submissionreport__status="ACTIVE", submissionreport__testreport__status="SE")
         if self.value() == "yes":
             return queryset.filter(q)
         elif self.value() == "no":
