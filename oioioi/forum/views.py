@@ -56,7 +56,7 @@ from oioioi.forum.utils import (
     _("Forum"),
     lambda request: reverse("oioioiadmin:forum_forum_change", args=(request.contest.forum.id,)),
     is_contest_admin,
-    order=50,
+    order=52,
 )
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)

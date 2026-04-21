@@ -1,4 +1,4 @@
-{% load i18n runtimeformat check_perm %}
+{% load i18n runtimeformat memoryformat check_perm %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 
 <h4>{% trans "Test run report" %}</h4>
@@ -18,6 +18,9 @@
                 <th>{% trans "Input" %}</th>
                 <th>{% trans "Result" %}</th>
                 <th>{% trans "Time" %}</th>
+                {% if show_mem_used %}
+                <th>{% trans "Memory" %}</th>
+                {% endif %}
                 <th>{% trans "Output" %}</th>
                 {% endblock %}
             </tr>
@@ -37,7 +40,10 @@
                     </a>
                 </td>
                 <td class="submission__status submission--{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>
-                <td>{{ testrun_report.time_used|runtimeformat }}/{{ testrun_report.test_time_limit|runtimeformat }}</td>
+                <td>{{ testrun_report.time_used|runtimeformat }} / {{ testrun_report.test_time_limit|runtimeformat }}</td>
+                {% if show_mem_used %}
+                <td>{{ testrun_report.mem_used|memoryformat }} / {{ testrun_report.test_mem_limit|memoryformat }}</td>
+                {% endif %}
                 <td>
                     <button type="button" class="btn btn-xs btn-outline-secondary" data-async-toggle="collapse" data-bs-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}">
                         <i class="fa-solid fa-chevron-down"></i>

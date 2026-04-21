@@ -18,6 +18,7 @@ $(function() {
     const DISPLAY_TIME = 10;
     // Should match scss `$countdown-time-full-width` property
     const FULL_TEXT_WIDTH = 550;
+    const FILL_PERCENTAGE_PRECISION = 1;
 
     // Enum to indicate countdown display type
     const CountdownType = {
@@ -126,7 +127,8 @@ $(function() {
         countdownProgressFill.css('visibility', 'visible');
         const completion = 1 - remainingSeconds / roundDuration;
 
-        countdownProgressFill.width((completion * 100) + '%');
+        countdownProgressFill.width(
+            (completion * 100).toFixed(FILL_PERCENTAGE_PRECISION) + '%');
         countdownProgressFill.attr('aria-valuenow',
             Math.floor(completion * 100));
         countdownProgressText.text(Math.floor(completion * 100) + "%");
@@ -319,10 +321,9 @@ $(function() {
                 .fmt({ days: days });
 
             if (days > 0) {
-                const countdownDays = daysText + hoursText + minutesText
-                    + secondsText;
+                const countdownDays = daysText + hoursText + minutesText;
                 countdownShort = daysShort + hoursShort + minutesShortText
-                    + secondsShortText + countdownDestinationShort;
+                    + countdownDestinationShort;
                 countdownText = ngettext(
                 "%(countdown_days)sleft to the %(countdown_destination)s.",
                 "%(countdown_days)sleft to the %(countdown_destination)s.",
@@ -332,9 +333,9 @@ $(function() {
                     round_name: roundName
                 });
             } else if (hours > 0) {
-                const countdownHours = hoursText + minutesText + secondsText;
+                const countdownHours = hoursText + minutesText;
                 countdownShort = hoursShort + minutesShortText
-                    + secondsShortText + countdownDestinationShort;
+                    + countdownDestinationShort;
                 countdownText = ngettext(
                 "%(countdown_hours)sleft to the %(countdown_destination)s.",
                 "%(countdown_hours)sleft to the %(countdown_destination)s.",
