@@ -578,7 +578,7 @@ def contest_files_view(request):
         problem_ids_without_admin = {pi.problem_id for pi in visible_problem_instances(request, no_admin=True)}
     else:
         problem_ids_without_admin = set(problem_ids)
-    problem_files = ProblemAttachment.objects.filter(problem_id__in=problem_ids).select_related("problem")
+    problem_files = ProblemAttachment.objects.filter(problem_id__in=problem_ids).select_related("problem").prefetch_related("problem__names")
 
     round_file_exists = contest_files.filter(round__isnull=False).exists()
     add_category_field = round_file_exists or problem_files.exists()
