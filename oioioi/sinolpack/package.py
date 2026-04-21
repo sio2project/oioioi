@@ -322,6 +322,7 @@ class SinolPackage:
         if existing_problem:
             self.problem = existing_problem
             self._ensure_short_name_equality_with(existing_problem)
+            self._ensure_task_type_equality_with(existing_problem)
         else:
             self.problem = self._create_problem_instance()
             problem_site = ProblemSite(problem=self.problem, url_key=generate_key())
@@ -337,6 +338,16 @@ class SinolPackage:
             raise ProblemPackageError(
                 _("Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, changing problem short name is not possible.")
                 % {"oldname": existing_problem.short_name, "newname": self.short_name}
+            )
+
+    def _ensure_task_type_equality_with(self, existing_problem):
+        existing_problem_task_type = (
+            TaskType.INTERACTIVE if existing_problem.controller_name == "oioioi.sinolpack.controllers.SinolInteractiveProblemController" else TaskType.STANDARD
+        )
+        if existing_problem_task_type != self.task_type:
+            raise ProblemPackageError(
+                _("Tried to replace problem type '%(oldtype)s' with '%(newtype)s'. For safety, changing problem type is not possible.")
+                % {"oldtype": existing_problem_task_type, "newtype": self.task_type}
             )
 
     def _create_problem_instance(self):
