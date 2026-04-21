@@ -654,7 +654,12 @@ class ProgrammingProblemController(ProblemController):
 
         score_report = ScoreReport.objects.get(submission_report=report)
         compilation_report = CompilationReport.objects.get(submission_report=report)
-        test_reports = TestReport.objects.filter(submission_report=report).select_related("userout_status").order_by("test__order", "test_group", "test_name")
+        test_reports = (
+            TestReport.objects.filter(submission_report=report)
+            .select_related("userout_status", "test")
+            .prefetch_related("test__problem_instance__problem", "submission_report__submission__problem_instance__contest")
+            .order_by("test__order", "test_group", "test_name")
+        )
         group_reports = GroupReport.objects.filter(submission_report=report)
         show_scores = any(gr.score is not None for gr in group_reports)
         group_reports = {g.group: g for g in group_reports}
@@ -784,6 +789,9 @@ class ProgrammingProblemController(ProblemController):
                 "problem_instance__problem",
             )
         )
+        if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
+            queryset = queryset.select_related("revealed").prefetch_related("problem_instance__scores_reveal_config")
+
         if not submission.problem_instance.contest == request.contest:
             raise SuspiciousOperation
         if not is_contest_basicadmin(request) and request.contest:
