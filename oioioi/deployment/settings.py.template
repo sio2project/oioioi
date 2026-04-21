@@ -51,6 +51,8 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 #         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
 #         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
 #         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
+#         'CONN_MAX_AGE': 60,              # Persist connections between requests for 60 seconds..
+#         'CONN_HEALTH_CHECKS': True,      # ...but ensure it didn't break.
 #     }
 # }
 
