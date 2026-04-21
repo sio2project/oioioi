@@ -163,6 +163,6 @@ class TestACMScores(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
-        self.assertIn("badge-danger", self._get_badge_for_problem(response.content, "A"))
-        self.assertIn("badge-success", self._get_badge_for_problem(response.content, "sum"))
-        self.assertIn("badge-success", self._get_badge_for_problem(response.content, "test"))
+        self.assertIn("text-bg-danger", self._get_badge_for_problem(response.content, "A"))
+        self.assertIn("text-bg-success", self._get_badge_for_problem(response.content, "sum"))
+        self.assertIn("text-bg-success", self._get_badge_for_problem(response.content, "test"))
