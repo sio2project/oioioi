@@ -15,6 +15,11 @@ class ContestPermissionsAuthBackend:
     def authenticate(self, request, **kwargs):
         return None
 
+    def _get_permission_objects_list_for_user(self, user):
+        if not hasattr(user, "_contest_perms_cache"):
+            user._contest_perms_cache = set(ContestPermission.objects.filter(user=user).values_list("contest", "permission"))
+        return user._contest_perms_cache
+
     def filter_for_perm(self, obj_class, perm, user):
         """Provides a :class:`django.db.models.Q` expression which can be used
         to filter `obj_class` queryset for objects `o` such that
@@ -25,7 +30,9 @@ class ContestPermissionsAuthBackend:
         if obj_class is Contest:
             if user.is_superuser:
                 return Q_always_true()
-            query = Q(contestpermission__permission=perm, contestpermission__user=user)
+            contest_ids = [contest_id for contest_id, contest_perm in self._get_permission_objects_list_for_user(user) if contest_perm == perm]
+            query = Q(id__in=contest_ids)
+            # query = Q(contestpermission__permission=perm, contestpermission__user=user)
             if perm == "contests.contest_admin":
                 query |= self.filter_for_perm(obj_class, "contests.contest_owner", user)
             if perm == "contests.contest_basicadmin":
@@ -42,6 +49,4 @@ class ContestPermissionsAuthBackend:
             return True
         if perm == "contests.contest_basicadmin" and self.has_perm(user_obj, "contests.contest_admin", obj):
             return True
-        if not hasattr(user_obj, "_contest_perms_cache"):
-            user_obj._contest_perms_cache = set(ContestPermission.objects.filter(user=user_obj).values_list("contest", "permission"))
-        return (obj.id, perm) in user_obj._contest_perms_cache
+        return (obj.id, perm) in self._get_permission_objects_list_for_user(user_obj)
