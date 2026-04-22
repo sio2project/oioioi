@@ -1071,11 +1071,11 @@ class PastRoundsHiddenContestControllerMixin:
         if not no_admin and context.is_admin:
             return True
 
-        rtimes = self.get_round_times(None, round)
-        if has_any_active_round(context):
+        rtimes = self.get_round_times(request_or_context, round)
+        if has_any_active_round(request_or_context):
             return rtimes.is_active(context.timestamp)
 
-        left, right = last_break_between_rounds(context)
+        left, right = last_break_between_rounds(request_or_context)
         if left is not None and right is not None:
             last_break_time = right - left
             preparation_start = right - min(timedelta(minutes=30), last_break_time // 2)
