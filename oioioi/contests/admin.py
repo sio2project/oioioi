@@ -452,7 +452,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def inline_actions(self, instance):
         result = []
-        # assert ProblemSite.objects.filter(problem=instance.problem).exists()
+        # The related problemsites are fetched in bulk thanks to .get_custom_list_select_related().
         assert instance.problem.problemsite is not None
         move_href = self._move_href(instance)
         result.append((move_href, _("Edit")))
@@ -471,8 +471,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             )
         reattach_href = self._reattach_problem_href(instance)
         result.append((reattach_href, _("Attach to another contest")))
+        # This is calculated in bulk by .annotate() .get_queryset().
         problem_count = instance._problem_count
-        # problem_count = len(ProblemInstance.objects.filter(problem=instance.problem_id))
         # Problem package can only be reuploaded if the problem instance
         # is only in one contest and in the problem base
         # Package reupload does not apply to quizzes.
@@ -521,6 +521,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     short_name_link.admin_order_field = "short_name"
 
     def package(self, instance):
+        # This is available (as a list) without additional DB queries for
+        # every `instance` thanks to .get_custom_list_prefetch_related().
         packages = instance.problem.problempackage_set.all()
         problem_package = packages[0] if packages else None
         request = self._request_local.request
@@ -667,6 +669,8 @@ class SystemErrorListFilter(SimpleListFilter):
             status="SE",
         )
         q = Q(Exists(has_failure)) | Q(Exists(has_se_test))
+        # The perhaps more intuitive way of writing this filter, as shown below,
+        # is much (13x) slower and also duplicates submissions sometimes.
         # q = Q(
         #    submissionreport__status="ACTIVE",
         #    submissionreport__failurereport__isnull=False,

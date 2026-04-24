@@ -32,6 +32,10 @@ class ContestPermissionsAuthBackend:
                 return Q_always_true()
             contest_ids = [contest_id for contest_id, contest_perm in self._get_permission_objects_list_for_user(user) if contest_perm == perm]
             query = Q(id__in=contest_ids)
+            # Writing the query as above avoids somewhat costly joins in `visible_contests`.
+            # It also greatly simplifies the query itself, as most users have no
+            # ContestPermission objects and the rest often has only one type of permission.
+            # Django is smart enough to eliminate empty `__in` filters.
             # query = Q(contestpermission__permission=perm, contestpermission__user=user)
             if perm == "contests.contest_admin":
                 query |= self.filter_for_perm(obj_class, "contests.contest_owner", user)

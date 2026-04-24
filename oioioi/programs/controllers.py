@@ -116,6 +116,10 @@ class ProgrammingProblemController(ProblemController):
             logger.warning("No default compiler for language %s", language)
             return "default-" + extension
 
+    # Let's fetch ProblemCompilers for all languages in bulk, as they
+    # will be needed anyway and the query overhead is negligible.
+    # The query is still a bottleneck for the submit view, see comment
+    # for `._add_langs_to_form()`.
     def _get_problem_compilers_cached(self, problem_instance, language):
         if not hasattr(problem_instance, "_problem_compilers_cache"):
             qs = ProblemCompiler.objects.filter(problem_id=problem_instance.problem_id)
@@ -123,7 +127,6 @@ class ProgrammingProblemController(ProblemController):
         return problem_instance._problem_compilers_cache.get(language, None)
 
     def get_compiler_for_language(self, problem_instance, language):
-        # TODO: cross-problem_instance caching.
         problem_compiler = self._get_problem_compilers_cached(problem_instance, language)
         if problem_compiler is not None:
             return problem_compiler.compiler
@@ -494,11 +497,15 @@ class ProgrammingProblemController(ProblemController):
             problem_instance.controller.judge(submission)
         return submission
 
+    # This method is a large bottleneck in the submit view for large contests,
+    # as for every problem_instance, `.get_compiler_for_language()`
+    # and `.get_allowed_languages_for_problem()` execute DB queries.
+    # It could be improved e.g. by propagating the list of problem instances from
+    # `contests/forms.py::SubmissionForm` and fetching related ProblemCompilers in bulk.
     def _add_langs_to_form(self, request, form, problem_instance):
         controller = problem_instance.controller
 
         choices = [("", "")]
-        # TODO:
         for lang in get_allowed_languages_dict(problem_instance).keys():
             compiler_name = None
             compiler = controller.get_compiler_for_language(problem_instance, lang)
@@ -819,7 +826,7 @@ class ProgrammingProblemController(ProblemController):
         )
 
     def get_allowed_languages_for_problem(self, problem):
-        # TODO:
+        # This query is a bottleneck for the submit view, see comment for `._add_langs_to_form()`.
         allowed_langs = list(ProblemAllowedLanguage.objects.filter(problem=problem).values_list("language", flat=True))
         if not allowed_langs:
             return problem.controller.get_allowed_languages()

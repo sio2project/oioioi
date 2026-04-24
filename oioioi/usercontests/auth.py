@@ -31,6 +31,9 @@ class UserContestAuthBackend:
                 settings.ARCHIVE_USERCONTESTS and perm == "contests.contest_observer"
             ):
                 return Q(id__in=self.get_owned_usercontest_ids(user))
+                # The above query avoids somewhat costly joins in favour of subqueries,
+                # as opposed to the one below. The subquery will be eliminated by django
+                # anyway for users who don't own usercontests.
                 # return Q(usercontest__user=user)
         return Q_always_false()
 

@@ -22,6 +22,8 @@ class UserGroupsParticipantsControllerMixin:
         if not request.user.is_authenticated:
             return base_query
         return base_query | Q(id__in=get_contest_ids_with_user_membership(request))
+        # The above filter avoids costly joins in favour of subqueries,
+        # as opposed to the one below.
         # return base_query | Q(usergroups__members__id=request.user.id)
 
 
