@@ -25,6 +25,32 @@ from oioioi.contests.utils import is_contest_basicadmin, submittable_problem_ins
 from oioioi.programs.models import Test
 
 
+class ResilientAdminSplitDateTime(widgets.AdminSplitDateTime):
+    """
+    A subclass of AdminSplitDateTime that forces the inclusion
+    of 'vDateField' and 'vTimeField' CSS classes.
+
+    Use this to ensure that the interactive Calendar and Clock selectors
+    always appear, even when the widget is used in custom frontend forms.
+    """
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+
+        # classes we need to add to keep the calendar/clock widgets
+        required_classes = ["vDateField", "vTimeField"]
+
+        for i, subwidget in enumerate(context["widget"]["subwidgets"]):
+            if i < len(required_classes):
+                target_class = required_classes[i]
+                current_class = subwidget["attrs"].get("class", "")
+
+                if target_class not in current_class:
+                    subwidget["attrs"]["class"] = f"{current_class} {target_class}".strip()
+
+        return context
+
+
 class SimpleContestForm(forms.ModelForm):
     class Meta:
         model = Contest
@@ -34,9 +60,9 @@ class SimpleContestForm(forms.ModelForm):
         # javascript with prepopulated fields functionality.
         fields = ["controller_name", "name", "id", "school_year"]
 
-    start_date = forms.SplitDateTimeField(label=_("Start date"), widget=widgets.AdminSplitDateTime())
-    end_date = forms.SplitDateTimeField(required=False, label=_("End date"), widget=widgets.AdminSplitDateTime())
-    results_date = forms.SplitDateTimeField(required=False, label=_("Results date"), widget=widgets.AdminSplitDateTime())
+    start_date = forms.SplitDateTimeField(label=_("Start date"), widget=ResilientAdminSplitDateTime())
+    end_date = forms.SplitDateTimeField(required=False, label=_("End date"), widget=ResilientAdminSplitDateTime())
+    results_date = forms.SplitDateTimeField(required=False, label=_("Results date"), widget=ResilientAdminSplitDateTime())
 
     def validate_years(year):
         validator = RegexValidator(
