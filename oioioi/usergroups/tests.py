@@ -408,6 +408,7 @@ class TestContestRegistrationWithUsergroups(TestCase):
         group.contests.add(contest)
         rc = contest.controller.registration_controller()
 
+        del request._cache
         self.assertIn(user, rc.filter_participants(User.objects.all()))
         self.assertIn(contest, rc.filter_user_contests(request, Contest.objects.all()))
         self.assertEqual(self.client.get(url, follow=True).status_code, 200)

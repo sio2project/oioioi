@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.urls import get_script_prefix
-from django.utils import timezone
 from django.utils.functional import lazy
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
@@ -8,7 +7,7 @@ from django_gravatar.helpers import get_gravatar_url
 
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
 from oioioi.base.navbar_links import navbar_links_registry
-from oioioi.contests.models import Round
+from oioioi.contests.utils import has_any_active_round
 
 
 def base_url(request):
@@ -30,16 +29,11 @@ def side_menus(request):
 
 
 def navbar_links(request):
-    current_time = timezone.now()
+    if getattr(request, "contest", None) and getattr(request, "timestamp", None) and has_any_active_round(request):
+        empty_navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
+        no_links = empty_navbar_links_registry.template_context(request)
 
-    if hasattr(request, "contest"):
-        running_rounds = Round.objects.filter(contest=request.contest, start_date__lte=current_time, end_date__gt=current_time)
-
-        if running_rounds.exists():
-            empty_navbar_links_registry = MenuRegistry(_("Navigation Bar Menu"))
-            no_links = empty_navbar_links_registry.template_context(request)
-
-            return {"navbar_links": no_links}
+        return {"navbar_links": no_links}
 
     links = navbar_links_registry.template_context(request)
 

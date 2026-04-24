@@ -17,7 +17,7 @@ from oioioi.base.models import PreferencesSaved
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.controllers import ContestController, ContestControllerContext
 from oioioi.contests.models import Contest, ProblemInstance, UserResultForProblem
-from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
+from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer, visible_rounds
 from oioioi.filetracker.utils import make_content_disposition_header
 from oioioi.rankings.models import Ranking, RankingPage
 
@@ -217,6 +217,8 @@ class DefaultRankingController(RankingController):
         queryset = self.contest.round_set.all()
         if partial_key != CONTEST_RANKING_KEY:
             queryset = queryset.filter(id=partial_key)
+        elif request is not None:
+            queryset = visible_rounds(request)
         for round in queryset:
             times = ccontroller.get_round_times(request, round)
             if can_see_all or times.public_results_visible(timestamp):
@@ -382,16 +384,17 @@ class DefaultRankingController(RankingController):
                 prev_sum = extractor(row)
             row["place"] = place
 
-    def _is_problem_statement_visible(self, key, pi, timestamp):
+    def _is_problem_statement_visible(self, context, key, pi, timestamp):
         if self.is_admin_key(key):
             return True
         ccontroller = self.contest.controller
-        context = ContestControllerContext(self.contest, timezone.now(), False)
         return ccontroller.can_see_problem(context, pi) and ccontroller.can_see_statement(context, pi)
 
     def _get_pis_with_visibility(self, key, pis):
         now = timezone.now()
-        return [(pi, self._is_problem_statement_visible(key, pi, now)) for pi in pis]
+        # Share the context to allow for caching of e.g. round times.
+        context = ContestControllerContext(self.contest, now, False)
+        return [(pi, self._is_problem_statement_visible(context, key, pi, now)) for pi in pis]
 
     def serialize_ranking(self, key):
         partial_key = self.get_partial_key(key)

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter, action
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
-from django.db.models import Case, F, OuterRef, Q, Subquery, Value, When
+from django.db.models import Case, Count, Exists, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
 from django.forms.models import modelform_factory
@@ -40,6 +40,7 @@ from oioioi.contests.models import (
     ContestAttachment,
     ContestLink,
     ContestPermission,
+    FailureReport,
     ProblemInstance,
     Round,
     RoundStartDelay,
@@ -60,7 +61,7 @@ from oioioi.contests.utils import (
     is_contest_observer,
     is_contest_owner,
 )
-from oioioi.problems.models import ProblemName, ProblemPackage, ProblemSite
+from oioioi.problems.models import ProblemName
 from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.models import Test, TestReport
 
@@ -451,7 +452,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def inline_actions(self, instance):
         result = []
-        assert ProblemSite.objects.filter(problem=instance.problem).exists()
+        # The related problemsites are fetched in bulk thanks to .get_custom_list_select_related().
+        assert instance.problem.problemsite is not None
         move_href = self._move_href(instance)
         result.append((move_href, _("Edit")))
         is_quiz = hasattr(instance.problem, "quiz") and instance.problem.quiz
@@ -469,7 +471,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             )
         reattach_href = self._reattach_problem_href(instance)
         result.append((reattach_href, _("Attach to another contest")))
-        problem_count = len(ProblemInstance.objects.filter(problem=instance.problem_id))
+        # This is calculated in bulk by .annotate() .get_queryset().
+        problem_count = instance._problem_count
         # Problem package can only be reuploaded if the problem instance
         # is only in one contest and in the problem base
         # Package reupload does not apply to quizzes.
@@ -518,7 +521,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     short_name_link.admin_order_field = "short_name"
 
     def package(self, instance):
-        problem_package = ProblemPackage.objects.filter(problem=instance.problem).first()
+        # This is available (as a list) without additional DB queries for
+        # every `instance` thanks to .get_custom_list_prefetch_related().
+        packages = instance.problem.problempackage_set.all()
+        problem_package = packages[0] if packages else None
         request = self._request_local.request
         if problem_package and problem_package.package_file and can_admin_problem(request, instance.problem):
             href = reverse("download_package", kwargs={"package_id": str(problem_package.id)})
@@ -537,9 +543,16 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def get_custom_list_select_related(self):
         return super().get_custom_list_select_related() + [
+            "problem",
+            "problem__problemsite",
+        ]
+
+    def get_custom_list_prefetch_related(self):
+        return super().get_custom_list_prefetch_related() + [
             "contest",
             "round",
-            "problem",
+            "problem__names",
+            "problem__problempackage_set",
         ]
 
     def get_queryset(self, request):
@@ -553,7 +566,16 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                     default=F("localized_name"),
                 )
             )
+            .annotate(
+                _problem_count=Count(
+                    "problem__probleminstance",
+                    filter=Q(problem__probleminstance__problem_id=F("problem_id")),
+                ),
+            )
+            .select_related("problem__quiz", "problem__problemsite")
         )
+        if "oioioi.suspendjudge" in settings.INSTALLED_APPS:
+            qs = qs.select_related("suspended")
 
         return qs
 
@@ -640,10 +662,19 @@ class SystemErrorListFilter(SimpleListFilter):
         return [("no", _("No")), ("yes", _("Yes"))]
 
     def queryset(self, request, queryset):
-        q = Q(
-            submissionreport__status="ACTIVE",
-            submissionreport__failurereport__isnull=False,
-        ) | Q(submissionreport__status="ACTIVE", submissionreport__testreport__status="SE")
+        has_failure = FailureReport.objects.filter(submission_report__submission=OuterRef("pk"), submission_report__status="ACTIVE")
+        has_se_test = TestReport.objects.filter(
+            submission_report__submission=OuterRef("pk"),
+            submission_report__status="ACTIVE",
+            status="SE",
+        )
+        q = Q(Exists(has_failure)) | Q(Exists(has_se_test))
+        # The perhaps more intuitive way of writing this filter, as shown below,
+        # is much (13x) slower and also duplicates submissions sometimes.
+        # q = Q(
+        #    submissionreport__status="ACTIVE",
+        #    submissionreport__failurereport__isnull=False,
+        # ) | Q(submissionreport__status="ACTIVE", submissionreport__testreport__status="SE")
         if self.value() == "yes":
             return queryset.filter(q)
         elif self.value() == "no":
@@ -874,6 +905,13 @@ class SubmissionAdmin(admin.ModelAdmin):
     def get_custom_list_select_related(self):
         return super().get_custom_list_select_related() + [
             "user",
+        ]
+
+    def get_custom_list_prefetch_related(self):
+        # We don't prefetch problem names here, as in absurdly large contests
+        # or the non-contest view, fetching the names only for submissions
+        # visible on the page is better.
+        return super().get_custom_list_prefetch_related() + [
             "problem_instance",
             "problem_instance__problem",
             "problem_instance__contest",

@@ -25,7 +25,7 @@ from oioioi.contests.models import (
 from oioioi.contests.scores import IntegerScore
 from oioioi.evalmgr.tasks import create_environ, delay_environ
 from oioioi.problems.models import ProblemStatistics, UserStatistics
-from oioioi.problems.utils import can_admin_problem
+from oioioi.problems.utils import can_admin_problem, get_basic_user_submissions_count
 from oioioi.programs.utils import get_checker_format
 
 logger = logging.getLogger(__name__)
@@ -93,13 +93,14 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         return True
 
-    def is_submissions_limit_exceeded(self, request, problem_instance, kind):
-        submissions_limit = problem_instance.controller.get_submissions_limit(request, problem_instance, kind)
-        if not submissions_limit:
-            return False
+    def get_submissions_count(self, request, problem_instance, kind="NORMAL"):
+        if request.user.is_anonymous:
+            return 0
+        return get_basic_user_submissions_count(request, problem_instance, kind)
 
-        submissions_number = Submission.objects.filter(user=request.user, problem_instance__id=problem_instance.id, kind=kind).count()
-        return submissions_number >= submissions_limit
+    def is_submissions_limit_exceeded(self, request, problem_instance, kind):
+        submissions_left = self.get_submissions_left(request, problem_instance, kind)
+        return submissions_left is not None and submissions_left <= 0
 
     def get_submissions_left(self, request, problem_instance, kind="NORMAL"):
         """Returns number of submissions left until reaching problem limit"""
@@ -109,9 +110,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         submissions_limit = problem_instance.controller.get_submissions_limit(request, problem_instance, kind)
         if not submissions_limit:
             return None
-        submissions_number = Submission.objects.filter(user=request.user, problem_instance__id=problem_instance.id, kind=kind).count()
-
-        return max(0, submissions_limit - submissions_number)
+        return max(0, submissions_limit - self.get_submissions_count(request, problem_instance, kind))
 
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         """Fills a minimal environment with evaluation receipt and other values

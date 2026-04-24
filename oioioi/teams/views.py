@@ -15,6 +15,7 @@ from oioioi.teams.utils import (
     can_join_team,
     can_quit_team,
     can_see_teams_list,
+    get_team_membership,
     has_team,
     teams_enabled,
 )
@@ -49,8 +50,8 @@ def teams_list(request):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest & teams_enabled & (has_team | can_create_team))
 def team_view(request):
     controller = request.contest.controller
-    try:
-        tm = TeamMembership.objects.get(user=request.user, team__contest=request.contest)
+    tm = get_team_membership(request)
+    if tm:
         members = team_members_names(request, tm.team)
         can_invite = (len(members) < controller.max_size_of_team()) and controller.can_modify_team(request)
         join_link = request.build_absolute_uri(
@@ -71,7 +72,7 @@ def team_view(request):
                 "show_invite": can_invite,
             },
         )
-    except TeamMembership.DoesNotExist:
+    else:
         return HttpResponseRedirect(reverse("create_team", kwargs={"contest_id": request.contest.id}))
 
 

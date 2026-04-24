@@ -18,7 +18,7 @@ from oioioi.base.permissions import (
     make_request_condition,
     not_anonymous,
 )
-from oioioi.base.utils import generate_key
+from oioioi.base.utils import generate_key, request_cached
 from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.menu import contest_admin_menu_registry
@@ -44,11 +44,13 @@ def is_teachers(contest):
 
 
 @make_request_condition
+@request_cached
 def is_teacher(request):
     return not_anonymous(request) and request.user.has_perm("teachers.teacher")
 
 
 @make_request_condition
+@request_cached
 def is_not_teacher(request):
     return not_anonymous(request) and not request.user.has_perm("teachers.teacher")
 
