@@ -34,9 +34,11 @@
 {% block content %}
   <div id="content-main">
     {% if cl.has_filters or cl.search_fields or action_form and actions_on_top and cl.show_admin_actions %}
-      <div class="navbar navbar-expand-xl navbar-light breadcrumb pt-2 pb-0 mb-3">
-        {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
-        {% block search %}{% search_form cl %}{% endblock %}
+      <div class="navbar navbar-expand-xl navbar-light breadcrumb rounded px-3 pt-2 pb-0 mb-3" style="background-color: #e9ecef;">
+        <div class="container-fluid px-0 d-flex flex-wrap flex-xl-nowrap align-items-center gap-2">
+          {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+          {% block search %}{% search_form cl %}{% endblock %}
+        </div>
       </div>
     {% endif %}
     {% if cl.formset and cl.formset.errors %}
