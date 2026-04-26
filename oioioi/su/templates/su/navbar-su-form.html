@@ -6,13 +6,13 @@
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
 
-        <div class="form-group">
+        <div class="mb-3">
             <label for="su-username">{% trans "Username" %}</label>
             <input type="text" name="user" id="su-username" class="form-control" placeholder="{% trans "Su to..." %}"
                    data-hints-url="{% url 'get_suable_users' %}" autocomplete="off">
         </div>
 
-        <div class="form-group">
+        <div class="mb-3">
             {{ form.backend.label_tag }}
             {{ form.backend|add_class:"form-control" }}
         </div>

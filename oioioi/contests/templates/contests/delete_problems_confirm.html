@@ -18,7 +18,7 @@
 </ul>
 </p>
 
-<button class="btn btn-danger mt-3" data-toggle="modal" data-target="#confirmDeletionModal">
+<button class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#confirmDeletionModal">
     {% trans "Delete" %}
 </button>
 <button class="btn btn-outline-secondary mt-3" onclick="history.back()">
@@ -37,7 +37,7 @@
           {% blocktrans %}Are you sure you want to delete the selected problems? This action cannot be undone.{% endblocktrans %}
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Cancel" %}</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
           <button type="submit" class="btn btn-danger">{% trans "Confirm Deletion" %}</button>
         </div>
       </form>

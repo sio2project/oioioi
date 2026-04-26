@@ -21,7 +21,7 @@
          {% for field in inline_admin_formset.fields %}
            {% if not field.widget.is_hidden %}
              <th class="column-{{ field.name }}{% if field.required %} required{% endif %}">{{ field.label|capfirst }}
-             {% if field.help_text %}<img src="{% static "admin/img/icon-unknown.svg" %}" class="help help-tooltip" width="14" height="14" alt="({{ field.help_text|striptags }})" title="{{ field.help_text|striptags }}" data-toggle="tooltip">{% endif %}
+             {% if field.help_text %}<img src="{% static "admin/img/icon-unknown.svg" %}" class="help help-tooltip" width="14" height="14" alt="({{ field.help_text|striptags }})" title="{{ field.help_text|striptags }}" data-bs-toggle="tooltip">{% endif %}
              </th>
            {% endif %}
          {% endfor %}
@@ -33,7 +33,7 @@
             {% if inline_admin_form.form.non_field_errors %}
             <tr class="row-form-errors"><td colspan="{{ inline_admin_form|cell_count }}">{{ inline_admin_form.form.non_field_errors }}</td></tr>
             {% endif %}
-            <tr class="form-row {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}{% if forloop.last and inline_admin_formset.has_add_permission %} empty-form{% endif %}"
+            <tr class="row {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}{% if forloop.last and inline_admin_formset.has_add_permission %} empty-form{% endif %}"
                  id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
             <td class="original">
               {% if inline_admin_form.original or inline_admin_form.show_url %}

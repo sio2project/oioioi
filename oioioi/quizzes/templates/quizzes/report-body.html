@@ -16,13 +16,13 @@
         {% for question_report in question_reports %}
             <tr class="test-row-{{ group.report.id }}">
                 <td class="submission__margin submission--{{ question_report.status }}"></td>
-                <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}">
+                <td class="test-actions-toggler {% if is_admin %}fix-float-end{% endif %}">
                     {{ question_report.question.question }}
                 </td>
                 <td class="submission--{{ question_report.status }}">
                     {{ question_report.get_status_display }}
                 </td>
-                <td class="group-score text-right">
+                <td class="group-score text-end">
                     {% if question_report.score %}
                         {{ question_report.score }} / {{ question_report.question_max_score }}
                     {% endif %}

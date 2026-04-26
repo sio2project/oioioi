@@ -18,8 +18,8 @@ $oioioi-navbar-highlighted-color: #fff !default;
 $oioioi-navbar-avatar-size: 25px !default;
 
 // Special case navbar colors
-$oioioi-navbar-time-changed-background: darken(theme-color("primary"), 20) !default;
-$oioioi-navbar-user-changed-background: darken(theme-color("danger"), 20) !default;
+$oioioi-navbar-time-changed-background: darken($primary, 20%) !default;
+$oioioi-navbar-user-changed-background: darken($danger, 20%) !default;
 
 // Breakpoint at which admin badges get shrunk to save some space
 $oioioi-navbar-badge-lg-width: 80px !default;

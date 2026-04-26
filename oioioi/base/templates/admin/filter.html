@@ -8,7 +8,7 @@
     <span>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</span>
 </a>
 
-<div class="collapse pl-3" id="filter-{{ title|slugify }}">
+<div class="collapse ps-3" id="filter-{{ title|slugify }}">
     {% for choice in choices %}
         <a class="dropdown-item dropdown-item-action filter-option {% if choice.selected %}filter-option-selected{% endif %}" 
             href="{{ choice.query_string|iriencode }}">

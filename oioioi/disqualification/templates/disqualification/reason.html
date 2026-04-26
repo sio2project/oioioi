@@ -8,7 +8,7 @@
         <b>{{ reason.title }}
         {% if is_admin %}
             {% if not reason.guilty %} {% trans "(not guilty)" %}{% endif %}
-            <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-toggle="tooltip" title="{% trans "Edit" %}">
+            <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-bs-toggle="tooltip" title="{% trans "Edit" %}">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
         {% endif %}

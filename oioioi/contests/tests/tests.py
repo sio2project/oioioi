@@ -4039,8 +4039,8 @@ class TestStatusBadgeDoesNotLeakScore(TestCase):
         with fake_time(datetime(2012, 8, 5, tzinfo=UTC)):
             response = self.client.get(url, follow=True)
 
-        self.assertContains(response, "badge-success")
-        self.assertNotContains(response, "badge-danger")
+        self.assertContains(response, "text-bg-success")
+        self.assertNotContains(response, "text-bg-danger")
 
     def test_ini_err_full_points_badge_is_danger(self):
         """INI_ERR + 100 pts: badge must be red (status), not green (score)."""
@@ -4053,8 +4053,8 @@ class TestStatusBadgeDoesNotLeakScore(TestCase):
         with fake_time(datetime(2012, 8, 5, tzinfo=UTC)):
             response = self.client.get(url, follow=True)
 
-        self.assertContains(response, "badge-danger")
-        self.assertNotContains(response, "badge-success")
+        self.assertContains(response, "text-bg-danger")
+        self.assertNotContains(response, "text-bg-success")
 
 
 class TestSubmissionsLinksOnListView(TestCase):
@@ -4938,9 +4938,9 @@ class TestScoreBadges(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.assertIn("badge-success", self._get_badge_for_problem(response.content, "zad1"))
-        self.assertIn("badge-warning", self._get_badge_for_problem(response.content, "zad2"))
-        self.assertIn("badge-danger", self._get_badge_for_problem(response.content, "zad3"))
+        self.assertIn("text-bg-success", self._get_badge_for_problem(response.content, "zad1"))
+        self.assertIn("text-bg-warning", self._get_badge_for_problem(response.content, "zad2"))
+        self.assertIn("text-bg-danger", self._get_badge_for_problem(response.content, "zad3"))
 
 
 class TestContestListFiltering(TestCase):
