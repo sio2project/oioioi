@@ -241,7 +241,7 @@ def problem_site_settings(request, problem):
             "model_solutions": model_solutions,
             "can_admin_problem": can_admin_problem(request, problem),
             "extra_actions": extra_actions,
-            "unsupported_reuploads": problem.controller_name == "oioioi.quizzes.controllers.QuizProblemController",
+            "unsupported_reuploads": not problem.controller.supports_reuploads(),
         },
     )
 

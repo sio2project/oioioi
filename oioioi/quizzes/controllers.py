@@ -329,3 +329,6 @@ class QuizProblemController(ProblemController):
 
     def supports_problem_statement(self):
         return False
+
+    def supports_reuploads(self):
+        return False
