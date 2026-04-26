@@ -805,6 +805,9 @@ class ProgrammingProblemController(ProblemController):
             return problem.controller.get_allowed_languages()
         return allowed_langs
 
+    def is_interactive(self):
+        return False
+
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")

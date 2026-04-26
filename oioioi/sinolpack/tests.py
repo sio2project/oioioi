@@ -729,6 +729,16 @@ class TestSinolPackage(TestCase, TestStreamingMixin):
             s = ModelProgramSubmission.objects.get(model_solution=ms)
             self.assertEqual(TestReport.objects.filter(submission_report__submission=s).count(), 0)
 
+    def test_reupload_different_task_type(self):
+        filename = get_test_filename("test_simple_package.zip")
+        call_command("addproblem", filename)
+        problem = Problem.objects.get()
+
+        filename = get_test_filename("test_simple_interactive_short_name_tst.tgz")
+        call_command("updateproblem", str(problem.id), filename)
+        package = ProblemPackage.objects.filter(problem=problem).first()
+        self.assertEqual(package.status, "ERR")
+
 
 @enable_both_unpack_configurations
 @needs_linux
