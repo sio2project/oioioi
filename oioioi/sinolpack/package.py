@@ -341,9 +341,7 @@ class SinolPackage:
             )
 
     def _ensure_task_type_equality_with(self, existing_problem):
-        existing_problem_task_type = (
-            TaskType.INTERACTIVE if existing_problem.controller_name == "oioioi.sinolpack.controllers.SinolInteractiveProblemController" else TaskType.STANDARD
-        )
+        existing_problem_task_type = TaskType.INTERACTIVE if existing_problem.controller.is_interactive() else TaskType.STANDARD
         if existing_problem_task_type != self.task_type:
             raise ProblemPackageError(
                 _("Tried to replace problem type '%(oldtype)s' with '%(newtype)s'. For safety, changing problem type is not possible.")
