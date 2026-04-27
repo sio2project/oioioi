@@ -37,6 +37,7 @@ class ZeusProblemController(ProgrammingProblemController):
                     ),
                     ("initial_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("initial_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("initial_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "initial_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -68,6 +69,7 @@ class ZeusProblemController(ProgrammingProblemController):
                     ),
                     ("final_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("final_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("final_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "final_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -105,6 +107,7 @@ class ZeusProblemController(ProgrammingProblemController):
                     ),
                     ("hidden_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("hidden_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("hidden_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "hidden_grade_submission",
                         "oioioi.programs.handlers.grade_submission",

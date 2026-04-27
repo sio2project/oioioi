@@ -30,7 +30,7 @@ from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.handlers import send_notification_judged
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
-from oioioi.contests.scores import IntegerScore
+from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -1943,3 +1943,389 @@ class TestOICompare(TestCase):
                 CheckerFormatForContest.objects.create(contest=contest, format=format_contest)
 
             self.assertEqual(get_checker_format(pi), expected)
+
+
+class TestApplySubtaskDependencies(TestCase):
+    """Tests for the apply_subtask_dependencies handler."""
+
+    def _make_env(
+        self,
+        tests,
+        test_results,
+        group_results,
+        subtask_dependencies=None,
+        group_scorer="oioioi.programs.utils.min_group_scorer",
+    ):
+        env = {
+            "tests": tests,
+            "test_results": test_results,
+            "group_results": group_results,
+            "group_scorer": group_scorer,
+            "compilation_result": "OK",
+        }
+        if subtask_dependencies is not None:
+            env["subtask_dependencies"] = subtask_dependencies
+        return env
+
+    def _make_test(self, group, kind="NORMAL", order=0):
+        return {"group": group, "kind": kind, "order": order}
+
+    def _make_result(self, score, max_score, status="OK", order=0):
+        if score is not None and max_score:
+            result_percentage = (100 * score, max_score)
+        else:
+            result_percentage = (0, 1)
+        return {
+            "score": IntegerScore(score).serialize() if score is not None else None,
+            "max_score": IntegerScore(max_score).serialize() if max_score is not None else None,
+            "status": status,
+            "order": order,
+            "result_percentage": result_percentage,
+        }
+
+    def _make_group_result(self, score, max_score, status="OK"):
+        return {
+            "score": IntegerScore(score).serialize() if score is not None else None,
+            "max_score": IntegerScore(max_score).serialize() if max_score is not None else None,
+            "status": status,
+        }
+
+    def test_no_dependencies_is_noop(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={"1a": self._make_test("1")},
+            test_results={"1a": self._make_result(10, 10)},
+            group_results={"1": self._make_group_result(10, 10)},
+        )
+        original_score = env["group_results"]["1"]["score"]
+        result = apply_subtask_dependencies(env)
+        self.assertEqual(result["group_results"]["1"]["score"], original_score)
+        self.assertNotIn("groups_affected_by_dependency", result)
+
+    def test_empty_dependencies_dict_is_noop(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={"1a": self._make_test("1")},
+            test_results={"1a": self._make_result(10, 10)},
+            group_results={"1": self._make_group_result(10, 10)},
+            subtask_dependencies={},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertNotIn("groups_affected_by_dependency", result)
+
+    def test_all_pass_no_score_change(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "1b": self._make_test("1", order=1),
+                "2a": self._make_test("2", order=0),
+            },
+            test_results={
+                "1a": self._make_result(10, 10, order=0),
+                "1b": self._make_result(10, 10, order=1),
+                "2a": self._make_result(20, 20, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(10, 10),
+                "2": self._make_group_result(20, 20),
+            },
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(20),
+        )
+        self.assertFalse(result["groups_affected_by_dependency"]["2"]["affected"])
+
+    def test_prereq_failure_lowers_score(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+            },
+            test_results={
+                "1a": self._make_result(7, 10, status="WA", order=0),
+                "2a": self._make_result(20, 20, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(7, 10, status="WA"),
+                "2": self._make_group_result(20, 20),
+            },
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        # 7/10 normalized to 20-scale = 14/20; min(20, 14) = 14
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(14),
+        )
+        self.assertTrue(result["groups_affected_by_dependency"]["2"]["affected"])
+
+    def test_prereq_zero_score_zeros_dependent(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+            },
+            test_results={
+                "1a": self._make_result(0, 10, status="WA", order=0),
+                "2a": self._make_result(20, 20, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(0, 10, status="WA"),
+                "2": self._make_group_result(20, 20),
+            },
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(0),
+        )
+        self.assertTrue(result["groups_affected_by_dependency"]["2"]["affected"])
+
+    def test_multiple_prerequisites(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+                "3a": self._make_test("3", order=0),
+            },
+            test_results={
+                "1a": self._make_result(10, 10, order=0),
+                "2a": self._make_result(5, 10, status="WA", order=0),
+                "3a": self._make_result(10, 10, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(10, 10),
+                "2": self._make_group_result(5, 10, status="WA"),
+                "3": self._make_group_result(10, 10),
+            },
+            subtask_dependencies={"3": ["1", "2"]},
+        )
+        result = apply_subtask_dependencies(env)
+        # Group 2 test 2a: 5/10 stays 5/10 on group 3's scale
+        # Combined min: min(10, 10, 5) = 5
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["3"]["score"]),
+            IntegerScore(5),
+        )
+        self.assertTrue(result["groups_affected_by_dependency"]["3"]["affected"])
+
+    def test_different_max_scores_normalization(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+            },
+            test_results={
+                "1a": self._make_result(8, 10, order=0),
+                "2a": self._make_result(20, 20, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(8, 10),
+                "2": self._make_group_result(20, 20),
+            },
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        # 8/10 normalized to 20-scale = round(8*20/10) = 16
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(16),
+        )
+
+    def test_sum_group_scorer_clamp(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+            },
+            test_results={
+                "1a": self._make_result(10, 10, order=0),
+                "2a": self._make_result(10, 10, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(10, 10),
+                "2": self._make_group_result(10, 10),
+            },
+            subtask_dependencies={"2": ["1"]},
+            group_scorer="oioioi.programs.utils.sum_group_scorer",
+        )
+        result = apply_subtask_dependencies(env)
+        # sum would give 10+10=20 but original is 10; clamp keeps it at 10
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(10),
+        )
+        self.assertFalse(result["groups_affected_by_dependency"]["2"]["affected"])
+
+    def test_missing_prereq_group_no_crash(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={"2a": self._make_test("2", order=0)},
+            test_results={"2a": self._make_result(20, 20, order=0)},
+            group_results={"2": self._make_group_result(20, 20)},
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(20),
+        )
+        self.assertFalse(result["groups_affected_by_dependency"]["2"]["affected"])
+
+    def test_dependent_group_not_in_results(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={"1a": self._make_test("1", order=0)},
+            test_results={"1a": self._make_result(10, 10, order=0)},
+            group_results={"1": self._make_group_result(10, 10)},
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertNotIn("2", result.get("groups_affected_by_dependency", {}))
+
+    def test_none_score_acm_skipped(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+            },
+            test_results={
+                "1a": self._make_result(None, None, order=0),
+                "2a": self._make_result(None, None, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(None, None),
+                "2": self._make_group_result(None, None),
+            },
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertNotIn("2", result.get("groups_affected_by_dependency", {}))
+
+    def test_compilation_error_skips(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = {
+            "compilation_result": "CE",
+            "subtask_dependencies": {"2": ["1"]},
+        }
+        result = apply_subtask_dependencies(env)
+        self.assertNotIn("groups_affected_by_dependency", result)
+
+    def test_prereqs_tracked_correctly(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+                "3a": self._make_test("3", order=0),
+            },
+            test_results={
+                "1a": self._make_result(10, 10, order=0),
+                "2a": self._make_result(10, 10, order=0),
+                "3a": self._make_result(10, 10, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(10, 10),
+                "2": self._make_group_result(10, 10),
+                "3": self._make_group_result(10, 10),
+            },
+            subtask_dependencies={"2": ["1"], "3": ["1", "2"]},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertEqual(result["groups_affected_by_dependency"]["2"]["prereqs"], ["1"])
+        self.assertEqual(result["groups_affected_by_dependency"]["3"]["prereqs"], ["1", "2"])
+
+    def test_independent_groups_unaffected(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+            },
+            test_results={
+                "1a": self._make_result(5, 10, status="WA", order=0),
+                "2a": self._make_result(10, 10, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(5, 10, status="WA"),
+                "2": self._make_group_result(10, 10),
+            },
+            subtask_dependencies={"2": ["1"]},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertNotIn("1", result["groups_affected_by_dependency"])
+
+    def test_chain_dependencies_use_original_scores(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={
+                "1a": self._make_test("1", order=0),
+                "2a": self._make_test("2", order=0),
+                "3a": self._make_test("3", order=0),
+            },
+            test_results={
+                "1a": self._make_result(5, 10, status="WA", order=0),
+                "2a": self._make_result(10, 10, order=0),
+                "3a": self._make_result(10, 10, order=0),
+            },
+            group_results={
+                "1": self._make_group_result(5, 10, status="WA"),
+                "2": self._make_group_result(10, 10),
+                "3": self._make_group_result(10, 10),
+            },
+            subtask_dependencies={"2": ["1"], "3": ["2"]},
+        )
+        result = apply_subtask_dependencies(env)
+        # Group 2: combined with 1a (5/10), min = 5 → affected
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(5),
+        )
+        # Group 3: uses original test results of group 2 (10/10), not adjusted score
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["3"]["score"]),
+            IntegerScore(10),
+        )
+        self.assertFalse(result["groups_affected_by_dependency"]["3"]["affected"])
+
+    def test_empty_prereqs_list_noop(self):
+        from oioioi.programs.handlers import apply_subtask_dependencies
+
+        env = self._make_env(
+            tests={"2a": self._make_test("2", order=0)},
+            test_results={"2a": self._make_result(20, 20, order=0)},
+            group_results={"2": self._make_group_result(20, 20)},
+            subtask_dependencies={"2": []},
+        )
+        result = apply_subtask_dependencies(env)
+        self.assertEqual(
+            ScoreValue.deserialize(result["group_results"]["2"]["score"]),
+            IntegerScore(20),
+        )
+        self.assertFalse(result["groups_affected_by_dependency"]["2"]["affected"])
