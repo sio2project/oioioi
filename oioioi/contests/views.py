@@ -1,3 +1,6 @@
+import io
+import os
+import zipfile
 from operator import itemgetter  # pylint: disable=E0611
 
 import six
@@ -5,11 +8,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.core.files.base import ContentFile
 from django.db.models import OuterRef, Q, Subquery
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext_lazy
@@ -71,8 +76,9 @@ from oioioi.contests.utils import (
     visible_rounds,
 )
 from oioioi.filetracker.utils import stream_file
-from oioioi.problems.models import ProblemAttachment, ProblemStatement
+from oioioi.problems.models import ProblemAttachment, ProblemPackage, ProblemStatement
 from oioioi.problems.utils import (
+    can_admin_problem,
     can_admin_problem_instance,
     copy_problem_instance,
     filter_my_all_visible_submissions,
@@ -844,6 +850,59 @@ def _check_if_problem_instances_belong_to_contest(problem_instances, contest_id)
     return all(pi.contest and pi.contest.id == contest_id for pi in problem_instances)
 
 
+def _make_unique_package_archive_name(package, used_names):
+    base_name = os.path.basename(package.download_name) or f"package_{package.id}.zip"
+    archive_name = base_name
+    if archive_name in used_names:
+        name, ext = os.path.splitext(base_name)
+        idx = 2
+        archive_name = f"{name}_{idx}{ext}"
+        while archive_name in used_names:
+            idx += 1
+            archive_name = f"{name}_{idx}{ext}"
+    used_names.add(archive_name)
+    return archive_name
+
+
+def _collect_packages_for_problem_instances(request, problem_instances):
+    selected_problem_data = []
+    seen_problem_ids = set()
+    for problem_instance in problem_instances:
+        if problem_instance.problem_id in seen_problem_ids:
+            continue
+        seen_problem_ids.add(problem_instance.problem_id)
+        selected_problem_data.append((problem_instance.problem_id, force_str(problem_instance.problem.name)))
+
+    packages_by_problem = {}
+    problem_ids = [problem_id for problem_id, _ in selected_problem_data]
+    packages = ProblemPackage.objects.select_related("problem").filter(problem_id__in=problem_ids).order_by("problem_id", "-creation_date")
+    for package in packages:
+        if package.problem_id in packages_by_problem or not package.package_file:
+            continue
+        packages_by_problem[package.problem_id] = package
+
+    packages_to_download = []
+    not_downloaded_packages = []
+    used_names = set()
+    for problem_id, problem_name in selected_problem_data:
+        package = packages_by_problem.get(problem_id)
+        if package and can_admin_problem(request, package.problem):
+            packages_to_download.append(
+                {
+                    "package": package,
+                    "archive_name": _make_unique_package_archive_name(package, used_names),
+                    "problem_name": problem_name,
+                }
+            )
+        else:
+            unavailable_package = {"problem_name": problem_name}
+            if package and package.package_file:
+                unavailable_package["archive_name"] = os.path.basename(package.download_name) or f"package_{package.id}.zip"
+            not_downloaded_packages.append(unavailable_package)
+
+    return packages_to_download, not_downloaded_packages
+
+
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reattach_problem_contest_list_view(request, full_list=False):
     """
@@ -1056,6 +1115,55 @@ def delete_problems_confirm_view(request):
         "contests/delete_problems_confirm.html",
         {
             "problem_instances": problem_instances,
+        },
+    )
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def download_problems_packages_view(request):
+    problem_ids = request.GET.get("ids")
+
+    problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
+
+    if not _check_if_problem_instances_belong_to_contest(problem_instances, request.contest.id):
+        raise SuspiciousOperation("Invalid problem instances")
+
+    packages_to_download, not_downloaded_packages = _collect_packages_for_problem_instances(request, problem_instances)
+
+    if request.method == "POST":
+        if not packages_to_download:
+            return TemplateResponse(
+                request,
+                "contests/download_problems_packages.html",
+                {
+                    "problem_instances": problem_instances,
+                    "packages_to_download": packages_to_download,
+                    "not_downloaded_packages": not_downloaded_packages,
+                },
+            )
+
+        # Create a zip file with all the packages to download
+        zip_file = io.BytesIO()
+        with zipfile.ZipFile(zip_file, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for package_entry in packages_to_download:
+                package = package_entry["package"]
+                archive_name = package_entry["archive_name"]
+
+                if hasattr(package.package_file, "seek"):
+                    package.package_file.seek(0)
+                archive.writestr(archive_name, package.package_file.read())
+
+        contest_name = request.contest.id if request.contest else "all"
+        archive_name = f"{contest_name}_problem_packages.zip"
+        return stream_file(ContentFile(zip_file.getvalue(), name=archive_name), archive_name)
+
+    return TemplateResponse(
+        request,
+        "contests/download_problems_packages.html",
+        {
+            "problem_instances": problem_instances,
+            "packages_to_download": packages_to_download,
+            "not_downloaded_packages": not_downloaded_packages,
         },
     )
 
