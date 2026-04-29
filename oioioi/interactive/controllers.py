@@ -23,3 +23,6 @@ class InteractiveProblemController(ProgrammingProblemController):
 
     def allow_test_runs(self, request):
         return False
+
+    def is_interactive(self):
+        return True
