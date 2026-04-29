@@ -39,6 +39,8 @@ ContestController.mix_in(QuizContestControllerMixin)
 class QuizProblemController(ProblemController):
     """Defines rules for quizzes."""
 
+    description = _("Quiz problem")
+
     def adjust_problem(self):
         """Called whan a (usually new) problem has just got the controller
         attached or after the problem has been modified.
