@@ -72,6 +72,7 @@ from oioioi.problems.models import (
     Problem,
     ProblemAttachment,
     ProblemPackage,
+    ProblemSite,
     ProblemStatement,
 )
 from oioioi.programs.controllers import ProgrammingContestController
@@ -3442,6 +3443,51 @@ class TestDownloadingProblemPackages(TestCase, TestStreamingMixin):
             self.assertEqual(sorted(archive.namelist()), ["sum.zip", "sum2.zip"])
             self.assertEqual(archive.read("sum.zip"), b"package-one")
             self.assertEqual(archive.read("sum2.zip"), b"package-two")
+
+    def test_not_downloadable_quizzes(self):
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")
+
+        contest = Contest.objects.get(id="c")
+        round1 = Round.objects.get(id=1)
+
+        packaged_problem = Problem.objects.get(id=1)
+        ProblemSite.objects.get_or_create(problem=packaged_problem, defaults={"url_key": "packaged-problem"})
+        ProblemPackage.objects.create(
+            problem=packaged_problem,
+            contest=contest,
+            package_file=ContentFile(b"packaged-problem", name="packaged-problem.zip"),
+            status="OK",
+        )
+
+        missing_package_problem = Problem.create(
+            legacy_name="Quiz without package",
+            short_name="quiz1",
+            controller_name=packaged_problem.controller_name,
+            contest=contest,
+        )
+        ProblemSite.objects.get_or_create(problem=missing_package_problem, defaults={"url_key": "quiz-without-package"})
+        missing_package_instance = ProblemInstance.objects.create(
+            problem=missing_package_problem,
+            round=round1,
+            contest=contest,
+            short_name="zad-quiz",
+        )
+
+        post_data = {
+            "ids": f"1,{missing_package_instance.id}",
+        }
+
+        response = self.client.get(reverse("download_problems_packages") + f"?ids={post_data['ids']}")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Files that will be downloaded")
+        self.assertContains(response, "sum.zip")
+        self.assertContains(response, "Files that cannot be downloaded")
+        self.assertContains(response, "Quiz without package")
+
+        response = self.client.post(reverse("download_problems_packages") + f"?ids={post_data['ids']}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/zip")
 
 
 class TestAssigningProblemsToARound(TestCase):
