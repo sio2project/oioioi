@@ -729,6 +729,7 @@ class SinolPackage:
         self._delete_non_existing_tests(created_tests)
 
         self._assign_scores(scored_groups, total_score_if_auto)
+        self._validate_subtask_dependencies(scored_groups)
         self._process_language_override()
 
     def _detect_statement_memory_limit(self):
@@ -1109,6 +1110,64 @@ class SinolPackage:
 
         for group, score in scores.items():
             Test.objects.filter(problem_instance=self.main_problem_instance, group=group).update(max_score=score)
+
+    def _validate_subtask_dependencies(self, scored_groups):
+        """Validates the ``subtask_dependencies`` entry in ``config.yml``.
+
+        Checks that:
+        - All referenced groups (keys and values) exist in ``scored_groups``.
+        - There are no circular dependencies.
+        """
+        raw_deps = self.config.get("subtask_dependencies", {})
+        if not raw_deps:
+            return
+
+        if not isinstance(raw_deps, dict):
+            raise ProblemPackageError(_("subtask_dependencies must be a mapping, got %(type)s") % {"type": type(raw_deps).__name__})
+
+        for k, vs in raw_deps.items():
+            if not isinstance(vs, list):
+                raise ProblemPackageError(
+                    _("subtask_dependencies: value for group '%(group)s' must be a list, got %(type)s. Use [%(value)s] instead of %(value)s.")
+                    % {"group": k, "type": type(vs).__name__, "value": vs}
+                )
+
+        deps = {str(k): [str(v) for v in vs] for k, vs in raw_deps.items()}
+
+        for group, prereqs in deps.items():
+            if group not in scored_groups:
+                raise ProblemPackageError(
+                    _("subtask_dependencies: group '%(group)s' is not a valid scored group. Valid groups: %(groups)s")
+                    % {"group": group, "groups": sorted(scored_groups)}
+                )
+            for prereq in prereqs:
+                if prereq not in scored_groups:
+                    raise ProblemPackageError(
+                        _(
+                            "subtask_dependencies: prerequisite group '%(prereq)s' "
+                            "referenced by group '%(group)s' is not a valid scored group. "
+                            "Valid groups: %(groups)s"
+                        )
+                        % {"prereq": prereq, "group": group, "groups": sorted(scored_groups)}
+                    )
+
+        # Detect cycles using DFS
+        visiting = set()
+        visited = set()
+
+        def dfs(node):
+            visiting.add(node)
+            for neighbor in deps.get(node, []):
+                if neighbor in visiting:
+                    raise ProblemPackageError(_("subtask_dependencies: circular dependency detected involving group '%(group)s'.") % {"group": neighbor})
+                if neighbor not in visited:
+                    dfs(neighbor)
+            visiting.discard(node)
+            visited.add(node)
+
+        for node in deps:
+            if node not in visited:
+                dfs(node)
 
     @_describe_processing_error
     def _process_language_override(self):

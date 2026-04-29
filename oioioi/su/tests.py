@@ -1,13 +1,16 @@
 # pylint: disable=maybe-no-member
+from datetime import UTC, datetime
+
 from django.contrib.auth.models import User
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.current_contest import ContestMode
-from oioioi.contests.models import Contest
+from oioioi.contests.models import Contest, ProblemInstance, RoundStartDelay
 from oioioi.participants.models import Participant
+from oioioi.problems.models import Problem
 from oioioi.su import SU_BACKEND_SESSION_KEY, SU_ORIGINAL_CONTEST, SU_REAL_USER_IS_SUPERUSER, SU_UID_SESSION_KEY
 from oioioi.su.utils import get_user, su_to_user
 
@@ -320,6 +323,47 @@ class TestContestAdminsSu(TestCase):
 
         # The user is not a contest admin in the second contest.
         self._test_su_visibility(second_contest, False)
+
+    # Test if user switching respects delayed round start visibility.
+    # The user should see the problems after the delay has passed, even if the round has already started for other users.
+    def test_su_respects_delayed_round_start_visibility(self):
+        self.assertTrue(self.client.login(username="test_contest_basicadmin"))
+        contest = Contest.objects.get()
+        self._add_user_to_contest("test_user")
+
+        delayed_user = User.objects.get(username="test_user")
+        round_obj = contest.round_set.get()
+        round_obj.start_date = datetime(2012, 7, 31, 20, 0, tzinfo=UTC)
+        round_obj.end_date = datetime(2012, 7, 31, 21, 0, tzinfo=UTC)
+        round_obj.results_date = datetime(2012, 7, 31, 21, 0, tzinfo=UTC)
+        round_obj.save()
+
+        problem = Problem.objects.create(
+            legacy_name="Delayed round task",
+            short_name="delayed_round_task",
+            controller_name="oioioi.problems.controllers.ProblemController",
+        )
+        ProblemInstance.objects.create(
+            problem=problem,
+            round=round_obj,
+            contest=contest,
+            short_name="delayed_round_task",
+        )
+        RoundStartDelay.objects.create(user=delayed_user, round=round_obj, delay=10)
+
+        self._do_su("test_user", "django.contrib.auth.backends.ModelBackend", False)
+
+        problems_url = reverse("problems_list", kwargs={"contest_id": contest.id})
+
+        with fake_time(datetime(2012, 7, 31, 20, 5, tzinfo=UTC)):
+            response = self.client.get(problems_url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.context["problem_instances"]), 0)
+
+        with fake_time(datetime(2012, 7, 31, 20, 11, tzinfo=UTC)):
+            response = self.client.get(problems_url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.context["problem_instances"]), 1)
 
     def _test_post(self, can_post):
         self.assertTrue(self.client.login(username="test_contest_basicadmin"))

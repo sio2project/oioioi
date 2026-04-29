@@ -3,6 +3,7 @@ import urllib.parse
 from functools import partial
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter, action
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
@@ -16,6 +17,7 @@ from django.urls import path, reverse
 from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.http import urlencode
+from django.utils.text import capfirst
 from django.utils.translation import get_language, ngettext_lazy
 from django.utils.translation import gettext_lazy as _
 
@@ -264,6 +266,11 @@ class ContestAdmin(admin.ModelAdmin):
         # Never redirect to the list of contests. Just re-display the edit
         # view.
         if "_popup" not in request.POST:
+            msg = _('The %(name)s "%(obj)s" was changed successfully.') % {
+                "name": capfirst(self.opts.verbose_name),
+                "obj": str(obj),
+            }
+            self.message_user(request, msg, messages.SUCCESS)
             return HttpResponseRedirect(request.get_full_path())
         return super().response_change(request, obj)
 

@@ -1,9 +1,11 @@
+import json
 import urllib.parse
 
 from django.test.utils import override_settings
 from django.urls import reverse
 
 from oioioi.base.tests import TestCase
+from oioioi.problems.models import OriginTagLocalization
 from oioioi.problems.tests.utilities import AssertContainsOnlyMixin
 
 
@@ -140,6 +142,15 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
     def get_query_url(self, parameters):
         return self.url + "?" + urllib.parse.urlencode(parameters)
 
+    def get_hints(self, query):
+        response = self.client.get(self.get_query_url({"q": query}))
+        self.assertEqual(response.status_code, 200)
+        return json.loads(response.content)
+
+    @staticmethod
+    def match_hints(hints, **kwargs):
+        return [hint for hint in hints if all(hint.get(key) == value for key, value in kwargs.items())]
+
     @override_settings(LANGUAGE_CODE="en", PROBLEM_TAGS_VISIBLE=False)
     def test_search_no_hints_tags_basic(self):
         self.client.get("/c/c/")
@@ -198,11 +209,44 @@ class TestProblemSearchHintsTags(TestCase, AssertContainsOnlyMixin):
 
         response = self.client.get(self.get_query_url({"q": "dp"}))
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, [])
+        self.assert_contains_only(response, ["dp"])
+
+        response = self.client.get(self.get_query_url({"q": "lcis"}))
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ["lcis"])
 
         response = self.client.get(self.get_query_url({"q": "increasing"}))
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ["lcis"])
+
+    @override_settings(LANGUAGE_CODE="en")
+    def test_search_hints_tags_by_canonical_names(self):
+        self.client.get("/c/c/")
+
+        hints = self.get_hints("dp")
+        algorithm_hints = self.match_hints(hints, prefix="algorithm", value="dp")
+        self.assertEqual(len(algorithm_hints), 1)
+        self.assertEqual(algorithm_hints[0]["name"], "Dynamic programming")
+
+        hints = self.get_hints("very-hard")
+        difficulty_hints = self.match_hints(hints, prefix="difficulty", value="very-hard")
+        self.assertEqual(len(difficulty_hints), 1)
+        self.assertEqual(difficulty_hints[0]["name"], "Very hard")
+
+    @override_settings(LANGUAGE_CODE="en")
+    def test_search_hints_origintag_by_canonical_name_and_abbreviation(self):
+        self.client.get("/c/c/")
+
+        hints = self.get_hints("pa")
+        origin_hints = self.match_hints(hints, prefix="origin", value="pa")
+        self.assertEqual(len(origin_hints), 1)
+        self.assertEqual(origin_hints[0]["name"], "Potyczki Algorytmiczne")
+
+        OriginTagLocalization.objects.filter(origin_tag__name="pa", language="en").update(short_name="pa-short")
+        hints = self.get_hints("pa-short")
+        origin_hints = self.match_hints(hints, prefix="origin", value="pa")
+        self.assertEqual(len(origin_hints), 1)
+        self.assertEqual(origin_hints[0]["name"], "Potyczki Algorytmiczne")
 
     @override_settings(LANGUAGE_CODE="en", PROBLEM_TAGS_VISIBLE=False)
     def test_search_no_hints_origininfo(self):
