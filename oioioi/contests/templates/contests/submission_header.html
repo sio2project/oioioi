@@ -4,7 +4,7 @@
     <div class="float-right">
         {% if can_admin %}
             {% block controls_admin_buttons %}
-            {% if submission.valid_kinds_for_submission %}
+            {% if submission.submission.valid_other_kinds %}
                 <div class="btn-group">
                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
                             data-toggle="dropdown"
@@ -13,7 +13,7 @@
                         {% trans "Change kind" %}
                     </button>
                     <div class="dropdown-menu">
-                        {% for value, description in submission.valid_kinds_for_submission %}
+                        {% for value, description in submission.submission.valid_other_kinds %}
                             <a class="dropdown-item" href="#"
                             data-post-url="{% url 'change_submission_kind' submission_id=submission.submission.id kind=value %}">
                                 <i class="fa-solid fa-tag"></i>
