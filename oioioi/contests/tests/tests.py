@@ -1,8 +1,10 @@
 # pylint: disable=abstract-method
 
+import io
 import os
 import re
 import urllib.parse
+import zipfile
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
 
 import bs4
@@ -3379,6 +3381,67 @@ class TestManagingProblemsFromAnotherContest(TestCase):
             for url, data in post_urls_and_data:
                 response = self.client.post(url, data=data, follow=True)
                 self.assertEqual(response.status_code, 400)
+
+
+class TestDownloadingProblemPackages(TestCase, TestStreamingMixin):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+    ]
+
+    def test_download_packages_action(self):
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")
+
+        contest = Contest.objects.get(id="c")
+        round1 = Round.objects.get(id=1)
+
+        first_problem = Problem.objects.get(id=1)
+        ProblemPackage.objects.create(
+            problem=first_problem,
+            contest=contest,
+            package_file=ContentFile(b"package-one", name="package-one.zip"),
+            status="OK",
+        )
+
+        second_problem = Problem.create(
+            legacy_name="Second problem",
+            short_name="sum2",
+            controller_name=first_problem.controller_name,
+            contest=contest,
+        )
+        second_problem_instance = ProblemInstance.objects.create(
+            problem=second_problem,
+            round=round1,
+            contest=contest,
+            short_name="zad2",
+        )
+        ProblemPackage.objects.create(
+            problem=second_problem,
+            contest=contest,
+            package_file=ContentFile(b"package-two", name="package-two.zip"),
+            status="OK",
+        )
+
+        download_url = reverse("download_problems_packages") + f"?ids=1,{second_problem_instance.id}"
+
+        response = self.client.get(download_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Files that will be downloaded")
+        self.assertContains(response, "sum.zip")
+        self.assertContains(response, "sum2.zip")
+
+        response = self.client.post(download_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/zip")
+
+        content = self.streamingContent(response)
+        with zipfile.ZipFile(io.BytesIO(content), "r") as archive:
+            self.assertEqual(sorted(archive.namelist()), ["sum.zip", "sum2.zip"])
+            self.assertEqual(archive.read("sum.zip"), b"package-one")
+            self.assertEqual(archive.read("sum2.zip"), b"package-two")
 
 
 class TestAssigningProblemsToARound(TestCase):
