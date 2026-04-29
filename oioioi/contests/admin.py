@@ -359,7 +359,12 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     list_display = ("name_link", "short_name_link", "round", "package", "actions_field")
     readonly_fields = ("contest", "problem")
     ordering = ("-round__start_date", "short_name")
-    actions = ["attach_problems_to_another_contest", "assign_problems_to_a_round", "delete_problems"]
+    actions = [
+        "attach_problems_to_another_contest",
+        "assign_problems_to_a_round",
+        "delete_problems",
+        "download_packages",
+    ]
 
     def _attach_problem_ids_to_url(self, queryset, url_name):
         """Helper function to create a URL with problem ids as query parameters."""
@@ -380,6 +385,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     @action(description=_("Delete problems"))
     def delete_problems(self, request, queryset):
         return redirect(self._attach_problem_ids_to_url(queryset, "delete_problems"))
+
+    @action(description=_("Download packages"))
+    def download_packages(self, request, queryset):
+        return redirect(self._attach_problem_ids_to_url(queryset, "download_problems_packages"))
 
     def __init__(self, *args, **kwargs):
         # creating a thread local variable to store the request

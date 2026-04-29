@@ -170,6 +170,11 @@ c_patterns = [
         views.delete_problems_confirm_view,
         name="delete_problems",
     ),
+    path(
+        "download_problems_packages/",
+        views.download_problems_packages_view,
+        name="download_problems_packages",
+    ),
 ]
 
 nonc_patterns = [
