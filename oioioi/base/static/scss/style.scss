@@ -1,5 +1,12 @@
 @import "utility";
 
+// This replicates the Bootstrap 4 breadcrumb style
+$breadcrumb-padding-x: 0.75rem;
+$breadcrumb-divider: quote("/");
+$breadcrumb-bg: #e9ecef;
+
+$link-decoration: none;
+
 @import "bootstrap/scss/bootstrap";
 @import "highlight.js/scss/vs.scss";
 
