@@ -3160,6 +3160,23 @@ class TestProblemInstanceView(TestCase):
         for element in elements_to_find:
             self.assertContains(response, element)
 
+    def test_execution_mode_editable_only_for_superuser(self):
+        problem_instance = ProblemInstance.objects.get()
+
+        self.assertTrue(self.client.login(username="test_contest_basicadmin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'name="execution_mode"')
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="execution_mode"')
+
     def separate_main_problem_instance(self):
         # in fixtures there is only one ProblemInstance
         # unfortunately it's already attached to contest and it's
@@ -3276,6 +3293,36 @@ class TestReattachingProblems(TestCase):
         for test in Problem.objects.get().main_problem_instance.test_set.all():
             test.delete()
         self.assertTrue(Test.objects.count() > 0)
+
+    def test_reattaching_problem_preserves_execution_mode_from_main_instance(self):
+        source_problem_instance = ProblemInstance.objects.get(id=1)
+        source_problem_instance.problem.main_problem_instance.execution_mode = "cpu"
+        source_problem_instance.problem.main_problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+
+        url = reverse("reattach_problem_confirm", args=("c2",)) + f"/?ids={source_problem_instance.id}"
+        response = self.client.post(url, data={"submit": True}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        copied_problem_instance = ProblemInstance.objects.filter(contest__id="c2", problem=source_problem_instance.problem).latest("id")
+        self.assertEqual(copied_problem_instance.execution_mode, "cpu")
+
+    def test_reattaching_problem_with_copy_limits_preserves_execution_mode(self):
+        source_problem_instance = ProblemInstance.objects.get(id=1)
+        source_problem_instance.execution_mode = "sio2jail"
+        source_problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+
+        url = reverse("reattach_problem_confirm", args=("c2",)) + f"/?ids={source_problem_instance.id}"
+        response = self.client.post(url, data={"submit": True, "copy-limits": "on"}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        copied_problem_instance = ProblemInstance.objects.filter(contest__id="c2", problem=source_problem_instance.problem).latest("id")
+        self.assertEqual(copied_problem_instance.execution_mode, "sio2jail")
 
     def test_reattaching_problems(self):
         c2 = Contest.objects.get(id="c2")

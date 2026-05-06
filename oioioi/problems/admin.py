@@ -763,7 +763,7 @@ contest_admin_menu_registry.register(
 
 
 class MainProblemInstanceAdmin(admin.ModelAdmin):
-    fields = ("problem", "short_name")
+    fields = ("problem", "short_name", "execution_mode")
     readonly_fields = ("problem",)
 
     def has_add_permission(self, request):
@@ -779,6 +779,12 @@ class MainProblemInstanceAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = list(super().get_readonly_fields(request, obj))
+        if not request.user.is_superuser:
+            readonly_fields.append("execution_mode")
+        return readonly_fields
 
     def response_change(self, request, obj):
         if "_continue" not in request.POST:

@@ -45,6 +45,7 @@ from oioioi.programs.models import (
     LanguageOverrideForTest,
     ModelSolution,
     ProblemAllowedLanguage,
+    ProgramsConfig,
     ProgramSubmission,
     ReportActionsConfig,
     Test,
@@ -149,6 +150,32 @@ class TestProgrammingContestController(TestCase):
         #          like OIContestController and TeacherContestController.
         contest = Contest.objects.get()
         self.assertEqual(contest.controller.get_safe_exec_mode(), "sio2jail")
+
+
+class TestProblemInstanceExecutionMode(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+    ]
+
+    def test_problem_instance_execution_mode_override(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        ProgramsConfig.objects.update_or_create(
+            contest=contest,
+            defaults={"execution_mode": "cpu"},
+        )
+
+        problem_instance.execution_mode = "sio2jail"
+        problem_instance.save()
+        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), "sio2jail")
+
+        problem_instance.execution_mode = "AUTO"
+        problem_instance.save()
+        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), "cpu")
 
 
 class TestProgramsViews(TestCase, TestStreamingMixin):
