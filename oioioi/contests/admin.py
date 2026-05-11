@@ -531,7 +531,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         # This is available (as a list) without additional DB queries for
         # every `instance` thanks to .get_custom_list_prefetch_related().
         packages = instance.problem.problempackage_set.all()
-        problem_package = packages[0] if packages else None
+        problem_package = next((p for p in packages if p.status == "OK"), None)
         request = self._request_local.request
         if problem_package and problem_package.package_file and can_admin_problem(request, instance.problem):
             href = reverse("download_package", kwargs={"package_id": str(problem_package.id)})

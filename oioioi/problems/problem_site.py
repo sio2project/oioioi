@@ -225,7 +225,7 @@ def problem_site_secret_key(request, problem):
 @problem_site_tab(_("Settings"), key="settings", order=600, condition=can_admin_problem)
 def problem_site_settings(request, problem):
     _, administered_recent_contests = generate_add_to_contest_metadata(request)
-    package = ProblemPackage.objects.filter(problem=problem).first()
+    package = ProblemPackage.objects.filter(problem=problem, status="OK").first()
     problem_instance = get_object_or_404(ProblemInstance, id=problem.main_problem_instance_id)
     model_solutions = generate_model_solutions_context(request, problem_instance)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)

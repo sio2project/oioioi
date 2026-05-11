@@ -507,7 +507,7 @@ def problemset_all_problems_view(request):
 
 def problem_site_view(request, site_key):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
-    package = ProblemPackage.objects.filter(problem=problem).first()
+    package = ProblemPackage.objects.filter(problem=problem, status="OK").first()
     show_add_button, administered_recent_contests = generate_add_to_contest_metadata(request)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
     problemset_tabs = generate_problemset_tabs(request)
