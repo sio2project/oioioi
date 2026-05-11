@@ -380,9 +380,8 @@ def problem_site_package_download_file(request, problem):
                             visibility=problem.visibility,
                         )
                     except Exception as e:
-                        logger.error(
+                        logger.exception(
                             "Error processing package",
-                            exc_info=True,
                             extra={"omit_sentry": True},
                         )
                         form._errors["__all__"] = form.error_class([smart_str(e)])
