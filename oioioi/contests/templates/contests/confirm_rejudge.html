@@ -14,9 +14,8 @@
 {% endblock %}
 
 {% block confirmation_form %}
-    <p>{% trans "Are you sure?" %}</p>
-
-    <form method="get" class="mb-3">
+    <form method="post">
+        {% csrf_token %}
         <div class="row mb-2">
             <label class="col-sm-3 col-form-label" for="date_from">{% trans "From date" %}</label>
             <div class="col-sm-9">
@@ -40,21 +39,16 @@
                 </div>
             </div>
         </div>
-        <button type="submit" class="btn btn-secondary">
-            {% trans "Preview count" %}
-        </button>
-    </form>
+        <div class="form-group mb-3">
+            <button type="submit" formmethod="get" class="btn btn-secondary">
+                {% trans "Preview count" %}
+            </button>
+        </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="post" value="yes"/>
-        <input type="hidden" name="date_from" value="{{ date_from }}"/>
-        <input type="hidden" name="date_to" value="{{ date_to }}"/>
-        {% if last_only %}
-        <input type="hidden" name="last_only" value="on"/>
-        {% endif %}
+        <p>{% trans "Are you sure?" %}</p>
+
         <div class="form-group">
-            <button type="submit" class="btn btn-danger">
+            <button type="submit" name="post" value="yes" class="btn btn-danger">
                 {% trans "Yes, I am sure." %}
             </button>
             <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
