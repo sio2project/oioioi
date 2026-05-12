@@ -116,11 +116,20 @@ class ProgrammingProblemController(ProblemController):
             logger.warning("No default compiler for language %s", language)
             return "default-" + extension
 
+    # Let's fetch ProblemCompilers for all languages in bulk, as they
+    # will be needed anyway and the query overhead is negligible.
+    # The query is still a bottleneck for the submit view, see comment
+    # for `._add_langs_to_form()`.
+    def _get_problem_compilers_cached(self, problem_instance, language):
+        if not hasattr(problem_instance, "_problem_compilers_cache"):
+            qs = ProblemCompiler.objects.filter(problem_id=problem_instance.problem_id)
+            problem_instance._problem_compilers_cache = {pc.language: pc for pc in qs}
+        return problem_instance._problem_compilers_cache.get(language, None)
+
     def get_compiler_for_language(self, problem_instance, language):
-        problem = problem_instance.problem
-        problem_compiler_qs = ProblemCompiler.objects.filter(problem__exact=problem.id, language__exact=language)
-        if problem_compiler_qs.exists():
-            return problem_compiler_qs.first().compiler
+        problem_compiler = self._get_problem_compilers_cached(problem_instance, language)
+        if problem_compiler is not None:
+            return problem_compiler.compiler
         else:
             default_compilers = settings.DEFAULT_COMPILERS
             compiler = default_compilers.get(language)
@@ -164,6 +173,9 @@ class ProgrammingProblemController(ProblemController):
 
         config = ExtraConfig.objects.get(problem_id=problem.id)
         environ["fake_time"] = config.parsed_config.get("fake_time", "off")
+        raw_deps = config.parsed_config.get("subtask_dependencies", {})
+        # Normalize keys and values to strings (YAML may parse bare integers as int)
+        environ["subtask_dependencies"] = {str(k): [str(v) for v in vs] for k, vs in raw_deps.items()}
 
     def generate_base_environ(self, environ, submission, **kwargs):
         self.generate_initial_evaluation_environ(environ, submission)
@@ -198,6 +210,7 @@ class ProgrammingProblemController(ProblemController):
                     ("initial_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("initial_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("initial_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("initial_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "initial_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -223,6 +236,7 @@ class ProgrammingProblemController(ProblemController):
                     ("userout_run_tests", "oioioi.programs.handlers.run_tests_end"),
                     ("userout_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("userout_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("userout_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "userout_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -258,6 +272,7 @@ class ProgrammingProblemController(ProblemController):
                     ("final_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("final_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("final_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("final_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "final_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -274,6 +289,7 @@ class ProgrammingProblemController(ProblemController):
                     ("hidden_run_tests_end", "oioioi.programs.handlers.run_tests_end"),
                     ("hidden_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("hidden_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("hidden_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "hidden_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -295,6 +311,7 @@ class ProgrammingProblemController(ProblemController):
                     ("full_run_tests", "oioioi.programs.handlers.run_tests_end"),
                     ("full_grade_tests", "oioioi.programs.handlers.grade_tests"),
                     ("full_grade_groups", "oioioi.programs.handlers.grade_groups"),
+                    ("full_apply_subtask_dependencies", "oioioi.programs.handlers.apply_subtask_dependencies"),
                     (
                         "full_grade_submission",
                         "oioioi.programs.handlers.grade_submission",
@@ -383,8 +400,10 @@ class ProgrammingProblemController(ProblemController):
             report = SubmissionReport.objects.filter(submission=submission, status="ACTIVE", kind="NORMAL").get()
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.score = score_report.score
+            submission.max_score = score_report.max_score
         except SubmissionReport.DoesNotExist:
             submission.score = None
+            submission.max_score = None
 
         submission.save()
 
@@ -486,6 +505,11 @@ class ProgrammingProblemController(ProblemController):
             problem_instance.controller.judge(submission)
         return submission
 
+    # This method is a large bottleneck in the submit view for large contests,
+    # as for every problem_instance, `.get_compiler_for_language()`
+    # and `.get_allowed_languages_for_problem()` execute DB queries.
+    # It could be improved e.g. by propagating the list of problem instances from
+    # `contests/forms.py::SubmissionForm` and fetching related ProblemCompilers in bulk.
     def _add_langs_to_form(self, request, form, problem_instance):
         controller = problem_instance.controller
 
@@ -645,7 +669,12 @@ class ProgrammingProblemController(ProblemController):
 
         score_report = ScoreReport.objects.get(submission_report=report)
         compilation_report = CompilationReport.objects.get(submission_report=report)
-        test_reports = TestReport.objects.filter(submission_report=report).select_related("userout_status").order_by("test__order", "test_group", "test_name")
+        test_reports = (
+            TestReport.objects.filter(submission_report=report)
+            .select_related("userout_status", "test")
+            .prefetch_related("test__problem_instance__problem", "submission_report__submission__problem_instance__contest")
+            .order_by("test__order", "test_group", "test_name")
+        )
         group_reports = GroupReport.objects.filter(submission_report=report)
         show_scores = any(gr.score is not None for gr in group_reports)
         group_reports = {g.group: g for g in group_reports}
@@ -683,7 +712,14 @@ class ProgrammingProblemController(ProblemController):
 
             tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
 
-            groups.append({"tests": tests_records, "report": group_reports[group_name]})
+            gr = group_reports[group_name]
+            groups.append(
+                {
+                    "tests": tests_records,
+                    "report": gr,
+                    "has_dependency": bool(gr.dependency_prereqs),
+                }
+            )
 
         return render_to_string(
             "programs/report.html",
@@ -771,8 +807,16 @@ class ProgrammingProblemController(ProblemController):
             .filter(problem_instance=submission.problem_instance)
             .exclude(pk=submission.pk)
             .order_by("-date")
-            .select_related()
+            .prefetch_related(
+                "problem_instance",
+                "problem_instance__contest",
+                "problem_instance__round",
+                "problem_instance__problem",
+            )
         )
+        if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
+            queryset = queryset.select_related("revealed").prefetch_related("problem_instance__scores_reveal_config")
+
         if not submission.problem_instance.contest == request.contest:
             raise SuspiciousOperation
         if not is_contest_basicadmin(request) and request.contest:
@@ -800,6 +844,7 @@ class ProgrammingProblemController(ProblemController):
         )
 
     def get_allowed_languages_for_problem(self, problem):
+        # This query is a bottleneck for the submit view, see comment for `._add_langs_to_form()`.
         allowed_langs = list(ProblemAllowedLanguage.objects.filter(problem=problem).values_list("language", flat=True))
         if not allowed_langs:
             return problem.controller.get_allowed_languages()
@@ -823,12 +868,21 @@ class ProgrammingContestController(ContestController):
         problem_instance = submission.problem_instance
         return problem_instance.problem.controller.get_compiler_for_submission(submission)
 
+    def _get_contest_compilers_cached(self, problem_instance, language):
+        c = problem_instance.contest
+        if not hasattr(c, "_contest_compilers_cache"):
+            qs = ContestCompiler.objects.filter(contest=c)
+            c._contest_compilers_cache = {cc.language: cc for cc in qs}
+        return c._contest_compilers_cache.get(language, None)
+
     def get_compiler_for_language(self, problem_instance, language):
-        contest = problem_instance.contest
         problem = problem_instance.problem
-        contest_compiler_qs = ContestCompiler.objects.filter(contest__exact=contest, language__exact=language)
-        if contest_compiler_qs.exists():
-            return contest_compiler_qs.first().compiler
+        # The caching is done in problem_instance.contest, which works great for many
+        # problem instances if prefetch_related was used for "contest" field, as
+        # then the python object is shared.
+        contest_compiler = self._get_contest_compilers_cached(problem_instance, language)
+        if contest_compiler is not None:
+            return contest_compiler.compiler
         else:
             return problem.controller.get_compiler_for_language(problem_instance, language)
 

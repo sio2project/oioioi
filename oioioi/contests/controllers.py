@@ -23,21 +23,18 @@ from oioioi.contests.models import (
     Contest,
     LimitsVisibilityConfig,
     ProblemInstance,
-    ProblemStatementConfig,
     RankingVisibilityConfig,
     Round,
     RoundStartDelay,
     RoundTimeExtension,
-    ScoreReport,
     Submission,
-    SubmissionReport,
     UserResultForContest,
     UserResultForProblem,
     UserResultForRound,
-    submission_kinds,
 )
 from oioioi.contests.utils import (
     generic_rounds_times,
+    get_contest_problem_statement_config,
     has_any_active_round,
     is_contest_basicadmin,
     is_contest_observer,
@@ -49,14 +46,6 @@ from oioioi.contests.utils import (
 from oioioi.problems.controllers import ProblemController
 
 logger = logging.getLogger(__name__)
-
-
-def export_entries(registry, values):
-    result = []
-    for value, description in registry.entries:
-        if value in values:
-            result.append((value, description))
-    return result
 
 
 STATUS_CLASSES = {
@@ -101,42 +90,9 @@ def submission_template_context(request, submission):
         },
     )
 
-    valid_kinds = controller.valid_kinds_for_submission(submission)
-    valid_kinds.remove(submission.kind)
-    valid_kinds_for_submission = export_entries(submission_kinds, valid_kinds)
-
     message = submission.get_status_display
 
-    if can_see_score and (submission.status == "INI_OK" or submission.status == "OK"):
-        submission_report = SubmissionReport.objects.filter(submission=submission).first()
-        score_report = ScoreReport.objects.filter(submission_report=submission_report).first()
-
-        try:
-            score_percentage = float(score_report.score.to_int()) / score_report.max_score.to_int()
-
-            if score_percentage < 0.25:
-                display_type = "OK0"
-            elif score_percentage < 0.5:
-                display_type = "OK25"
-            elif score_percentage < 0.75:
-                display_type = "OK50"
-            elif score_percentage < 1.0:
-                display_type = "OK75"
-            else:
-                display_type = "OK100"
-
-        except ZeroDivisionError:
-            message = "PENDING"
-            display_type = "IGN"
-
-        # If by any means there is no 'score' or 'max_score' field then
-        # we just treat the submission as without them
-        except AttributeError:
-            display_type = submission.status
-
-    else:
-        display_type = submission.status
-
+    display_type = submission.get_display_type()
     badge_class = get_badge_class(display_type)
 
     return {
@@ -148,7 +104,6 @@ def submission_template_context(request, submission):
         "badge_class": badge_class,
         "message": message,
         "link": link,
-        "valid_kinds_for_submission": valid_kinds_for_submission,
     }
 
 
@@ -594,9 +549,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         context = self.make_context(request_or_context)
         if context.is_admin:
             return True
-        psc = ProblemStatementConfig.objects.filter(contest=context.contest)
-        if psc.exists() and psc[0].visible != "AUTO":
-            return psc[0].visible == "YES"
+        psc = get_contest_problem_statement_config(request_or_context)
+        if psc is not None and psc.visible != "AUTO":
+            return psc.visible == "YES"
         else:
             return self.default_can_see_statement(request_or_context, problem_instance)
 
@@ -652,6 +607,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if is_contest_basicadmin(request) and not noadmin:
             return None
         return problem_instance.problem.controller.get_submissions_limit(request, problem_instance, kind, noadmin)
+
+    def get_submissions_count(self, request, problem_instance, kind=None):
+        # by default delegate to ProblemController
+        if kind is None:
+            kind = self.get_default_submission_kind(request)
+        return problem_instance.problem.controller.get_submissions_count(request, problem_instance, kind)
 
     def get_submissions_left(self, request, problem_instance, kind=None):
         # by default delegate to ProblemController

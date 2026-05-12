@@ -61,7 +61,7 @@
                         {% endif %}
                     {% endif %}
                     {% with submission_contexts|lookup:similar_to as submission_context %}
-                        {% for value, description in submission_context.valid_kinds_for_submission %}
+                        {% for value, description in submission_context.submission.valid_other_kinds %}
                             <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=similar_to.id kind=value %}"
                                 data-toggle="tooltip" title="{% blocktrans %}Change kind: {{ description }} (and mark not guilty){% endblocktrans %}">
                                 <i class="fa-solid fa-tag"></i>

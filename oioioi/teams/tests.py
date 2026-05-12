@@ -55,6 +55,7 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
             team = create_team("test_team", "Super Team!", contest)
             tm = TeamMembership(team=team, user=user)
             tm.save()
+            del request._cache
             self.assertEqual(can_join_team(request), False)
             self.assertEqual(can_quit_team(request), False)
             self.assertEqual(can_delete_team(request), True)
@@ -62,6 +63,7 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
             user2 = User.objects.get(username="test_user2")
             tm = TeamMembership(team=team, user=user2)
             tm.save()
+            del request._cache
             self.assertEqual(can_join_team(request), False)
             self.assertEqual(can_quit_team(request), True)
             self.assertEqual(can_delete_team(request), False)
@@ -70,6 +72,7 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
             self.assertTrue(self.client.login(username="test_user"))
             problem_instance = ProblemInstance.objects.get()
             self.submit_file(contest, problem_instance, user=team.user)
+            del request._cache
             self.assertEqual(can_quit_team(request), False)
 
     def test_views(self):

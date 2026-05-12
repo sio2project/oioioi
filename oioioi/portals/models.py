@@ -66,6 +66,10 @@ class Node(MPTTModel):
             return super().get_siblings(include_self)
 
     def get_path(self):
+        # This allows for skipping a query in e.g. `my_portal_url`,
+        # which is called for every requests.
+        if self.is_root_node():
+            return ("/" + self.short_name).lstrip("/")
         return "/".join(node.short_name for node in self.get_ancestors(include_self=True)).lstrip("/")
 
 

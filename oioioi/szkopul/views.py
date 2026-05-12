@@ -43,12 +43,16 @@ def main_page_view(request):
         # limit queryset size, because filtering all submissions is slow
         queryset = queryset[:to_show]
         limit_queryset_ids = [submission.id for submission in queryset]
-        queryset = Submission.objects.filter(id__in=limit_queryset_ids).select_related(
-            "user",
-            "problem_instance",
-            "problem_instance__contest",
-            "problem_instance__round",
-            "problem_instance__problem",
+        queryset = (
+            Submission.objects.filter(id__in=limit_queryset_ids)
+            .select_related(
+                "user",
+                "problem_instance",
+                "problem_instance__contest",
+                "problem_instance__round",
+                "problem_instance__problem",
+            )
+            .prefetch_related("problem_instance__problem__names")
         )
 
         submissions_list = filter_my_all_visible_submissions(request, queryset).order_by("-date")

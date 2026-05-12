@@ -148,13 +148,22 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins, metaclass=ModelAdminMeta):
         """
         return []
 
+    def get_custom_list_prefetch_related(self):
+        """Returns a list of fields passed to queryset.prefetch_related
+        By default - empty list. Override this method (instead of
+        get_queryset()) to pass another field to the prefetch_related.
+        """
+        return []
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        list_select_related = self.get_custom_list_select_related()
-        if list_select_related:
-            return qs.select_related(*list_select_related)
-        else:
-            return qs
+        list_related = self.get_custom_list_select_related()
+        if list_related:
+            qs = qs.select_related(*list_related)
+        list_related = self.get_custom_list_prefetch_related()
+        if list_related:
+            qs = qs.prefetch_related(*list_related)
+        return qs
 
     def has_view_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)

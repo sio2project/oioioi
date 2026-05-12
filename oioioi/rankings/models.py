@@ -209,8 +209,8 @@ def recalculate(recalc):
         if getattr(settings, "MOCK_RANKINGSD", False):
             raise
         logger = logging.getLogger(__name__ + ".recalculation")
-        logger.exception("An error occurred while recalculating ranking", e)
-        cooldown_duration = timedelta(seconds=settings.RANKINGS_ERROR_COOLDOWN)
+        logger.exception("An error occurred while recalculating ranking", exc_info=e)
+        cooldown_duration = timedelta(seconds=settings.RANKING_ERROR_COOLDOWN)
         cooldown_date = timezone.now() + cooldown_duration
         serialized, pages_list = (None, None)
     date_after = timezone.now()

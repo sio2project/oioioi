@@ -19,7 +19,7 @@ class MaintenanceModeMiddleware:
         return response
 
     def _process_request(self, request):
-        if not is_maintenance_mode_enabled():
+        if not is_maintenance_mode_enabled(request):
             return None
 
         # We want to allow admin access the site

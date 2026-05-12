@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils import request_cached
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.models import Round
+from oioioi.contests.utils import visible_rounds
 from oioioi.status.registry import status_registry
 from oioioi.su.utils import is_real_superuser
 
@@ -18,7 +18,7 @@ from oioioi.su.utils import is_real_superuser
 @request_cached
 def get_round_times(request):
     contest = getattr(request, "contest", None)
-    return [(contest.controller.get_round_times(request, round), round) for round in Round.objects.filter(contest=contest)]
+    return [(contest.controller.get_round_times(request, round), round) for round in visible_rounds(request)]
 
 
 @status_registry.register

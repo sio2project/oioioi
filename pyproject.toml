@@ -71,6 +71,7 @@ dependencies = [
     "aio-pika>=9.5.5,<9.6.0",
     "cachetools>=6.0.0",
     "websockets>=16.0,<16.1",
+    "uwsgi>=2.0.31",
 ]
 
 [dependency-groups]

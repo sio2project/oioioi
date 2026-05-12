@@ -13,6 +13,7 @@ from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin
 from oioioi.teachers.forms import AdminTeacherForm, TeacherContestForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
+from oioioi.teachers.views import is_teacher
 
 
 class TeacherAdmin(admin.ModelAdmin):
@@ -145,7 +146,7 @@ if "oioioi.simpleui" not in settings.INSTALLED_APPS:
         "create_contest",
         _("New contest"),
         lambda request: reverse("oioioiadmin:contests_contest_add"),
-        lambda request: request.user.has_perm("teachers.teacher"),
+        is_teacher,
         order=10,
     )
 else:
@@ -153,6 +154,6 @@ else:
         "teacher_dashboard",
         _("Contests"),
         lambda request: reverse("teacher_dashboard"),
-        lambda request: request.user.has_perm("teachers.teacher"),
+        is_teacher,
         order=5,
     )

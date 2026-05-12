@@ -1848,6 +1848,7 @@ dependencies = [
     { name = "supervisor" },
     { name = "unicodecsv" },
     { name = "unidecode" },
+    { name = "uwsgi" },
     { name = "websockets" },
     { name = "werkzeug" },
 ]
@@ -1933,6 +1934,7 @@ requires-dist = [
     { name = "supervisor", specifier = "==4.3.0" },
     { name = "unicodecsv", specifier = ">=0.14,<0.15" },
     { name = "unidecode", specifier = ">=1.3,<1.4" },
+    { name = "uwsgi", specifier = ">=2.0.31" },
     { name = "websockets", specifier = ">=16.0,<16.1" },
     { name = "werkzeug" },
 ]
@@ -3503,6 +3505,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/aa/87/8dadfe03944a4a493cd58b6f4f13e5181069a0048aeb2fae7da2c587a542/uv-0.11.1-py3-none-win_amd64.whl", hash = "sha256:d6a1c4cdb1064e9ceaa59e89a7489dd196222a0b90cfb77ca37a909b5e024ea0", size = 24850092, upload-time = "2026-03-24T23:14:15.186Z" },
     { url = "https://files.pythonhosted.org/packages/38/1b/dad559273df0c8263533afa4a28570cf6804272f379df9830b528a9cf8bc/uv-0.11.1-py3-none-win_arm64.whl", hash = "sha256:3bc9632033c7a280342f9b304bd12eccb47d6965d50ea9ee57ecfaf4f1f393c4", size = 23376127, upload-time = "2026-03-24T23:13:59.59Z" },
 ]
+
+[[package]]
+name = "uwsgi"
+version = "2.0.31"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/49/2f57640e889ba509fd1fae10cccec1b58972a07c2724486efba94c5ea448/uwsgi-2.0.31.tar.gz", hash = "sha256:e8f8b350ccc106ff93a65247b9136f529c14bf96b936ac5b264c6ff9d0c76257", size = 822796, upload-time = "2025-10-11T19:17:28.794Z" }
 
 [[package]]
 name = "vine"

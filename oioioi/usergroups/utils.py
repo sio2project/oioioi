@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 
+from oioioi.base.utils import request_cached
 from oioioi.participants.models import Participant
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
 
@@ -11,6 +12,15 @@ def is_usergroup_owner(user, usergroup_id):
 
 def is_usergroup_attached(contest, usergroup):
     return contest in usergroup.contests.all()
+
+
+@request_cached
+def get_contest_ids_with_user_membership(request):
+    return set(
+        UserGroup.objects.filter(
+            members__id=request.user.id,
+        ).values_list("contests__id", flat=True)
+    )
 
 
 def get_attached_usergroups(contest, queryset=None):

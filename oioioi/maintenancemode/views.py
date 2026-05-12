@@ -12,7 +12,7 @@ from oioioi.maintenancemode.models import (
 def maintenance_view(request):
     # We don't want users to access maintenance site
     # when maintenance is disabled.
-    if not is_maintenance_mode_enabled():
+    if not is_maintenance_mode_enabled(request):
         return HttpResponseRedirect("/")
     maintenance_info = get_maintenance_mode()
     return render(request, "maintenance.html", {"message": maintenance_info["message"]})

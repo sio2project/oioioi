@@ -52,6 +52,8 @@ DATABASES = {
         'HOST': os.getenv('OIOIOI_DB_HOST', 'db'),                  # Set to empty string for localhost. Not used with sqlite3.
         'PORT': os.getenv('OIOIOI_DB_PORT', ''),                    # Set to empty string for default. Not used with sqlite3.
         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
+        'CONN_MAX_AGE': 60,  # Persist connections between requests for 60 seconds..
+        'CONN_HEALTH_CHECKS': True, # ...but ensure it didn't break.
     }
 }
 

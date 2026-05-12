@@ -3,6 +3,19 @@
 
 {% block title %}{% trans "Teacher dashboard" %}{% endblock %}
 
+{% block body-class %}body-with-menu{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <nav id="menu" class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include "ingredients/menu.html" %}
+        </nav>
+        <section class="col-lg-9 col-xl-10 main-content">
+            {{ block.super }}
+        </section>
+    </div>
+{% endblock %}
+
 {% block dashboard-name %}{% trans "Teacher dashboard" %}{% endblock %}
 
 {% block dashboard-top-menu %}
