@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 
 from oioioi.programs.models import ProgramSubmission
 
-SUBMISSION_RECEIVED_SALT = "submission_reveived"
+SUBMISSION_RECEIVED_SALT = "submission_received"
 logger = logging.getLogger(__name__)
 
 

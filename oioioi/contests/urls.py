@@ -175,6 +175,11 @@ c_patterns = [
         views.download_problems_packages_view,
         name="download_problems_packages",
     ),
+    path(
+        "rejudge_multiple_problems/",
+        views.rejudge_all_submissions_for_problem_view,
+        name="rejudge_multiple_problems",
+    ),
 ]
 
 nonc_patterns = [

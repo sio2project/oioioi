@@ -356,6 +356,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         "assign_problems_to_a_round",
         "delete_problems",
         "download_packages",
+        "rejudge_multiple_problems",
     ]
 
     def _attach_problem_ids_to_url(self, queryset, url_name):
@@ -381,6 +382,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     @action(description=_("Download packages"))
     def download_packages(self, request, queryset):
         return redirect(self._attach_problem_ids_to_url(queryset, "download_problems_packages"))
+
+    @action(description=_("Rejudge multiple problems"))
+    def rejudge_multiple_problems(self, request, queryset):
+        return redirect(self._attach_problem_ids_to_url(queryset, "rejudge_multiple_problems"))
 
     def __init__(self, *args, **kwargs):
         # creating a thread local variable to store the request

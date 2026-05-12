@@ -5,7 +5,7 @@
 {% block confirmation_header %}{% trans "Confirm rejudge" %}{% endblock %}
 {% block confirmation_form_explanation %}
     <p>
-        {% trans "Something about this problem has changed. If the change was trivial (like a typo) then rejudge is not needed." %}
+        {% trans "Something about the problems has changed. If the change was trivial (like a typo) then rejudge is not needed." %}
         {% trans "If the tests for the problem have changed then you should proceed with a rejudge." %}
     </p>
     <p>
@@ -44,6 +44,20 @@
                 {% trans "Preview count" %}
             </button>
         </div>
+
+        {% if problem_instances %}
+            <div class="mb-3">
+                <strong>{% trans "Problems to be rejudged:" %}</strong>
+                <ul class="list-group">
+                    {% for pi in problem_instances %}
+                        <li class="list-group-item">
+                            {{ pi.problem.name }} ({{ pi.short_name }})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <input type="hidden" name="ids" value="{% for pi in problem_instances %}{% if not forloop.first %},{% endif %}{{ pi.id }}{% endfor %}">
+        {% endif %}
 
         <p>{% trans "Are you sure?" %}</p>
 

@@ -702,28 +702,44 @@ def user_info_redirect_view(request):
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
-def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
-    """Rejudges selected submissions. Resets the needs_rejudge flag only if all submissions are rejudged."""
-    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
-
+def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
+    """Rejudges selected submissions for multiple problems (in particular can be used to rejudge
+    all submissions for a single problem). Resets the needs_rejudge flag only if all submissions are rejudged."""
     params = request.POST if request.POST else request.GET
     date_from = params.get("date_from", "").strip()
     date_to = params.get("date_to", "").strip()
     last_only = params.get("last_only") == "on"
 
-    submissions = problem_instance.submission_set.all()
-    total_count = submissions.count()
-    if last_only:
-        submissions = filter_last_submissions(submissions)
-    if date_from:
-        submissions = submissions.filter(date__gte=date_from)
-    if date_to:
-        submissions = submissions.filter(date__lte=date_to)
-    selected_count = submissions.count()
+    if problem_instance_id is not None:
+        problem_instances = [get_object_or_404(ProblemInstance, id=problem_instance_id)]
+    else:
+        problem_ids = request.POST.get("ids") or request.GET.get("ids")
+        problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
+        if not _check_if_problem_instances_belong_to_contest(problem_instances, request.contest.id):
+            raise SuspiciousOperation("Invalid problem instances")
+
+    counts_by_instance = {}
+    submissions_by_instance = {}
+    for problem_instance in problem_instances:
+        submissions = problem_instance.submission_set.all()
+        total_count = submissions.count()
+        if last_only:
+            submissions = filter_last_submissions(submissions)
+        if date_from:
+            submissions = submissions.filter(date__gte=date_from)
+        if date_to:
+            submissions = submissions.filter(date__lte=date_to)
+        instance_selected_count = submissions.count()
+
+        submissions_by_instance[problem_instance] = submissions
+        counts_by_instance[problem_instance] = (instance_selected_count, total_count)
+
+    selected_count = sum(count for count, _ in counts_by_instance.values())
 
     if request.POST:
-        for submission in submissions:
-            problem_instance.controller.judge(submission, {}, is_rejudge=True)
+        for problem_instance, submissions in submissions_by_instance.items():
+            for submission in submissions:
+                problem_instance.controller.judge(submission, {}, is_rejudge=True)
         messages.info(
             request,
             ngettext_lazy(
@@ -734,15 +750,23 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
             % {"count": selected_count},
         )
 
-        if selected_count == total_count:
-            problem_instance.needs_rejudge = False
-            problem_instance.save(update_fields=["needs_rejudge"])
+        for problem_instance, (instance_selected_count, total_count) in counts_by_instance.items():
+            if instance_selected_count == total_count:
+                problem_instance.needs_rejudge = False
+                problem_instance.save(update_fields=["needs_rejudge"])
+
         return safe_redirect(request, reverse("oioioiadmin:contests_probleminstance_changelist"))
 
     return TemplateResponse(
         request,
         "contests/confirm_rejudge.html",
-        {"count": selected_count, "date_from": date_from, "date_to": date_to, "last_only": last_only},
+        {
+            "count": selected_count,
+            "date_from": date_from,
+            "date_to": date_to,
+            "last_only": last_only,
+            "problem_instances": problem_instances,
+        },
     )
 
 

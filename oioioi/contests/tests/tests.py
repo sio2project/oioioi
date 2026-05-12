@@ -1189,6 +1189,7 @@ class TestRejudgeView(TestCase):
         "test_contest",
         "test_full_package",
         "test_problem_instance",
+        "test_extra_problem",
         "test_submission",
     ]
 
@@ -1196,14 +1197,16 @@ class TestRejudgeView(TestCase):
         self.assertTrue(self.client.login(username="test_admin"))
         self.contest = Contest.objects.get()
         self.client.get(f"/c/{self.contest.pk}/")
-        self.pi = ProblemInstance.objects.filter(contest__isnull=False).first()
+        # We take an existing Submission for the test.
+        self.submission = Submission.objects.filter(problem_instance__contest__isnull=False).first()
+        self.assertIsNotNone(self.submission)
+        self.pi = self.submission.problem_instance
 
     def _rejudge_url(self):
         return reverse("rejudge_all_submissions_for_problem", args=(self.pi.id,))
 
     def test_rejudge_view_date_filter(self):
-        submission = Submission.objects.filter(problem_instance=self.pi).first()
-        sub_date = submission.date
+        sub_date = self.submission.date
 
         # Date range that includes the submission
         date_from = (sub_date - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M")
@@ -1228,6 +1231,22 @@ class TestRejudgeView(TestCase):
         response = self.client.get(self._rejudge_url(), {"last_only": "on"})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "submission")
+
+    def test_rejudge_multiple_problems_preview(self):
+        extra_pi = ProblemInstance.objects.filter(contest=self.contest).exclude(id=self.pi.id).first()
+        self.assertIsNotNone(extra_pi)
+
+        user = User.objects.get(username="test_user")
+        Submission.objects.create(problem_instance=extra_pi, user=user, status="OK")
+
+        response = self.client.get(
+            reverse("rejudge_multiple_problems"),
+            {"ids": f"{self.pi.id},{extra_pi.id}"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "rejudge 2")
+        self.assertContains(response, self.pi.short_name)
+        self.assertContains(response, extra_pi.short_name)
 
     def test_rejudge_post_triggers_rejudge(self):
         self.pi.needs_rejudge = True
