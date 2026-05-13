@@ -10,8 +10,8 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql=[
-                "DROP TABLE IF EXISTS oi_oionsiteregistration CASCADE",
-                "DROP TABLE IF EXISTS oi_region CASCADE",
+                "DROP TABLE IF EXISTS oi_oionsiteregistration",
+                "DROP TABLE IF EXISTS oi_region",
             ],
             reverse_sql=migrations.RunSQL.noop,
         ),
