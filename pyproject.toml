@@ -37,7 +37,9 @@ dependencies = [
     "unicodecsv>=0.14,<0.15",
     "dnslib>=0.9,<0.10",
     "bleach>=6.3,<6.4",
-    "chardet>=5.1",
+    "chardet>=5.1,<6",
+    "urllib3>=1.26,<2",
+    "charset_normalizer>=2,<4",
     "django-gravatar2>=1.4,<1.5",
     "django-mptt>=0.18,<0.19",
     "mistune<2.0", # 2.0 is breaking
