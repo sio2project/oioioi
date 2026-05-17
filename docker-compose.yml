@@ -2,6 +2,7 @@ x-common-envs: &common-envs
  FILETRACKER_URL: 'http://web:9999'
  DATABASE_HOST: 'db'
  DATABASE_PORT: '5432'
+ OIOIOI_TIMEZONE: '${OIOIOI_TIMEZONE:-Europe/Warsaw}'
 
 services:
   db:
