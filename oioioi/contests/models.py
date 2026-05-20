@@ -406,6 +406,7 @@ class ProblemInstance(models.Model):
         default=settings.DEFAULT_SUBMISSIONS_LIMIT,
         help_text=_("Use 0 for unlimited submissions."),
         verbose_name=_("submissions limit"),
+        validators=[MinValueValidator(0, "Submissions limit must be a non-negative number.")],
     )
 
     # set on True only when problem_instace's tests were overriden but there
