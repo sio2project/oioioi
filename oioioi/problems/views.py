@@ -34,7 +34,7 @@ from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_http_methods
+from django.views.decorators.http import require_http_methods, require_safe
 from unidecode import unidecode
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
@@ -569,6 +569,7 @@ def problem_site_external_attachment_view(request, site_key, attachment_id):
     return stream_file(attachment.content, attachment.download_name)
 
 
+@require_safe
 def problem_site_example_tests_view(request, site_key):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
     tests = Test.objects.filter(
@@ -600,6 +601,7 @@ def problem_site_example_tests_view(request, site_key):
     return JsonResponse(result, safe=False)
 
 
+@require_safe
 def problem_site_example_test_file_view(request, site_key, filename):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
 
