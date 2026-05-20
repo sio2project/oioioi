@@ -398,6 +398,24 @@ class TestProblemInstanceSettings(TestProblemInstance):
             html=True,
         )
 
+    def test_submissions_limit(self):
+        c = self.login(get_problems=False)
+        pi = ProblemInstance.objects.filter(contest=c)[0]
+
+        form_data = self.form_data.copy()
+        form_data["pif-0-submissions_limit"] = "-10"
+
+        response = self.client.post(
+            reverse("simpleui_problem_settings", kwargs={"problem_instance_id": str(pi.id)}),
+            form_data,
+            follow=True,
+        )
+        self.assertContains(
+            response,
+            "Submissions limit must be a non-negative number.",
+            html=True,
+        )
+
 
 class TestProblemInstanceValidation(TestProblemInstance):
     fixtures = [
