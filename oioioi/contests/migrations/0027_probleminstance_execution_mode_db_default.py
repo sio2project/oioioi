@@ -6,7 +6,7 @@ import oioioi.base.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("contests", "0025_probleminstance_execution_mode"),
+        ("contests", "0026_probleminstance_execution_mode"),
     ]
 
     operations = [

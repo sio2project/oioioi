@@ -6,7 +6,7 @@ import oioioi.base.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("contests", "0024_roundstartdelay"),
+        ("contests", "0025_merge_0017_submission_max_score_0024_roundstartdelay"),
     ]
 
     operations = [
