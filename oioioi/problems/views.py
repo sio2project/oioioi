@@ -579,17 +579,23 @@ def problem_site_example_tests_view(request, site_key):
     result = []
     for test in tests:
         basename = f"{problem.short_name}{test.name}"
-        result.append({
-            "name": test.name,
-            "in_url": reverse(
-                "problem_site_example_test_file",
-                kwargs={"site_key": site_key, "filename": f"{basename}.in"},
-            ) if test.input_file else None,
-            "out_url": reverse(
-                "problem_site_example_test_file",
-                kwargs={"site_key": site_key, "filename": f"{basename}.out"},
-            ) if test.output_file else None,
-        })
+        result.append(
+            {
+                "name": test.name,
+                "in_url": reverse(
+                    "problem_site_example_test_file",
+                    kwargs={"site_key": site_key, "filename": f"{basename}.in"},
+                )
+                if test.input_file
+                else None,
+                "out_url": reverse(
+                    "problem_site_example_test_file",
+                    kwargs={"site_key": site_key, "filename": f"{basename}.out"},
+                )
+                if test.output_file
+                else None,
+            }
+        )
 
     return JsonResponse(result, safe=False)
 
@@ -604,7 +610,7 @@ def problem_site_example_test_file_view(request, site_key, filename):
     short_name = problem.short_name
     if not base.startswith(short_name):
         raise Http404
-    test_name = base[len(short_name):]
+    test_name = base[len(short_name) :]
 
     test = get_object_or_404(
         Test,
