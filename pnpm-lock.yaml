@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       '@eonasdan/tempus-dominus':
-        specifier: ^6.10.2
+        specifier: ^6.10.4
         version: 6.10.4(@popperjs/core@2.11.8)
       bootstrap:
         specifier: ^5.3.8
@@ -24,7 +24,7 @@ importers:
         specifier: ^2.0.11
         version: 2.0.11
       darkreader:
-        specifier: ^4.9.117
+        specifier: ^4.9.120
         version: 4.9.120
       highcharts:
         specifier: ^12.6.0
@@ -42,35 +42,35 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5
       marked:
-        specifier: ^15.0.7
+        specifier: ^15.0.12
         version: 15.0.12
       mathjax:
-        specifier: ^4.0.0
+        specifier: ^4.1.1
         version: 4.1.1
       select2:
-        specifier: ^4.1.0-rc.0
+        specifier: 4.1.0-rc.0
         version: 4.1.0-rc.0
     devDependencies:
       '@eslint/js':
-        specifier: ^9.23.0
+        specifier: ^9.39.4
         version: 9.39.4
       concurrently:
-        specifier: ^9.1.2
+        specifier: ^9.2.1
         version: 9.2.1
       copy-webpack-plugin:
         specifier: ^14.0.0
         version: 14.0.0(webpack@5.105.4)
       eslint:
-        specifier: ^9.23.0
+        specifier: ^9.39.4
         version: 9.39.4
       expose-loader:
         specifier: ^5.0.1
         version: 5.0.1(webpack@5.105.4)
       globals:
-        specifier: ^16.0.0
+        specifier: ^16.5.0
         version: 16.5.0
       webpack:
-        specifier: ^5.105.0
+        specifier: ^5.105.4
         version: 5.105.4(webpack-cli@6.0.1)
       webpack-cli:
         specifier: ^6.0.1
@@ -171,7 +171,6 @@ packages:
     resolution: {integrity: sha512-MVC6UDp16ZSH7x4rtuJPAEoE1RwS8N4oK9DLHy3FTEdFoUTCFVzMfJl/BVJ330C+hx8FfprA5Wqx4FhZXkj2Kw==}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@rollup/rollup-win32-x64-msvc@4.56.0':
     resolution: {integrity: sha512-H8AE9Ur/t0+1VXujj90w0HrSOuv0Nq9r1vSZF2t5km20NTfosQsGGUXDaKdQZzwuLts7IyL1fYT4hM95TI9c4g==}
@@ -520,8 +519,8 @@ packages:
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
 
-  fast-uri@3.1.0:
-    resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
+  fast-uri@3.1.2:
+    resolution: {integrity: sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==}
 
   fastest-levenshtein@1.0.16:
     resolution: {integrity: sha512-eRnCtTTtGZFpQCwhJiUOuxPQWRXVKYDn0b2PeHfXL6/Zi53SLAzAHfVhVWK2AryC/WH05kGfxhFIPvTF0SXQzg==}
@@ -1268,7 +1267,7 @@ snapshots:
   ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.0
+      fast-uri: 3.1.2
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -1491,7 +1490,7 @@ snapshots:
 
   fast-levenshtein@2.0.6: {}
 
-  fast-uri@3.1.0: {}
+  fast-uri@3.1.2: {}
 
   fastest-levenshtein@1.0.16: {}
 
