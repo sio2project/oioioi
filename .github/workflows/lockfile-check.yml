@@ -1,0 +1,27 @@
+name: Check pnpm lockfile
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check-pnpm-lockfile:
+    name: Check pnpm lockfile
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 9 # Same as in Dockerfile.
+          run_install: false
+
+      - name: Check whether pnpm-lock.yaml matches package.json
+        run: pnpm install --frozen-lockfile --lockfile-only
