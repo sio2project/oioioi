@@ -228,7 +228,7 @@ def problem_site_example_test_file_view(request, site_key, filename):
     short_name = problem.short_name
     if not base.startswith(short_name):
         raise Http404
-    test_name = base[len(short_name):]
+    test_name = base[len(short_name) :]
 
     test = get_object_or_404(
         Test,
