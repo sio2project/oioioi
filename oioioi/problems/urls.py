@@ -24,12 +24,12 @@ problem_site_patterns = [
     ),
     path(
         "example_tests/",
-        views.problem_site_example_tests_view,
+        api.problem_site_example_tests_view,
         name="problem_site_example_tests",
     ),
     path(
         "example_tests/<str:filename>",
-        views.problem_site_example_test_file_view,
+        api.problem_site_example_test_file_view,
         name="problem_site_example_test_file",
     ),
 ]
