@@ -68,6 +68,7 @@ from oioioi.problems.models import (
     ProblemAttachment,
     ProblemName,
     ProblemPackage,
+    ProblemSite,
     ProblemStatement,
     UserStatistics,
 )
@@ -570,9 +571,7 @@ def problem_site_external_attachment_view(request, site_key, attachment_id):
 
 
 def problemset_add_to_contest_view(request, site_key):
-    problem_name = request.GET.get("problem_name")
-    if not problem_name:
-        raise Http404
+    problem_name = get_object_or_404(ProblemSite, url_key=site_key).problem.short_name
     administered = administered_contests(request)
     administered = sorted(administered, key=lambda x: x.creation_date, reverse=True)
     administered = [contest for contest in administered if not contest.is_archived]

@@ -302,10 +302,9 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertNotContains(response, "data-addorupdate")
         self.assertNotContains(response, "data-urlkey")
         # And it should point to select_contest page
-        self.assertContains(response, "/problem/123/add_to_contest/?problem_name=sum")
+        self.assertContains(response, "/problem/123/add_to_contest/")
         # Follow the link...
         url = reverse("problemset_add_to_contest", kwargs={"site_key": "123"})
-        url += "?problem_name=sum"
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "to add the <code>sum</code> problem to")

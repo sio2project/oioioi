@@ -31,6 +31,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         "test_contest",
         "test_full_package",
         "test_problem_instance",
+        "test_problem_site",
         "test_permissions",
     ]
 
@@ -147,7 +148,6 @@ class TestProblemViews(TestCase, TestStreamingMixin):
     def test_admin_add_to_contest_delete_in_problemset(self):
         self.assertTrue(self.client.login(username="test_admin"))
         url = reverse("problemset_add_to_contest", kwargs={"site_key": "123"})
-        url += "?problem_name=sum"
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         problem = Problem.objects.get()
