@@ -39,8 +39,6 @@ from oioioi.programs.models import (
     GroupReport,
     ModelProgramSubmission,
     OutputChecker,
-    ProblemAllowedLanguage,
-    ProblemCompiler,
     ProgramSubmission,
     Submission,
     TestReport,
@@ -118,12 +116,11 @@ class ProgrammingProblemController(ProblemController):
             return "default-" + extension
 
     # Let's fetch ProblemCompilers for all languages in bulk, as they
-    # will be needed anyway and the query overhead is negligible.
-    # The query is still a bottleneck for the submit view, see comment
-    # for `._add_langs_to_form()`.
+    # will be needed anyway. They should have been made available by
+    # an earlier prefetch_related like in contests/forms.py.
     def _get_problem_compilers_cached(self, problem_instance, language):
         if not hasattr(problem_instance, "_problem_compilers_cache"):
-            qs = ProblemCompiler.objects.filter(problem_id=problem_instance.problem_id)
+            qs = problem_instance.problem.problemcompiler_set.all()
             problem_instance._problem_compilers_cache = {pc.language: pc for pc in qs}
         return problem_instance._problem_compilers_cache.get(language, None)
 
@@ -506,11 +503,6 @@ class ProgrammingProblemController(ProblemController):
             problem_instance.controller.judge(submission)
         return submission
 
-    # This method is a large bottleneck in the submit view for large contests,
-    # as for every problem_instance, `.get_compiler_for_language()`
-    # and `.get_allowed_languages_for_problem()` execute DB queries.
-    # It could be improved e.g. by propagating the list of problem instances from
-    # `contests/forms.py::SubmissionForm` and fetching related ProblemCompilers in bulk.
     def _add_langs_to_form(self, request, form, problem_instance):
         controller = problem_instance.controller
 
@@ -845,8 +837,8 @@ class ProgrammingProblemController(ProblemController):
         )
 
     def get_allowed_languages_for_problem(self, problem):
-        # This query is a bottleneck for the submit view, see comment for `._add_langs_to_form()`.
-        allowed_langs = list(ProblemAllowedLanguage.objects.filter(problem=problem).values_list("language", flat=True))
+        # This should be fetched in bulk with prefetch_related.
+        allowed_langs = [lang.language for lang in problem.problemallowedlanguage_set.all()]
         if not allowed_langs:
             return problem.controller.get_allowed_languages()
         return allowed_langs

@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.db.models import prefetch_related_objects
 from django.forms import ValidationError
 from django.forms.widgets import Media as FormMedia
 from django.urls import reverse
@@ -198,6 +199,7 @@ class SubmissionForm(forms.Form):
         pis = self.get_problem_instances()
         if problem_filter:
             pis = problem_filter(pis)
+        prefetch_related_objects(pis, "problem__problemallowedlanguage_set", "problem__problemcompiler_set")
         pi_choices = [(pi.id, str(pi)) for pi in pis]
 
         # init form with previously sent data
