@@ -14,6 +14,7 @@ from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.preferences import ensure_preferences_exist_for_user
+from oioioi.base.utils import annotate_known_related
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.controllers import ContestController, submission_template_context
@@ -664,10 +665,12 @@ class ProgrammingProblemController(ProblemController):
         score_report = ScoreReport.objects.get(submission_report=report)
         compilation_report = CompilationReport.objects.get(submission_report=report)
         test_reports = (
-            TestReport.objects.filter(submission_report=report)
-            .select_related("userout_status", "test")
-            .prefetch_related("test__problem_instance__problem", "submission_report__submission__problem_instance__contest")
-            .order_by("test__order", "test_group", "test_name")
+            TestReport.objects.filter(submission_report=report).select_related("userout_status", "test").order_by("test__order", "test_group", "test_name")
+        )
+        test_reports = annotate_known_related(
+            annotate_known_related(test_reports, "test__problem_instance", problem_instance),
+            "submission_report",
+            report,
         )
         group_reports = GroupReport.objects.filter(submission_report=report)
         show_scores = any(gr.score is not None for gr in group_reports)
