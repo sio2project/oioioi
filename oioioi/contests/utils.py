@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
-from oioioi.base.utils import request_cached, request_cached_complex
+from oioioi.base.utils import annotate_known_related, annotate_known_related_many, request_cached, request_cached_complex
 from oioioi.base.utils.public_message import get_public_message
 from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
@@ -134,7 +134,7 @@ def rounds_in_contest(contest):
         return []
     cache_key = "_rounds_cache"
     if not hasattr(contest, cache_key):
-        rounds = contest.round_set.all().prefetch_related("contest")
+        rounds = annotate_known_related(contest.round_set.all(), "contest", contest)
         setattr(contest, cache_key, rounds)
     return getattr(contest, cache_key)
 
@@ -255,10 +255,15 @@ def submittable_problem_instances(request):
 @request_cached_complex
 def visible_problem_instances(request, no_admin=False):
     controller = request.contest.controller
-    queryset = (
-        ProblemInstance.objects.filter(contest=request.contest)
-        .select_related("problem")
-        .prefetch_related("round", "contest", "problem__contest", "problem__author", "problem__names")
+
+    queryset = annotate_known_related_many(
+        annotate_known_related(
+            ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("problem__names"),
+            "contest",
+            request.contest,
+        ),
+        "round",
+        rounds_in_contest(request.contest),
     )
     return [
         pi
@@ -421,6 +426,11 @@ def visible_contests(request):
     return set(contests)
 
 
+@request_cached
+def visible_contest_ids(request):
+    return {c.id for c in visible_contests(request)}
+
+
 @request_cached_complex
 def visible_filtered_contests_as_django_queryset(request, filter_value=None):
     contests = visible_contests_as_django_queryset(request)
@@ -441,6 +451,11 @@ def administered_contests(request):
     user has contest_admin permission for.
     """
     return [contest for contest in visible_contests(request) if can_admin_contest(request.user, contest)]
+
+
+@request_cached
+def administered_contests_ids(request):
+    return {c.id for c in administered_contests(request)}
 
 
 @make_request_condition
