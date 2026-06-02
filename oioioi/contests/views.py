@@ -56,7 +56,7 @@ from oioioi.contests.utils import (
     get_contest_dates,
     get_files_message,
     get_number_of_rounds,
-    get_problems_sumbmission_limit,
+    get_problems_submission_limit,
     get_results_visibility,
     get_scoring_desription,
     get_submission_message,
@@ -124,7 +124,7 @@ def contest_rules_view(request):
     scoring_description = get_scoring_desription(request)
     results_visibility = get_results_visibility(request)
     contest_dates = get_contest_dates(request)
-    submission_limit = get_problems_sumbmission_limit(request)
+    submission_limit = get_problems_submission_limit(request)
 
     return TemplateResponse(
         request,

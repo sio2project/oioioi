@@ -323,13 +323,13 @@ def get_scoring_desription(request):
 
 
 @request_cached
-def get_problems_sumbmission_limit(request):
+def get_problems_submission_limit(request):
     """Returns the upper and lower submission limit in the current contest.
     If there is one limit for all problems, it returns a list with one element.
     If there are no problems in the contest, it returns the default limit.
     """
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest).prefetch_related("round")
+    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round")
 
     if queryset is None or not queryset.exists():
         return [Contest.objects.get(id=request.contest.id).default_submissions_limit]
