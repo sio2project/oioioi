@@ -251,11 +251,11 @@ def submittable_problem_instances(request):
     return [pi for pi in visible_problem_instances(request) if controller.can_submit(request, pi)]
 
 
-@request_cached_complex
-def visible_problem_instances(request, no_admin=False):
-    controller = request.contest.controller
-
-    queryset = annotate_known_related_many(
+@request_cached
+def problem_instances_in_contest(request):
+    if not request.contest:
+        return []
+    return annotate_known_related_many(
         annotate_known_related(
             ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("problem__names"),
             "contest",
@@ -264,9 +264,14 @@ def visible_problem_instances(request, no_admin=False):
         "round",
         rounds_in_contest(request.contest),
     )
+
+
+@request_cached_complex
+def visible_problem_instances(request, no_admin=False):
+    controller = request.contest.controller
     return [
         pi
-        for pi in queryset
+        for pi in problem_instances_in_contest(request)
         if controller.can_see_problem(
             request,
             pi,
@@ -338,13 +343,13 @@ def get_problems_submission_limit(request):
     If there are no problems in the contest, it returns the default limit.
     """
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round")
+    problem_instances = problem_instances_in_contest(request)
 
-    if queryset is None or not queryset.exists():
+    if not problem_instances:
         return [Contest.objects.get(id=request.contest.id).default_submissions_limit]
 
     limits = set()
-    for p in queryset:
+    for p in problem_instances:
         limits.add(controller.get_submissions_limit(request, p, noadmin=True))
 
     if len(limits) == 1:
