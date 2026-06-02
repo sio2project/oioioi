@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import OuterRef, Q, Subquery, prefetch_related_objects
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
@@ -932,3 +933,19 @@ def filter_last_submissions(queryset):
         .values("id")[:1]
     )
     return queryset.filter(id=Subquery(last_subquery))
+
+
+# This should only be used on submissions in a contest,
+# due to problem_instances_in_contest usage, unless the problem_instances arg is provided.
+# A list is returned, so no queryset methods may be used on it.
+# Querysets that have related submissions are supported too, for example
+# a UserResultForProblem queryset may be used with qs_prefix_to_submission="submission_report__submission".
+def eval_contest_submissions_qs_with_common_related(request, qs, qs_prefix_to_submission="", problem_instances=None):
+    if qs_prefix_to_submission and not qs_prefix_to_submission.endswith("__"):
+        qs_prefix_to_submission += "__"
+    if problem_instances is None:
+        problem_instances = problem_instances_in_contest(request)
+    if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
+        qs = qs.select_related(qs_prefix_to_submission + "revealed")
+        prefetch_related_objects(problem_instances, "scores_reveal_config")
+    return annotate_known_related_many(qs, qs_prefix_to_submission + "problem_instance", problem_instances)

@@ -19,6 +19,7 @@ from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.utils import (
+    eval_contest_submissions_qs_with_common_related,
     get_submission_message,
     is_contest_admin,
     is_contest_archived,
@@ -800,15 +801,7 @@ class ProgrammingProblemController(ProblemController):
             .filter(problem_instance=submission.problem_instance)
             .exclude(pk=submission.pk)
             .order_by("-date")
-            .prefetch_related(
-                "problem_instance",
-                "problem_instance__contest",
-                "problem_instance__round",
-                "problem_instance__problem",
-            )
         )
-        if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
-            queryset = queryset.select_related("revealed").prefetch_related("problem_instance__scores_reveal_config")
 
         if not submission.problem_instance.contest == request.contest:
             raise SuspiciousOperation
@@ -818,8 +811,14 @@ class ProgrammingProblemController(ProblemController):
         elif not request.contest and not is_contest_basicadmin(request):
             pc = submission.problem_instance.controller
             queryset = pc.filter_my_visible_submissions(request, queryset)
-        show_scores = bool(queryset.filter(score__isnull=False))
 
+        submissions = eval_contest_submissions_qs_with_common_related(
+            request,
+            queryset,
+            problem_instances=[submission.problem_instance],
+        )
+
+        show_scores = any(s.score is not None for s in submissions)
         can_admin = can_admin_problem_instance(request, submission.problem_instance)
 
         if not queryset.exists():
@@ -828,7 +827,7 @@ class ProgrammingProblemController(ProblemController):
             "programs/other_submissions.html",
             request=request,
             context={
-                "submissions": [submission_template_context(request, s) for s in queryset],
+                "submissions": [submission_template_context(request, s) for s in submissions],
                 "show_scores": show_scores,
                 "can_admin": can_admin,
                 "main_submission_id": submission.id,

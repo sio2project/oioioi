@@ -656,13 +656,25 @@ def annotate_known_related(objs, related_name, related):
 
 def annotate_known_related_many(objs, related_name, related_list):
     related_dict = {rel_obj.id: rel_obj for rel_obj in related_list}
+    if "__" in related_name:
+        related_name_parts = related_name.split("__")
+    else:
+        related_name_parts = related_name.split(".")
 
     def annotate_one(obj):
-        id = getattr(obj, related_name + "_id")
+        if obj is None:
+            return obj
+        subobj = obj
+        for attrname in related_name_parts[:-1]:
+            subobj = getattr(subobj, attrname, None)
+            if subobj is None:
+                return obj
+        attrname = related_name_parts[-1]
+        id = getattr(subobj, attrname + "_id")
         if not id:
-            setattr(obj, related_name, None)
+            setattr(subobj, attrname, None)
         elif id in related_dict:
-            setattr(obj, related_name, related_dict[id])
+            setattr(subobj, attrname, related_dict[id])
         return obj
 
     return list(map(annotate_one, objs))
