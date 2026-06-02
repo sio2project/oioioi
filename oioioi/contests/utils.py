@@ -183,12 +183,8 @@ def has_any_rounds(request_or_context):
 @make_request_condition
 @request_cached
 def has_any_active_round(request):
-    controller = request.contest.controller
-    # We can't use visible_rounds(request) here, as that causes a cycle
-    # because of PastRoundsHiddenContestControllerMixin.
-    for round in Round.objects.filter(contest=request.contest):
-        rtimes = controller.get_round_times(request, round)
-        if rtimes.is_active(request.timestamp):
+    for rtime in generic_rounds_times(request).values():
+        if rtime.is_active(request.timestamp):
             return True
     return False
 
