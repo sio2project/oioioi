@@ -3177,6 +3177,27 @@ class TestProblemInstanceView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'name="execution_mode"')
 
+    def test_execution_mode_post_ignored_for_basicadmin(self):
+        problem_instance = ProblemInstance.objects.get()
+        problem_instance.execution_mode = "sio2jail"
+        problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_contest_basicadmin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        post_data = {
+            "round": problem_instance.round_id or "",
+            "short_name": problem_instance.short_name,
+            "submissions_limit": problem_instance.submissions_limit,
+            "execution_mode": "cpu",
+            "_save": "Save",
+        }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        problem_instance.refresh_from_db()
+        self.assertEqual(problem_instance.execution_mode, "sio2jail")
+
     def separate_main_problem_instance(self):
         # in fixtures there is only one ProblemInstance
         # unfortunately it's already attached to contest and it's
