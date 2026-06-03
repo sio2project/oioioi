@@ -6,11 +6,11 @@ import oioioi.base.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("contests", "0026_probleminstance_execution_mode"),
+        ("contests", "0026_alter_probleminstance_submissions_limit"),
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.AddField(
             model_name="probleminstance",
             name="execution_mode",
             field=oioioi.base.fields.EnumField(
