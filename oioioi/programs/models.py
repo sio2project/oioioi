@@ -23,6 +23,7 @@ from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.problem_instance_utils import get_language_by_extension
 
+
 class ProgramsConfig(models.Model):
     contest = models.OneToOneField(Contest, related_name="programs_config", on_delete=models.CASCADE)
     execution_mode = EnumField(
