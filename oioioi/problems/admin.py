@@ -781,9 +781,9 @@ class MainProblemInstanceAdmin(admin.ModelAdmin):
         return False
 
     def get_readonly_fields(self, request, obj=None):
-        readonly_fields = list(super().get_readonly_fields(request, obj))
+        readonly_fields = tuple(super().get_readonly_fields(request, obj))
         if not request.user.is_superuser:
-            readonly_fields.append("execution_mode")
+            return readonly_fields + ("execution_mode",)
         return readonly_fields
 
     def response_change(self, request, obj):

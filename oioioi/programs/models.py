@@ -14,6 +14,7 @@ from oioioi.contests.models import (
     ProblemInstance,
     Submission,
     SubmissionReport,
+    problem_instance_execution_mode_options,
     submission_kinds,
     submission_report_kinds,
     submission_statuses,
@@ -22,16 +23,10 @@ from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.problem_instance_utils import get_language_by_extension
 
-execution_mode_options = EnumRegistry()
-execution_mode_options.register("AUTO", _("Auto"))
-execution_mode_options.register("cpu", _("Real CPU"))
-execution_mode_options.register("sio2jail", _("SIO2Jail"))
-
-
 class ProgramsConfig(models.Model):
     contest = models.OneToOneField(Contest, related_name="programs_config", on_delete=models.CASCADE)
     execution_mode = EnumField(
-        execution_mode_options,
+        problem_instance_execution_mode_options,
         default="AUTO",
         verbose_name=_("execution mode"),
         help_text=_("If set to Auto, the execution mode is determined according to the type of the contest."),
