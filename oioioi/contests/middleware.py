@@ -30,7 +30,7 @@ def activate_contest(request, contest):
         latest_cv = ContestView.objects.filter(user=request.real_user).first()
         # Do not repeatedly update timestamp for latest contest.
         if not latest_cv or latest_cv.contest_id != contest.id:
-            cv, created = ContestView.objects.update_or_create(
+            ContestView.objects.update_or_create(
                 user=request.real_user,
                 contest=contest,
                 defaults={"timestamp": request.timestamp},
