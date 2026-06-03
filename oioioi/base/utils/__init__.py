@@ -651,9 +651,6 @@ def find_closure(groups):
 
 
 def annotate_known_related(objs, related_name, related):
-    def annotate_one(obj):
-        return obj
-
     objs = list(objs)
     for obj in objs:
         setattr(obj, related_name, related)
@@ -676,20 +673,18 @@ def annotate_known_related_many(objs, related_name, related_list):
         subobj = obj
         for attrname in related_name_parts[:-1]:
             subobj = getattr(subobj, attrname, None)
-            if subobj is None:
-                break
         if subobj is None:
             continue
         attrname = related_name_parts[-1]
         related_id = getattr(subobj, attrname + "_id")
         if related_id is None:
             setattr(subobj, attrname, None)
+            continue
+        related_obj = related_dict.get(related_id, None)
+        if related_obj is None:
+            subobjs_with_missing_related.append(subobj)
         else:
-            related_obj = related_dict.get(related_id, None)
-            if related_obj is None:
-                subobjs_with_missing_related.append(subobj)
-            else:
-                setattr(subobj, attrname, related_obj)
+            setattr(subobj, attrname, related_obj)
 
     if subobjs_with_missing_related:
         logger.warning(
