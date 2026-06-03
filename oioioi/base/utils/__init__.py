@@ -2,6 +2,7 @@
 import base64
 import functools
 import json
+import logging
 import os
 import re
 import shutil
@@ -13,6 +14,7 @@ from importlib import import_module
 from importlib.util import find_spec
 
 import six
+from django.db.models import prefetch_related_objects
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
@@ -21,6 +23,8 @@ from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
+logger = logging.getLogger(__name__)
 
 # Metaclasses
 
@@ -667,10 +671,12 @@ def find_closure(groups):
 
 def annotate_known_related(objs, related_name, related):
     def annotate_one(obj):
-        setattr(obj, related_name, related)
         return obj
 
-    return list(map(annotate_one, objs))
+    objs = list(objs)
+    for obj in objs:
+        setattr(obj, related_name, related)
+    return objs
 
 
 def annotate_known_related_many(objs, related_name, related_list):
@@ -680,20 +686,36 @@ def annotate_known_related_many(objs, related_name, related_list):
     else:
         related_name_parts = related_name.split(".")
 
-    def annotate_one(obj):
+    objs = list(objs)
+    subobjs_with_missing_related = []
+
+    for obj in objs:
         if obj is None:
-            return obj
+            continue
         subobj = obj
         for attrname in related_name_parts[:-1]:
             subobj = getattr(subobj, attrname, None)
             if subobj is None:
-                return obj
+                break
+        if subobj is None:
+            continue
         attrname = related_name_parts[-1]
-        id = getattr(subobj, attrname + "_id")
-        if not id:
+        related_id = getattr(subobj, attrname + "_id")
+        if related_id is None:
             setattr(subobj, attrname, None)
-        elif id in related_dict:
-            setattr(subobj, attrname, related_dict[id])
-        return obj
+        else:
+            related_obj = related_dict.get(related_id, None)
+            if related_obj is None:
+                subobjs_with_missing_related.append(subobj)
+            else:
+                setattr(subobj, attrname, related_obj)
 
-    return list(map(annotate_one, objs))
+    if subobjs_with_missing_related:
+        logger.warning(
+            f"annotate_known_related_many for {related_name} relation called with an "
+            f"incomplete related_list. Object type is {str(type(objs[0]))}. Some of the "
+            f"subobjects with missing related objects: {subobjs_with_missing_related[:3]}."
+        )
+        prefetch_related_objects(subobjs_with_missing_related, related_name_parts[-1])
+
+    return objs
