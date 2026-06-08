@@ -68,9 +68,7 @@ def adjust_preferences_factory_fields():
     choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
     choices = [(k, _(v)) for k, v in choices_not_translated]
     programming_language_choices = [("", _("None"))] + [
-        (lang, lang_config["display_name"])
-        for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items()
-        if lang_config.get("type", "main") == "main"
+        (lang, lang_config["display_name"]) for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items() if lang_config.get("type", "main") == "main"
     ]
 
     def handle_preferred_language(user):
@@ -131,9 +129,7 @@ def handle_new_preference_fields(request, user):
 
     if "programming_language" in request.POST:
         programming_language = request.POST["programming_language"]
-        allowed_programming_languages = [
-            lang for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items() if lang_config.get("type", "main") == "main"
-        ]
+        allowed_programming_languages = [lang for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items() if lang_config.get("type", "main") == "main"]
         if programming_language in allowed_programming_languages + [""]:
             user.userpreferences.programming_language = programming_language
             changed = True

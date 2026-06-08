@@ -4,28 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('base', '0006_alter_userpreferences_language'),
+        ("base", "0006_alter_userpreferences_language"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='userpreferences',
-            name='programming_language',
+            model_name="userpreferences",
+            name="programming_language",
             field=models.CharField(
                 blank=True,
                 choices=[
-                    ('C', 'C'),
-                    ('C++', 'C++'),
-                    ('Pascal', 'Pascal'),
-                    ('Java', 'Java'),
-                    ('Python', 'Python'),
-                    ('', 'None'),
+                    ("C", "C"),
+                    ("C++", "C++"),
+                    ("Pascal", "Pascal"),
+                    ("Java", "Java"),
+                    ("Python", "Python"),
+                    ("", "None"),
                 ],
-                default='',
+                default="",
                 max_length=64,
-                verbose_name='preferred programming language',
+                verbose_name="preferred programming language",
             ),
         ),
     ]

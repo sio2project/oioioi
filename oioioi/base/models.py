@@ -47,11 +47,7 @@ class UserPreferences(models.Model):
     programming_language = models.CharField(
         _("preferred programming language"),
         max_length=64,
-        choices=[
-            (lang, config["display_name"])
-            for lang, config in settings.SUBMITTABLE_LANGUAGES.items()
-            if config.get("type", "main") == "main"
-        ]
+        choices=[(lang, config["display_name"]) for lang, config in settings.SUBMITTABLE_LANGUAGES.items() if config.get("type", "main") == "main"]
         + [("", _("None"))],
         default="",
         blank=True,
