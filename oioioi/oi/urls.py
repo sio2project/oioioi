@@ -24,4 +24,8 @@ urlpatterns = [
 contest_patterns = [
     path("register/oicities/", views.cities_view),
     path("register/oischools/", views.schools_view),
+    path("confirm-data/", views.confirm_data_view, name="oi_confirm_data"),
+    # reg.js fetches these relative to the current page.
+    path("confirm-data/oicities/", views.cities_view),
+    path("confirm-data/oischools/", views.schools_view),
 ]

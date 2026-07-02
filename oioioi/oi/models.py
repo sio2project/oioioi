@@ -128,6 +128,7 @@ class OIRegistration(RegistrationModel):
     # It is presented with the default verbose name in all contexts, except for
     # the custom registration form (in contests like OI and PA)
     terms_accepted = models.BooleanField(_("terms accepted"), default=False)
+    data_confirmed_at = models.DateTimeField(null=True, blank=True, verbose_name=_("data confirmed at"))
 
     def __str__(self):
         return _("%(class_type)s of %(school)s") % {
@@ -146,4 +147,5 @@ class OIRegistration(RegistrationModel):
         self.school = None
         self.class_type = "None"
         self.terms_accepted = False
+        self.data_confirmed_at = None
         self.save()

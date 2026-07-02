@@ -5315,6 +5315,11 @@ msgid ""
 "        contact the organizer.\n"
 "    "
 msgstr ""
+"\n"
+"        Jeśli nie możesz znaleźć swojej szkoły na liście lub\n"
+"        informacje o szkole są nieprawidłowe, prosimy o\n"
+"        kontakt z organizatorem.\n"
+"    "
 
 #: oi/templates/forms/school_select_school_info.html:4
 msgid "Information about chosen school:"
@@ -11076,3 +11081,27 @@ msgstr "Liczba węzłów"
 #: zeus/templates/zeus/program-report.html:21
 msgid "Zeus id"
 msgstr "ID Zeusa"
+
+#: oi/templates/oi/confirm_data.html
+msgid "Confirm your personal data"
+msgstr "Potwierdź swoje dane osobowe"
+
+#: oi/templates/oi/confirm_data.html
+msgid ""
+"Please review your personal data entered during the first stage and confirm "
+"or correct it. This data will be used for official certificates."
+msgstr ""
+"Sprawdź swoje dane podane podczas I etapu i potwierdź ich poprawność lub "
+"wprowadź korekty. Dane te zostaną wykorzystane do wystawienia oficjalnych "
+"zaświadczeń."
+
+#: oi/templates/oi/confirm_data.html
+msgid "Email"
+msgstr "E-mail"
+
+#: oi/templates/oi/confirm_data.html
+msgid "Data to confirm"
+msgstr "Dane do potwierdzenia"
+#: oi/models.py
+msgid "data confirmed at"
+msgstr "data potwierdzenia danych"
