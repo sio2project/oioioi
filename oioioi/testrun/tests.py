@@ -144,6 +144,12 @@ class TestTestrunViews(TestCase):
         self.assertContains(response, "TESTRUN")
         self.assertNotContains(response, "NORMAL")
 
+        kwargs["submission_id"] = submission.id
+        response = self.client.get(reverse("submission", kwargs=kwargs))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test run")
+        self.assertContains(response, "Compilation failed")
+
     def test_archive_submission(self):
         self.assertTrue(self.client.login(username="test_user"))
         kwargs = {"contest_id": Contest.objects.get().id}
