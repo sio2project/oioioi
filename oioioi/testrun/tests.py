@@ -305,6 +305,7 @@ class TestHandlers(TestCase):
             handlers.delete_output(environ)
         except Exception:
             get_client().delete_file("/output")
+            raise
 
 
 class TestRunTestCase:
