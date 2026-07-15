@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.base.utils.validators import validate_whitespaces
+from oioioi.contests.models import Contest
 from oioioi.participants.models import RegistrationModel
 
 check_django_app_dependencies(__name__, ["oioioi.participants"])
@@ -149,3 +150,33 @@ class OIRegistration(RegistrationModel):
         self.terms_accepted = False
         self.data_confirmed_at = None
         self.save()
+
+
+class OIDataConfirmationSettings(models.Model):
+    contest = models.OneToOneField(
+        Contest,
+        primary_key=True,
+        on_delete=models.CASCADE,
+        verbose_name=_("contest"),
+        related_name="oi_data_confirmation_settings",
+    )
+    is_enabled = models.BooleanField(
+        default=True,
+        verbose_name=_("require personal data confirmation"),
+        help_text=_("Whether finalists must confirm their personal data during an active trial round of this contest."),
+    )
+    source_contest = models.ForeignKey(
+        Contest,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        verbose_name=_("prefill data from contest"),
+    )
+
+    class Meta:
+        verbose_name = _("data confirmation settings")
+        verbose_name_plural = _("data confirmation settings")
+
+    def __str__(self):
+        return str(self.contest)

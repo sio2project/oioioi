@@ -1,6 +1,6 @@
 from oioioi.contests.models import Round
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, rounds_times
-from oioioi.oi.models import OIRegistration, School
+from oioioi.oi.models import OIDataConfirmationSettings, OIRegistration, School
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 
@@ -12,20 +12,22 @@ def get_schools(request):
     return School.objects.filter(is_active=True)
 
 
-def get_participant_requiring_data_confirmation(request):
-    """Returns the finals participant who must confirm their personal data
-    during an active trial round, or ``None`` if no confirmation is required.
+def get_data_confirmation_settings(contest):
+    return OIDataConfirmationSettings.objects.filter(contest=contest).first()
 
-    Confirmation is done once the participant has an ``OIRegistration`` with a
-    non-null ``data_confirmed_at``. It applies to every finalist, including
-    onsite ones who usually have no ``OIRegistration`` yet.
-    """
+
+def get_participant_requiring_data_confirmation(request):
     from oioioi.oi.controllers import OIFinalOnsiteContestController
 
     if not getattr(request, "contest", None):
         return None
     if not isinstance(request.contest.controller, OIFinalOnsiteContestController):
         return None
+
+    confirmation_settings = get_data_confirmation_settings(request.contest)
+    if confirmation_settings is not None and not confirmation_settings.is_enabled:
+        return None
+
     if not request.user.is_authenticated:
         return None
     if is_contest_admin(request) or is_contest_observer(request):

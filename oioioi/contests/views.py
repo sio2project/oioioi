@@ -106,6 +106,12 @@ def select_contest_view(request):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def default_contest_view(request):
+    if "oioioi.oi" in settings.INSTALLED_APPS:
+        from oioioi.oi.utils import get_participant_requiring_data_confirmation
+
+        if get_participant_requiring_data_confirmation(request) is not None:
+            return redirect("oi_confirm_data", contest_id=request.contest.id)
+
     url = request.contest.controller.default_view(request)
     return HttpResponseRedirect(url)
 

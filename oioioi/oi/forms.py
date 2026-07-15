@@ -76,9 +76,6 @@ class SchoolSelect(forms.Select):
 
 
 class _OIRegistrationFormBase(forms.ModelForm):
-    """Shared widget setup and school validation for the OI registration and
-    data confirmation forms. Not meant to be instantiated directly."""
-
     class Media:
         css = {"all": ("oi/reg.css",)}
         js = ("oi/reg.js",)
@@ -101,7 +98,7 @@ class _OIRegistrationFormBase(forms.ModelForm):
 class OIRegistrationForm(_OIRegistrationFormBase):
     class Meta:
         model = OIRegistration
-        exclude = ["participant"]
+        exclude = ["participant", "data_confirmed_at"]
 
     def set_terms_accepted_text(self, terms_accepted_phrase):
         if terms_accepted_phrase is None:
@@ -150,12 +147,18 @@ class OIDataConfirmationForm(_OIRegistrationFormBase):
 
         # Prefill OI fields when there is no finals registration to edit yet.
         if (self.instance is None or self.instance.pk is None) and user is not None:
-            source = (
-                OIRegistration.objects.filter(participant__user=user)
-                .exclude(participant=participant)
-                .order_by("-id")
-                .first()
-            )
+            from oioioi.oi.utils import get_data_confirmation_settings
+
+            source_contest = None
+            if participant is not None:
+                confirmation_settings = get_data_confirmation_settings(participant.contest)
+                if confirmation_settings is not None:
+                    source_contest = confirmation_settings.source_contest
+
+            source_qs = OIRegistration.objects.filter(participant__user=user).exclude(participant=participant)
+            if source_contest is not None:
+                source_qs = source_qs.filter(participant__contest=source_contest)
+            source = source_qs.order_by("-id").first()
             if source is not None:
                 for field in self._OI_PREFILL_FIELDS:
                     if field in self.fields:

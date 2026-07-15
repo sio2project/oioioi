@@ -14,7 +14,7 @@ from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.oi.management.commands import import_schools
-from oioioi.oi.models import OIRegistration, School
+from oioioi.oi.models import OIDataConfirmationSettings, OIRegistration, School
 from oioioi.participants.models import Participant, TermsAcceptedPhrase
 from oioioi.programs.tests import SubmitFileMixin
 
@@ -632,9 +632,6 @@ class TestOIDataConfirmation(TestCase):
         self.contest.controller_name = "oioioi.oi.controllers.OIFinalOnsiteContestController"
         self.contest.save()
 
-        # The redirect middleware reads request.timestamp, which under the test
-        # FakeTimeMiddleware is only set after our middleware runs. To exercise
-        # the real request-phase timestamp we make the trial round active "now".
         now = datetime.now(UTC)
         round = Round.objects.get(pk=1)
         round.is_trial = True
@@ -724,6 +721,52 @@ class TestOIDataConfirmation(TestCase):
             ("Percival", "de Galles", "percival@example.com"),
         )
 
-        # Confirmed once -> no more redirects.
+        # Confirmed once, no more redirects.
         response = self.client.get(self.contest_url)
         self.assertNotIn("confirm-data", response.get("Location", ""))
+
+    def test_no_redirect_when_confirmation_disabled_in_settings(self):
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=False)
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(self.contest_url)
+        self.assertNotIn("confirm-data", response.get("Location", ""))
+
+    def test_prefill_uses_configured_source_contest(self):
+        user = User.objects.get(username="test_user2")
+
+        other_contest = Contest.objects.create(id="other", name="Other contest", controller_name="oioioi.oi.controllers.OIContestController")
+        other_participant = Participant.objects.create(contest=other_contest, user=user, status="ACTIVE")
+        OIRegistration.objects.create(
+            participant=other_participant,
+            address="Wrong Address",
+            postal_code="00-000",
+            city="Wrongtown",
+            birthday="1970-01-01",
+            birthplace="Nowhere",
+            t_shirt_size="S",
+            school_id=1,
+            class_type="1LO",
+        )
+
+        newer_contest = Contest.objects.create(id="newer", name="Newer contest", controller_name="oioioi.oi.controllers.OIContestController")
+        newer_participant = Participant.objects.create(contest=newer_contest, user=user, status="ACTIVE")
+        OIRegistration.objects.create(
+            participant=newer_participant,
+            address="Newest Address",
+            postal_code="11-111",
+            city="Newtown",
+            birthday="1970-01-01",
+            birthplace="Nowhere",
+            t_shirt_size="S",
+            school_id=1,
+            class_type="1LO",
+        )
+
+        OIDataConfirmationSettings.objects.create(contest=self.contest, source_contest=other_contest)
+
+        Participant.objects.create(contest=self.contest, user=user, status="ACTIVE")
+
+        self.assertTrue(self.client.login(username="test_user2"))
+        response = self.client.get(self.confirm_url)
+        self.assertContains(response, "Wrong Address")
+        self.assertNotContains(response, "Newest Address")
