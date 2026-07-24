@@ -355,7 +355,7 @@ contest_admin_menu_registry.register(
 
 class ProblemInstanceAdmin(admin.ModelAdmin):
     form = ProblemInstanceForm
-    fields = ("contest", "round", "problem", "short_name", "submissions_limit")
+    fields = ("contest", "round", "problem", "short_name", "submissions_limit", "execution_mode")
     list_display = ("name_link", "short_name_link", "round", "package", "actions_field")
     readonly_fields = ("contest", "problem")
     ordering = ("-round__start_date", "short_name")
@@ -418,6 +418,12 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         if is_contest_archived(request):
             return is_contest_basicadmin(request)
         return super().has_view_permission(request, obj)
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = tuple(super().get_readonly_fields(request, obj))
+        if not request.user.is_superuser:
+            return readonly_fields + ("execution_mode",)
+        return readonly_fields
 
     def _problem_change_href(self, instance):
         came_from = reverse("oioioiadmin:contests_probleminstance_changelist")
