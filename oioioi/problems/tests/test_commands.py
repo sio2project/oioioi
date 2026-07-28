@@ -83,6 +83,29 @@ class TestMassCreateTool(TestCase):
         call_command("mass_create_tool", "--wipe", stdout=out)
         self._assert_model_counts({})
 
+    def test_max_proposals(self):
+        out = StringIO()
+
+        # As many proposals as there are unique (problem, user, tag) triples and
+        # (problem, user) pairs, which is the worst case for drawing them at random.
+        mct_args = (
+            "--problems",
+            "3",
+            "--users",
+            "3",
+            "--algotags",
+            "2",
+            "--difftags",
+            "2",
+            "--algoproposals",
+            "18",
+            "--diffproposals",
+            "9",
+        )
+        call_command("mass_create_tool", *mct_args, stdout=out)
+        expected_counts = {name[2:]: int(value) for name, value in zip(mct_args[::2], mct_args[1::2], strict=False)}
+        self._assert_model_counts(expected_counts)
+
     def _contest_test_template(self, users, submissions_per_user, submission_files=("sum-correct.cpp", "sum-various-results.cpp")):
         out = StringIO()
         call_command(
@@ -258,6 +281,34 @@ class TestMassCreateTool(TestCase):
                 "1",
                 "-dp",
                 "1",
+                stdout=out,
+            )
+
+        # More proposals than there are unique combinations to draw from.
+        with self.assertRaises(CommandError):
+            call_command(
+                "mass_create_tool",
+                "-p",
+                "2",
+                "-u",
+                "2",
+                "-at",
+                "2",
+                "-ap",
+                "9",
+                stdout=out,
+            )
+        with self.assertRaises(CommandError):
+            call_command(
+                "mass_create_tool",
+                "-p",
+                "2",
+                "-u",
+                "2",
+                "-dt",
+                "2",
+                "-dp",
+                "5",
                 stdout=out,
             )
 
