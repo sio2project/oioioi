@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=83.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -31,7 +31,7 @@ dependencies = [
     "djangorestframework>=3.14,<3.15",
     "django-oauth-toolkit>=3.2,<3.3",
     "Werkzeug",
-    "setuptools>=61.0",
+    "setuptools>=83.0.0",
     "requests>=2.32,<2.33",
     "fpdf>=1.7,<1.8",
     "unicodecsv>=0.14,<0.15",
