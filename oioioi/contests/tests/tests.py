@@ -6,6 +6,7 @@ import re
 import urllib.parse
 import zipfile
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
+from unittest.mock import patch
 
 import bs4
 import pytest
@@ -1272,6 +1273,47 @@ class TestRejudgeView(TestCase):
 
         self.pi.refresh_from_db()
         self.assertTrue(self.pi.needs_rejudge)
+
+    def test_rejudge_scheduling_custom(self):
+        user = User.objects.get(username="test_user")
+        Submission.objects.create(problem_instance=self.pi, user=user, status="OK")
+        Submission.objects.create(problem_instance=self.pi, user=user, status="OK")
+
+        with patch("oioioi.programs.controllers.ProgrammingContestController.judge") as mock_judge:
+            response = self.client.post(
+                self._rejudge_url(),
+                {
+                    "post": "yes",
+                    "evaluation_scheduling": "custom",
+                    "custom_batch_size": "2",
+                    "custom_delay_step": "10",
+                },
+            )
+            self.assertEqual(response.status_code, 302)
+
+            self.assertEqual(mock_judge.call_count, 3)
+            delays = [call.kwargs.get("delay", 0) for call in mock_judge.call_args_list]
+            # Batch size is 2, so delays should be: 0, 0, 10
+            self.assertEqual(sorted(delays), [0, 0, 10.0])
+
+    def test_rejudge_scheduling_delayed(self):
+        user = User.objects.get(username="test_user")
+        Submission.objects.create(problem_instance=self.pi, user=user, status="OK")
+
+        with patch("oioioi.programs.controllers.ProgrammingContestController.judge") as mock_judge:
+            response = self.client.post(
+                self._rejudge_url(),
+                {
+                    "post": "yes",
+                    "evaluation_scheduling": "delayed",
+                },
+            )
+            self.assertEqual(response.status_code, 302)
+
+            self.assertEqual(mock_judge.call_count, 2)
+            delays = [call.kwargs.get("delay", 0) for call in mock_judge.call_args_list]
+            # Delayed is 10 minutes (600s) / 2 submissions = 300s step.
+            self.assertEqual(sorted(delays), [0, 300.0])
 
 
 class TestRejudgeAndFailure(TestCase):
