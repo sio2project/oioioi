@@ -650,6 +650,8 @@ class TestOIDataConfirmation(TestCase):
     def test_confirmation_updates_data_and_stops_redirects(self):
         self.assertTrue(self.client.login(username="test_user"))
         post_data = {
+            # first_name, last_name and email are read-only here; changing
+            # them requires the account edit-profile page.
             "first_name": "Lancelot",
             "last_name": "du Lac",
             "email": "lancelot@example.com",
@@ -674,7 +676,9 @@ class TestOIDataConfirmation(TestCase):
         reg = OIRegistration.objects.get(participant__user__username="test_user")
         self.assertIsNotNone(reg.data_confirmed_at)
         user = User.objects.get(username="test_user")
-        self.assertEqual((user.first_name, user.last_name, user.email), ("Lancelot", "du Lac", "lancelot@example.com"))
+        # Posted first_name/last_name/email are ignored: these fields are
+        # disabled and can only be changed via edit_profile.
+        self.assertEqual((user.first_name, user.last_name, user.email), ("Test", "User", "test_user@example.com"))
 
     def test_no_redirect_outside_active_trial_round(self):
         Round.objects.filter(pk=1).update(is_trial=False)
@@ -716,9 +720,11 @@ class TestOIDataConfirmation(TestCase):
         self.assertIsNotNone(reg.data_confirmed_at)
         self.assertEqual(reg.city, "Camelot")
         user.refresh_from_db()
+        # Posted first_name/last_name/email are ignored: these fields are
+        # disabled and can only be changed via edit_profile.
         self.assertEqual(
             (user.first_name, user.last_name, user.email),
-            ("Percival", "de Galles", "percival@example.com"),
+            ("Test", "User 2", "test_user2@example.com"),
         )
 
         # Confirmed once, no more redirects.
@@ -762,7 +768,7 @@ class TestOIDataConfirmation(TestCase):
             class_type="1LO",
         )
 
-        OIDataConfirmationSettings.objects.create(contest=self.contest, source_contest=other_contest)
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=True, source_contest=other_contest)
 
         Participant.objects.create(contest=self.contest, user=user, status="ACTIVE")
 

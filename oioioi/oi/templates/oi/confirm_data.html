@@ -21,6 +21,9 @@
 </p>
 
 <h4>{% trans "Data to confirm" %}</h4>
+<p class="text-muted">
+    {% blocktrans %}Your first name, last name and email cannot be changed here. To change them, go to {% endblocktrans %}<a href="{% url 'edit_profile' %}">{% trans "edit profile" %}</a>.
+</p>
 <form method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}

@@ -6,7 +6,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import SimpleTemplateResponse, TemplateResponse
-from django.utils.timezone import now
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
@@ -146,7 +146,7 @@ def confirm_data_view(request):
             with transaction.atomic():
                 instance = form.save(commit=False)
                 instance.participant = participant
-                instance.data_confirmed_at = now()
+                instance.data_confirmed_at = timezone.now()
                 instance.save()
                 form.save_user(request.user)
             return redirect("default_contest_view", contest_id=request.contest.id)

@@ -202,6 +202,10 @@ class OIDataConfirmationSettingsInline(admin.StackedInline):
 
 
 class OIDataConfirmationSettingsAdminMixin:
+    """Adds :class:`~oioioi.oi.models.OIDataConfirmationSettings` to an admin
+    panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (OIDataConfirmationSettingsInline,)

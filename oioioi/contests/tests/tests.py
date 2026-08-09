@@ -2418,7 +2418,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, "contesticon_set-group")
         self.assertContains(response, "contestlogo-group")
 
-        self.assertContains(response, "js-inline-admin-formset", count=7)
+        self.assertContains(response, "js-inline-admin-formset", count=8)
 
     def test_menu_problems(self):
         self.assertTrue(self.client.login(username="test_contest_basicadmin"))
