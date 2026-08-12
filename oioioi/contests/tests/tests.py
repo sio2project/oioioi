@@ -711,6 +711,32 @@ class TestContestViews(TestCase):
         self.assertEqual(len(wa_match), 1)
         self.assertContains(response, "program exited with code 1")
 
+    def test_submission_status_visibility(self):
+        contest = Contest.objects.get()
+        submission = Submission.objects.get(pk=1)
+        self.assertTrue(self.client.login(username="test_user"))
+        kwargs = {"contest_id": contest.id, "submission_id": submission.id}
+
+        def count_matches(css_class):
+            status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
+            response = self.client.get(reverse("submission", kwargs=kwargs))
+            self.assertEqual(response.status_code, 200)
+            content = response.content.decode("utf-8")
+            return len(re.findall(status_pattern % (css_class, "OK"), content))
+
+        self.assertEqual(count_matches("OK25"), 1)
+
+        submission.score = IntegerScore(24)
+        submission.save()
+        self.assertEqual(count_matches("OK0"), 1)
+        self.assertEqual(count_matches("OK25"), 0)
+
+        round = submission.problem_instance.round
+        round.results_date = datetime(4444, 4, 4, 4, 4, tzinfo=UTC)
+        round.save()
+        for score in (0, 25, 50, 75, 100):
+            self.assertEqual(count_matches("OK" + str(score)), 0)
+
     def test_submissions_permissions(self):
         contest = Contest.objects.get()
         submission = Submission.objects.get(pk=1)
