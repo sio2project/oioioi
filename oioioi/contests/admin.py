@@ -355,7 +355,7 @@ contest_admin_menu_registry.register(
 
 class ProblemInstanceAdmin(admin.ModelAdmin):
     form = ProblemInstanceForm
-    fields = ("contest", "round", "problem", "short_name", "submissions_limit")
+    fields = ("contest", "round", "problem", "short_name", "submissions_limit", "can_access_editorial")
     list_display = ("name_link", "short_name_link", "round", "package", "actions_field")
     readonly_fields = ("contest", "problem")
     ordering = ("-round__start_date", "short_name")

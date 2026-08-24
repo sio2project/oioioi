@@ -59,8 +59,8 @@ RAW_COMMANDS = [
         "This will CLEAR the database.",
     ),
     ("add-superuser", "Create admin_admin.", "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
-    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh {extra_args}"),
-    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow {extra_args}"),
+    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh -n auto {extra_args}"),
+    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow -n auto {extra_args}"),
     (
         "test-coverage",
         "Run coverage tests.",

@@ -9,12 +9,12 @@ $(function(){
         var e = $(this);
 
         // All buttons triggering same location
-        var s = $('.btn[data-async-toggle="collapse"][data-target="' +
-                  e.data('target')+'"]');
+        var s = $('.btn[data-async-toggle="collapse"][data-bs-target="' +
+                  e.attr('data-bs-target')+'"]');
         s.each(function() {
             var e = $(this);
             e.removeAttr('data-async-toggle');
-            var span = $('span', this); // icon
+            var span = $('span, i', this); // icon
             e.data('prev-icon', span.prop('class'));
             span.removeClass(e.data('prev-icon'));
 
@@ -22,7 +22,7 @@ $(function(){
             span.addClass('fa-solid fa-rotate-right');
         });
 
-        var t = $(e.data('target'));
+        var t = $(e.attr('data-bs-target'));
         t.load(t.data('loadurl'), function(response, status) {
             if (status == "error") {
                 t.html('<div class="alert alert-danger"><pre>' + response +

@@ -37,7 +37,8 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 
 # The server to be run. Options are:
 # 'django' - django's http server
-# 'uwsgi' - uwsgi daemon
+# 'uwsgi' - uwsgi daemon (uwsgi protocol over a Unix socket)
+# 'uwsgi-tcp' - uwsgi daemon (uwsgi protocol over a TCP socket)
 # 'uwsgi-http' - uwsgi daemon with built-in http server
 # 'none' - nothing will be ran
 # SERVER = 'none'

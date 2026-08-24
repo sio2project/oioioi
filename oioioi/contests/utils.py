@@ -416,63 +416,8 @@ def used_controllers():
     return Contest.objects.values_list("controller_name", flat=True).distinct()
 
 
-@request_cached
-def visible_contests_queryset_old(request):
-    """Returns Q for filtering contests visible to the logged in user."""
-    if request.GET.get("living", "safely") == "dangerously":
-        visible_query = Contest.objects.none()
-        for controller_name in used_controllers():
-            controller_class = import_string(controller_name)
-            # HACK: we pass None contest just to call visible_contests_query.
-            # This is a workaround for mixins not taking classmethods very well.
-            controller = controller_class(None)
-            subquery = Contest.objects.filter(controller_name=controller_name).filter(controller.registration_controller().visible_contests_query(request))
-            visible_query = visible_query.union(subquery, all=False)
-        return visible_query
-    visible_query = Q_always_false()
-    for controller_name in used_controllers():
-        controller_class = import_string(controller_name)
-        # HACK: we pass None contest just to call visible_contests_query.
-        # This is a workaround for mixins not taking classmethods very well.
-        controller = controller_class(None)
-        visible_query |= Q(controller_name=controller_name) & controller.registration_controller().visible_contests_query(request)
-    return visible_query
-
-
-def visible_contests_query(request):
-    """Returns materialized set of contests visible to the logged in user."""
-    if request.GET.get("living", "safely") == "dangerously":
-        visible_query = Contest.objects.none()
-        for controller_name in used_controllers():
-            controller_class = import_string(controller_name)
-            # HACK: we pass None contest just to call visible_contests_query.
-            # This is a workaround for mixins not taking classmethods very well.
-            controller = controller_class(None)
-            subquery = Contest.objects.filter(controller_name=controller_name).filter(controller.registration_controller().visible_contests_query(request))
-            visible_query = visible_query.union(subquery, all=False)
-        return visible_query
-    visible_query = Q_always_false()
-    for controller_name in used_controllers():
-        controller_class = import_string(controller_name)
-        # HACK: we pass None contest just to call visible_contests_query.
-        # This is a workaround for mixins not taking classmethods very well.
-        controller = controller_class(None)
-        visible_query |= Q(controller_name=controller_name) & controller.registration_controller().visible_contests_query(request)
-    return Contest.objects.filter(visible_query).distinct()
-
-
 def visible_contests_as_django_queryset(request):
     """Returns query set of contests visible to the logged in user."""
-    if request.GET.get("living", "safely") == "dangerously":
-        visible_query = Contest.objects.none()
-        for controller_name in used_controllers():
-            controller_class = import_string(controller_name)
-            # HACK: we pass None contest just to call visible_contests_query.
-            # This is a workaround for mixins not taking classmethods very well.
-            controller = controller_class(None)
-            subquery = Contest.objects.filter(controller_name=controller_name).filter(controller.registration_controller().visible_contests_query(request))
-            visible_query = visible_query.union(subquery, all=False)
-        return visible_query
     visible_query = Q_always_false()
     for controller_name in used_controllers():
         controller_class = import_string(controller_name)
@@ -495,20 +440,16 @@ def visible_contest_ids(request):
 
 
 @request_cached_complex
-def visible_contests_queryset(request, filter_value=None):
-    contests = visible_contests_as_django_queryset(request)
-    if filter_value is not None:
-        contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))
-    return set(contests)
-
-
-@request_cached_complex
 def visible_filtered_contests_as_django_queryset(request, filter_value=None):
-    """TODO: remove code duplication visible_contests_queryset/visible_contests_query"""
     contests = visible_contests_as_django_queryset(request)
     if filter_value is not None:
         contests = contests.filter(Q(name__icontains=filter_value) | Q(id__icontains=filter_value) | Q(school_year=filter_value))
     return contests
+
+
+@request_cached_complex
+def visible_filtered_contests(request, filter_value=None):
+    return set(visible_filtered_contests_as_django_queryset(request, filter_value))
 
 
 # why is there no `can_admin_contest_query`?
@@ -792,7 +733,11 @@ def get_problem_statements(request, controller, problem_instances):
     # 5) number of submissions left
     # 6) submissions_limit
     # 7) can_submit
+    # 8) can access editorial
+    # 9) editorial attachment
     # Sorted by (start_date, end_date, round name, problem name)
+    prefetch_related_objects(problem_instances, "problem__attachments")
+
     return sorted(
         [
             (
@@ -814,6 +759,8 @@ def get_problem_statements(request, controller, problem_instances):
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
                 controller.can_submit(request, pi) and not is_contest_archived(request),
+                controller.can_access_editorial(request, pi),
+                pi.controller.get_editorial_attachment(request, pi),
             )
             for pi in problem_instances
         ],

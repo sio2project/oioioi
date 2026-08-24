@@ -180,6 +180,11 @@ c_patterns = [
         views.rejudge_all_submissions_for_problem_view,
         name="rejudge_multiple_problems",
     ),
+    re_path(
+        r"^p/(?P<problem_instance>[a-z0-9_-]+)/editorial$",
+        views.problem_editorial_view,
+        name="editorial",
+    ),
 ]
 
 nonc_patterns = [

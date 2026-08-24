@@ -56,6 +56,7 @@ function NotificationsClient(serverUrl, sessionId) {
     this.NOTIF_SESSION = sessionId;
     this.socket = undefined;
     this.notifCount = 0;
+    this.authFailureCount = 0;
 
     this.dropdownUpToDate = false;
     this.dropdownLoading = false;
@@ -120,10 +121,16 @@ NotificationsClient.prototype.authenticate = function () {
 NotificationsClient.prototype.authenticateCallback = function (result) {
     if (result.status === 'OK') {
         this.notifCount = 0;
+        this.authFailureCount = 0;
         this.updateNotifCount();
         this.clearSocketErrorState();
     } else {
         console.warn("WebSocket authentication failed.");
+        this.authFailureCount++;
+        if (this.authFailureCount >= 3) {
+            console.warn("WebSocket authentication failure threshhold exceeded, giving up.");
+            this.socket.onclose = null;
+        }
 
         // Close the socket to attempt to reconnect
         this.socket?.close();

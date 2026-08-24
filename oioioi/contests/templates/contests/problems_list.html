@@ -66,6 +66,9 @@
                 <tr>
                     <th></th>
                     <th class="problem-name-column">{% trans "Name" %}</th>
+                    {% if show_editorials %}
+                        <th class="problem-editorial">{% trans "Editorial" %}</th>
+                    {% endif %}
                     {% if show_problems_limits %}
                         {% if multiple_limits %}
                             <th>
@@ -95,7 +98,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit, last_submission in problem_instances %}
+                {% for pi, statement_visible, round_time, problem_limits, result, submissions_left, submissions_limit, can_submit, last_submission, can_access_editorial, editorial in problem_instances %}
                     {% if show_rounds %}
                         {% ifchanged pi.round %}
                             <tr class="problemlist-subheader">
@@ -123,6 +126,17 @@
                                 {% endif %}
                             {% endif %}
                         </td>
+
+                        {% if show_editorials %}
+                            <td>
+                                {% if can_access_editorial %}
+                                    {% url 'editorial' problem_instance=pi.short_name as link %}
+                                    <a href="{{ link }}">{% trans "Editorial" %}</a>
+                                {% else %}
+                                    -
+                            {% endif %}
+                        </td>
+                        {% endif %}
                         {% if show_problems_limits %}
                             {% if multiple_limits %}
                                 <td class="text-end">

@@ -10,6 +10,6 @@ def memoryformat(value):
         return "???"
     mebibytes = value / 1024.0
     if mebibytes < 10:
-        return _("%(mebibytes).1fMiB") % {"mebibytes": mebibytes}
+        return _("%(mebibytes).1f MiB") % {"mebibytes": mebibytes}
     else:
-        return _("%(mebibytes)dMiB") % {"mebibytes": mebibytes}
+        return _("%(mebibytes)d MiB") % {"mebibytes": mebibytes}
