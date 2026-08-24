@@ -54,11 +54,13 @@ from oioioi.base.tests import TestCase
 from oioioi.base.utils import (
     RegisteredSubclassesBase,
     _parents_are_packages,
-    annotate_known_related,
-    annotate_known_related_many,
     archive,
     split_extension,
     strip_num_or_hash,
+)
+from oioioi.base.utils.annotate_known_related import (
+    annotate_known_related,
+    annotate_known_related_many,
 )
 from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.base.widgets import AceEditorWidget

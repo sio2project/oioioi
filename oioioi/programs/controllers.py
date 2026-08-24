@@ -14,7 +14,7 @@ from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.preferences import ensure_preferences_exist_for_user
-from oioioi.base.utils import annotate_known_related
+from oioioi.base.utils.annotate_known_related import annotate_known_related
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.controllers import ContestController, submission_template_context
