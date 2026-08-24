@@ -23,7 +23,8 @@ from django.views.decorators.http import require_POST
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.base.utils import annotate_known_related_many, jsonify
+from oioioi.base.utils import jsonify
+from oioioi.base.utils.annotate_known_related import annotate_known_related_many
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.attachment_registration import attachment_registry

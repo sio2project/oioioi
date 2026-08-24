@@ -2,7 +2,6 @@
 import base64
 import functools
 import json
-import logging
 import os
 import re
 import shutil
@@ -13,7 +12,6 @@ from contextlib import contextmanager
 from importlib import import_module
 
 import six
-from django.db.models import prefetch_related_objects
 from django.forms.utils import flatatt
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
@@ -22,8 +20,6 @@ from django.utils.encoding import force_str
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-
-logger = logging.getLogger(__name__)
 
 # Metaclasses
 
@@ -648,50 +644,3 @@ def find_closure(groups):
     for elem in parent.keys():
         new_groups.setdefault(find(elem), []).append(elem)
     return list(new_groups.values())
-
-
-def annotate_known_related(objs, related_name, related):
-    objs = list(objs)
-    for obj in objs:
-        setattr(obj, related_name, related)
-    return objs
-
-
-def annotate_known_related_many(objs, related_name, related_list):
-    related_dict = {rel_obj.id: rel_obj for rel_obj in related_list}
-    if "__" in related_name:
-        related_name_parts = related_name.split("__")
-    else:
-        related_name_parts = related_name.split(".")
-
-    objs = list(objs)
-    subobjs_with_missing_related = []
-
-    for obj in objs:
-        if obj is None:
-            continue
-        subobj = obj
-        for attrname in related_name_parts[:-1]:
-            subobj = getattr(subobj, attrname, None)
-        if subobj is None:
-            continue
-        attrname = related_name_parts[-1]
-        related_id = getattr(subobj, attrname + "_id")
-        if related_id is None:
-            setattr(subobj, attrname, None)
-            continue
-        related_obj = related_dict.get(related_id, None)
-        if related_obj is None:
-            subobjs_with_missing_related.append(subobj)
-        else:
-            setattr(subobj, attrname, related_obj)
-
-    if subobjs_with_missing_related:
-        logger.warning(
-            f"annotate_known_related_many for {related_name} relation called with an "
-            f"incomplete related_list. Object type is {str(type(objs[0]))}. Some of the "
-            f"subobjects with missing related objects: {subobjs_with_missing_related[:3]}."
-        )
-        prefetch_related_objects(subobjs_with_missing_related, related_name_parts[-1])
-
-    return objs

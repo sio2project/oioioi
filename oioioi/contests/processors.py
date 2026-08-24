@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.utils.functional import lazy
 
-from oioioi.base.utils import annotate_known_related_many, request_cached
+from oioioi.base.utils import request_cached
+from oioioi.base.utils.annotate_known_related import annotate_known_related_many
 from oioioi.contests.models import Contest, ContestView
 from oioioi.contests.utils import visible_contest_ids, visible_contests
 

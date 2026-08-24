@@ -10,7 +10,8 @@ from django.utils.translation import gettext_lazy as _
 from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
-from oioioi.base.utils import annotate_known_related, annotate_known_related_many, request_cached, request_cached_complex
+from oioioi.base.utils import request_cached, request_cached_complex
+from oioioi.base.utils.annotate_known_related import annotate_known_related, annotate_known_related_many
 from oioioi.base.utils.public_message import get_public_message
 from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (

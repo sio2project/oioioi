@@ -14,7 +14,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.models import PreferencesSaved
-from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase, annotate_known_related_many
+from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
+from oioioi.base.utils.annotate_known_related import annotate_known_related_many
 from oioioi.contests.controllers import ContestController, ContestControllerContext
 from oioioi.contests.models import Contest, ProblemInstance, UserResultForProblem
 from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer, visible_rounds
