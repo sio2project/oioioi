@@ -576,7 +576,7 @@ def contest_files_view(request):
     problem_files = ProblemAttachment.objects.filter(problem_id__in=problem_ids)
     problem_files = annotate_known_related_many(problem_files, "problem", problems)
 
-    round_file_exists = len(contest_files) > 0
+    round_file_exists = any(file.round for file in contest_files)
     add_category_field = round_file_exists or len(problem_files) > 0
     rows = sorted(
         [
