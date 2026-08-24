@@ -324,6 +324,7 @@ def delete_portal_view(request):
 def my_portal_url(request):
     try:
         portal = Portal.objects.select_related("root").get(owner=request.user)
+        # .owner is used by portal_url so this avoids another select_related.
         portal.owner = request.user
         return portal_url(portal=portal)
     except Portal.DoesNotExist:

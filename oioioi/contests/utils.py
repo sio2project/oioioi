@@ -130,6 +130,8 @@ class RoundTimes:
         )
 
 
+# The argument is a contest instead of a request so that this can be used in generic_rounds_times
+# and possibly other functions that may be called from e.g. rankingsd without a proper request.
 def rounds_in_contest(contest):
     if not contest:
         return []

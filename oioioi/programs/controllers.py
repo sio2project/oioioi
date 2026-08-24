@@ -119,7 +119,8 @@ class ProgrammingProblemController(ProblemController):
 
     # Let's fetch ProblemCompilers for all languages in bulk, as they
     # will be needed anyway. They should have been made available by
-    # an earlier prefetch_related like in contests/forms.py.
+    # an earlier prefetch_related like in contests/forms.py if this is
+    # being called for many problems to avoid making O(N) DB queries.
     def _get_problem_compilers_cached(self, problem_instance, language):
         if not hasattr(problem_instance, "_problem_compilers_cache"):
             qs = problem_instance.problem.problemcompiler_set.all()
@@ -839,7 +840,10 @@ class ProgrammingProblemController(ProblemController):
         )
 
     def get_allowed_languages_for_problem(self, problem):
-        # This should be fetched in bulk with prefetch_related.
+        # The problemallowedlanguage_set should have been made available by
+        # an earlier prefetch_related like in contests/forms.py if this is being called
+        # for many problems to avoid making O(N) DB queries.
+
         allowed_langs = [lang.language for lang in problem.problemallowedlanguage_set.all()]
         if not allowed_langs:
             return problem.controller.get_allowed_languages()
