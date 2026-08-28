@@ -620,6 +620,19 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             kind = self.get_default_submission_kind(request)
         return problem_instance.problem.controller.get_submissions_left(request, problem_instance, kind)
 
+    def get_editorial_attachment(self, request, problem_instance):
+        # by default delegate to ProblemController
+        return problem_instance.problem.controller.get_editorial_attachment(request, problem_instance)
+
+    def can_access_editorial(self, request, problem_instance):
+        # by default delegate to ProblemController
+        editorial_accessible_for_problem = problem_instance.problem.controller.can_access_editorial(request, problem_instance)
+        # Teacher has manually hidden editorial for this problem instance.
+        editorial_accessible_for_instance = problem_instance.can_access_editorial
+        if not editorial_accessible_for_instance:
+            return False
+        return editorial_accessible_for_problem
+
     def is_submissions_limit_exceeded(self, request, problem_instance, kind=None):
         # by default delegate to ProblemController
         if kind is None:

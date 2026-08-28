@@ -1,0 +1,11 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "No editorial available" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Editorial" %}</h1>
+<div class="text-center">
+    {% blocktrans %}Sorry, editorial is not available for this problem.{% endblocktrans %}
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import OuterRef, Q, Subquery, prefetch_related_objects
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
@@ -705,7 +705,11 @@ def get_problem_statements(request, controller, problem_instances):
     # 5) number of submissions left
     # 6) submissions_limit
     # 7) can_submit
+    # 8) can access editorial
+    # 9) editorial attachment
     # Sorted by (start_date, end_date, round name, problem name)
+    prefetch_related_objects(problem_instances, "problem__attachments")
+
     return sorted(
         [
             (
@@ -727,6 +731,8 @@ def get_problem_statements(request, controller, problem_instances):
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
                 controller.can_submit(request, pi) and not is_contest_archived(request),
+                controller.can_access_editorial(request, pi),
+                pi.controller.get_editorial_attachment(request, pi),
             )
             for pi in problem_instances
         ],

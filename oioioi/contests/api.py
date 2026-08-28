@@ -90,6 +90,8 @@ class GetContestProblems(views.APIView):
         # 4) number of submissions left
         # 5) submissions_limit
         # 6) can_submit
+        # 7) can access editorial
+        # 8) editorial attachment
         # Sorted by (start_date, end_date, round name, problem name)
         problem_statements = get_problem_statements(request, controller, problem_instances)
 
@@ -101,6 +103,8 @@ class GetContestProblems(views.APIView):
                 serialized["user_result"] = UserResultForProblemSerializer(problem_stmt[3], many=False).data
                 serialized["submissions_left"] = problem_stmt[4]
                 serialized["can_submit"] = problem_stmt[6]
+                serialized["can_access_editorial"] = problem_stmt[7]
+                serialized["editorial_attachment"] = problem_stmt[8].id if problem_stmt[8] else None
                 serialized["statement_extension"] = st.extension if (st := query_statement(problem_stmt[0].problem)) else None
                 data.append(serialized)
 

@@ -408,6 +408,9 @@ class ProblemInstance(models.Model):
         verbose_name=_("submissions limit"),
         validators=[MinValueValidator(0, "Submissions limit must be a non-negative number.")],
     )
+    can_access_editorial = models.BooleanField(
+        default=False, verbose_name=_("can access editorial"), help_text=_("Determines whether participants can access the editorial for this problem.")
+    )
 
     # set on True only when problem_instace's tests were overriden but there
     # are some submissions judged on old tests
