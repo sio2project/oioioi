@@ -5145,6 +5145,10 @@ msgstr "— Wybierz województwo —"
 msgid "This school is no longer active."
 msgstr "Szkoła nie jest już aktywna."
 
+#: oi/forms.py:118
+msgid "Email"
+msgstr "E-mail"
+
 #: oi/management/commands/export_schools.py:11
 #: oi/management/commands/export_schools_id.py:14
 msgid "Exports schools list to a CSV file"
@@ -5264,6 +5268,39 @@ msgstr "klasa"
 #, python-format
 msgid "%(class_type)s of %(school)s"
 msgstr "%(class_type)s, %(school)s"
+
+#: oi/models.py:132
+msgid "data confirmed at"
+msgstr "data potwierdzenia danych"
+
+#: oi/templates/oi/confirm_data.html:14 oi/templates/oi/confirm_data.html:17
+msgid "Confirm your personal data"
+msgstr "Potwierdź swoje dane osobowe"
+
+#: oi/templates/oi/confirm_data.html:20
+msgid ""
+"Please review your personal data entered during the first stage and confirm "
+"or correct it. This data will be used for official certificates."
+msgstr ""
+"Sprawdź swoje dane podane podczas I etapu i potwierdź ich poprawność lub "
+"wprowadź korekty. Dane te zostaną wykorzystane do wystawienia oficjalnych "
+"zaświadczeń."
+
+#: oi/templates/oi/confirm_data.html:23
+msgid "Data to confirm"
+msgstr "Dane do potwierdzenia"
+
+#: oi/templates/oi/confirm_data.html:25
+msgid ""
+"Your first name, last name and email cannot be changed here. To change them, "
+"go to "
+msgstr ""
+"Imienia, nazwiska i adresu e-mail nie można tu zmienić. Aby je zmienić, "
+"przejdź do "
+
+#: oi/templates/oi/confirm_data.html:25
+msgid "edit profile"
+msgstr "edycji profilu"
 
 #: oi/templates/forms/add_school_form.html:4
 msgid "Add school"

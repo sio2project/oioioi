@@ -14,7 +14,7 @@ from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.oi.management.commands import import_schools
-from oioioi.oi.models import OIRegistration, School
+from oioioi.oi.models import OIDataConfirmationSettings, OIRegistration, School
 from oioioi.participants.models import Participant, TermsAcceptedPhrase
 from oioioi.programs.tests import SubmitFileMixin
 
@@ -616,3 +616,163 @@ class TestUserInfo(TestCase):
                     self.assertContains(response, reg_data[k])
                 else:
                     self.assertNotContains(response, reg_data[k], status_code=403)
+
+
+class TestOIDataConfirmation(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_oi_registration",
+        "test_permissions",
+        "test_school_types",
+    ]
+
+    def setUp(self):
+        self.contest = Contest.objects.get()
+        self.contest.controller_name = "oioioi.oi.controllers.OIFinalOnsiteContestController"
+        self.contest.save()
+
+        now = datetime.now(UTC)
+        round = Round.objects.get(pk=1)
+        round.is_trial = True
+        round.start_date = now - timedelta(days=1)
+        round.end_date = now + timedelta(days=1)
+        round.save()
+
+        self.confirm_url = reverse("oi_confirm_data", kwargs={"contest_id": self.contest.id})
+        self.contest_url = reverse("default_contest_view", kwargs={"contest_id": self.contest.id})
+
+    def test_unconfirmed_participant_is_redirected_to_confirmation(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(self.contest_url)
+        self.assertRedirects(response, self.confirm_url, fetch_redirect_response=False)
+
+    def test_confirmation_updates_data_and_stops_redirects(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        post_data = {
+            # first_name, last_name and email are read-only here; changing
+            # them requires the account edit-profile page.
+            "first_name": "Lancelot",
+            "last_name": "du Lac",
+            "email": "lancelot@example.com",
+            "address": "The Castle",
+            "postal_code": "31-337",
+            "city": "Camelot",
+            "phone": "000-000-000",
+            "birthday_day": "25",
+            "birthday_month": "5",
+            "birthday_year": "1975",
+            "birthplace": "Lac",
+            "t_shirt_size": "L",
+            "school": "1",
+            "class_type": "1LO",
+        }
+        response = self.client.post(self.confirm_url, post_data)
+        self.assertRedirects(response, self.contest_url, fetch_redirect_response=False)
+        # No longer redirected once the data is confirmed.
+        response = self.client.get(self.contest_url)
+        self.assertNotIn("confirm-data", response.get("Location", ""))
+
+        reg = OIRegistration.objects.get(participant__user__username="test_user")
+        self.assertIsNotNone(reg.data_confirmed_at)
+        user = User.objects.get(username="test_user")
+        # Posted first_name/last_name/email are ignored: these fields are
+        # disabled and can only be changed via edit_profile.
+        self.assertEqual((user.first_name, user.last_name, user.email), ("Test", "User", "test_user@example.com"))
+
+    def test_no_redirect_outside_active_trial_round(self):
+        Round.objects.filter(pk=1).update(is_trial=False)
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(self.contest_url)
+        self.assertNotIn("confirm-data", response.get("Location", ""))
+
+    def test_participant_without_oiregistration_is_redirected_and_creates_one(self):
+        # Onsite finalists register via OnsiteRegistration and usually have no
+        # OIRegistration in the finals contest, yet must still confirm.
+        user = User.objects.get(username="test_user2")
+        Participant.objects.create(contest=self.contest, user=user, status="ACTIVE")
+        self.assertFalse(OIRegistration.objects.filter(participant__user=user).exists())
+
+        self.assertTrue(self.client.login(username="test_user2"))
+        response = self.client.get(self.contest_url)
+        self.assertRedirects(response, self.confirm_url, fetch_redirect_response=False)
+
+        post_data = {
+            "first_name": "Percival",
+            "last_name": "de Galles",
+            "email": "percival@example.com",
+            "address": "Round Table",
+            "postal_code": "31-337",
+            "city": "Camelot",
+            "phone": "000-000-000",
+            "birthday_day": "1",
+            "birthday_month": "1",
+            "birthday_year": "1980",
+            "birthplace": "Galles",
+            "t_shirt_size": "M",
+            "school": "1",
+            "class_type": "2LO",
+        }
+        response = self.client.post(self.confirm_url, post_data)
+        self.assertRedirects(response, self.contest_url, fetch_redirect_response=False)
+
+        reg = OIRegistration.objects.get(participant__user=user)
+        self.assertIsNotNone(reg.data_confirmed_at)
+        self.assertEqual(reg.city, "Camelot")
+        user.refresh_from_db()
+        # Posted first_name/last_name/email are ignored: these fields are
+        # disabled and can only be changed via edit_profile.
+        self.assertEqual(
+            (user.first_name, user.last_name, user.email),
+            ("Test", "User 2", "test_user2@example.com"),
+        )
+
+        # Confirmed once, no more redirects.
+        response = self.client.get(self.contest_url)
+        self.assertNotIn("confirm-data", response.get("Location", ""))
+
+    def test_no_redirect_when_confirmation_disabled_in_settings(self):
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=False)
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(self.contest_url)
+        self.assertNotIn("confirm-data", response.get("Location", ""))
+
+    def test_prefill_uses_configured_source_contest(self):
+        user = User.objects.get(username="test_user2")
+
+        other_contest = Contest.objects.create(id="other", name="Other contest", controller_name="oioioi.oi.controllers.OIContestController")
+        other_participant = Participant.objects.create(contest=other_contest, user=user, status="ACTIVE")
+        OIRegistration.objects.create(
+            participant=other_participant,
+            address="Wrong Address",
+            postal_code="00-000",
+            city="Wrongtown",
+            birthday="1970-01-01",
+            birthplace="Nowhere",
+            t_shirt_size="S",
+            school_id=1,
+            class_type="1LO",
+        )
+
+        newer_contest = Contest.objects.create(id="newer", name="Newer contest", controller_name="oioioi.oi.controllers.OIContestController")
+        newer_participant = Participant.objects.create(contest=newer_contest, user=user, status="ACTIVE")
+        OIRegistration.objects.create(
+            participant=newer_participant,
+            address="Newest Address",
+            postal_code="11-111",
+            city="Newtown",
+            birthday="1970-01-01",
+            birthplace="Nowhere",
+            t_shirt_size="S",
+            school_id=1,
+            class_type="1LO",
+        )
+
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=True, source_contest=other_contest)
+
+        Participant.objects.create(contest=self.contest, user=user, status="ACTIVE")
+
+        self.assertTrue(self.client.login(username="test_user2"))
+        response = self.client.get(self.confirm_url)
+        self.assertContains(response, "Wrong Address")
+        self.assertNotContains(response, "Newest Address")

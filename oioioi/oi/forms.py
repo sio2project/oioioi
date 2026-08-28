@@ -75,11 +75,7 @@ class SchoolSelect(forms.Select):
         return School.objects.filter(is_active=True)
 
 
-class OIRegistrationForm(forms.ModelForm):
-    class Meta:
-        model = OIRegistration
-        exclude = ["participant"]
-
+class _OIRegistrationFormBase(forms.ModelForm):
     class Media:
         css = {"all": ("oi/reg.css",)}
         js = ("oi/reg.js",)
@@ -92,19 +88,86 @@ class OIRegistrationForm(forms.ModelForm):
         self.fields["birthday"].widget = SelectDateWidget(years=years)
         self.fields["school"].widget = SchoolSelect()
 
-    def set_terms_accepted_text(self, terms_accepted_phrase):
-        if terms_accepted_phrase is None:
-            self.fields["terms_accepted"].label = _("terms accepted")
-        else:
-            self.fields["terms_accepted"].label = mark_safe(terms_accepted_phrase.text)
-
     def clean_school(self):
         school = self.cleaned_data["school"]
         if not school.is_active:
             raise forms.ValidationError(_("This school is no longer active."))
         return school
 
+
+class OIRegistrationForm(_OIRegistrationFormBase):
+    class Meta:
+        model = OIRegistration
+        exclude = ["participant", "data_confirmed_at"]
+
+    def set_terms_accepted_text(self, terms_accepted_phrase):
+        if terms_accepted_phrase is None:
+            self.fields["terms_accepted"].label = _("terms accepted")
+        else:
+            self.fields["terms_accepted"].label = mark_safe(terms_accepted_phrase.text)
+
     def clean_terms_accepted(self):
         if not self.cleaned_data["terms_accepted"]:
             raise forms.ValidationError(_("Terms not accepted"))
         return True
+
+
+class OIDataConfirmationForm(_OIRegistrationFormBase):
+    first_name = forms.CharField(label=_("First name"), max_length=150, disabled=True)
+    last_name = forms.CharField(label=_("Last name"), max_length=150, disabled=True)
+    email = forms.EmailField(label=_("Email"), max_length=254, disabled=True)
+
+    # Prefilled from the participant's qualifying-round registration.
+    _OI_PREFILL_FIELDS = (
+        "address",
+        "postal_code",
+        "city",
+        "phone",
+        "birthday",
+        "birthplace",
+        "t_shirt_size",
+        "school",
+        "class_type",
+    )
+
+    class Meta:
+        model = OIRegistration
+        exclude = ["participant", "terms_accepted", "data_confirmed_at"]
+
+    def __init__(self, *args, participant=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.participant = participant
+        user = participant.user if participant is not None else None
+
+        if user is not None:
+            self.fields["first_name"].initial = user.first_name
+            self.fields["last_name"].initial = user.last_name
+            self.fields["email"].initial = user.email
+
+        # Prefill OI fields when there is no finals registration to edit yet.
+        if (self.instance is None or self.instance.pk is None) and user is not None:
+            from oioioi.oi.utils import get_data_confirmation_settings
+
+            source_contest = None
+            if participant is not None:
+                confirmation_settings = get_data_confirmation_settings(participant.contest)
+                if confirmation_settings is not None:
+                    source_contest = confirmation_settings.source_contest
+
+            source_qs = OIRegistration.objects.filter(participant__user=user).exclude(participant=participant)
+            if source_contest is not None:
+                source_qs = source_qs.filter(participant__contest=source_contest)
+            source = source_qs.order_by("-id").first()
+            if source is not None:
+                for field in self._OI_PREFILL_FIELDS:
+                    if field in self.fields:
+                        self.fields[field].initial = getattr(source, field)
+
+        self.order_fields(["first_name", "last_name", "email"])
+
+    def save_user(self, user):
+        user.first_name = self.cleaned_data["first_name"]
+        user.last_name = self.cleaned_data["last_name"]
+        user.email = self.cleaned_data["email"]
+        user.save()

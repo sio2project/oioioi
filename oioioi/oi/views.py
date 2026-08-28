@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
+from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import SimpleTemplateResponse, TemplateResponse
+from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
@@ -12,9 +14,9 @@ from oioioi.contests.utils import can_see_personal_data, contest_exists, is_cont
 from oioioi.dashboard.registry import dashboard_headers_registry
 from oioioi.filetracker.utils import stream_file
 from oioioi.oi.controllers import OIRegistrationController
-from oioioi.oi.forms import AddSchoolForm, city_options, school_options
-from oioioi.oi.models import School
-from oioioi.oi.utils import get_schools
+from oioioi.oi.forms import AddSchoolForm, OIDataConfirmationForm, city_options, school_options
+from oioioi.oi.models import OIRegistration, School
+from oioioi.oi.utils import get_participant_requiring_data_confirmation, get_schools
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 
@@ -128,6 +130,33 @@ def schools_similar_view(request):
         return SimpleTemplateResponse("oi/schools_similar_confirm.html", {"schools": schools})
     else:
         return HttpResponse("")
+
+
+@enforce_condition(not_anonymous & contest_exists)
+def confirm_data_view(request):
+    participant = get_participant_requiring_data_confirmation(request)
+    if participant is None:
+        return redirect("default_contest_view", contest_id=request.contest.id)
+
+    reg = OIRegistration.objects.filter(participant=participant).first()
+
+    if request.method == "POST":
+        form = OIDataConfirmationForm(request.POST, instance=reg, participant=participant)
+        if form.is_valid():
+            with transaction.atomic():
+                instance = form.save(commit=False)
+                instance.participant = participant
+                instance.data_confirmed_at = timezone.now()
+                instance.save()
+                form.save_user(request.user)
+            return redirect("default_contest_view", contest_id=request.contest.id)
+    else:
+        form = OIDataConfirmationForm(instance=reg, participant=participant)
+
+    return TemplateResponse(request, "oi/confirm_data.html", {
+        "form": form,
+        "email": request.user.email,
+    })
 
 
 @require_GET

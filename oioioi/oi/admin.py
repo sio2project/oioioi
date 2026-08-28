@@ -1,13 +1,15 @@
 import urllib.parse
 
 from django.contrib import messages
+from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
+from oioioi.contests.admin import ContestAdmin
 from oioioi.oi.forms import OIRegistrationForm
-from oioioi.oi.models import OIRegistration, School
+from oioioi.oi.models import OIDataConfirmationSettings, OIRegistration, School
 from oioioi.participants.admin import ParticipantAdmin
 
 
@@ -124,8 +126,7 @@ class OIRegistrationInline(admin.StackedInline):
     form = OIRegistrationForm
     can_delete = False
     inline_classes = ("collapse open",)
-    # We don't allow admins to change users' acceptance of contest's terms.
-    exclude = ("terms_accepted",)
+    exclude = ("terms_accepted", "data_confirmed_at")
 
 
 class OIRegistrationParticipantAdmin(ParticipantAdmin):
@@ -183,3 +184,31 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
+
+
+class OIDataConfirmationSettingsInline(admin.StackedInline):
+    model = OIDataConfirmationSettings
+    fk_name = "contest"
+    can_delete = False
+    max_num = 1
+    category = _("Advanced")
+    autocomplete_fields = ("source_contest",)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        if db_field.name == "source_contest" and isinstance(formfield.widget, RelatedFieldWidgetWrapper):
+            formfield.widget = formfield.widget.widget
+        return formfield
+
+
+class OIDataConfirmationSettingsAdminMixin:
+    """Adds :class:`~oioioi.oi.models.OIDataConfirmationSettings` to an admin
+    panel.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.inlines = tuple(self.inlines) + (OIDataConfirmationSettingsInline,)
+
+
+ContestAdmin.mix_in(OIDataConfirmationSettingsAdminMixin)
