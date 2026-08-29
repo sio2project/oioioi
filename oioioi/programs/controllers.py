@@ -101,6 +101,23 @@ def get_report_display_type(request, test_report):
     return display_type
 
 
+def get_signal_from_comment(comment):
+    # Sioworkers doesn't give us exit codes or signals explicitly. Neither does sio2jail.
+    # This detection mechanism is similar to the one sioworkers uses to give a RE verdict:
+    # https://github.com/sio2project/sioworkers/blob/55776ac98613ff2b11bd63397be536029616b9bb/sio/workers/executors.py#L670
+    for signal_exit_msg in (
+        "process exited due to signal ",
+        "program exited due to signal ",
+    ):
+        if comment.startswith(signal_exit_msg):
+            try:
+                return int(comment[len(signal_exit_msg) :])
+            except ValueError:
+                return None
+
+    return None
+
+
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
 
@@ -691,23 +708,15 @@ class ProgrammingProblemController(ProblemController):
 
         groups = []
         signals_to_explain = set()
-        # Sioworkers doesn't give us exit codes or signals explicitly. Neither does sio2jail.
-        # This detection mechanism is similar to the one sioworkers uses to give a RE verdict:
-        # https://github.com/sio2project/sioworkers/blob/55776ac98613ff2b11bd63397be536029616b9bb/sio/workers/executors.py#L670
-        signal_exit_msg = "process exited due to signal "
         for group_name, tests in itertools.groupby(test_reports, attrgetter("test_group")):
             tests_list = list(tests)
 
             for test in tests_list:
                 test.generate_status = picontroller._out_generate_status(request, test)
                 all_outs_generated &= test.generate_status == "OK"
-                # Extract all error signals from the test report according to the format
-                if test.comment.startswith(signal_exit_msg):
-                    try:
-                        signal = int(test.comment[len(signal_exit_msg) :])
-                        signals_to_explain.add(signal)
-                    except ValueError:
-                        pass
+                signal = get_signal_from_comment(test.comment)
+                if signal is not None:
+                    signals_to_explain.add(signal)
                 if test.result_percentage_numerator and test.result_percentage_denominator:
                     test.result_percentage = f"""{round(test.result_percentage_numerator / test.result_percentage_denominator, 2):g}"""
 
