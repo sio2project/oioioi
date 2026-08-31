@@ -21,6 +21,7 @@ from oioioi.problems.utils import can_admin_problem, can_admin_problem_instance
 from oioioi.programs.controllers import (
     ProgrammingContestController,
     ProgrammingProblemController,
+    get_signal_from_comment,
 )
 from oioioi.programs.models import CompilationReport
 from oioioi.programs.problem_instance_utils import get_allowed_languages_extensions
@@ -274,6 +275,11 @@ class TestRunContestControllerMixin:
             input_is_zip = is_zipfile(testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file.read_using_cache())
 
         show_mem_used = testrun_report.mem_used > 0
+        signals_to_explain = set()
+        if testrun_report:
+            signal = get_signal_from_comment(testrun_report.comment)
+            if signal is not None:
+                signals_to_explain.add(signal)
 
         return render_to_string(
             template,
@@ -286,6 +292,7 @@ class TestRunContestControllerMixin:
                 "output_container_id_prefix": output_container_id_prefix,
                 "input_is_zip": input_is_zip,
                 "show_mem_used": show_mem_used,
+                "signals_to_explain": signals_to_explain,
             },
         )
 

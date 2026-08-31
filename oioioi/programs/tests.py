@@ -1855,6 +1855,13 @@ class TestReportDisplayTypes(TestCase):
         self.assertContains(response, "submission--OK25", count=2)
         self.assertContains(response, "submission--OK0", count=3)
 
+    def test_signal_hint(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("submission", kwargs={"contest_id": "oi", "submission_id": 7})
+        response = self.client.get(url, follow=True)
+
+        self.assertContains(response, "Most common causes of the SIGABRT signal")
+
     def test_acm_display(self):
         self.assertTrue(self.client.login(username="admin"))
         url = reverse("submission", kwargs={"contest_id": "acm", "submission_id": 9})
