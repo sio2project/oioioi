@@ -1321,6 +1321,28 @@ class TestPreferences(TestCase):
         response = self.client.get("/")
         self.assertContains(response, "Edycja profilu")
 
+    def test_programming_language_preferences(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("edit_profile")
+        response = self.client.get(url)
+        self.assertContains(response, "Preferred programming language")
+        self.assertNotContains(response, "Output-only")
+
+        data = {
+            "username": "test_user",
+            "first_name": "fn",
+            "last_name": "ln",
+            "email": "foo@bar.com",
+            "terms_accepted": True,
+            "preferred_language": "",
+            "programming_language": "C++",
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user = User.objects.get(username="test_user")
+        self.assertEqual(user.userpreferences.programming_language, "C++")
+
     def test_registration_preferences(self):
         response = self.client.get(reverse("sign-up"))
         self.assertContains(response, "Preferred language")
