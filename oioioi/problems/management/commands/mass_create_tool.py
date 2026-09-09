@@ -390,34 +390,43 @@ class Command(BaseCommand):
 
     def create_proposals(self, count, problems, users, tags, proposal_model, verbose_name, verbosity):
         """
-        Creates algorithm tag proposals by pairing problems, users, and algotags randomly.
-        Returns a list of created AlgorithmTagProposal objects.
+        Creates exactly `count` distinct proposals connecting problems, users and tags.
+        - For DifficultyTagProposal: at most one per (problem, user) pair.
+        - For AlgorithmTagProposal: any unique (problem, user, tag) triple.
         """
+        if proposal_model == DifficultyTagProposal:
+            available = len(problems) * len(users)
+            if count > available:
+                raise CommandError(f"Cannot create {count} difficulty tag proposals; only {available} unique (problem, user) pairs available")
+            triples = []
+            for index in random.sample(range(available), count):
+                problem_index, user_index = divmod(index, len(users))
+                triples.append((problems[problem_index], users[user_index], random.choice(tags)))
+        else:
+            available = len(problems) * len(users) * len(tags)
+            if count > available:
+                raise CommandError(f"Cannot create {count} algorithm tag proposals; only {available} unique (problem, user, tag) triples available")
+            triples = []
+            for index in random.sample(range(available), count):
+                pair_index, tag_index = divmod(index, len(tags))
+                problem_index, user_index = divmod(pair_index, len(users))
+                triples.append((problems[problem_index], users[user_index], tags[tag_index]))
+
         objs = []
-        for i in range(count):
-
-            def candidate_fn():
-                return (random.choice(problems), random.choice(users), random.choice(tags))
-
-            def uniqueness_fn(candidate):
-                problem, user, tag = candidate
-                if proposal_model.__name__ == "AlgorithmTagProposal":
-                    return not proposal_model.objects.filter(problem=problem, user=user, tag=tag).exists()
-                elif proposal_model.__name__ == "DifficultyTagProposal":
-                    return not proposal_model.objects.filter(problem=problem, user=user).exists()
-                return True
-
-            problem, user, tag = get_unique_candidate(candidate_fn, uniqueness_fn)
+        for idx, (problem, user, tag) in enumerate(triples, start=1):
             proposal = proposal_model(problem=problem, user=user, tag=tag)
             proposal.save()
             objs.append(proposal)
+
             if verbosity >= 3:
                 self.stdout.write(self.style.SUCCESS(f"Created Proposal: Problem ID {problem.id} - User {user.username} - Tag {tag.name}"))
             elif verbosity == 2:
-                sys.stdout.write(f"Created {i + 1} of {count} {verbose_name}s\r")
+                sys.stdout.write(f"Created {idx} of {count} {verbose_name}s\r")
                 sys.stdout.flush()
+
         if verbosity == 2 and objs:
             sys.stdout.write("\n")
+
         return objs
 
     def write_summary(self, created, expected, object_name):
