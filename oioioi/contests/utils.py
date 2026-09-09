@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import OuterRef, Q, Subquery, prefetch_related_objects
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+from django.utils import formats, timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from pytz import UTC
@@ -369,12 +370,12 @@ def get_results_visibility(request):
         if results_date is None or results_date <= request.timestamp:
             results = _("immediately")
         else:
-            results = _("after %(date)s") % {"date": results_date.strftime("%Y-%m-%d %H:%M:%S")}
+            results = _("after %(date)s") % {"date": formats.localize(timezone.localtime(results_date))}
 
         if public_results_date is None or public_results_date <= request.timestamp:
             ranking = _("immediately")
         else:
-            ranking = _("after %(date)s") % {"date": public_results_date.strftime("%Y-%m-%d %H:%M:%S")}
+            ranking = _("after %(date)s") % {"date": formats.localize(timezone.localtime(public_results_date))}
 
         dates.append({"name": r.name, "results": results, "ranking": ranking})
 
