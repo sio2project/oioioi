@@ -37,7 +37,7 @@ class TestAdmin(TestCase):
 
         self.assertContains(response, "Add user group")
         self.assertNotContains(response, "Addtion config")
-        self.assertContains(response, "Test User 3 (test_user3)")
+        self.assertNotContains(response, "Test User 3 (test_user3)")
 
         url = reverse("oioioiadmin:usergroups_usergroup_change", args=(1001,))
         response = self.client.get(url)
@@ -45,8 +45,8 @@ class TestAdmin(TestCase):
         self.assertContains(response, "Change user group")
         self.assertContains(response, "owners")
         self.assertNotContains(response, "Action config")
-        self.assertContains(response, "Test User 3 (test_user3)", count=1)
-        self.assertContains(response, "Test Admin (test_admin)", count=2)
+        self.assertNotContains(response, "Test User 3 (test_user3)")
+        self.assertContains(response, "Test Admin (test_admin)", count=1)
 
         url = reverse("oioioiadmin:usergroups_usergroup_delete", args=(1002,))
         response = self.client.get(url)
@@ -56,6 +56,22 @@ class TestAdmin(TestCase):
 
         self.assertRaises(NoReverseMatch, reverse, "oioioiadmin:usergroups_actionconfig_changelist")
         self.assertRaises(NoReverseMatch, reverse, "oioioiadmin:usergroups_actionconfig_add")
+
+    def test_user_autocomplete(self):
+        self.assertTrue(self.client.login(username="test_admin"))
+
+        url = reverse("oioioiadmin:autocomplete")
+        response = self.client.get(
+            url,
+            {"app_label": "usergroups", "model_name": "usergroup", "field_name": "owners", "term": "test_user"},
+        )
+        self.assertEqual({result["id"] for result in response.json()["results"]}, {"1001", "1002"})
+
+        response = self.client.get(
+            url,
+            {"app_label": "usergroups", "model_name": "usergroup", "field_name": "members", "term": "test_user"},
+        )
+        self.assertEqual({result["id"] for result in response.json()["results"]}, {"1001", "1002", "1003", "1005"})
 
     def test_permissions(self):
         self.assertTrue(self.client.login(username="test_admin"))
