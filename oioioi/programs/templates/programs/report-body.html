@@ -58,14 +58,14 @@
                         <td>
                             {% if is_admin or test.status != 'TLE' %}
                                 {{ test.time_used|runtimeformat }}
-                            {% else %}-.--s
+                            {% else %}-.-- s
                             {% endif %}/ {{ test.test_time_limit|runtimeformat }}
                         </td>
                         {% if show_mem_used %}
                         <td>
                             {% if is_admin or test.status != 'MLE' %}
                                 {{ test.mem_used|memoryformat }}
-                            {% else %}--MiB
+                            {% else %}-- MiB
                             {% endif %}/ {{ test.test_mem_limit|memoryformat }}
                         </td>
                         {% endif %}

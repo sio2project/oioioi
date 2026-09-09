@@ -144,6 +144,12 @@ class TestTestrunViews(TestCase):
         self.assertContains(response, "TESTRUN")
         self.assertNotContains(response, "NORMAL")
 
+        kwargs["submission_id"] = submission.id
+        response = self.client.get(reverse("submission", kwargs=kwargs))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test run")
+        self.assertContains(response, "Compilation failed")
+
     def test_archive_submission(self):
         self.assertTrue(self.client.login(username="test_user"))
         kwargs = {"contest_id": Contest.objects.get().id}
@@ -278,27 +284,31 @@ class TestHandlers(TestCase):
         try:
             environ["test_results"] = {}
             environ["test_results"]["test"] = {
-                "result_cpode": "OK",
+                "result_code": "OK",
                 "result_string": "OK",
                 "time_used": 111,
                 "out_file": "/output",
             }
+            cap = 2**31 - 1
+            for mem_used, expected_mem_used in ((44, 44), (cap, cap), (cap + 1, cap), (2**63, cap)):
+                environ["test_results"]["test"]["mem_used"] = mem_used
+                graded_environ = handlers.grade_submission(environ)
 
-            environ = handlers.grade_submission(environ)
+                self.assertEqual(None, graded_environ["score"])
+                self.assertEqual("TESTRUN_OK", graded_environ["status"])
 
-            self.assertEqual(None, environ["score"])
-            self.assertEqual("OK", environ["status"])
+                graded_environ = handlers.make_report(graded_environ)
+                self.assertIn("report_id", graded_environ)
+                report = TestRunReport.objects.get(submission_report=graded_environ["report_id"])
+                self.assertEqual(111, report.time_used)
+                self.assertEqual(expected_mem_used, report.mem_used)
+                self.assertEqual("", report.comment)
+                self.assertEqual(b"o", report.output_file.read())
 
-            environ = handlers.make_report(environ)
-            self.assertIn("report_id", environ)
-            report = TestRunReport.objects.get(submission_report=environ["report_id"])
-            self.assertEqual(111, report.time_used)
-            self.assertEqual("", report.comment)
-            self.assertEqual("o", report.output_file.read())
-
-            handlers.delete_output(environ)
+            handlers.delete_output(graded_environ)
         except Exception:
             get_client().delete_file("/output")
+            raise
 
 
 class TestRunTestCase:

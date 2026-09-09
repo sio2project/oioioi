@@ -297,6 +297,19 @@ def make_output_filename(instance, filename):
     return f"userouts/{submission.problem_instance.contest.id!s}/{submission.id}/{instance.submission_report.id}-out"
 
 
+INTEGERFIELD_MAX_SIZE = 2**31 - 1
+
+
+def limit_mem_used(mem_used):
+    if mem_used is None:
+        return None
+    return min(mem_used, INTEGERFIELD_MAX_SIZE)
+
+
+def is_mem_used_overflowed(mem_used):
+    return mem_used == INTEGERFIELD_MAX_SIZE
+
+
 class TestReport(models.Model):
     __test__ = False
     submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
@@ -336,6 +349,10 @@ class TestReport(models.Model):
         if contest is None or self.test_time_limit is None:
             return False
         return contest.controller.uses_threshold_linear_scoring() and self.time_used * 2 > self.test_time_limit
+
+    def save(self, *args, **kwargs):
+        self.mem_used = limit_mem_used(self.mem_used)
+        super().save(*args, **kwargs)
 
 
 class GroupReport(models.Model):
