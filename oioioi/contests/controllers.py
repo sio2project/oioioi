@@ -92,7 +92,7 @@ def submission_template_context(request, submission):
 
     message = submission.get_status_display
 
-    display_type = submission.get_display_type()
+    display_type = submission.get_display_type(can_see_score)
     badge_class = get_badge_class(display_type)
 
     return {
