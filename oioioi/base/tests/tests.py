@@ -26,6 +26,7 @@ from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.urls import clear_url_caches, reverse
+from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
@@ -56,8 +57,12 @@ from oioioi.base.utils import (
     split_extension,
     strip_num_or_hash,
 )
+from oioioi.base.utils.annotate_known_related import (
+    annotate_known_related,
+    annotate_known_related_many,
+)
 from oioioi.base.utils.execute import ExecuteError, execute
-from oioioi.contests.models import Contest
+from oioioi.contests.models import Contest, Round
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
 from oioioi.welcomepage.views import welcome_page_view
@@ -1607,3 +1612,45 @@ class TestPublicMessage(TestCase):
             self.button_visibility()
         else:
             self.skipTest("button_viewname or edit_viewname not defined")
+
+
+class TestAnnotateKnownRelated(TestCase):
+    fixtures = ["test_contest", "test_extra_contests"]
+
+    def test_annotate_known_related(self):
+        c1 = Contest.objects.get(id="c1")
+        c2 = Contest.objects.get(id="c2")
+        Round.objects.all().delete()
+        rounds_per_contest = 10
+        contests = [c1, c2]
+        for c in contests:
+            for i in range(0, rounds_per_contest):
+                Round.objects.create(contest=c, name=str(i), start_date=timezone.now())
+        total_rounds = len(contests) * rounds_per_contest
+
+        # We don't want queryset caching!
+        def make_qs():
+            return Round.objects.all()
+
+        with self.assertNumQueries(total_rounds + 1):
+            expected = [r.contest for r in make_qs()]
+
+        def check_qs(rounds, only_c1=False):
+            if not only_c1:
+                self.assertEqual(expected, [r.contest for r in rounds])
+            else:
+                self.assertEqual([c for c in expected if c == c1], [r.contest for r in rounds])
+
+        with self.assertNumQueries(1 + 1):
+            check_qs(make_qs().prefetch_related("contest"))
+        with self.assertNumQueries(1):
+            check_qs(make_qs().select_related("contest"))
+        with self.assertNumQueries(1):
+            check_qs(annotate_known_related(make_qs().filter(contest_id="c1"), "contest", c1), only_c1=True)
+        with self.assertNumQueries(1):
+            check_qs(annotate_known_related_many(make_qs(), "contest", contests))
+        for related_list in ([], [c1], [c2]):
+            with self.assertLogs("oioioi.base.utils", level="WARNING") as log_capture:
+                with self.assertNumQueries(1 + 1):
+                    check_qs(annotate_known_related_many(make_qs(), "contest", related_list))
+            self.assertIn("annotate_known_related_many", "\n".join(log_capture.output))

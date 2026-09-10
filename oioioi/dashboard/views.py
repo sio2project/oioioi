@@ -13,6 +13,7 @@ from oioioi.contests.utils import (
     are_rules_visible,
     can_enter_contest,
     contest_exists,
+    eval_contest_submissions_qs_with_common_related,
     has_any_submittable_problem,
     has_any_visible_problem_instance,
     is_contest_archived,
@@ -105,20 +106,11 @@ def top_links_fragment(request):
 def submissions_fragment(request):
     if not request.user.is_authenticated:
         return None
-    submissions = (
-        Submission.objects.filter(problem_instance__contest=request.contest)
-        .order_by("-date")
-        .select_related("problem_instance", "problem_instance__contest", "problem_instance__round", "problem_instance__problem")
-        .prefetch_related("problem_instance__problem__names")
-    )
-    if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
-        submissions = submissions.select_related(
-            "revealed",
-            "problem_instance__scores_reveal_config",
-        )
+    submissions = Submission.objects.filter(problem_instance__contest=request.contest).order_by("-date")
     cc = request.contest.controller
     submissions = cc.filter_my_visible_submissions(request, submissions)
     submissions = submissions[: getattr(settings, "NUM_DASHBOARD_SUBMISSIONS", 8)]
+    submissions = eval_contest_submissions_qs_with_common_related(request, submissions)
     if not submissions:
         return None
     submissions = [submission_template_context(request, s) for s in submissions]

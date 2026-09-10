@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models import OuterRef, Q, Subquery, prefetch_related_objects
 from django.http import HttpRequest
@@ -11,6 +12,7 @@ from pytz import UTC
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached, request_cached_complex
+from oioioi.base.utils.annotate_known_related import annotate_known_related, annotate_known_related_many
 from oioioi.base.utils.public_message import get_public_message
 from oioioi.base.utils.query_helpers import Q_always_false
 from oioioi.contests.models import (
@@ -129,6 +131,18 @@ class RoundTimes:
         )
 
 
+# The argument is a contest instead of a request so that this can be used in generic_rounds_times
+# and possibly other functions that may be called from e.g. rankingsd without a proper request.
+def rounds_in_contest(contest):
+    if not contest:
+        return []
+    cache_key = "_rounds_cache"
+    if not hasattr(contest, cache_key):
+        rounds = annotate_known_related(contest.round_set.all(), "contest", contest)
+        setattr(contest, cache_key, rounds)
+    return getattr(contest, cache_key)
+
+
 def generic_rounds_times(request=None, contest=None):
     if contest is None and not hasattr(request, "contest"):
         return {}
@@ -140,8 +154,7 @@ def generic_rounds_times(request=None, contest=None):
             setattr(request, cache_attribute, {})
         elif contest.id in getattr(request, cache_attribute):
             return getattr(request, cache_attribute)[contest.id]
-
-    rounds = [r for r in Round.objects.filter(contest=contest).prefetch_related("contest")]
+    rounds = rounds_in_contest(contest)
     rids = [r.id for r in rounds]
     if not request or not hasattr(request, "user") or request.user.is_anonymous:
         rtexts = {}
@@ -178,18 +191,14 @@ def contest_exists(request):
 
 @make_request_condition
 def has_any_rounds(request_or_context):
-    return Round.objects.filter(contest=request_or_context.contest).exists()
+    return len(rounds_in_contest(request_or_context.contest)) > 0
 
 
 @make_request_condition
 @request_cached
 def has_any_active_round(request):
-    controller = request.contest.controller
-    # We can't use visible_rounds(request) here, as that causes a cycle
-    # because of PastRoundsHiddenContestControllerMixin.
-    for round in Round.objects.filter(contest=request.contest):
-        rtimes = controller.get_round_times(request, round)
-        if rtimes.is_active(request.timestamp):
+    for rtime in generic_rounds_times(request).values():
+        if rtime.is_active(request.timestamp):
             return True
     return False
 
@@ -247,17 +256,27 @@ def submittable_problem_instances(request):
     return [pi for pi in visible_problem_instances(request) if controller.can_submit(request, pi)]
 
 
+@request_cached
+def problem_instances_in_contest(request):
+    if not request.contest:
+        return []
+    return annotate_known_related_many(
+        annotate_known_related(
+            ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("problem__names"),
+            "contest",
+            request.contest,
+        ),
+        "round",
+        rounds_in_contest(request.contest),
+    )
+
+
 @request_cached_complex
 def visible_problem_instances(request, no_admin=False):
     controller = request.contest.controller
-    queryset = (
-        ProblemInstance.objects.filter(contest=request.contest)
-        .select_related("problem")
-        .prefetch_related("round", "contest", "problem__contest", "problem__author", "problem__names")
-    )
     return [
         pi
-        for pi in queryset
+        for pi in problem_instances_in_contest(request)
         if controller.can_see_problem(
             request,
             pi,
@@ -269,10 +288,9 @@ def visible_problem_instances(request, no_admin=False):
 @request_cached_complex
 def visible_rounds(request, no_admin=False):
     controller = request.contest.controller
-    queryset = Round.objects.filter(contest=request.contest)
     return [
         r
-        for r in queryset
+        for r in rounds_in_contest(request.contest)
         if controller.can_see_round(
             request,
             r,
@@ -290,7 +308,7 @@ def are_rules_visible(request):
 @request_cached
 def get_number_of_rounds(request):
     """Returns the number of rounds in the current contest."""
-    return Round.objects.filter(contest=request.contest).count()
+    return len(rounds_in_contest(request.contest))
 
 
 def get_contest_dates(request):
@@ -324,19 +342,19 @@ def get_scoring_desription(request):
 
 
 @request_cached
-def get_problems_sumbmission_limit(request):
+def get_problems_submission_limit(request):
     """Returns the upper and lower submission limit in the current contest.
     If there is one limit for all problems, it returns a list with one element.
     If there are no problems in the contest, it returns the default limit.
     """
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest).prefetch_related("round")
+    problem_instances = problem_instances_in_contest(request)
 
-    if queryset is None or not queryset.exists():
+    if not problem_instances:
         return [Contest.objects.get(id=request.contest.id).default_submissions_limit]
 
     limits = set()
-    for p in queryset:
+    for p in problem_instances:
         limits.add(controller.get_submissions_limit(request, p, noadmin=True))
 
     if len(limits) == 1:
@@ -417,6 +435,11 @@ def visible_contests(request):
     return set(contests)
 
 
+@request_cached
+def visible_contest_ids(request):
+    return {c.id for c in visible_contests(request)}
+
+
 @request_cached_complex
 def visible_filtered_contests_as_django_queryset(request, filter_value=None):
     contests = visible_contests_as_django_queryset(request)
@@ -437,6 +460,11 @@ def administered_contests(request):
     user has contest_admin permission for.
     """
     return [contest for contest in visible_contests(request) if can_admin_contest(request.user, contest)]
+
+
+@request_cached
+def administered_contests_ids(request):
+    return {c.id for c in administered_contests(request)}
 
 
 @make_request_condition
@@ -543,7 +571,7 @@ def best_round_to_display(request, allow_past_rounds=False):
     past_rtimes = None
 
     if timestamp and contest:
-        rtimes = {round: contest.controller.get_round_times(request, round) for round in Round.objects.filter(contest=contest)}
+        rtimes = {round: contest.controller.get_round_times(request, round) for round in rounds_in_contest(request.contest)}
         next_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [(r, rt) for r, rt in rtimes if rt.is_active(timestamp) and rt.get_end()]
@@ -856,3 +884,19 @@ def filter_last_submissions(queryset):
         .values("id")[:1]
     )
     return queryset.filter(id=Subquery(last_subquery))
+
+
+# This should only be used on submissions in a contest,
+# due to problem_instances_in_contest usage, unless the problem_instances arg is provided.
+# A list is returned, so no queryset methods may be used on it.
+# Querysets that have related submissions are supported too, for example
+# a UserResultForProblem queryset may be used with qs_prefix_to_submission="submission_report__submission".
+def eval_contest_submissions_qs_with_common_related(request, qs, qs_prefix_to_submission="", problem_instances=None):
+    if qs_prefix_to_submission and not qs_prefix_to_submission.endswith("__"):
+        qs_prefix_to_submission += "__"
+    if problem_instances is None:
+        problem_instances = problem_instances_in_contest(request)
+    if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
+        qs = qs.select_related(qs_prefix_to_submission + "revealed")
+        prefetch_related_objects(problem_instances, "scores_reveal_config")
+    return annotate_known_related_many(qs, qs_prefix_to_submission + "problem_instance", problem_instances)
