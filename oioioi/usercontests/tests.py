@@ -145,6 +145,10 @@ class TestUserContestCreationForm(TestCase):
             "contestlogo-INITIAL_FORMS": 0,
             "contestlogo-MIN_NUM_FORMS": 0,
             "contestlogo-MAX_NUM_FORMS": 1,
+            "oi_data_confirmation_settings-TOTAL_FORMS": 0,
+            "oi_data_confirmation_settings-INITIAL_FORMS": 0,
+            "oi_data_confirmation_settings-MIN_NUM_FORMS": 0,
+            "oi_data_confirmation_settings-MAX_NUM_FORMS": 1,
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
