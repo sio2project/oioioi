@@ -167,7 +167,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         pass
 
-    def judge(self, submission, extra_args=None, is_rejudge=False):
+    def judge(self, submission, extra_args=None, is_rejudge=False, delay: int | float = 0):
         environ = create_environ()
         environ["extra_args"] = extra_args or {}
         environ["is_rejudge"] = is_rejudge
@@ -252,6 +252,8 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         )
 
         evalmgr_extra_args = environ.get("evalmgr_extra_args", {})
+        if delay > 0:
+            evalmgr_extra_args["countdown"] = delay
         logger.debug(
             "Judging submission #%d with environ:\n %s",
             submission.id,
