@@ -8,10 +8,10 @@
     "watch": "webpack --mode development --watch"
   },
   "devDependencies": {
-    "@eslint/js": "^9.23.0",
+    "@eslint/js": "^10.0.1",
     "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^14.0.0",
-    "eslint": "^9.23.0",
+    "eslint": "^10.10.0",
     "expose-loader": "^5.0.1",
     "globals": "^16.0.0",
     "webpack": "^5.105.0",
