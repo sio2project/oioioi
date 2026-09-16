@@ -18,7 +18,7 @@ def get_user_name_and_login_bounded(self, user):
 
 class UserGroupAdmin(admin.ModelAdmin):
     exclude = ("addition_config", "sharing_config", "contests")
-    filter_horizontal = ("owners", "members")
+    autocomplete_fields = ("owners", "members")
     search_fields = ("name",)
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
@@ -31,6 +31,21 @@ class UserGroupAdmin(admin.ModelAdmin):
             formfield.label_from_instance = types.MethodType(get_user_name_and_login_bounded, formfield)
 
         return formfield
+
+
+class UserGroupOwnerAutocompleteMixin:
+    def get_search_results(self, request, queryset, search_term):
+        queryset, use_distinct = super().get_search_results(request, queryset, search_term)
+        if (
+            request.GET.get("app_label") == UserGroup._meta.app_label
+            and request.GET.get("model_name") == UserGroup._meta.model_name
+            and request.GET.get("field_name") == "owners"
+        ):
+            queryset = queryset.filter(models.Q(teacher__isnull=False) | models.Q(is_superuser=True))
+        return queryset, use_distinct
+
+
+admin.OioioiUserAdmin.mix_in(UserGroupOwnerAutocompleteMixin)
 
 
 admin.site.register(UserGroup, UserGroupAdmin)
