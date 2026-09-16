@@ -44,6 +44,15 @@ class UserPreferences(models.Model):
         default=False,
     )
 
+    programming_language = models.CharField(
+        _("preferred programming language"),
+        max_length=64,
+        choices=[(lang, config["display_name"]) for lang, config in settings.SUBMITTABLE_LANGUAGES.items() if config.get("type", "main") == "main"]
+        + [("", _("None"))],
+        default="",
+        blank=True,
+    )
+
 
 @receiver(post_save, sender=Consents)
 def _log_consent_change(sender, instance, created, raw, **kwargs):
