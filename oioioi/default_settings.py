@@ -239,7 +239,7 @@ MIDDLEWARE = (
     'oioioi.su.middleware.SuFirstTimeRedirectionMiddleware',
     'oioioi.base.middleware.UserInfoInErrorMessage',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'dj_pagination.middleware.PaginationMiddleware',
+    'pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
     'oioioi.base.middleware.HttpResponseNotAllowedMiddleware',
     'oioioi.base.middleware.CheckLoginMiddleware',
@@ -305,7 +305,7 @@ INSTALLED_APPS = (
     'registration',
     'django_extensions',
     'compressor',
-    'dj_pagination',
+    'pagination',
     'mptt',
 
     'django.contrib.admin',
@@ -391,7 +391,6 @@ SUPERVISOR_AUTORELOAD_PATTERNS = [".py", ".pyc", ".pyo"]
 
 # For dj_pagination
 PAGINATION_DEFAULT_WINDOW = 4
-PAGINATION_DEFAULT_MARGIN = 1
 FILES_ON_PAGE = 100
 PROBLEMS_ON_PAGE = 100
 CONTESTS_ON_PAGE = 20
