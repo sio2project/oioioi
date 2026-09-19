@@ -78,7 +78,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         # rest of logic should  be moved to contest controller
         problem = problem_instance.problem
 
-        if problem_instance.contest is None or (can_admin_problem(request, problem) and not noadmin) or kind == "IGNORED":
+        if problem_instance.contest_id is None or (can_admin_problem(request, problem) and not noadmin) or kind == "IGNORED":
             return None
         return problem_instance.submissions_limit
 

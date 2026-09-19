@@ -114,11 +114,17 @@ class TestInline(admin.TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
+    def test_set_count_cached(self, obj):
+        key = "test_set_count_cache_"
+        if not hasattr(obj, key):
+            setattr(obj, key, obj.test_set.count())
+        return getattr(obj, key)
+
     def has_change_permission(self, request, obj=None):
         # this view doesn't allow to add / remove tests
         # so if there are no tests for this tasks we can skip showing it
         # (for example quizzes have no tests and it would be confusing to show)
-        return obj is None or obj.test_set.count() != 0
+        return obj is None or self.test_set_count_cached(obj) != 0
 
     def has_delete_permission(self, request, obj=None):
         return False
