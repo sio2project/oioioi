@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.admin import system_admin_menu_registry
@@ -31,20 +32,25 @@ def show_info_about_workers(request):
     readonly = False
     announce = None
     warning = None
+    connection_error = None
     delete = False
-    if request.method == "POST":
-        if request.POST.get("delete"):
-            readonly = True
-            announce = _(
-                """You are about to delete the selected workers.
-                Please confirm"""
-            )
-            delete = True
-        if request.POST.get("confirm"):
-            selected = [x for x in get_all_names() if request.POST.get(f"work-{x}")]
-            del_worker(selected)
-            announce = _("Successfully deleted selected workers")
-    workers_info = get_info_about_workers()
+    try:
+        if request.method == "POST":
+            if request.POST.get("delete"):
+                readonly = True
+                announce = _(
+                    """You are about to delete the selected workers.
+                    Please confirm"""
+                )
+                delete = True
+            if request.POST.get("confirm"):
+                selected = [x for x in get_all_names() if request.POST.get(f"work-{x}")]
+                del_worker(selected)
+                announce = _("Successfully deleted selected workers")
+        workers_info = get_info_about_workers()
+    except (OSError, xmlrpc.client.Error):
+        workers_info = []
+        connection_error = _("The workers service is unavailable. Check that sioworkersd is running and try again.")
 
     def transform_dict(d):
         select = request.POST.get("work-" + d["name"])
@@ -68,6 +74,7 @@ def show_info_about_workers(request):
         "readonly": readonly,
         "announce": announce,
         "warning": warning,
+        "connection_error": connection_error,
         "delete": delete,
     }
     return render(request, "workers/list_workers.html", context)
@@ -75,7 +82,13 @@ def show_info_about_workers(request):
 
 @enforce_condition(is_superuser)
 def get_load_json(request):
-    data = get_info_about_workers()
+    try:
+        data = get_info_about_workers()
+    except (OSError, xmlrpc.client.Error):
+        return JsonResponse(
+            {"error": gettext("The workers service is unavailable.")},
+            status=503,
+        )
     capacity = 0
     load = 0
     cpu_exec_load = 0
