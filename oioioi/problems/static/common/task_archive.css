@@ -16,6 +16,11 @@
     font-weight: normal;
 }
 
+.checkbox-menu {
+    top: 100%;
+    left: 0;
+}
+
 .checkbox-menu li label {
     display: block;
     padding: 3px 10px;
@@ -66,4 +71,21 @@
 
 #filters-collapse {
     margin-top: 1em;
+}
+
+.search-tags .search-tag {
+    cursor: pointer;
+}
+
+.search-tags .search-tag-text {
+    cursor: inherit;
+}
+
+.search-tags .search-tag-inactive .search-tag {
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+
+.search-tags .search-tag-inactive .search-tag-remove::before {
+    content: "\2b";
 }

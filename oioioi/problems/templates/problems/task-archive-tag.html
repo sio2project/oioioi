@@ -33,6 +33,12 @@
                         </form>
                     </div>
 
+                    <div class="btn-group me-2">
+                        <a class="btn btn-outline-secondary" href="{{ request.path }}">
+                            {% trans "Clear filters" %}
+                        </a>
+                    </div>
+
                     <div class="btn-group">
                         <form id="problemset-search"
                               method=get
@@ -64,7 +70,7 @@
                             id="{{ category.name }}-filters" >
                             {% for value in category.values.all %}
                                 <li class="dropdown-item
-                                    {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                                    {% if category.name not in request.GET or value.value in request.GET|multival_lookup:category.name %}
                                     active
                                     {% endif %}
                                 ">
@@ -73,7 +79,7 @@
                                                name="{{ category.name }}"
                                                value="{{ value.value }}"
                                                form="task-archive-filters"
-                                               {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                                               {% if category.name not in request.GET or value.value in request.GET|multival_lookup:category.name %}
                                                checked
                                                {% endif %}
                                         />
@@ -88,10 +94,10 @@
                     <td>
                     <div id="{{ category.name }}-search-tags" class="search-tags">
                         {% for value in category.values.all %}
-                            {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                            {% if category.name not in request.GET or value.value in request.GET|multival_lookup:category.name %}
                                 {% include "problems/problemset/search-tag.html" with input_name="origin" input_value=value input_text=value.value prop="readonly" input_form="problemset-search" %}
                             {% else %}
-                                {% include "problems/problemset/search-tag.html" with input_class="collapse" input_name="origin" input_value=value input_text=value.value input_attr="disabled" input_form="problemset-search" %}
+                                {% include "problems/problemset/search-tag.html" with input_class="search-tag-inactive" input_name="origin" input_value=value input_text=value.value input_attr="disabled" input_form="problemset-search" %}
                             {% endif %}
                         {% endfor %}
                         &nbsp;

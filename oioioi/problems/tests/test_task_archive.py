@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -134,6 +135,36 @@ class TestTaskArchive(TestCase):
         assert_problem_found("?stage=s2&edition=xxiv&edition=xxv", found=False)
         assert_problem_found("?stage=s2&stage=s3&edition=xxv", found=False)
         assert_problem_found("?stage=s2&stage=s3&edition=xxiv&edition=xxv")
+
+    def test_task_archive_tag_filter_options_stay_available(self):
+        url = reverse("task_archive_tag", args=("oi",))
+        response = self.client.get(url + "?edition=xxiv", follow=True)
+        self.assertEqual(response.status_code, 200)
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        def checkbox(category, value):
+            return soup.select_one(f"#{category}-filters input[value='{value}']")
+
+        def tag_classes(category, value):
+            for tag in soup.select(f"#{category}-search-tags .search-tag-root"):
+                if tag.select_one(".search-tag-text").get_text(strip=True) == value:
+                    return tag["class"]
+            self.fail(f"No tag for {category}={value}")
+
+        # An excluded option is still shown as a tag, so it can be toggled back.
+        self.assertIsNone(checkbox("edition", "xxv").get("checked"))
+        self.assertIn("search-tag-inactive", tag_classes("edition", "xxv"))
+        self.assertNotIn("collapse", tag_classes("edition", "xxv"))
+        self.assertIsNotNone(checkbox("edition", "xxiv").get("checked"))
+        self.assertNotIn("search-tag-inactive", tag_classes("edition", "xxiv"))
+
+        # A category without a filter in the URL includes all of its options.
+        for value in ("s2", "s3"):
+            self.assertIsNotNone(checkbox("stage", value).get("checked"))
+            self.assertNotIn("search-tag-inactive", tag_classes("stage", value))
+
+        clear_link = soup.find("a", href=url)
+        self.assertIsNotNone(clear_link)
 
     def test_task_archive_tag_filter_no_meta_on_problem(self):
         url = reverse("task_archive_tag", args=("oi",)) + "?day=d2"
