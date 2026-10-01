@@ -157,10 +157,14 @@ def confirm_data_view(request):
     else:
         form = OIDataConfirmationForm(instance=reg, participant=participant)
 
-    return TemplateResponse(request, "oi/confirm_data.html", {
-        "form": form,
-        "email": request.user.email,
-    })
+    return TemplateResponse(
+        request,
+        "oi/confirm_data.html",
+        {
+            "form": form,
+            "email": request.user.email,
+        },
+    )
 
 
 @require_GET
