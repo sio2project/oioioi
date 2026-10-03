@@ -21,6 +21,7 @@ from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 
 from oioioi.base.notification import NotificationHandler
+from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.tests import (
     TestCase,
     check_is_accessible,
@@ -682,6 +683,18 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self.assertContains(response, "You have to either choose file or paste code.")
         response = self.submit_code(contest, problem_instance, "some code", send_file=True)
         self.assertContains(response, "You have to either choose file or paste code.")
+
+    def test_preferred_programming_language_is_selected(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        user = User.objects.get(username="test_user")
+        ensure_preferences_exist_for_user(user)
+        user.userpreferences.programming_language = "C++"
+        user.userpreferences.save()
+
+        response = self.client.get(reverse("submit", kwargs={"contest_id": contest.id}))
+        field = response.context["form"].fields[form_field_id_for_langs(problem_instance)]
+        self.assertEqual(field.initial, "C++")
 
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_pasting_unicode_code(self):

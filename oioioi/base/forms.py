@@ -67,6 +67,9 @@ def _maybe_add_field(label, *args, **kwargs):
 def adjust_preferences_factory_fields():
     choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
     choices = [(k, _(v)) for k, v in choices_not_translated]
+    programming_language_choices = [("", _("None"))] + [
+        (lang, lang_config["display_name"]) for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items() if lang_config.get("type", "main") == "main"
+    ]
 
     def handle_preferred_language(user):
         if user is None:
@@ -80,6 +83,21 @@ def adjust_preferences_factory_fields():
         lambda name, user: handle_preferred_language(user),
         label=_("Preferred language"),
         choices=choices,
+        required=False,
+    )
+
+    def handle_programming_language(user):
+        if user is None:
+            return ""
+        ensure_preferences_exist_for_user(user)
+        return user.userpreferences.programming_language
+
+    PreferencesFactory.add_field(
+        "programming_language",
+        ChoiceField,
+        lambda name, user: handle_programming_language(user),
+        label=_("Preferred programming language"),
+        choices=programming_language_choices,
         required=False,
     )
 
@@ -107,6 +125,13 @@ def handle_new_preference_fields(request, user):
             if pref_lang != "":
                 request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = pref_lang
             user.userpreferences.language = pref_lang
+            changed = True
+
+    if "programming_language" in request.POST:
+        programming_language = request.POST["programming_language"]
+        allowed_programming_languages = [lang for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items() if lang_config.get("type", "main") == "main"]
+        if programming_language in allowed_programming_languages + [""]:
+            user.userpreferences.programming_language = programming_language
             changed = True
 
     if settings.USE_ACE_EDITOR:
