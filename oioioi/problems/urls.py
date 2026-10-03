@@ -22,6 +22,16 @@ problem_site_patterns = [
         views.problem_site_external_attachment_view,
         name="problem_site_external_attachment",
     ),
+    path(
+        "example_tests/",
+        api.problem_site_example_tests_view,
+        name="problem_site_example_tests",
+    ),
+    path(
+        "example_tests/<str:filename>",
+        api.problem_site_example_test_file_view,
+        name="problem_site_example_test_file",
+    ),
 ]
 
 urlpatterns = [
