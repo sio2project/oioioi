@@ -14,11 +14,13 @@ from django.utils.translation import get_language_from_request
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.preferences import ensure_preferences_exist_for_user
+from oioioi.base.utils.annotate_known_related import annotate_known_related
 from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.utils import (
+    eval_contest_submissions_qs_with_common_related,
     get_submission_message,
     is_contest_admin,
     is_contest_archived,
@@ -39,8 +41,6 @@ from oioioi.programs.models import (
     GroupReport,
     ModelProgramSubmission,
     OutputChecker,
-    ProblemAllowedLanguage,
-    ProblemCompiler,
     ProgramSubmission,
     Submission,
     TestReport,
@@ -118,12 +118,12 @@ class ProgrammingProblemController(ProblemController):
             return "default-" + extension
 
     # Let's fetch ProblemCompilers for all languages in bulk, as they
-    # will be needed anyway and the query overhead is negligible.
-    # The query is still a bottleneck for the submit view, see comment
-    # for `._add_langs_to_form()`.
+    # will be needed anyway. They should have been made available by
+    # an earlier prefetch_related like in contests/forms.py if this is
+    # being called for many problems to avoid making O(N) DB queries.
     def _get_problem_compilers_cached(self, problem_instance, language):
         if not hasattr(problem_instance, "_problem_compilers_cache"):
-            qs = ProblemCompiler.objects.filter(problem_id=problem_instance.problem_id)
+            qs = problem_instance.problem.problemcompiler_set.all()
             problem_instance._problem_compilers_cache = {pc.language: pc for pc in qs}
         return problem_instance._problem_compilers_cache.get(language, None)
 
@@ -506,11 +506,6 @@ class ProgrammingProblemController(ProblemController):
             problem_instance.controller.judge(submission)
         return submission
 
-    # This method is a large bottleneck in the submit view for large contests,
-    # as for every problem_instance, `.get_compiler_for_language()`
-    # and `.get_allowed_languages_for_problem()` execute DB queries.
-    # It could be improved e.g. by propagating the list of problem instances from
-    # `contests/forms.py::SubmissionForm` and fetching related ProblemCompilers in bulk.
     def _add_langs_to_form(self, request, form, problem_instance):
         controller = problem_instance.controller
 
@@ -671,10 +666,12 @@ class ProgrammingProblemController(ProblemController):
         score_report = ScoreReport.objects.get(submission_report=report)
         compilation_report = CompilationReport.objects.get(submission_report=report)
         test_reports = (
-            TestReport.objects.filter(submission_report=report)
-            .select_related("userout_status", "test")
-            .prefetch_related("test__problem_instance__problem", "submission_report__submission__problem_instance__contest")
-            .order_by("test__order", "test_group", "test_name")
+            TestReport.objects.filter(submission_report=report).select_related("userout_status", "test").order_by("test__order", "test_group", "test_name")
+        )
+        test_reports = annotate_known_related(
+            annotate_known_related(test_reports, "test__problem_instance", problem_instance),
+            "submission_report",
+            report,
         )
         group_reports = GroupReport.objects.filter(submission_report=report)
         show_scores = any(gr.score is not None for gr in group_reports)
@@ -808,15 +805,7 @@ class ProgrammingProblemController(ProblemController):
             .filter(problem_instance=submission.problem_instance)
             .exclude(pk=submission.pk)
             .order_by("-date")
-            .prefetch_related(
-                "problem_instance",
-                "problem_instance__contest",
-                "problem_instance__round",
-                "problem_instance__problem",
-            )
         )
-        if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
-            queryset = queryset.select_related("revealed").prefetch_related("problem_instance__scores_reveal_config")
 
         if not submission.problem_instance.contest == request.contest:
             raise SuspiciousOperation
@@ -826,8 +815,14 @@ class ProgrammingProblemController(ProblemController):
         elif not request.contest and not is_contest_basicadmin(request):
             pc = submission.problem_instance.controller
             queryset = pc.filter_my_visible_submissions(request, queryset)
-        show_scores = bool(queryset.filter(score__isnull=False))
 
+        submissions = eval_contest_submissions_qs_with_common_related(
+            request,
+            queryset,
+            problem_instances=[submission.problem_instance],
+        )
+
+        show_scores = any(s.score is not None for s in submissions)
         can_admin = can_admin_problem_instance(request, submission.problem_instance)
 
         if not queryset.exists():
@@ -836,7 +831,7 @@ class ProgrammingProblemController(ProblemController):
             "programs/other_submissions.html",
             request=request,
             context={
-                "submissions": [submission_template_context(request, s) for s in queryset],
+                "submissions": [submission_template_context(request, s) for s in submissions],
                 "show_scores": show_scores,
                 "can_admin": can_admin,
                 "main_submission_id": submission.id,
@@ -845,8 +840,11 @@ class ProgrammingProblemController(ProblemController):
         )
 
     def get_allowed_languages_for_problem(self, problem):
-        # This query is a bottleneck for the submit view, see comment for `._add_langs_to_form()`.
-        allowed_langs = list(ProblemAllowedLanguage.objects.filter(problem=problem).values_list("language", flat=True))
+        # The problemallowedlanguage_set should have been made available by
+        # an earlier prefetch_related like in contests/forms.py if this is being called
+        # for many problems to avoid making O(N) DB queries.
+
+        allowed_langs = [lang.language for lang in problem.problemallowedlanguage_set.all()]
         if not allowed_langs:
             return problem.controller.get_allowed_languages()
         return allowed_langs

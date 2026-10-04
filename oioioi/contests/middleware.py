@@ -27,11 +27,14 @@ def activate_contest(request, contest):
         request.session["recent_contests"] = recent_contests
 
     if not request.real_user.is_anonymous and not request.session.get("first_view_after_logging", False):
-        cv, created = ContestView.objects.get_or_create(user=request.real_user, contest=contest)
+        latest_cv = ContestView.objects.filter(user=request.real_user).first()
         # Do not repeatedly update timestamp for latest contest.
-        if cv != ContestView.objects.filter(user=request.real_user).latest() or created:
-            cv.timestamp = request.timestamp
-            cv.save()
+        if not latest_cv or latest_cv.contest_id != contest.id:
+            ContestView.objects.update_or_create(
+                user=request.real_user,
+                contest=contest,
+                defaults={"timestamp": request.timestamp},
+            )
 
 
 class CurrentContestMiddleware:
