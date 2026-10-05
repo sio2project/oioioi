@@ -24,6 +24,22 @@ def notification_function_answer(arguments):
 NotificationHandler.register_notification("question_answered", notification_function_answer)
 
 
+def notification_function_private(arguments):
+    assert hasattr(arguments, "user") and hasattr(arguments, "message_instance"), "The log doesn't have user or message_instance value in the extra map"
+
+    message_details = arguments.message_instance.topic + ": " + arguments.message_instance.content
+    message = gettext_noop("New private message.")
+    message_arguments = {
+        "address": arguments.message_instance.get_absolute_url(),
+        "details": message_details[:MAX_DETAILS_LENGTH],
+    }
+
+    NotificationHandler.send_notification(arguments.user, "private_message", message, message_arguments)
+
+
+NotificationHandler.register_notification("private_message", notification_function_private)
+
+
 def notification_function_public(arguments):
     assert hasattr(arguments, "contest") and hasattr(arguments, "message_instance"), "The log doesn't have contest or message_instance value in the extra map"
 

@@ -7,6 +7,22 @@ app_name = "questions"
 contest_patterns = [
     path("questions/", views.messages_view, name="contest_messages"),
     path("questions/all/", views.all_messages_view, name="contest_all_messages"),
+    path("questions/private/add/", views.add_private_message_view, name="add_private_message"),
+    path(
+        "questions/private/recipients/",
+        views.get_private_message_recipients_view,
+        name="get_private_message_recipients",
+    ),
+    path(
+        "questions/private/recipients/preview/",
+        views.get_private_message_recipients_preview_view,
+        name="get_private_message_recipients_preview",
+    ),
+    path(
+        "questions/<int:message_id>/recipient/<int:recipient_id>/",
+        views.message_view,
+        name="private_message",
+    ),
     path("questions/<int:message_id>/", views.message_view, name="message"),
     path(
         "questions/<int:message_id>/visit",

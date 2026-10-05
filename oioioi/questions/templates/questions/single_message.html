@@ -3,7 +3,7 @@
 
 <div class="oioioi-message {% if is_reply %}oioioi-message--reply {% endif %}{% if message.kind == 'PUBLIC' %}oioioi-message--reply-public {% endif %}{% if has_replies %}oioioi-message--has-replies{% endif %}">
     <p class="oioioi-message__info">
-        <span class="oioioi-message__badge badge {% if record.needs_reply and is_admin %}text-bg-danger{% elif message.kind == 'PUBLIC' %}badge-secondary{% elif message.kind == 'PRIVATE' %}badge-light{% else %}badge-primary{% endif %}">
+        <span class="oioioi-message__badge badge {% if record.needs_reply and is_admin %}text-bg-danger{% elif message.kind == 'PUBLIC' %}badge-secondary{% elif message.kind == 'PRIVATE' %}text-bg-light{% else %}badge-primary{% endif %}">
             {{ message.get_kind_display }}
         </span>
         {% if is_new %}
@@ -20,6 +20,10 @@
             </span>
             {% if is_admin and message.marked_read_by %}
             | {% trans "Marked read by " %} {% full_name message.marked_read_by %}
+            {% endif %}
+            {% if is_admin and message.kind == 'PRIVATE' and message.recipients.exists %}
+            | {% trans "Recipients" %}:
+                {% for recipient in message.recipients.all %}{{ recipient.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
             {% endif %}
         </small>
         {% if is_admin %}

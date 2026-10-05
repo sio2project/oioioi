@@ -7,10 +7,11 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.test import RequestFactory
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from oioioi.questions.models import Message, QuestionSubscription
+from oioioi.questions.models import Message, QuestionSubscription, notify_private_message
 from oioioi.questions.views import visible_messages
 
 logger = logging.getLogger(__name__)
@@ -19,10 +20,14 @@ logger = logging.getLogger(__name__)
 def generate_notification(msg, user, mail):
     show_original = msg.top_reference and allowed_to_see(msg.top_reference, user)
     link_m_id = msg.top_reference.id if show_original else msg.id
+    message_url = reverse("message", kwargs={"contest_id": msg.contest.id, "message_id": link_m_id})
+    if msg.top_reference_id is not None and msg.top_reference.kind == "PRIVATE":
+        message_url = msg.get_absolute_url()
     context = {
         "msg": msg,
+        "private_conversation": msg.top_reference_id is not None and msg.top_reference.kind == "PRIVATE",
         "show_original": show_original,
-        "link_m_id": link_m_id,
+        "message_url": message_url,
         "root": settings.PUBLIC_ROOT_URL,
     }
 
@@ -45,7 +50,19 @@ def mailnotify(instance):
 
     subscriptions = QuestionSubscription.objects.filter(contest=instance.contest)
 
-    if instance.kind == "PUBLIC":
+    private_recipients = get_private_message_recipients(instance)
+
+    if private_recipients is not None:
+        for user in private_recipients:
+            if not allowed_to_see(instance, user):
+                logmsg = f"Omitting message {instance} to {user}, since they are not allowed to see it"
+                logger.info(logmsg)
+                continue
+            notify_private_message(instance, user)
+            if subscriptions.filter(user=user).exists() and user.email:
+                try_sending(instance, user, user.email)
+
+    elif instance.kind == "PUBLIC":
         # There may be users without an e-mail, filter them out
         mails = [(sub.user, sub.user.email) for sub in subscriptions if sub.user.email]
 
@@ -53,7 +70,7 @@ def mailnotify(instance):
         for user, mail in mails:
             try_sending(instance, user, mail)
 
-    elif instance.kind == "PRIVATE":
+    elif instance.kind == "PRIVATE" and instance.top_reference_id is not None:
         author = instance.top_reference.author
         subscriptions = subscriptions.filter(user=author)
         if subscriptions and author.email:
@@ -62,6 +79,26 @@ def mailnotify(instance):
 
     instance.mail_sent = True
     instance.save()
+
+
+def get_private_message_recipients(instance):
+    if instance.kind != "PRIVATE":
+        return None
+
+    if instance.top_reference_id is None:
+        if instance.recipients.exists():
+            return instance.recipients.all()
+        return None
+
+    if instance.top_reference.kind != "PRIVATE":
+        return None
+
+    recipient = instance.recipients.first()
+    if recipient is None:
+        return []
+    if instance.author_id == recipient.id:
+        return [instance.top_reference.author]
+    return [recipient]
 
 
 def try_sending(msg, user, mail):

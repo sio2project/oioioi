@@ -1,4 +1,7 @@
 from django import forms
+from django.apps import apps
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -17,6 +20,20 @@ from oioioi.questions.models import (
     message_kinds,
 )
 from oioioi.questions.utils import get_categories, get_category
+
+
+def get_active_contest_participants(request):
+    if not apps.is_installed("oioioi.participants"):
+        return User.objects.none()
+    return User.objects.filter(participant__contest=request.contest, participant__status="ACTIVE").distinct()
+
+
+def get_selected_private_message_recipients(request, recipient, groups):
+    active_participants = get_active_contest_participants(request)
+    recipients = active_participants.filter(usergroups__in=groups) if groups else User.objects.none()
+    if recipient is not None:
+        recipients = recipients | active_participants.filter(id=recipient.id)
+    return recipients.distinct()
 
 
 class AddContestMessageForm(forms.ModelForm):
@@ -87,6 +104,81 @@ class AddReplyForm(AddContestMessageForm):
         return instance
 
 
+class AddPrivateReplyForm(AddReplyForm):
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(request, *args, **kwargs)
+        self.fields["kind"].choices = [("PRIVATE", message_kinds["PRIVATE"])]
+        self.fields["kind"].initial = "PRIVATE"
+        self.fields["kind"].widget = forms.HiddenInput()
+        self.fields.pop("pub_date", None)
+        if not is_contest_basicadmin(request):
+            self.fields.pop("save_template")
+
+    def save(self, *args, **kwargs):
+        self.cleaned_data.setdefault("save_template", False)
+        return super().save(*args, **kwargs)
+
+
+class PrivateMessageFormMixin:
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(request, *args, **kwargs)
+        self.active_participants = get_active_contest_participants(request)
+        self.fields["recipient"].queryset = self.active_participants
+        self.fields["recipient"].hints_url = reverse("get_private_message_recipients", kwargs={"contest_id": request.contest.id})
+        if apps.is_installed("oioioi.usergroups"):
+            from oioioi.usergroups.models import UserGroup
+
+            self.fields["groups"].queryset = UserGroup.objects.filter(contests=request.contest).order_by("name")
+        else:
+            self.fields.pop("groups")
+        self._replace_recipients = False
+        self._recipient_ids = []
+
+        instance = kwargs.get("instance")
+        self.recipients_frozen = bool(instance and instance.pk and (instance.pub_date is None or instance.pub_date <= request.timestamp))
+        if instance and instance.pk:
+            recipients = instance.recipients.all()
+            if recipients.count() == 1:
+                self.fields["recipient"].initial = recipients.first()
+        if self.recipients_frozen:
+            self.fields["recipient"].disabled = True
+            if "groups" in self.fields:
+                self.fields["groups"].disabled = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if self.recipients_frozen:
+            if self.is_bound and ("recipient" in self.data or "groups" in self.data):
+                raise ValidationError(_("Recipients cannot be changed after publication."))
+            return cleaned_data
+
+        recipient = cleaned_data.get("recipient")
+        groups = cleaned_data.get("groups")
+        if not recipient and not groups:
+            if self.instance.pk:
+                return cleaned_data
+            raise ValidationError(_("Select at least one participant or group."))
+
+        recipients = get_selected_private_message_recipients(self.request, recipient, groups)
+        self._recipient_ids = list(recipients.values_list("id", flat=True))
+        if not self._recipient_ids:
+            raise ValidationError(_("The selected groups contain no active participants."))
+        self._replace_recipients = True
+        return cleaned_data
+
+    def save_recipients(self, instance):
+        if self._replace_recipients:
+            instance.recipients.set(self._recipient_ids)
+
+
+class AddPrivateMessageForm(PrivateMessageFormMixin, AddContestMessageForm):
+    recipient = UserSelectionField(label=_("Participant"), required=False)
+    groups = forms.ModelMultipleChoiceField(queryset=User.objects.none(), label=_("Groups"), required=False)
+
+    class Meta(AddContestMessageForm.Meta):
+        fields = ["category", "recipient", "groups", "topic", "content", "pub_date"]
+
+
 class ChangeContestMessageForm(AddContestMessageForm):
     class Meta(AddContestMessageForm.Meta):
         fields = ["category", "kind", "topic", "content", "pub_date"]
@@ -97,6 +189,22 @@ class ChangeContestMessageForm(AddContestMessageForm):
             self.fields["kind"].choices = [c for c in message_kinds.entries if c[0] == "QUESTION"]
         else:
             self.fields["kind"].choices = [c for c in message_kinds.entries if c[0] != "QUESTION"]
+
+
+class ChangePrivateMessageForm(AddPrivateMessageForm):
+    class Meta(AddPrivateMessageForm.Meta):
+        fields = ["category", "kind", "recipient", "groups", "topic", "content", "pub_date"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["kind"].choices = [("PRIVATE", message_kinds["PRIVATE"])]
+        narrow_input_field(self.fields["kind"])
+
+
+class ChangePrivateReplyForm(ChangeContestMessageForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__("PRIVATE", *args, **kwargs)
+        self.fields["kind"].choices = [("PRIVATE", message_kinds["PRIVATE"])]
 
 
 class FilterMessageForm(forms.Form):

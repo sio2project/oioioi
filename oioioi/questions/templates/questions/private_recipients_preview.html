@@ -1,0 +1,46 @@
+{% load i18n %}
+{% trans "No active recipients selected." as empty_recipients %}
+
+<div class="mb-3">
+    <div class="control-label" id="private-message-recipients-label">{% trans "Recipients" %}</div>
+    <ul class="list-group" id="private-message-recipients" aria-labelledby="private-message-recipients-label"></ul>
+    <div class="form-text" id="private-message-no-recipients">{{ empty_recipients }}</div>
+</div>
+
+<script>
+    $(function() {
+        var recipientInput = $('#id_recipient');
+        var groupsInput = $('#id_groups');
+        var recipientsList = $('#private-message-recipients');
+        var noRecipients = $('#private-message-no-recipients');
+
+        function refreshRecipients() {
+            $.get(
+                '{% url "get_private_message_recipients_preview" contest_id=contest.id %}',
+                {
+                    recipient: recipientInput.val(),
+                    groups: groupsInput.val() || [],
+                },
+                function(recipients) {
+                    recipientsList.empty();
+                    $.each(
+                        recipients,
+                        function(_index, recipient) {
+                            var label = recipient.username;
+                            if (recipient.full_name) {
+                                label += ' (' + recipient.full_name + ')';
+                            }
+                            $('<li>').addClass('list-group-item').text(label).appendTo(recipientsList);
+                        },
+                    );
+                    noRecipients.toggle(recipients.length === 0);
+                },
+            );
+        }
+
+        recipientInput.change(refreshRecipients);
+        recipientInput.blur(refreshRecipients);
+        groupsInput.change(refreshRecipients);
+        refreshRecipients();
+    });
+</script>

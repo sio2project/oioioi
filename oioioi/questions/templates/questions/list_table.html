@@ -38,7 +38,6 @@
         <tbody>
             {% for record in records %}
             {% with record.message as msg %}
-            {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
             <tr id="question{{ record.message.id }}" class="{% if record.needs_reply %}danger{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
                 {% if not hide_author %}
                     <td>
@@ -58,11 +57,11 @@
                     {% if not record.read and not is_admin %}
                         <span class="badge text-bg-info" id="new-msg-label">{% trans "NEW" %}</span>
                     {% endif %}
-                    <a onclick="event.cancelBubble = true;" href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a>
+                    <a onclick="event.cancelBubble = true;" href="{{ record.link }}">{{ msg.topic|truncatechars:80 }}</a>
                 </td>
                 {% if is_admin %}
                     <td>
-                        <span class="badge {% if record.needs_reply %}text-bg-danger{% elif msg.kind == 'PUBLIC' %}badge-secondary{% elif msg.kind == 'PRIVATE' %}badge-light{% else %}badge-primary{% endif %}">
+                        <span class="badge {% if record.needs_reply %}text-bg-danger{% elif msg.kind == 'PUBLIC' %}badge-secondary{% elif msg.kind == 'PRIVATE' %}text-bg-light{% else %}badge-primary{% endif %}">
                             {{ msg.get_kind_label }}
                         </span>
                     </td>

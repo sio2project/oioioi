@@ -32,7 +32,18 @@
             <label for="message_contest" class="control-label">{% trans "Contest" %}</label>
             <div id="message_contest">{{ message.contest.name }}</div>
         </div>
+        {% if message.kind == 'PRIVATE' and not message.top_reference %}
+        <div class="mb-3">
+            <div class="control-label">{% trans "Current recipients" %}</div>
+            <div>
+                {% for recipient in message.recipients.all %}{{ recipient.username }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+        </div>
+        {% endif %}
         {% include "ingredients/form.html" with focus="#id_content" %}
+        {% if message.kind == 'PRIVATE' and not message.top_reference and not form.recipients_frozen %}
+            {% include "questions/private_recipients_preview.html" %}
+        {% endif %}
         {% if message.top_reference %}
             <div class="mb-3">
                 <button type="button" class="btn btn-outline-secondary btn-sm" tabindex="-1" id="respond_inline" onclick="add_question_content();">
