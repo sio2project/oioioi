@@ -6,6 +6,7 @@ import re
 import urllib.parse
 import zipfile
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
+from unittest.mock import patch
 
 import bs4
 import pytest
@@ -4329,7 +4330,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
         with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
-            self.assertContains(response, "Permission denied", status_code=400)
+            self.assertEqual(response.status_code, 404)
 
         with fake_time(datetime(2012, 7, 31, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
@@ -4346,6 +4347,30 @@ class TestAPIContestSubmit(TestAPISubmitBase):
         with fake_time(datetime(2012, 8, 11, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
             self.assertContains(response, "Permission denied", status_code=400)
+
+    def test_hidden_contest_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        with patch(
+            "oioioi.contests.api.visible_contests_as_django_queryset",
+            return_value=Contest.objects.none(),
+        ):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_hidden_problem_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        round = Round.objects.get()
+        round.start_date = datetime(2012, 7, 31, tzinfo=UTC)
+        round.save()
+
+        with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
 
     def test_submissions_limitation(self):
         contest = Contest.objects.get()
