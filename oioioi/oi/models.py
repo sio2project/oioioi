@@ -9,7 +9,8 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.base.utils.validators import validate_whitespaces
-from oioioi.participants.models import RegistrationModel
+from oioioi.contests.models import Contest
+from oioioi.participants.models import Participant, RegistrationModel
 
 check_django_app_dependencies(__name__, ["oioioi.participants"])
 
@@ -147,3 +148,51 @@ class OIRegistration(RegistrationModel):
         self.class_type = "None"
         self.terms_accepted = False
         self.save()
+
+
+class OIDataConfirmationSettings(models.Model):
+    contest = models.OneToOneField(
+        Contest,
+        primary_key=True,
+        on_delete=models.CASCADE,
+        verbose_name=_("contest"),
+        related_name="oi_data_confirmation_settings",
+    )
+    is_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_("require personal data confirmation"),
+        help_text=_("Whether finalists must confirm their personal data during an active trial round of this contest."),
+    )
+    source_contest = models.ForeignKey(
+        Contest,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        verbose_name=_("prefill data from contest"),
+    )
+
+    class Meta:
+        verbose_name = _("data confirmation settings")
+        verbose_name_plural = _("data confirmation settings")
+
+    def __str__(self):
+        return str(self.contest)
+
+
+class OIDataConfirmation(models.Model):
+    participant = models.OneToOneField(
+        Participant,
+        primary_key=True,
+        on_delete=models.CASCADE,
+        verbose_name=_("participant"),
+        related_name="oi_data_confirmation",
+    )
+    data_confirmed_at = models.DateTimeField(null=True, blank=True, verbose_name=_("data confirmed at"))
+
+    class Meta:
+        verbose_name = _("personal data confirmation")
+        verbose_name_plural = _("personal data confirmations")
+
+    def __str__(self):
+        return str(self.participant)

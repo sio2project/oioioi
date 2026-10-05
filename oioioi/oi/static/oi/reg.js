@@ -77,7 +77,7 @@ $(document).ready(function() {
                 {'province': province.val()},
                 function(options) {
                     city.html(options);
-                    $(city.selector + ' option[value="' + previous_city + '"]').attr('selected', 'selected');
+                    city.find('option[value="' + previous_city + '"]').prop('selected', true);
                 });
     }
     if (province.val() && city.val()) {
@@ -86,7 +86,7 @@ $(document).ready(function() {
                 {'province': province.val(), 'city': city.val()},
                 function(options) {
                     school.html(options);
-                    $(school.selector + ' option[value="' + previous_school + '"]').attr('selected', 'selected');
+                    school.find('option[value="' + previous_school + '"]').prop('selected', true);
                 });
     }
 });
