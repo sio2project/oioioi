@@ -21,13 +21,13 @@ def generate_from_template(dir, filename, context, mode=None):
     dest = os.path.join(dir, filename)
     template = open(os.path.join(basedir, filename + ".template")).read()
     for key, value in context.items():
-        template = template.replace(key, value)
+        template = template.replace(key, str(value))
     open(dest, "w").write(template)
     if mode is not None:
         os.chmod(dest, mode)
 
 
-def generate_all(dir, verbose):
+def generate_all(dir, verbose: bool, use_system_compilers: bool):
     generate_from_template(
         dir,
         "settings.py",
@@ -35,6 +35,7 @@ def generate_all(dir, verbose):
             "__CONFIG_VERSION__": str(INSTALLATION_CONFIG_VERSION),
             "__DIR__": dir,
             "__SECRET__": str(uuid.uuid4()),
+            "__USE_SYSTEM_COMPILERS__": use_system_compilers,
         },
     )
 
@@ -128,6 +129,7 @@ def main():
     usage = "%(prog)s [options] dir"
     parser = ArgumentParser(usage=usage)
     parser.add_argument("-v", "--verbose", action="store_true", dest="verbose")
+    parser.add_argument("--use-system-compilers", action="store_true", dest="use_system_compilers")
     parser.add_argument("dir", help="deployment folder to create")
     args = parser.parse_args()
 
@@ -139,7 +141,7 @@ def main():
     os.makedirs(absolute_dir)
 
     try:
-        generate_all(absolute_dir, args.verbose)
+        generate_all(absolute_dir, args.verbose, use_system_compilers=args.use_system_compilers)
     except BaseException:
         shutil.rmtree(absolute_dir)
         raise
