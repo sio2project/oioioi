@@ -10,7 +10,7 @@ from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.actions import portal_url
 from oioioi.portals.models import Node, Portal
-from oioioi.portals.widgets import _markdown, register_widget, render_panel
+from oioioi.portals.widgets import register_widget, render_panel
 from oioioi.problems.models import Problem, ProblemSite
 
 
@@ -523,22 +523,9 @@ class TestMarkdown(TestCase):
                 self.name = name
 
         with self.assertRaises(ValueError):
-            register_widget(Widget("youtube"))
+            register_widget(Widget("YouTube"))
         with self.assertRaises(ValueError):
-            register_widget(Widget("problem_table"))
-
-    def test_tag_regex_flags(self):
-        class Widget:
-            name = "flag_test"
-            compiled_tag_regex = re.compile(r"\[\[flagtest\|(\w+)\]\]", re.IGNORECASE)
-
-            def render(self, request, m):
-                return f"<b>flag {m.group(1)}</b>"
-
-        # The flags would be lost in mistune's combined regex.
-        with self.assertRaises(ValueError):
-            register_widget(Widget())
-        self.assertNotIn("flag_test", _markdown.inline.rules)
+            register_widget(Widget("ProblemTable"))
 
     def test_widget_adversarial_input_is_fast(self):
         for tag in ["[[YouTube|", "[[Redirect|", "[[ProblemTable|", "[[ProblemTable:"]:
@@ -567,15 +554,11 @@ class TestMarkdown(TestCase):
         self.assertNotIn("<details>", rendered)
         self.assertIn("<pre><code>-&gt;indented code", rendered)
 
-    def test_invalid_tag(self):
+    def test_invalid_widget_name(self):
         class Widget:
-            name = "bad-name"
-            compiled_tag_regex = re.compile(r"\[\[Bad\]\]")
+            name = "bad[name"
+            param_regex = re.compile(r"\[\[Bad\]\]")
 
-        with self.assertRaises(ValueError):
-            register_widget(Widget())
-        Widget.name = "bad_pattern"
-        Widget.compiled_tag_regex = re.compile(r"(?i)\[\[Bad\]\]")
         with self.assertRaises(ValueError):
             register_widget(Widget())
         self.assertIn("<p>[[Bad]]</p>", render_panel(self.request, "[[Bad]]"))
@@ -620,8 +603,9 @@ class TestMarkdown(TestCase):
             is_superuser = True
 
         self.request.portal = SimpleNamespace(owner=None)
-        rendered = render_panel(self.request, "[[Redirect|/p/default/]]")
-        self.assertIn("window.location.replace('/p/default/')", rendered)
+        for url in ["/p/default/", "/a/[many] [[brackets"]:
+            rendered = render_panel(self.request, f"[[Redirect|{url}]]")
+            self.assertIn(f"window.location.replace('{url}')", rendered)
 
         self.request.user = MockUser()
         rendered = render_panel(self.request, "[[Redirect|/p/default/]]")
