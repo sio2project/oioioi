@@ -122,6 +122,14 @@ services:
     depends_on:
       rustfs:
         condition: service_healthy
+    # The image's built-in healthcheck probes port 8080, but we set LISTEN_PORT=9999,
+    # so it has to be overridden to check the port the server actually listens on.
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9999/health || exit 1"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
     restart: on-failure:5
     stop_grace_period: 1m
 volumes:
