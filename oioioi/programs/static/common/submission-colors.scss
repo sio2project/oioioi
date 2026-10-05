@@ -24,6 +24,7 @@ $submission-OK100-gradient-to: #fff !default;
 $submission-margin-min-width: 20px !default;
 
 @mixin submission($color, $color-gradient-to) {
+  --bs-table-bg: #{$color};
   background: $color;
 
   &.submission__margin {
@@ -31,6 +32,7 @@ $submission-margin-min-width: 20px !default;
   }
 
   &.submission__status {
+    --bs-table-bg: #{lighten($color, 5%)};
     background: lighten($color, 5%);
   }
 }

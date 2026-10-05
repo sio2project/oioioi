@@ -5,12 +5,41 @@ Upgrading OIOIOI
 Make sure you are in the *deployment* folder and the virtualenv is activated.
 Then run::
 
-  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
+  uv pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
   ./manage.py migrate
   ./manage.py collectstatic
   ./manage.py supervisor restart all
 
 and restart the judging machines.
+
+Fast Django Migration to 5.2 (Important for Large OIOIOI Instances)
+-----------------------------------
+
+The following migrations require removing an index (created by the deprecated ``index_together``) and creating a new one:
+
+* ``oi/migrations/0008_sync_indexes_state.py``
+* ``forum/migrations/0013_sync_indexes_state.py``
+* ``contests/migrations/0021_sync_indexes_state.py``
+
+Since dropping and then creating an index takes a long time for instances with a very large number of submissions, you can speed this up as follows:
+
+Because these indexes are in the database schema, you should mark these migrations (``0008_sync_indexes_state.py``, ``0021_sync_indexes_state.py``, ``0013_sync_indexes_state.py``) as fake.
+See the `django docs <https://docs.djangoproject.com/en/5.2/ref/django-admin/#cmdoption-migrate-fake>`_ for details.
+Then, rename the existing indexes created by ``IndexTogether`` to the corresponding names specified in these migrations.
+You can manually identify the indexes by checking which two fields they cover.
+
+For example, an index named ``forum_post_thread_id_add_date_6d8ec21d_idx`` should be renamed to ``forum_post_thread__54acb8_idx``.
+Similarly, rename the other indexes so that the database state is correct, i.e., the database contains indexes with the names specified in the migrations.
+
+After these steps, you will achieve a consistent database state without waiting a long time for the migrations to complete.
+
+::
+
+    python manage.py migrate oi 0008 --fake
+
+    python manage.py migrate forum 0021 --fake
+
+    python manage.py migrate contests 0013 --fake
 
 Changes in the deployment directory
 -----------------------------------
@@ -55,7 +84,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
    * Added *NOTIFICATIONS_* options to *deployment/settings.py*::
 
         # Notifications configuration (client)
-        # This one is for JavaScript socket.io client.
+        # This one is for JavaScript WebSocket client.
         # It should contain actual URL available from remote machines.
         NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
@@ -173,7 +202,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      sioworkers with::
 
         . venv/bin/activate
-        pip install -r requirements.txt
+        uv sync
 
      and remove old database file (*deployment/sioworkersd.sqlite* by default).
 
@@ -318,7 +347,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         # directory in which necessary files will be stored.
         #FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
-        # When using a remote storage it's recommended to enable a cache cleaner deamon
+        # When using a remote storage it's recommended to enable a cache cleaner daemon
         # which will periodically scan cache directory and remove files what aren't
         # used. For a detailed description of each option, please read a cache cleaner
         # configuration section in the sioworkersd documentation.
@@ -410,7 +439,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
         -# Filetracker server settings.
         -#
-        -# Determines which filetracker database use, availible options are:
+        -# Determines which filetracker database use, available options are:
         -# - 'oioioi.filetracker.client.media_root_factory' (the default)
         -#    Stores files on local filesystem under MEDIA_ROOT, optionally
         -#    exposing them with a filetracker server (see section below).
@@ -559,7 +588,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
         #    'oioioi.usergroups',
 
-#. * Introduced `DEFAULT_COMPILERS` to settings, which should be set for every language supoorted::
+#. * Introduced `DEFAULT_COMPILERS` to settings, which should be set for every language supported::
 
         --- a/oioioi/default_settings.py
         +++ b/oioioi/default_settings.py
@@ -867,7 +896,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# The server to be run. Options are:
         +# 'django' - django's http server
         +# 'uwsgi' - uwsgi daemon
-        +# 'uwsgi-http' - uwsgi deamon with built-in http server
+        +# 'uwsgi-http' - uwsgi daemon with built-in http server
         +# None - nothing will be run
         +SERVER = 'django'
 
@@ -1092,3 +1121,49 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# )
 
      * Remove all sentry and raven reminiscent from settings.py in LOGGING SECTION.
+
+Migrating from Filetracker to s3dedup (currently only for docker-compose-dev.yml deployments)
+----------------------------------------------------------------
+
+This guide covers migrating from the built-in Filetracker to s3dedup in Docker Compose
+development deployments. This is currently only needed deployments using ``docker-compose-dev.yml``.
+If you don't have any data you want to keep, you don't have to do anything.
+
+#. Stop the s3dedup container::
+
+    docker-compose -f docker-compose-dev.yml stop s3dedup
+
+#. In ``docker-compose-dev.yml``, modify the web container environment variables:
+
+   * Remove ``FILETRACKER_SERVER_ENABLED=False`` (or set to ``True``)
+   * Set ``FILETRACKER_LISTEN_ADDR=0.0.0.0``
+   * Set ``FILETRACKER_LISTEN_PORT=9999``
+
+#. Restart the web container::
+
+    docker-compose -f docker-compose-dev.yml down web
+    docker-compose -f docker-compose-dev.yml up -d web
+
+#. Run the migration::
+
+    docker-compose -f docker-compose-dev.yml run --rm s3dedup migrate --env \
+      --filetracker-url http://web:9999 \
+      --max-concurrency 10
+
+   The migration will display progress and statistics about files migrated and
+   deduplication savings.
+
+#. Once migration completes, restore the environment variables in ``docker-compose-dev.yml``:
+
+   * Remove or comment out ``FILETRACKER_LISTEN_ADDR`` and ``FILETRACKER_LISTEN_PORT``
+   * Set ``FILETRACKER_SERVER_ENABLED=False``
+
+#. Restart the web container and start s3dedup::
+
+    docker-compose -f docker-compose-dev.yml down web
+    docker-compose -f docker-compose-dev.yml up -d web s3dedup
+
+#. Verify the migration by checking that files are accessible through s3dedup.
+
+For more details about the migration process, see the s3dedup documentation at
+``https://github.com/sio2project/s3dedup``.

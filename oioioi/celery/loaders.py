@@ -1,2 +1,1 @@
-""" Empty file left for upgrading compatibility.
-"""
+"""Empty file left for upgrading compatibility."""

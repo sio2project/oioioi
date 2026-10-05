@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load runtimeformat %}
+{% load memoryformat %}
 
 
 <div class="table-responsive-md">
@@ -10,6 +11,9 @@
                 <th>{% trans "Test" %}</th>
                 <th>{% trans "Result" %}</th>
                 <th>{% trans "Time" %}</th>
+                {% if show_mem_used %}
+                <th>{% trans "Memory" %}</th>
+                {% endif %}
                 {% if show_scores %}
                     <th>{% trans "Score" %}</th>
                 {% endif %}
@@ -21,20 +25,20 @@
                 {% with test=record.test %}
                     <tr class="test-row-{{ group.report.id }}">
                         <td class="submission__margin submission--{{ record.display_type }}"></td>
-                        <td class="test-actions-toggler {% if is_admin %}fix-float-right{% endif %}">
+                        <td class="test-actions-toggler {% if is_admin %}fix-float-end{% endif %}">
                             {{ test.test_name }}
-                            <span class="test-actions float-right">
-                                {% if test.test %}
+                            <span class="test-actions float-end">
+                                {% if test.test_id %}
                                     <small>
                                         {% if is_admin %}
                                             {% if test.test.output_file %}
                                                 <a title='{% trans "Download output for this test" %}'
-                                                href="{% url 'download_output_file' test_id=test.test.id %}">
+                                                href="{% url 'download_output_file' test_id=test.test_id %}">
                                                     out
                                                 </a>
                                             {% endif %}
                                             <a title='{% trans "Download input for this test" %}'
-                                               href="{% url 'download_input_file' test_id=test.test.id %}">
+                                               href="{% url 'download_input_file' test_id=test.test_id %}">
                                                 in
                                             </a>
                                         {% endif %}
@@ -54,11 +58,25 @@
                         <td>
                             {% if is_admin or test.status != 'TLE' %}
                                 {{ test.time_used|runtimeformat }}
-                            {% else %}-.--s
+                            {% else %}-.-- s
                             {% endif %}/ {{ test.test_time_limit|runtimeformat }}
                         </td>
+                        {% if show_mem_used %}
+                        <td>
+                            {% if is_admin or test.status != 'MLE' %}
+                                {{ test.mem_used|memoryformat }}
+                            {% else %}-- MiB
+                            {% endif %}/ {{ test.test_mem_limit|memoryformat }}
+                        </td>
+                        {% endif %}
                         {% if show_scores and forloop.first %}
-                            <td class="group-score text-right" rowspan="{{ group.tests|length }}">
+                            <td class="group-score text-end" rowspan="{{ group.tests|length }}">
+                                {% if group.score_lowered_reason %}
+                                    <span title="{{ group.score_lowered_reason }}"
+                                          class="text-warning">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </span>
+                                {% endif %}
                                 {% if group.report.score %}
                                     {{ group.report.score }} / {{ group.report.max_score }}
                                 {% endif %}

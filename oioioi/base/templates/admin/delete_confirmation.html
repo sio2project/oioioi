@@ -7,14 +7,14 @@
 <div class="well text-center">
     <form method="post" class="">{% csrf_token %}
         <input type="hidden" name="post" value="yes" />
-        <div class="form-group">
+        <div class="mb-3">
             <h2>{% trans "Confirm deletion" %}</h2>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <p>{% trans "Are you sure that you want to delete the following object?" %}</p>
             <p><strong>{{ object_name|capfirst }}: {{ object }}</strong></p>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <button type="submit" class="btn btn-danger">{% trans "Yes, I'm sure" %}</button>
             <button type="button" class="btn btn-outline-secondary" onclick="history.back()">{% trans "No, go back" %}</button>
         </div>

@@ -1,6 +1,19 @@
 {% extends "simpleui/contest/contest.html" %}
 {% load i18n %}
 
+{% block body-class %}body-with-menu{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <nav id="menu" class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include "ingredients/menu.html" %}
+        </nav>
+        <section class="col-lg-9 col-xl-10 main-content">
+            {{ block.super }}
+        </section>
+    </div>
+{% endblock %}
+
 {% block contest-top-menu %}
     {{ block.super }}
     <a class="nav-link" href="{% url 'show_members' member_type='pupil' %}">{% trans "Pupils" %}</a>

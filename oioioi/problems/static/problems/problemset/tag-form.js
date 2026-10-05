@@ -37,9 +37,9 @@ $(document).ready(function () {
     $('[data-toggle="tooltip"]').tooltip();
 
     // show tag proposal form to the user if it's the first time they qualify
-    if ($formOpen.length && !$.cookie('shown_proposal_popup')) {
+    if ($formOpen.length && !Cookies.get('shown_proposal_popup')) {
         $form.modal('toggle');
-        $.cookie('shown_proposal_popup', true, { expires: 1000 });
+        Cookies.set('shown_proposal_popup', true, { expires: 1000 });
     }
 
     // allow only one button to be selected
@@ -225,7 +225,7 @@ $(document).ready(function () {
             difficulty: difficulty,
             problem: $(this).data('problem'),
             user: $(this).data('user'),
-            csrfmiddlewaretoken: $.cookie('csrftoken'),
+            csrfmiddlewaretoken: Cookies.get('csrftoken'),
         };
 
         $.ajax({

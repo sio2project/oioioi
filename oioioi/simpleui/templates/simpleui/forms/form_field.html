@@ -1,6 +1,6 @@
 {% load simple_filters %}
 
-<div class="form-group{% if field.errors %} has-error{% endif %}">
+<div class="mb-3{% if field.errors %} has-error{% endif %}">
     <label class="control-label {% if field.errors %}text-danger{% endif %}" for="id_pif-0-round">{{ field.label }}</label>
         {% if field.errors %}
             {{ field | add_class:"form-control" | add_class:"is-invalid" }}

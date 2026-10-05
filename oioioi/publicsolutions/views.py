@@ -24,9 +24,7 @@ from oioioi.publicsolutions.utils import (
 
 @menu_registry.register_decorator(
     _("Solutions"),
-    lambda request: reverse(
-        'list_solutions', kwargs={'contest_id': request.contest.id}
-    ),
+    lambda request: reverse("list_solutions", kwargs={"contest_id": request.contest.id}),
     order=1000,
 )
 @enforce_condition(contest_exists & can_enter_contest)
@@ -36,36 +34,34 @@ def list_solutions_view(request):
 
     category = None
     if form.is_valid():
-        category = form.cleaned_data['category']
+        category = form.cleaned_data["category"]
 
     subs = get_public_solutions(request)
     if category:
         subs = subs.filter(problem_instance=category)
-    subs = subs.order_by('user__last_name', 'user__first_name', 'problem_instance')
+    subs = subs.order_by("user__last_name", "user__first_name", "problem_instance")
 
     context = {
-        'form': form,
-        'submissions': subs,
-        'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
-        'may_publish_any': get_may_be_published_solutions_for_user(request).exists(),
+        "form": form,
+        "submissions": subs,
+        "submissions_on_page": getattr(settings, "SUBMISSIONS_ON_PAGE", 100),
+        "may_publish_any": get_may_be_published_solutions_for_user(request).exists(),
     }
 
-    return TemplateResponse(request, 'publicsolutions/list-solutions.html', context)
+    return TemplateResponse(request, "publicsolutions/list-solutions.html", context)
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(any_round_public)
 def publish_solutions_view(request):
-    subs = get_may_be_published_solutions_for_user(request).order_by(
-        'problem_instance', 'date'
-    )
+    subs = get_may_be_published_solutions_for_user(request).order_by("problem_instance", "date")
 
     return TemplateResponse(
         request,
-        'publicsolutions/publish.html',
+        "publicsolutions/publish.html",
         {
-            'submissions': subs,
-            'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
+            "submissions": subs,
+            "submissions_on_page": getattr(settings, "SUBMISSIONS_ON_PAGE", 100),
         },
     )
 
@@ -76,11 +72,9 @@ def publish_solutions_view(request):
 def publish_solution_view(request, submission_id):
     submission = get_submission_or_error(request, submission_id)
 
-    _pub, _created = VoluntarySolutionPublication.objects.get_or_create(
-        submission=submission
-    )
+    _pub, _created = VoluntarySolutionPublication.objects.get_or_create(submission=submission)
 
-    return redirect('publish_solutions', contest_id=request.contest.id)
+    return redirect("publish_solutions", contest_id=request.contest.id)
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
@@ -89,9 +83,7 @@ def publish_solution_view(request, submission_id):
 def unpublish_solution_view(request, submission_id):
     submission = get_submission_or_error(request, submission_id)
 
-    pub, _created = VoluntarySolutionPublication.objects.get_or_create(
-        submission=submission
-    )
+    pub, _created = VoluntarySolutionPublication.objects.get_or_create(submission=submission)
 
     pub.delete()
-    return redirect('publish_solutions', contest_id=request.contest.id)
+    return redirect("publish_solutions", contest_id=request.contest.id)

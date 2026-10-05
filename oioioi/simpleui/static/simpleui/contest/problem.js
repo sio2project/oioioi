@@ -26,15 +26,23 @@ var Problem = (function() {
                 },
                 skipClone: true
             },
-            title: false,
-            credits: false,
-            legend: false,
+            title: {
+                text: undefined
+            },
+            credits: {
+                enabled: false
+            },
+            legend: {
+                enabled: false
+            },
             xAxis: {
                 min: 0,
                 max: this.max_score,
                 plotBands: false,
                 plotLines: false,
-                labels: false,
+                labels: {
+                    enabled: false
+                },
                 title: {
                     enabled: true,
                     text: gettext("Score"),
@@ -48,7 +56,9 @@ var Problem = (function() {
             },
             yAxis: {
                 min: 0,
-                labels: false,
+                labels: {
+                    enabled: false
+                },
                 title: {
                     enabled: true,
                     text: gettext("Participants"),

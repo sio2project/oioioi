@@ -25,21 +25,17 @@ from oioioi.participants.utils import (
 )
 
 account_menu_registry.register(
-    'participants_registration',
+    "participants_registration",
     _("Register to the contest"),
-    lambda request: reverse(
-        'participants_register', kwargs={'contest_id': request.contest.id}
-    ),
+    lambda request: reverse("participants_register", kwargs={"contest_id": request.contest.id}),
     condition=contest_exists & contest_has_participants & can_register,
     order=80,
 )
 
 account_menu_registry.register(
-    'participants_edit_registration',
+    "participants_edit_registration",
     _("Edit contest registration"),
-    lambda request: reverse(
-        'participants_register', kwargs={'contest_id': request.contest.id}
-    ),
+    lambda request: reverse("participants_register", kwargs={"contest_id": request.contest.id}),
     condition=contest_exists & contest_has_participants & can_edit_registration,
     order=80,
 )
@@ -51,49 +47,33 @@ def registration_view(request):
     return rcontroller.registration_view(request)
 
 
-@enforce_condition(
-    not_anonymous & contest_exists & contest_has_participants & can_unregister
-)
+@enforce_condition(not_anonymous & contest_exists & contest_has_participants & can_unregister)
 def unregistration_view(request):
-    if request.method == 'POST':
-        participant = get_object_or_404(
-            Participant, contest=request.contest, user=request.user
-        )
+    if request.method == "POST":
+        participant = get_object_or_404(Participant, contest=request.contest, user=request.user)
         participant.delete()
-        return redirect('index')
-    return TemplateResponse(request, 'participants/unregister.html')
+        return redirect("index")
+    return TemplateResponse(request, "participants/unregister.html")
 
 
 @contest_admin_menu_registry.register_decorator(
     _("Participants' data"),
-    lambda request: reverse(
-        'participants_data', kwargs={'contest_id': request.contest.id}
-    ),
+    lambda request: reverse("participants_data", kwargs={"contest_id": request.contest.id}),
     condition=is_contest_admin,
     order=100,
 )
 @personal_data_menu_registry.register_decorator(
     _("Participants' data"),
-    lambda request: reverse(
-        'participants_data', kwargs={'contest_id': request.contest.id}
-    ),
+    lambda request: reverse("participants_data", kwargs={"contest_id": request.contest.id}),
     condition=(can_see_personal_data & ~is_contest_admin),
     order=100,
 )
-@enforce_condition(
-    not_anonymous & contest_exists & contest_has_participants & can_see_personal_data
-)
+@enforce_condition(not_anonymous & contest_exists & contest_has_participants & can_see_personal_data)
 def participants_data(request):
-    context = serialize_participants_data(
-        request, Participant.objects.filter(contest=request.contest)
-    )
-    return TemplateResponse(request, 'participants/data.html', context)
+    context = serialize_participants_data(request)
+    return TemplateResponse(request, "participants/data.html", context)
 
 
-@enforce_condition(
-    not_anonymous & contest_exists & contest_has_participants & can_see_personal_data
-)
+@enforce_condition(not_anonymous & contest_exists & contest_has_participants & can_see_personal_data)
 def participants_data_csv(request):
-    return render_participants_data_csv(
-        request, Participant.objects.filter(contest=request.contest), request.contest.id
-    )
+    return render_participants_data_csv(request, request.contest.id)

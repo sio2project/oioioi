@@ -3,6 +3,6 @@ from oioioi.dashboard.models import DashboardMessage
 
 
 class DashboardMessageForm(PublicMessageForm):
-    class Meta(object):
+    class Meta:
         model = DashboardMessage
-        fields = ['content']
+        fields = ["content"]

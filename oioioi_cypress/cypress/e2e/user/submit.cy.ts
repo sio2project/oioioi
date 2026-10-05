@@ -89,8 +89,8 @@ const validateIfStatusOk = (attempts = 10) => {
     .then(($div) => {
       if (!$div.text().includes(message) && attempts) {
         cy.reload();
-        return cy.wait(2000).then(() => {
-          cy.log("Attempts left: " + attempts);
+        return cy.wait(2500).then(() => {
+          cy.log("Attempts left: " + attempts + ", text found: " + $div.text());
           return validateIfStatusOk(attempts - 1);
         });
       } else if (!attempts) {

@@ -1,0 +1,35 @@
+{% extends "base-with-menu.html" %}
+{% load i18n pagination_tags %}
+
+{% block title %}{% trans "Monitoring" %}{% endblock %}
+
+{% block main-content %}
+    {{ head|safe }}
+
+    <div class="row">
+        <div class="col col-sm">
+            {% include "statistics/_general_info.html" %}
+        </div>
+        <div class="col col-sm">
+            {% include "statistics/_submissions_info.html" %}
+        </div>
+        <div class="col col-sm">
+            {% include "statistics/_attachments_info.html" %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col col-sm">
+            {% include "statistics/_permissions_info.html" %}
+        </div>
+        <div class="col col-8">
+            {% include "statistics/_rounds_info.html" %}
+            {% include "statistics/_round_time_extensions.html" %}
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col col-4">
+            {% include "statistics/_problems_and_tests_info.html" %}
+        </div>
+    </div>
+{% endblock %}

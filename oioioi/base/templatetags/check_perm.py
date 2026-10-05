@@ -18,9 +18,9 @@ class CheckPermNode(Node):
         except Exception:
             context[self.var] = False
         else:
-            user = context['user']
+            user = context["user"]
             context[self.var] = user.has_perm(perm, obj)
-        return ''
+        return ""
 
 
 @register.tag
@@ -45,6 +45,6 @@ def check_perm(parser, token):
     """
     bits = token.split_contents()
     format = '{% has_perm "some_permission" for some_object as variable %}'
-    if len(bits) != 6 or bits[2] != 'for' or bits[4] != 'as':
+    if len(bits) != 6 or bits[2] != "for" or bits[4] != "as":
         raise TemplateSyntaxError("check_perm tag should look like this: " + format)
     return CheckPermNode(bits[1], bits[3], bits[5])

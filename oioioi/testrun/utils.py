@@ -5,11 +5,7 @@ from oioioi.contests.utils import submittable_problem_instances
 
 def filter_testrun_problem_instances(instances):
     # Not returning new query_set because `instances` may have some cache in it
-    testrun_instances = frozenset(
-        ProblemInstance.objects.filter(pk__in=[p.pk for p in instances]).exclude(
-            test_run_config=None
-        )
-    )
+    testrun_instances = frozenset(ProblemInstance.objects.filter(pk__in=[p.pk for p in instances]).exclude(test_run_config=None))
 
     return [pi for pi in instances if pi in testrun_instances]
 

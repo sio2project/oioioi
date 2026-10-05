@@ -6,7 +6,7 @@
 #
 # system:
 #   docker
-#   docker-compose
+#   docker compose (V2)
 
 
 # This script was created in order to help the users
@@ -19,28 +19,72 @@ import os
 import sys
 from shlex import quote
 
-BASE_DOCKER_COMMAND = "OIOIOI_UID=$(id -u) docker-compose" + \
-                      " -f docker-compose-dev.yml"
+if sys.platform == "win32":
+    # for Windows, a different syntax command_prefix is needed
+    command_prefix = "set OIOIOI_UID=1000 &&"
+else:
+    command_prefix = "OIOIOI_UID=$(id -u)"
+
+BASE_DOCKER_COMMAND = f"{command_prefix} docker compose -f docker-compose-dev.yml"
 
 RAW_COMMANDS = [
-    ("build", "Build OIOIOI container from source.", "build", True),
+    (
+        "build",
+        "Build OIOIOI container from source.",
+        "build {extra_args}",
+        "This may result in the loss of local modifications inside containers.",
+    ),
     ("up", "Run all SIO2 containers", "up -d"),
-    ("down", "Stop and remove all SIO2 containers", "down", True),
-    ("run", "Run server", "{exec} web python3 manage.py runserver 0.0.0.0:8000"),
+    ("down", "Stop and remove all SIO2 containers", "down"),
+    (
+        "wipe",
+        "Stop all SIO2 containers and DESTROY all data",
+        "down -v",
+        "This will stop all SIO2 containers and DESTROY all data.",
+    ),
+    (
+        "run",
+        "Run django server and webpack",
+        '{exec} web conc -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"',
+    ),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
     ("exec", "Run a command in the web container.", "{exec} web {extra_args}"),
     ("bash-db", "Open command prompt on database container.", "{exec} db bash"),
     # This one CLEARS the database. Use wisely.
-    ("flush-db", "Clear database.", "{exec} web python manage.py flush --noinput", True),
-    ("add-superuser", "Create admin_admin.",
-     "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
-    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh {extra_args}"),
-    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow {extra_args}"),
-    ("test-coverage", "Run coverage tests.",
-     "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}"),
-    ("cypress-apply-settings", "Apply settings for CyPress.",
-     '{exec} web bash -c "echo CAPTCHA_TEST_MODE=True >> settings.py"'),
+    (
+        "flush-db",
+        "Clear database.",
+        "{exec} web python manage.py flush --noinput",
+        "This will CLEAR the database.",
+    ),
+    ("add-superuser", "Create admin_admin.", "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
+    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh -n auto {extra_args}"),
+    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow -n auto {extra_args}"),
+    (
+        "test-coverage",
+        "Run coverage tests.",
+        "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}",
+    ),
+    ("cypress-apply-settings", "Apply settings for CyPress.", '{exec} web bash -c "echo >> settings.py && echo CAPTCHA_TEST_MODE=True >> settings.py"'),
+    ("npm", "Run npm command.", "{exec} web npm --prefix ../oioioi {extra_args}"),
+    ("eslint", "Run javascript linter.", "{exec} web npm --prefix ../oioioi run lint"),
+    (
+        "ruff",
+        "Run Ruff, a linter and formatter. You can add `--fix` to automatically fix some errors.",
+        "{exec} -w /sio2/oioioi web bash -c 'ruff check . {extra_args} ; echo ; ruff format .'",
+    ),
+    (
+        "populate-sample-data",
+        "Create a contest with the sample problem package and 10 users, with 3 submissions each.",
+        "{exec} web python manage.py mass_create_tool -cn demo -cc -pp test_full_package.tgz -u 10 -sf sum-correct.cpp sum-various-results.cpp -spu 3 -v 0",
+    ),
+    (
+        "wipe-sample-data",
+        "Wipe all contests, problems, users and submissions created with `populate-sample-data`.",
+        "{exec} web python manage.py mass_create_tool --wipe",
+        "Warning: This will wipe all data created using the mass_create_tool. Are you sure you want to proceed?",
+    ),
 ]
 
 longest_command_arg = max([len(command[0]) for command in RAW_COMMANDS])
@@ -50,13 +94,29 @@ class Help(Exception):
     pass
 
 
+class Warning:
+    def __init__(self, _msg: str):
+        self.message = _msg
+
+    @classmethod
+    def default_warning(cls, _cmd: str):
+        message = f"You are going to execute command [{_cmd}] marked as `dangerous`."
+        return cls(message)
+
+    def __str__(self) -> str:
+        return f"{self.message}\nAre you sure? [y/N]"
+
+
 class Option:
-    def __init__(self, _arg, _help, _command, _warn=False, extra_args=None):
+    def __init__(self, _arg, _help, _command, _warning_msg=None, extra_args=None):
         self.arg = _arg
         self.extra_args = extra_args
         self.help = _help
         self.command = _command
-        self.warn = _warn
+        if _warning_msg is None:
+            self.warning = None
+        else:
+            self.warning = Warning(_warning_msg)
 
     # If we use exec we should add -T for GitHub actions (disable tty).
     def gen_full_command(self, disable=False):
@@ -80,7 +140,7 @@ COMMANDS = {x[0]: Option(*x) for x in RAW_COMMANDS}
 NO_INPUT = False
 
 
-def get_action_from_args() -> Option:
+def get_action_from_args() -> Option | None:
     # not flags
     arguments = []
 
@@ -111,6 +171,7 @@ def get_action_from_args() -> Option:
 
 def get_action_from_gui() -> Option:
     import inquirer
+
     questions = [
         inquirer.List(
             "action",
@@ -119,7 +180,7 @@ def get_action_from_gui() -> Option:
         ),
     ]
     answers = inquirer.prompt(questions)
-    return answers["action"]
+    return COMMANDS[answers["action"]]
 
 
 def run_command(command) -> None:
@@ -127,11 +188,17 @@ def run_command(command) -> None:
     if not NO_INPUT:
         width = os.get_terminal_size().columns
         print("=" * width)
-    sys.exit(os.WEXITSTATUS(os.system(command)))
+
+    if sys.platform == "win32":
+        # for Windows, a different syntax for exiting is needed
+        exit_code = os.system(command)
+        sys.exit(exit_code)
+    else:
+        sys.exit(os.WEXITSTATUS(os.system(command)))
 
 
-def warn_user(action: Option) -> bool:
-    print(f"You are going to execute command [{action.command}] marked as `dangerous`. Are you sure? [y/N]")
+def warn_user(warning: Warning) -> bool:
+    print(warning)
     while True:
         choice = input().lower()
         if not choice or "no".startswith(choice):
@@ -145,8 +212,8 @@ def warn_user(action: Option) -> bool:
 def run() -> None:
     action = get_action_from_args() or get_action_from_gui()
     command = action.gen_full_command(disable=NO_INPUT)
-    if action.warn and not NO_INPUT:
-        if not warn_user(action):
+    if action.warning is not None and not NO_INPUT:
+        if not warn_user(action.warning):
             print("Aborting.")
             return
     run_command(f"{BASE_DOCKER_COMMAND} {command}")
@@ -154,10 +221,14 @@ def run() -> None:
 
 def print_help() -> None:
     print(
-        "OIOIOI helper toolbox", "", "This script allows to control OIOIOI with Docker commands.",
+        "OIOIOI helper toolbox",
+        "",
+        "This script allows to control OIOIOI with Docker commands.",
         f"Commands are always being run with '{BASE_DOCKER_COMMAND}' prefix.",
-        "Available commands are: ", "",
-        *COMMANDS.values(), "",
+        "Available commands are: ",
+        "",
+        *COMMANDS.values(),
+        "",
         "Example `build`:",
         f"{sys.argv[0]} build",
         sep="\n",

@@ -23,13 +23,13 @@ class StatisticsConfigInline(admin.TabularInline):
         return self.has_change_permission(request, obj)
 
 
-class StatisticsAdminMixin(object):
+class StatisticsAdminMixin:
     """Adds :class:`~oioioi.statistics.models.StatisticsConfig` to an admin
     panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(StatisticsAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (StatisticsConfigInline,)
 
 

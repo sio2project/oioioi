@@ -1,26 +1,26 @@
 {% load i18n %}
 
 <div class="dropdown">
-    <a href="#" id="admin-clock" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-        <span id="admin-time-label" class="badge badge-primary {% if not is_admin_time_set %}d-none{% endif %}"
-                data-toggle="tooltip" data-placement="bottom" title="{% trans "Admin time" %}">
+    <a href="#" id="admin-clock" class="dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+        <span id="admin-time-label" class="badge text-bg-primary {% if not is_admin_time_set %}d-none{% endif %}"
+                data-bs-toggle="tooltip" data-bs-placement="bottom" title="{% trans "Admin time" %}">
             <i class="fa-solid fa-clock"></i>
             <span class="badge-full">{% trans "Admin time" %}</span>
         </span>
         <time id="clock">{{ current_time }}</time>
     </a>
-    <div class="dropdown-menu dropdown-menu-right">
+    <div class="dropdown-menu dropdown-menu-end">
         <form class="px-3 py-1" action="{% url 'admin_time' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ path }}">
 
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="admin-time">{% trans "Admin time:" %}</label>
                 <input type="text" name="admin-time" id="admin-time" class="form-control"
                     placeholder="{% trans "(yyyy-mm-dd hh:mm:ss)" %}"/>
             </div>
 
-            <div class="form-row">
+            <div class="row">
                 <div class="col">
                     <button class="btn btn-primary btn-block" type="submit" name="ok-button">{% trans "Ok" %}</button>
                 </div>

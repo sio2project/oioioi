@@ -27,8 +27,8 @@ class MossException(Exception):
 
 
 # Based on: https://github.com/soachishti/moss.py
-class MossClient(object):
-    HOSTNAME = 'moss.stanford.edu'
+class MossClient:
+    HOSTNAME = "moss.stanford.edu"
     PORT = 7690
     RESULT_URL_REGEX = re.compile(r"^http://moss\.stanford\.edu/results/\d+/\d+$")
 
@@ -45,23 +45,13 @@ class MossClient(object):
         try:
             sock.connect((self.HOSTNAME, self.PORT))
 
-            prelude = (
-                "moss %(userid)d\n"
-                "directory %(directory_mode)d\n"
-                "X %(experimental)d\n"
-                "maxmatches %(maxmatches)d\n"
-                "show %(show)d\n"
-                "language %(language)s\n"
-                % {
-                    # default MOSS settings taken from the official script
-                    'userid': self.userid,
-                    'directory_mode': 0,
-                    'experimental': 0,
-                    'maxmatches': 10,
-                    'show': 250,
-                    'language': self.lang,
-                }
-            )
+            # default MOSS settings taken from the official script
+            directory_mode = 0
+            experimental = 0
+            maxmatches = 10
+            show = 250
+
+            prelude = f"moss {self.userid}\ndirectory {directory_mode}\nX {experimental}\nmaxmatches {maxmatches}\nshow {show}\nlanguage {self.lang}\n"
             sock.sendall(six.ensure_binary(prelude))
             response = sock.recv(32)
             if not response.startswith(b"yes"):
@@ -72,33 +62,28 @@ class MossClient(object):
                 raise MossException(_("Can't make a query with no submissions."))
             for i, (path, name) in enumerate(self.files):
                 size = os.path.getsize(path)
-                message = "file %d %s %d %s\n" % (
-                    i + 1,  # file id
-                    self.lang,  # programming language
-                    size,  # file size
-                    name,  # name of the submission
-                )
+                message = f"file {i + 1} {self.lang!s} {size} {name!s}\n"
                 sock.sendall(six.ensure_binary(message))
-                with open(path, 'rb') as f:
-                    if hasattr(sock, 'sendfile'):  # new in Python 3.5
+                with open(path, "rb") as f:
+                    if hasattr(sock, "sendfile"):  # new in Python 3.5
                         while f.tell() != os.fstat(f.fileno()).st_size:
                             sock.sendfile(f)
                     else:
-                        for chunk in iter(lambda: f.read(4096), b''):
+                        for chunk in iter(lambda: f.read(4096), b""):
                             sock.sendall(chunk)
 
-            sock.sendall(six.ensure_binary("query 0 %s\n" % query_comment))
+            sock.sendall(six.ensure_binary(f"query 0 {query_comment}\n"))
 
             url = sock.recv(256)
             try:
-                url = six.ensure_text(url).replace('\n', '')
+                url = six.ensure_text(url).replace("\n", "")
             except UnicodeError:
                 raise MossException(_("Moss returned an invalid url."))
             if not self.RESULT_URL_REGEX.match(url):
                 raise MossException(_("Moss returned an invalid url."))
 
             sock.sendall(b"end\n")
-        except (OSError, IOError, socket.herror, socket.gaierror, socket.timeout):
+        except (TimeoutError, OSError, socket.herror, socket.gaierror):
             raise MossException(_("Could not connect with the MOSS."))
         finally:
             sock.close()
@@ -113,13 +98,7 @@ def submit_and_get_url(client, submission_collector):
     tmpdir = tempfile.mkdtemp()
     try:
         for s in submission_list:
-            display_name = (
-                (s.first_name[0] if s.first_name else '')
-                + (s.last_name[0] if s.last_name else '')
-                + str(s.user_id)
-                + '_'
-                + str(s.submission_id)
-            )
+            display_name = (s.first_name[0] if s.first_name else "") + (s.last_name[0] if s.last_name else "") + str(s.user_id) + "_" + str(s.submission_id)
             dest = os.path.join(tmpdir, display_name)
             submission_collector.get_submission_source(dest, s.source_file)
             client.add_file(dest, display_name)

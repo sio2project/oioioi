@@ -1,0 +1,20 @@
+{% extends "simple-centered.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "SU - URL not allowed" %}{% endblock %}
+
+{% block content %}
+
+<div class="text-center mt-3">
+    <h3>
+        {% blocktrans %}
+            Sorry, you can't access this page.
+        {% endblocktrans %}
+    </h3>
+    <a href="{% url 'contest_dashboard' %}" class="btn btn-primary mt-3">
+        {% trans "Return to the contest" %}
+    </a>
+</div>
+
+{% endblock %}

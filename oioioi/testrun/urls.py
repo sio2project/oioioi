@@ -1,40 +1,44 @@
-from django.urls import re_path
+from django.urls import path, re_path
 
 from oioioi.testrun import views
 
-app_name = 'testrun'
+app_name = "testrun"
 
 contest_patterns = [
-    re_path(r'^testrun_submit/$', views.testrun_submit_view, name='testrun_submit'),
+    path("testrun_submit/", views.testrun_submit_view, name="testrun_submit"),
     re_path(
-        r'^s/(?P<submission_id>\d+)/tr/input/$',
+        r"^testrun_submit/(?P<problem_instance_id>[a-z0-9_-]+)/$",
+        views.testrun_submit_view,
+        name="testrun_submit",
+    ),
+    path(
+        "s/<int:submission_id>/tr/input/",
         views.show_input_file_view,
-        name='get_testrun_input',
+        name="get_testrun_input",
     ),
-    re_path(
-        r'^s/(?P<submission_id>\d+)/tr/output/$',
+    path(
+        "s/<int:submission_id>/tr/output/",
         views.show_output_file_view,
-        name='get_testrun_output',
+        name="get_testrun_output",
     ),
-    re_path(
-        r'^s/(?P<submission_id>\d+)/tr/output/(?P<testrun_report_id>\d+)/$',
+    path(
+        "s/<int:submission_id>/tr/output/<int:testrun_report_id>/",
         views.show_output_file_view,
-        name='get_specific_testrun_output',
+        name="get_specific_testrun_output",
     ),
-    re_path(
-        r'^s/(?P<submission_id>\d+)/tr/input/download/$',
+    path(
+        "s/<int:submission_id>/tr/input/download/",
         views.download_input_file_view,
-        name='download_testrun_input',
+        name="download_testrun_input",
     ),
-    re_path(
-        r'^s/(?P<submission_id>\d+)/tr/output/download/$',
+    path(
+        "s/<int:submission_id>/tr/output/download/",
         views.download_output_file_view,
-        name='download_testrun_output',
+        name="download_testrun_output",
     ),
-    re_path(
-        r'^s/(?P<submission_id>\d+)/tr/output/'
-        r'(?P<testrun_report_id>\d+)/download/$',
+    path(
+        "s/<int:submission_id>/tr/output/<int:testrun_report_id>/download/",
         views.download_output_file_view,
-        name='download_specific_testrun_output',
+        name="download_specific_testrun_output",
     ),
 ]

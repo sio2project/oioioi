@@ -10,19 +10,19 @@ def _get_backend():
 # server it should access.
 def run_sioworkers_job(job, **kwargs):
     if settings.FILETRACKER_URL:
-        job['filetracker_url'] = settings.FILETRACKER_URL
+        job["filetracker_url"] = settings.FILETRACKER_URL
     return _get_backend().run_job(job, **kwargs)
 
 
 def run_sioworkers_jobs(dict_of_jobs, **kwargs):
     if settings.FILETRACKER_URL:
         for _, env in dict_of_jobs.items():
-            env['filetracker_url'] = settings.FILETRACKER_URL
+            env["filetracker_url"] = settings.FILETRACKER_URL
     return _get_backend().run_jobs(dict_of_jobs, **kwargs)
 
 
 def send_async_jobs(dict_of_jobs, **kwargs):
     if settings.FILETRACKER_URL:
-        for _, job in dict_of_jobs['workers_jobs'].items():
-            job['filetracker_url'] = settings.FILETRACKER_URL
+        for _, job in dict_of_jobs["workers_jobs"].items():
+            job["filetracker_url"] = settings.FILETRACKER_URL
     return _get_backend().send_async_jobs(dict_of_jobs, **kwargs)

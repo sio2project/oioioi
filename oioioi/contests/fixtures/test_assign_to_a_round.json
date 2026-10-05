@@ -1,0 +1,116 @@
+[
+  {
+    "pk": "no-rounds",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z",
+      "is_archived": "False"
+    }
+  },
+  {
+    "pk": 100,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad1",
+      "contest": "no-rounds"
+    }
+  },
+  {
+    "pk": "one-round",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z",
+      "is_archived": "False"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "one-round",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 300,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad2",
+      "contest": "one-round"
+    }
+  },
+  {
+    "pk": 301,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad3",
+      "contest": "one-round"
+    }
+  },
+
+  {
+    "pk": "multiple-rounds",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z",
+      "is_archived": "False"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "multiple-rounds",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 2",
+      "contest": "multiple-rounds",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 400,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad4",
+      "contest": "multiple-rounds"
+    }
+  },
+  {
+    "pk": 401,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad5",
+      "contest": "multiple-rounds"
+    }
+  },
+  {
+    "pk": 402,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "short_name": "zad5"
+    }
+  }
+]

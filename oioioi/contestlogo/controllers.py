@@ -1,7 +1,7 @@
 from oioioi.contests.controllers import ContestController
 
 
-class LogoContestControllerMixin(object):
+class LogoContestControllerMixin:
     """Sets default empty contest logo and icons settings."""
 
     def default_contestlogo_url(self):
@@ -24,7 +24,7 @@ class LogoContestControllerMixin(object):
 
         The default implementation returns an empty string.
         """
-        return ''
+        return ""
 
     def default_contesticons_urls(self):
         """Returns a list of URLs of images which will be used to decorate

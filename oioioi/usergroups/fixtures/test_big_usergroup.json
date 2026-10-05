@@ -1,0 +1,489 @@
+[
+    {
+        "pk": 3001,
+        "model": "usergroups.UserGroup",
+        "fields": {
+            "name": "big group",
+            "owners": [
+                1001
+            ],
+            "members": [
+                3001,
+                3002,
+                3003,
+                3004,
+                3005,
+                3006,
+                3007,
+                3008,
+                3009,
+                3010,
+                3011,
+                3012,
+                3013,
+                3014,
+                3015,
+                3016,
+                3017,
+                3018,
+                3019,
+                3020,
+                3021,
+                3022,
+                3023,
+                3024,
+                3025
+            ]
+        }
+    },
+    {
+        "pk": 3001,
+        "model": "auth.user",
+        "fields": {
+            "username": "user1",
+            "first_name": "First1",
+            "last_name": "Last1",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user1@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3002,
+        "model": "auth.user",
+        "fields": {
+            "username": "user2",
+            "first_name": "First2",
+            "last_name": "Last2",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user2@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3003,
+        "model": "auth.user",
+        "fields": {
+            "username": "user3",
+            "first_name": "First3",
+            "last_name": "Last3",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user3@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3004,
+        "model": "auth.user",
+        "fields": {
+            "username": "user4",
+            "first_name": "First4",
+            "last_name": "Last4",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user4@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3005,
+        "model": "auth.user",
+        "fields": {
+            "username": "user5",
+            "first_name": "First5",
+            "last_name": "Last5",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user5@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3006,
+        "model": "auth.user",
+        "fields": {
+            "username": "user6",
+            "first_name": "First6",
+            "last_name": "Last6",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user6@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3007,
+        "model": "auth.user",
+        "fields": {
+            "username": "user7",
+            "first_name": "First7",
+            "last_name": "Last7",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user7@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3008,
+        "model": "auth.user",
+        "fields": {
+            "username": "user8",
+            "first_name": "First8",
+            "last_name": "Last8",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user8@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3009,
+        "model": "auth.user",
+        "fields": {
+            "username": "user9",
+            "first_name": "First9",
+            "last_name": "Last9",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user9@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3010,
+        "model": "auth.user",
+        "fields": {
+            "username": "user10",
+            "first_name": "First10",
+            "last_name": "Last10",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user10@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3011,
+        "model": "auth.user",
+        "fields": {
+            "username": "user11",
+            "first_name": "First11",
+            "last_name": "Last11",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user11@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3012,
+        "model": "auth.user",
+        "fields": {
+            "username": "user12",
+            "first_name": "First12",
+            "last_name": "Last12",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user12@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3013,
+        "model": "auth.user",
+        "fields": {
+            "username": "user13",
+            "first_name": "First13",
+            "last_name": "Last13",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user13@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3014,
+        "model": "auth.user",
+        "fields": {
+            "username": "user14",
+            "first_name": "First14",
+            "last_name": "Last14",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user14@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3015,
+        "model": "auth.user",
+        "fields": {
+            "username": "user15",
+            "first_name": "First15",
+            "last_name": "Last15",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user15@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3016,
+        "model": "auth.user",
+        "fields": {
+            "username": "user16",
+            "first_name": "First16",
+            "last_name": "Last16",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user16@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3017,
+        "model": "auth.user",
+        "fields": {
+            "username": "user17",
+            "first_name": "First17",
+            "last_name": "Last17",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user17@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3018,
+        "model": "auth.user",
+        "fields": {
+            "username": "user18",
+            "first_name": "First18",
+            "last_name": "Last18",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user18@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3019,
+        "model": "auth.user",
+        "fields": {
+            "username": "user19",
+            "first_name": "First19",
+            "last_name": "Last19",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user19@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3020,
+        "model": "auth.user",
+        "fields": {
+            "username": "user20",
+            "first_name": "First20",
+            "last_name": "Last20",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user20@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3021,
+        "model": "auth.user",
+        "fields": {
+            "username": "user21",
+            "first_name": "First21",
+            "last_name": "Last21",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user21@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3022,
+        "model": "auth.user",
+        "fields": {
+            "username": "user22",
+            "first_name": "First22",
+            "last_name": "Last22",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user22@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3023,
+        "model": "auth.user",
+        "fields": {
+            "username": "user23",
+            "first_name": "First23",
+            "last_name": "Last23",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user23@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3024,
+        "model": "auth.user",
+        "fields": {
+            "username": "user24",
+            "first_name": "First24",
+            "last_name": "Last24",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user24@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+    {
+        "pk": 3025,
+        "model": "auth.user",
+        "fields": {
+            "username": "user25",
+            "first_name": "First25",
+            "last_name": "Last25",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "user25@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    }
+]

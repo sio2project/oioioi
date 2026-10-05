@@ -1,0 +1,63 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Package download" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Package download" %}</h1>
+
+<p>
+    {% trans "The selected problems will be packaged into a single zip archive." %}
+</p>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <h2 class="h4">{% trans "Files that will be downloaded" %}</h2>
+        {% if packages_to_download %}
+            <ul class="list-group">
+                {% for package_entry in packages_to_download %}
+                    <li class="list-group-item">
+                        <strong>{{ package_entry.archive_name }}</strong>
+                        <div class="small text-muted">{{ package_entry.problem_name }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted mb-0">{% trans "No downloadable packages were found." %}</p>
+        {% endif %}
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <h2 class="h4">{% trans "Files that cannot be downloaded" %}</h2>
+        {% if not_downloaded_packages %}
+            <ul class="list-group">
+                {% for package_entry in not_downloaded_packages %}
+                    <li class="list-group-item">
+                        {% if package_entry.archive_name %}
+                            <strong>{{ package_entry.archive_name }}</strong>
+                            <div class="small text-muted">{{ package_entry.problem_name }}</div>
+                        {% else %}
+                            {{ package_entry.problem_name }}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted mb-0">{% trans "All selected problems have downloadable packages." %}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="form-group">
+    <form method="post" class="d-inline-block mr-2">
+        {% csrf_token %}
+        <input type="hidden" name="post" value="yes" />
+        <button type="submit" class="btn btn-primary" {% if not packages_to_download %}disabled{% endif %}>
+            {% trans "Download" %}
+        </button>
+    </form>
+    <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+        {% trans "No, go back" %}
+    </button>
+</div>
+{% endblock %}

@@ -7,7 +7,7 @@
     <form action="{{ action }}" method="post">
         {% csrf_token %}
         {% include "ingredients/form.html" %}
-        <div class="form-group">
+        <div class="mb-3">
             <button type="submit" class="btn btn-primary">
                 {{ submit_button_value|default:_("Submit") }}
             </button>

@@ -1,8 +1,6 @@
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
-from oioioi.base.permissions import make_request_condition
 from oioioi.problems.models import Problem
 
 
@@ -12,16 +10,16 @@ def join_paths(path1, path2):
     elif not path2:
         return path1
     else:
-        return path1 + '/' + path2
+        return path1 + "/" + path2
 
 
 def parent_path(path):
-    return '/'.join(path.split('/')[:-1])
+    return "/".join(path.split("/")[:-1])
 
 
 def resolve_path(portal, path):
-    path = path.strip('/')
-    path = path.split('/') if path else []
+    path = path.strip("/")
+    path = path.split("/") if path else []
 
     try:
         node = portal.root

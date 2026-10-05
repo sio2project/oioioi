@@ -1,4 +1,4 @@
-from django.db.models.signals import post_migrate, post_save
+from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 
 from oioioi.portals.models import Node
@@ -10,9 +10,7 @@ def parse_node_for_problems(node):
     """Parses node's content in search for links to problems
     and returns a queryset of problems accessible from the node.
     """
-    widgets_with_links = filter(
-        lambda w: hasattr(w, 'get_problem_ids'), REGISTERED_WIDGETS
-    )
+    widgets_with_links = filter(lambda w: hasattr(w, "get_problem_ids"), REGISTERED_WIDGETS)
 
     ids = []
     for widget in widgets_with_links:
@@ -31,5 +29,5 @@ def update_task_information_cache(node):
 @receiver(post_migrate)
 def rebuild_handler(sender, **kwargs):
     # post_migrate is called after each app's migrations
-    if sender.name == 'oioioi.portals':
+    if sender.name == "oioioi.portals":
         Node.objects.rebuild()

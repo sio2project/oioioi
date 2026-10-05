@@ -5,9 +5,9 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
 
 contest_admin_menu_registry.register(
-    'plagiarism',
+    "plagiarism",
     _("Plagiarism tools"),
-    lambda request: reverse('moss_submit'),
+    lambda request: reverse("moss_submit"),
     is_contest_admin,
     order=100,
 )

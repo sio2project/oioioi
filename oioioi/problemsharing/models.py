@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 
-check_django_app_dependencies(__name__, ['oioioi.teachers'])
+check_django_app_dependencies(__name__, ["oioioi.teachers"])
 
 
 class Friendship(models.Model):
@@ -18,15 +18,15 @@ class Friendship(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name=_("creator"),
-        related_name='friendships_created',
+        related_name="friendships_created",
     )
     # "receiver" gets access to problems of "creator"
     receiver = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name=_("receiver"),
-        related_name='friendships_received',
+        related_name="friendships_received",
     )
 
     class Meta:
-        unique_together = ('creator', 'receiver')
+        unique_together = ("creator", "receiver")

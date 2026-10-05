@@ -3,13 +3,13 @@ from oioioi.participants.controllers import OnsiteRegistrationController
 from oioioi.participants.utils import is_onsite_contest
 
 
-class IpAuthSyncControllerMixin(object):
+class IpAuthSyncControllerMixin:
     """ContestController mixin that sets up the ipauthsync app."""
 
     def mixins_for_admin(self):
         from oioioi.ipauthsync.admin import ContestAdminWithIpAuthSyncInlineMixin
 
-        mixins = super(IpAuthSyncControllerMixin, self).mixins_for_admin()
+        mixins = super().mixins_for_admin()
         if is_onsite_contest(self.contest):
             mixins = mixins + (ContestAdminWithIpAuthSyncInlineMixin,)
         return mixins
@@ -18,7 +18,7 @@ class IpAuthSyncControllerMixin(object):
 ContestController.mix_in(IpAuthSyncControllerMixin)
 
 
-class IpAuthSyncRegistrationControllerMixin(object):
+class IpAuthSyncRegistrationControllerMixin:
     """RegistrationController mixin that adds a functionality to validate IP
     address.
     """

@@ -1,3 +1,3 @@
 from oioioi.base.utils.deps import check_django_app_dependencies
 
-check_django_app_dependencies(__name__, ['oioioi.livedata'])
+check_django_app_dependencies(__name__, ["oioioi.livedata"])

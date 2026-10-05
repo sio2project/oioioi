@@ -6,10 +6,11 @@ from traceback import format_exception
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import validate_slug
 from django.db import models, transaction
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.encoding import force_str
@@ -18,12 +19,13 @@ from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
 from django.utils.translation import gettext_lazy as _
+from unidecode import unidecode
+
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.utils import split_extension, strip_num_or_hash
 from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.validators import validate_origintag
-from unidecode import unidecode
 
 logger = logging.getLogger(__name__)
 
@@ -33,15 +35,8 @@ def make_problem_filename(instance, filename):
         try:
             instance = instance.problem
         except AttributeError:
-            assert hasattr(instance, 'problem'), (
-                'problem_file_generator used '
-                'on object %r which does not have \'problem\' attribute' % (instance,)
-            )
-    return 'problems/%d/%s' % (
-        instance.id,
-        get_valid_filename(os.path.basename(filename)),
-    )
-
+            assert hasattr(instance, "problem"), f"problem_file_generator used on object {instance!r} which does not have 'problem' attribute"
+    return f"problems/{instance.id}/{get_valid_filename(os.path.basename(filename))!s}"
 
 
 class Problem(models.Model):
@@ -59,31 +54,25 @@ class Problem(models.Model):
     """
 
     legacy_name = models.CharField(max_length=255, verbose_name=_("legacy name"))
-    short_name = models.CharField(
-        max_length=30, validators=[validate_slug], verbose_name=_("short name")
-    )
-    controller_name = DottedNameField(
-        'oioioi.problems.controllers.ProblemController', verbose_name=_("type")
-    )
+    short_name = models.CharField(max_length=30, validators=[validate_slug], verbose_name=_("short name"))
+    controller_name = DottedNameField("oioioi.problems.controllers.ProblemController", verbose_name=_("type"))
     contest = models.ForeignKey(
-        'contests.Contest',
+        "contests.Contest",
         null=True,
         blank=True,
         verbose_name=_("contest"),
         on_delete=models.SET_NULL,
     )
-    author = models.ForeignKey(
-        User, null=True, blank=True, verbose_name=_("author"), on_delete=models.SET_NULL
-    )
+    author = models.ForeignKey(User, null=True, blank=True, verbose_name=_("author"), on_delete=models.SET_NULL)
     # visibility defines read access to all of problem data (this includes
     # the package, all tests and attachments)
-    VISIBILITY_PUBLIC = 'PU'
-    VISIBILITY_FRIENDS = 'FR'
-    VISIBILITY_PRIVATE = 'PR'
+    VISIBILITY_PUBLIC = "PU"
+    VISIBILITY_FRIENDS = "FR"
+    VISIBILITY_PRIVATE = "PR"
     VISIBILITY_LEVELS_CHOICES = [
-        (VISIBILITY_PUBLIC, 'Public'),
-        (VISIBILITY_FRIENDS, 'Friends'),
-        (VISIBILITY_PRIVATE, 'Private'),
+        (VISIBILITY_PUBLIC, "Public"),
+        (VISIBILITY_FRIENDS, "Friends"),
+        (VISIBILITY_PRIVATE, "Private"),
     ]
     visibility = models.CharField(
         max_length=2,
@@ -92,14 +81,12 @@ class Problem(models.Model):
         default=VISIBILITY_FRIENDS,
     )
     package_backend_name = DottedNameField(
-        'oioioi.problems.package.ProblemPackageBackend',
+        "oioioi.problems.package.ProblemPackageBackend",
         null=True,
         blank=True,
         verbose_name=_("package type"),
     )
-    ascii_name = models.CharField(
-        max_length=255, null=True
-    )  # autofield, no polish characters
+    ascii_name = models.CharField(max_length=255, null=True)  # autofield, no polish characters
 
     # main_problem_instance:
     # null=True, because there is a cyclic dependency
@@ -108,20 +95,27 @@ class Problem(models.Model):
     # (ProblemInstance has ForeignKey to Problem
     #  and Problem has ForeignKey to ProblemInstance)
     main_problem_instance = models.ForeignKey(
-        'contests.ProblemInstance',
+        "contests.ProblemInstance",
         null=True,
         blank=False,
         verbose_name=_("main problem instance"),
-        related_name='main_problem_instance',
+        related_name="main_problem_instance",
         on_delete=models.CASCADE,
     )
 
     @cached_property
     def name(self):
-        problem_name = ProblemName.objects.filter(
-            problem=self, language=get_language()
-        ).first()
-        return problem_name.name if problem_name else self.legacy_name
+        # We fetch all of self.names and filter by language in Python instead of Django.
+        # This allows us to do prefetch_related('names'), which considerably speeds up
+        # views such as task_archive_tag_view that query many problems and their associated names
+
+        # Check if primary key exists, as it's needed to access related fields such as `names`
+        if self.pk:
+            for problem_name in self.names.all():
+                if problem_name.language == get_language():
+                    return problem_name.name
+
+        return self.legacy_name
 
     @property
     def controller(self):
@@ -151,23 +145,21 @@ class Problem(models.Model):
         problem.save()
         return problem
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("problem")
         verbose_name_plural = _("problems")
         permissions = (
-            ('problems_db_admin', _("Can administer the problems database")),
-            ('problem_admin', _("Can administer the problem")),
+            ("can_modify_tags", _("Can modify tags")),
+            ("problems_db_admin", _("Can administer the problems database")),
+            ("problem_admin", _("Can administer the problem")),
         )
 
     def __str__(self):
-        return u'%(name)s (%(short_name)s)' % {
-            u'short_name': self.short_name,
-            u'name': self.name,
-        }
+        return f"{self.name} ({self.short_name})"
 
     def save(self, *args, **kwargs):
         self.ascii_name = unidecode(str(self.name))
-        super(Problem, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 @receiver(post_save, sender=Problem)
@@ -182,9 +174,7 @@ def _check_problem_instance_integrity(sender, instance, **kwargs):
 
     pis = ProblemInstance.objects.filter(problem=instance, contest__isnull=True)
     if pis.count() > 1:
-        raise RuntimeError(
-            "Multiple main_problem_instance objects for a single problem."
-        )
+        raise RuntimeError("Multiple main_problem_instance objects for a single problem.")
 
 
 class ProblemName(models.Model):
@@ -193,23 +183,21 @@ class ProblemName(models.Model):
     Problem should have its name translated to all available languages.
     """
 
-    problem = models.ForeignKey(Problem, related_name='names', on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, related_name="names", on_delete=models.CASCADE)
     name = models.CharField(
         max_length=255,
         verbose_name=_("name translation"),
         help_text=_("Human-readable name."),
     )
-    language = models.CharField(
-        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language code")
-    )
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES, verbose_name=_("language code"))
 
-    class Meta(object):
-        unique_together = ('problem', 'language')
+    class Meta:
+        unique_together = ("problem", "language")
         verbose_name = _("problem name")
         verbose_name_plural = _("problem names")
 
     def __str__(self):
-        return str("{} - {}".format(self.problem, self.language))
+        return str(f"{self.problem} - {self.language}")
 
 
 class ProblemStatement(models.Model):
@@ -220,12 +208,8 @@ class ProblemStatement(models.Model):
     of :attr:`content`.
     """
 
-    problem = models.ForeignKey(
-        Problem, related_name='statements', on_delete=models.CASCADE
-    )
-    language = models.CharField(
-        max_length=6, blank=True, null=True, verbose_name=_("language code")
-    )
+    problem = models.ForeignKey(Problem, related_name="statements", on_delete=models.CASCADE)
+    language = models.CharField(max_length=6, blank=True, null=True, verbose_name=_("language code"))
     content = FileField(upload_to=make_problem_filename, verbose_name=_("content"))
 
     @property
@@ -240,13 +224,12 @@ class ProblemStatement(models.Model):
     def extension(self):
         return os.path.splitext(self.content.name)[1].lower()
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("problem statement")
         verbose_name_plural = _("problem statements")
 
     def __str__(self):
-        return u'%s / %s' % (self.problem.name, self.filename)
-
+        return f"{self.problem.name} / {self.filename}"
 
 
 class ProblemAttachment(models.Model):
@@ -257,51 +240,73 @@ class ProblemAttachment(models.Model):
     giving users additional libraries etc.
     """
 
-    problem = models.ForeignKey(
-        Problem, related_name='attachments', on_delete=models.CASCADE
-    )
+    problem = models.ForeignKey(Problem, related_name="attachments", on_delete=models.CASCADE)
     description = models.CharField(max_length=255, verbose_name=_("description"))
-    content = FileField(upload_to=make_problem_filename, verbose_name=_("content"))
+    content = FileField(upload_to=make_problem_filename, verbose_name=_("content"), blank=True, null=True)
+    url = models.URLField(max_length=255, blank=True, null=True, verbose_name=_("url"))
+    # Indicates whether the attachment is meant to be an official editorial
+    # (e.g. editorial.pdf), which may be shown to contestants after the contest,
+    # or included in courses.
+    is_editorial = models.BooleanField(default=False, verbose_name=_("is editorial"))
+    # If `is_editorial` is True, this field may contain the date
+    # after which the editorial may be made available to contestants.
+    pub_date = models.DateTimeField(default=None, blank=True, null=True, verbose_name=_("Editorial publication date"))
+
+    def clean(self):
+        super().clean()
+        if not self.content and not self.url:
+            raise ValidationError(_("Either content or url must be provided."))
+        if self.content and self.url:
+            raise ValidationError(_("Only one of content or url can be provided."))
+
+        # Ensure pub_date is only set for editorials
+        if not self.is_editorial and self.pub_date is not None:
+            raise ValidationError({"pub_date": _("Publication date can only be set if the attachment is an editorial.")})
 
     @property
     def filename(self):
-        return os.path.split(self.content.name)[1]
+        if self.content:
+            return os.path.split(self.content.name)[1]
+        elif self.url:
+            return os.path.split(self.url)[1]
+        return ""
 
     @property
     def download_name(self):
-        return strip_num_or_hash(self.filename)
+        if self.content:
+            return strip_num_or_hash(self.filename)
+        return ""
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("attachment")
         verbose_name_plural = _("attachments")
 
     def __str__(self):
-        return u'%s / %s' % (self.problem.name, self.filename)
+        if self.content:
+            return f"{self.problem.name} / {self.filename}"
+        return f"{self.problem.name} / {self.url}"
 
 
 def _make_package_filename(instance, filename):
     if instance.contest:
         contest_name = instance.contest.id
     else:
-        contest_name = 'no_contest'
-    return 'package/%s/%s' % (
-        contest_name,
-        get_valid_filename(os.path.basename(filename)),
-    )
+        contest_name = "no_contest"
+    return f"package/{contest_name}/{get_valid_filename(os.path.basename(filename))}"
 
 
 package_statuses = EnumRegistry()
-package_statuses.register('?', pgettext_lazy("Pending", "Pending problem package"))
-package_statuses.register('OK', _("Uploaded"))
-package_statuses.register('ERR', _("Error"))
+package_statuses.register("?", pgettext_lazy("Pending", "Pending problem package"))
+package_statuses.register("OK", _("Uploaded"))
+package_statuses.register("ERR", _("Error"))
 
 TRACEBACK_STACK_LIMIT = 100
 
 
-def truncate_unicode(string, length, encoding='utf-8'):
-    """ Truncates string to be `length` bytes long. """
+def truncate_unicode(string, length, encoding="utf-8"):
+    """Truncates string to be `length` bytes long."""
     encoded = string.encode(encoding)[:length]
-    return encoded.decode(encoding, 'ignore')
+    return encoded.decode(encoding, "ignore")
 
 
 class ProblemPackage(models.Model):
@@ -309,11 +314,9 @@ class ProblemPackage(models.Model):
     :class:`~oioioi.problems.models.Problem` instance.
     """
 
-    package_file = FileField(
-        upload_to=_make_package_filename, verbose_name=_("package")
-    )
+    package_file = FileField(upload_to=_make_package_filename, verbose_name=_("package"))
     contest = models.ForeignKey(
-        'contests.Contest',
+        "contests.Contest",
         null=True,
         blank=True,
         verbose_name=_("contest"),
@@ -341,19 +344,15 @@ class ProblemPackage(models.Model):
         blank=True,
     )
     celery_task_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
-    info = models.CharField(
-        max_length=1000, null=True, blank=True, verbose_name=_("Package information")
-    )
+    info = models.CharField(max_length=1000, null=True, blank=True, verbose_name=_("Package information"))
     traceback = FileField(
         upload_to=_make_package_filename,
         verbose_name=_("traceback"),
         null=True,
         blank=True,
     )
-    status = EnumField(package_statuses, default='?', verbose_name=_("status"))
-    creation_date = models.DateTimeField(
-        default=timezone.now, verbose_name=_("creation date")
-    )
+    status = EnumField(package_statuses, default="?", verbose_name=_("status"))
+    creation_date = models.DateTimeField(default=timezone.now, verbose_name=_("creation date"))
 
     @property
     def download_name(self):
@@ -364,12 +363,12 @@ class ProblemPackage(models.Model):
             filename = os.path.split(self.package_file.name)[1]
             return strip_num_or_hash(filename)
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("problem package")
         verbose_name_plural = _("problem packages")
-        ordering = ['-creation_date']
+        ordering = ["-creation_date"]
 
-    class StatusSaver(object):
+    class StatusSaver:
         def __init__(self, package):
             self.package_id = package.id
 
@@ -379,49 +378,40 @@ class ProblemPackage(models.Model):
         def __exit__(self, type, value, traceback):
             package = ProblemPackage.objects.get(id=self.package_id)
             if type:
-                package.status = 'ERR'
+                package.status = "ERR"
 
                 try:
                     # This will work if a PackageProcessingError was thrown
                     info = _(
-                        u"Failed operation: %(name)s\n"
-                        u"Operation description: %(desc)s\n \n"
-                        u"Error description: %(error)r\n \n"
-                        % dict(
-                            name=value.raiser,
-                            desc=value.raiser_desc,
-                            error=value.original_exception_info[1],
+                        "Failed operation: {name}\nOperation description: {desc}\n \nError description: {error!r}\n \n".format(
+                            **{
+                                "name": value.raiser,
+                                "desc": value.raiser_desc,
+                                "error": value.original_exception_info[1],
+                            }
                         )
                     )
 
                     type, value, _old_traceback = value.original_exception_info
                 except AttributeError:
-                    info = _(
-                        u"Failed operation unknown.\n"
-                        u"Error description: %(error)s\n \n" % dict(error=value)
-                    )
+                    info = _("Failed operation unknown.\nError description: {error}\n \n".format(**{"error": value}))
 
                 # Truncate error so it doesn't take up whole page in list
                 # view (or much space in the database).
                 # Full info is available in package.traceback anyway.
-                package.info = truncate_unicode(
-                    info, ProblemPackage._meta.get_field('info').max_length
-                )
+                package.info = truncate_unicode(info, ProblemPackage._meta.get_field("info").max_length)
 
                 package.traceback = ContentFile(
-                    force_str(info)
-                    + ''.join(
-                        format_exception(type, value, traceback, TRACEBACK_STACK_LIMIT)
-                    ),
-                    'traceback.txt',
+                    force_str(info) + "".join(format_exception(type, value, traceback, TRACEBACK_STACK_LIMIT)),
+                    "traceback.txt",
                 )
                 logger.exception(
                     "Error processing package %s",
                     package.package_file.name,
-                    extra={'omit_sentry': True},
+                    extra={"omit_sentry": True},
                 )
             else:
-                package.status = 'OK'
+                package.status = "OK"
 
             package.celery_task_id = None
             package.save()
@@ -453,7 +443,6 @@ class ProblemPackage(models.Model):
         return manager()
 
 
-
 class ProblemSite(models.Model):
     """Represents a global problem site.
 
@@ -467,21 +456,19 @@ class ProblemSite(models.Model):
     def __str__(self):
         return str(self.problem)
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("problem site")
         verbose_name_plural = _("problem sites")
 
 
 class MainProblemInstance(ProblemInstance):
-    class Meta(object):
+    class Meta:
         proxy = True
 
 
 class ProblemStatistics(models.Model):
-    problem = models.OneToOneField(
-        Problem, on_delete=models.CASCADE, related_name='statistics'
-    )
-    user_statistics = models.ManyToManyField(User, through='UserStatistics')
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE, related_name="statistics")
+    user_statistics = models.ManyToManyField(User, through="UserStatistics")
 
     submitted = models.IntegerField(default=0, verbose_name=_("attempted solutions"))
     solved = models.IntegerField(default=0, verbose_name=_("correct solutions"))
@@ -497,8 +484,8 @@ class UserStatistics(models.Model):
     has_solved = models.BooleanField(default=False, verbose_name=_("user solved"))
     best_score = models.IntegerField(default=0, verbose_name=_("user's best score"))
 
-    class Meta(object):
-        unique_together = ('problem_statistics', 'user')
+    class Meta:
+        unique_together = ("problem_statistics", "user")
 
 
 def _localized(*localized_fields):
@@ -534,9 +521,7 @@ def _localized(*localized_fields):
             if key in self.localized_fields:
                 return self.localize(key)
             else:
-                raise AttributeError(
-                    "'{}' object has no attribute '{}'".format(cls.__name__, key)
-                )
+                raise AttributeError(f"'{cls.__name__}' object has no attribute '{key}'")
 
         cls.localized_fields = localized_fields
         cls.localize = localize
@@ -546,8 +531,7 @@ def _localized(*localized_fields):
     return decorator
 
 
-@_localized('short_name', 'full_name', 'description')
-
+@_localized("short_name", "full_name", "description")
 class OriginTag(models.Model):
     """OriginTags are used along with OriginInfoCategories and OriginInfoValue
     to give information about the problem's origin. OriginTags themselves
@@ -579,7 +563,7 @@ class OriginTag(models.Model):
         help_text=_("Selected problems will be tagged with this tag.<br>"),
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("origin tag")
         verbose_name_plural = _("origin tags")
 
@@ -587,21 +571,13 @@ class OriginTag(models.Model):
         return str(self.name)
 
 
-
 class OriginTagLocalization(models.Model):
-    origin_tag = models.ForeignKey(
-        OriginTag, related_name='localizations', on_delete=models.CASCADE
-    )
-    language = models.CharField(
-        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
-    )
+    origin_tag = models.ForeignKey(OriginTag, related_name="localizations", on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES, verbose_name=_("language"))
     full_name = models.CharField(
         max_length=255,
         verbose_name=_("full name"),
-        help_text=_(
-            "Full, official name of the contest, competition, programming camp, etc. "
-            "which this tag represents."
-        ),
+        help_text=_("Full, official name of the contest, competition, programming camp, etc. which this tag represents."),
     )
     short_name = models.CharField(
         max_length=32,
@@ -612,23 +588,19 @@ class OriginTagLocalization(models.Model):
     description = models.TextField(
         blank=True,
         verbose_name=_("description"),
-        help_text=_(
-            "(optional) Longer description which Will be displayed in the "
-            "Task Archive next to the name."
-        ),
+        help_text=_("(optional) Longer description which Will be displayed in the Task Archive next to the name."),
     )
 
-    class Meta(object):
-        unique_together = ('origin_tag', 'language')
+    class Meta:
+        unique_together = ("origin_tag", "language")
         verbose_name = _("origin tag localization")
         verbose_name_plural = _("origin tag localizations")
 
     def __str__(self):
-        return str("{} - {}".format(self.origin_tag, self.language))
+        return str(f"{self.origin_tag} - {self.language}")
 
 
-@_localized('full_name')
-
+@_localized("full_name")
 class OriginInfoCategory(models.Model):
     """This class represents a category of information, which further specifies
     what its parent_tag is already telling about the origin. It doesn't do
@@ -639,13 +611,10 @@ class OriginInfoCategory(models.Model):
 
     parent_tag = models.ForeignKey(
         OriginTag,
-        related_name='info_categories',
+        related_name="info_categories",
         on_delete=models.CASCADE,
         verbose_name=_("parent tag"),
-        help_text=_(
-            "This category will be a possible category of information for problems "
-            "tagged with the selected tag."
-        ),
+        help_text=_("This category will be a possible category of information for problems tagged with the selected tag."),
     )
     name = models.CharField(
         max_length=20,
@@ -674,40 +643,34 @@ class OriginInfoCategory(models.Model):
         ),
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("origin tag - information category")
         verbose_name_plural = _("origin tags - information categories")
-        unique_together = ('name', 'parent_tag')
+        unique_together = ("name", "parent_tag")
 
     def __str__(self):
-        return str("{}_{}".format(self.parent_tag, self.name))
-
+        return str(f"{self.parent_tag}_{self.name}")
 
 
 class OriginInfoCategoryLocalization(models.Model):
-    origin_info_category = models.ForeignKey(
-        OriginInfoCategory, related_name='localizations', on_delete=models.CASCADE
-    )
-    language = models.CharField(
-        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
-    )
+    origin_info_category = models.ForeignKey(OriginInfoCategory, related_name="localizations", on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES, verbose_name=_("language"))
     full_name = models.CharField(
         max_length=32,
         verbose_name=_("name translation"),
         help_text=_("Human-readable name."),
     )
 
-    class Meta(object):
-        unique_together = ('origin_info_category', 'language')
+    class Meta:
+        unique_together = ("origin_info_category", "language")
         verbose_name = _("origin info category localization")
         verbose_name_plural = _("origin info category localizations")
 
     def __str__(self):
-        return str("{} - {}".format(self.origin_info_category, self.language))
+        return str(f"{self.origin_info_category} - {self.language}")
 
 
-@_localized('full_value')
-
+@_localized("full_value")
 class OriginInfoValue(models.Model):
     """This class represents additional information, further specifying
     what its parent_tag is already telling about the origin. Each
@@ -719,7 +682,7 @@ class OriginInfoValue(models.Model):
 
     parent_tag = models.ForeignKey(
         OriginTag,
-        related_name='info_values',
+        related_name="info_values",
         on_delete=models.CASCADE,
         verbose_name=_("parent tag"),
         help_text=_(
@@ -735,12 +698,10 @@ class OriginInfoValue(models.Model):
     )
     category = models.ForeignKey(
         OriginInfoCategory,
-        related_name='values',
+        related_name="values",
         on_delete=models.CASCADE,
         verbose_name=_("category"),
-        help_text=_(
-            "This information should be categorized under the selected category."
-        ),
+        help_text=_("This information should be categorized under the selected category."),
     )
     value = models.CharField(
         max_length=32,
@@ -764,25 +725,20 @@ class OriginInfoValue(models.Model):
         Problem,
         blank=True,
         verbose_name=_("problems"),
-        help_text=_(
-            "Select problems described by this value. They will also be tagged with "
-            "the parent tag.<br>"
-        ),
+        help_text=_("Select problems described by this value. They will also be tagged with the parent tag.<br>"),
     )
 
     @property
     def name(self):
         # Should be unique due to unique constraints on value and parent_tag.name
-        return str('{}_{}'.format(self.parent_tag, self.value))
+        return str(f"{self.parent_tag}_{self.value}")
 
     @property
     def full_name(self):
-        return str(
-            u'{} {}'.format(self.parent_tag.full_name, self.full_value)
-        )
+        return str(f"{self.parent_tag.full_name} {self.full_value}")
 
-    class Meta(object):
-        unique_together = ('parent_tag', 'value')
+    class Meta:
+        unique_together = ("parent_tag", "value")
         verbose_name = _("origin tag - information value")
         verbose_name_plural = _("origin tags - information values")
 
@@ -790,31 +746,25 @@ class OriginInfoValue(models.Model):
         return str(self.name)
 
 
-
 class OriginInfoValueLocalization(models.Model):
-    origin_info_value = models.ForeignKey(
-        OriginInfoValue, related_name='localizations', on_delete=models.CASCADE
-    )
-    language = models.CharField(
-        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
-    )
+    origin_info_value = models.ForeignKey(OriginInfoValue, related_name="localizations", on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES, verbose_name=_("language"))
     full_value = models.CharField(
         max_length=64,
         verbose_name=_("translated value"),
         help_text=_("Human-readable value."),
     )
 
-    class Meta(object):
-        unique_together = ('origin_info_value', 'language')
+    class Meta:
+        unique_together = ("origin_info_value", "language")
         verbose_name = _("origin info value localization")
         verbose_name_plural = _("origin info value localizations")
 
     def __str__(self):
-        return str("{} - {}".format(self.origin_info_value, self.language))
+        return str(f"{self.origin_info_value} - {self.language}")
 
 
-@_localized('full_name')
-
+@_localized("full_name")
 class DifficultyTag(models.Model):
     name = models.CharField(
         max_length=20,
@@ -828,15 +778,15 @@ class DifficultyTag(models.Model):
             validators.validate_slug,
         ],
     )
-    problems = models.ManyToManyField(Problem, through='DifficultyTagThrough')
+    problems = models.ManyToManyField(Problem, through="DifficultyTagThrough")
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("difficulty tag")
         verbose_name_plural = _("difficulty tags")
+        ordering = ["pk"]
 
     def __str__(self):
         return str(self.name)
-
 
 
 class DifficultyTagThrough(models.Model):
@@ -845,31 +795,25 @@ class DifficultyTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return str(self.tag.name)
-
+        return str(self.problem.name) + " -- " + str(self.tag.name)
 
 
 class DifficultyTagLocalization(models.Model):
-    difficulty_tag = models.ForeignKey(
-        DifficultyTag, related_name='localizations', on_delete=models.CASCADE
-    )
-    language = models.CharField(
-        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
-    )
+    difficulty_tag = models.ForeignKey(DifficultyTag, related_name="localizations", on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES, verbose_name=_("language"))
     full_name = models.CharField(
         max_length=32,
         verbose_name=_("name translation"),
         help_text=_("Human-readable name."),
     )
 
-    class Meta(object):
-        unique_together = ('difficulty_tag', 'language')
+    class Meta:
+        unique_together = ("difficulty_tag", "language")
         verbose_name = _("difficulty tag localization")
         verbose_name_plural = _("difficulty tag localizations")
 
     def __str__(self):
-        return str("{} - {}".format(self.difficulty_tag, self.language))
-
+        return str(f"{self.difficulty_tag} - {self.language}")
 
 
 class DifficultyTagProposal(models.Model):
@@ -878,15 +822,29 @@ class DifficultyTagProposal(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name)
+        return str(self.problem.name) + " -- " + str(self.tag.name)
 
-    class Meta(object):
+    class Meta:
+        unique_together = ("problem", "user")
         verbose_name = _("difficulty proposal")
         verbose_name_plural = _("difficulty proposals")
 
 
-@_localized('full_name')
+class AggregatedDifficultyTagProposal(models.Model):
+    problem = models.ForeignKey("Problem", on_delete=models.CASCADE)
+    tag = models.ForeignKey("DifficultyTag", on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return str(self.problem.name) + " -- " + str(self.tag.name) + " -- " + str(self.amount)
+
+    class Meta:
+        verbose_name = _("aggregated difficulty tag proposal")
+        verbose_name_plural = _("aggregated difficulty tag proposals")
+        unique_together = ("problem", "tag")
+
+
+@_localized("full_name")
 class AlgorithmTag(models.Model):
     name = models.CharField(
         max_length=20,
@@ -900,15 +858,14 @@ class AlgorithmTag(models.Model):
             validators.validate_slug,
         ],
     )
-    problems = models.ManyToManyField(Problem, through='AlgorithmTagThrough')
+    problems = models.ManyToManyField(Problem, through="AlgorithmTagThrough")
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("algorithm tag")
         verbose_name_plural = _("algorithm tags")
 
     def __str__(self):
         return str(self.name)
-
 
 
 class AlgorithmTagThrough(models.Model):
@@ -917,34 +874,28 @@ class AlgorithmTagThrough(models.Model):
 
     # This string will be visible in an admin form.
     def __str__(self):
-        return str(self.tag.name)
+        return str(self.problem.name) + " -- " + str(self.tag.name)
 
-    class Meta(object):
-        unique_together = ('problem', 'tag')
-
+    class Meta:
+        unique_together = ("problem", "tag")
 
 
 class AlgorithmTagLocalization(models.Model):
-    algorithm_tag = models.ForeignKey(
-        AlgorithmTag, related_name='localizations', on_delete=models.CASCADE
-    )
-    language = models.CharField(
-        max_length=2, choices=settings.LANGUAGES, verbose_name=_("language")
-    )
+    algorithm_tag = models.ForeignKey(AlgorithmTag, related_name="localizations", on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES, verbose_name=_("language"))
     full_name = models.CharField(
         max_length=50,
         verbose_name=_("name translation"),
         help_text=_("Human-readable name."),
     )
 
-    class Meta(object):
-        unique_together = ('algorithm_tag', 'language')
+    class Meta:
+        unique_together = ("algorithm_tag", "language")
         verbose_name = _("algorithm tag localization")
         verbose_name_plural = _("algorithm tag localizations")
 
     def __str__(self):
-        return str("{} - {}".format(self.algorithm_tag, self.language))
-
+        return str(f"{self.algorithm_tag} - {self.language}")
 
 
 class AlgorithmTagProposal(models.Model):
@@ -953,8 +904,65 @@ class AlgorithmTagProposal(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return str(self.problem.name) + u' -- ' + str(self.tag.name)
+        return str(self.problem.name) + " -- " + str(self.tag.name)
 
-    class Meta(object):
+    class Meta:
+        unique_together = ("problem", "tag", "user")
         verbose_name = _("algorithm tag proposal")
         verbose_name_plural = _("algorithm tag proposals")
+
+
+class AggregatedAlgorithmTagProposal(models.Model):
+    problem = models.ForeignKey("Problem", on_delete=models.CASCADE)
+    tag = models.ForeignKey("AlgorithmTag", on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return str(self.problem.name) + " -- " + str(self.tag.name) + " -- " + str(self.amount)
+
+    class Meta:
+        verbose_name = _("aggregated algorithm tag proposal")
+        verbose_name_plural = _("aggregated algorithm tag proposals")
+        unique_together = ("problem", "tag")
+        indexes = [
+            models.Index(fields=["problem"]),
+        ]
+
+
+def increase_aggregated_tag_proposal(sender, instance, created, aggregated_model, **kwargs):
+    if created:
+        with transaction.atomic():
+            aggregated_model.objects.filter(problem=instance.problem, tag=instance.tag).update(
+                amount=models.F("amount") + 1
+            ) or aggregated_model.objects.create(problem=instance.problem, tag=instance.tag, amount=1)
+
+
+@receiver(post_save, sender=AlgorithmTagProposal)
+def increase_aggregated_algorithm_tag_proposal(sender, instance, created, **kwargs):
+    increase_aggregated_tag_proposal(sender, instance, created, AggregatedAlgorithmTagProposal, **kwargs)
+
+
+@receiver(post_save, sender=DifficultyTagProposal)
+def increase_aggregated_difficulty_tag_proposal(sender, instance, created, **kwargs):
+    increase_aggregated_tag_proposal(sender, instance, created, AggregatedDifficultyTagProposal, **kwargs)
+
+
+def decrease_aggregated_tag_proposal(sender, instance, aggregated_model, **kwargs):
+    try:
+        with transaction.atomic():
+            aggregated_model.objects.filter(problem=instance.problem, tag=instance.tag).filter(amount__gt=1).update(
+                amount=models.F("amount") - 1
+            ) or aggregated_model.objects.filter(problem=instance.problem, tag=instance.tag).delete()
+
+    except Exception:
+        logger.exception("Error decreasing aggregated tag proposal for problem %s and tag %s.", instance.problem, instance.tag)
+
+
+@receiver(post_delete, sender=AlgorithmTagProposal)
+def decrease_aggregated_algorithm_tag_proposal(sender, instance, **kwargs):
+    decrease_aggregated_tag_proposal(sender, instance, AggregatedAlgorithmTagProposal, **kwargs)
+
+
+@receiver(post_delete, sender=DifficultyTagProposal)
+def decrease_aggregated_difficulty_tag_proposal(sender, instance, **kwargs):
+    decrease_aggregated_tag_proposal(sender, instance, AggregatedDifficultyTagProposal, **kwargs)

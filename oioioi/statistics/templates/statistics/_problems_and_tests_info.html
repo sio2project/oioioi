@@ -1,0 +1,67 @@
+{% load i18n pagination_tags %}
+{% if rounds_times %}
+    <div class="table-responsive-md">
+        <h4> {% trans "Problem and tests info" %} </h4>
+        {% for round, problems in tests_info.items %}
+            <h4>{{ round }}</h4>
+            {% for problem_id, problem_info in problems.items %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th> Problem </th>
+                    <th> Sumbissions limit </th>
+                    <th> Testrun </th>
+                    <th> Solved </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ problem_info.problem_name }}</td>
+                    <td>{{ problem_info.submissions_limit }}</td>
+                    <td>{% if problem_info.testrun_config %}{% trans "Enabled" %}{% else %}{% trans "Disabled" %}{% endif %}</td>
+                    <td>{{ problem_info.solved }}
+                </tr>
+                {% if problem_info.testrun_config %}
+                    <tr><td colspan="4"><table class="table table-sm table-bordered">
+                        <h4>Test Run Config</h4>
+                        <thead>
+                        <tr>
+                            <th> {% trans "Test run limit" %} </th>
+                            <th> {% trans "Memory limit" %} </th>
+                            <th> {% trans "Time limit" %} </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ problem_info.testrun_config.test_runs_limit }}</td>
+                                <td>{{ problem_info.testrun_config.memory_limit }}</td>
+                                <td>{{ problem_info.testrun_config.time_limit }}</td>
+                            </tr>
+                        </tbody>
+                    </table></td></tr>
+                {% endif %}
+                <tr><td colspan="4"> <table class="table table-sm table-bordered">
+                    <h4>Tests</h4>
+                    <thead>
+                    <tr>
+                        <th> {% trans "Memory limit" %} </th>
+                        <th> {% trans "Time limit" %} </th>
+                        <th> {% trans "#tests" %} </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for t_info in problem_info.tests %}
+                            <tr>
+                                <td>{{ t_info.memory_limit }}</td>
+                                <td>{{ t_info.time_limit }}</td>
+                                <td>{{ t_info.count }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table></td> </tr>
+                </tbody>
+            </table>
+            {% endfor %}
+        {% endfor %}
+    </div>
+{% endif %}

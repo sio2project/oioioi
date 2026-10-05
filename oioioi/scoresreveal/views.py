@@ -28,7 +28,7 @@ def score_reveal_view(request, submission_id):
         messages.success(request, _("Submission score has been revealed."))
 
     return redirect(
-        'submission',
+        "submission",
         contest_id=submission.problem_instance.contest_id,
         submission_id=submission.id,
     )

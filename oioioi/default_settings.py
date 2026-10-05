@@ -4,6 +4,8 @@ import sys
 
 from oioioi.base.utils.finders import find_executable_path
 
+from pathlib import Path
+
 if sys.version_info < (2, 6):
     raise RuntimeError("OIOIOI needs at least Python 2.6")
 
@@ -14,6 +16,8 @@ from django.contrib.messages import constants as messages
 from django.utils.translation import gettext_lazy as _
 
 import oioioi
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLATION_CONFIG_VERSION = 49
 
@@ -35,7 +39,7 @@ PUBLIC_ROOT_URL = 'http://localhost'
 # The server to be run. Options are:
 # 'django' - django's http server
 # 'uwsgi' - uwsgi daemon
-# 'uwsgi-http' - uwsgi deamon with built-in http server
+# 'uwsgi-http' - uwsgi daemon with built-in http server
 # 'none' - nothing will be ran
 SERVER = os.getenv('OIOIOI_SERVER_MODE', 'none')
 
@@ -48,8 +52,15 @@ DATABASES = {
         'HOST': os.getenv('OIOIOI_DB_HOST', 'db'),                  # Set to empty string for localhost. Not used with sqlite3.
         'PORT': os.getenv('OIOIOI_DB_PORT', ''),                    # Set to empty string for default. Not used with sqlite3.
         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
+        'CONN_MAX_AGE': 60,  # Persist connections between requests for 60 seconds..
+        'CONN_HEALTH_CHECKS': True, # ...but ensure it didn't break.
     }
 }
+
+# Django 6.x now defaults to BigAutoField (64-bit integers) for primary keys
+# so we need to force AutoField (32-bit) so as not to have to migrate tables.
+# https://docs.djangoproject.com/en/6.0/releases/6.0/#default-auto-field-setting-now-defaults-to-bigautofield
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Controls if uwsgi in default configuration shall use gevent loop.
 # To use it, you have to install gevent - please consult
@@ -91,14 +102,10 @@ LOCALE_PATHS = [
     os.path.join(os.path.dirname(oioioi.__file__), '_locale/locale-overrides'),
 ]
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
-USE_L10N = False
-
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = True
 
-DATETIME_FORMAT = 'Y-m-d H:i:s'
+FORMAT_MODULE_PATH = 'oioioi.formats'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -161,6 +168,13 @@ PROBLEMSET_LINK_VISIBLE = True
 
 # Set to true to show tags on the list of problems
 PROBLEM_TAGS_VISIBLE = False
+
+# Only relevant with PROBLEM_TAGS_VISIBLE set to True
+SHOW_TAG_PROPOSALS_IN_PROBLEMSET = False
+
+# Only relevant with SHOW_TAG_PROPOSALS_IN_PROBLEMSET set to True
+PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 10
+PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL = 10
 
 # Enables problem statistics at the cost of some per-submission performance hit.
 # Set to True if you want to see statistics in the Problemset and problem sites.
@@ -312,7 +326,7 @@ INSTALLED_APPS = (
     'two_factor.plugins.phonenumber',
 
     'nested_admin',
-    'coreapi',
+    'drf_spectacular',
     'rest_framework',
     'rest_framework.authtoken',
 
@@ -343,9 +357,16 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_ACTIVATION_DAYS = 7
 
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
-DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": 'oioioi.filetracker.storage.FiletrackerStorage',
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
-FILETRACKER_SERVER_ENABLED = True
+FILETRACKER_SERVER_ENABLED = os.getenv('FILETRACKER_SERVER_ENABLED', 'True').lower() not in ('false', '0', 'no', 'off')
 FILETRACKER_LISTEN_ADDR = os.getenv('FILETRACKER_LISTEN_ADDR', '127.0.0.1')
 FILETRACKER_LISTEN_PORT = os.getenv('FILETRACKER_LISTEN_PORT', 9999)
 
@@ -354,7 +375,7 @@ FILETRACKER_LISTEN_PORT = os.getenv('FILETRACKER_LISTEN_PORT', 9999)
 # this also defines the filetracker server oioioi should connect to.
 FILETRACKER_URL = os.getenv('FILETRACKER_URL', 'http://127.0.0.1:9999')
 
-# When using a remote storage it's recommended to enable a cache cleaner deamon
+# When using a remote storage it's recommended to enable a cache cleaner daemon
 # which will periodically scan cache directory and remove files what aren't
 # used. For a detailed description of each option, please read a cache cleaner
 # configuration section in the sioworkersd documentation. Please note that
@@ -373,6 +394,7 @@ PAGINATION_DEFAULT_WINDOW = 4
 PAGINATION_DEFAULT_MARGIN = 1
 FILES_ON_PAGE = 100
 PROBLEMS_ON_PAGE = 100
+CONTESTS_ON_PAGE = 20
 QUESTIONS_ON_PAGE = 30
 SUBMISSIONS_ON_PAGE = 100
 PARTICIPANTS_ON_PAGE = 100
@@ -645,6 +667,13 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        # Errors in recalculation of rankings are rare, but not trivial to
+        # notice.
+        'oioioi.rankings.models.recalculation': {
+            'handlers': ['mail_admins'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'celery': {
             'handlers': ['console', 'emit_notification'],
             'level': 'DEBUG',
@@ -761,13 +790,15 @@ CACHES = {
 }
 
 # Ranking
+RANKINGSD_CONCURRENCY = 1 # Number of rankingsd instances to start.
 RANKINGSD_POLLING_INTERVAL = 0.5  # seconds
 RANKING_COOLDOWN_FACTOR = 2  # seconds
+RANKING_ERROR_COOLDOWN = 300  # seconds; Don't overwhelm the admins' mailbox :).
 RANKING_MIN_COOLDOWN = 5  # seconds
 RANKING_MAX_COOLDOWN = 100  # seconds
 
 # Notifications configuration (client)
-# This one is for JavaScript socket.io client.
+# This one is for JavaScript WebSocket client.
 # It should contain actual URL available from remote machines.
 NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
@@ -823,9 +854,8 @@ NON_CONTEST_WEIGHT = 1000
 # for new messages to notify about
 MAILNOTIFYD_INTERVAL = 60
 
-# If your contest has no access to the internet and you need MathJax typesetting,
-# either whitelist this link or download your own copy of MathJax and link it here.
-MATHJAX_LOCATION = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/"
+# Serve MathJax library from local static files
+MATHJAX_LOCATION = '/static/mathjax/tex-chtml.js'
 
 # Django message framework CSS classes
 # https://docs.djangoproject.com/en/1.9/ref/contrib/messages/#message-tags
@@ -848,7 +878,15 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema'
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'OIOIOI API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 # If set to True, usercontests will become read-only: it will be impossible to
@@ -867,9 +905,24 @@ FORUM_PAGE_SIZE = 15
 FORUM_THREADS_PER_PAGE = 30
 FORUM_POSTS_PER_PAGE = 30
 FORUM_POST_MAX_LENGTH = 20000
+FORUM_REACTIONS_TO_DISPLAY = 10
 
 # Check seems to be broken. https://stackoverflow.com/a/65578574
 SILENCED_SYSTEM_CHECKS = ['admin.E130']
 
 # Experimental
 USE_ACE_EDITOR = False
+
+REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = [
+    'rest_framework.throttling.AnonRateThrottle',
+    'rest_framework.throttling.UserRateThrottle'
+]
+REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {
+    'anon': '1000/day',
+    'user': '1000/hour'
+}
+
+STATICFILES_DIRS = [
+    BASE_DIR / "dist_webpack",
+    BASE_DIR / "node_modules"
+]

@@ -1,19 +1,19 @@
 {% load i18n %}
 {% block controls %}
 <div class="clearfix">
-    <div class="float-right">
+    <div class="float-end">
         {% if can_admin %}
             {% block controls_admin_buttons %}
-            {% if submission.valid_kinds_for_submission %}
+            {% if submission.submission.valid_other_kinds %}
                 <div class="btn-group">
                     <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                            data-toggle="dropdown"
+                            data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">
                         <i class="fa-solid fa-tags"></i>
                         {% trans "Change kind" %}
                     </button>
                     <div class="dropdown-menu">
-                        {% for value, description in submission.valid_kinds_for_submission %}
+                        {% for value, description in submission.submission.valid_other_kinds %}
                             <a class="dropdown-item" href="#"
                             data-post-url="{% url 'change_submission_kind' submission_id=submission.submission.id kind=value %}">
                                 <i class="fa-solid fa-tag"></i>
@@ -25,7 +25,7 @@
             {% endif %}
             <div class="btn-group">
                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                        data-toggle="dropdown"
+                        data-bs-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
                     <i class="fa-solid fa-rotate-right"></i>
                     {% trans "Rejudge" %}
@@ -49,17 +49,23 @@
         {% endif %}
         {% block controls_buttons %}
         {% if contest %}
-            <a role="button"
-                class="btn btn-sm btn-outline-secondary"
-                href= "{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
-                <i class="fa-regular fa-circle-up"></i>
-                {% trans "Submit another" %}
+            {% if not is_contest_archived %}
+                <a role="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    {% if submission.submission.kind == "TESTRUN" %}
+                        href= "{% url 'testrun_submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
+                    {% else %}
+                        href= "{% url 'submit' contest_id=contest.id problem_instance_id=submission.submission.problem_instance.id %}">
+                    {% endif %}
+                    <i class="fa-regular fa-circle-up"></i>
+                    {% trans "Submit another" %}
+            {% endif %}
             </a>
         {% else %}
             {% if submission.submission.problem_instance.problem.problemsite %}
                 <a role="button"
                     class="btn btn-sm btn-outline-secondary"
-                    href= "{% url 'problem_site' site_key=submission.submission.problem_instance.problem.problemsite.url_key %}">
+                    href= "{% url 'problem_site' site_key=submission.submission.problem_instance.problem.problemsite.url_key %}?key=submit">
                     <i class="fa-regular fa-circle-up"></i>
                     {% trans "Submit another" %}
                 </a>
@@ -67,8 +73,9 @@
         {% endif %}
         {% endblock %}
     </div>
-    <h1 class="float-left">{% trans "Submission" %} {{ submission.submission.id }}</h1>
+    <h1 class="float-start">{% trans "Submission" %} {{ submission.submission.id }}</h1>
 </div>
+{% include "public_message/show.html" %}
 {% endblock %}
 
 {% block submission_details %}

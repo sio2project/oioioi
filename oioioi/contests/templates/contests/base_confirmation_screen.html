@@ -18,7 +18,7 @@
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="post" value="yes"/>
-                <div class="form-group">
+                <div class="mb-3">
                     <button type="submit" class="btn btn-danger">
                         {% trans "Yes, I am sure." %}
                     </button>

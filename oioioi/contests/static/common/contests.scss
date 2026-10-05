@@ -23,7 +23,7 @@ $list-subheader-bgcolor: #eee !default;
   }
 
   .collapsing, .in {
-    padding: $table-cell-padding-sm;
+    padding: $table-cell-padding-y-sm $table-cell-padding-x-sm;
   }
 }
 
@@ -44,4 +44,19 @@ table.table-striped > tbody > tr.problemlist-subheader {
 .centered-title {
     margin: 3rem;
     margin-bottom: 4rem;
+}
+
+.problem-name-column {
+    width: 100%;
+}
+
+.problem-limits-row {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    white-space: nowrap;
+}
+
+.problem-limits-row td {
+    border: none;
+    white-space: nowrap;
 }

@@ -27,7 +27,7 @@ I want to help!
     Transifex_ has a very comprehensive help, which you may use to learn how to use it.
     You're welcome to translate as many messages you see, and create your own languages!
 
-.. _Transifex: https://www.transifex.com/sio2project/sio2project/
+.. _Transifex: https://app.transifex.com/sio2project/sio2project/
 
 Advice
     The text on the left is the text to translate, and the text on the right is the translated text, that's easy.

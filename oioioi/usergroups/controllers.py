@@ -1,30 +1,30 @@
 from django.db.models import Q
 from django.utils import timezone
 
-from oioioi.rankings.controllers import CONTEST_RANKING_KEY
+from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
+from oioioi.rankings.controllers import CONTEST_RANKING_KEY, DefaultRankingController
+from oioioi.rankings.models import Ranking
 from oioioi.teachers.controllers import TeacherRegistrationController
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
-from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
-from oioioi.rankings.controllers import DefaultRankingController
+from oioioi.usergroups.utils import get_contest_ids_with_user_membership
 
-USER_GROUP_RANKING_PREFIX = 'g'
+USER_GROUP_RANKING_PREFIX = "g"
 
 
-class UserGroupsParticipantsControllerMixin(object):
+class UserGroupsParticipantsControllerMixin:
     def filter_participants(self, queryset):
-        base_qs = super(
-            UserGroupsParticipantsControllerMixin, self
-        ).filter_participants(queryset)
+        base_qs = super().filter_participants(queryset)
         groups_qs = queryset.filter(usergroups__contests__id=self.contest.id)
         return base_qs | groups_qs
 
     def user_contests_query(self, request):
-        base_query = super(
-            UserGroupsParticipantsControllerMixin, self
-        ).user_contests_query(request)
+        base_query = super().user_contests_query(request)
         if not request.user.is_authenticated:
             return base_query
-        return base_query | Q(usergroups__members__id=request.user.id)
+        return base_query | Q(id__in=get_contest_ids_with_user_membership(request))
+        # The above filter avoids costly joins in favour of subqueries,
+        # as opposed to the one below.
+        # return base_query | Q(usergroups__members__id=request.user.id)
 
 
 TeacherRegistrationController.mix_in(UserGroupsParticipantsControllerMixin)
@@ -34,7 +34,7 @@ def user_group_ranking_id(user_group_id):
     return USER_GROUP_RANKING_PREFIX + str(user_group_id)
 
 
-class UserGroupsDefaultRankingControllerMixin(object):
+class UserGroupsDefaultRankingControllerMixin:
     def _iter_user_groups(self, can_see_all, request):
         queryset = UserGroupRanking.objects.filter(contest__id=self.contest.id)
 
@@ -48,7 +48,7 @@ class UserGroupsDefaultRankingControllerMixin(object):
         return self._iter_user_groups(can_see_all, request)
 
     def _rounds_for_key(self, key):
-        can_see_all = self._key_permission(key) in {'admin', 'observer'}
+        can_see_all = self._key_permission(key) in {"admin", "observer"}
         partial_key = self.get_partial_key(key)
         # Get all visible rounds for user group rankings.
         if partial_key[0] == USER_GROUP_RANKING_PREFIX:
@@ -56,9 +56,7 @@ class UserGroupsDefaultRankingControllerMixin(object):
         return self._iter_rounds(can_see_all, timezone.now(), partial_key)
 
     def available_rankings(self, request):
-        rankings = super(
-            UserGroupsDefaultRankingControllerMixin, self
-        ).available_rankings(request)
+        rankings = super().available_rankings(request)
         if len(rankings) == 0:
             # User cannot see any rounds.
             return []
@@ -67,10 +65,18 @@ class UserGroupsDefaultRankingControllerMixin(object):
             rankings.append((user_group_ranking_id(user_group.id), user_group.name))
         return rankings
 
+    def partial_keys_for_probleminstance(self, pi):
+        partial_keys = super().partial_keys_for_probleminstance(pi)
+        keys = Ranking.objects.filter(
+            contest_id=pi.contest_id,
+            # Somewhat hacky.
+            key__contains=self.construct_full_key("", USER_GROUP_RANKING_PREFIX),
+        ).values_list("key", flat=True)
+        partial_keys.extend(self.get_partial_key(key) for key in keys)
+        return partial_keys
+
     def filter_users_for_ranking(self, key, queryset):
-        queryset = super(
-            UserGroupsDefaultRankingControllerMixin, self
-        ).filter_users_for_ranking(key, queryset)
+        queryset = super().filter_users_for_ranking(key, queryset)
         partial_key = self.get_partial_key(key)
 
         if partial_key[0] == USER_GROUP_RANKING_PREFIX:

@@ -13,6 +13,7 @@ First, ensure that all dependencies are installed:
 * latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*, *tex-gyre*,
   *texlive-pstricks*, *lmodern*),
 * Berkeley DB library (Ubuntu package: *libdb-dev*)
+* Node.js and npm (Ubuntu packages: *nodejs*, *npm*),
 
 It should be easier to begin with a separate folder at first::
 
@@ -24,11 +25,16 @@ and to install OIOIOI inside a `virtualenv`_::
   virtualenv venv
   . venv/bin/activate
 
-Then OIOIOI and its dependencies can be installed using the following commands::
+Then OIOIOI and its dependencies can be installed using the following commands.
+
+Using uv (recommended, faster)::
 
   git clone git://github.com/sio2project/oioioi.git
   cd oioioi
-  pip install -r requirements.txt
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  uv sync --all-groups
+  npm install
+  npm run build
 
 OIOIOI is a set of Django applications, therefore you need to create a folder with
 Django settings and other deployment configuration::
@@ -40,10 +46,6 @@ Django settings and other deployment configuration::
 The created *deployment* directory looks like a new Django project, but already
 configured to serve the OIOIOI portal. You need to at least set the `database
 configuration`_ in *settings.py*.
-
-In case of using PostgreSQL, install Psycopg2::
-
-  pip install psycopg2-binary
 
 Finally initialize the database::
 
@@ -120,7 +122,7 @@ Production configuration
 
 #. Ensure that production-grade dependencies are installed:
 
-   * uwsgi (*pip install uwsgi*)
+   * uwsgi (*uv pip install uwsgi*)
 
 #. Turn on UWSGI by setting *SERVER* to *uwsgi* in *settings.py* and restart
    the supervisor.
@@ -161,7 +163,7 @@ Production configuration
    to install dependencies:
 
    * memcached (Ubuntu package: *memcached*)
-   * python-memcached (*pip install python-memcached*)
+   * python-memcached (*uv pip install python-memcached*)
 
    Next, you have to uncomment the corresponding lines under "Cache" in
    *settings.py* and set the address of your memcached instance. Note that you
@@ -226,7 +228,7 @@ It is strongly recommended to install the *librabbitmq* Python module (on the
 server). We observed some not dispatched evaluation requests when running
 celery with its default AMQP binding library::
 
-  pip install librabbitmq
+  uv pip install librabbitmq
 
 Celery will pick up the new library automatically, once you restart the
 daemons using::
@@ -246,4 +248,3 @@ needed when installing OIOIOI in a pristine Ubuntu Server 12.04 LTS (Precise
 Pangolin):
 
 * *libz* (Ubuntu package: *zlib1g:i386*)
-

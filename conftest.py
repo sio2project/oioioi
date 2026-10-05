@@ -1,15 +1,12 @@
-from __future__ import print_function
-
 import pytest
-
+from django.conf import settings
 from oioioi.base.tests import pytest_plugin as base_plugin
 from oioioi.contests.tests import pytest_plugin as contests_plugin
 
 
 def pytest_addoption(parser):
-    parser.addoption(
-        '--runslow', action='store_true', default=False, help="run slow tests"
-    )
+    parser.addoption("--runslow", action="store_true", default=False, help="run slow tests")
+    parser.addoption("--strict-template-vars", action="store_true", help="Raise errors for undefined template variables")
 
 
 # called for running each test
@@ -18,9 +15,15 @@ def pytest_runtest_setup(item):
     base_plugin.pytest_runtest_setup(item)
 
 
+def pytest_configure(config):
+    if config.getoption("--strict-template-vars"):
+        # this will raise an error if a template variable is not defined
+        settings.TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "{% templatetag openvariable %} INVALID_VAR: %s {% templatetag closevariable %}"
+
+
 def pytest_collection_modifyitems(config, items):
     # --runslow flag: do not skip slow tests
-    if config.getoption('--runslow', False):
+    if config.getoption("--runslow", False):
         return
     skip_slow = pytest.mark.skip(reason="need --runslow option to run")
     for item in items:
@@ -29,12 +32,21 @@ def pytest_collection_modifyitems(config, items):
 
 
 # Removing links column from html report
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_header(cells):
     cells.pop()
 
 
 # Removing links column from html report
-@pytest.mark.optionalhook
+@pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_row(report, cells):
     cells.pop()
+
+
+@pytest.fixture()
+def require_migrations_flag(request):
+    config = request.config
+    nomigrations_enabled_flag = config.getoption("nomigrations")
+
+    if nomigrations_enabled_flag:
+        pytest.skip("Test requires the --migrations flag to run.")

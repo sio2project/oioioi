@@ -4,5 +4,9 @@
 {% block title %}{% trans "Add or update problem" %}{% endblock %}
 
 {% block main-content %}
+    <div class="alert alert-info mb-3" role="alert">
+        <span>{% trans "See also:" %}</span>
+        <a href="https://github.com/sio2project/oioioi/wiki" target="_blank" rel="noopener noreferrer" class="alert-link">{% trans "tutorial on creating problem packages" %}</a>
+    </div>
     {% include "problems/add-or-update-content.html" %}
 {% endblock %}

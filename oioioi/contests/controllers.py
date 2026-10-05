@@ -6,7 +6,7 @@ from django.contrib import auth
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Max, Min, Q, Subquery
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -21,24 +21,25 @@ from oioioi.base.utils import (
 from oioioi.base.utils.query_helpers import Q_always_true
 from oioioi.contests.models import (
     Contest,
-    ProblemStatementConfig,
+    LimitsVisibilityConfig,
+    ProblemInstance,
     RankingVisibilityConfig,
     Round,
+    RoundStartDelay,
     RoundTimeExtension,
-    ScoreReport,
     Submission,
-    SubmissionReport,
     UserResultForContest,
     UserResultForProblem,
     UserResultForRound,
-    submission_kinds,
 )
 from oioioi.contests.utils import (
     generic_rounds_times,
+    get_contest_problem_statement_config,
     has_any_active_round,
     is_contest_basicadmin,
     is_contest_observer,
     last_break_between_rounds,
+    process_instances_to_limits,
     rounds_times,
     visible_problem_instances,
 )
@@ -47,12 +48,32 @@ from oioioi.problems.controllers import ProblemController
 logger = logging.getLogger(__name__)
 
 
-def export_entries(registry, values):
-    result = []
-    for value, description in registry.entries:
-        if value in values:
-            result.append((value, description))
-    return result
+STATUS_CLASSES = {
+    "OK100": "text-bg-success",
+    "OK": "text-bg-success",
+    "INI_OK": "text-bg-success",
+    "TESTRUN_OK": "text=bg-success",
+    "OK75": "text-bg-warning",
+    "OK50": "text-bg-warning",
+    "OK25": "text-bg-danger",
+    "OK0": "text-bg-danger",
+    "ERR": "text-bg-danger",
+    "WA": "text-bg-danger",
+    "TLE": "text-bg-danger",
+    "RE": "text-bg-danger",
+    "CE": "text-bg-danger",
+    "MLE": "text-bg-danger",
+    "OLE": "text-bg-danger",
+    "SE": "text-bg-danger",
+    "RV": "text-bg-danger",
+    "INI_ERR": "text-bg-danger",
+    "MSE": "text-bg-danger",
+    "MCE": "text-bg-danger",
+}
+
+
+def get_badge_class(display_type):
+    return STATUS_CLASSES.get(display_type, "badge-secondary")
 
 
 def submission_template_context(request, submission):
@@ -62,64 +83,27 @@ def submission_template_context(request, submission):
     can_see_score = controller.can_see_submission_score(request, submission)
     can_see_comment = controller.can_see_submission_comment(request, submission)
     link = reverse(
-        'submission',
+        "submission",
         kwargs={
-            'submission_id': submission.id,
-            'contest_id': pi.contest.id if pi.contest else None,
+            "submission_id": submission.id,
+            "contest_id": pi.contest.id if pi.contest else None,
         },
     )
 
-    valid_kinds = controller.valid_kinds_for_submission(submission)
-    valid_kinds.remove(submission.kind)
-    valid_kinds_for_submission = export_entries(submission_kinds, valid_kinds)
-
     message = submission.get_status_display
 
-    if can_see_score and (submission.status == 'INI_OK' or submission.status == 'OK'):
-        submission_report = SubmissionReport.objects.filter(
-            submission=submission
-        ).first()
-        score_report = ScoreReport.objects.filter(
-            submission_report=submission_report
-        ).first()
-
-        try:
-            score_percentage = (
-                float(score_report.score.to_int()) / score_report.max_score.to_int()
-            )
-
-            if score_percentage < 0.25:
-                display_type = 'OK0'
-            elif score_percentage < 0.5:
-                display_type = 'OK25'
-            elif score_percentage < 0.75:
-                display_type = 'OK50'
-            elif score_percentage < 1.0:
-                display_type = 'OK75'
-            else:
-                display_type = 'OK100'
-
-        except ZeroDivisionError:
-            message = 'PENDING'
-            display_type = 'IGN'
-
-        # If by any means there is no 'score' or 'max_score' field then
-        # we just treat the submission as without them
-        except AttributeError:
-            display_type = submission.status
-
-    else:
-        display_type = submission.status
+    display_type = submission.get_display_type(can_see_score)
+    badge_class = get_badge_class(display_type)
 
     return {
-        'submission': submission,
-        'can_see_status': can_see_status,
-        'can_see_score': can_see_score,
-        'can_see_comment': can_see_comment,
-        'display_type': display_type,
-        'message': message,
-        'link': link,
-        'valid_kinds_for_submission': valid_kinds_for_submission,
+        "submission": submission,
+        "can_see_status": can_see_status,
+        "can_see_score": can_see_score,
+        "can_see_comment": can_see_comment,
+        "display_type": display_type,
+        "badge_class": badge_class,
+        "message": message,
+        "link": link,
     }
 
 
@@ -151,16 +135,12 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         filt = self.user_contests_query(request)
         for backend in auth.get_backends():
-            if not hasattr(backend, 'filter_for_perm'):
+            if not hasattr(backend, "filter_for_perm"):
                 continue
             filt |= (
-                backend.filter_for_perm(Contest, 'contests.contest_basicadmin', request.user)
-                | backend.filter_for_perm(
-                    Contest, 'contests.contest_observer', request.user
-                )
-                | backend.filter_for_perm(
-                    Contest, 'contests.personal_data', request.user
-                )
+                backend.filter_for_perm(Contest, "contests.contest_basicadmin", request.user)
+                | backend.filter_for_perm(Contest, "contests.contest_observer", request.user)
+                | backend.filter_for_perm(Contest, "contests.personal_data", request.user)
             )
         return filt
 
@@ -295,11 +275,10 @@ class PublicContestRegistrationController(RegistrationController):
 
     def filter_users_with_accessible_personal_data(self, queryset):
         submissions = Submission.objects.filter(problem_instance__contest=self.contest)
-        authors = [s.user for s in submissions]
-        return [q for q in queryset if q in authors]
+        return queryset.filter(id__in=Subquery(submissions.values("user_id")))
 
 
-class ContestControllerContext(object):
+class ContestControllerContext:
     def __init__(self, contest, timestamp, is_admin):
         self.contest = contest
         self.timestamp = timestamp
@@ -313,7 +292,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     rules.
     """
 
-    modules_with_subclasses = ['controllers']
+    modules_with_subclasses = ["controllers"]
     abstract = True
 
     def __init__(self, contest):
@@ -337,7 +316,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         The default implementation returns the list of problems.
         """
-        return reverse('problems_list', kwargs={'contest_id': self.contest.id})
+        return reverse("problems_list", kwargs={"contest_id": self.contest.id})
 
     def get_contest_participant_info_list(self, request, user):
         """Returns a list of tuples (priority, info).
@@ -361,47 +340,49 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             (
                 100,
                 render_to_string(
-                    'contests/basic_user_info.html',
+                    "contests/basic_user_info.html",
                     {
-                        'request': request,
-                        'target_user_name': self.get_user_public_name(request, user),
-                        'target_user': user,
-                        'user': request.user,
+                        "request": request,
+                        "target_user_name": self.get_user_public_name(request, user),
+                        "target_user": user,
+                        "user": request.user,
                     },
                 ),
             )
         ]
 
-        exts = RoundTimeExtension.objects.filter(
-            user=user, round__contest=request.contest
-        )
+        exts = RoundTimeExtension.objects.filter(user=user, round__contest=request.contest)
         if exts.exists():
             res.append(
                 (
                     99,
                     render_to_string(
-                        'contests/roundtimeextension_info.html',
-                        {'request': request, 'extensions': exts, 'user': request.user},
+                        "contests/roundtimeextension_info.html",
+                        {"request": request, "extensions": exts, "user": request.user},
+                    ),
+                )
+            )
+
+        delays = RoundStartDelay.objects.filter(user=user, round__contest=request.contest)
+        if delays.exists():
+            res.append(
+                (
+                    98,
+                    render_to_string(
+                        "contests/roundstartdelay_info.html",
+                        {"request": request, "delays": delays, "user": request.user},
                     ),
                 )
             )
 
         if is_contest_basicadmin(request) or is_contest_observer(request):
-            submissions = (
-                Submission.objects.filter(
-                    problem_instance__contest=request.contest, user=user
-                )
-                .order_by('-date')
-                .select_related()
-            )
+            submissions = Submission.objects.filter(problem_instance__contest=request.contest, user=user).order_by("-date").select_related()
 
             if submissions.exists():
-                submission_records = [
-                    submission_template_context(request, s) for s in submissions
-                ]
-                context = {'submissions': submission_records, 'show_scores': True}
+                submission_records = [submission_template_context(request, s) for s in submissions]
+                context = {"submissions": submission_records, "show_scores": True}
                 rendered_submissions = render_to_string(
-                    'contests/user_submissions_table.html',
+                    "contests/user_submissions_table.html",
                     context=context,
                     request=request,
                 )
@@ -477,11 +458,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             rtimes = self.get_round_times(request, round)
             to_event = timedelta(minutes=10)
             focus_after_start = timedelta(minutes=1)
-            if (
-                rtimes.get_start()
-                and now >= rtimes.get_start()
-                and now <= rtimes.get_start() + focus_after_start
-            ):
+            if rtimes.get_start() and now >= rtimes.get_start() and now <= rtimes.get_start() + focus_after_start:
                 to_event = now - rtimes.get_start()
             if rtimes.is_future(now):
                 to_event = min(to_event, rtimes.get_start() - now)
@@ -490,11 +467,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
             to_event_inactive = timedelta(hours=6)
             focus_after_end = timedelta(hours=1)
-            if (
-                rtimes.get_end()
-                and now >= rtimes.get_end()
-                and now <= rtimes.get_end() + focus_after_end
-            ):
+            if rtimes.get_end() and now >= rtimes.get_end() and now <= rtimes.get_end() + focus_after_end:
                 to_event_inactive = now - rtimes.get_end()
             if rtimes.is_future(now):
                 to_event_inactive = min(to_event_inactive, rtimes.get_start() - now)
@@ -539,8 +512,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         except RankingVisibilityConfig.DoesNotExist:
             rvc = None
 
-        if rvc and rvc.visible != 'AUTO':
-            return rvc.visible == 'YES'
+        if rvc and rvc.visible != "AUTO":
+            return rvc.visible == "YES"
         else:
             return self.default_can_see_ranking(request_or_context)
 
@@ -561,9 +534,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if not no_admin and context.is_admin:
             return True
-        return self.can_see_round(
-            request_or_context, problem_instance.round, no_admin=no_admin
-        )
+        return self.can_see_round(request_or_context, problem_instance.round, no_admin=no_admin)
 
     def can_see_statement(self, request_or_context, problem_instance):
         """Determines if the current user is allowed to see the statement for
@@ -578,14 +549,27 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         context = self.make_context(request_or_context)
         if context.is_admin:
             return True
-        psc = ProblemStatementConfig.objects.filter(contest=context.contest)
-        if psc.exists() and psc[0].visible != 'AUTO':
-            return psc[0].visible == 'YES'
+        psc = get_contest_problem_statement_config(request_or_context)
+        if psc is not None and psc.visible != "AUTO":
+            return psc.visible == "YES"
         else:
             return self.default_can_see_statement(request_or_context, problem_instance)
 
     def default_can_see_statement(self, request_or_context, problem_instance):
         return True
+
+    def can_see_problems_limits(self, request):
+        context = self.make_context(request)
+        lvc = LimitsVisibilityConfig.objects.filter(contest=context.contest)
+        if lvc.exists() and lvc[0].visible == "YES":
+            return True
+        elif lvc.exists() and lvc[0].visible == "NO":
+            return False
+        else:
+            return self.default_can_see_problems_limits(request)
+
+    def default_can_see_problems_limits(self, request):
+        return False
 
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Determines if the current user is allowed to submit a solution for
@@ -616,60 +600,141 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         non-contestants.  In other cases it returns ``'NORMAL'``.
         """
         if is_contest_basicadmin(request) or is_contest_observer(request):
-            return 'IGNORED'
-        return 'NORMAL'
+            return "IGNORED"
+        return "NORMAL"
 
-    def get_submissions_limit(self, request, problem_instance, kind='NORMAL', noadmin=False):
+    def get_submissions_limit(self, request, problem_instance, kind="NORMAL", noadmin=False):
         if is_contest_basicadmin(request) and not noadmin:
             return None
-        return problem_instance.problem.controller.get_submissions_limit(
-            request, problem_instance, kind, noadmin
-        )
+        return problem_instance.problem.controller.get_submissions_limit(request, problem_instance, kind, noadmin)
+
+    def get_submissions_count(self, request, problem_instance, kind=None):
+        # by default delegate to ProblemController
+        if kind is None:
+            kind = self.get_default_submission_kind(request)
+        return problem_instance.problem.controller.get_submissions_count(request, problem_instance, kind)
 
     def get_submissions_left(self, request, problem_instance, kind=None):
         # by default delegate to ProblemController
         if kind is None:
             kind = self.get_default_submission_kind(request)
-        return problem_instance.problem.controller.get_submissions_left(
-            request, problem_instance, kind
-        )
+        return problem_instance.problem.controller.get_submissions_left(request, problem_instance, kind)
+
+    def get_editorial_attachment(self, request, problem_instance):
+        # by default delegate to ProblemController
+        return problem_instance.problem.controller.get_editorial_attachment(request, problem_instance)
+
+    def can_access_editorial(self, request, problem_instance):
+        # by default delegate to ProblemController
+        editorial_accessible_for_problem = problem_instance.problem.controller.can_access_editorial(request, problem_instance)
+        # Teacher has manually hidden editorial for this problem instance.
+        editorial_accessible_for_instance = problem_instance.can_access_editorial
+        if not editorial_accessible_for_instance:
+            return False
+        return editorial_accessible_for_problem
 
     def is_submissions_limit_exceeded(self, request, problem_instance, kind=None):
         # by default delegate to ProblemController
         if kind is None:
             kind = self.get_default_submission_kind(request)
-        return problem_instance.problem.controller.is_submissions_limit_exceeded(
-            request, problem_instance, kind
+        return problem_instance.problem.controller.is_submissions_limit_exceeded(request, problem_instance, kind)
+
+    def get_problems_limits(self, request):
+        """Returns a dictionary containing data about time and memory limits for a given ProblemInstance:
+        ProblemInstanceID -> {
+            'default':  (min_time, max_time, min_memory, max_memory),
+            'cpp':      (min_time, max_time, min_memory, max_memory),
+            'py':       (min_time, max_time, min_memory, max_memory)
+        }
+        Corresponding dictionary is None if no limits exist
+        """
+
+        instances = (
+            ProblemInstance.objects.filter(contest=request.contest)
+            .annotate(
+                # default limits
+                min_time=Min("test__time_limit", filter=Q(test__is_active=True)),
+                max_time=Max("test__time_limit", filter=Q(test__is_active=True)),
+                min_memory=Min("test__memory_limit", filter=Q(test__is_active=True)),
+                max_memory=Max("test__memory_limit", filter=Q(test__is_active=True)),
+                # cpp overridden limits
+                cpp_min_time=Min(
+                    "test__languageoverridefortest__time_limit", filter=Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)
+                ),
+                cpp_max_time=Max(
+                    "test__languageoverridefortest__time_limit", filter=Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)
+                ),
+                cpp_min_memory=Min(
+                    "test__languageoverridefortest__memory_limit", filter=Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)
+                ),
+                cpp_max_memory=Max(
+                    "test__languageoverridefortest__memory_limit", filter=Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)
+                ),
+                # python overridden limits
+                py_min_time=Min("test__languageoverridefortest__time_limit", filter=Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)),
+                py_max_time=Max("test__languageoverridefortest__time_limit", filter=Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)),
+                py_min_memory=Min(
+                    "test__languageoverridefortest__memory_limit", filter=Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)
+                ),
+                py_max_memory=Max(
+                    "test__languageoverridefortest__memory_limit", filter=Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)
+                ),
+                # non-overridden test limits in cpp
+                cpp_min_time_non_overridden=Min("test__time_limit", filter=~Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)),
+                cpp_max_time_non_overridden=Max("test__time_limit", filter=~Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)),
+                cpp_min_memory_non_overridden=Min("test__memory_limit", filter=~Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)),
+                cpp_max_memory_non_overridden=Max("test__memory_limit", filter=~Q(test__languageoverridefortest__language="cpp") & Q(test__is_active=True)),
+                # non-overridden test limits in python
+                py_min_time_non_overridden=Min("test__time_limit", filter=~Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)),
+                py_max_time_non_overridden=Max("test__time_limit", filter=~Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)),
+                py_min_memory_non_overridden=Min("test__memory_limit", filter=~Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)),
+                py_max_memory_non_overridden=Max("test__memory_limit", filter=~Q(test__languageoverridefortest__language="py") & Q(test__is_active=True)),
+            )
+            .values(
+                "id",
+                "min_time",
+                "max_time",
+                "min_memory",
+                "max_memory",
+                "cpp_min_time",
+                "cpp_max_time",
+                "cpp_min_memory",
+                "cpp_max_memory",
+                "cpp_min_time_non_overridden",
+                "cpp_max_time_non_overridden",
+                "cpp_min_memory_non_overridden",
+                "cpp_max_memory_non_overridden",
+                "py_min_time",
+                "py_max_time",
+                "py_min_memory",
+                "py_max_memory",
+                "py_min_time_non_overridden",
+                "py_max_time_non_overridden",
+                "py_min_memory_non_overridden",
+                "py_max_memory_non_overridden",
+            )
         )
+
+        return process_instances_to_limits(instances)
 
     def adjust_submission_form(self, request, form, problem_instance):
         # by default delegate to ProblemController
-        problem_instance.problem.controller.adjust_submission_form(
-            request, form, problem_instance
-        )
+        problem_instance.problem.controller.adjust_submission_form(request, form, problem_instance)
 
     def validate_submission_form(self, request, problem_instance, form, cleaned_data):
         # by default delegate to ProblemController
-        return problem_instance.problem.controller.validate_submission_form(
-            request, problem_instance, form, cleaned_data
-        )
+        return problem_instance.problem.controller.validate_submission_form(request, problem_instance, form, cleaned_data)
 
     def create_submission(self, request, problem_instance, form_data, **kwargs):
         # by default delegate to ProblemController
         problem = problem_instance.problem
-        return problem.controller.create_submission(
-            request, problem_instance, form_data, **kwargs
-        )
+        return problem.controller.create_submission(request, problem_instance, form_data, **kwargs)
 
     def judge(self, submission, extra_args=None, is_rejudge=False):
-        submission.problem_instance.problem.controller.judge(
-            submission, extra_args, is_rejudge
-        )
+        submission.problem_instance.problem.controller.judge(submission, extra_args, is_rejudge)
 
     def fill_evaluation_environ(self, environ, submission):
-        submission.problem_instance.problem.controller.fill_evaluation_environ(
-            environ, submission
-        )
+        submission.problem_instance.problem.controller.fill_evaluation_environ(environ, submission)
 
     def get_supported_extra_args(self, submission):
         """Returns dict of all values which can be provided in extra_args
@@ -712,13 +777,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         problem = result.problem_instance.problem
         problem.controller.update_user_result_for_problem(result)
 
-    def update_problem_statistics(
-        self, problem_statistics, user_statistics, submission
-    ):
+    def update_problem_statistics(self, problem_statistics, user_statistics, submission):
         problem = submission.problem_instance.problem
-        problem.controller.update_problem_statistics(
-            problem_statistics, user_statistics, submission
-        )
+        problem.controller.update_problem_statistics(problem_statistics, user_statistics, submission)
 
     def _sum_scores(self, scores):
         scores = [s for s in scores if s is not None]
@@ -733,11 +794,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         Saving the ``result`` is a responsibility of the caller.
         """
-        scores = (
-            UserResultForProblem.objects.filter(user=result.user)
-            .filter(problem_instance__round=result.round)
-            .values_list('score', flat=True)
-        )
+        scores = UserResultForProblem.objects.filter(user=result.user).filter(problem_instance__round=result.round).values_list("score", flat=True)
         result.score = self._sum_scores(scores)
 
     def update_user_result_for_contest(self, result):
@@ -753,7 +810,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             UserResultForRound.objects.filter(user=result.user)
             .filter(round__contest=result.contest)
             .filter(round__is_trial=False)
-            .values_list('score', flat=True)
+            .values_list("score", flat=True)
         )
         result.score = self._sum_scores(scores)
 
@@ -785,9 +842,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             (
                 result,
                 created,
-            ) = UserResultForRound.objects.select_for_update().get_or_create(
-                user=user, round=round
-            )
+            ) = UserResultForRound.objects.select_for_update().get_or_create(user=user, round=round)
             self.update_user_result_for_round(result)
             result.save()
 
@@ -796,9 +851,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             (
                 result,
                 created,
-            ) = UserResultForContest.objects.select_for_update().get_or_create(
-                user=user, contest=contest
-            )
+            ) = UserResultForContest.objects.select_for_update().get_or_create(user=user, contest=contest)
             self.update_user_result_for_contest(result)
             result.save()
 
@@ -819,11 +872,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if is_contest_basicadmin(request):
             return queryset
         else:
-            return (
-                queryset.filter(date__lte=request.timestamp)
-                .filter(problem_instance__in=visible_problem_instances(request))
-                .exclude(kind='IGNORED_HIDDEN')
-            )
+            return queryset.filter(date__lte=request.timestamp).filter(problem_instance__in=visible_problem_instances(request)).exclude(kind="IGNORED_HIDDEN")
 
     def results_visible(self, request, submission):
         """Determines whether it is a good time to show the submission's
@@ -862,25 +911,17 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if is_contest_basicadmin(request) or is_contest_observer(request):
             return queryset
         if self.results_visible(request, submission):
-            return queryset.filter(status='ACTIVE', kind='NORMAL')
+            return queryset.filter(status="ACTIVE", kind="NORMAL")
         return queryset.none()
 
     def can_see_submission_status(self, request, submission):
-        return submission.problem_instance.problem.controller.can_see_submission_status(
-            request, submission
-        )
+        return submission.problem_instance.problem.controller.can_see_submission_status(request, submission)
 
     def can_see_submission_score(self, request, submission):
-        return submission.problem_instance.problem.controller.can_see_submission_score(
-            request, submission
-        )
+        return submission.problem_instance.problem.controller.can_see_submission_score(request, submission)
 
     def can_see_submission_comment(self, request, submission):
-        return (
-            submission.problem_instance.problem.controller.can_see_submission_comment(
-                request, submission
-            )
-        )
+        return submission.problem_instance.problem.controller.can_see_submission_comment(request, submission)
 
     def render_submission_date(self, submission, shortened=False):
         problem = submission.problem_instance.problem
@@ -900,9 +941,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         raise NotImplementedError
 
     def render_submission_footer(self, request, submission):
-        return submission.problem.controller.render_submission_footer(
-            request, submission
-        )
+        return submission.problem.controller.render_submission_footer(request, submission)
 
     def render_report(self, request, report):
         problem = report.submission.problem_instance.problem
@@ -950,7 +989,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if self.contest.contact_email:
             replyto = self.contest.contact_email
 
-        final_headers = {'Reply-To': replyto}
+        final_headers = {"Reply-To": replyto}
         if headers:
             final_headers.update(headers)
         email = EmailMessage(
@@ -968,15 +1007,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     def _is_partial_score(self, test_report):
         if not test_report:
             return False
-        return test_report.submission_report.submission.problem.controller._is_partial_score(
-            test_report
-        )
+        return test_report.submission_report.submission.problem.controller._is_partial_score(test_report)
 
     def show_default_fields(self, problem_instance):
         return problem_instance.problem.controller.show_default_fields(problem_instance)
 
 
-class PastRoundsHiddenContestControllerMixin(object):
+class PastRoundsHiddenContestControllerMixin:
     """ContestController mixin that hides past rounds
     if another round is starting soon.
 
@@ -1008,11 +1045,11 @@ class PastRoundsHiddenContestControllerMixin(object):
         if not no_admin and context.is_admin:
             return True
 
-        rtimes = self.get_round_times(None, round)
-        if has_any_active_round(context):
+        rtimes = self.get_round_times(request_or_context, round)
+        if has_any_active_round(request_or_context):
             return rtimes.is_active(context.timestamp)
 
-        left, right = last_break_between_rounds(context)
+        left, right = last_break_between_rounds(request_or_context)
         if left is not None and right is not None:
             last_break_time = right - left
             preparation_start = right - min(timedelta(minutes=30), last_break_time // 2)
@@ -1020,12 +1057,10 @@ class PastRoundsHiddenContestControllerMixin(object):
             if preparation_start < context.timestamp < preparation_end:
                 return False
 
-        return super(PastRoundsHiddenContestControllerMixin, self).can_see_round(
-            request_or_context, round, no_admin
-        )
+        return super().can_see_round(request_or_context, round, no_admin)
 
 
-class NotificationsMixinForContestController(object):
+class NotificationsMixinForContestController:
     """Sets default contest notification settings."""
 
     def users_to_receive_public_message_notification(self):
@@ -1043,9 +1078,7 @@ class NotificationsMixinForContestController(object):
         been judged. It doesn't validate any permissions.
         """
         if submission.problem_instance.contest:
-            message = gettext_noop(
-                "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
-            )
+            message = gettext_noop("%(contest_name)s, %(task_name)s: Your submission was judged.\n")
         else:
             message = gettext_noop("%(task_name)s: Your submission was judged.\n")
 
@@ -1058,7 +1091,7 @@ class NotificationsMixinForContestController(object):
 ContestController.mix_in(NotificationsMixinForContestController)
 
 
-class ProblemUploadingContestControllerMixin(object):
+class ProblemUploadingContestControllerMixin:
     """ContestController mixin that declares empty methods for extending
     problem uploading process.
     """

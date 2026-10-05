@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
 "http://www.w3.org/TR/html4/strict.dtd">
-{% load compress %}
+{% load compress static %}
 <html>
     <head>
         <title>{% block title %}OIOIOI{% endblock %}</title>
@@ -25,8 +25,8 @@
                 text-align: center;
             }
         </style>
+        <script src="{% static 'jquery.bundle.js' %}"></script>
         {% compress js %}
-            <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
             <script type="text/javascript" src="{{ STATIC_URL }}balloons/refresh.js"></script>
         {% endcompress %}
         <script>

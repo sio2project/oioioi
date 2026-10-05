@@ -1,0 +1,20 @@
+{% load i18n pagination_tags %}
+<div class="table-responsive-md">
+    <h4> {% trans "Permissions" %} </h4>
+    <table class="table table-sm table-bordered">
+        <thead>
+        <tr>
+            <th> {% trans "Permission" %} </th>
+            <th> {% trans "Count" %} </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for permission, count in permissions_info.items %}
+            <tr>
+                <td>{{ permission }}</td>
+                <td>{{ count }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

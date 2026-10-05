@@ -1,16 +1,8 @@
-<div class="input-group date oioioi-narrow-input">
-    <input type="text" class="form-control" name="{{ name }}"
-                            value="{{ value|date:"Y-m-d H:i" }}" {{ attrs }}/>
-    <span class="input-group-append">
-        <i class="fa-solid fa-calendar"></i>
-    </span>
+<div class="input-group oioioi-narrow-input mb-2 datetimepicker">
+    {% include "django/forms/widgets/input.html" %}
+    <div class="input-group-append">
+        <span class="input-group-text" role="button">
+            <i class="fa-solid fa-calendar"></i>
+        </span>
+    </div>
 </div>
-
-<script type="text/javascript">
-    $(function() {
-        $('.input-group.date').datetimepicker({
-            format: 'YYYY-MM-DD HH:mm',
-            locale: '{{ LANGUAGE_CODE|default:"en" }}'
-        });
-    });
-</script>

@@ -7,7 +7,7 @@ from oioioi.contests.scores import ScoreValue
 
 def format_time(seconds):
     minutes = seconds // 60
-    return '%d:%02d' % (minutes // 60, minutes % 60)
+    return f"{minutes // 60}:{minutes % 60:02d}"
 
 
 @total_ordering
@@ -18,7 +18,7 @@ class BinaryScore(ScoreValue):
     accepted.
     """
 
-    symbol = 'bool'
+    symbol = "bool"
     accepted = False
 
     def __init__(self, solved=False):
@@ -42,10 +42,10 @@ class BinaryScore(ScoreValue):
 
     @classmethod
     def _from_repr(cls, value):
-        return BinaryScore(value == 'accepted')
+        return BinaryScore(value == "accepted")
 
     def _to_repr(self):
-        return 'accepted' if self.accepted else 'rejected'
+        return "accepted" if self.accepted else "rejected"
 
     def __unicode__(self):
         if self.accepted:
@@ -75,14 +75,13 @@ class ACMScore(ScoreValue):
 
     DEFAULT_PENALTY_TIME = 20 * 60  # in seconds
 
-    symbol = 'ACM'
+    symbol = "ACM"
     problems_solved = 0
     time_passed = 0  # in seconds
     penalties_count = 0
     penalty_time = DEFAULT_PENALTY_TIME  # in seconds
 
-    def __init__(self, problems_solved=0, time_passed=0, penalties_count=0,
-                       penalty_time=DEFAULT_PENALTY_TIME):
+    def __init__(self, problems_solved=0, time_passed=0, penalties_count=0, penalty_time=DEFAULT_PENALTY_TIME):
         self.problems_solved = int(problems_solved)
         self.time_passed = int(time_passed)
         self.penalties_count = int(penalties_count)
@@ -125,11 +124,11 @@ class ACMScore(ScoreValue):
 
     def __unicode__(self):
         penalty_string = self.penalty_repr()
-        time_string = ''
+        time_string = ""
         if self.problems_solved > 0:
             time_string = self.time_passed_repr()
-            if penalty_string != '':
-                time_string += ' '
+            if penalty_string != "":
+                time_string += " "
         return str(time_string + penalty_string)
 
     def __str__(self):
@@ -137,28 +136,24 @@ class ACMScore(ScoreValue):
 
     def csv_repr(self):
         if self.problems_solved == 0:
-            return ''
+            return ""
         return str(self.penalties_count)
 
     def penalty_repr(self):
         if self.penalties_count <= 3:
-            return '*' * self.penalties_count
+            return "*" * self.penalties_count
         else:
-            return '*(%d)' % (self.penalties_count,)
+            return f"*({self.penalties_count})"
 
     def total_time_repr(self):
-        return '%d:%02d:%02d' % (
-            self.total_time / 3600,
-            (self.total_time % 3600) / 60,
-            self.total_time % 60,
-        )
+        return f"{int(self.total_time / 3600)}:{int((self.total_time % 3600) / 60):02d}:{int(self.total_time % 60):02d}"
 
     def time_passed_repr(self):
         return format_time(self.time_passed)
 
     @classmethod
     def _from_repr(cls, value):
-        tokens = [int(x) for x in value.split(':')]
+        tokens = [int(x) for x in value.split(":")]
 
         penalty_time = cls.DEFAULT_PENALTY_TIME
         if len(tokens) == 5:
@@ -182,14 +177,8 @@ class ACMScore(ScoreValue):
 
            ``penalties_count`` is number of unsuccessful submissions.
         """
-        ordering = 10 ** 10 * (self.problems_solved + 1) - self.total_time
-        return '%020d:%010d:%010d:%010d:%010d' % (
-            ordering,
-            self.problems_solved,
-            self.time_passed,
-            self.penalties_count,
-            self.penalty_time,
-        )
+        ordering = 10**10 * (self.problems_solved + 1) - self.total_time
+        return f"{int(ordering):020d}:{self.problems_solved:010d}:{self.time_passed:010d}:{self.penalties_count:010d}:{self.penalty_time:010d}"
 
     @property
     def total_time(self):

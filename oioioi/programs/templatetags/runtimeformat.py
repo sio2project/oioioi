@@ -7,11 +7,9 @@ register = template.Library()
 @register.filter
 def runtimeformat(value):
     if value is None:
-        return '???'
+        return "???"
     seconds = value / 1000.0
     if seconds < 200:
-        return _("%(seconds).2fs") % dict(seconds=seconds)
+        return _("%(seconds).2f s") % {"seconds": seconds}
     else:
-        return _("%(minutes)dm %(seconds).2fs") % dict(
-            minutes=int(seconds // 60), seconds=(seconds % 60)
-        )
+        return _("%(minutes)d m %(seconds).2f s") % {"minutes": int(seconds // 60), "seconds": (seconds % 60)}

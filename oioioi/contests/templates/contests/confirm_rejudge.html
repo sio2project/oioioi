@@ -5,10 +5,77 @@
 {% block confirmation_header %}{% trans "Confirm rejudge" %}{% endblock %}
 {% block confirmation_form_explanation %}
     <p>
-        {% trans "Something about this problem has changed. If the change was trivial (like a typo) then rejudge is not needed." %}
+        {% trans "Something about the problems has changed. If the change was trivial (like a typo) then rejudge is not needed." %}
         {% trans "If the tests for the problem have changed then you should proceed with a rejudge." %}
     </p>
     <p>
         {% blocktrans %}You are going to rejudge {{ count }} submissions. It may take some time.{% endblocktrans %}
     </p>
+{% endblock %}
+
+{% block confirmation_form %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="row mb-2">
+            <label class="col-sm-3 col-form-label" for="date_from">{% trans "From date" %}</label>
+            <div class="col-sm-9">
+                <input type="datetime-local" id="date_from" name="date_from"
+                       class="form-control" value="{{ date_from }}">
+            </div>
+        </div>
+        <div class="row mb-2">
+            <label class="col-sm-3 col-form-label" for="date_to">{% trans "To date" %}</label>
+            <div class="col-sm-9">
+                <input type="datetime-local" id="date_to" name="date_to"
+                       class="form-control" value="{{ date_to }}">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-9 offset-sm-3">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="last_only" name="last_only"
+                           {% if last_only %}checked{% endif %}>
+                    <label class="form-check-label" for="last_only">{% trans "Last submission per user only" %}</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group mb-3">
+            <button type="submit" formmethod="get" class="btn btn-secondary">
+                {% trans "Preview count" %}
+            </button>
+        </div>
+
+        {% if problem_instances %}
+            <div class="mb-3">
+                <strong>{% trans "Problems to be rejudged:" %}</strong>
+                <ul class="list-group">
+                    {% for pi in problem_instances %}
+                        <li class="list-group-item">
+                            {{ pi.problem.name }} ({{ pi.short_name }})
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <input type="hidden" name="ids" value="{% for pi in problem_instances %}{% if not forloop.first %},{% endif %}{{ pi.id }}{% endfor %}">
+        {% endif %}
+
+        <p>{% trans "Are you sure?" %}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="post" value="yes"/>
+        <input type="hidden" name="date_from" value="{{ date_from }}"/>
+        <input type="hidden" name="date_to" value="{{ date_to }}"/>
+        {% if last_only %}
+        <input type="hidden" name="last_only" value="on"/>
+        {% endif %}
+        <div class="mb-3 form-group">
+            <button type="submit" name="post" value="yes" class="btn btn-danger">
+                {% trans "Yes, I am sure." %}
+            </button>
+            <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                {% trans "No, go back" %}
+            </button>
+        </div>
+    </form>
 {% endblock %}

@@ -8,12 +8,17 @@ from oioioi.base.utils.query_helpers import (
 from oioioi.contests.models import Contest, ContestPermission
 
 
-class ContestPermissionsAuthBackend(object):
+class ContestPermissionsAuthBackend:
     description = _("Contests permissions")
     supports_authentication = False
 
     def authenticate(self, request, **kwargs):
         return None
+
+    def _get_permission_objects_list_for_user(self, user):
+        if not hasattr(user, "_contest_perms_cache"):
+            user._contest_perms_cache = set(ContestPermission.objects.filter(user=user).values_list("contest", "permission"))
+        return user._contest_perms_cache
 
     def filter_for_perm(self, obj_class, perm, user):
         """Provides a :class:`django.db.models.Q` expression which can be used
@@ -25,11 +30,17 @@ class ContestPermissionsAuthBackend(object):
         if obj_class is Contest:
             if user.is_superuser:
                 return Q_always_true()
-            query = Q(contestpermission__permission=perm, contestpermission__user=user)
-            if perm == 'contests.contest_admin':
-                query |= self.filter_for_perm(obj_class, 'contests.contest_owner', user)
-            if perm == 'contests.contest_basicadmin':
-                query |= self.filter_for_perm(obj_class, 'contests.contest_admin', user)
+            contest_ids = [contest_id for contest_id, contest_perm in self._get_permission_objects_list_for_user(user) if contest_perm == perm]
+            query = Q(id__in=contest_ids)
+            # Writing the query as above avoids somewhat costly joins in `visible_contests`.
+            # It also greatly simplifies the query itself, as most users have no
+            # ContestPermission objects and the rest often has only one type of permission.
+            # Django is smart enough to eliminate empty `__in` filters.
+            # query = Q(contestpermission__permission=perm, contestpermission__user=user)
+            if perm == "contests.contest_admin":
+                query |= self.filter_for_perm(obj_class, "contests.contest_owner", user)
+            if perm == "contests.contest_basicadmin":
+                query |= self.filter_for_perm(obj_class, "contests.contest_admin", user)
             return query
         return Q_always_false()
 
@@ -38,18 +49,8 @@ class ContestPermissionsAuthBackend(object):
             return False
         if obj is None or not isinstance(obj, Contest):
             return False
-        if perm == 'contests.contest_admin' and self.has_perm(
-            user_obj, 'contests.contest_owner', obj
-        ):
+        if perm == "contests.contest_admin" and self.has_perm(user_obj, "contests.contest_owner", obj):
             return True
-        if perm == 'contests.contest_basicadmin' and self.has_perm(
-            user_obj, 'contests.contest_admin', obj
-        ):
+        if perm == "contests.contest_basicadmin" and self.has_perm(user_obj, "contests.contest_admin", obj):
             return True
-        if not hasattr(user_obj, '_contest_perms_cache'):
-            user_obj._contest_perms_cache = set(
-                ContestPermission.objects.filter(user=user_obj).values_list(
-                    'contest', 'permission'
-                )
-            )
-        return (obj.id, perm) in user_obj._contest_perms_cache
+        return (obj.id, perm) in self._get_permission_objects_list_for_user(user_obj)

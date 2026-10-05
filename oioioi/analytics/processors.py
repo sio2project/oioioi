@@ -1,6 +1,6 @@
 from django.conf import settings
 
-TEMPLATE = '''
+TEMPLATE = """
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -14,11 +14,11 @@ TEMPLATE = '''
   })();
 
 </script>
-'''
+"""
 
 
 def analytics_processor(request):
-    tracking_id = getattr(settings, 'GOOGLE_ANALYTICS_TRACKING_ID', None)
+    tracking_id = getattr(settings, "GOOGLE_ANALYTICS_TRACKING_ID", None)
     if tracking_id:
-        return {'extra_head_analytics': TEMPLATE % {'tracking_id': tracking_id}}
+        return {"extra_head_analytics": TEMPLATE % {"tracking_id": tracking_id}}
     return {}

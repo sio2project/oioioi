@@ -89,7 +89,7 @@ $(function() {
                 data: {
                     id: id,
                     new_delivered: newDelivered,
-                    csrfmiddlewaretoken: $.cookie('csrftoken')
+                    csrfmiddlewaretoken: Cookies.get('csrftoken')
                 },
                 url: setDeliveredUrl,
                 success: function(data) { afterRequest(btn, data, moveRow); },

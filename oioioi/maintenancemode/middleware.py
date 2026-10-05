@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from oioioi.maintenancemode.models import is_maintenance_mode_enabled
 
 
-class MaintenanceModeMiddleware(object):
+class MaintenanceModeMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -19,17 +19,17 @@ class MaintenanceModeMiddleware(object):
         return response
 
     def _process_request(self, request):
-        if not is_maintenance_mode_enabled():
+        if not is_maintenance_mode_enabled(request):
             return None
 
         # We want to allow admin access the site
-        if hasattr(request, 'user'):
+        if hasattr(request, "user"):
             if request.user.is_superuser:
                 return None
 
         # If admin logged in as another user, the information who
-        # the real user is is stored in real_user
-        if hasattr(request, 'real_user'):
+        # the real user is stored in real_user
+        if hasattr(request, "real_user"):
             if request.real_user.is_superuser:
                 return None
 

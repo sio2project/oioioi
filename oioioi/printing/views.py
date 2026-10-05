@@ -21,23 +21,21 @@ def can_print_files(request):
 
 @menu_registry.register_decorator(
     _("Print file"),
-    lambda request: reverse('print_view', kwargs={'contest_id': request.contest.id}),
+    lambda request: reverse("print_view", kwargs={"contest_id": request.contest.id}),
     order=470,
 )
 @enforce_condition(not_anonymous & contest_exists)
 @enforce_condition(can_print_files)
-@enforce_condition(
-    has_any_submittable_problem, template='printing/nothing_to_print.html'
-)
+@enforce_condition(has_any_submittable_problem, template="printing/nothing_to_print.html")
 def print_view(request):
     error_message = None
     success_message = None
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PrintForm(request.user, request.POST, request.FILES)
         if form.is_valid():
             try:
-                execute(settings.PRINTING_COMMAND, stdin=form.cleaned_data['file'])
+                execute(settings.PRINTING_COMMAND, stdin=form.cleaned_data["file"])
             except ExecuteError as e:
                 error_message = str(e)
             else:
@@ -48,10 +46,10 @@ def print_view(request):
 
     return TemplateResponse(
         request,
-        'printing/print.html',
+        "printing/print.html",
         {
-            'form': form,
-            'success_message': success_message,
-            'error_message': error_message,
+            "form": form,
+            "success_message": success_message,
+            "error_message": error_message,
         },
     )

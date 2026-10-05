@@ -1,0 +1,9 @@
+.jqtree-element {
+    padding: 10px;
+    border-radius: 5px;
+    border: #ccc 1px solid;
+}
+
+.jqtree-element:hover {
+    background: #f0f0f0;
+}

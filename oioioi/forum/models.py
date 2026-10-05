@@ -1,12 +1,12 @@
 import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -15,34 +15,23 @@ from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import Contest
 
 
-@date_registry.register('lock_date', name_generator=(lambda obj: _("Lock the forum")))
-@date_registry.register(
-    'unlock_date', name_generator=(lambda obj: _("Unlock the forum"))
-)
-
+@date_registry.register("lock_date", name_generator=(lambda obj: _("Lock the forum")))
+@date_registry.register("unlock_date", name_generator=(lambda obj: _("Unlock the forum")))
 class Forum(models.Model):
     """Forum is connected with contest"""
 
     contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
-    only_for_registered = models.BooleanField(
-        default=True, verbose_name=_("allow only registered users to post on forum")
-    )
-    visible = models.BooleanField(
-        default=True, verbose_name=_("forum is visible after lock")
-    )
-    lock_date = models.DateTimeField(
-        blank=True, null=True, verbose_name=_("autolock date")
-    )
-    unlock_date = models.DateTimeField(
-        blank=True, null=True, verbose_name=_("autounlock date")
-    )
+    only_for_registered = models.BooleanField(default=True, verbose_name=_("allow only registered users to post on forum"))
+    visible = models.BooleanField(default=True, verbose_name=_("forum is visible after lock"))
+    lock_date = models.DateTimeField(blank=True, null=True, verbose_name=_("autolock date"))
+    unlock_date = models.DateTimeField(blank=True, null=True, verbose_name=_("autounlock date"))
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("forum")
         verbose_name_plural = _("forums")
 
     def __str__(self):
-        return u'%(name)s' % {u'name': self.contest.name}
+        return f"{self.contest.name}"
 
     def is_autolocked(self, now=None):
         """Returns true if forum is locked"""
@@ -61,25 +50,22 @@ class Forum(models.Model):
         return bool(self.is_autolocked(now) and not self.is_autounlocked(now))
 
 
-
 class Category(models.Model):
-    """Category model """
+    """Category model"""
 
     forum = models.ForeignKey(Forum, verbose_name=_("forum"), on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("category"))
     order = models.IntegerField(verbose_name=_("order"))
-    reactions_enabled = models.BooleanField(
-        default=False, verbose_name=_("reactions enabled")
-    )
+    reactions_enabled = models.BooleanField(default=False, verbose_name=_("reactions enabled"))
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("category")
         verbose_name_plural = _("categories")
         unique_together = ("forum", "order")
         ordering = ("order",)
 
     def __str__(self):
-        return u"%s" % self.name
+        return f"{self.name}"
 
     def count_threads(self):
         return self.thread_set.count()
@@ -103,44 +89,39 @@ class Category(models.Model):
     count_reported.short_description = _("Reported posts count")
 
     def get_admin_url(self):
-        return reverse('oioioiadmin:forum_category_change', args=(self.id,))
+        return reverse("oioioiadmin:forum_category_change", args=(self.id,))
 
     def save(self, **kwargs):
         if self.pk is None:
             forum_categories = Category.objects.filter(forum__pk=self.forum_id)
             if forum_categories.exists():
-                self.order = (
-                    forum_categories.aggregate(models.Max("order"))["order__max"] + 1
-                )
+                self.order = forum_categories.aggregate(models.Max("order"))["order__max"] + 1
             else:
                 self.order = 0
 
-        super(Category, self).save(**kwargs)
-
+        super().save(**kwargs)
 
 
 class Thread(models.Model):
     """Thread model - topic in a category"""
 
-    category = models.ForeignKey(
-        Category, verbose_name=_("category"), on_delete=models.CASCADE
-    )
+    category = models.ForeignKey(Category, verbose_name=_("category"), on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("thread"))
     last_post = models.ForeignKey(
-        'Post',
+        "Post",
         null=True,
         on_delete=models.SET_NULL,
         verbose_name=_("last post"),
-        related_name='last_post_of',
+        related_name="last_post_of",
     )
 
-    class Meta(object):
-        ordering = ('-last_post__id',)
+    class Meta:
+        ordering = ("-last_post__id",)
         verbose_name = _("thread")
         verbose_name_plural = _("threads")
 
     def __str__(self):
-        return u'%(name)s' % {u'name': self.name}
+        return f"{self.name}"
 
     def count_posts(self):
         return self.post_set.count()
@@ -158,55 +139,45 @@ class Thread(models.Model):
     count_reported.short_description = _("Reported posts count")
 
     def get_admin_url(self):
-        return reverse('oioioiadmin:forum_thread_change', args=(self.id,))
-
+        return reverse("oioioiadmin:forum_thread_change", args=(self.id,))
 
 
 class Post(models.Model):
-    """Post - the basic part of the forum """
+    """Post - the basic part of the forum"""
 
-    thread = models.ForeignKey(
-        Thread, verbose_name=_("thread"), on_delete=models.CASCADE
-    )
+    thread = models.ForeignKey(Thread, verbose_name=_("thread"), on_delete=models.CASCADE)
     content = models.TextField(verbose_name=_("post"))
-    add_date = models.DateTimeField(
-        verbose_name=_("add date"), default=timezone.now, blank=True
-    )
-    last_edit_date = models.DateTimeField(
-        verbose_name=_("last edit"), blank=True, null=True
-    )
+    add_date = models.DateTimeField(verbose_name=_("add date"), default=timezone.now, blank=True)
+    last_edit_date = models.DateTimeField(verbose_name=_("last edit"), blank=True, null=True)
     author = models.ForeignKey(User, verbose_name=_("author"), on_delete=models.CASCADE)
     reported = models.BooleanField(verbose_name=_("reported"), default=False)
-    report_reason = models.TextField(
-        verbose_name=_("report_reason"), default="", blank=True
-    )
+    report_reason = models.TextField(verbose_name=_("report_reason"), default="", blank=True)
     approved = models.BooleanField(verbose_name=_("approved"), default=False)
     hidden = models.BooleanField(verbose_name=_("hidden"), default=False)
     reported_by = models.ForeignKey(
         User,
         null=True,
-        related_name='%(class)s_user_reported',
+        related_name="%(class)s_user_reported",
         on_delete=models.SET_NULL,
     )
 
     class PostsWithReactionsSummaryManager(models.Manager):
         def get_queryset(self):
-            qs = super(Post.PostsWithReactionsSummaryManager, self).get_queryset()
-            for field_name, rtype in [
-                ('upvotes_count', 'UPVOTE'),
-                ('downvotes_count', 'DOWNVOTE'),
-            ]:
-                # In Django >=2.0 it can can be simplified with Count(filter=Q(...))
-                reaction_count_agg = {
-                    field_name: models.Sum(
-                        models.Case(
-                            models.When(reactions__type_of_reaction=rtype, then=1),
-                            default=0,
-                            output_field=models.IntegerField(),
-                        )
-                    )
-                }
+            qs = super().get_queryset()
+
+            for rtype, attr_name in POST_REACTION_TO_COUNT_ATTR.items():
+                reaction_count_agg = {attr_name: models.Count("reactions", filter=models.Q(reactions__type_of_reaction=rtype))}
                 qs = qs.annotate(**reaction_count_agg)
+
+            max_count = getattr(settings, "FORUM_REACTIONS_TO_DISPLAY", 10)
+            for rtype, attr_name in POST_REACTION_TO_PREFETCH_ATTR.items():
+                qs = qs.prefetch_related(
+                    models.Prefetch(
+                        "reactions",
+                        to_attr=attr_name,
+                        queryset=PostReaction.objects.filter(type_of_reaction=rtype).order_by("-pk").select_related("author")[:max_count],
+                    )
+                )
 
             return qs
 
@@ -216,32 +187,29 @@ class Post(models.Model):
     def edited(self):
         return bool(self.last_edit_date)
 
-    class Meta(object):
-        index_together = (('thread', 'add_date'),)
-        ordering = ('add_date',)
+    class Meta:
+        indexes = [models.Index(fields=("thread", "add_date"))]
+        ordering = ("add_date",)
         verbose_name = _("post")
         verbose_name_plural = _("posts")
 
     def __str__(self):
-        return u'%(content)s in %(thread)s' % {
-            u'content': self.content,
-            u'thread': self.thread,
-        }
+        return f"{self.content} in {self.thread}"
 
     def get_admin_url(self):
-        return reverse('oioioiadmin:forum_post_change', args=(self.id,))
+        return reverse("oioioiadmin:forum_post_change", args=(self.id,))
 
     def get_in_thread_url(self):
         thread = self.thread
         thread_url = reverse(
-            'forum_thread',
+            "forum_thread",
             kwargs={
-                'contest_id': thread.category.forum.contest_id,
-                'category_id': thread.category_id,
-                'thread_id': thread.id,
+                "contest_id": thread.category.forum.contest_id,
+                "category_id": thread.category_id,
+                "thread_id": thread.id,
             },
         )
-        post_url = '%s#forum-post-%d' % (thread_url, self.id)
+        post_url = f"{thread_url!s}#forum-post-{self.id}"
         return post_url
 
     def can_be_removed(self):
@@ -257,10 +225,20 @@ class Post(models.Model):
         return Ban.is_banned(self.thread.category.forum, self.reported_by)
 
 
+POST_REACTION_TO_COUNT_ATTR = {
+    "UPVOTE": "upvotes_count",
+    "DOWNVOTE": "downvotes_count",
+}
+
+POST_REACTION_TO_PREFETCH_ATTR = {
+    "UPVOTE": "upvoted_by",
+    "DOWNVOTE": "downvoted_by",
+}
+
 post_reaction_types = EnumRegistry(
     entries=[
-        ('UPVOTE', _("Upvote")),
-        ('DOWNVOTE', _("Downvote")),
+        ("UPVOTE", _("Upvote")),
+        ("DOWNVOTE", _("Downvote")),
     ]
 )
 
@@ -271,12 +249,11 @@ class PostReaction(models.Model):
     post = models.ForeignKey(
         Post,
         verbose_name=_("post"),
-        related_name='reactions',
+        related_name="reactions",
         on_delete=models.CASCADE,
     )
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     type_of_reaction = EnumField(post_reaction_types)
-
 
 
 class Ban(models.Model):
@@ -292,11 +269,9 @@ class Ban(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='created_forum_ban_set',
+        related_name="created_forum_ban_set",
     )
-    created_at = models.DateTimeField(
-        auto_now_add=True, editable=False, verbose_name=_("banned at")
-    )
+    created_at = models.DateTimeField(auto_now_add=True, editable=False, verbose_name=_("banned at"))
     reason = models.TextField(verbose_name=_("reason"))
 
     @staticmethod
@@ -325,7 +300,7 @@ def _update_last_post(sender, instance, **kwargs):
         # This may happen during cascade model deleting
         return
     try:
-        thread.last_post = thread.post_set.latest('id')
+        thread.last_post = thread.post_set.latest("id")
     except Post.DoesNotExist:
         thread.last_post = None
     thread.save()
@@ -339,12 +314,12 @@ def _remove_reports_if_approved(sender, instance, **kwargs):
 
 
 class ForumMessage(PublicMessage):
-    class Meta(object):
+    class Meta:
         verbose_name = _("forum message")
         verbose_name_plural = _("forum messages")
 
 
 class NewPostMessage(PublicMessage):
-    class Meta(object):
+    class Meta:
         verbose_name = _("new post message")
         verbose_name_plural = _("new post messages")

@@ -29,16 +29,14 @@ class DottedNameField(models.CharField):
     description = _("Dotted name of some Python object")
 
     def __init__(self, superclass, *args, **kwargs):
-        kwargs['max_length'] = 255
+        kwargs["max_length"] = 255
         models.CharField.__init__(self, *args, **kwargs)
 
         self.superclass_name = superclass
         self._superclass = superclass
 
     # pylint: disable=W0102
-    def get_choices(
-        self, include_blank=True, blank_choice=BLANK_CHOICE_DASH, limit_choices_to=None
-    ):
+    def get_choices(self, include_blank=True, blank_choice=BLANK_CHOICE_DASH, limit_choices_to=None):
         """
         Copied from Field and replaced self.choices with generate_choices
         to avoid circular dependency.
@@ -47,10 +45,10 @@ class DottedNameField(models.CharField):
         _choices = self._generate_choices()
         # pylint: disable=W0125
         choices = list(_choices) if _choices else []
-        named_groups = choices and isinstance(choices[0][1], (list, tuple))
+        named_groups = choices and isinstance(choices[0][1], list | tuple)
         if not named_groups:
             for choice, __ in choices:
-                if choice in ('', None):
+                if choice in ("", None):
                     blank_defined = True
                     break
 
@@ -60,7 +58,7 @@ class DottedNameField(models.CharField):
             return first_choice + choices
         rel_model = self.remote_field.model
         limit_choices_to = limit_choices_to or self.get_limit_choices_to()
-        if hasattr(self.remote_field, 'get_related_field'):
+        if hasattr(self.remote_field, "get_related_field"):
             lst = [
                 (
                     getattr(x, self.remote_field.get_related_field().attname),
@@ -69,10 +67,7 @@ class DottedNameField(models.CharField):
                 for x in rel_model._default_manager.complex_filter(limit_choices_to)
             ]
         else:
-            lst = [
-                (x._get_pk_val(), smart_str(x))
-                for x in rel_model._default_manager.complex_filter(limit_choices_to)
-            ]
+            lst = [(x._get_pk_val(), smart_str(x)) for x in rel_model._default_manager.complex_filter(limit_choices_to)]
         return first_choice + lst
 
     def _get_choices(self):
@@ -85,7 +80,7 @@ class DottedNameField(models.CharField):
             # `_generate_choices`.
             # The assignment below notifies django to use <select> type input in
             # admin interface.
-            return (('dummy', 'Dummy'),)
+            return (("dummy", "Dummy"),)
 
     choices = property(_get_choices, lambda self, value: None)
 
@@ -98,15 +93,10 @@ class DottedNameField(models.CharField):
 
         superclass = self._get_superclass()
         if not issubclass(obj, superclass):
-            raise ValidationError(
-                _("%(value)s is not a %(class_name)s")
-                % dict(value=value, class_name=superclass.__name__)
-            )
+            raise ValidationError(_("%(value)s is not a %(class_name)s") % {"value": value, "class_name": superclass.__name__})
 
-        if getattr(obj, 'abstract', False):
-            raise ValidationError(
-                _("%s is an abstract class and cannot be used") % (value,)
-            )
+        if getattr(obj, "abstract", False):
+            raise ValidationError(_("%s is an abstract class and cannot be used") % (value,))
 
         # Code below copied from Field and replaced self.choices with
         # generate_choices to avoid circular dependency.
@@ -117,26 +107,26 @@ class DottedNameField(models.CharField):
 
         if _choices and value not in self.empty_values:
             for option_key, option_value in _choices:
-                if isinstance(option_value, (list, tuple)):
+                if isinstance(option_value, list | tuple):
                     # This is an optgroup, so look inside the group for
                     # options.
                     # pylint: disable=W0612
-                    for optgroup_key, optgroup_value in option_value:
+                    for optgroup_key, _optgroup_value in option_value:
                         if value == optgroup_key:
                             return
                 elif value == option_key:
                     return
             raise exceptions.ValidationError(
-                self.error_messages['invalid_choice'],
-                code='invalid_choice',
-                params={'value': value},
+                self.error_messages["invalid_choice"],
+                code="invalid_choice",
+                params={"value": value},
             )
 
         if value is None and not self.null:
-            raise exceptions.ValidationError(self.error_messages['null'], code='null')
+            raise exceptions.ValidationError(self.error_messages["null"], code="null")
 
         if not self.blank and value in self.empty_values:
-            raise exceptions.ValidationError(self.error_messages['blank'], code='blank')
+            raise exceptions.ValidationError(self.error_messages["blank"], code="blank")
 
     def _get_superclass(self):
         if isinstance(self._superclass, str):
@@ -149,23 +139,23 @@ class DottedNameField(models.CharField):
         subclasses = superclass.subclasses
         if subclasses:
             for subclass in subclasses:
-                dotted_name = '%s.%s' % (subclass.__module__, subclass.__name__)
-                human_readable_name = getattr(subclass, 'description', dotted_name)
+                dotted_name = f"{subclass.__module__}.{subclass.__name__}"
+                human_readable_name = getattr(subclass, "description", dotted_name)
                 yield dotted_name, human_readable_name
 
     def to_python(self, value):
         superclass = self._get_superclass()
         superclass.load_subclasses()
-        return super(DottedNameField, self).to_python(value)
+        return super().to_python(value)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(DottedNameField, self).deconstruct()
-        kwargs['superclass'] = self.superclass_name
-        del kwargs['max_length']
+        name, path, args, kwargs = super().deconstruct()
+        kwargs["superclass"] = self.superclass_name
+        del kwargs["max_length"]
         return name, path, args, kwargs
 
 
-class EnumRegistry(object):
+class EnumRegistry:
     def __init__(self, max_length=64, entries=None):
         self.entries = []
         self.max_length = max_length
@@ -178,23 +168,21 @@ class EnumRegistry(object):
         return self.entries.__iter__()
 
     def __getitem__(self, key):
-        for (val, desc) in self:
+        for val, desc in self:
             if val == key:
                 return desc
         raise KeyError(key)
 
     def register(self, value, description):
         if len(value) > self.max_length:
-            raise ValueError(
-                'Enum values must not be longer than %d chars' % (self.max_length,)
-            )
-        if not self.entries or value not in next(zip(*self.entries)):
+            raise ValueError(f"Enum values must not be longer than {self.max_length} chars")
+        if not self.entries or value not in next(zip(*self.entries, strict=False)):
             self.entries.append((value, description))
 
     def get(self, value, fallback):
         """Return description for a given value, or fallback if value not in
         registry"""
-        for (val, desc) in self:
+        for val, desc in self:
             if val == value:
                 return desc
         return fallback
@@ -216,25 +204,23 @@ class EnumField(models.CharField):
     description = _("Enumeration")
 
     def __init__(self, registry=None, *args, **kwargs):
+        self.registry = registry
+
         if registry:
             # This allows this field to be stored for migration purposes
             # without the need to serialize an EnumRegistry object.
             # Instead, we serialize 'max_length' and 'choices'.
-            assert isinstance(
-                registry, EnumRegistry
-            ), 'Invalid registry passed to EnumField.__init__: %r' % (registry,)
-            kwargs['max_length'] = registry.max_length
-            kwargs['choices'] = self._generate_choices()
-        self.registry = registry
+            assert isinstance(registry, EnumRegistry), f"Invalid registry passed to EnumField.__init__: {registry!r}"
+            kwargs["max_length"] = registry.max_length
+            kwargs["choices"] = self._generate_choices()
         models.CharField.__init__(self, *args, **kwargs)
 
     def _generate_choices(self):
-        for item in self.registry.entries:
-            yield item
+        return list(self.registry.entries)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(EnumField, self).deconstruct()
-        kwargs.pop('choices', None)
+        name, path, args, kwargs = super().deconstruct()
+        kwargs.pop("choices", None)
         return name, path, args, kwargs
 
     # Choices are made into a property so they are always fetched updated
@@ -253,19 +239,17 @@ class PhoneNumberField(models.CharField):
     """A ``CharField`` designed to store phone numbers."""
 
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = 64
-        kwargs['validators'] = [
-            RegexValidator(r'^\+?[0-9() -]{6,}$', _("Invalid phone number"))
-        ]
-        kwargs['help_text'] = _("Including the area code.")
+        kwargs["max_length"] = 64
+        kwargs["validators"] = [RegexValidator(r"^\+?[0-9() -]{6,}$", _("Invalid phone number"))]
+        kwargs["help_text"] = _("Including the area code.")
 
-        super(PhoneNumberField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(PhoneNumberField, self).deconstruct()
-        del kwargs['max_length']
-        del kwargs['validators']
-        del kwargs['help_text']
+        name, path, args, kwargs = super().deconstruct()
+        del kwargs["max_length"]
+        del kwargs["validators"]
+        del kwargs["help_text"]
         return name, path, args, kwargs
 
 
@@ -273,17 +257,13 @@ class PostalCodeField(models.CharField):
     """A ``CharField`` designed to store postal codes."""
 
     def __init__(self, *args, **kwargs):
-        kwargs['max_length'] = 6
-        kwargs['validators'] = [
-            RegexValidator(
-                r'^\d{2}-\d{3}$', _("Enter a postal code in the format XX-XXX")
-            )
-        ]
+        kwargs["max_length"] = 6
+        kwargs["validators"] = [RegexValidator(r"^\d{2}-\d{3}$", _("Enter a postal code in the format XX-XXX"))]
 
-        super(PostalCodeField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def deconstruct(self):
-        name, path, args, kwargs = super(PostalCodeField, self).deconstruct()
-        del kwargs['max_length']
-        del kwargs['validators']
+        name, path, args, kwargs = super().deconstruct()
+        del kwargs["max_length"]
+        del kwargs["validators"]
         return name, path, args, kwargs

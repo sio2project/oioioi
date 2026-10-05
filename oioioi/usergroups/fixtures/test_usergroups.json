@@ -63,7 +63,8 @@
             ],
             "members": [
                 1001,
-                1003
+                1003,
+                2006
             ],
             "addition_config": 1002,
             "sharing_config": 1003
@@ -102,6 +103,24 @@
             ],
             "addition_config": 1001,
             "sharing_config": 1004
+        }
+    },
+    {
+        "pk": 2006,
+        "model": "auth.user",
+        "fields": {
+            "username": "no_name",
+            "first_name": "",
+            "last_name": "",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "test_admin2@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
         }
     }
 ]

@@ -24,8 +24,11 @@ done
 
 pushd oioioi_cypress
     # Resolve dependencies
-    yarn
-    # Wait for a server. If not ready after 10s end program else run tests.
-    npx wait-on http://localhost:8000 --timeout 30000 &&\
-    CYPRESS_baseUrl=http://localhost:8000 yarn cy:${gui}
+    pnpm install
+
+    # Wait for a server
+    pnpm exec wait-on http://localhost:8000 --timeout 30000
+
+    # Run tests
+    CYPRESS_baseUrl=http://localhost:8000 pnpm run cy:${gui}
 popd

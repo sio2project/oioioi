@@ -3,11 +3,12 @@ import sys
 import zipfile
 from collections import defaultdict
 
-import django
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
+from django.db.models import Count
 from django.http import Http404, HttpResponse
 from django.utils import translation
+
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.contests.processors import recent_contests
@@ -26,17 +27,28 @@ from oioioi.problems.models import (
 )
 from oioioi.programs.models import (
     GroupReport,
+    LanguageOverrideForTest,
     ModelProgramSubmission,
     TestReport,
-    LanguageOverrideForTest,
 )
 
 
 @request_cached
 def can_add_problems(request):
-    return request.user.has_perm('problems.problems_db_admin') or is_contest_basicadmin(
-        request
-    )
+    return request.user.has_perm("problems.problems_db_admin") or is_contest_basicadmin(request)
+
+
+@request_cached
+def get_basic_user_submissions_count_bulk(request):
+    # The values() here acts like a GROUP BY.
+    qs = Submission.objects.filter(user_id=request.user.id).values("problem_instance_id", "kind").annotate(count=Count("id"))
+    return {(result["problem_instance_id"], result["kind"]): result["count"] for result in qs}
+
+
+# This is almost always called for many problem instances anyway, so it preprocesses
+# results in the first call, which is very cheap anyway if done this way.
+def get_basic_user_submissions_count(request, problem_instance, kind="NORMAL"):
+    return get_basic_user_submissions_count_bulk(request).get((problem_instance.id, kind), 0)
 
 
 def can_upload_problems(request):
@@ -58,17 +70,29 @@ def can_admin_problem(request, problem):
 
     The caller should guarantee that any of the given arguments is not None.
     """
-    if request.user.has_perm('problems.problems_db_admin'):
+    if request.user.has_perm("problems.problems_db_admin"):
         return True
-    if request.user.has_perm('problems.problem_admin', problem):
-        return True
-    if request.user == problem.author:
+    if request.user.has_perm("problems.problem_admin", problem):
         return True
     # If a user is administering a contest where the task was initially added,
     # he is considered to be a co-author of the task, giving him rights to admin it.
-    if problem.contest:
-        return can_admin_contest(request.user, problem.contest)
+    if problem.contest and can_admin_contest(request.user, problem.contest):
+        return True
+    if problem.author_id and request.user.id == problem.author_id:
+        return True
     return False
+
+
+def can_modify_tags(request, problem):
+    """Checks if the user can add tags to the problem.
+
+    The user can modify tags if user can admin problem or user has can_modify_tags permission
+    """
+    if request.user.has_perm("problems.can_modify_tags"):
+        return True
+    if problem is None:
+        return False
+    return can_admin_problem(request, problem)
 
 
 def can_admin_instance_of_problem(request, problem):
@@ -85,12 +109,7 @@ def can_admin_instance_of_problem(request, problem):
     """
     if can_admin_problem(request, problem):
         return True
-    return (
-        is_contest_basicadmin(request)
-        and ProblemInstance.objects.filter(
-            problem=problem, contest=request.contest
-        ).exists()
-    )
+    return is_contest_basicadmin(request) and ProblemInstance.objects.filter(problem=problem, contest=request.contest).exists()
 
 
 def can_admin_problem_instance(request, pi):
@@ -112,11 +131,11 @@ def can_add_to_problemset(request):
         return False
     if settings.EVERYBODY_CAN_ADD_TO_PROBLEMSET:
         return True
-    if request.user.has_perm('teachers.teacher'):
+    if request.user.has_perm("teachers.teacher"):
         return True
     if request.user.is_superuser:
         return True
-    return request.user.has_perm('problems.problems_db_admin')
+    return request.user.has_perm("problems.problems_db_admin")
 
 
 def query_statement(problem_id):
@@ -124,10 +143,8 @@ def query_statement(problem_id):
     if not statements:
         return None
 
-    lang_prefs = (
-        [translation.get_language()] + ['', None] + [l[0] for l in settings.LANGUAGES]
-    )
-    ext_prefs = ['.zip', '.pdf', '.ps', '.html', '.txt']
+    lang_prefs = [translation.get_language()] + ["", None] + [lang[0] for lang in settings.LANGUAGES]
+    ext_prefs = [".zip", ".pdf", ".ps", ".html", ".txt"]
 
     def sort_key(statement):
         try:
@@ -135,7 +152,7 @@ def query_statement(problem_id):
         except ValueError:
             lang_pref = sys.maxsize
         try:
-            ext_pref = (ext_prefs.index(statement.extension), '')
+            ext_pref = (ext_prefs.index(statement.extension), "")
         except ValueError:
             ext_pref = (sys.maxsize, statement.extension)
         return lang_pref, ext_pref
@@ -144,7 +161,7 @@ def query_statement(problem_id):
 
 
 def query_zip(statement, path):
-    if statement.extension != '.zip':
+    if statement.extension != ".zip":
         raise SuspiciousOperation
 
     # ZipFile will call seek(), so we need a real file here
@@ -154,9 +171,9 @@ def query_zip(statement, path):
     except KeyError:
         raise Http404
 
-    content_type = mimetypes.guess_type(path)[0] or 'application/octet-stream'
+    content_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
     response = HttpResponse(zip.read(path), content_type=content_type)
-    response['Content-Length'] = info.file_size
+    response["Content-Length"] = info.file_size
     return response
 
 
@@ -224,11 +241,7 @@ def generate_add_to_contest_metadata(request):
     "add to contest" functionality in problemset.
     """
 
-    administered = [
-        contest
-        for contest in administered_contests(request)
-        if not contest.is_archived
-    ]
+    administered = [contest for contest in administered_contests(request) if not contest.is_archived]
     # If user doesn't own any unarchived contest we won't show the option.
     if administered:
         show_add_button = True
@@ -240,10 +253,7 @@ def generate_add_to_contest_metadata(request):
     administered_recent_contests = None
     if rcontests:
         administered_recent_contests = [
-            contest
-            for contest in rcontests
-            if request.user.has_perm('contests.contest_admin', contest)
-            and not contest.is_archived
+            contest for contest in rcontests if request.user.has_perm("contests.contest_admin", contest) and not contest.is_archived
         ]
     return show_add_button, administered_recent_contests
 
@@ -254,27 +264,22 @@ def generate_model_solutions_context(request, problem_instance):
     """
 
     filter_kwargs = {
-        'test__isnull': False,
-        'submission_report__submission__problem_instance': problem_instance,
-        'submission_report__submission__programsubmission'
-        '__modelprogramsubmission__isnull': False,
-        'submission_report__status': 'ACTIVE',
+        "test__isnull": False,
+        "submission_report__submission__problem_instance": problem_instance,
+        "submission_report__submission__programsubmission__modelprogramsubmission__isnull": False,
+        "submission_report__status": "ACTIVE",
     }
     test_reports = TestReport.objects.filter(**filter_kwargs).select_related()
     filter_kwargs = {
-        'submission_report__submission__problem_instance': problem_instance,
-        'submission_report__submission__programsubmission'
-        '__modelprogramsubmission__isnull': False,
-        'submission_report__status': 'ACTIVE',
+        "submission_report__submission__problem_instance": problem_instance,
+        "submission_report__submission__programsubmission__modelprogramsubmission__isnull": False,
+        "submission_report__status": "ACTIVE",
     }
     group_reports = GroupReport.objects.filter(**filter_kwargs).select_related()
     submissions = (
-        ModelProgramSubmission.objects.filter(problem_instance=problem_instance)
-        .order_by('model_solution__order_key')
-        .select_related('model_solution')
-        .all()
+        ModelProgramSubmission.objects.filter(problem_instance=problem_instance).order_by("model_solution__order_key").select_related("model_solution").all()
     )
-    tests = problem_instance.test_set.order_by('order', 'group', 'name').all()
+    tests = problem_instance.test_set.order_by("order", "group", "name").all()
 
     group_results = defaultdict(lambda: defaultdict(lambda: None))
     for gr in group_reports:
@@ -284,40 +289,35 @@ def generate_model_solutions_context(request, problem_instance):
     for tr in test_reports:
         test_results[tr.test_id][tr.submission_report.submission_id] = tr
 
-    submissions_percentage_statuses = {s.id: '25' for s in submissions}
+    submissions_percentage_statuses = {s.id: "25" for s in submissions}
     rows = []
     submissions_row = []
     for t in tests:
         row_test_results = test_results[t.id]
         row_group_results = group_results[t.group]
-        percentage_statuses = {s.id: '100' for s in submissions}
+        percentage_statuses = {s.id: "100" for s in submissions}
         for s in submissions:
             if row_test_results[s.id] is not None:
-                time_ratio = (
-                    float(row_test_results[s.id].time_used)
-                    / row_test_results[s.id].test_time_limit
-                )
+                time_ratio = float(row_test_results[s.id].time_used) / row_test_results[s.id].test_time_limit
                 if time_ratio <= 0.25:
-                    percentage_statuses[s.id] = '25'
+                    percentage_statuses[s.id] = "25"
                 elif time_ratio <= 0.50:
-                    percentage_statuses[s.id] = '50'
-                    if submissions_percentage_statuses[s.id] != '100':
-                        submissions_percentage_statuses[s.id] = '50'
+                    percentage_statuses[s.id] = "50"
+                    if submissions_percentage_statuses[s.id] != "100":
+                        submissions_percentage_statuses[s.id] = "50"
                 else:
-                    percentage_statuses[s.id] = '100'
-                    submissions_percentage_statuses[s.id] = '100'
+                    percentage_statuses[s.id] = "100"
+                    submissions_percentage_statuses[s.id] = "100"
 
         rows.append(
             {
-                'test': t,
-                'results': [
+                "test": t,
+                "results": [
                     {
-                        'test_report': row_test_results[s.id],
-                        'group_report': row_group_results[s.id],
-                        'is_partial_score': s.problem_instance.controller._is_partial_score(
-                            row_test_results[s.id]
-                        ),
-                        'percentage_status': percentage_statuses[s.id],
+                        "test_report": row_test_results[s.id],
+                        "group_report": row_group_results[s.id],
+                        "is_partial_score": s.problem_instance.controller._is_partial_score(row_test_results[s.id]),
+                        "percentage_status": percentage_statuses[s.id],
                     }
                     for s in submissions
                 ],
@@ -326,31 +326,28 @@ def generate_model_solutions_context(request, problem_instance):
 
     for s in submissions:
         status = s.status
-        if s.status == 'OK' or s.status == 'INI_OK':
-            status = 'OK' + submissions_percentage_statuses[s.id]
+        if s.status == "OK" or s.status == "INI_OK":
+            status = "OK" + submissions_percentage_statuses[s.id]
 
-        submissions_row.append({'submission': s, 'status': status})
+        submissions_row.append({"submission": s, "status": status})
 
     total_row = {
-        'test': sum(t.time_limit for t in tests),
-        'results': [
-            sum(t[s.id].time_used if t[s.id] else 0 for t in test_results.values())
-            for s in submissions
-        ],
+        "test": sum(t.time_limit for t in tests),
+        "results": [sum(t[s.id].time_used if t[s.id] else 0 for t in test_results.values()) for s in submissions],
     }
 
     return {
-        'problem_instance': problem_instance,
-        'submissions_row': submissions_row,
-        'submissions': submissions,
-        'rows': rows,
-        'total_row': total_row,
+        "problem_instance": problem_instance,
+        "submissions_row": submissions_row,
+        "submissions": submissions,
+        "rows": rows,
+        "total_row": total_row,
     }
 
 
-class FakeOriginInfoValue(object):
+class FakeOriginInfoValue:
     value = None
-    order = float('inf')
+    order = float("inf")
     cat = None
 
     def __init__(self, category):
@@ -388,9 +385,7 @@ def show_proposal_form(problem, user):
     if not user.is_authenticated:
         return False
 
-    if AlgorithmTagProposal.objects.all().filter(
-        problem=problem, user=user
-    ) or DifficultyTagProposal.objects.all().filter(problem=problem, user=user):
+    if AlgorithmTagProposal.objects.all().filter(problem=problem, user=user) or DifficultyTagProposal.objects.all().filter(problem=problem, user=user):
         return False
 
     ps = ProblemStatistics.objects.all().filter(problem=problem).first()
@@ -411,6 +406,7 @@ def filter_my_all_visible_submissions(request, queryset):
 
     result = Submission.objects.none()
     resolved = set()
+    prev_contest = request.contest
 
     for submission in queryset:
         pi = submission.problem_instance
@@ -430,9 +426,10 @@ def filter_my_all_visible_submissions(request, queryset):
             resolved.add(pi)
 
         request.contest = pi.contest
-        current_queryset = controller.filter_my_visible_submissions(
-            request, current_queryset
-        )
+        current_queryset = controller.filter_my_visible_submissions(request, current_queryset)
         result = result.union(current_queryset)
+        if hasattr(request, "_cache"):  # Delete cache so that e.g. `is_contest_basicadmin` doesn't return wrong results
+            delattr(request, "_cache")
+    request.contest = prev_contest
 
     return result

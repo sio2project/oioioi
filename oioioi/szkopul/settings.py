@@ -150,7 +150,7 @@ FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
 # directory in which necessary files will be stored.
 FILETRACKER_CACHE_ROOT = '/sio2/deployment/cache'
 
-# When using a remote storage it's recommended to enable a cache cleaner deamon
+# When using a remote storage it's recommended to enable a cache cleaner daemon
 # which will periodically scan cache directory and remove files what aren't
 # used. For a detailed description of each option, please read a cache cleaner
 # configuration section in the sioworkersd documentation.
@@ -425,7 +425,7 @@ CACHES = {
 }
 
 # Notifications configuration (client)
-# This one is for JavaScript socket.io client.
+# This one is for JavaScript WebSocket client.
 # It should contain actual URL available from remote machines.
 # NOTIFICATIONS_SERVER_URL = '//szkopul-notifications.dasie.mimuw.edu.pl/'
 NOTIFICATIONS_SERVER_URL = '/'

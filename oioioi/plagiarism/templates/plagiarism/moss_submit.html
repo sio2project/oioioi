@@ -13,7 +13,7 @@
 
 {% if moss_error %}
     <div class="alert alert-danger" role="alert">
-        <span class="sr-only">{% trans "Error" %}:</span>
+        <span class="visually-hidden">{% trans "Error" %}:</span>
         {{ moss_error }}
     </div>
 {% endif %}
@@ -34,7 +34,7 @@ You have to be a registered user of the MOSS system in order to provide your use
 <form action="{% url 'moss_submit' %}" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
-    <div class="form-group">
+    <div class="mb-3">
         <button type="submit" class="btn btn-primary" role="button">
             {% trans "Submit" %}
         </button>

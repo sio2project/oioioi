@@ -7,11 +7,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 @request_cached
 def public_rounds(request):
     controller = request.contest.controller
-    return [
-        round
-        for round in Round.objects.filter(contest=request.contest)
-        if controller.can_see_publicsolutions(request, round)
-    ]
+    return [round for round in Round.objects.filter(contest=request.contest) if controller.can_see_publicsolutions(request, round)]
 
 
 def filter_public_problem_instances(request, qs):
@@ -25,14 +21,12 @@ def public_problem_instances(request):
 
 @request_cached
 def unfiltered_submissions(request):
-    return Submission.objects.filter(
-        problem_instance__in=public_problem_instances(request)
-    ).select_related(
-        'publication',
-        'user',
-        'problem_instance',
-        'problem_instance__problem',
-        'problem_instance__contest',
+    return Submission.objects.filter(problem_instance__in=public_problem_instances(request)).select_related(
+        "publication",
+        "user",
+        "problem_instance",
+        "problem_instance__problem",
+        "problem_instance__contest",
     )
 
 
@@ -43,9 +37,7 @@ def get_public_solutions(request):
 
 def filter_public_solutions(request, qs):
     cc = request.contest.controller
-    return (
-        cc.solutions_must_be_public(qs) | qs.filter(publication__isnull=False)
-    ).filter(problem_instance__in=public_problem_instances(request))
+    return (cc.solutions_must_be_public(qs) | qs.filter(publication__isnull=False)).filter(problem_instance__in=public_problem_instances(request))
 
 
 @request_cached
@@ -67,18 +59,12 @@ def get_may_be_published_solutions_for_user(request):
 
 @request_cached
 def problem_instances_with_any_public_solutions(request):
-    return (
-        public_problem_instances(request)
-        .filter(submission__in=(get_public_solutions(request)))
-        .distinct()
-    )
+    return public_problem_instances(request).filter(submission__in=(get_public_solutions(request))).distinct()
 
 
 @make_request_condition
 def any_round_public(request):
-    return isinstance(
-        request.contest.controller, ProgrammingContestController
-    ) and public_rounds(request)
+    return isinstance(request.contest.controller, ProgrammingContestController) and public_rounds(request)
 
 
 @make_condition()
@@ -88,6 +74,6 @@ def solution_may_be_published(request, *args, **kwargs):
 
     It assumes user is not anonymous.
     """
-    sub_id = kwargs['submission_id']
+    sub_id = kwargs["submission_id"]
     submission = get_may_be_published_solutions(request).filter(pk=sub_id)
     return submission.exists()

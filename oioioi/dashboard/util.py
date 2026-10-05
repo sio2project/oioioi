@@ -6,5 +6,5 @@ def get_dashboard_message(request):
     return get_public_message(
         request,
         DashboardMessage,
-        'dashboard_message',
+        "dashboard_message",
     )

@@ -13,7 +13,7 @@
               method="post"
               id="user_info_dropdown_form">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="user-info">{% trans "Username" %}</label>
                 <input type="text" name="user" id="user-info" class="form-control"
                        placeholder='{% trans "Show info about..." %}'

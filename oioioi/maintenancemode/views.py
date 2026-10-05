@@ -12,27 +12,27 @@ from oioioi.maintenancemode.models import (
 def maintenance_view(request):
     # We don't want users to access maintenance site
     # when maintenance is disabled.
-    if not is_maintenance_mode_enabled():
-        return HttpResponseRedirect('/')
+    if not is_maintenance_mode_enabled(request):
+        return HttpResponseRedirect("/")
     maintenance_info = get_maintenance_mode()
-    return render(request, 'maintenance.html', {'message': maintenance_info['message']})
+    return render(request, "maintenance.html", {"message": maintenance_info["message"]})
 
 
 @enforce_condition(is_superuser)
 def set_maintenance_mode_view(request):
-    if request.method == 'POST':
-        if 'set_button' in request.POST:
-            message = request.POST['message']
+    if request.method == "POST":
+        if "set_button" in request.POST:
+            message = request.POST["message"]
             set_maintenance_mode(True, message)
-        elif 'turn_off_button' in request.POST:
+        elif "turn_off_button" in request.POST:
             set_maintenance_mode(False)
 
     maintenance_info = get_maintenance_mode()
     return render(
         request,
-        'set_maintenance.html',
+        "set_maintenance.html",
         {
-            'message': maintenance_info['message'],
-            'state': maintenance_info['state'],
+            "message": maintenance_info["message"],
+            "state": maintenance_info["state"],
         },
     )

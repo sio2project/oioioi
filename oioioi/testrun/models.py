@@ -10,18 +10,18 @@ from oioioi.contests.models import (
     submission_statuses,
 )
 from oioioi.filetracker.fields import FileField
-from oioioi.problems.models import Problem, ProblemInstance
-from oioioi.programs.models import ProgramSubmission
+from oioioi.problems.models import ProblemInstance
+from oioioi.programs.models import ProgramSubmission, limit_mem_used
 
-submission_statuses.register('TESTRUN_OK', _("No error"))
-submission_kinds.register('TESTRUN', _("Test run"))
-submission_report_kinds.register('TESTRUN', _("Test run report"))
+submission_statuses.register("TESTRUN_OK", _("No error"))
+submission_kinds.register("TESTRUN", _("Test run"))
+submission_report_kinds.register("TESTRUN", _("Test run report"))
 
 
 def make_custom_input_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return 'testruns/%s/%d/in' % (instance.problem_instance.contest.id, instance.id)
+    return f"testruns/{instance.problem_instance.contest.id}/{instance.id}/in"
 
 
 class TestRunProgramSubmission(ProgramSubmission):
@@ -33,11 +33,7 @@ def make_custom_output_filename(instance, filename):
     # This code is dead (it's result is ignored) with current implementation
     # of assigning file from filetracker to a FileField.
     submission = instance.submission_report.submission
-    return 'testruns/%s/%d/%d-out' % (
-        submission.problem_instance.contest.id,
-        submission.id,
-        instance.submission_report.id,
-    )
+    return f"testruns/{submission.problem_instance.contest.id}/{submission.id}/{instance.submission_report.id}-out"
 
 
 class TestRunConfig(models.Model):
@@ -50,18 +46,16 @@ class TestRunConfig(models.Model):
     problem_instance = models.OneToOneField(
         ProblemInstance,
         verbose_name=_("problem instance"),
-        related_name='test_run_config',
+        related_name="test_run_config",
         on_delete=models.CASCADE,
     )
 
-    test_runs_limit = models.IntegerField(
-        default=settings.DEFAULT_TEST_RUNS_LIMIT, verbose_name=_("test runs limit")
-    )
+    test_runs_limit = models.IntegerField(default=settings.DEFAULT_TEST_RUNS_LIMIT, verbose_name=_("test runs limit"))
 
     time_limit = models.IntegerField(verbose_name=_("time limit (ms)"))
     memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"))
 
-    class Meta(object):
+    class Meta:
         verbose_name = _("test run config")
         verbose_name_plural = _("test run configs")
 
@@ -72,5 +66,11 @@ class TestRunReport(models.Model):
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)
     time_used = models.IntegerField(blank=True)
+    mem_used = models.IntegerField(blank=True)
     test_time_limit = models.IntegerField(null=True, blank=True)
+    test_mem_limit = models.IntegerField(null=True, blank=True)
     output_file = FileField(upload_to=make_custom_output_filename)
+
+    def save(self, *args, **kwargs):
+        self.mem_used = limit_mem_used(self.mem_used)
+        super().save(*args, **kwargs)

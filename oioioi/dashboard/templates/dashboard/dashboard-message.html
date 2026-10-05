@@ -4,14 +4,14 @@
 {% if is_admin and not content %}
     {% blocktrans %}<p>There is no dashboard message at the moment. You can add one by pressing
     the "Add dashboard message" button below.</p>{% endblocktrans %}
-    <div class="form-group">
+    <div class="mb-3">
         <a href="{% url 'dashboard_message_edit' contest_id=contest.id %}"
            role="button" class="btn btn-primary">{% trans "Add dashboard message" %}</a>
     </div>
 {% else %}
     <div>{{ content | safe }}</div>
     {% if is_admin %}
-        <div class="form-group">
+        <div class="mb-3">
             <a href="{% url 'dashboard_message_edit' contest_id=contest.id %}"
                role="button" class="btn btn-primary">{% trans "Edit dashboard message" %}</a>
         </div>

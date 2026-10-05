@@ -20,13 +20,13 @@ class ComplaintsConfigInline(admin.TabularInline):
         return is_contest_admin(request)
 
 
-class ComplaintsAdminMixin(object):
+class ComplaintsAdminMixin:
     """Adds :class:`~oioioi.complaints.models.ComplaintConfig` to an admin
     panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(ComplaintsAdminMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.inlines = tuple(self.inlines) + (ComplaintsConfigInline,)
 
 

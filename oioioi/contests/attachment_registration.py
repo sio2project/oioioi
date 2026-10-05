@@ -3,7 +3,7 @@ import sys
 from oioioi.base.menu import OrderedRegistry
 
 
-class AttachmentRegistry(object):
+class AttachmentRegistry:
     """Maintains a collection of functions that
     return attachments for 'Downloads' view.
     """
@@ -24,7 +24,7 @@ class AttachmentRegistry(object):
 
     def to_list(self, **kwargs):
         attachments = []
-        for idx, gen in enumerate(self._registry):
+        for _idx, gen in enumerate(self._registry):
             attachments.extend(gen(**kwargs))
         return attachments
 

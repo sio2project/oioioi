@@ -8,6 +8,4 @@ from oioioi.contests.models import Contest
 # that at the moment of importing can_user_create_contest "Models aren't loaded yet."
 @make_request_condition
 def can_create_contest(request):
-    return ContestAdmin(Contest, AdminSite(name='oioioiadmin')).has_add_permission(
-        request
-    )
+    return ContestAdmin(Contest, AdminSite(name="oioioiadmin")).has_add_permission(request)

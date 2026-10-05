@@ -1,12 +1,12 @@
 {% load i18n %}
 
 <div class="clearfix">
-    <div class="dropdown float-right">
-        <button class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown"
+    <div class="dropdown float-end">
+        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown"
             aria-haspopup="true" aria-expanded="true">
             Other <span class="caret"></span>
         </button>
-        <div class="dropdown-menu dropdown-menu-right">
+        <div class="dropdown-menu dropdown-menu-end">
             {% for link in links %}
                 {% if link.object == "" %}
                     {% url 'statistics_view_without_object' contest_id=contest.id category=link.link as address %}
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <h1 class="float-left">
+    <h1 class="float-start">
         {% if title %} {{ title }} {% else %} {% trans "Statistics" %} {% endif %}
     </h1>
 </div>

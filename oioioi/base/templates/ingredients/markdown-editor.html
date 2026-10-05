@@ -1,9 +1,12 @@
 {% load static %}
 
-<link charset="utf-8" rel="stylesheet" href="{{ STATIC_URL }}bootstrap-markdown/css/bootstrap-markdown.min.css" />
-<script src="{{ STATIC_URL }}bootstrap-markdown/js/marked.js"></script>
-<script src="{{ STATIC_URL }}bootstrap-markdown/js/bootstrap-markdown.js"></script>
-
+<link rel="stylesheet" href="{% static 'bootstrap-markdown/css/bootstrap-markdown.min.css' %}"/>
+<script src="{% static 'marked/marked.min.js' %}"></script>
+<script src="{% static 'bootstrap-markdown/js/bootstrap-markdown.js' %}"></script>
+<script>
+    $.fn.markdown.defaults.parser = marked.parse
+    $.fn.markdown.defaults.iconlibrary = 'fa'
+</script>
 {% comment %}
     After including markdown add codesnippet to change `<textarea id="editor"></textarea>`
     into a markdown editor.

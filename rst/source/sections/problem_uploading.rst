@@ -117,3 +117,82 @@ https://sio2project.mimuw.edu.pl/display/DOC/Preparing+Task+Packages.
 
 .. automodule:: oioioi.sinolpack.package
    :members:
+
+config.yml reference
+""""""""""""""""""""
+
+Sinol packages may include a ``config.yml`` file in the package root to
+configure problem settings. Below are the supported keys:
+
+``title``
+    The problem's full name/title.
+
+``title_xx`` (where ``xx`` is a language code, e.g. ``title_en``, ``title_pl``)
+    Language-specific problem title.
+
+``sinol_task_id``
+    Task identifier used for validation against the package short name.
+
+``time_limit``
+    Global time limit in milliseconds (default: 10000).
+
+``time_limits``
+    Dictionary mapping test group names to per-group time limits in
+    milliseconds. Example::
+
+        time_limits:
+          1: 5000
+          2: 10000
+
+``memory_limit``
+    Global memory limit in KiB (default: 66000).
+
+``memory_limits``
+    Dictionary mapping test group names to per-group memory limits in KiB.
+
+``scores``
+    Dictionary mapping test group names to their maximum scores. Example::
+
+        scores:
+          1: 20
+          2: 30
+          3: 50
+
+``subtask_dependencies``
+    Dictionary defining dependencies between test groups (subtasks). When a
+    group depends on prerequisites, its score is calculated as if it also
+    contained the prerequisite groups' tests (with scores normalized to the
+    dependent group's scale). The score can only be lowered, never raised.
+    A warning icon is shown in the report when a dependency lowers the score.
+
+    Circular dependencies are not allowed and will be rejected during package
+    upload. Example::
+
+        subtask_dependencies:
+          2: [1]
+          3: [1, 2]
+
+    In this example, group 2 depends on group 1, and group 3 depends on
+    both groups 1 and 2.
+
+``override_limits``
+    Dictionary mapping programming languages to per-language time/memory limit
+    overrides. Example::
+
+        override_limits:
+          py:
+            time_limit: 20000
+            memory_limit: 132000
+
+``library``
+    Name of a library file needed during compilation.
+
+``extra_compilation_files``
+    List of extra files needed during compilation.
+
+``extra_execution_files``
+    Dictionary mapping language codes to lists of files needed during
+    execution.
+
+``no_outgen``
+    Boolean flag to disable automatic test output generation.

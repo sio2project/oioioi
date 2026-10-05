@@ -1,0 +1,19 @@
+from django import template
+from django.utils.translation import gettext_lazy as _
+
+from oioioi.programs.models import is_mem_used_overflowed
+
+register = template.Library()
+
+
+@register.filter
+def memoryformat(value):
+    if value is None:
+        return "???"
+    if is_mem_used_overflowed(value):
+        return "-- MiB"
+    mebibytes = value / 1024.0
+    if mebibytes < 10:
+        return _("%(mebibytes).1f MiB") % {"mebibytes": mebibytes}
+    else:
+        return _("%(mebibytes)d MiB") % {"mebibytes": mebibytes}

@@ -6,7 +6,7 @@ from oioioi.base.menu import OrderedRegistry
 from oioioi.base.permissions import Condition
 
 
-class _ContestDashboardEntry(object):
+class _ContestDashboardEntry:
     def __init__(self, view, condition):
         self.view = view
         self.condition = condition
@@ -33,9 +33,7 @@ def register_contest_dashboard_view(order=sys.maxsize, condition=None):
         condition = Condition(lambda request: True)
 
     def decorator(view):
-        _contest_dashboard_registry.register(
-            _ContestDashboardEntry(view, condition), order
-        )
+        _contest_dashboard_registry.register(_ContestDashboardEntry(view, condition), order)
         return view
 
     return decorator

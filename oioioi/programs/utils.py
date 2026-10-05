@@ -7,12 +7,14 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from oioioi.base.utils import make_html_link
-from oioioi.contests.models import Submission
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.utils import aggregate_statuses
 from oioioi.programs.models import (
+    CheckerFormatForContest,
+    CheckerFormatForProblem,
     LibraryProblemData,
     ModelProgramSubmission,
     ProgramSubmission,
@@ -22,24 +24,16 @@ from oioioi.programs.models import (
 
 def sum_score_aggregator(group_results):
     if not group_results:
-        return None, None, 'OK'
+        return None, None, "OK"
 
-    scores = [
-        ScoreValue.deserialize(result['score'])
-        for result in group_results.values()
-    ]
-    max_scores = [
-        ScoreValue.deserialize(result['max_score'])
-        for result in group_results.values()
-    ]
+    scores = [ScoreValue.deserialize(result["score"]) for result in group_results.values()]
+    max_scores = [ScoreValue.deserialize(result["max_score"]) for result in group_results.values()]
 
     # the sum below needs a start value of an appropriate type,
     # the default zero is not suitable
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
-    status = aggregate_statuses(
-        [result['status'] for result in group_results.values()]
-    )
+    status = aggregate_statuses([result["status"] for result in group_results.values()])
 
     return score, max_score, status
 
@@ -48,22 +42,14 @@ def sum_group_scorer(test_results):
     """Adds results of all tests inside a test group."""
 
     if not test_results:
-        return None, None, 'OK'
+        return None, None, "OK"
 
-    scores = [
-        ScoreValue.deserialize(result['score'])
-        for result in test_results.values()
-    ]
-    max_scores = [
-        ScoreValue.deserialize(result['max_score'])
-        for result in test_results.values()
-    ]
+    scores = [ScoreValue.deserialize(result["score"]) for result in test_results.values()]
+    max_scores = [ScoreValue.deserialize(result["max_score"]) for result in test_results.values()]
 
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
-    status = aggregate_statuses(
-        [result['status'] for result in test_results.values()]
-    )
+    status = aggregate_statuses([result["status"] for result in test_results.values()])
 
     return score, max_score, status
 
@@ -75,53 +61,81 @@ class UnequalMaxScores(ValueError):
 def min_group_scorer(test_results):
     """Gets minimal result of all tests inside a test group."""
 
-    scores = [
-        ScoreValue.deserialize(result['score'])
-        for result in test_results.values()
-    ]
-    max_scores = [
-        ScoreValue.deserialize(result['max_score'])
-        for result in test_results.values()
-    ]
+    scores = [ScoreValue.deserialize(result["score"]) for result in test_results.values()]
+    max_scores = [ScoreValue.deserialize(result["max_score"]) for result in test_results.values()]
 
     score = min(scores)
     max_score = min(max_scores)
     if max_score != max(max_scores):
-        raise UnequalMaxScores(
-            "Tests in one group cannot have different max scores."
-        )
+        raise UnequalMaxScores("Tests in one group cannot have different max scores.")
 
-    sorted_results = sorted(list(test_results.values()), key=itemgetter('order'))
-    status = aggregate_statuses([result['status'] for result in sorted_results])
+    sorted_results = sorted(test_results.values(), key=itemgetter("order"))
+    status = aggregate_statuses([result["status"] for result in sorted_results])
 
     return score, max_score, status
 
 
+def compute_score_lowered_reason(test_reports, group_report, max_listed=3):
+    """Return a tooltip string explaining why a group's score is below its
+    maximum, or ``None`` if no explanation should be shown.
+
+    The result combines (when applicable) a list of in-group tests that did
+    not earn full marks and the existing prerequisite-subtask dependency
+    message. ``None`` is returned when the score equals the max, when the
+    score/max are undefined (e.g. ACM-style scoring), or when neither reason
+    applies.
+    """
+    score = group_report.score
+    max_score = group_report.max_score
+    if score is None or max_score is None or score >= max_score:
+        return None
+
+    failing = [t.test_name for t in test_reports if t.score is not None and t.max_score is not None and t.score < t.max_score]
+
+    parts = []
+    if failing:
+        listed = failing[:max_listed]
+        remaining = len(failing) - len(listed)
+        if len(failing) == 1:
+            parts.append(_("Score lowered due to test %(name)s result.") % {"name": listed[0]})
+        elif remaining == 0:
+            parts.append(_("Score lowered due to tests: %(names)s.") % {"names": ", ".join(listed)})
+        else:
+            parts.append(_("Score lowered due to tests: %(names)s and %(count)d more.") % {"names": ", ".join(listed), "count": remaining})
+
+    if group_report.score_affected_by_dependency and group_report.dependency_prereqs:
+        parts.append(_("Score reduced due to results in prerequisite subtask(s): %(prereqs)s") % {"prereqs": group_report.dependency_prereqs})
+
+    if not parts:
+        return None
+    return " ".join(parts)
+
+
 def discrete_test_scorer(test, result):
-    status = result['result_code']
-    percentage = result.get('result_percentage', (100, 1))
-    max_score = ceil(Fraction(*percentage) / 100. * test['max_score'])
-    score = max_score if status == 'OK' else 0
-    return IntegerScore(score), IntegerScore(test['max_score']), status
+    status = result["result_code"]
+    percentage = result.get("result_percentage", (100, 1))
+    max_score = ceil(Fraction(*percentage) / 100.0 * test["max_score"])
+    score = max_score if status == "OK" else 0
+    return IntegerScore(score), IntegerScore(test["max_score"]), status
 
 
 def threshold_linear_test_scorer(test, result):
     """Full score if took less than half of limit and then decreasing to 1"""
-    limit = test.get('exec_time_limit', 0)
-    used = result.get('time_used', 0)
-    status = result['result_code']
-    percentage = result.get('result_percentage', (100, 1))
-    max_score = ceil(Fraction(*percentage) / 100. * test['max_score'])
-    test_max_score = IntegerScore(test['max_score'])
+    limit = test.get("exec_time_limit", 0)
+    used = result.get("time_used", 0)
+    status = result["result_code"]
+    percentage = result.get("result_percentage", (100, 1))
+    max_score = ceil(Fraction(*percentage) / 100.0 * test["max_score"])
+    test_max_score = IntegerScore(test["max_score"])
 
-    if status != 'OK':
+    if status != "OK":
         return IntegerScore(0), test_max_score, status
     if not limit:
         return IntegerScore(max_score), test_max_score, status
 
     if used > limit:
         score = 0
-        status = 'TLE'
+        status = "TLE"
     elif max_score == 0:
         score = 0
     elif used <= limit / 2.0:
@@ -134,10 +148,10 @@ def threshold_linear_test_scorer(test, result):
 
 def decode_str(str):
     try:
-        str = str.decode('utf-8')
+        str = str.decode("utf-8")
         decode_error = False
     except UnicodeDecodeError:
-        str = str.decode('utf-8', 'replace')
+        str = str.decode("utf-8", "replace")
         decode_error = True
 
     return (str, decode_error)
@@ -167,7 +181,7 @@ def has_report_actions_config(problem):
 
 
 def is_problem_with_library(problem):
-    if isinstance(problem, (int, str)):
+    if isinstance(problem, int | str):
         return LibraryProblemData.objects.filter(problem_id=problem).exists()
 
     try:
@@ -181,25 +195,23 @@ def is_model_submission(submission):
 
 
 def filter_model_submissions(queryset):
-    model_ids = ModelProgramSubmission.objects.values_list('id', flat=True)
+    model_ids = ModelProgramSubmission.objects.values_list("id", flat=True)
     return queryset.exclude(pk__in=model_ids)
 
 
 def form_field_id_for_langs(problem_instance):
-    return 'prog_lang_' + str(problem_instance.id)
+    return "prog_lang_" + str(problem_instance.id)
 
 
 def get_problem_link_or_name(request, submission):
     pi = submission.problem_instance
     if pi.contest is None:
-        href = reverse(
-            'problem_site', kwargs={'site_key': pi.problem.problemsite.url_key}
-        )
+        href = reverse("problem_site", kwargs={"site_key": pi.problem.problemsite.url_key})
         return make_html_link(href, pi)
     elif pi.contest.controller.can_see_statement(request, pi):
         href = reverse(
-            'problem_statement',
-            kwargs={'contest_id': pi.contest.id, 'problem_instance': pi.short_name},
+            "problem_statement",
+            kwargs={"contest_id": pi.contest.id, "problem_instance": pi.short_name},
         )
         return make_html_link(href, pi)
     else:
@@ -211,7 +223,20 @@ def get_extension(file_name):
 
 
 def get_submittable_languages():
-    submittable_languages = getattr(settings, "SUBMITTABLE_LANGUAGES")
-    for _, lang_config in submittable_languages.items():
-        lang_config.setdefault('type', 'main')
+    submittable_languages = settings.SUBMITTABLE_LANGUAGES
+    for lang_config in submittable_languages.values():
+        lang_config.setdefault("type", "main")
     return submittable_languages
+
+
+def get_checker_format(problem_instance):
+    try:
+        return CheckerFormatForProblem.objects.get(problem_instance=problem_instance).format
+    except CheckerFormatForProblem.DoesNotExist:
+        if problem_instance.contest:
+            try:
+                return CheckerFormatForContest.objects.get(contest=problem_instance.contest).format
+            except CheckerFormatForContest.DoesNotExist:
+                return getattr(settings, "DEFAULT_CHECKER_FORMAT", "abbreviated")
+        else:
+            return getattr(settings, "DEFAULT_CHECKER_FORMAT", "abbreviated")

@@ -1,13 +1,13 @@
-from django.urls import re_path
+from django.urls import path
 
 from oioioi.sinolpack import views
 
-app_name = 'sinolpack'
+app_name = "sinolpack"
 
 urlpatterns = [
-    re_path(
-        r'^sinolpack/extra/(?P<file_id>\d+)/$',
+    path(
+        "sinolpack/extra/<int:file_id>/",
         views.download_extra_file_view,
-        name='download_extra_file',
+        name="download_extra_file",
     ),
 ]

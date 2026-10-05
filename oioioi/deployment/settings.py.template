@@ -37,8 +37,9 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 
 # The server to be run. Options are:
 # 'django' - django's http server
-# 'uwsgi' - uwsgi daemon
-# 'uwsgi-http' - uwsgi deamon with built-in http server
+# 'uwsgi' - uwsgi daemon (uwsgi protocol over a Unix socket)
+# 'uwsgi-tcp' - uwsgi daemon (uwsgi protocol over a TCP socket)
+# 'uwsgi-http' - uwsgi daemon with built-in http server
 # 'none' - nothing will be ran
 # SERVER = 'none'
 
@@ -51,6 +52,8 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 #         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
 #         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
 #         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
+#         'CONN_MAX_AGE': 60,              # Persist connections between requests for 60 seconds..
+#         'CONN_HEALTH_CHECKS': True,      # ...but ensure it didn't break.
 #     }
 # }
 
@@ -118,6 +121,16 @@ SECRET_KEY = '__SECRET__'
 
 # Set to true to show tags on the list of problems
 # PROBLEM_TAGS_VISIBLE = False
+
+# Only relevant with PROBLEM_TAGS_VISIBLE set to True
+# Set to True to show tag proposals in the problemset
+# SHOW_TAG_PROPOSALS_IN_PROBLEMSET = False
+
+# Below values only relevant with SHOW_TAG_PROPOSALS_IN_PROBLEMSET set to True
+# Maximum amount of proposed tags shown for a single problem
+# PROBSET_SHOWN_TAG_PROPOSALS_LIMIT = 3
+# Minimum amount of user proposals to consider showing a tag proposal
+# PROBSET_MIN_AMOUNT_TO_CONSIDER_TAG_PROPOSAL = 10
 
 # Enables problem statistics at the cost of some per-submission performance hit.
 # Set to True if you want to see statistics in the Problemset and problem sites.
@@ -196,6 +209,7 @@ INSTALLED_APPS = (
     # 'oioioi.problemsharing',
     # 'oioioi.usergroups',
     # 'oioioi.usercontests',
+    # 'oioioi.welcomepage',
 ) + INSTALLED_APPS
 
 # If set to locations of flite and sox executables, enables audio playback
@@ -246,7 +260,7 @@ AUTHENTICATION_BACKENDS += (
 # in which the necessary files will be stored.
 FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
-# When using a remote storage it's recommended to enable a cache cleaner deamon
+# When using a remote storage it's recommended to enable a cache cleaner daemon
 # which will periodically scan cache directory and remove files what aren't
 # used. For a detailed description of each option, please read a cache cleaner
 # configuration section in the sioworkersd documentation. Please note that
@@ -263,6 +277,7 @@ FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 # PAGINATION_DEFAULT_MARGIN = 1
 # FILES_ON_PAGE = 100
 # PROBLEMS_ON_PAGE = 100
+# CONTESTS_ON_PAGE = 20
 # QUESTIONS_ON_PAGE = 30
 # SUBMISSIONS_ON_PAGE = 100
 # PARTICIPANTS_ON_PAGE = 100
@@ -483,13 +498,14 @@ ZEUS_INSTANCES = {
 # }
 
 # Ranking
+# RANKINGSD_CONCURRENCY = 1  # Number of rankingsd instances to start.
 # RANKINGSD_POLLING_INTERVAL = 0.5  # seconds
 # RANKING_COOLDOWN_FACTOR = 2  # seconds
 # RANKING_MIN_COOLDOWN = 5  # seconds
 # RANKING_MAX_COOLDOWN = 100  # seconds
 
 # Notifications configuration (client)
-# This one is for JavaScript socket.io client.
+# This one is for JavaScript WebSocket client.
 # It should contain actual URL available from remote machines.
 # NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
@@ -581,4 +597,19 @@ ZEUS_INSTANCES = {
 # Experimental
 # USE_ACE_EDITOR = False
 
+# If set to True, contest admins will be able to log in as participants of contests they admin.
+CONTEST_ADMINS_CAN_SU = False
 
+# If set to False, contest admins switched to a participant will be able to make any type of request.
+ALLOW_ONLY_GET_FOR_SU_CONTEST_ADMINS = True
+
+# OAuth2 support
+#
+# INSTALLED_APPS = (
+#    'oauth2_provider',
+#    'oioioi.oauth',
+# ) + INSTALLED_APPS
+#
+# REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] += (
+#    'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+# )
