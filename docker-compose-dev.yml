@@ -46,6 +46,13 @@ services:
       - filetracker-data-dev:/sio2/deployment/media
 #      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
+    # Healthy once oioioi_init.sh has built assets and applied migrations.
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/oioioi_init_done"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 15m
     depends_on:
       - db
       - broker

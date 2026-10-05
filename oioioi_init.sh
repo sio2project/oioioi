@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
+set -o pipefail
 set -x
+
+# Marker checked by the docker-compose healthcheck; removed so a restarted container is not reported healthy too early.
+INIT_DONE_MARKER=/tmp/oioioi_init_done
+rm -f "$INIT_DONE_MARKER"
 
 /sio2/oioioi/wait-for-it.sh -t 60 "${DATABASE_HOST:-db}:${DATABASE_PORT:-5432}"
 
@@ -17,7 +22,9 @@ if [ "$1" == "--dev" ]; then
     echo "Building frontend assets..."
     (cd ../oioioi && pnpm run build)
 
+    echo "Applying migrations..."
     ./manage.py migrate 2>&1 | tee /sio2/deployment/logs/migrate.log
+    echo "Migrations applied"
     ./manage.py loaddata ../oioioi/extra/dbdata/default_admin.json
 
     # Upload sandboxes to filetracker (s3dedup) on first run
@@ -36,5 +43,6 @@ if [ "$1" == "--dev" ]; then
 fi
 
 echo "Init Finished"
+touch "$INIT_DONE_MARKER"
 
 exec ./manage.py supervisor --logfile=/sio2/deployment/logs/supervisor.log
