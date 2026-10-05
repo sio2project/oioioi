@@ -730,8 +730,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         problem = problem_instance.problem
         return problem.controller.create_submission(request, problem_instance, form_data, **kwargs)
 
-    def judge(self, submission, extra_args=None, is_rejudge=False):
-        submission.problem_instance.problem.controller.judge(submission, extra_args, is_rejudge)
+    def judge(self, submission, extra_args=None, is_rejudge=False, delay: int | float = 0):
+        submission.problem_instance.problem.controller.judge(submission, extra_args, is_rejudge, delay)
 
     def fill_evaluation_environ(self, environ, submission):
         submission.problem_instance.problem.controller.fill_evaluation_environ(environ, submission)
