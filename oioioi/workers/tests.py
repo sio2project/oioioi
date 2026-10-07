@@ -22,6 +22,11 @@ class TestServer:
         ]
 
 
+class UnavailableServer:
+    def get_workers(self):
+        raise ConnectionRefusedError
+
+
 class TestWorkersInfo(TestCase):
     fixtures = ["test_users"]
 
@@ -48,3 +53,21 @@ class TestWorkersInfo(TestCase):
             response.json(),
             {"capacity": 6, "load": 5, "cpu_exec_load": 4},
         )
+
+    def test_workers_page_reports_unavailable_service(self):
+        views.server = UnavailableServer()
+        self.assertTrue(self.client.login(username="test_admin"))
+
+        response = self.client.get(reverse("show_workers"))
+
+        self.assertContains(response, "The workers service is unavailable")
+        self.assertNotContains(response, "worker_load_plot")
+
+    def test_load_json_reports_unavailable_service(self):
+        views.server = UnavailableServer()
+        self.assertTrue(self.client.login(username="test_admin"))
+
+        response = self.client.get(reverse("get_load_json"))
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json(), {"error": "The workers service is unavailable."})
