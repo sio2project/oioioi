@@ -65,13 +65,22 @@ class TestAdmin(TestCase):
             url,
             {"app_label": "usergroups", "model_name": "usergroup", "field_name": "owners", "term": "test_user"},
         )
-        self.assertEqual({result["id"] for result in response.json()["results"]}, {"1001", "1002"})
+        results = response.json()["results"]
+        self.assertEqual({result["id"] for result in results}, {"1001", "1002"})
+        self.assertEqual(
+            {result["text"] for result in results},
+            {"Test User (test_user)", "Test User 2 (test_user2)"},
+        )
 
         response = self.client.get(
             url,
             {"app_label": "usergroups", "model_name": "usergroup", "field_name": "members", "term": "test_user"},
         )
-        self.assertEqual({result["id"] for result in response.json()["results"]}, {"1001", "1002", "1003", "1005"})
+        results = response.json()["results"]
+        self.assertEqual({result["id"] for result in results}, {"1001", "1002", "1003", "1005"})
+        for result in results:
+            user = User.objects.get(pk=result["id"])
+            self.assertEqual(result["text"], f"{user.get_full_name()} ({user.username})")
 
     def test_permissions(self):
         self.assertTrue(self.client.login(username="test_admin"))

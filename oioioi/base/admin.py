@@ -5,6 +5,7 @@ from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib.admin.utils import NestedObjects, model_ngettext, unquote
+from django.contrib.admin.views.autocomplete import AutocompleteJsonView
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -293,6 +294,19 @@ def collect_deleted_objects(modeladmin, request, queryset):
     return to_delete, perms_needed, protected
 
 
+class OioioiAutocompleteJsonView(AutocompleteJsonView):
+    """Autocomplete results that label users as ``Full Name (username)`` if the user has a Full Name field and ``username`` otherwise."""
+
+    def serialize_result(self, obj, to_field_name):
+        result = super().serialize_result(obj, to_field_name)
+        if isinstance(obj, User):
+            if obj.get_full_name():
+                result["text"] = f"{obj.get_full_name()} ({obj.username})"
+            else:
+                result["text"] = obj.username
+        return result
+
+
 class AdminSite(DjangoAdminSite):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -313,6 +327,9 @@ class AdminSite(DjangoAdminSite):
     def get_urls(self):
         self._reinit_model_admins()
         return super().get_urls()
+
+    def autocomplete_view(self, request):
+        return OioioiAutocompleteJsonView.as_view(admin_site=self)(request)
 
     def login(self, request, extra_context=None):
         next_url = request.GET.get("next", None)
