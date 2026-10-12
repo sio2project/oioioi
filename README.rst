@@ -218,8 +218,6 @@ Contact us
 
 Here are some useful links:
 
-* `our mailing list`_
 * `GitHub issues system`_ (English only)
 
-.. _our mailing list: sio2-project@googlegroups.com
 .. _GitHub issues system: http://github.com/sio2project/oioioi/issues
