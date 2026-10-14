@@ -515,7 +515,8 @@ class ProgrammingProblemController(ProblemController):
         controller = problem_instance.controller
 
         choices = [("", "")]
-        for lang in get_allowed_languages_dict(problem_instance).keys():
+        allowed_languages = get_allowed_languages_dict(problem_instance)
+        for lang in allowed_languages.keys():
             compiler_name = None
             compiler = controller.get_compiler_for_language(problem_instance, lang)
             if compiler is not None:
@@ -539,6 +540,11 @@ class ProgrammingProblemController(ProblemController):
             choices=choices,
             widget=forms.Select(attrs={"disabled": "disabled"}),
         )
+        if not request.user.is_anonymous:
+            ensure_preferences_exist_for_user(request.user)
+            preferred_language = request.user.userpreferences.programming_language
+            if preferred_language in allowed_languages:
+                form.fields[field_name].initial = preferred_language
         narrow_input_field(form.fields[field_name])
         form.set_custom_field_attributes(field_name, problem_instance)
 
