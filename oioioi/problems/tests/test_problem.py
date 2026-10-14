@@ -1,3 +1,5 @@
+import json
+
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -540,6 +542,58 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username="test_user3"))
         response = self.client.get(self._get_site_urls()["statement"])
         self.assertNotContains(response, 'id="open-form"')
+
+
+@override_settings(CONTEST_MODE=ContestMode.neutral)
+class TestProblemSiteExampleTests(TestCase, TestStreamingMixin):
+    fixtures = [
+        "test_users",
+        "test_full_package",
+        "test_problem_instance_with_no_contest",
+        "test_problem_site",
+    ]
+
+    def _list_url(self):
+        return reverse("problem_site_example_tests", kwargs={"site_key": "123"})
+
+    def _file_url(self, filename):
+        return reverse("problem_site_example_test_file", kwargs={"site_key": "123", "filename": filename})
+
+    def test_list_returns_example_tests(self):
+        # No auth required — same access model as the statement view
+        response = self.client.get(self._list_url())
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual({e["name"] for e in data}, {"0", "1ocen"})
+        entry = next(e for e in data if e["name"] == "0")
+        self.assertEqual(entry["in_url"], self._file_url("sum0.in"))
+        self.assertEqual(entry["out_url"], self._file_url("sum0.out"))
+
+    def test_list_wrong_site_key_returns_404(self):
+        url = reverse("problem_site_example_tests", kwargs={"site_key": "nonexistent"})
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_file_input(self):
+        # No auth required
+        response = self.client.get(self._file_url("sum0.in"))
+        self.assertStreamingEqual(response, b"1 2\n")
+
+    def test_file_output(self):
+        response = self.client.get(self._file_url("sum0.out"))
+        self.assertStreamingEqual(response, b"3\n")
+
+    def test_file_wrong_extension_returns_404(self):
+        self.assertEqual(self.client.get(self._file_url("sum0.txt")).status_code, 404)
+
+    def test_file_wrong_test_name_returns_404(self):
+        self.assertEqual(self.client.get(self._file_url("sum99.in")).status_code, 404)
+
+    def test_file_wrong_short_name_returns_404(self):
+        self.assertEqual(self.client.get(self._file_url("wrong0.in")).status_code, 404)
+
+    def test_unsafe_methods_not_allowed(self):
+        self.assertEqual(self.client.post(self._list_url()).status_code, 405)
+        self.assertEqual(self.client.post(self._file_url("sum0.in")).status_code, 405)
 
 
 @override_settings(LANGUAGE_CODE="en")
