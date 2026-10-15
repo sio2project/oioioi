@@ -417,6 +417,13 @@ CONTEST_MODE = ContestMode.neutral
 # but this is unreliable and not intended for production.
 # BROKER_URL = 'amqp://oioioi:oioioi@broker:5672//'
 
+# Use quorum queues for Celery tasks, e.g. with a highly available RabbitMQ
+# cluster (RabbitMQ 3.10 or newer). RabbitMQ does not change the type of an
+# existing queue: stop all Celery workers and delete the old task queues
+# (evalmgr, unpackmgr, ...) before switching.
+# CELERY_DEFAULT_QUEUE_TYPE = 'quorum'
+# CELERY_CREATE_MISSING_QUEUE_TYPE = 'quorum'
+
 # The logs for one specific logger 'oioioi.zeus' will be
 # stored in a specific file: `PROJECT_DIR/logs/zeus.log`.
 LOGGING['handlers']['zeus_file'] = {

@@ -691,9 +691,23 @@ LOGGING = {
 # Celery configuration
 
 CELERY_QUEUES = {}
-CELERY_RESULT_BACKEND = 'rpc'
+# Task results are never read (only task ids are stored), so there is no
+# result backend. The 'rpc' backend declared transient non-exclusive reply
+# queues, which RabbitMQ 4 no longer allows by default.
+CELERY_RESULT_BACKEND = None
+CELERY_IGNORE_RESULT = True
 CELERY_ACKS_LATE = True
 CELERY_SEND_EVENTS = True
+# Remote control (pidbox) and event receiver queues are exclusive instead of
+# transient non-exclusive, for the same reason.
+CONTROL_QUEUE_EXCLUSIVE = True
+CELERY_EVENT_QUEUE_EXCLUSIVE = True
+# Type of the task queues (evalmgr, unpackmgr, ...): 'classic' or 'quorum'.
+# Quorum queues are replicated, so they are needed for a highly available
+# RabbitMQ cluster. RabbitMQ does not change the type of an existing queue:
+# before switching, stop all Celery workers and delete the old queues.
+CELERY_DEFAULT_QUEUE_TYPE = 'classic'
+CELERY_CREATE_MISSING_QUEUE_TYPE = 'classic'
 
 BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
                                               'celerydb.sqlite')

@@ -12,6 +12,22 @@ Then run::
 
 and restart the judging machines.
 
+Celery 5.6 and RabbitMQ 4
+-------------------------
+
+Celery no longer uses the ``rpc`` result backend (task results were never
+read), and its remote control and event queues are exclusive. OIOIOI therefore
+no longer creates transient non-exclusive queues, so RabbitMQ 4 works without
+``deprecated_features.permit.transient_nonexcl_queues``. If your
+``settings.py`` sets ``CELERY_RESULT_BACKEND = 'rpc'``, remove that line.
+
+Task queues can now be quorum queues (``CELERY_DEFAULT_QUEUE_TYPE`` and
+``CELERY_CREATE_MISSING_QUEUE_TYPE``, see ``settings.py.template``), which is
+needed for a highly available RabbitMQ cluster. RabbitMQ does not change the
+type of an existing queue, so before switching stop all Celery workers, make
+sure the queues are empty and delete them (``evalmgr``, ``unpackmgr`` and any
+other task queue), e.g. with ``rabbitmqctl delete_queue evalmgr``.
+
 Fast Django Migration to 5.2 (Important for Large OIOIOI Instances)
 -----------------------------------
 
