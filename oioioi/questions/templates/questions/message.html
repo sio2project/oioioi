@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block main-content %}
-{% check_perm "contests.contest_admin" for contest as is_admin %}
+{% check_perm "contests.contest_basicadmin" for contest as is_admin %}
 
 <div class="clearfix">
     {% if is_admin %}
@@ -27,11 +27,13 @@
                     </a>
                 {% endif %}
             {% endif %}
-            <a role="button" class="btn btn-sm btn-outline-secondary" href="{% url 'user_info' message.author_id %}">
-                <i class="fa-solid fa-user"></i>
-                {% trans "Display user" %}
-            </a>
-            {% if message.can_have_replies %}
+            {% if display_user %}
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'user_info' display_user.id %}">
+                    <i class="fa-solid fa-user"></i>
+                    {% trans "Display user" %}
+                </a>
+            {% endif %}
+            {% if form %}
                 <a role="button" class="btn btn-sm btn-outline-secondary" href="javascript:scroll_and_focus('#id_content');">
                     <i class="fa-solid fa-pencil"></i>
                     {% trans "Reply" %}
@@ -46,7 +48,7 @@
 </div>
 
 
-{% if is_admin %}
+{% if is_admin and message.kind == 'QUESTION' %}
 <script type="text/javascript">
     var alertText = '<div class="alert alert-info" id="alert_%id%">' +
         '<h4>{% trans "New answer available" %}' + '</h4><p class="oioioi-message__body">' + '%content%' + '</p>' +
@@ -66,6 +68,21 @@
 {% endif %}
 
 {% include "questions/single_message.html" with message=message is_reply=False has_replies=replies show_icon_hyperlink=False is_new=False %}
+{% if private_recipients %}
+    <div class="mb-3">
+        <h2>{% trans "Recipients" %}</h2>
+        <div class="list-group">
+            {% for recipient in private_recipients %}
+                <a
+                    class="list-group-item list-group-item-action"
+                    href="{% url 'private_message' contest_id=contest.id message_id=message.id recipient_id=recipient.id %}"
+                >
+                    {{ recipient.username }}{% if recipient.get_full_name %} ({{ recipient.get_full_name }}){% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
 {% for message in replies %}
 {% include "questions/single_message.html" with message=message is_reply=True has_replies=False show_icon_hyperlink=False is_new=False %}
 {% endfor %}
@@ -78,6 +95,7 @@
     <form enctype="multipart/form-data" id="reply_form" method="post">
         {% csrf_token %}
         {% include "ingredients/form.html" with focus=False %}
+        {% if is_admin %}
         <div class="mb-3">
             <div class="include-template btn-group">
                 <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
@@ -99,10 +117,12 @@
                 {% trans "Respond inline" %}
             </button>
         </div>
+        {% endif %}
         <div id="alerts"></div>
         <div class="mb-3">
             <input type="hidden" id="just_reload" name="just_reload" value="no">
             <input type="submit" id="submitter" class="btn btn-primary" value="{% trans "Submit" %}">
+            {% if is_admin %}
             <div class="float-end checkbox">
                 <label for="id_fake_save_template">
                     <input id="id_fake_save_template" name="fake_save_template" type="checkbox">
@@ -116,6 +136,7 @@
                     });
                 </script>
             </div>
+            {% endif %}
         </div>
     </form>
 </div>

@@ -1,9 +1,10 @@
 import calendar
 from datetime import UTC, datetime
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages as django_messages
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
@@ -17,7 +18,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify
-from oioioi.base.utils.user_selection import get_user_hints_view
+from oioioi.base.utils.user_selection import UserSelectionField, get_user_hints_view
 from oioioi.contests.utils import (
     can_enter_contest,
     contest_exists,
@@ -27,11 +28,15 @@ from oioioi.contests.utils import (
 )
 from oioioi.questions.forms import (
     AddContestMessageForm,
+    AddPrivateMessageForm,
+    AddPrivateReplyForm,
     AddQuestionMessageForm,
     AddReplyForm,
     FilterMessageAdminForm,
     FilterMessageForm,
     NewsMessageForm,
+    get_active_contest_participants,
+    get_selected_private_message_recipients,
 )
 from oioioi.questions.mails import new_question_signal
 from oioioi.questions.models import Message, MessageView, QuestionSubscription, ReplyTemplate
@@ -61,13 +66,18 @@ def visible_messages(request, author=None, category=None, kind=None):
     if not is_contest_basicadmin(request):
         q_expression = Q(kind="PUBLIC")
         if request.user.is_authenticated:
-            q_expression = q_expression | (Q(author=request.user) & Q(kind="QUESTION")) | Q(top_reference__author=request.user)
+            q_expression = (
+                q_expression
+                | (Q(author=request.user) & Q(kind="QUESTION"))
+                | Q(top_reference__author=request.user)
+                | Q(kind="PRIVATE", recipients=request.user)
+            )
         q_time = (
             Q(date__lte=request.timestamp)
             & (Q(pub_date__isnull=True) | Q(pub_date__lte=request.timestamp))
             & ((Q(top_reference__isnull=True)) | Q(top_reference__pub_date__isnull=True) | Q(top_reference__pub_date__lte=request.timestamp))
         )
-        messages = messages.filter(q_expression, q_time)
+        messages = messages.filter(q_expression, q_time).distinct()
 
     return messages.select_related("top_reference", "author", "problem_instance", "round", "problem_instance__problem")
 
@@ -93,16 +103,21 @@ def messages_template_context(request, messages):
     else:
         unanswered = []
 
-    to_display = [
-        {
-            "message": m,
-            "link_message": m.top_reference if m.top_reference in messages else m,
-            "needs_reply": m in unanswered,
-            "read": m.id not in new_ids,
+    def make_entry(message):
+        link_message = message.top_reference if message.top_reference in messages else message
+        if message.top_reference_id is not None and message.top_reference.kind == "PRIVATE":
+            link = message.get_absolute_url()
+        else:
+            link = reverse("message", kwargs={"contest_id": request.contest.id, "message_id": link_message.id})
+        return {
+            "message": message,
+            "link": link,
+            "link_message": link_message,
+            "needs_reply": message in unanswered,
+            "read": message.id not in new_ids,
         }
-        for m in messages
-        if m.id not in replied_ids
-    ]
+
+    to_display = [make_entry(message) for message in messages if message.id not in replied_ids]
 
     def key(entry):
         return entry["needs_reply"], entry["message"].get_user_date()
@@ -285,8 +300,12 @@ def toggle_question_read(request, message_id, read):
 def message_visit_view(request, message_id):
     message = get_object_or_404(Message, id=message_id, contest_id=request.contest.id)
     vmessages = visible_messages(request)
+    if not vmessages.filter(id=message_id).exists():
+        raise PermissionDenied
     if message.top_reference_id is None:
         replies = list(vmessages.filter(top_reference=message))
+        if message.kind == "PRIVATE" and not is_contest_basicadmin(request):
+            replies = [reply for reply in replies if reply.recipients.filter(id=request.user.id).exists()]
         replies.sort(key=Message.get_user_date)
     else:
         replies = []
@@ -295,34 +314,88 @@ def message_visit_view(request, message_id):
     return HttpResponse("OK", "text/plain", 201)
 
 
-@enforce_condition(contest_exists & can_enter_contest)
-def message_view(request, message_id):
-    message = get_object_or_404(Message, id=message_id, contest_id=request.contest.id)
-    vmessages = visible_messages(request)
-    if not vmessages.filter(id=message_id):
+def _private_message_root(message):
+    if message.kind == "PRIVATE" and message.top_reference_id is None:
+        return message
+    if message.top_reference_id is not None and message.top_reference.kind == "PRIVATE" and message.top_reference.top_reference_id is None:
+        return message.top_reference
+    return None
+
+
+def _private_conversation_recipient(request, requested_message, message, recipient_id):
+    is_admin = is_contest_basicadmin(request)
+    if recipient_id is not None:
+        recipient = get_object_or_404(message.recipients, id=recipient_id)
+    elif requested_message.top_reference_id is not None:
+        recipient = requested_message.recipients.first()
+    elif not is_admin:
+        recipient = request.user
+    elif message.recipients.count() == 1:
+        recipient = message.recipients.first()
+    else:
+        recipient = None
+
+    if recipient is not None and not message.recipients.filter(id=recipient.id).exists():
         raise PermissionDenied
-    if message.top_reference_id is None:
+    if not is_admin and recipient != request.user:
+        raise PermissionDenied
+    return recipient
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+def message_view(request, message_id, recipient_id=None):
+    requested_message = get_object_or_404(Message, id=message_id, contest_id=request.contest.id)
+    vmessages = visible_messages(request)
+    if not vmessages.filter(id=requested_message.id).exists():
+        raise PermissionDenied
+
+    message = _private_message_root(requested_message) or requested_message
+    conversation_recipient = None
+    private_recipients = None
+    if message.kind == "PRIVATE" and message.top_reference_id is None:
+        conversation_recipient = _private_conversation_recipient(request, requested_message, message, recipient_id)
+        if conversation_recipient is None:
+            replies = []
+            private_recipients = message.recipients.order_by("username")
+        else:
+            replies = list(vmessages.filter(top_reference=message, recipients=conversation_recipient))
+    elif message.top_reference_id is None:
         replies = list(vmessages.filter(top_reference=message))
-        replies.sort(key=Message.get_user_date)
     else:
         replies = []
-    if is_contest_basicadmin(request) and message.kind == "QUESTION" and message.can_have_replies and not is_contest_archived(request):
+
+    if message.top_reference_id is None:
+        replies.sort(key=Message.get_user_date)
+
+    private_message_published = message.pub_date is None or message.pub_date <= request.timestamp
+    private_conversation = message.kind == "PRIVATE" and message.top_reference_id is None and conversation_recipient is not None and private_message_published
+    can_reply_to_question = is_contest_basicadmin(request) and message.kind == "QUESTION"
+    if (private_conversation or can_reply_to_question) and message.can_have_replies and not is_contest_archived(request):
+        form_class = AddPrivateReplyForm if private_conversation else AddReplyForm
         if request.method == "POST":
-            form = AddReplyForm(request, request.POST)
+            form = form_class(request, request.POST)
 
             if request.POST.get("just_reload") != "yes" and form.is_valid():
                 instance = form.save(commit=False)
                 instance.top_reference = message
                 instance.author = request.user
                 instance.date = request.timestamp
-                instance.save()
+                if private_conversation:
+                    instance.kind = "PRIVATE"
+                    with transaction.atomic():
+                        instance.save()
+                        instance.recipients.set([conversation_recipient])
+                else:
+                    instance.save()
 
                 log_addition(request, instance)
+                if private_conversation:
+                    return redirect(instance.get_absolute_url())
                 return redirect("contest_messages", contest_id=request.contest.id)
             elif request.POST.get("just_reload") == "yes":
                 form.is_bound = False
         else:
-            form = AddReplyForm(
+            form = form_class(
                 request,
                 initial={
                     "topic": _("Re: %s") % message.topic,
@@ -332,6 +405,9 @@ def message_view(request, message_id):
         form = None
     if request.user.is_authenticated:
         mark_messages_read(request.user, [message] + replies)
+    display_user = conversation_recipient or message.author
+    if private_recipients is not None:
+        display_user = None
     return TemplateResponse(
         request,
         "questions/message.html",
@@ -341,6 +417,37 @@ def message_view(request, message_id):
             "form": form,
             "reply_to_id": message.top_reference_id or message.id,
             "timestamp": request_time_seconds(request),
+            "conversation_recipient": conversation_recipient,
+            "display_user": display_user,
+            "private_recipients": private_recipients,
+        },
+    )
+
+
+@enforce_condition(not_anonymous & contest_exists & is_contest_basicadmin & ~is_contest_archived)
+def add_private_message_view(request):
+    if request.method == "POST":
+        form = AddPrivateMessageForm(request, request.POST)
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.author = request.user
+            instance.kind = "PRIVATE"
+            instance.date = request.timestamp
+            with transaction.atomic():
+                instance.save()
+                form.save_recipients(instance)
+            log_addition(request, instance)
+            return redirect("contest_messages", contest_id=request.contest.id)
+    else:
+        form = AddPrivateMessageForm(request)
+
+    return TemplateResponse(
+        request,
+        "questions/add.html",
+        {
+            "form": form,
+            "private_message": True,
+            "title": _("Send private message"),
         },
     )
 
@@ -393,6 +500,31 @@ def add_contest_message_view(request):
 def get_messages_authors_view(request):
     queryset = visible_messages(request)
     return get_user_hints_view(request, "substr", queryset, "author")
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def get_private_message_recipients_view(request):
+    queryset = get_active_contest_participants(request)
+    return get_user_hints_view(request, "substr", queryset)
+
+
+@jsonify
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def get_private_message_recipients_preview_view(request):
+    active_participants = get_active_contest_participants(request)
+    recipient_field = UserSelectionField(queryset=active_participants, required=False)
+    try:
+        recipient = recipient_field.clean(request.GET.get("recipient"))
+    except ValidationError:
+        recipient = None
+    group_ids = [group_id for group_id in request.GET.getlist("groups[]") if group_id.isdigit()]
+    groups = ()
+    if apps.is_installed("oioioi.usergroups"):
+        from oioioi.usergroups.models import UserGroup
+
+        groups = UserGroup.objects.filter(contests=request.contest, id__in=group_ids)
+    recipients = get_selected_private_message_recipients(request, recipient, groups).order_by("username")
+    return [{"username": recipient.username, "full_name": recipient.get_full_name()} for recipient in recipients]
 
 
 @jsonify
