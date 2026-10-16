@@ -16,6 +16,18 @@ app = Celery("oioioi")
 app.config_from_object("django.conf:settings")
 
 
+# Publishing waits until RabbitMQ confirms the message (for quorum queues:
+# until a majority of nodes has it). Without this a message published just
+# before the broker loses a node can disappear while apply_async succeeds,
+# leaving the job queued forever; with it, publishing raises instead.
+# Only for AMQP: other transports (e.g. sqlalchemy) reject unknown options.
+@app.on_after_configure.connect
+def enable_publisher_confirms(sender, **kwargs):
+    conf = sender.conf
+    if conf.broker_url and conf.broker_url.split("://", 1)[0] in ("amqp", "amqps", "pyamqp"):
+        conf.broker_transport_options = {"confirm_publish": True, **(conf.broker_transport_options or {})}
+
+
 # Make celery use django's logging configuration. Source:
 # https://stackoverflow.com/questions/48289809/celery-logger-configuration
 @setup_logging.connect
