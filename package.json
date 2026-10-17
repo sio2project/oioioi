@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@eonasdan/tempus-dominus": "^6.10.2",
+    "ace-builds": "1.4.14",
     "bootstrap": "^5.3.8",
     "bootstrap-3-typeahead": "^4.0.2",
     "bootstrap-markdown": "^2.10.0",

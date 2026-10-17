@@ -8,6 +8,26 @@ from oioioi.contests.current_contest import ContestMode, contest_re, set_cc_id
 from oioioi.contests.models import Contest, ContestView
 from oioioi.contests.utils import visible_contests
 
+RECENT_CONTESTS_COOKIE = "recent_contests"
+
+
+def _get_cookie_contest_ids(request):
+    return [id for id in request.COOKIES.get(RECENT_CONTESTS_COOKIE, "").split(",") if id]
+
+
+def get_recent_contest_ids(request):
+    """Returns IDs of recently visited contests, the most recent first.
+
+    Logged-in users keep them in the session. Anonymous visitors keep them
+    in a cookie, so that clients without cookies (crawlers, monitoring) do
+    not insert a new session row on every request.
+    """
+    if hasattr(request, "recent_contest_ids"):
+        return request.recent_contest_ids
+    if request.real_user.is_anonymous:
+        return _get_cookie_contest_ids(request)
+    return request.session.get("recent_contests", [])
+
 
 def activate_contest(request, contest):
     request.contest = contest
@@ -16,22 +36,28 @@ def activate_contest(request, contest):
     if not contest:
         return
 
-    recent_contests = request.session.get("recent_contests", [])
+    recent_contests = get_recent_contest_ids(request)
     if not recent_contests or recent_contests[0] != contest.id:
-        try:
-            del recent_contests[recent_contests.index(contest.id)]
-        except ValueError:
-            pass
-        recent_contests = [contest.id] + recent_contests
+        recent_contests = [contest.id] + [id for id in recent_contests if id != contest.id]
         recent_contests = recent_contests[: getattr(settings, "NUM_RECENT_CONTESTS", 5)]
-        request.session["recent_contests"] = recent_contests
+        request.recent_contest_ids = recent_contests
+        if request.real_user.is_anonymous:
+            request.recent_contests_cookie_changed = True
+        else:
+            request.session["recent_contests"] = recent_contests
 
     if not request.real_user.is_anonymous and not request.session.get("first_view_after_logging", False):
-        cv, created = ContestView.objects.get_or_create(user=request.real_user, contest=contest)
-        # Do not repeatedly update timestamp for latest contest.
-        if cv != ContestView.objects.filter(user=request.real_user).latest() or created:
-            cv.timestamp = request.timestamp
-            cv.save()
+        # The session remembers which contest view was recorded last, so
+        # staying in one contest costs no queries. The marker includes the
+        # user in case session data outlives a change of the logged-in user.
+        marker = [request.real_user.id, contest.id]
+        if request.session.get("recorded_contest_view") != marker:
+            cv, created = ContestView.objects.get_or_create(user=request.real_user, contest=contest)
+            # Do not repeatedly update timestamp for latest contest.
+            if created or cv != ContestView.objects.filter(user=request.real_user).latest():
+                cv.timestamp = request.timestamp
+                cv.save()
+            request.session["recorded_contest_view"] = marker
 
 
 class CurrentContestMiddleware:
@@ -78,10 +104,29 @@ class CurrentContestMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # On the first request after logging in, recent contests of the
+        # anonymous visit move to the session and the cookie is deleted,
+        # so that it is not used again after logging out.
+        delete_cookie = bool(request.COOKIES.get(RECENT_CONTESTS_COOKIE)) and not request.real_user.is_anonymous
+        if delete_cookie and not request.session.get("recent_contests"):
+            request.session["recent_contests"] = _get_cookie_contest_ids(request)
+
         response = self._process_request(request)
 
         if response is None:
-            return self.get_response(request)
+            response = self.get_response(request)
+
+        if getattr(request, "recent_contests_cookie_changed", False):
+            response.set_cookie(
+                RECENT_CONTESTS_COOKIE,
+                ",".join(request.recent_contest_ids),
+                max_age=settings.SESSION_COOKIE_AGE,
+                secure=settings.SESSION_COOKIE_SECURE,
+                httponly=True,
+                samesite="Lax",
+            )
+        elif delete_cookie:
+            response.delete_cookie(RECENT_CONTESTS_COOKIE, samesite="Lax")
 
         return response
 
@@ -106,7 +151,7 @@ class CurrentContestMiddleware:
 
         # There was no contest, but CONTEST_MODE tells us we need
         # to try to put the user into a contest.
-        recent_contests = request.session.get("recent_contests", [])
+        recent_contests = get_recent_contest_ids(request)
         if recent_contests:
             contest = self._get_contest(recent_contests[0])
 

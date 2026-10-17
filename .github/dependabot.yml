@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    # "/" covers .github/workflows (and a root action.yml); the glob picks up
+    # every composite action under .github/actions.
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        # Majors (potentially breaking) still arrive as separate PRs.
+        update-types:
+          - "minor"
+          - "patch"
+    # Wait a week before proposing new releases (supply-chain safety).
+    cooldown:
+      default-days: 7

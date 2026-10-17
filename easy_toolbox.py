@@ -34,7 +34,7 @@ RAW_COMMANDS = [
         "build {extra_args}",
         "This may result in the loss of local modifications inside containers.",
     ),
-    ("up", "Run all SIO2 containers", "up -d"),
+    ("up", "Run all SIO2 containers and wait until migrations are applied", "up -d --wait"),
     ("down", "Stop and remove all SIO2 containers", "down"),
     (
         "wipe",

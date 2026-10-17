@@ -76,7 +76,11 @@ ENV PATH=$PATH:/sio2/oioioi/node_modules/.bin
 RUN pnpm install --frozen-lockfile
 RUN pnpm run build
 
-RUN uv run oioioi-create-config /sio2/deployment
+RUN if [ "$(uname -m)" = "aarch64" ]; then \
+        uv run oioioi-create-config /sio2/deployment --use-system-compilers; \
+    else \
+        uv run oioioi-create-config /sio2/deployment; \
+    fi
 
 WORKDIR /sio2/deployment
 

@@ -272,9 +272,8 @@ FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 # FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
 # FILETRACKER_CACHE_SIZE = '8G'
 
-# For dj_pagination
-# PAGINATION_DEFAULT_WINDOW = 4
-# PAGINATION_DEFAULT_MARGIN = 1
+# For django-pagination-py3
+# PAGINATION_DEFAULT_WINDOW = 3
 # FILES_ON_PAGE = 100
 # PROBLEMS_ON_PAGE = 100
 # CONTESTS_ON_PAGE = 20
@@ -324,6 +323,11 @@ PROBLEM_SOURCES += (
 # Before this only system compilers can be used.
 # AVAILABLE_COMPILERS = SYSTEM_COMPILERS
 # DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
+
+USE_SYSTEM_COMPILERS = __USE_SYSTEM_COMPILERS__
+if USE_SYSTEM_COMPILERS:
+    AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+    DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same

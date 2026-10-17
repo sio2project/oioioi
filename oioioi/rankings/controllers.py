@@ -190,9 +190,16 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
         fake_req = RequestFactory().get("/?page=" + str(page))
         fake_req.user = AnonymousUser()
         fake_req.contest = self.contest
-        # This is required by dj-pagination
-        # Normally they monkey patch this function in their middleware
-        fake_req.page = lambda _: page
+        # django-pagination-py3 reads request.page as a property returning an int.
+        # We create a per-call subclass so we can override the property cleanly
+        # without mutating the shared WSGIRequest class (which the middleware
+        # already patches at the class level).
+        page_number = page
+        fake_req.__class__ = type(
+            "PaginatedRequest",
+            (type(fake_req),),
+            {"page": property(lambda self: page_number)},
+        )
         return fake_req
 
     def _render_ranking_page(self, key, data, page):
