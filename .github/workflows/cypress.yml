@@ -20,6 +20,14 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-pnpm
 
+      - name: Install Cypress dependencies
+        # Install before the containers start. The web container mounts a volume over
+        # node_modules; installing into the empty host directory later (as test_cypress.sh
+        # does) replaces what the container sees while the dev server is starting, and
+        # webpack/concurrently crash on a half-installed node_modules.
+        run: |
+          pnpm install --frozen-lockfile
+
       - name: Build OIOIOI
         run: |
           python easy_toolbox.py build --no-input
@@ -38,11 +46,21 @@ jobs:
 
       - name: Run test server
         run: |
-          python easy_toolbox.py run --no-input &
+          # Output of a background process is not shown in the job log, so keep it in a file.
+          date -u +"started at %H:%M:%S" > runserver.log
+          python -u easy_toolbox.py run --no-input >> runserver.log 2>&1 &
 
       - name: Run tests
         run: |
           ./test_cypress.sh
+
+      - name: Show test server logs
+        if: failure()
+        run: |
+          echo "::group::runserver.log"; cat runserver.log || true; echo "::endgroup::"
+          echo "::group::docker compose ps"; docker compose -f docker-compose-dev.yml ps -a || true; echo "::endgroup::"
+          echo "::group::web container logs"; docker compose -f docker-compose-dev.yml logs --tail=200 web || true; echo "::endgroup::"
+          echo "::group::curl http://localhost:8000/"; curl -sS -v -m 15 -o /dev/null http://localhost:8000/ 2>&1 || true; echo "::endgroup::"
 
       - name: Upload screenshots
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
