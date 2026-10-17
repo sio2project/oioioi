@@ -1,0 +1,21 @@
+name: Setup uv
+description: Install uv and Python (single source of truth for the setup-uv pin and settings)
+
+inputs:
+  activate-environment:
+    description: "Whether to activate the project virtual environment"
+    required: false
+    # Composite actions don't support boolean inputs yet.
+    # See https://github.com/actions/runner/issues/2238
+    default: "false"
+
+runs:
+  using: "composite"
+
+  steps:
+  - name: Install uv
+    uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+    with:
+      version: "latest"
+      python-version: "3.13"
+      activate-environment: ${{ inputs.activate-environment }}
