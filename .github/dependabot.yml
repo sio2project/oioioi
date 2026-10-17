@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    # "/" covers .github/workflows only; composite actions must be listed explicitly.
+    directories:
+      - "/"
+      - "/.github/actions/setup-env"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    # Wait a week before proposing new releases (supply-chain safety).
+    cooldown:
+      default-days: 7
