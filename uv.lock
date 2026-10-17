@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.11"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -7,7 +7,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-10-08T17:45:45.180235324Z"
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
 [[package]]
@@ -729,15 +729,6 @@ wheels = [
 ]
 
 [[package]]
-name = "dj-pagination"
-version = "2.5.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/85/a3/74312334efdc0665ea40acaf1f0fa8d8a6a5acbc67ebf07e38a55be93ad7/dj-pagination-2.5.0.tar.gz", hash = "sha256:860301cdc79edc0712008921037b2341271d3a55586bc34fad072e74c8e800c4", size = 20519, upload-time = "2020-07-09T06:04:39.44Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/6b/c72883158eaf032911aac77e879392be7402419e03b99054bf26094fe681/dj_pagination-2.5.0-py3-none-any.whl", hash = "sha256:2d65aac791abe7b5a5cd09cd0735c76dcd3a932ac1a56e1dffea441937f886b7", size = 36499, upload-time = "2020-07-09T06:04:38.216Z" },
-]
-
-[[package]]
 name = "django"
 version = "5.2.14"
 source = { registry = "https://pypi.org/simple" }
@@ -898,6 +889,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/8d/97/705e766e4e1c4bc1bd1ef34732d57451eafb7f5223d968c28719fef3d66c/django_otp-1.2.2.tar.gz", hash = "sha256:007a6354dabb3a1a54574bf73abf045ebbde0bb8734a38e2ed7845ba450f345e", size = 66391, upload-time = "2023-06-16T15:08:07.498Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1b/0c/1152687e6d0b13fd43d9d970ae59a6f7305904588f56ed97723f7a668689/django_otp-1.2.2-py3-none-any.whl", hash = "sha256:90765d5dac238a719f9550ac05681dd6307f513a81a10b6adb879b4abc6bc1a3", size = 71328, upload-time = "2023-06-16T15:08:04.937Z" },
+]
+
+[[package]]
+name = "django-pagination-py3"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4c/a2/d05d40bfbbb211b7b970c937e1d73b8bc98fab1b30837eba9db063bdc408/django_pagination_py3-2.3.0.tar.gz", hash = "sha256:3fc5ee580524f8a60e0151bb5527f16775f5ac13b661de54a6a41f50f600f8f7", size = 10746, upload-time = "2026-03-16T23:28:54.852Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ac/ce/8dd5a269c84caade10d5e5b330bdff05549c846e865eeaaf6c8985f777ac/django_pagination_py3-2.3.0-py2.py3-none-any.whl", hash = "sha256:d263fb7924101b78cad0184c2e684e77f9199bbf6e50b1168aab377ee8451f00", size = 18752, upload-time = "2026-03-16T23:28:53.178Z" },
 ]
 
 [[package]]
@@ -1474,7 +1477,7 @@ name = "jinxed"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ansicon", marker = "sys_platform == 'win32'" },
+    { name = "ansicon" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cb/eb/8821ce6e7386e96355f2c6be83944925b4a0870572896fd33a4e61b8aa5a/jinxed-2.0.0.tar.gz", hash = "sha256:64b960b8f8d9966e1b2e7cb57ea2b1aa0a8d7e68045b96dc7ef58201e43a1209", size = 127118, upload-time = "2026-05-08T21:25:25.917Z" }
 wheels = [
@@ -1791,7 +1794,6 @@ dependencies = [
     { name = "chardet" },
     { name = "charset-normalizer" },
     { name = "cryptography" },
-    { name = "dj-pagination" },
     { name = "django" },
     { name = "django-appconf" },
     { name = "django-compressor" },
@@ -1803,6 +1805,7 @@ dependencies = [
     { name = "django-nested-admin" },
     { name = "django-oauth-toolkit" },
     { name = "django-otp" },
+    { name = "django-pagination-py3" },
     { name = "django-phonenumber-field" },
     { name = "django-registration-redux" },
     { name = "django-simple-captcha" },
@@ -1879,7 +1882,6 @@ requires-dist = [
     { name = "chardet", specifier = ">=5.1,<6" },
     { name = "charset-normalizer", specifier = ">=2,<4" },
     { name = "cryptography", specifier = "==46.0.5" },
-    { name = "dj-pagination", specifier = ">=2.5,<2.6" },
     { name = "django", specifier = ">=5.2,<5.3" },
     { name = "django-appconf", specifier = ">=1.2,<1.3" },
     { name = "django-compressor", specifier = ">=4.6,<4.7" },
@@ -1891,6 +1893,7 @@ requires-dist = [
     { name = "django-nested-admin", specifier = ">=4.1,<4.2" },
     { name = "django-oauth-toolkit", specifier = ">=3.2,<3.3" },
     { name = "django-otp", specifier = "==1.2.2" },
+    { name = "django-pagination-py3", specifier = ">=2.3,<2.4" },
     { name = "django-phonenumber-field", specifier = ">=8.4,<8.5" },
     { name = "django-registration-redux", specifier = ">=2.12,<2.13" },
     { name = "django-simple-captcha", specifier = ">=0.6.1,<0.7" },
@@ -3090,23 +3093,23 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 dependencies = [
-    { name = "alabaster", marker = "python_full_version < '3.12'" },
-    { name = "babel", marker = "python_full_version < '3.12'" },
-    { name = "colorama", marker = "python_full_version < '3.12' and sys_platform == 'win32'" },
-    { name = "docutils", marker = "python_full_version < '3.12'" },
-    { name = "imagesize", marker = "python_full_version < '3.12'" },
-    { name = "jinja2", marker = "python_full_version < '3.12'" },
-    { name = "packaging", marker = "python_full_version < '3.12'" },
-    { name = "pygments", marker = "python_full_version < '3.12'" },
-    { name = "requests", marker = "python_full_version < '3.12'" },
-    { name = "roman-numerals", marker = "python_full_version < '3.12'" },
-    { name = "snowballstemmer", marker = "python_full_version < '3.12'" },
-    { name = "sphinxcontrib-applehelp", marker = "python_full_version < '3.12'" },
-    { name = "sphinxcontrib-devhelp", marker = "python_full_version < '3.12'" },
-    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version < '3.12'" },
-    { name = "sphinxcontrib-jsmath", marker = "python_full_version < '3.12'" },
-    { name = "sphinxcontrib-qthelp", marker = "python_full_version < '3.12'" },
-    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version < '3.12'" },
+    { name = "alabaster" },
+    { name = "babel" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "docutils" },
+    { name = "imagesize" },
+    { name = "jinja2" },
+    { name = "packaging" },
+    { name = "pygments" },
+    { name = "requests" },
+    { name = "roman-numerals" },
+    { name = "snowballstemmer" },
+    { name = "sphinxcontrib-applehelp" },
+    { name = "sphinxcontrib-devhelp" },
+    { name = "sphinxcontrib-htmlhelp" },
+    { name = "sphinxcontrib-jsmath" },
+    { name = "sphinxcontrib-qthelp" },
+    { name = "sphinxcontrib-serializinghtml" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/50/a8c6ccc36d5eacdfd7913ddccd15a9cee03ecafc5ee2bc40e1f168d85022/sphinx-9.0.4.tar.gz", hash = "sha256:594ef59d042972abbc581d8baa577404abe4e6c3b04ef61bd7fc2acbd51f3fa3", size = 8710502, upload-time = "2025-12-04T07:45:27.343Z" }
 wheels = [
@@ -3121,23 +3124,23 @@ resolution-markers = [
     "python_full_version >= '3.12'",
 ]
 dependencies = [
-    { name = "alabaster", marker = "python_full_version >= '3.12'" },
-    { name = "babel", marker = "python_full_version >= '3.12'" },
-    { name = "colorama", marker = "python_full_version >= '3.12' and sys_platform == 'win32'" },
-    { name = "docutils", marker = "python_full_version >= '3.12'" },
-    { name = "imagesize", marker = "python_full_version >= '3.12'" },
-    { name = "jinja2", marker = "python_full_version >= '3.12'" },
-    { name = "packaging", marker = "python_full_version >= '3.12'" },
-    { name = "pygments", marker = "python_full_version >= '3.12'" },
-    { name = "requests", marker = "python_full_version >= '3.12'" },
-    { name = "roman-numerals", marker = "python_full_version >= '3.12'" },
-    { name = "snowballstemmer", marker = "python_full_version >= '3.12'" },
-    { name = "sphinxcontrib-applehelp", marker = "python_full_version >= '3.12'" },
-    { name = "sphinxcontrib-devhelp", marker = "python_full_version >= '3.12'" },
-    { name = "sphinxcontrib-htmlhelp", marker = "python_full_version >= '3.12'" },
-    { name = "sphinxcontrib-jsmath", marker = "python_full_version >= '3.12'" },
-    { name = "sphinxcontrib-qthelp", marker = "python_full_version >= '3.12'" },
-    { name = "sphinxcontrib-serializinghtml", marker = "python_full_version >= '3.12'" },
+    { name = "alabaster" },
+    { name = "babel" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "docutils" },
+    { name = "imagesize" },
+    { name = "jinja2" },
+    { name = "packaging" },
+    { name = "pygments" },
+    { name = "requests" },
+    { name = "roman-numerals" },
+    { name = "snowballstemmer" },
+    { name = "sphinxcontrib-applehelp" },
+    { name = "sphinxcontrib-devhelp" },
+    { name = "sphinxcontrib-htmlhelp" },
+    { name = "sphinxcontrib-jsmath" },
+    { name = "sphinxcontrib-qthelp" },
+    { name = "sphinxcontrib-serializinghtml" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cd/bd/f08eb0f4eed5c83f1ba2a3bd18f7745a2b1525fad70660a1c00224ec468a/sphinx-9.1.0.tar.gz", hash = "sha256:7741722357dd75f8190766926071fed3bdc211c74dd2d7d4df5404da95930ddb", size = 8718324, upload-time = "2025-12-31T15:09:27.646Z" }
 wheels = [
