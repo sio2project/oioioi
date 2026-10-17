@@ -34,8 +34,11 @@ quorum declaration fail with ``PRECONDITION_FAILED`` (inequivalent arg
 With an AMQP broker, queueing a task now waits for RabbitMQ publisher confirms
 (also with classic queues). If RabbitMQ does not confirm within
 ``TASK_PUBLISH_CONFIRM_TIMEOUT`` seconds (default 10), e.g. while a quorum
-queue has lost its majority, publishing raises an error instead of the
-message being silently lost.
+queue has lost its majority, publishing is retried once and then raises an
+error, so it can block for about twice that time. Such an error means the
+outcome is unknown, not that the message was lost: RabbitMQ may still enqueue
+it (and the retry) once the queue recovers, so in this failure a task can run
+twice or after its transaction was rolled back.
 
 Fast Django Migration to 5.2 (Important for Large OIOIOI Instances)
 -----------------------------------

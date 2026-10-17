@@ -713,8 +713,10 @@ CELERY_EVENT_QUEUE_EXCLUSIVE = True
 CELERY_DEFAULT_QUEUE_TYPE = 'classic'
 CELERY_CREATE_MISSING_QUEUE_TYPE = 'classic'
 # With AMQP, queueing a task waits until RabbitMQ confirms the message. If no
-# confirm arrives within this many seconds, publishing fails (after Celery's
-# publish retries) instead of blocking, e.g. a request holding a transaction.
+# confirm arrives within this many seconds, publishing is retried once and
+# then fails, so it blocks (e.g. a request holding a transaction) for at most
+# about twice this time. A timeout means the outcome is unknown: the message
+# may still be enqueued once RabbitMQ recovers.
 TASK_PUBLISH_CONFIRM_TIMEOUT = 10
 
 BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),

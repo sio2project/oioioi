@@ -15,8 +15,16 @@ class OioioiTask(Task):
     # without a timeout by default. RabbitMQ withholds confirms e.g. while a
     # quorum queue has no majority, and tasks are often queued inside a DB
     # transaction (delay_environ), so publishing must fail instead of hanging.
+    # A confirm timeout counts as a connection error, so Celery reconnects and
+    # publishes again. One retry is enough to replace a dead pooled connection
+    # (e.g. after a RabbitMQ node failover) and caps the wait at about twice
+    # the timeout. A timed out message may still be enqueued later, so with a
+    # quorum queue that lost its majority a task can be duplicated or outlive
+    # a rolled back transaction.
     def apply_async(self, args=None, kwargs=None, **options):
         options.setdefault("confirm_timeout", settings.TASK_PUBLISH_CONFIRM_TIMEOUT)
+        # Merged with CELERY_TASK_PUBLISH_RETRY_POLICY by Celery.
+        options.setdefault("retry_policy", {"max_retries": 1})
         return super().apply_async(args, kwargs, **options)
 
 
@@ -31,7 +39,7 @@ app.config_from_object("django.conf:settings")
 # until a majority of nodes has it). Without this a message published just
 # before the broker loses a node can disappear while apply_async succeeds,
 # leaving the job queued forever; with it, publishing raises instead (also
-# when no confirm arrives within TASK_PUBLISH_CONFIRM_TIMEOUT seconds).
+# when no confirm arrives in time, see OioioiTask).
 # Only for AMQP: other transports (e.g. sqlalchemy) reject unknown options.
 @app.on_after_configure.connect
 def enable_publisher_confirms(sender, **kwargs):
