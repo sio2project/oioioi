@@ -135,7 +135,9 @@ def problem_site_files(request, problem):
             {
                 "name": f.filename,
                 "description": f.description,
-                "link": reverse(
+                "link": f.url
+                if f.url
+                else reverse(
                     "problem_site_external_attachment",
                     kwargs={
                         "site_key": problem.problemsite.url_key,

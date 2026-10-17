@@ -68,6 +68,10 @@
     <p><strong>{% trans "Comment" %}:</strong> {{ testrun_report.comment }}</p>
 {% endif %}
 
+{% if signals_to_explain %}
+    {% include "programs/report-signal-hint.html" %}
+{% endif %}
+
 {% block output_collapse %}
 {% if is_admin %}
     <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id %}">

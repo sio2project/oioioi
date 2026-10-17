@@ -41,9 +41,6 @@ $(document).ready(function() {
     checkbox_menu.on("change", "input[type='checkbox']", function() {
         $(this).closest("li").toggleClass("active", this.checked);
 
-        var category = $(this).closest("ul").prop('id');
-        category = category.slice(0, category.length - "-filters".length);
-
         var value = origintag + "_" + $(this).val();
         var label = $("input[value='" + value + "']").parent().parent();
         if (this.checked) {

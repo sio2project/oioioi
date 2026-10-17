@@ -37,7 +37,8 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 
 # The server to be run. Options are:
 # 'django' - django's http server
-# 'uwsgi' - uwsgi daemon
+# 'uwsgi' - uwsgi daemon (uwsgi protocol over a Unix socket)
+# 'uwsgi-tcp' - uwsgi daemon (uwsgi protocol over a TCP socket)
 # 'uwsgi-http' - uwsgi daemon with built-in http server
 # 'none' - nothing will be ran
 # SERVER = 'none'
@@ -323,6 +324,11 @@ PROBLEM_SOURCES += (
 # Before this only system compilers can be used.
 # AVAILABLE_COMPILERS = SYSTEM_COMPILERS
 # DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
+
+USE_SYSTEM_COMPILERS = __USE_SYSTEM_COMPILERS__
+if USE_SYSTEM_COMPILERS:
+    AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+    DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same

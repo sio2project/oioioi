@@ -6,7 +6,7 @@ import oioioi.base.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("contests", "0026_alter_probleminstance_submissions_limit"),
+        ("contests", "0027_probleminstance_can_access_editorial"),
     ]
 
     operations = [

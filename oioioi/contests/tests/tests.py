@@ -6,6 +6,7 @@ import re
 import urllib.parse
 import zipfile
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
+from unittest.mock import patch
 
 import bs4
 import pytest
@@ -710,6 +711,32 @@ class TestContestViews(TestCase):
         self.assertEqual(len(re_match), 1)
         self.assertEqual(len(wa_match), 1)
         self.assertContains(response, "program exited with code 1")
+
+    def test_submission_status_visibility(self):
+        contest = Contest.objects.get()
+        submission = Submission.objects.get(pk=1)
+        self.assertTrue(self.client.login(username="test_user"))
+        kwargs = {"contest_id": contest.id, "submission_id": submission.id}
+
+        def count_matches(css_class):
+            status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
+            response = self.client.get(reverse("submission", kwargs=kwargs))
+            self.assertEqual(response.status_code, 200)
+            content = response.content.decode("utf-8")
+            return len(re.findall(status_pattern % (css_class, "OK"), content))
+
+        self.assertEqual(count_matches("OK25"), 1)
+
+        submission.score = IntegerScore(24)
+        submission.save()
+        self.assertEqual(count_matches("OK0"), 1)
+        self.assertEqual(count_matches("OK25"), 0)
+
+        round = submission.problem_instance.round
+        round.results_date = datetime(4444, 4, 4, 4, 4, tzinfo=UTC)
+        round.save()
+        for score in (0, 25, 50, 75, 100):
+            self.assertEqual(count_matches("OK" + str(score)), 0)
 
     def test_submissions_permissions(self):
         contest = Contest.objects.get()
@@ -4371,7 +4398,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
         with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
-            self.assertContains(response, "Permission denied", status_code=400)
+            self.assertEqual(response.status_code, 404)
 
         with fake_time(datetime(2012, 7, 31, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
@@ -4388,6 +4415,30 @@ class TestAPIContestSubmit(TestAPISubmitBase):
         with fake_time(datetime(2012, 8, 11, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
             self.assertContains(response, "Permission denied", status_code=400)
+
+    def test_hidden_contest_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        with patch(
+            "oioioi.contests.api.visible_contests_as_django_queryset",
+            return_value=Contest.objects.none(),
+        ):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_hidden_problem_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        round = Round.objects.get()
+        round.start_date = datetime(2012, 7, 31, tzinfo=UTC)
+        round.save()
+
+        with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
 
     def test_submissions_limitation(self):
         contest = Contest.objects.get()

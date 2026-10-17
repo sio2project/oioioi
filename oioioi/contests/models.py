@@ -414,6 +414,9 @@ class ProblemInstance(models.Model):
         verbose_name=_("submissions limit"),
         validators=[MinValueValidator(0, "Submissions limit must be a non-negative number.")],
     )
+    can_access_editorial = models.BooleanField(
+        default=False, verbose_name=_("can access editorial"), help_text=_("Determines whether participants can access the editorial for this problem.")
+    )
     execution_mode = EnumField(
         problem_instance_execution_mode_options,
         default="AUTO",
@@ -530,8 +533,8 @@ class Submission(models.Model):
         valid_kinds.remove(self.kind)
         return export_entries(submission_kinds, valid_kinds)
 
-    def get_display_type(self):
-        if self.status == "INI_OK" or self.status == "OK":
+    def get_display_type(self, can_see_score):
+        if can_see_score and (self.status == "INI_OK" or self.status == "OK"):
             try:
                 score_percentage = float(self.score.to_int()) / self.max_score.to_int()
 

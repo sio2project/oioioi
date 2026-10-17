@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.core.files.base import ContentFile
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import OuterRef, Q, Subquery, prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -165,6 +165,8 @@ def problems_list_view(request):
     # 5) number of submissions left
     # 6) submissions_limit
     # 7) can_submit
+    # 8) can access editorial
+    # 9) editorial attachment
     # Sorted by (start_date, end_date, round name, problem name)
     # Preload user-related data to avoid N+1 queries
     results_map = {}
@@ -229,6 +231,8 @@ def problems_list_view(request):
         submission.problem_instance = pi
         return submission_template_context(request, submission)
 
+    prefetch_related_objects(problem_instances, "problem__attachments")
+
     problems_statements = sorted(
         [
             (
@@ -241,6 +245,8 @@ def problems_list_view(request):
                 pi.controller.get_submissions_limit(request, pi),
                 controller.can_submit(request, pi) and not is_contest_archived(request),
                 get_submission_template_context(pi),
+                controller.can_access_editorial(request, pi),
+                pi.controller.get_editorial_attachment(request, pi),
             )
             for pi in problem_instances
         ],
@@ -252,6 +258,7 @@ def problems_list_view(request):
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     show_status = request.user.is_authenticated  # Always show status for authenticated users
     table_columns = 3 + int(show_problems_limits) + int(show_submissions_limit) + int(show_submit_button)
+    show_editorials = any(p[9] for p in problems_statements)
 
     return TemplateResponse(
         request,
@@ -267,6 +274,7 @@ def problems_list_view(request):
             "table_columns": table_columns,
             "problems_on_page": getattr(settings, "PROBLEMS_ON_PAGE", 100),
             "multiple_limits": multiple_limits,
+            "show_editorials": show_editorials,
         },
     )
 
@@ -297,6 +305,28 @@ def problem_statement_view(request, problem_instance):
             statement_id=statement.id,
         )
     return stream_file(statement.content, statement.download_name)
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+def problem_editorial_view(request, problem_instance):
+    controller = request.contest.controller
+    pi = get_object_or_404(ProblemInstance, round__contest=request.contest, short_name=problem_instance)
+
+    if not controller.can_see_problem(request, pi):
+        raise PermissionDenied
+
+    editorial_attachment = pi.controller.get_editorial_attachment(request, pi)
+    if not editorial_attachment:
+        return TemplateResponse(request, "contests/no_problem_editorial.html", {"problem_instance": pi})
+
+    if not is_contest_archived(request):
+        if editorial_attachment.pub_date and editorial_attachment.pub_date > request.timestamp:
+            raise PermissionDenied
+
+    if editorial_attachment.url:
+        return redirect(editorial_attachment.url)
+
+    return stream_file(editorial_attachment.content, editorial_attachment.download_name)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -584,7 +614,9 @@ def contest_files_view(request):
         problem_ids_without_admin = {pi.problem_id for pi in visible_problem_instances(request, no_admin=True)}
     else:
         problem_ids_without_admin = set(problem_ids)
-    problem_files = ProblemAttachment.objects.filter(problem_id__in=problem_ids).select_related("problem").prefetch_related("problem__names")
+    problem_files = (
+        ProblemAttachment.objects.filter(problem_id__in=problem_ids, is_editorial=False).select_related("problem").prefetch_related("problem__names")
+    )
 
     round_file_exists = contest_files.filter(round__isnull=False).exists()
     add_category_field = round_file_exists or problem_files.exists()

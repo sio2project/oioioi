@@ -112,6 +112,36 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             return None
         return max(0, submissions_limit - self.get_submissions_count(request, problem_instance, kind))
 
+    def can_access_editorial(self, request, problem_instance):
+        """Determines if the current user is allowed to access the editorial
+        for the given problem.
+
+        The default implementation allows access if an editorial attachment
+        exists and is published.
+        """
+        now = timezone.now()
+        attachments = problem_instance.problem.attachments.filter(is_editorial=True)
+        for attachment in attachments:
+            if attachment.pub_date is None or attachment.pub_date <= now:
+                return True
+        return False
+
+    def get_editorial_attachment(self, request, problem_instance):
+        """Returns the editorial attachment for the problem if available
+        and the user is allowed to see it. Otherwise returns None.
+        """
+        now = timezone.now()
+
+        # We use .all() instead of .filter(is_editorial=True) so that
+        # Django uses the prefetched cache instead of hitting the DB.
+        attachments = problem_instance.problem.attachments.all()
+
+        for attachment in attachments:
+            if attachment.is_editorial and (attachment.pub_date is None or attachment.pub_date <= now):
+                return attachment
+
+        return None
+
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         """Fills a minimal environment with evaluation receipt and other values
         required by the evaluation machinery.
