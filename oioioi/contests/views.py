@@ -1,4 +1,5 @@
 import io
+import itertools
 import os
 import zipfile
 from operator import itemgetter  # pylint: disable=E0611
@@ -762,6 +763,26 @@ def user_info_redirect_view(request):
     )
 
 
+def extract_scheduling_vars_from_params(params, submission_count):
+    form_string = params.get("evaluation_scheduling", "instant")
+
+    match form_string:
+        case "instant":
+            return submission_count, 0
+        case "delayed":
+            return 1, getattr(settings, "REJUDGE_DELAYED_DURATION_MINUTES", 10) * getattr(settings, "SECONDS_IN_MINUTE", 60) / submission_count
+        case "slow":
+            return 1, getattr(settings, "REJUDGE_SLOW_DURATION_MINUTES", 60) * getattr(settings, "SECONDS_IN_MINUTE", 60) / submission_count
+        case "custom":
+            custom_batch_size = int(params.get("custom_batch_size", None))
+            custom_delay_step = int(params.get("custom_delay_step", None))
+            if custom_batch_size <= 0 or custom_delay_step < 0:
+                raise ValueError("Custom batch size must be positive and delay step must be non-negative.")
+            return custom_batch_size, custom_delay_step
+        case _:
+            raise SuspiciousOperation("Invalid evaluation scheduling option")
+
+
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
     """Rejudges selected submissions for multiple problems (in particular can be used to rejudge
@@ -798,9 +819,19 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
     selected_count = sum(count for count, _ in counts_by_instance.values())
 
     if request.POST:
-        for problem_instance, submissions in submissions_by_instance.items():
-            for submission in submissions:
-                problem_instance.controller.judge(submission, {}, is_rejudge=True)
+        if selected_count > 0:
+            batch_size, delay_step = extract_scheduling_vars_from_params(params, selected_count)
+            flat_pairs = itertools.chain.from_iterable(zip(itertools.repeat(pi), subs) for pi, subs in submissions_by_instance.items())
+
+            for i, (problem_instance, submission) in enumerate(flat_pairs):
+                delay = delay_step * (i // batch_size)
+                problem_instance.controller.judge(submission, {}, is_rejudge=True, delay=delay)
+
+            for problem_instance, (instance_selected_count, total_count) in counts_by_instance.items():
+                if instance_selected_count == total_count:
+                    problem_instance.needs_rejudge = False
+                    problem_instance.save(update_fields=["needs_rejudge"])
+
         messages.info(
             request,
             ngettext_lazy(
@@ -810,13 +841,11 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
             )
             % {"count": selected_count},
         )
-
-        for problem_instance, (instance_selected_count, total_count) in counts_by_instance.items():
-            if instance_selected_count == total_count:
-                problem_instance.needs_rejudge = False
-                problem_instance.save(update_fields=["needs_rejudge"])
-
         return safe_redirect(request, reverse("oioioiadmin:contests_probleminstance_changelist"))
+
+    custom_batch_size = params.get("custom_batch_size", None)
+    custom_delay_step = params.get("custom_delay_step", None)
+    evaluation_scheduling = params.get("evaluation_scheduling", "instant")
 
     return TemplateResponse(
         request,
@@ -827,6 +856,11 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
             "date_to": date_to,
             "last_only": last_only,
             "problem_instances": problem_instances,
+            "custom_batch_size": custom_batch_size,
+            "custom_delay_step": custom_delay_step,
+            "evaluation_scheduling": evaluation_scheduling,
+            "delayed_duration_minutes": getattr(settings, "REJUDGE_DELAYED_DURATION_MINUTES", 10),
+            "slow_duration_minutes": getattr(settings, "REJUDGE_SLOW_DURATION_MINUTES", 60),
         },
     )
 

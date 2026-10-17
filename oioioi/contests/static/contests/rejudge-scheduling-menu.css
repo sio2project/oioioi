@@ -1,0 +1,45 @@
+/* CSS for selecting a rejudge schedluing option from a rectangular menu */
+
+/* Ensure the native radio dots are actually hidden */
+.btn-check {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+}
+
+/* Style for the group to look like a single segmented bar */
+.segmented-control .btn {
+    border-radius: 0;
+    border-color: #dee2e6;
+    color: #6c757d;
+    background-color: #fff;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.segmented-control .btn:first-of-type {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.segmented-control .btn:last-of-type {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+/* Active State Style */
+.btn-check:checked + .btn {
+    background-color: #0d6efd; /* primary color */
+    border-color: #0d6efd;
+    color: white;
+    z-index: 2; /* Keeps the border on top */
+}
+
+.btn:hover {
+    background-color: #f8f9fa;
+}
+
+/* Custom scheduling inputs visibility */
+#custom-scheduling-inputs {
+    display: none;
+}

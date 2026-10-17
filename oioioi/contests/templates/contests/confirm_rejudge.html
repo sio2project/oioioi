@@ -1,5 +1,10 @@
 {% extends "contests/base_confirmation_screen.html" %}
-{% load i18n %}
+{% load i18n static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'contests/rejudge-scheduling-menu.css' %}">
+{% endblock %}
 
 {% block title %}{% trans "Confirm rejudge" %}{% endblock %}
 {% block confirmation_header %}{% trans "Confirm rejudge" %}{% endblock %}
@@ -61,14 +66,109 @@
 
         <p>{% trans "Are you sure?" %}</p>
 
-    <form method="post">
-        {% csrf_token %}
         <input type="hidden" name="post" value="yes"/>
-        <input type="hidden" name="date_from" value="{{ date_from }}"/>
-        <input type="hidden" name="date_to" value="{{ date_to }}"/>
-        {% if last_only %}
-        <input type="hidden" name="last_only" value="on"/>
-        {% endif %}
+
+        <div class="row mb-3 align-items-center">
+            <label class="col-sm-3 col-form-label fw-bold">{% trans "Evaluation scheduling" %}</label>
+            <div class="col-sm-9">
+                <div class="d-flex align-items-center">
+                    <div class="btn-group segmented-control flex-grow-1" role="group">
+                        <input type="radio" class="btn-check" name="evaluation_scheduling" id="instant" value="instant" {% if evaluation_scheduling == 'instant' or not evaluation_scheduling %}checked{% endif %}>
+                        <label class="btn" for="instant">{% trans "Instant" %}</label>
+
+                        <input type="radio" class="btn-check" name="evaluation_scheduling" id="delayed" value="delayed" {% if evaluation_scheduling == 'delayed' %}checked{% endif %}>
+                        <label class="btn" for="delayed">{% trans "Delayed" %}</label>
+
+                        <input type="radio" class="btn-check" name="evaluation_scheduling" id="slow" value="slow" {% if evaluation_scheduling == 'slow' %}checked{% endif %}>
+                        <label class="btn" for="slow">{% trans "Slow" %}</label>
+
+                        <input type="radio" class="btn-check" name="evaluation_scheduling" id="custom" value="custom" {% if evaluation_scheduling == 'custom' %}checked{% endif %}>
+                        <label class="btn" for="custom">{% trans "Custom" %}</label>
+                    </div>
+                    <button class="btn btn-outline-info ms-2 rounded-circle d-flex align-items-center justify-content-center" type="button" id="schedulingInfoBtn" style="width: 36px; height: 36px; min-width: 36px; border-width: 2px;" title="{% trans 'Click to see scheduling details' %}">
+                        <span style="font-weight: bold; font-family: serif;">i</span>
+                    </button>
+                </div>
+                <div id="schedulingInfoRow" style="display: none; border-left: 4px solid #0dcaf0;" class="bg-light p-3 mt-2 rounded">
+                    <p class="mb-1"><strong>{% trans "Instant" %}:</strong> {% trans "All submissions are scheduled for immediate rejudging." %}</p>
+                    <p class="mb-1"><strong>{% trans "Delayed" %}:</strong> {% blocktrans %}Submissions are scheduled evenly over the next {{ delayed_duration_minutes }} minutes.{% endblocktrans %}</p>
+                    <p class="mb-1"><strong>{% trans "Slow" %}:</strong> {% blocktrans %}Submissions are scheduled evenly over the next {{ slow_duration_minutes }} minutes.{% endblocktrans %}</p>
+                    <p class="mb-0"><strong>{% trans "Custom" %}:</strong> {% trans "You can manually set the scheduling parameters." %}</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="custom-scheduling-inputs" class="row mb-3 align-items-center">
+            <label class="col-sm-3 col-form-label fw-bold">{% trans "Schedule" %}</label>
+            <div class="col-sm-9">
+                <div class="input-group">
+                    <input type="number" id="custom_batch_size" name="custom_batch_size"
+                           class="form-control" style="max-width: 100px;" min="1" placeholder="1" value="{{ custom_batch_size|default:'1' }}">
+                    <span class="input-group-text">{% trans "submission(-s) every" %}</span>
+                    <input type="number" id="custom_delay_step" name="custom_delay_step"
+                           class="form-control" style="max-width: 100px;" min="0" placeholder="30" value="{{ custom_delay_step|default:'30' }}">
+                    <span class="input-group-text">{% trans "seconds" %}</span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.querySelectorAll('input[name="evaluation_scheduling"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const customInputs = document.getElementById('custom-scheduling-inputs');
+                    const batchSizeInput = document.getElementById('custom_batch_size');
+                    const delayStepInput = document.getElementById('custom_delay_step');
+                    
+                    if (this.value === 'custom') {
+                        customInputs.style.display = 'flex';
+                        batchSizeInput.disabled = false;
+                        delayStepInput.disabled = false;
+                        batchSizeInput.required = true;
+                        delayStepInput.required = true;
+                    } else {
+                        customInputs.style.display = 'none';
+                        batchSizeInput.disabled = true;
+                        delayStepInput.disabled = true;
+                        batchSizeInput.required = false;
+                        delayStepInput.required = false;
+                    }
+                });
+            });
+            
+            // Toggle info box
+            var infoBtn = document.getElementById('schedulingInfoBtn');
+            if (infoBtn) {
+                infoBtn.addEventListener('click', function() {
+                    const infoRow = document.getElementById('schedulingInfoRow');
+                    if (infoRow.style.display === 'none') {
+                        infoRow.style.display = 'block';
+                    } else {
+                        infoRow.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Initialize on page load
+            window.addEventListener('load', function() {
+                const batchSizeInput = document.getElementById('custom_batch_size');
+                const delayStepInput = document.getElementById('custom_delay_step');
+
+                if (batchSizeInput && delayStepInput) {
+                    // Check if custom is already selected on page load
+                    if (document.getElementById('custom').checked) {
+                        document.getElementById('custom-scheduling-inputs').style.display = 'flex';
+                        batchSizeInput.disabled = false;
+                        delayStepInput.disabled = false;
+                        batchSizeInput.required = true;
+                        delayStepInput.required = true;
+                    } else {
+                        batchSizeInput.disabled = true;
+                        delayStepInput.disabled = true;
+                    }
+                }
+            });
+        </script>
+
         <div class="mb-3 form-group">
             <button type="submit" name="post" value="yes" class="btn btn-danger">
                 {% trans "Yes, I am sure." %}
