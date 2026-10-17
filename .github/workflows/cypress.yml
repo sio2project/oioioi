@@ -43,11 +43,20 @@ jobs:
 
       - name: Run test server
         run: |
-          python easy_toolbox.py run --no-input &
+          # Output of a background process is not shown in the job log, so keep it in a file.
+          python -u easy_toolbox.py run --no-input > runserver.log 2>&1 &
 
       - name: Run tests
         run: |
           ./test_cypress.sh
+
+      - name: Show test server logs
+        if: failure()
+        run: |
+          echo "::group::runserver.log"; cat runserver.log || true; echo "::endgroup::"
+          echo "::group::docker compose ps"; docker compose -f docker-compose-dev.yml ps -a || true; echo "::endgroup::"
+          echo "::group::web container logs"; docker compose -f docker-compose-dev.yml logs --tail=300 web || true; echo "::endgroup::"
+          echo "::group::curl http://localhost:8000/"; curl -sS -v -m 15 -o /dev/null http://localhost:8000/ 2>&1 || true; echo "::endgroup::"
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4

@@ -27,4 +27,4 @@
 /.vscode/
 /.fleet/
 /dist_webpack/
-/node_modules/
+/node_modules/runserver.log
