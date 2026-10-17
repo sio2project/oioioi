@@ -11,6 +11,10 @@ from oioioi.contests.utils import visible_contests
 RECENT_CONTESTS_COOKIE = "recent_contests"
 
 
+def _get_cookie_contest_ids(request):
+    return [id for id in request.COOKIES.get(RECENT_CONTESTS_COOKIE, "").split(",") if id]
+
+
 def get_recent_contest_ids(request):
     """Returns IDs of recently visited contests, the most recent first.
 
@@ -20,12 +24,9 @@ def get_recent_contest_ids(request):
     """
     if hasattr(request, "recent_contest_ids"):
         return request.recent_contest_ids
-    ids = []
-    if not request.real_user.is_anonymous:
-        ids = request.session.get("recent_contests", [])
-    if not ids:
-        ids = [id for id in request.COOKIES.get(RECENT_CONTESTS_COOKIE, "").split(",") if id]
-    return ids
+    if request.real_user.is_anonymous:
+        return _get_cookie_contest_ids(request)
+    return request.session.get("recent_contests", [])
 
 
 def activate_contest(request, contest):
@@ -103,6 +104,13 @@ class CurrentContestMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        # On the first request after logging in, recent contests of the
+        # anonymous visit move to the session and the cookie is deleted,
+        # so that it is not used again after logging out.
+        delete_cookie = bool(request.COOKIES.get(RECENT_CONTESTS_COOKIE)) and not request.real_user.is_anonymous
+        if delete_cookie and not request.session.get("recent_contests"):
+            request.session["recent_contests"] = _get_cookie_contest_ids(request)
+
         response = self._process_request(request)
 
         if response is None:
@@ -117,6 +125,8 @@ class CurrentContestMiddleware:
                 httponly=True,
                 samesite="Lax",
             )
+        elif delete_cookie:
+            response.delete_cookie(RECENT_CONTESTS_COOKIE, samesite="Lax")
 
         return response
 
