@@ -2,6 +2,9 @@
   "name": "oioioi",
   "version": "1.0.0",
   "private": "true",
+  "engines": {
+    "node": "^22.13 || >=24"
+  },
   "scripts": {
     "lint": "eslint",
     "build": "webpack --mode production",
