@@ -34,7 +34,7 @@ RUN apt-get update && \
         npm && \
     apt-get clean && \
     rm -rf /usr/share/doc/texlive* && \
-    npm install -g pnpm@9
+    npm install -g pnpm@12
 
 # This is oioioi user linux uid. Setting it is useful in development.
 # By default we use an unused uid of 1234.
