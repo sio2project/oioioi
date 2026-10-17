@@ -78,14 +78,16 @@ def get_load_json(request):
     data = get_info_about_workers()
     capacity = 0
     load = 0
+    cpu_exec_load = 0
     for i in data:
         concurrency = int(i["info"]["concurrency"])
         capacity += concurrency
         if bool(i["is_running_cpu_exec"]):
             load += concurrency
+            cpu_exec_load += concurrency
         else:
             load += len(i["tasks"])
-    return JsonResponse({"capacity": capacity, "load": load})
+    return JsonResponse({"capacity": capacity, "load": load, "cpu_exec_load": cpu_exec_load})
 
 
 system_admin_menu_registry.register(

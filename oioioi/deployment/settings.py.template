@@ -325,6 +325,11 @@ PROBLEM_SOURCES += (
 # AVAILABLE_COMPILERS = SYSTEM_COMPILERS
 # DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 
+USE_SYSTEM_COMPILERS = __USE_SYSTEM_COMPILERS__
+if USE_SYSTEM_COMPILERS:
+    AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+    DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
+
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_LANGUAGES and value contained in AVAILABLE_COMPILERS.

@@ -17,7 +17,6 @@ $(function() {
     var ROUND_BAR_CLASS = 'oioioi-timeline__round-bar';
     var ROUND_BAR_HTML = '<div class="' + ROUND_BAR_CLASS + '"></div>';
     var ROUND_GROUP_WIDTH = 35;
-    var ROUND_BAR_WIDTH = 30;
 
     // we don't want vertical connector parts to overlap, we draw every
     // subsequent connector a little bit more to the left if that should
@@ -141,7 +140,7 @@ If you want to split a date group, click the corresponding \
         return {
             min_date: new Date(Math.min.apply(null, dates)),
             max_date: new Date(Math.max.apply(null, dates))
-        }; 
+        };
     }
 
     function update_date_range() {
@@ -356,7 +355,7 @@ If you want to split a date group, click the corresponding \
                 my_top = target_position;
                 overlapping = 0;
             }
-            $this.css({left: datebox_left, top: my_top});
+            $this.css({left: datebox_left - roundGroupLeft, top: my_top});
             set_width($this);
             if (my_date !== null) {
                 $this.children('.oioioi-timeline__connector').show();
@@ -587,7 +586,13 @@ If you want to split a date group, click the corresponding \
         $timeline.find('.date').each(function () {
             initDateTimePicker(this)
         })
-        
+
+        var rendered_datebox_height = $timeline
+            .find('.oioioi-timeline__datebox').first().outerHeight(true);
+        if (rendered_datebox_height) {
+            DATEBOX_HEIGHT = rendered_datebox_height;
+        }
+
         // connect equal dates
         create_groups();
 

@@ -271,12 +271,11 @@ class TestRunContestControllerMixin:
         output_container_id_prefix = "hidden_output_data_" if is_ajax(request) else "output_data_"
 
         input_is_zip = False
-        if testrun_report:
-            input_is_zip = is_zipfile(testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file.read_using_cache())
-
-        show_mem_used = testrun_report.mem_used > 0
+        show_mem_used = False
         signals_to_explain = set()
         if testrun_report:
+            input_is_zip = is_zipfile(testrun_report.submission_report.submission.programsubmission.testrunprogramsubmission.input_file.read_using_cache())
+            show_mem_used = testrun_report.mem_used > 0
             signal = get_signal_from_comment(testrun_report.comment)
             if signal is not None:
                 signals_to_explain.add(signal)

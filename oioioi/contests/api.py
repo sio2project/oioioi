@@ -24,6 +24,7 @@ from oioioi.contests.utils import (
     can_enter_contest,
     get_problem_statements,
     visible_contests,
+    visible_contests_as_django_queryset,
 )
 from oioioi.default_settings import MIDDLEWARE
 from oioioi.problems.models import Problem, ProblemInstance
@@ -247,12 +248,12 @@ class SubmitSolutionView(views.APIView):
     parser_classes = (MultiPartParser,)
 
     # This method should be implemented by subclasses.
-    def get_problem_instance(self, **kwargs):
+    def get_problem_instance(self, _request, **kwargs):
         raise NotImplementedError
 
     def post(self, request, **kwargs):
         """This endpoint allows you to submit solution for selected problem."""
-        pi = self.get_problem_instance(**kwargs)
+        pi = self.get_problem_instance(request, **kwargs)
         serializer = SubmissionSerializer(pi=pi, data=request.data)
 
         serializer.is_valid(raise_exception=True)
@@ -292,8 +293,19 @@ class SubmitContestSolutionView(SubmitSolutionView):
             200: OpenApiTypes.OBJECT,
         },
     )
-    def get_problem_instance(self, contest_name, problem_short_name):
-        return get_object_or_404(ProblemInstance, contest=contest_name, short_name=problem_short_name)
+    def get_problem_instance(self, request, contest_name, problem_short_name):
+        contest = get_object_or_404(visible_contests_as_django_queryset(request), id=contest_name)
+        request.contest = contest
+
+        problem_instance = get_object_or_404(
+            ProblemInstance,
+            contest=contest,
+            short_name=problem_short_name,
+        )
+        if not contest.controller.can_see_problem(request, problem_instance):
+            raise Http404
+
+        return problem_instance
 
 
 class SubmitProblemsetSolutionView(SubmitSolutionView):
@@ -314,7 +326,7 @@ class SubmitProblemsetSolutionView(SubmitSolutionView):
             404: OpenApiTypes.OBJECT,
         },
     )
-    def get_problem_instance(self, problem_site_key):
+    def get_problem_instance(self, _request, problem_site_key):
         problem = get_object_or_404(Problem, problemsite__url_key=problem_site_key)
         pi = problem.main_problem_instance
         if not pi:

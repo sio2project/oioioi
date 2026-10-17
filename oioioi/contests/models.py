@@ -520,8 +520,8 @@ class Submission(models.Model):
         valid_kinds.remove(self.kind)
         return export_entries(submission_kinds, valid_kinds)
 
-    def get_display_type(self):
-        if self.status == "INI_OK" or self.status == "OK":
+    def get_display_type(self, can_see_score):
+        if can_see_score and (self.status == "INI_OK" or self.status == "OK"):
             try:
                 score_percentage = float(self.score.to_int()) / self.max_score.to_int()
 

@@ -61,11 +61,9 @@
                 <div id="datetimepickerbox_{{ round.0 }}_{{ forloop.counter }}" data-timeline-round-num="{{ round.0 }}" data-timeline-order="{{ record.order }}" data-timeline-type="{{ record.type }}" class="oioioi-timeline__datebox">
                     <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-group date inline float-start" data-td-target-input="nearest" data-td-target-toggle="nearest">
                         <input type="text" name="{{ record.date_id }}" class="oioioi-timeline__datetime-input form-control" value="{{ record.date|date:'Y-m-d H:i' }}" {{ attrs }} />
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary bg-light border datepickerbutton oioioi-timeline__calendar-icon" type="button" data-td-toggle="datetimepicker"><i class="fa-solid fa-calendar"></i></button>
-                            <div class="oioioi-timeline__date-title bg-transparent input-group-text text-white">{{ record.text }}<small class="group-members"></small></div>
-                            <button class="btn btn-secondary border bg-transparent oioioi-timeline__group-delete-btn" type="button"><i class=" fa-solid fa-up-down"></i></button>
-                        </div>
+                        <button class="btn btn-outline-secondary border datepickerbutton oioioi-timeline__calendar-icon" type="button" data-td-toggle="datetimepicker"><i class="fa-solid fa-calendar"></i></button>
+                        <div class="oioioi-timeline__date-title bg-transparent input-group-text text-white">{{ record.text }}<small class="group-members"></small></div>
+                        <button class="btn btn-secondary border bg-transparent oioioi-timeline__group-delete-btn" type="button"><i class=" fa-solid fa-up-down"></i></button>
                     </div>
                 </div>
                 {% endfor %}
