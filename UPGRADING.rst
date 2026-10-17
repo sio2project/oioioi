@@ -25,8 +25,17 @@ Task queues can now be quorum queues (``CELERY_DEFAULT_QUEUE_TYPE`` and
 ``CELERY_CREATE_MISSING_QUEUE_TYPE``, see ``settings.py.template``), which is
 needed for a highly available RabbitMQ cluster. RabbitMQ does not change the
 type of an existing queue, so before switching stop all Celery workers, make
-sure the queues are empty and delete them (``evalmgr``, ``unpackmgr`` and any
-other task queue), e.g. with ``rabbitmqctl delete_queue evalmgr``.
+sure the queues are empty and delete them (``evalmgr``, ``unpackmgr``,
+``evalmgr-zeus`` if Zeus is enabled, and any other task queue), e.g. with
+``rabbitmqctl delete_queue evalmgr``. A queue left as classic makes the first
+quorum declaration fail with ``PRECONDITION_FAILED`` (inequivalent arg
+``x-queue-type``).
+
+With an AMQP broker, queueing a task now waits for RabbitMQ publisher confirms
+(also with classic queues). If RabbitMQ does not confirm within
+``TASK_PUBLISH_CONFIRM_TIMEOUT`` seconds (default 10), e.g. while a quorum
+queue has lost its majority, publishing raises an error instead of the
+message being silently lost.
 
 Fast Django Migration to 5.2 (Important for Large OIOIOI Instances)
 -----------------------------------
