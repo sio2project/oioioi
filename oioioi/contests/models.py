@@ -733,6 +733,15 @@ class ContestPermission(models.Model):
 
 
 class ContestView(models.Model):
+    """The time a user last entered a contest, used to order recent contests.
+
+    The timestamp is updated when the user enters the contest (after logging
+    in or coming from another contest), not on every view. The session
+    remembers the contest last recorded, so with several sessions at once
+    (e.g. a phone and a laptop) the order follows entries in each session
+    rather than the latest view.
+    """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now, verbose_name=_("last view"))

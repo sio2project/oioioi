@@ -603,6 +603,49 @@ class TestContestViews(TestCase):
         contests = [cv.contest for cv in ContestView.objects.all()]
         self.assertEqual(contests, [invisible_contest, contest])
 
+    def test_contest_view_recorded_once(self):
+        contest = Contest.objects.get()
+        url = f"/c/{contest.id}/dashboard/"
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get(url)  # first view after logging in is not recorded
+        self.client.get(url)
+        views = ContestView.objects.filter(user__username="test_user", contest=contest)
+        self.assertTrue(views.exists())
+
+        # Staying in the same contest does not touch ContestView at all,
+        # so a deleted row is not recreated.
+        views.delete()
+        self.client.get(url)
+        self.assertFalse(views.exists())
+
+    def test_no_session_for_anonymous_visitor(self):
+        contest = Contest.objects.get()
+        self.client.get(f"/c/{contest.id}/dashboard/")
+        self.assertNotIn(settings.SESSION_COOKIE_NAME, self.client.cookies)
+        self.assertEqual(self.client.cookies["recent_contests"].value, contest.id)
+
+    def test_contest_view_updated_on_contest_change(self):
+        contest = Contest.objects.get()
+        other_contest = Contest(id="other", name="Other Contest", controller_name=contest.controller_name)
+        other_contest.save()
+
+        self.assertTrue(self.client.login(username="test_user"))
+        for c in [contest, contest, other_contest, contest]:
+            self.client.get(f"/c/{c.id}/dashboard/")
+        contests = [cv.contest for cv in ContestView.objects.filter(user__username="test_user")]
+        self.assertEqual(contests, [contest, other_contest])
+
+    def test_recent_contests_cookie_moves_to_session_on_login(self):
+        contest = Contest.objects.get()
+        url = f"/c/{contest.id}/dashboard/"
+        self.client.get(url)
+        self.assertEqual(self.client.cookies["recent_contests"].value, contest.id)
+
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get(url)
+        self.assertEqual(self.client.cookies["recent_contests"].value, "")
+        self.assertEqual(self.client.session["recent_contests"], [contest.id])
+
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_contest_visibility(self):
         invisible_contest = Contest(
