@@ -239,7 +239,7 @@ MIDDLEWARE = (
     'oioioi.su.middleware.SuFirstTimeRedirectionMiddleware',
     'oioioi.base.middleware.UserInfoInErrorMessage',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'dj_pagination.middleware.PaginationMiddleware',
+    'pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
     'oioioi.base.middleware.HttpResponseNotAllowedMiddleware',
     'oioioi.base.middleware.CheckLoginMiddleware',
@@ -305,7 +305,7 @@ INSTALLED_APPS = (
     'registration',
     'django_extensions',
     'compressor',
-    'dj_pagination',
+    'pagination',
     'mptt',
 
     'django.contrib.admin',
@@ -389,9 +389,9 @@ FILETRACKER_URL = os.getenv('FILETRACKER_URL', 'http://127.0.0.1:9999')
 
 SUPERVISOR_AUTORELOAD_PATTERNS = [".py", ".pyc", ".pyo"]
 
-# For dj_pagination
-PAGINATION_DEFAULT_WINDOW = 4
-PAGINATION_DEFAULT_MARGIN = 1
+# For django-pagination-py3. The first and last PAGINATION_DEFAULT_WINDOW pages
+# are always shown, plus a window of pages around the current one.
+PAGINATION_DEFAULT_WINDOW = 3
 FILES_ON_PAGE = 100
 PROBLEMS_ON_PAGE = 100
 CONTESTS_ON_PAGE = 20
