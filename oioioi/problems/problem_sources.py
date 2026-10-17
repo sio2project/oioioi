@@ -11,6 +11,7 @@ from django.utils.encoding import smart_str
 from django.utils.http import urlencode
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ngettext
 
 from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
@@ -119,6 +120,14 @@ class PackageSource(ProblemSource):
         """
         raise NotImplementedError
 
+    def get_package_files(self, request, contest, form, existing_problem=None):
+        """Returns package files to process.
+
+        Sources which support bulk uploads may override this method. The
+        default keeps existing single-package sources backwards compatible.
+        """
+        return [self.get_package_file(request, contest, form, existing_problem)]
+
     def choose_backend(self, path, original_filename=None):
         """Returns the dotted name of a
         :class:`~oioioi.package.ProblemPackageBackend` suitable for
@@ -187,22 +196,26 @@ class PackageSource(ProblemSource):
     def handle_form(self, form, request, contest, existing_problem=None):
         if form.is_valid():
             try:
-                original_filename, file_manager = self.get_package_file(request, contest, form, existing_problem)
                 round_id = form.cleaned_data.get("round_id", None)
                 visibility = form.cleaned_data.get("visibility", Problem.VISIBILITY_FRIENDS)
-                package_id = self.process_package(
-                    request,
-                    file_manager,
-                    request.user,
-                    contest,
-                    original_filename,
-                    existing_problem,
-                    round_id,
-                    visibility,
-                    form,
-                )
+                package_ids = []
+                package_files = self.get_package_files(request, contest, form, existing_problem)
+                for original_filename, file_manager in package_files:
+                    package_ids.append(
+                        self.process_package(
+                            request,
+                            file_manager,
+                            request.user,
+                            contest,
+                            original_filename,
+                            existing_problem,
+                            round_id,
+                            visibility,
+                            form,
+                        )
+                    )
 
-                return package_id
+                return package_ids[0] if len(package_ids) == 1 else package_ids
 
             # pylint: disable=broad-except
             except Exception as e:
@@ -258,19 +271,35 @@ class PackageSource(ProblemSource):
         if contest:
             contest.controller.adjust_upload_form(request, existing_problem, form)
         if request.method == "POST":
-            if self.handle_form(form, request, contest, existing_problem) is not None:
+            package_ids = self.handle_form(form, request, contest, existing_problem)
+            if package_ids is not None:
+                package_count = len(package_ids) if isinstance(package_ids, list) else 1
                 if request.user.is_superuser or (request.contest and is_contest_basicadmin(request)):
-                    messages.success(request, _("Package queued for processing."))
+                    messages.success(
+                        request,
+                        ngettext(
+                            "Package queued for processing.",
+                            "%(count)d packages queued for processing.",
+                            package_count,
+                        )
+                        % {"count": package_count},
+                    )
                     return self._redirect_response(request)
                 messages.success(
                     request,
-                    _("Package queued for processing. It will appear in problem list when ready. Please be patient."),
+                    ngettext(
+                        "Package queued for processing. It will appear in problem list when ready. Please be patient.",
+                        "%(count)d packages queued for processing. They will appear in problem list when ready. Please be patient.",
+                        package_count,
+                    )
+                    % {"count": package_count},
                 )
         return TemplateResponse(request, self.template_name, {"form": form})
 
 
 class UploadedPackageSource(PackageSource):
     def make_form(self, request, contest, existing_problem=None):
+        bulk_upload = contest is not None and existing_problem is None
         if request.method == "POST":
             return PackageUploadForm(
                 contest,
@@ -278,13 +307,25 @@ class UploadedPackageSource(PackageSource):
                 request.POST,
                 request.FILES,
                 user=request.user,
+                bulk_upload=bulk_upload,
             )
         else:
-            return PackageUploadForm(contest, existing_problem, user=request.user)
+            return PackageUploadForm(
+                contest,
+                existing_problem,
+                user=request.user,
+                bulk_upload=bulk_upload,
+            )
 
     def get_package_file(self, request, contest, form, existing_problem=None):
         package_file = request.FILES["package_file"]
         return package_file.name, uploaded_file_name(package_file)
+
+    def get_package_files(self, request, contest, form, existing_problem=None):
+        package_files = form.cleaned_data["package_file"]
+        if not isinstance(package_files, list):
+            package_files = [package_files]
+        return [(package_file.name, uploaded_file_name(package_file)) for package_file in package_files]
 
     def is_available(self, request):
         # Removes the "Upload Package" form if the user
