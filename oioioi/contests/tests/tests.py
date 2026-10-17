@@ -6,6 +6,7 @@ import re
 import urllib.parse
 import zipfile
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
+from unittest.mock import patch
 
 import bs4
 import pytest
@@ -710,6 +711,32 @@ class TestContestViews(TestCase):
         self.assertEqual(len(re_match), 1)
         self.assertEqual(len(wa_match), 1)
         self.assertContains(response, "program exited with code 1")
+
+    def test_submission_status_visibility(self):
+        contest = Contest.objects.get()
+        submission = Submission.objects.get(pk=1)
+        self.assertTrue(self.client.login(username="test_user"))
+        kwargs = {"contest_id": contest.id, "submission_id": submission.id}
+
+        def count_matches(css_class):
+            status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
+            response = self.client.get(reverse("submission", kwargs=kwargs))
+            self.assertEqual(response.status_code, 200)
+            content = response.content.decode("utf-8")
+            return len(re.findall(status_pattern % (css_class, "OK"), content))
+
+        self.assertEqual(count_matches("OK25"), 1)
+
+        submission.score = IntegerScore(24)
+        submission.save()
+        self.assertEqual(count_matches("OK0"), 1)
+        self.assertEqual(count_matches("OK25"), 0)
+
+        round = submission.problem_instance.round
+        round.results_date = datetime(4444, 4, 4, 4, 4, tzinfo=UTC)
+        round.save()
+        for score in (0, 25, 50, 75, 100):
+            self.assertEqual(count_matches("OK" + str(score)), 0)
 
     def test_submissions_permissions(self):
         contest = Contest.objects.get()
@@ -3160,6 +3187,44 @@ class TestProblemInstanceView(TestCase):
         for element in elements_to_find:
             self.assertContains(response, element)
 
+    def test_execution_mode_editable_only_for_superuser(self):
+        problem_instance = ProblemInstance.objects.get()
+
+        self.assertTrue(self.client.login(username="test_contest_basicadmin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'name="execution_mode"')
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="execution_mode"')
+
+    def test_execution_mode_post_ignored_for_basicadmin(self):
+        problem_instance = ProblemInstance.objects.get()
+        problem_instance.execution_mode = "sio2jail"
+        problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_contest_basicadmin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        post_data = {
+            "round": problem_instance.round_id or "",
+            "short_name": problem_instance.short_name,
+            "submissions_limit": problem_instance.submissions_limit,
+            "execution_mode": "cpu",
+            "_save": "Save",
+        }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        problem_instance.refresh_from_db()
+        self.assertEqual(problem_instance.execution_mode, "sio2jail")
+
     def separate_main_problem_instance(self):
         # in fixtures there is only one ProblemInstance
         # unfortunately it's already attached to contest and it's
@@ -3276,6 +3341,36 @@ class TestReattachingProblems(TestCase):
         for test in Problem.objects.get().main_problem_instance.test_set.all():
             test.delete()
         self.assertTrue(Test.objects.count() > 0)
+
+    def test_reattaching_problem_preserves_execution_mode_from_main_instance(self):
+        source_problem_instance = ProblemInstance.objects.get(id=1)
+        source_problem_instance.problem.main_problem_instance.execution_mode = "cpu"
+        source_problem_instance.problem.main_problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+
+        url = reverse("reattach_problem_confirm", args=("c2",)) + f"/?ids={source_problem_instance.id}"
+        response = self.client.post(url, data={"submit": True}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        copied_problem_instance = ProblemInstance.objects.filter(contest__id="c2", problem=source_problem_instance.problem).latest("id")
+        self.assertEqual(copied_problem_instance.execution_mode, "cpu")
+
+    def test_reattaching_problem_with_copy_limits_preserves_execution_mode(self):
+        source_problem_instance = ProblemInstance.objects.get(id=1)
+        source_problem_instance.execution_mode = "sio2jail"
+        source_problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+
+        url = reverse("reattach_problem_confirm", args=("c2",)) + f"/?ids={source_problem_instance.id}"
+        response = self.client.post(url, data={"submit": True, "copy-limits": "on"}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        copied_problem_instance = ProblemInstance.objects.filter(contest__id="c2", problem=source_problem_instance.problem).latest("id")
+        self.assertEqual(copied_problem_instance.execution_mode, "sio2jail")
 
     def test_reattaching_problems(self):
         c2 = Contest.objects.get(id="c2")
@@ -4303,7 +4398,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
         with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
-            self.assertContains(response, "Permission denied", status_code=400)
+            self.assertEqual(response.status_code, 404)
 
         with fake_time(datetime(2012, 7, 31, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
@@ -4320,6 +4415,30 @@ class TestAPIContestSubmit(TestAPISubmitBase):
         with fake_time(datetime(2012, 8, 11, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
             self.assertContains(response, "Permission denied", status_code=400)
+
+    def test_hidden_contest_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        with patch(
+            "oioioi.contests.api.visible_contests_as_django_queryset",
+            return_value=Contest.objects.none(),
+        ):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_hidden_problem_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        round = Round.objects.get()
+        round.start_date = datetime(2012, 7, 31, tzinfo=UTC)
+        round.save()
+
+        with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
 
     def test_submissions_limitation(self):
         contest = Contest.objects.get()

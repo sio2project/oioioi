@@ -332,6 +332,12 @@ class RegistrationStatus(Enum):
     NOT_OPEN_YET = 3
 
 
+problem_instance_execution_mode_options = EnumRegistry()
+problem_instance_execution_mode_options.register("AUTO", _("Auto"))
+problem_instance_execution_mode_options.register("cpu", _("Real CPU"))
+problem_instance_execution_mode_options.register("sio2jail", _("SIO2Jail"))
+
+
 @date_registry.register("registration_available_from", name_generator=(lambda obj: _("Make registration available")))
 @date_registry.register("registration_available_to", name_generator=(lambda obj: _("Make registration unavailable")))
 class RegistrationAvailabilityConfig(models.Model):
@@ -407,6 +413,16 @@ class ProblemInstance(models.Model):
         help_text=_("Use 0 for unlimited submissions."),
         verbose_name=_("submissions limit"),
         validators=[MinValueValidator(0, "Submissions limit must be a non-negative number.")],
+    )
+    can_access_editorial = models.BooleanField(
+        default=False, verbose_name=_("can access editorial"), help_text=_("Determines whether participants can access the editorial for this problem.")
+    )
+    execution_mode = EnumField(
+        problem_instance_execution_mode_options,
+        default="AUTO",
+        db_default="AUTO",
+        verbose_name=_("execution mode"),
+        help_text=_("If set to Auto, the execution mode is determined according to the contest or problem type."),
     )
 
     # set on True only when problem_instace's tests were overriden but there
@@ -517,8 +533,8 @@ class Submission(models.Model):
         valid_kinds.remove(self.kind)
         return export_entries(submission_kinds, valid_kinds)
 
-    def get_display_type(self):
-        if self.status == "INI_OK" or self.status == "OK":
+    def get_display_type(self, can_see_score):
+        if can_see_score and (self.status == "INI_OK" or self.status == "OK"):
             try:
                 score_percentage = float(self.score.to_int()) / self.max_score.to_int()
 

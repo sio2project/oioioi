@@ -34,7 +34,7 @@ RAW_COMMANDS = [
         "build {extra_args}",
         "This may result in the loss of local modifications inside containers.",
     ),
-    ("up", "Run all SIO2 containers", "up -d"),
+    ("up", "Run all SIO2 containers and wait until migrations are applied", "up -d --wait"),
     ("down", "Stop and remove all SIO2 containers", "down"),
     (
         "wipe",
@@ -59,8 +59,8 @@ RAW_COMMANDS = [
         "This will CLEAR the database.",
     ),
     ("add-superuser", "Create admin_admin.", "{exec} web python manage.py loaddata ../oioioi/oioioi_cypress/cypress/fixtures/admin_admin.json"),
-    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh {extra_args}"),
-    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow {extra_args}"),
+    ("test", "Run unit tests.", "{exec} web ../oioioi/test.sh -n auto {extra_args}"),
+    ("test-slow", "Run unit tests. (--runslow)", "{exec} web ../oioioi/test.sh --runslow -n auto {extra_args}"),
     (
         "test-coverage",
         "Run coverage tests.",

@@ -267,9 +267,9 @@ def problem_settings(request, problem_instance_id):
     ProblemInstanceFormset = modelformset_factory(ProblemInstance, form=ProblemInstanceForm, extra=0)
 
     if request.method == "POST":
-        pi_formset = ProblemInstanceFormset(request.POST, prefix="pif")
+        pi_formset = ProblemInstanceFormset(request.POST, queryset=ProblemInstance.objects.filter(id=pi.id), prefix="pif")
 
-        test_formset = TestFormset(request.POST)
+        test_formset = TestFormset(request.POST, queryset=tests)
         # Bind the clean method, which serves as a time limit and max
         # scores equality validator.
         # http://stackoverflow.com/questions/9646187

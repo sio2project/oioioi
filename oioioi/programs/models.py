@@ -14,6 +14,7 @@ from oioioi.contests.models import (
     ProblemInstance,
     Submission,
     SubmissionReport,
+    problem_instance_execution_mode_options,
     submission_kinds,
     submission_report_kinds,
     submission_statuses,
@@ -22,16 +23,11 @@ from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.problem_instance_utils import get_language_by_extension
 
-execution_mode_options = EnumRegistry()
-execution_mode_options.register("AUTO", _("Auto"))
-execution_mode_options.register("cpu", _("Real CPU"))
-execution_mode_options.register("sio2jail", _("SIO2Jail"))
-
 
 class ProgramsConfig(models.Model):
     contest = models.OneToOneField(Contest, related_name="programs_config", on_delete=models.CASCADE)
     execution_mode = EnumField(
-        execution_mode_options,
+        problem_instance_execution_mode_options,
         default="AUTO",
         verbose_name=_("execution mode"),
         help_text=_("If set to Auto, the execution mode is determined according to the type of the contest."),
@@ -297,6 +293,19 @@ def make_output_filename(instance, filename):
     return f"userouts/{submission.problem_instance.contest.id!s}/{submission.id}/{instance.submission_report.id}-out"
 
 
+INTEGERFIELD_MAX_SIZE = 2**31 - 1
+
+
+def limit_mem_used(mem_used):
+    if mem_used is None:
+        return None
+    return min(mem_used, INTEGERFIELD_MAX_SIZE)
+
+
+def is_mem_used_overflowed(mem_used):
+    return mem_used == INTEGERFIELD_MAX_SIZE
+
+
 class TestReport(models.Model):
     __test__ = False
     submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
@@ -336,6 +345,10 @@ class TestReport(models.Model):
         if contest is None or self.test_time_limit is None:
             return False
         return contest.controller.uses_threshold_linear_scoring() and self.time_used * 2 > self.test_time_limit
+
+    def save(self, *args, **kwargs):
+        self.mem_used = limit_mem_used(self.mem_used)
+        super().save(*args, **kwargs)
 
 
 class GroupReport(models.Model):

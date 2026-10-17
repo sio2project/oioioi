@@ -6,6 +6,7 @@ from traceback import format_exception
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import validators
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import validate_slug
 from django.db import models, transaction
@@ -241,22 +242,49 @@ class ProblemAttachment(models.Model):
 
     problem = models.ForeignKey(Problem, related_name="attachments", on_delete=models.CASCADE)
     description = models.CharField(max_length=255, verbose_name=_("description"))
-    content = FileField(upload_to=make_problem_filename, verbose_name=_("content"))
+    content = FileField(upload_to=make_problem_filename, verbose_name=_("content"), blank=True, null=True)
+    url = models.URLField(max_length=255, blank=True, null=True, verbose_name=_("url"))
+    # Indicates whether the attachment is meant to be an official editorial
+    # (e.g. editorial.pdf), which may be shown to contestants after the contest,
+    # or included in courses.
+    is_editorial = models.BooleanField(default=False, verbose_name=_("is editorial"))
+    # If `is_editorial` is True, this field may contain the date
+    # after which the editorial may be made available to contestants.
+    pub_date = models.DateTimeField(default=None, blank=True, null=True, verbose_name=_("Editorial publication date"))
+
+    def clean(self):
+        super().clean()
+        if not self.content and not self.url:
+            raise ValidationError(_("Either content or url must be provided."))
+        if self.content and self.url:
+            raise ValidationError(_("Only one of content or url can be provided."))
+
+        # Ensure pub_date is only set for editorials
+        if not self.is_editorial and self.pub_date is not None:
+            raise ValidationError({"pub_date": _("Publication date can only be set if the attachment is an editorial.")})
 
     @property
     def filename(self):
-        return os.path.split(self.content.name)[1]
+        if self.content:
+            return os.path.split(self.content.name)[1]
+        elif self.url:
+            return os.path.split(self.url)[1]
+        return ""
 
     @property
     def download_name(self):
-        return strip_num_or_hash(self.filename)
+        if self.content:
+            return strip_num_or_hash(self.filename)
+        return ""
 
     class Meta:
         verbose_name = _("attachment")
         verbose_name_plural = _("attachments")
 
     def __str__(self):
-        return f"{self.problem.name} / {self.filename}"
+        if self.content:
+            return f"{self.problem.name} / {self.filename}"
+        return f"{self.problem.name} / {self.url}"
 
 
 def _make_package_filename(instance, filename):

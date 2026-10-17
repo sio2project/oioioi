@@ -24,6 +24,7 @@ from oioioi.contests.utils import (
     can_enter_contest,
     get_problem_statements,
     visible_contests,
+    visible_contests_as_django_queryset,
 )
 from oioioi.default_settings import MIDDLEWARE
 from oioioi.problems.models import Problem, ProblemInstance
@@ -90,6 +91,8 @@ class GetContestProblems(views.APIView):
         # 4) number of submissions left
         # 5) submissions_limit
         # 6) can_submit
+        # 7) can access editorial
+        # 8) editorial attachment
         # Sorted by (start_date, end_date, round name, problem name)
         problem_statements = get_problem_statements(request, controller, problem_instances)
 
@@ -101,6 +104,8 @@ class GetContestProblems(views.APIView):
                 serialized["user_result"] = UserResultForProblemSerializer(problem_stmt[3], many=False).data
                 serialized["submissions_left"] = problem_stmt[4]
                 serialized["can_submit"] = problem_stmt[6]
+                serialized["can_access_editorial"] = problem_stmt[7]
+                serialized["editorial_attachment"] = problem_stmt[8].id if problem_stmt[8] else None
                 serialized["statement_extension"] = st.extension if (st := query_statement(problem_stmt[0].problem)) else None
                 data.append(serialized)
 
@@ -243,12 +248,12 @@ class SubmitSolutionView(views.APIView):
     parser_classes = (MultiPartParser,)
 
     # This method should be implemented by subclasses.
-    def get_problem_instance(self, **kwargs):
+    def get_problem_instance(self, _request, **kwargs):
         raise NotImplementedError
 
     def post(self, request, **kwargs):
         """This endpoint allows you to submit solution for selected problem."""
-        pi = self.get_problem_instance(**kwargs)
+        pi = self.get_problem_instance(request, **kwargs)
         serializer = SubmissionSerializer(pi=pi, data=request.data)
 
         serializer.is_valid(raise_exception=True)
@@ -288,8 +293,19 @@ class SubmitContestSolutionView(SubmitSolutionView):
             200: OpenApiTypes.OBJECT,
         },
     )
-    def get_problem_instance(self, contest_name, problem_short_name):
-        return get_object_or_404(ProblemInstance, contest=contest_name, short_name=problem_short_name)
+    def get_problem_instance(self, request, contest_name, problem_short_name):
+        contest = get_object_or_404(visible_contests_as_django_queryset(request), id=contest_name)
+        request.contest = contest
+
+        problem_instance = get_object_or_404(
+            ProblemInstance,
+            contest=contest,
+            short_name=problem_short_name,
+        )
+        if not contest.controller.can_see_problem(request, problem_instance):
+            raise Http404
+
+        return problem_instance
 
 
 class SubmitProblemsetSolutionView(SubmitSolutionView):
@@ -310,7 +326,7 @@ class SubmitProblemsetSolutionView(SubmitSolutionView):
             404: OpenApiTypes.OBJECT,
         },
     )
-    def get_problem_instance(self, problem_site_key):
+    def get_problem_instance(self, _request, problem_site_key):
         problem = get_object_or_404(Problem, problemsite__url_key=problem_site_key)
         pi = problem.main_problem_instance
         if not pi:
