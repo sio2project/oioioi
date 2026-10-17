@@ -28,6 +28,7 @@
 /.fleet/
 /dist_webpack/
 /node_modules/
+/oioioi_cypress/node_modules/
 
 # docker specific
 

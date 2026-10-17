@@ -25,6 +25,14 @@ jobs:
           version: 9 # Same as in Dockerfile.
           run_install: false
 
+      - name: Install Cypress dependencies
+        # Install before the containers start. The web container mounts a volume over
+        # node_modules; installing into the empty host directory later (as test_cypress.sh
+        # does) replaces what the container sees while the dev server is starting, and
+        # webpack/concurrently crash on a half-installed node_modules.
+        run: |
+          pnpm install --frozen-lockfile
+
       - name: Build OIOIOI
         run: |
           python easy_toolbox.py build --no-input
@@ -56,10 +64,7 @@ jobs:
         run: |
           echo "::group::runserver.log"; cat runserver.log || true; echo "::endgroup::"
           echo "::group::docker compose ps"; docker compose -f docker-compose-dev.yml ps -a || true; echo "::endgroup::"
-          echo "::group::web container logs"; docker compose -f docker-compose-dev.yml logs --timestamps web | grep -v "Applying " || true; echo "::endgroup::"
-          echo "::group::node_modules in web container"
-          docker compose -f docker-compose-dev.yml exec -T web bash -c 'cd /sio2/oioioi && date && ls -la node_modules | head -30 && ls node_modules/.bin | head -20 && ls -la node_modules/copy-webpack-plugin; pnpm list --depth=0 2>&1 | tail -30' || true
-          echo "::endgroup::"
+          echo "::group::web container logs"; docker compose -f docker-compose-dev.yml logs --tail=200 web || true; echo "::endgroup::"
           echo "::group::curl http://localhost:8000/"; curl -sS -v -m 15 -o /dev/null http://localhost:8000/ 2>&1 || true; echo "::endgroup::"
 
       - name: Upload screenshots
