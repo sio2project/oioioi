@@ -7,22 +7,19 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   check-pnpm-lockfile:
     name: Check pnpm lockfile
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-
     steps:
-      - uses: actions/checkout@v4
-      - name: Install pnpm
-        # v6.0.8
-        uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version: 9 # Same as in Dockerfile.
-          run_install: false
+          persist-credentials: false
+      - uses: ./.github/actions/setup-pnpm
 
       - name: Check whether pnpm-lock.yaml matches package.json
         run: pnpm install --frozen-lockfile --lockfile-only
