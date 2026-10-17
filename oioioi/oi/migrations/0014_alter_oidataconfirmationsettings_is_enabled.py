@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='oidataconfirmationsettings',
             name='is_enabled',
-            field=models.BooleanField(default=False, help_text='Whether finalists must confirm their personal data during an active trial round of this contest.', verbose_name='require personal data confirmation'),
+            field=models.BooleanField(default=False, help_text='Whether finalists are asked to confirm their personal data during an active trial round of this contest.', verbose_name='require personal data confirmation'),
         ),
     ]

@@ -147,7 +147,6 @@ def confirm_data_view(request):
                 instance = form.save(commit=False)
                 instance.participant = participant
                 instance.save()
-                form.save_user(request.user)
                 form.save_source_registration()
                 OIDataConfirmation.objects.update_or_create(
                     participant=participant,

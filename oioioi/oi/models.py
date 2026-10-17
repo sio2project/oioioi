@@ -161,7 +161,7 @@ class OIDataConfirmationSettings(models.Model):
     is_enabled = models.BooleanField(
         default=False,
         verbose_name=_("require personal data confirmation"),
-        help_text=_("Whether finalists must confirm their personal data during an active trial round of this contest."),
+        help_text=_("Whether finalists are asked to confirm their personal data during an active trial round of this contest."),
     )
     source_contest = models.ForeignKey(
         Contest,

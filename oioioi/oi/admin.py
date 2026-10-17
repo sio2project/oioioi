@@ -8,6 +8,8 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.models import Contest
+from oioioi.contests.utils import administered_contests
 from oioioi.oi.forms import OIRegistrationForm
 from oioioi.oi.models import OIDataConfirmation, OIDataConfirmationSettings, OIRegistration, School
 from oioioi.participants.admin import ParticipantAdmin
@@ -199,9 +201,10 @@ class OIDataConfirmationSettingsInline(admin.StackedInline):
     can_delete = False
     max_num = 1
     category = _("Advanced")
-    autocomplete_fields = ("source_contest",)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "source_contest":
+            kwargs["queryset"] = Contest.objects.filter(id__in=[c.id for c in administered_contests(request)])
         formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
         if db_field.name == "source_contest" and isinstance(formfield.widget, RelatedFieldWidgetWrapper):
             formfield.widget = formfield.widget.widget

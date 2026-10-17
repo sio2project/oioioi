@@ -785,3 +785,11 @@ class TestOIDataConfirmation(TestCase):
         response = self.client.get(self.confirm_url)
         self.assertContains(response, "Wrong Address")
         self.assertNotContains(response, "Newest Address")
+
+    def test_source_contest_choices_limited_to_administered_contests(self):
+        Contest.objects.create(id="other", name="Other contest", controller_name="oioioi.oi.controllers.OIContestController")
+        self.assertTrue(self.client.login(username="test_contest_admin"))
+        url = reverse("oioioiadmin:contests_contest_change", args=[self.contest.id])
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, f'<option value="{self.contest.id}">')
+        self.assertNotContains(response, "Other contest")
