@@ -4,19 +4,26 @@
 {% block title %}{% trans "Workers list" %}{% endblock %}
 
 {% block main-content %}
-<script type="text/javascript" src="{% static "highcharts/highcharts.js" %}"></script>
-<script type="text/javascript" src="{% static "highcharts/modules/pattern-fill.js" %}"></script>
-<script type="text/javascript" src="{% static "common/load_chart.js" %}"></script>
-<script type="text/javascript">
-    $(function() {
-        make_load_chart('{% url 'get_load_json' %}', 'worker_load_plot');
-    });
-</script>
+{% if not connection_error %}
+    <script type="text/javascript" src="{% static "highcharts/highcharts.js" %}"></script>
+    <script type="text/javascript" src="{% static "highcharts/modules/pattern-fill.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/load_chart.js" %}"></script>
+    <script type="text/javascript">
+        $(function() {
+            make_load_chart('{% url 'get_load_json' %}', 'worker_load_plot');
+        });
+    </script>
+{% endif %}
 
 <h1>{% trans "System load" %}</h1>
 
-<div id="worker_load_plot" class="highcharts_plot">
-</div>
+{% if connection_error %}
+    <div class="alert alert-danger" role="alert">
+        {{ connection_error }}
+    </div>
+{% else %}
+    <div id="worker_load_plot" class="highcharts_plot">
+    </div>
 
 
 {% if warning %}
@@ -31,7 +38,7 @@
     </div>
 {% endif %}
 
-<h1>{% trans "Workers list" %}</h1>
+    <h1>{% trans "Workers list" %}</h1>
 
 <form method="post" action="{% url 'show_workers' %}" class="empty-space-filler-bottom">
     {% csrf_token %}
@@ -88,6 +95,7 @@
             </button>
         {% endif %}
     </div>
-</form>
+    </form>
+{% endif %}
 
 {% endblock %}
