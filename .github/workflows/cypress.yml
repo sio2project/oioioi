@@ -44,7 +44,8 @@ jobs:
       - name: Run test server
         run: |
           # Output of a background process is not shown in the job log, so keep it in a file.
-          python -u easy_toolbox.py run --no-input > runserver.log 2>&1 &
+          date -u +"started at %H:%M:%S" > runserver.log
+          python -u easy_toolbox.py run --no-input >> runserver.log 2>&1 &
 
       - name: Run tests
         run: |
@@ -55,7 +56,10 @@ jobs:
         run: |
           echo "::group::runserver.log"; cat runserver.log || true; echo "::endgroup::"
           echo "::group::docker compose ps"; docker compose -f docker-compose-dev.yml ps -a || true; echo "::endgroup::"
-          echo "::group::web container logs"; docker compose -f docker-compose-dev.yml logs --tail=300 web || true; echo "::endgroup::"
+          echo "::group::web container logs"; docker compose -f docker-compose-dev.yml logs --timestamps web | grep -v "Applying " || true; echo "::endgroup::"
+          echo "::group::node_modules in web container"
+          docker compose -f docker-compose-dev.yml exec -T web bash -c 'cd /sio2/oioioi && date && ls -la node_modules | head -30 && ls node_modules/.bin | head -20 && ls -la node_modules/copy-webpack-plugin; pnpm list --depth=0 2>&1 | tail -30' || true
+          echo "::endgroup::"
           echo "::group::curl http://localhost:8000/"; curl -sS -v -m 15 -o /dev/null http://localhost:8000/ 2>&1 || true; echo "::endgroup::"
 
       - name: Upload screenshots
