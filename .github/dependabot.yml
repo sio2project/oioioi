@@ -1,13 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: "github-actions"
-    # "/" covers .github/workflows (and a root action.yml); composite actions
-    # under .github/actions must be listed explicitly.
+    # "/" covers .github/workflows (and a root action.yml); the glob picks up
+    # every composite action under .github/actions.
     directories:
       - "/"
-      - "/.github/actions/setup-env"
-      - "/.github/actions/setup-uv"
-      - "/.github/actions/setup-pnpm"
+      - "/.github/actions/*"
     schedule:
       interval: "weekly"
     groups:
