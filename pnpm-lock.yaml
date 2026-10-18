@@ -30,8 +30,8 @@ importers:
         specifier: ^4.9.133
         version: 4.9.133
       highcharts:
-        specifier: ^12.6.0
-        version: 12.6.0
+        specifier: ^13.1.1
+        version: 13.1.1
       highlight.js:
         specifier: ^11.12.0
         version: 11.12.0
@@ -908,8 +908,8 @@ packages:
     resolution: {integrity: sha512-T2UbfbBEF32wiepXIsMlTW9+dDYC6wMh/t/vYA4tuOMKqWz/n3vr1NFSxQiyP+zk2mXsoMA/i/7qV6LKut1t1A==}
     engines: {node: '>= 0.4'}
 
-  highcharts@12.6.0:
-    resolution: {integrity: sha512-zWwoXECOakJT2huBMqIZOjDNLLgyZFCcfZqTj2g6cvYOGxjF3nvooC+rIaF5aKiharluyGKNflfRNrzOAIjdRg==}
+  highcharts@13.1.1:
+    resolution: {integrity: sha512-k/smhxCgaqHDsuy9ZCWs8FJNTPrbzc8BmMA4M/8f9JMwv9HgmNZjulyWwZ9q9ly6AzHpskL9mhlW8vgsSqnstg==}
     peerDependencies:
       jspdf: ^4.1.0
       svg2pdf.js: ^2.7.0
@@ -2543,7 +2543,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  highcharts@12.6.0: {}
+  highcharts@13.1.1: {}
 
   highlight.js@11.12.0: {}
 
