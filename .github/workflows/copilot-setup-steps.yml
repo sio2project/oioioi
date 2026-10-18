@@ -6,6 +6,8 @@ name: Copilot setup steps
 
 on:
   push:
+    branches:
+      - master
     paths:
       - .github/workflows/copilot-setup-steps.yml
   pull_request:

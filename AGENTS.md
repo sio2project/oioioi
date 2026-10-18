@@ -16,26 +16,26 @@ OIOIOI is the Django web frontend of the SIO2 contest system.
 
 - **Docker** (the supported setup): `./easy_toolbox.py build`, `./easy_toolbox.py up`, `./easy_toolbox.py run`, `./easy_toolbox.py test` (`./easy_toolbox.py -h` lists all commands).
   Raw equivalent: `OIOIOI_UID=$(id -u) docker compose -f docker-compose-dev.yml ...`. Set `OIOIOI_UID` so files created in the bind-mounted checkout belong to you.
-- **Native** (fast edit-test loop): `uv sync --group dev`, then `./test.sh`. On macOS follow "Running tests on macOS (Homebrew)" in `INSTALL.rst`.
+- **Native** (fast edit-test loop): `uv sync` (the `dev` group is installed by default), then `./test.sh`. On macOS follow "Running tests on macOS (Homebrew)" in `INSTALL.rst`.
 - Windows is not supported.
 
 ## Commands
 
 - Tests (pytest, run from the repo root):
   - `./test.sh [path[::Class[::test]]] [-n auto] [-x]`: e.g. `./test.sh -n auto oioioi/contests`.
-  - `tox [path] [-- args]`: the same in an isolated environment.
+  - `tox -- [path] [pytest args]`: the same in an isolated environment (arguments must come after `--`).
   - In Docker: `docker compose -f docker-compose-dev.yml exec web ../oioioi/test.sh [path]`.
   - Tests marked `@pytest.mark.slow` are skipped unless you pass `--runslow` (the nightly build runs them).
-  - Tests marked `needs_linux` are skipped automatically on other systems.
+  - Decorate Linux-only tests with `needs_linux` from `oioioi.base.tests`; they are skipped on other systems. The bare `pytest.mark.needs_linux` marker does not skip anything.
   - CI runs `./test.sh -n auto --migrations`.
 - Python lint and format: `ruff check . --fix && ruff format .`.
-- JS lint: `npm run lint` (ESLint).
-- JS build: `pnpm install && npm run build` (output in `dist_webpack/`).
+- JS lint: `pnpm run lint` (ESLint).
+- JS build: `pnpm install --frozen-lockfile && pnpm run build` (output in `dist_webpack/`). Use plain `pnpm install` / `pnpm add` only when changing dependencies.
 
 ## Code style
 
 - Python line length is **160**. Ruff rules: `E`, `W`, `F`, `I`, `B`, `UP`, `C4`, minus `B904`, `B026`, `C416`; target `py313` (see `[tool.ruff]` in `pyproject.toml`).
-- Ruff excludes `migrations/` and `*settings.py` files; don't reformat them.
+- Ruff excludes `migrations/`, `oioioi/**/*settings.py` and a few other files (see `exclude` in `[tool.ruff]`); don't reformat them.
 - ESLint uses the flat config `eslint.config.mjs` and only checks `oioioi/**/*.js`. `$`, `jQuery`, `Cookies`, `Highcharts`, `django`, `gettext`, `ngettext`, `interpolate` and `oioioi_base_url` are globals; don't import them.
 - User-facing strings go through Django's translation functions (`gettext_lazy as _` etc.).
 

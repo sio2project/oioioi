@@ -32,7 +32,7 @@
 
 # AI agents: local context and per-user settings
 /internal/
-CLAUDE.local.md
+**/CLAUDE.local.md
 /.claude/settings.local.json
 
 # docker specific
