@@ -19,3 +19,19 @@ updates:
     # Wait a week before proposing new releases (supply-chain safety).
     cooldown:
       default-days: 7
+
+  - package-ecosystem: "npm"
+    # "/" holds pnpm-lock.yaml for the whole pnpm workspace, including
+    # oioioi_cypress (see pnpm-workspace.yaml).
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    cooldown:
+      default-days: 7
