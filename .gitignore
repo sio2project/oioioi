@@ -29,3 +29,8 @@
 /dist_webpack/
 /node_modules/
 /runserver.log
+
+# AI agents: local context and per-user settings
+/internal/
+CLAUDE.local.md
+/.claude/settings.local.json
