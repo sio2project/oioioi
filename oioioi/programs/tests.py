@@ -2023,6 +2023,8 @@ class TestReportDisplayTypes(TestCase):
         # Tests 1c (7216ms), 1b (5159ms), 2a (8108ms), 2b (8787ms) all have
         # time_used * 2 > test_time_limit (10000ms) and status OK.
         self.assertContains(response, "Half of the time limit exceeded.", count=4)
+        self.assertContains(response, "test-feedback-toggle")
+        self.assertContains(response, "Expand all")
 
     def test_half_time_exceeded_not_shown_for_non_threshold_contest(self):
         self.assertTrue(self.client.login(username="admin"))
@@ -2039,7 +2041,8 @@ class TestReportDisplayTypes(TestCase):
         # Test 1a (pk=57) has result_percentage_numerator=75, result_percentage_denominator=1
         # so result_percentage="75" → "Checker granted <b>75%</b> points." appears once.
         self.assertContains(response, "Checker granted", count=1)
-        self.assertContains(response, "75%", count=2)  # once in the table and once in the comment
+        self.assertContains(response, "75%", count=2)  # once in the table and once in the feedback
+        self.assertContains(response, 'id="test-feedback-')
 
 
 class TestAllowedLanguages(TestCase, SubmitFileMixin):
