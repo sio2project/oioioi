@@ -36,7 +36,9 @@ function make_load_chart(ajax_url, target_div) {
     }
 
     $(document).ready(function() {
-        var load_color = Highcharts.getOptions().colors[1];
+        // Highcharts' second default color. Since Highcharts 13 getOptions().colors
+        // holds CSS variables, which the pattern-fill stroke can't use.
+        var load_color = '#544fc5';
         chart = new Highcharts.Chart({
             chart: {
                 type: 'area',
