@@ -46,6 +46,7 @@ jobs:
 
       - name: Run test server
         run: |
+          # `easy_toolbox.py run` starts webpack and runserver through `concurrently` (`conc`).
           # Output of a background process is not shown in the job log, so keep it in a file.
           date -u +"started at %H:%M:%S" > runserver.log
           python -u easy_toolbox.py run --no-input >> runserver.log 2>&1 &
