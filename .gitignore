@@ -29,6 +29,7 @@
 /dist_webpack/
 /node_modules/
 /runserver.log
+/schools/
 
 # AI agents: local context and per-user settings
 /internal/
