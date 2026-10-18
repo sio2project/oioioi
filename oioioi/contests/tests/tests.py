@@ -4394,11 +4394,6 @@ class TestAPIGetProblemId(APITestCase):
 
 class TestAPISubmitBase(APITestCase):
     fixtures = ["test_users", "test_contest", "test_full_package", "test_submission"]
-    extra_fixtures = []
-
-    def __init__(self, *args, **kwargs):
-        self.fixtures += self.extra_fixtures
-        super().__init__(*args, **kwargs)
 
     def setUp(self):
         self.client.force_authenticate(user=User.objects.get(username="test_user"))
@@ -4427,7 +4422,7 @@ class TestAPISubmitBase(APITestCase):
 
 
 class TestAPIContestSubmit(TestAPISubmitBase):
-    extra_fixtures = ["test_problem_instance"]
+    fixtures = TestAPISubmitBase.fixtures + ["test_problem_instance"]
 
     def contest_submit(self, contest, pi, *args, **kwargs):
         return self.submit_file("api_contest_submit", {"contest_name": contest.id, "problem_short_name": pi.short_name}, *args, **kwargs)
@@ -4519,7 +4514,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
 
 class TestAPIProblemsetSubmit(TestAPISubmitBase):
-    extra_fixtures = ["test_problem_site", "test_problem_instance_with_no_contest"]
+    fixtures = TestAPISubmitBase.fixtures + ["test_problem_site", "test_problem_instance_with_no_contest"]
 
     # As problemset submissions share most of the logic with contest submissions
     # they have only few simple tests
