@@ -39,7 +39,7 @@ jobs:
         TX_SHA256: 002dec5b9e71248a7e6a0808118e9da940205828d5a33ce88e04bb57a967164d
       run: |
         cd ..
-        curl -fsSL -o tx.tar.gz "https://github.com/transifex/cli/releases/download/${TX_VERSION}/tx-linux-amd64.tar.gz"
+        curl -fsSL --proto '=https' --tlsv1.2 -o tx.tar.gz "https://github.com/transifex/cli/releases/download/${TX_VERSION}/tx-linux-amd64.tar.gz"
         echo "${TX_SHA256}  tx.tar.gz" | sha256sum -c -
         tar -xzf tx.tar.gz tx
         rm tx.tar.gz
