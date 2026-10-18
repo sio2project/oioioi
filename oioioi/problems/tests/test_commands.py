@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 
+from oioioi.base.tests import needs_linux
 from oioioi.contests.models import Contest, Submission
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -131,11 +132,13 @@ class TestMassCreateTool(TestCase):
             "submissions": users * submissions_per_user,
         }
 
+    @needs_linux
     def test_contest_basic(self):
         expected_counts = self._contest_test_template(users=1, submissions_per_user=1, submission_files=("sum-correct.cpp",))
         self._assert_model_counts(expected_counts, check_problem_names=False)
 
     @pytest.mark.slow
+    @needs_linux
     def test_contest_bigger(self):
         expected_counts = self._contest_test_template(users=2, submissions_per_user=3)
         self._assert_model_counts(expected_counts, check_problem_names=False)

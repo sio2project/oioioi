@@ -11,6 +11,7 @@ from oioioi.base.tests import (
     check_ajax_not_accessible,
     check_not_accessible,
     fake_time,
+    needs_linux,
 )
 from oioioi.base.utils.archive import Archive
 from oioioi.contests.models import Contest, ProblemInstance, Submission
@@ -32,6 +33,7 @@ class TestTestrunViews(TestCase):
         "test_testrun",
     ]
 
+    @needs_linux
     def test_status_visible(self):
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username="test_user"))

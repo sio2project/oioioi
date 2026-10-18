@@ -181,4 +181,5 @@ class TestsUtilsMixin:
 
 
 def needs_linux(fn):
+    fn = pytest.mark.needs_linux(fn)
     return pytest.mark.skipif(sys.platform not in ("linux", "linux2"), reason="This test needs Linux")(fn)
