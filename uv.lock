@@ -2063,12 +2063,12 @@ requires-dist = [
     { name = "requests", specifier = ">=2.33,<2.35" },
     { name = "sentry-sdk", specifier = ">=2.16.0,<2.17.0" },
     { name = "setuptools", specifier = ">=61.0" },
-    { name = "sioworkers", url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.9.tar.gz" },
+    { name = "sioworkers", url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.10.tar.gz" },
     { name = "sqlalchemy", specifier = ">=2.0,<2.1.0" },
     { name = "supervisor", specifier = "==4.3.0" },
     { name = "unicodecsv", specifier = ">=0.14,<0.15" },
     { name = "unidecode", specifier = ">=1.3,<1.4" },
-    { name = "urllib3", specifier = ">=1.26,<2" },
+    { name = "urllib3", specifier = ">=2.8,<3" },
     { name = "uwsgi", specifier = ">=2.0.31" },
     { name = "websockets", specifier = ">=16.0,<16.1" },
     { name = "werkzeug" },
@@ -3160,7 +3160,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/6c/ca/8776e0c494b7f16f9
 [[package]]
 name = "sioworkers"
 version = "1.5.9"
-source = { url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.9.tar.gz" }
+source = { url = "https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.10.tar.gz" }
 dependencies = [
     { name = "bsddb3" },
     { name = "filetracker", extra = ["server"] },
@@ -3171,7 +3171,7 @@ dependencies = [
     { name = "twisted" },
     { name = "urllib3" },
 ]
-sdist = { hash = "sha256:7c6f07974ded631cdb8aaea230e153e0f909f6b297f34c3983ed7ccedc0d7124" }
+sdist = { hash = "sha256:691b6e95cc41f8aee7bd97c0c12cc37e56f236ce0ae88f3ebbd144941cb0a9b8" }
 
 [package.metadata]
 requires-dist = [
@@ -3184,8 +3184,8 @@ requires-dist = [
     { name = "sortedcontainers", specifier = "==2.4.0" },
     { name = "supervisor", specifier = "==4.3.0" },
     { name = "tox", marker = "extra == 'dev'" },
-    { name = "twisted", specifier = ">=25.0.0,<26.0.0" },
-    { name = "urllib3", specifier = ">=1.26.14,<2.0" },
+    { name = "twisted", specifier = ">=26.4.0,<27.0.0" },
+    { name = "urllib3", specifier = ">=2.8.0,<3.0" },
 ]
 provides-extras = ["dev"]
 
@@ -3552,7 +3552,7 @@ wheels = [
 
 [[package]]
 name = "twisted"
-version = "25.5.0"
+version = "26.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -3563,9 +3563,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "zope-interface" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/13/0f/82716ed849bf7ea4984c21385597c949944f0f9b428b5710f79d0afc084d/twisted-25.5.0.tar.gz", hash = "sha256:1deb272358cb6be1e3e8fc6f9c8b36f78eb0fa7c2233d2dbe11ec6fee04ea316", size = 3545725, upload-time = "2025-06-07T09:52:24.858Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/db/97/6e9beb1e78247ae6dc34114f27d538cf2cb183c4afcd3609dfdf2b0439c8/twisted-26.4.0.tar.gz", hash = "sha256:dbfd0fe1ee409d0243fdd7a6a6ff14f4948cec1fd78e0376291f805e1501fae9", size = 3575095, upload-time = "2026-05-11T11:24:51.861Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/66/ab7efd8941f0bc7b2bd555b0f0471bff77df4c88e0cc31120c82737fec77/twisted-25.5.0-py3-none-any.whl", hash = "sha256:8559f654d01a54a8c3efe66d533d43f383531ebf8d81d9f9ab4769d91ca15df7", size = 3204767, upload-time = "2025-06-07T09:52:21.428Z" },
+    { url = "https://files.pythonhosted.org/packages/a6/57/bcf4e2370dd218c9aa68a9140a65d86729c73f1d529f7e94786c2766fc72/twisted-26.4.0-py3-none-any.whl", hash = "sha256:dc25ea0ebf6511c24f03232ee9f4afa54b291c5d897990e3a39cc4d14a1ef4c0", size = 3230362, upload-time = "2026-05-11T11:24:49.5Z" },
 ]
 
 [[package]]
@@ -3636,11 +3636,11 @@ wheels = [
 
 [[package]]
 name = "urllib3"
-version = "1.26.20"
+version = "2.8.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e4/e8/6ff5e6bc22095cfc59b6ea711b687e2b7ed4bdb373f7eeec370a97d7392f/urllib3-1.26.20.tar.gz", hash = "sha256:40c2dc0c681e47eb8f90e7e27bf6ff7df2e677421fd46756da1161c39ca70d32", size = 307380, upload-time = "2024-08-29T15:43:11.37Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e3/05/b17359e1cefb4f909b5e40b1b90a496d987258916dbbf88e842c729f510e/urllib3-2.8.0.tar.gz", hash = "sha256:63bf2ead4c879426ebf22ef2a781eeb4aa3b4ae798a0435506f8687fd5bb9b63", size = 458972, upload-time = "2026-09-15T19:29:36.253Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/cf/8435d5a7159e2a9c83a95896ed596f68cf798005fe107cc655b5c5c14704/urllib3-1.26.20-py2.py3-none-any.whl", hash = "sha256:0ed14ccfbf1c30a9072c7ca157e4319b70d65f623e91e7b32fadb2853431016e", size = 144225, upload-time = "2024-08-29T15:43:08.921Z" },
+    { url = "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl", hash = "sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3", size = 135717, upload-time = "2026-09-15T19:29:34.577Z" },
 ]
 
 [[package]]
