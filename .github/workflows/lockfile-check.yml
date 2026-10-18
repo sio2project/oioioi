@@ -20,6 +20,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-pnpm
+        with:
+          cache: "false" # --lockfile-only downloads no packages, so there is no store to cache.
 
       - name: Check whether pnpm-lock.yaml matches package.json
         run: pnpm install --frozen-lockfile --lockfile-only
