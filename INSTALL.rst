@@ -13,7 +13,7 @@ First, ensure that all dependencies are installed:
 * latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*, *tex-gyre*,
   *texlive-pstricks*, *lmodern*),
 * Berkeley DB library (Ubuntu package: *libdb-dev*)
-* Node.js and npm (Ubuntu packages: *nodejs*, *npm*),
+* Node.js ≥22.13 (24 LTS recommended) and pnpm 12,
 
 It should be easier to begin with a separate folder at first::
 
