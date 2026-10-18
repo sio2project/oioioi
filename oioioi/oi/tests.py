@@ -39,14 +39,33 @@ class TestOIAdmin(TestCase):
         self.assertContains(response, "Schools")
         self.assertNotContains(response, "Regions")
 
+    @pytest.fixture(autouse=True)
+    def _output_dir(self, tmp_path):
+        self.output_dir = tmp_path
+
     def test_schools_import(self):
         filename = os.path.join(os.path.dirname(__file__), "files", "rspo_schools.csv")
         backup_filename = os.path.join(os.path.dirname(__file__), "files", "rspo_schools.bak")
         manager = import_schools.Command()
-        manager.run_from_argv(["manage.py", "import_schools", "--first-import", filename, "--backup-filename", backup_filename])
+        manager.run_from_argv(
+            [
+                "manage.py",
+                "import_schools",
+                "--first-import",
+                filename,
+                "--backup-filename",
+                backup_filename,
+                "--output-dir",
+                str(self.output_dir),
+            ]
+        )
         self.assertEqual(School.objects.count(), 26)
         school = School.objects.get(postal_code="02-172")
         self.assertEqual(school.city, "Włochy")
+
+        self.assertTrue((self.output_dir / "latest.log").is_file())
+        self.assertEqual(len(list(self.output_dir.glob("school_import_log_*.log"))), 1)
+        self.assertEqual(len(list(self.output_dir.glob("rspo_*.back"))), 1)
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()

@@ -23,14 +23,8 @@ There are three main data types in this script called:
 """
 
 
-CURRENT_TIME = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 DRY_RUN = False
 VERBOSITY = 1
-
-BASE_DIR = rf"{os.getcwd()}/schools"
-LOG_FILENAME = rf"{BASE_DIR}/school_import_log_{CURRENT_TIME}.log"
-LATEST_LOG_FILENAME = rf"{BASE_DIR}/latest.log"
-BACKUP_FILENAME = rf"{BASE_DIR}/rspo_{CURRENT_TIME}.back"
 
 CHILDREN_OR_YOUTH = "Dzieci lub młodzież"
 RSPO_CSV_COLUMNS = [
@@ -218,11 +212,11 @@ def generate_school_diff_message(s_before: School, s_after: School) -> str:
     return message
 
 
-def copy_log_file():
+def copy_log_file(log_filename, latest_log_filename):
     """Copies the log file and calls it 'latest'."""
-    with open(LOG_FILENAME, encoding="utf-8-sig") as log_file:
+    with open(log_filename, encoding="utf-8-sig") as log_file:
         content = log_file.read()
-    with open(LATEST_LOG_FILENAME, "w", encoding="utf-8-sig") as latest_log_file:
+    with open(latest_log_filename, "w", encoding="utf-8-sig") as latest_log_file:
         latest_log_file.write(content)
 
 
@@ -271,7 +265,7 @@ class Command(BaseCommand):
         if VERBOSITY == 0:
             message_to_log = message
             stdout_message = ""
-        with open(LOG_FILENAME, "a", encoding="utf-8-sig") as file:
+        with open(self.log_filename, "a", encoding="utf-8-sig") as file:
             file.write(f"{message_to_log}\n")
         if exception is not None:
             raise exception(stdout_message)
@@ -304,22 +298,22 @@ class Command(BaseCommand):
         """Searches and returns the contents of the backup file from the last RSPO database. The backup is stored in RSPO format."""
         if filename is not None:
             return self.read_rspo_csv_file(filename)
-        files = [file for file in os.listdir(BASE_DIR) if "rspo_" in file]
+        files = [file for file in os.listdir(self.output_dir) if "rspo_" in file]
         sorted_files = sorted(
             files,
-            key=lambda x: os.path.getmtime(os.path.join(BASE_DIR, x)),
+            key=lambda x: os.path.getmtime(os.path.join(self.output_dir, x)),
             reverse=True,
         )
         if not sorted_files:
             return []
         filename = sorted_files[0]
-        return self.read_rspo_csv_file(rf"{BASE_DIR}/{filename}")
+        return self.read_rspo_csv_file(os.path.join(self.output_dir, filename))
 
     def save_rspo_backup(self, schools: list):
         """Saves a backup of the currently imported RSPO database to disk."""
         if DRY_RUN:
             return
-        with open(BACKUP_FILENAME, "w", encoding="utf-8-sig") as file:
+        with open(self.backup_filename, "w", encoding="utf-8-sig") as file:
             writer = csv.DictWriter(file, fieldnames=RSPO_CSV_COLUMNS, delimiter=";")
             writer.writeheader()
             writer.writerows(schools)
@@ -339,6 +333,12 @@ class Command(BaseCommand):
             default=None,
             help="Backup to be read (default: latest)",
         )
+        parser.add_argument(
+            "--output-dir",
+            type=str,
+            default="schools",
+            help="Directory for logs and RSPO backups (default: ./schools)",
+        )
 
     @transaction.atomic
     def handle(self, *args, **kwargs):
@@ -352,7 +352,12 @@ class Command(BaseCommand):
         backup_path = kwargs["backup_filename"]
         kwargs["verbosity"]
 
-        prepare_dir(BASE_DIR)
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.output_dir = kwargs["output_dir"]
+        self.log_filename = os.path.join(self.output_dir, f"school_import_log_{current_time}.log")
+        self.latest_log_filename = os.path.join(self.output_dir, "latest.log")
+        self.backup_filename = os.path.join(self.output_dir, f"rspo_{current_time}.back")
+        prepare_dir(self.output_dir)
 
         last_rspo_schools = self.get_last_rspo_backup(backup_path)  # List of RSPO school dicts
         self.log(f"INFO: Read {len(last_rspo_schools)} records from the RSPO database backup.")
@@ -463,7 +468,7 @@ class Command(BaseCommand):
                     )
 
         self.log("Warning: Keep in mind that schools with wrong type in RSPO database are not taken into account!")
-        copy_log_file()
+        copy_log_file(self.log_filename, self.latest_log_filename)
 
         if DRY_RUN:
             transaction.set_rollback(True)
