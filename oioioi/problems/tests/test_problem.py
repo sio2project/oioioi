@@ -6,7 +6,7 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from oioioi.base.tests import TestCase, check_not_accessible
+from oioioi.base.tests import TestCase, check_not_accessible, needs_linux
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -114,6 +114,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self.assertEqual(Problem.objects.count(), 0)
         self.assertEqual(response.status_code, 200)
 
+    @needs_linux
     def test_admin_add_in_contest_delete_in_problemset(self):
         self.assertTrue(self.client.login(username="test_admin"))
         ProblemInstance.objects.all().delete()

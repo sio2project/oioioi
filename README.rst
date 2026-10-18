@@ -191,6 +191,10 @@ Supported args:
 * ``-x`` - exit after first failure
 * ``-lf`` - runs only tests that failed last time
 * ``--runslow`` - runs also tests marked as slow
+* ``-m "not needs_linux"`` - skips tests that need Linux (judging, package upload)
+
+To run the tests directly on macOS, see "Running tests on macOS (Homebrew)"
+in `INSTALL`_. Tests that need Linux are skipped there automatically.
 
 Usage
 -----

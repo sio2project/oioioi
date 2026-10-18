@@ -248,3 +248,51 @@ needed when installing OIOIOI in a pristine Ubuntu Server 12.04 LTS (Precise
 Pangolin):
 
 * *libz* (Ubuntu package: *zlib1g:i386*)
+
+Running tests on macOS (Homebrew)
+---------------------------------
+
+The unit tests can be run directly on a Mac, without Docker. This gives a
+faster edit-test loop and works with native debuggers. Install the build
+dependencies with `Homebrew`_ and the Xcode command line tools (clang)::
+
+  brew install uv berkeley-db@5 libmemcached
+  xcode-select --install
+
+Then install the Python dependencies and run the tests::
+
+  export BERKELEYDB_DIR="$(brew --prefix berkeley-db@5)"
+  export YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION=1
+  export LIBMEMCACHED="$(brew --prefix libmemcached)"
+  uv sync --group dev
+  ./test.sh -n auto
+
+The environment variables are only needed while *bsddb3* and *pylibmc* are
+being built (``BERKELEYDB_DIR`` and ``YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION``
+for *bsddb3*, ``LIBMEMCACHED`` for *pylibmc*). The tests themselves use
+in-memory SQLite, the local-memory cache and a dummy filetracker client, so
+PostgreSQL, RabbitMQ and memcached are not needed. The RabbitMQ "Connection
+refused" messages in the test log are expected and harmless.
+
+Optional tools: ``brew install --cask basictex`` provides *pdflatex* (used by
+*oireports*); ``brew install fpc openjdk`` provides the Pascal and Java
+compilers. None of them is required for the default test run.
+
+Some tests are only run on Linux and are reported as ``SKIPPED (This test
+needs Linux)``. These are the tests that compile and run programs through
+sioworkers (judging, rejudging, test runs, model solutions, user outputs,
+balloons) or upload sinol and zeus packages. They fail on macOS because
+sioworkers uses ``ulimit -v``, the sinol makefiles link with ``-static`` and
+package unpacking uses GNU-only ``tar`` options. They carry the
+``needs_linux`` pytest marker, so they can be listed or deselected on any
+system::
+
+  ./test.sh -m needs_linux --collect-only -q
+  ./test.sh -m "not needs_linux"
+
+If the same checkout is also used in Docker, delete
+*oioioi/printing/font/DejaVuSerifCondensed.pkl* when the printing tests fail
+with ``FileNotFoundError``: the file caches the absolute path of the font
+from the environment that created it.
+
+.. _Homebrew: https://brew.sh/

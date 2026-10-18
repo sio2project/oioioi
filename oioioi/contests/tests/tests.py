@@ -26,7 +26,7 @@ from django.urls import NoReverseMatch, reverse
 from rest_framework.test import APITestCase
 
 from oioioi.base.permissions import is_superuser
-from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
+from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time, needs_linux
 from oioioi.base.tests.tests import TestPublicMessage
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
@@ -304,6 +304,7 @@ class TestSubmissionListFilters(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "0 submissions")
 
+    @needs_linux
     def test_search(self):
         self.url = reverse(
             "noncontest:oioioiadmin:contests_submission_changelist",

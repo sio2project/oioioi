@@ -26,6 +26,7 @@ from oioioi.base.tests import (
     check_is_accessible,
     check_not_accessible,
     fake_time,
+    needs_linux,
 )
 from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
@@ -301,6 +302,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
+    @needs_linux
     def test_model_solutions_view(self):
         pi = ProblemInstance.objects.get()
         ModelSolution.objects.recreate_model_submissions(pi)
@@ -1379,6 +1381,7 @@ class TestUserOutsGenerating(TestCase):
         self.assertNotContains(response, "[generate out]")
         self.assertContains(response, "[processing]", count=1)
 
+    @needs_linux
     def test_generate_and_download_user_permission(self):
         self.assertTrue(self.client.login(username="test_user"))
         self.client.get("/c/c/")  # 'c' becomes the current contest
