@@ -39,3 +39,21 @@ updates:
           - "patch"
     cooldown:
       default-days: 7
+
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Many pyproject.toml pins are deliberate: only refresh uv.lock within
+    # the constraints and bump them by hand. Unbounded and transitive
+    # packages can still get major bumps, which arrive as separate PRs.
+    versioning-strategy: "lockfile-only"
+    groups:
+      uv:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    cooldown:
+      default-days: 7
