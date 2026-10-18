@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest
     #   Kill this job after 60 minutes - used when server fails, but Cypress waits on port.
     timeout-minutes: 60
 
