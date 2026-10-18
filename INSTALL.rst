@@ -275,8 +275,11 @@ PostgreSQL, RabbitMQ and memcached are not needed. The RabbitMQ "Connection
 refused" messages in the test log are expected and harmless.
 
 Optional tools: ``brew install --cask basictex`` provides *pdflatex* (used by
-*oireports*); ``brew install fpc openjdk`` provides the Pascal and Java
-compilers. None of them is required for the default test run.
+*oireports*; it is installed into */Library/TeX/texbin*, which is on ``PATH``
+only in a new shell); ``brew install fpc openjdk`` provides the Pascal and Java
+compilers. Homebrew's *openjdk* is not linked into ``PATH``, so also run
+``export PATH="$(brew --prefix openjdk)/bin:$PATH"``. None of them is required
+for the default test run.
 
 Some tests are only run on Linux and are reported as ``SKIPPED (This test
 needs Linux)``. These are the tests that compile and run programs through
