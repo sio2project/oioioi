@@ -1,10 +1,13 @@
 import os
 import re
+import shutil
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
 
 import pytest
 from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -66,6 +69,13 @@ class TestOIAdmin(TestCase):
         self.assertTrue((self.output_dir / "latest.log").is_file())
         self.assertEqual(len(list(self.output_dir.glob("school_import_log_*.log"))), 1)
         self.assertEqual(len(list(self.output_dir.glob("rspo_*.back"))), 1)
+
+    def test_schools_import_ignores_foreign_files_in_output_dir(self):
+        filename = os.path.join(os.path.dirname(__file__), "files", "rspo_schools.csv")
+        # A valid RSPO CSV that is not one of the command's rspo_*.back backups.
+        shutil.copy(filename, self.output_dir / "rspo_schools.csv")
+        with self.assertRaisesRegex(CommandError, "first-import"):
+            call_command("import_schools", filename, output_dir=str(self.output_dir))
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()

@@ -89,12 +89,6 @@ SCHOOL_FIELDS_TO_ITERATE.remove("is_approved")
 # region utils
 
 
-def prepare_dir(directory):
-    """Creates dir if not exists."""
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-
 def get_object_or_none(klass, *args, **kwargs):
     """Uses get() to return an object, or returns None if the object does not exist.
     Argument klass must has get() attr."""
@@ -298,7 +292,7 @@ class Command(BaseCommand):
         """Searches and returns the contents of the backup file from the last RSPO database. The backup is stored in RSPO format."""
         if filename is not None:
             return self.read_rspo_csv_file(filename)
-        files = [file for file in os.listdir(self.output_dir) if "rspo_" in file]
+        files = [file for file in os.listdir(self.output_dir) if file.startswith("rspo_") and file.endswith(".back")]
         sorted_files = sorted(
             files,
             key=lambda x: os.path.getmtime(os.path.join(self.output_dir, x)),
@@ -357,7 +351,7 @@ class Command(BaseCommand):
         self.log_filename = os.path.join(self.output_dir, f"school_import_log_{current_time}.log")
         self.latest_log_filename = os.path.join(self.output_dir, "latest.log")
         self.backup_filename = os.path.join(self.output_dir, f"rspo_{current_time}.back")
-        prepare_dir(self.output_dir)
+        os.makedirs(self.output_dir, exist_ok=True)
 
         last_rspo_schools = self.get_last_rspo_backup(backup_path)  # List of RSPO school dicts
         self.log(f"INFO: Read {len(last_rspo_schools)} records from the RSPO database backup.")
