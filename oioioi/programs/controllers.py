@@ -118,6 +118,27 @@ def get_signal_from_comment(comment):
     return None
 
 
+def test_report_detail_flags(test, allow_test_comments, allow_download_out):
+    """Split the old per-test note under the report into two flags.
+
+    Textual feedback (comment, checker percentage, half time limit) is shown
+    from the test row. A user-output link stays directly in that row, for the
+    same tests that used to list one.
+    """
+    has_comment = bool(test.comment)
+    has_percentage = bool(getattr(test, "result_percentage", None))
+    half_time_exceeded = test.was_half_time_limit_exceeded()
+    has_textual_feedback = allow_test_comments and (has_comment or has_percentage or half_time_exceeded)
+    listed_for_output = (
+        has_comment
+        or has_percentage
+        or (half_time_exceeded and allow_test_comments)
+        or (test.get_status_display() != "OK" and allow_download_out and bool(test.test_id))
+    )
+    has_out_link = bool(allow_download_out and test.test_id and listed_for_output)
+    return has_textual_feedback, has_out_link
+
+
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
 
@@ -735,7 +756,17 @@ class ProgrammingProblemController(ProblemController):
                 if test.result_percentage_numerator and test.result_percentage_denominator:
                     test.result_percentage = f"""{round(test.result_percentage_numerator / test.result_percentage_denominator, 2):g}"""
 
-            tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
+            tests_records = []
+            for test in tests_list:
+                has_textual_feedback, has_out_link = test_report_detail_flags(test, allow_test_comments, allow_download_out)
+                tests_records.append(
+                    {
+                        "display_type": get_report_display_type(request, test),
+                        "test": test,
+                        "has_textual_feedback": has_textual_feedback,
+                        "has_out_link": has_out_link,
+                    }
+                )
 
             gr = group_reports[group_name]
             groups.append(
@@ -743,8 +774,11 @@ class ProgrammingProblemController(ProblemController):
                     "tests": tests_records,
                     "report": gr,
                     "score_lowered_reason": compute_score_lowered_reason(tests_list, gr),
+                    "row_count": len(tests_records) + sum(record["has_textual_feedback"] for record in tests_records),
                 }
             )
+
+        has_test_details = any(record["has_textual_feedback"] for group in groups for record in group["tests"])
 
         return render_to_string(
             "programs/report.html",
@@ -761,6 +795,7 @@ class ProgrammingProblemController(ProblemController):
                 "is_admin": picontroller.is_admin(request, report),
                 "signals_to_explain": signals_to_explain,
                 "show_mem_used": show_mem_used,
+                "has_test_details": has_test_details,
             },
         )
 

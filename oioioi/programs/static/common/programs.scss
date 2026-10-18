@@ -25,6 +25,89 @@
   .group-score {
     vertical-align: middle;
   }
+
+  // Detail rows stay in the table so the group score rowspan stays valid.
+  // font-size/line-height stay 0 so the empty margin cell does not keep a
+  // one-line strut open while the feedback height is animating.
+  .test-feedback-row > td {
+    padding: 0;
+    border: none;
+    font-size: 0;
+    line-height: 0;
+  }
+
+  // An empty feedback row still occupies 1px, so the rule under an expandable
+  // test is twice as thick as under the others. Collapse hides that gap.
+  .test-feedback-row.is-collapsed {
+    visibility: collapse;
+  }
+}
+
+.test-out-link {
+  margin-left: 0.35rem;
+}
+
+.test-feedback-toggle {
+  margin-left: 0.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: $secondary;
+  line-height: 1;
+  vertical-align: baseline;
+
+  i {
+    font-size: 0.75em;
+    transition: transform 0.15s ease-in-out;
+  }
+
+  &[aria-expanded="true"] i {
+    transform: rotate(180deg);
+  }
+
+  &:focus-visible {
+    outline: 1px solid $secondary;
+  }
+}
+
+.test-feedback-clip {
+  display: grid;
+  grid-template-rows: 0fr;
+  // Bootstrap collapse measures scrollHeight as 0 inside a table cell, so the
+  // panel waits for the whole transition and then jumps. Grid rows animate
+  // without that measurement. The inner wrapper has no padding: padding on the
+  // grid item itself keeps the row open and makes the motion stall at the ends.
+  transition: grid-template-rows 0.16s linear;
+}
+
+.test-feedback-clip.is-open {
+  grid-template-rows: 1fr;
+}
+
+.test-feedback-clip-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.test-feedback {
+  padding: ($spacer * 0.25) 0 ($spacer * 0.5);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+@media print {
+  .test-feedback-row.is-collapsed {
+    visibility: visible;
+  }
+
+  .test-feedback-clip {
+    grid-template-rows: 1fr !important;
+  }
+
+  .test-feedback-expand-all,
+  .test-feedback-toggle {
+    display: none !important;
+  }
 }
 
 .force-text-right {

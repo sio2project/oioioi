@@ -3,6 +3,16 @@
 {% load memoryformat %}
 
 
+{% if has_test_details %}
+    <div class="d-flex justify-content-end mb-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm test-feedback-expand-all"
+                data-label-expand='{% trans "Expand all" %}'
+                data-label-collapse='{% trans "Collapse all" %}'>
+            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+            <span class="test-feedback-expand-all-label">{% trans "Expand all" %}</span>
+        </button>
+    </div>
+{% endif %}
 <div class="table-responsive-md">
     <table class="table table-sm table-bordered table-report submission">
         <thead>
@@ -27,6 +37,34 @@
                         <td class="submission__margin submission--{{ record.display_type }}"></td>
                         <td class="test-actions-toggler {% if is_admin %}fix-float-end{% endif %}">
                             {{ test.test_name }}
+                            {% if record.has_textual_feedback %}
+                                <button type="button"
+                                        class="test-feedback-toggle"
+                                        data-feedback-target="#test-feedback-{{ test.id }}"
+                                        aria-expanded="false"
+                                        aria-controls="test-feedback-{{ test.id }}"
+                                        aria-label='{% trans "Show feedback for this test" %}'
+                                        title='{% trans "Show feedback for this test" %}'>
+                                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                                </button>
+                            {% endif %}
+                            {% if record.has_out_link %}
+                                <small class="test-out-link">
+                                    {% if test.generate_status == 'OK' %}
+                                        <a href="{% url 'download_user_output' testreport_id=test.id %}"
+                                           title='{% trans "Download user output for this test" %}'>
+                                            {% trans "[download out]" %}
+                                        </a>
+                                    {% elif test.generate_status == '?' %}
+                                        <span>[{% trans "processing" %}]</span>
+                                    {% else %}
+                                        <a href="#" data-post-url="{% url 'generate_user_output' testreport_id=test.id %}"
+                                           title='{% trans "Generate user output for this test" %}'>
+                                            {% trans "[generate out]" %}
+                                        </a>
+                                    {% endif %}
+                                </small>
+                            {% endif %}
                             <span class="test-actions float-end">
                                 {% if test.test_id %}
                                     <small>
@@ -70,7 +108,7 @@
                         </td>
                         {% endif %}
                         {% if show_scores and forloop.first %}
-                            <td class="group-score text-end" rowspan="{{ group.tests|length }}">
+                            <td class="group-score text-end" rowspan="{{ group.row_count }}">
                                 {% if group.score_lowered_reason %}
                                     <span title="{{ group.score_lowered_reason }}"
                                           class="text-warning">
@@ -83,6 +121,20 @@
                             </td>
                         {% endif %}
                     </tr>
+                    {% if record.has_textual_feedback %}
+                        <tr class="test-feedback-row is-collapsed">
+                            <td class="submission__margin submission--{{ record.display_type }}"></td>
+                            <td colspan="{% if show_mem_used %}4{% else %}3{% endif %}">
+                                <div id="test-feedback-{{ test.id }}" class="test-feedback-clip">
+                                    <div class="test-feedback-clip-inner">
+                                        <div class="test-feedback small text-muted">
+                                            {% include "programs/report-test-details.html" %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endwith %}
                 {% endfor %}
             {% endfor %}

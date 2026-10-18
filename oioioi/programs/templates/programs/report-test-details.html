@@ -1,0 +1,30 @@
+{% load i18n %}
+{# Indentation inside blocktranslate is part of the existing translation strings. #}
+{% if allow_test_comments %}
+    <span>
+                    {% if test.comment %}
+                        {% if test.was_half_time_limit_exceeded %}
+                            {% blocktranslate %}
+                                Half of the time limit exceeded.
+                            {% endblocktranslate %}
+                        {% endif %}
+                        {% if test.result_percentage %}
+                            {% blocktranslate with test.result_percentage as percentage %}
+                                Checker granted <b>{{ percentage }}%</b> points, comment:
+                            {% endblocktranslate %}
+                        {% endif %}
+                        {{ test.comment }}
+                    {% else %}
+                        {% if test.was_half_time_limit_exceeded %}
+                            {% blocktranslate %}
+                                Half of the time limit exceeded.
+                            {% endblocktranslate %}
+                        {% endif %}
+                        {% if test.result_percentage %}
+                            {% blocktranslate with test.result_percentage as percentage %}
+                                Checker granted <b>{{ percentage }}%</b> points.
+                            {% endblocktranslate %}
+                        {% endif %}
+                    {% endif %}
+    </span>
+{% endif %}
