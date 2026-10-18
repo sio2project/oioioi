@@ -26,6 +26,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Pinned on purpose in package.json; upgrade them by hand.
+    ignore:
+      - dependency-name: "ace-builds"
+      - dependency-name: "jqtree"
     groups:
       npm:
         patterns:
