@@ -25,4 +25,4 @@ jobs:
 
     - name: Run tests
       run: |
-        ./test.sh -n auto --migrations
+        ./test.sh -n auto --migrations -m "not browser"

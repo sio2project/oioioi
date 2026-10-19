@@ -1,11 +1,16 @@
+import importlib.util
+import os
 import sys
 import threading
 import urllib.parse
 from contextlib import contextmanager
-from unittest import mock
+from unittest import SkipTest, mock
 
 import pytest
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.staticfiles import finders as staticfiles_finders
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.db import DEFAULT_DB_ALIAS, connections
@@ -183,3 +188,76 @@ class TestsUtilsMixin:
 def needs_linux(fn):
     fn = pytest.mark.needs_linux(fn)
     return pytest.mark.skipif(sys.platform not in ("linux", "linux2"), reason="This test needs Linux")(fn)
+
+
+class BrowserTestCase(StaticLiveServerTestCase):
+    """Base class for tests that open pages of a live server in headless Chromium (Playwright).
+
+    The tests are marked with ``browser`` (deselect them with ``-m "not browser"``). They are skipped when
+    Playwright, the webpack bundles (``dist_webpack/``) or the browser is missing, unless
+    ``OIOIOI_BROWSER_TESTS_REQUIRED`` is set (as in CI), in which case they fail.
+    """
+
+    pytestmark = pytest.mark.browser
+
+    @classmethod
+    def _skip(cls, reason):
+        if os.environ.get("OIOIOI_BROWSER_TESTS_REQUIRED", "").lower() not in ("", "0", "false", "no"):
+            raise AssertionError(f"{reason} (OIOIOI_BROWSER_TESTS_REQUIRED is set)")
+        raise SkipTest(reason)
+
+    @classmethod
+    def setUpClass(cls):
+        if importlib.util.find_spec("playwright") is None:
+            cls._skip("Playwright is not installed (run `uv sync --group browser`)")
+        for bundle in ("jquery.bundle.js", "index.bundle.js"):
+            if staticfiles_finders.find(bundle) is None:
+                cls._skip(f"{bundle} is missing (run `pnpm install --frozen-lockfile && pnpm run build`)")
+
+        from playwright.sync_api import Error, sync_playwright
+
+        cls._playwright = sync_playwright().start()
+        try:
+            cls.browser = cls._playwright.chromium.launch()
+        except Error as e:
+            cls._playwright.stop()
+            cls._skip(f"Cannot launch Chromium (run `uv run playwright install --with-deps chromium`): {e}")
+
+        # Playwright's sync API runs an event loop in this thread, so Django would refuse ORM calls
+        # (SynchronousOnlyOperation) without this.
+        cls._old_async_unsafe = os.environ.get("DJANGO_ALLOW_ASYNC_UNSAFE")
+        os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
+        try:
+            super().setUpClass()
+        except Exception:
+            cls._close_browser()
+            raise
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            super().tearDownClass()
+        finally:
+            cls._close_browser()
+
+    @classmethod
+    def _close_browser(cls):
+        try:
+            try:
+                cls.browser.close()
+            finally:
+                cls._playwright.stop()
+        finally:
+            if cls._old_async_unsafe is None:
+                os.environ.pop("DJANGO_ALLOW_ASYNC_UNSAFE", None)
+            else:
+                os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = cls._old_async_unsafe
+
+    def new_browser_context(self, username=None):
+        """Returns a new browser context, logged in as ``username`` if given."""
+        context = self.browser.new_context()
+        if username is not None:
+            self.client.force_login(User.objects.get(username=username))
+            session_cookie = self.client.cookies[settings.SESSION_COOKIE_NAME]
+            context.add_cookies([{"name": session_cookie.key, "value": session_cookie.value, "url": self.live_server_url}])
+        return context

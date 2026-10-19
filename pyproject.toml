@@ -94,6 +94,9 @@ dev = [
     "coverage>=7.4.0",
     "coverage[toml]>=7.4.0",
 ]
+browser = [
+    "playwright>=1.63,<2",
+]
 docs = [
     "sphinx>7.1.0",
     "furo",

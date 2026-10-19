@@ -299,3 +299,20 @@ with ``FileNotFoundError``: the file caches the absolute path of the font
 from the environment that created it.
 
 .. _Homebrew: https://brew.sh/
+
+Browser smoke tests
+-------------------
+
+Tests marked ``browser`` (*oioioi/base/tests/test_smoke_browser.py*) open key
+pages of a live test server in headless Chromium, using Playwright, and fail on
+JavaScript errors. They need the webpack bundles and the browser::
+
+  pnpm install --frozen-lockfile && pnpm run build
+  uv sync --group browser
+  uv run playwright install chromium  # on Linux add --with-deps
+  ./test.sh -m browser
+
+Without them the tests are skipped (also in ``./easy_toolbox.py test``, whose
+image has no browser). The *Unit tests* workflow deselects them with
+``-m "not browser"``; the *Browser smoke test* workflow runs them with
+``OIOIOI_BROWSER_TESTS_REQUIRED=1``, which turns the skips into failures.

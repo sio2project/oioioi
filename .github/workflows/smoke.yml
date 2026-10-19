@@ -1,0 +1,57 @@
+name: Browser smoke test
+
+# Opens key pages in headless Chromium and fails on JavaScript errors (tests marked `browser`).
+# Unit tests (pytest.yml) deselect these tests, because they need the webpack build and a browser.
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+    - uses: ./.github/actions/setup-env
+      with:
+        dependency-groups: browser
+    - uses: ./.github/actions/setup-pnpm
+
+    - name: Build JS
+      run: |
+        pnpm install --frozen-lockfile
+        pnpm run build
+
+    - name: Get Playwright version
+      id: playwright
+      run: |
+        echo "version=$(python -c 'import importlib.metadata as m; print(m.version("playwright"))')" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+    # The cache holds only the browser, so always install the system libraries it needs. On a cache hit the
+    # browser download is skipped.
+    - name: Install Chromium
+      run: |
+        playwright install --with-deps --only-shell chromium
+
+    - name: Run browser tests
+      env:
+        # Fail instead of skipping when the browser or the JS build is missing.
+        OIOIOI_BROWSER_TESTS_REQUIRED: "1"
+      run: |
+        ./test.sh -m browser
