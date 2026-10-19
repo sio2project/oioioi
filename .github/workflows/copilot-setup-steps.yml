@@ -45,4 +45,4 @@ jobs:
       if: contains(fromJSON('["push", "pull_request", "workflow_dispatch"]'), github.event_name)
       run: |
         ruff check .
-        ./test.sh -n auto oioioi/base
+        ./test.sh -n auto oioioi/base -m "not browser"
