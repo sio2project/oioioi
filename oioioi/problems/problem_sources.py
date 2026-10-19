@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass, field
 
 from django.conf import settings
 from django.contrib import messages
@@ -27,6 +28,16 @@ from oioioi.problems.utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class PackageUploadResult:
+    queued: list[tuple[str, int]] = field(default_factory=list)
+    failed: list[tuple[str, str]] = field(default_factory=list)
+
+    @property
+    def package_ids(self):
+        return [package_id for _filename, package_id in self.queued]
 
 
 def problem_sources(request, existing_problem=False):
@@ -195,36 +206,38 @@ class PackageSource(ProblemSource):
 
     def handle_form(self, form, request, contest, existing_problem=None):
         if form.is_valid():
-            try:
-                round_id = form.cleaned_data.get("round_id", None)
-                visibility = form.cleaned_data.get("visibility", Problem.VISIBILITY_FRIENDS)
-                package_ids = []
-                package_files = self.get_package_files(request, contest, form, existing_problem)
-                for original_filename, file_manager in package_files:
-                    package_ids.append(
-                        self.process_package(
-                            request,
-                            file_manager,
-                            request.user,
-                            contest,
-                            original_filename,
-                            existing_problem,
-                            round_id,
-                            visibility,
-                            form,
-                        )
+            round_id = form.cleaned_data.get("round_id", None)
+            visibility = form.cleaned_data.get("visibility", Problem.VISIBILITY_FRIENDS)
+            result = PackageUploadResult()
+            package_files = self.get_package_files(request, contest, form, existing_problem)
+            for original_filename, file_manager in package_files:
+                try:
+                    package_id = self.process_package(
+                        request,
+                        file_manager,
+                        request.user,
+                        contest,
+                        original_filename,
+                        existing_problem,
+                        round_id,
+                        visibility,
+                        form,
                     )
+                    result.queued.append((original_filename, package_id))
 
-                return package_ids[0] if len(package_ids) == 1 else package_ids
+                # pylint: disable=broad-except
+                except Exception as e:
+                    error = smart_str(e)
+                    logger.error(
+                        "Error processing package %s",
+                        original_filename,
+                        exc_info=True,
+                        extra={"omit_sentry": True},
+                    )
+                    form.add_error(None, _("%(filename)s: %(error)s") % {"filename": original_filename, "error": error})
+                    result.failed.append((original_filename, error))
 
-            # pylint: disable=broad-except
-            except Exception as e:
-                logger.error(
-                    "Error processing package",
-                    exc_info=True,
-                    extra={"omit_sentry": True},
-                )
-                form._errors["__all__"] = form.error_class([smart_str(e)])
+            return result
 
         return None
 
@@ -271,29 +284,47 @@ class PackageSource(ProblemSource):
         if contest:
             contest.controller.adjust_upload_form(request, existing_problem, form)
         if request.method == "POST":
-            package_ids = self.handle_form(form, request, contest, existing_problem)
-            if package_ids is not None:
-                package_count = len(package_ids) if isinstance(package_ids, list) else 1
+            result = self.handle_form(form, request, contest, existing_problem)
+            if result is not None:
+                package_count = len(result.queued)
+                if result.failed:
+                    if result.queued:
+                        messages.success(
+                            request,
+                            _("Queued for processing: %(packages)s.")
+                            % {"packages": ", ".join(filename for filename, _package_id in result.queued)},
+                        )
+                    messages.error(
+                        request,
+                        _("Failed to queue: %(packages)s.")
+                        % {"packages": "; ".join(f"{filename}: {error}" for filename, error in result.failed)},
+                    )
+
+                if not result.queued:
+                    return TemplateResponse(request, self.template_name, {"form": form})
+
                 if request.user.is_superuser or (request.contest and is_contest_basicadmin(request)):
+                    if not result.failed:
+                        messages.success(
+                            request,
+                            ngettext(
+                                "Package queued for processing.",
+                                "%(count)d packages queued for processing.",
+                                package_count,
+                            )
+                            % {"count": package_count},
+                        )
+                    return self._redirect_response(request)
+                if not result.failed:
                     messages.success(
                         request,
                         ngettext(
-                            "Package queued for processing.",
-                            "%(count)d packages queued for processing.",
+                            "Package queued for processing. It will appear in problem list when ready. Please be patient.",
+                            "%(count)d packages queued for processing. They will appear in problem list when ready. Please be patient.",
                             package_count,
                         )
                         % {"count": package_count},
                     )
-                    return self._redirect_response(request)
-                messages.success(
-                    request,
-                    ngettext(
-                        "Package queued for processing. It will appear in problem list when ready. Please be patient.",
-                        "%(count)d packages queued for processing. They will appear in problem list when ready. Please be patient.",
-                        package_count,
-                    )
-                    % {"count": package_count},
-                )
         return TemplateResponse(request, self.template_name, {"form": form})
 
 

@@ -1,4 +1,5 @@
 import urllib.parse
+from unittest.mock import patch
 
 import pytest
 from django.core.files.base import ContentFile
@@ -252,6 +253,30 @@ class TestProblemUpload(TransactionTestCase):
             set(contest_instances.values_list("round_id", flat=True)),
             {selected_round.id},
         )
+
+    @patch("oioioi.problems.problem_sources.UploadedPackageSource.process_package")
+    def test_contest_bulk_upload_continues_after_package_failure(self, process_package):
+        process_package.side_effect = [11, ValueError("unrecognized format"), 13]
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username="test_admin"))
+
+        url = make_add_update_problem_url(contest, {"key": "upload"})
+        response = self.client.post(
+            url,
+            {
+                "package_file": [
+                    ContentFile("first package", name="first.zip"),
+                    ContentFile("bad package", name="bad.zip"),
+                    ContentFile("third package", name="third.zip"),
+                ],
+                "visibility": Problem.VISIBILITY_FRIENDS,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(process_package.call_count, 3)
+        self.assertContains(response, "Queued for processing: first.zip, third.zip.")
+        self.assertContains(response, "Failed to queue: bad.zip: unrecognized format.")
 
     def test_successful_upload(self):
         ProblemInstance.objects.all().delete()
