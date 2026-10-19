@@ -4,12 +4,12 @@ import sys
 import threading
 import urllib.parse
 from contextlib import contextmanager
-from pathlib import Path
 from unittest import SkipTest, mock
 
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.staticfiles import finders as staticfiles_finders
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
@@ -202,17 +202,16 @@ class BrowserTestCase(StaticLiveServerTestCase):
 
     @classmethod
     def _skip(cls, reason):
-        if os.environ.get("OIOIOI_BROWSER_TESTS_REQUIRED"):
+        if os.environ.get("OIOIOI_BROWSER_TESTS_REQUIRED", "").lower() not in ("", "0", "false", "no"):
             raise AssertionError(f"{reason} (OIOIOI_BROWSER_TESTS_REQUIRED is set)")
         raise SkipTest(reason)
 
     @classmethod
     def setUpClass(cls):
         if importlib.util.find_spec("playwright") is None:
-            cls._skip("Playwright is not installed (run `uv sync`)")
-        dist_webpack = Path(settings.BASE_DIR) / "dist_webpack"
+            cls._skip("Playwright is not installed (run `uv sync --group browser`)")
         for bundle in ("jquery.bundle.js", "index.bundle.js"):
-            if not (dist_webpack / bundle).exists():
+            if staticfiles_finders.find(bundle) is None:
                 cls._skip(f"{bundle} is missing (run `pnpm install --frozen-lockfile && pnpm run build`)")
 
         from playwright.sync_api import Error, sync_playwright
@@ -243,12 +242,16 @@ class BrowserTestCase(StaticLiveServerTestCase):
 
     @classmethod
     def _close_browser(cls):
-        cls.browser.close()
-        cls._playwright.stop()
-        if cls._old_async_unsafe is None:
-            os.environ.pop("DJANGO_ALLOW_ASYNC_UNSAFE", None)
-        else:
-            os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = cls._old_async_unsafe
+        try:
+            try:
+                cls.browser.close()
+            finally:
+                cls._playwright.stop()
+        finally:
+            if cls._old_async_unsafe is None:
+                os.environ.pop("DJANGO_ALLOW_ASYNC_UNSAFE", None)
+            else:
+                os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = cls._old_async_unsafe
 
     def new_browser_context(self, username=None):
         """Returns a new browser context, logged in as ``username`` if given."""

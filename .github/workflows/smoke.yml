@@ -30,28 +30,26 @@ jobs:
         pnpm install --frozen-lockfile
         pnpm run build
 
+    - name: Install Playwright
+      run: |
+        uv sync --group browser
+
     - name: Get Playwright version
       id: playwright
       run: |
         echo "version=$(python -c 'import importlib.metadata as m; print(m.version("playwright"))')" >> "$GITHUB_OUTPUT"
 
     - name: Cache Playwright browsers
-      id: playwright-cache
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.cache/ms-playwright
         key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
 
+    # The cache holds only the browser, so always install the system libraries it needs. On a cache hit the
+    # browser download is skipped.
     - name: Install Chromium
-      if: steps.playwright-cache.outputs.cache-hit != 'true'
       run: |
         playwright install --with-deps --only-shell chromium
-
-    # The cache holds only the browser, not the system libraries it needs.
-    - name: Install Chromium system dependencies
-      if: steps.playwright-cache.outputs.cache-hit == 'true'
-      run: |
-        playwright install-deps chromium-headless-shell
 
     - name: Run browser tests
       env:

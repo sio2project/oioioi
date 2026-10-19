@@ -308,6 +308,7 @@ pages of a live test server in headless Chromium, using Playwright, and fail on
 JavaScript errors. They need the webpack bundles and the browser::
 
   pnpm install --frozen-lockfile && pnpm run build
+  uv sync --group browser
   uv run playwright install chromium  # on Linux add --with-deps
   ./test.sh -m browser
 

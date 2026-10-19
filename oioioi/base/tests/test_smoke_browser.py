@@ -6,10 +6,10 @@ requirements.
 """
 
 import re
+from unittest import mock
 from urllib.parse import urlparse
 
 from django.contrib.admin.utils import quote
-from django.core.cache import cache
 from django.urls import reverse
 
 from oioioi.base.tests import BrowserTestCase
@@ -31,17 +31,15 @@ class TestBrowserSmoke(BrowserTestCase):
     ]
 
     def setUp(self):
-        cache.clear()
         # The workers view asks sioworkersd over XML-RPC. The live server runs in this process, so it sees the patch.
-        self._old_workers_server = workers_views.server
-        workers_views.server = TestServer()
-
-    def tearDown(self):
-        workers_views.server = self._old_workers_server
+        self.enterContext(mock.patch.object(workers_views, "server", TestServer()))
 
     def _check_pages(self, urls, username=None):
         """Opens each url and fails with all JavaScript errors found on all pages."""
+        from playwright.sync_api import Error
+
         context = self.new_browser_context(username)
+        login_path = reverse("login")
         failures = []
         try:
             for url in urls:
@@ -56,12 +54,18 @@ class TestBrowserSmoke(BrowserTestCase):
                         and errors.append(f"console.error: {msg.text} ({msg.location.get('url')}:{msg.location.get('lineNumber')})")
                     ),
                 )
-                response = page.goto(self.live_server_url + url, wait_until="load")
-                if response is None or response.status >= 400:
-                    errors.append(f"HTTP status {response.status if response else None}")
-                if username is not None and urlparse(page.url).path.endswith("/login/"):
-                    errors.append(f"redirected to the login page: {page.url}")
-                page.close()
+                try:
+                    response = page.goto(self.live_server_url + url, wait_until="load")
+                    if response is None or response.status >= 400:
+                        errors.append(f"HTTP status {response.status if response else None}")
+                    if url != login_path and urlparse(page.url).path == login_path:
+                        errors.append(f"redirected to the login page: {page.url}")
+                    # Catch errors from scripts that run after load, e.g. in AJAX callbacks.
+                    page.wait_for_load_state("networkidle")
+                except Error as e:
+                    errors.append(f"browser error: {e}")
+                finally:
+                    page.close()
                 if errors:
                     failures.append(f"{url} (user: {username}):\n" + "\n".join(f"    {e}" for e in errors))
         finally:

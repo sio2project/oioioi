@@ -1987,11 +1987,13 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
+browser = [
+    { name = "playwright" },
+]
 dev = [
     { name = "coverage", extra = ["toml"] },
     { name = "elastic-apm" },
     { name = "inquirer" },
-    { name = "playwright" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -2076,12 +2078,12 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
+browser = [{ name = "playwright", specifier = ">=1.63,<2" }]
 dev = [
     { name = "coverage", specifier = ">=7.4.0" },
     { name = "coverage", extras = ["toml"], specifier = ">=7.4.0" },
     { name = "elastic-apm" },
     { name = "inquirer", specifier = ">=3.4.1" },
-    { name = "playwright", specifier = ">=1.63,<2" },
     { name = "pre-commit", specifier = "==4.2.0" },
     { name = "pytest", specifier = ">=9.0.3,<10" },
     { name = "pytest-cov", specifier = ">=7.0,<7.1" },
