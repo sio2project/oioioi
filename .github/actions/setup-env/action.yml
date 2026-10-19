@@ -8,6 +8,10 @@ inputs:
     # Composite actions don't support boolean inputs yet.
     # See https://github.com/actions/runner/issues/2238
     default: "false"
+  dependency-groups:
+    description: "Space-separated uv dependency groups to install in addition to the default ones"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -31,6 +35,10 @@ runs:
       activate-environment: "true"
 
   - name: Install python dependencies
+    env:
+      DEPENDENCY_GROUPS: ${{ inputs.dependency-groups }}
     run: |
-      uv sync
+      set --
+      for group in $DEPENDENCY_GROUPS; do set -- "$@" --group "$group"; done
+      uv sync --locked "$@"
     shell: sh

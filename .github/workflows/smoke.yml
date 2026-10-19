@@ -23,16 +23,14 @@ jobs:
       with:
         persist-credentials: false
     - uses: ./.github/actions/setup-env
+      with:
+        dependency-groups: browser
     - uses: ./.github/actions/setup-pnpm
 
     - name: Build JS
       run: |
         pnpm install --frozen-lockfile
         pnpm run build
-
-    - name: Install Playwright
-      run: |
-        uv sync --group browser
 
     - name: Get Playwright version
       id: playwright
