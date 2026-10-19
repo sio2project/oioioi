@@ -291,13 +291,11 @@ class PackageSource(ProblemSource):
                     if result.queued:
                         messages.success(
                             request,
-                            _("Queued for processing: %(packages)s.")
-                            % {"packages": ", ".join(filename for filename, _package_id in result.queued)},
+                            _("Queued for processing: %(packages)s.") % {"packages": ", ".join(filename for filename, _package_id in result.queued)},
                         )
                     messages.error(
                         request,
-                        _("Failed to queue: %(packages)s.")
-                        % {"packages": "; ".join(f"{filename}: {error}" for filename, error in result.failed)},
+                        _("Failed to queue: %(packages)s.") % {"packages": "; ".join(f"{filename}: {error}" for filename, error in result.failed)},
                     )
 
                 if not result.queued:
