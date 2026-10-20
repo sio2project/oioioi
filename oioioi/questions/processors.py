@@ -46,13 +46,16 @@ def navbar_messages_generator(request):
 
         if count == 1:
             m = messages.get()
-            link = reverse(
-                "message",
-                kwargs={
-                    "contest_id": request.contest.id,
-                    "message_id": m.top_reference_id if vis_messages.filter(id=m.top_reference_id).exists() else m.id,
-                },
-            )
+            if m.top_reference_id is not None and m.top_reference.kind == "PRIVATE":
+                link = m.get_absolute_url()
+            else:
+                link = reverse(
+                    "message",
+                    kwargs={
+                        "contest_id": request.contest.id,
+                        "message_id": m.top_reference_id if vis_messages.filter(id=m.top_reference_id).exists() else m.id,
+                    },
+                )
         else:
             link = reverse("contest_messages", kwargs={"contest_id": request.contest.id})
         return {"link": link, "text": text, "id": "contest_new_messages"}

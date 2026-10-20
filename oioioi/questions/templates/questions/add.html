@@ -18,6 +18,9 @@
     {% csrf_token %}
     <div id="alerts"></div>
     {% include "ingredients/form.html" with inline=True %}
+    {% if private_message %}
+        {% include "questions/private_recipients_preview.html" %}
+    {% endif %}
     <button type="submit" class="btn btn-primary">
         {% trans "Submit" %}
     </button>

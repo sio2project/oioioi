@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.text import get_text_list
@@ -10,7 +11,7 @@ from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.models import Contest, ContestPermission
 from oioioi.contests.utils import is_contest_basicadmin
-from oioioi.questions.forms import ChangeContestMessageForm
+from oioioi.questions.forms import ChangeContestMessageForm, ChangePrivateMessageForm, ChangePrivateReplyForm
 from oioioi.questions.models import Message, MessageNotifierConfig, ReplyTemplate
 
 
@@ -60,15 +61,28 @@ class MessageAdmin(admin.ModelAdmin):
         if not self.has_change_permission(request, message):
             raise PermissionDenied
 
+        private_message = message.kind == "PRIVATE" and message.top_reference_id is None
+        private_reply = message.kind == "PRIVATE" and message.top_reference_id is not None and message.top_reference.kind == "PRIVATE"
+
         if request.method == "POST":
-            form = ChangeContestMessageForm(message.kind, request, request.POST, instance=message)
+            if private_message:
+                form = ChangePrivateMessageForm(request, request.POST, instance=message)
+            elif private_reply:
+                form = ChangePrivateReplyForm(request, request.POST, instance=message)
+            else:
+                form = ChangeContestMessageForm(message.kind, request, request.POST, instance=message)
             if form.is_valid():
                 if form.changed_data:
                     change_message = _("Changed %s.") % get_text_list(form.changed_data, _("and"))
                 else:
                     change_message = _("No fields changed.")
 
-                if "kind" in form.changed_data and form.cleaned_data["kind"] == "PUBLIC":
+                if private_message:
+                    msg = form.save(commit=False)
+                    with transaction.atomic():
+                        msg.save()
+                        form.save_recipients(msg)
+                elif "kind" in form.changed_data and form.cleaned_data["kind"] == "PUBLIC":
                     msg = form.save(commit=False)
                     msg.mail_sent = False
                     msg.save()
@@ -78,7 +92,12 @@ class MessageAdmin(admin.ModelAdmin):
                 super().log_change(request, message, change_message)
                 return redirect("contest_messages", contest_id=request.contest.id)
         else:
-            form = ChangeContestMessageForm(message.kind, request, instance=message)
+            if private_message:
+                form = ChangePrivateMessageForm(request, instance=message)
+            elif private_reply:
+                form = ChangePrivateReplyForm(request, instance=message)
+            else:
+                form = ChangeContestMessageForm(message.kind, request, instance=message)
         return TemplateResponse(
             request,
             "admin/questions/change_message.html",

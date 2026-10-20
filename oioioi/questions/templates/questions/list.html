@@ -116,6 +116,11 @@
                         <i class="fa-solid fa-pencil"></i>
                         {% trans "Edit new question message" %}
                     </a>
+                        <a class="btn btn-sm btn-outline-secondary"
+                            href="{% url 'add_private_message' contest_id=contest.id %}">
+                            <i class="fa-solid fa-envelope"></i>
+                            {% trans "Send private message" %}
+                        </a>
                 {% elif categories %}
                         <a role="button" class="btn btn-sm btn-outline-secondary"
                             href="{% url 'add_contest_message' contest_id=contest.id %}">

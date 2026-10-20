@@ -36,6 +36,7 @@ class Message(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance, null=True, blank=True, on_delete=models.CASCADE)
     top_reference = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    recipients = models.ManyToManyField(User, blank=True, related_name="received_messages", verbose_name=_("recipients"))
     kind = EnumField(message_kinds, default="QUESTION", verbose_name=_("kind"))
     topic = models.CharField(
         max_length=255,
@@ -84,7 +85,7 @@ class Message(models.Model):
         super().save(*args, **kwargs)
 
     def can_have_replies(self):
-        return self.kind == "QUESTION"
+        return self.kind == "QUESTION" or (self.kind == "PRIVATE" and self.top_reference_id is None)
 
     def _has_category(self):
         return self.round is not None or self.problem_instance is not None
@@ -98,6 +99,17 @@ class Message(models.Model):
         return "".join("> " + line for line in lines)
 
     def get_absolute_url(self):
+        if self.top_reference_id is not None and self.top_reference.kind == "PRIVATE":
+            recipient = self.recipients.first()
+            if recipient is not None:
+                return reverse(
+                    "private_message",
+                    kwargs={
+                        "contest_id": self.contest.id,
+                        "message_id": self.top_reference_id,
+                        "recipient_id": recipient.id,
+                    },
+                )
         link = reverse(
             "message",
             kwargs={
@@ -185,7 +197,7 @@ def send_notification(sender, instance, created, **kwargs):
             )
 
     # Send a notification if this is a new answer for question
-    elif instance.top_reference is not None:
+    elif instance.top_reference is not None and instance.top_reference.kind != "PRIVATE":
         if instance.problem_instance is not None:
             logger.info(
                 'Answer for question "%(topic)s" about problem "%(short_name)s" was sent',
@@ -212,6 +224,18 @@ def send_notification(sender, instance, created, **kwargs):
                     "user": instance.top_reference.author,
                 },
             )
+
+
+def notify_private_message(instance, user):
+    logger.info(
+        'Private message "%(topic)s" was sent',
+        {"topic": instance.topic},
+        extra={
+            "notification": "private_message",
+            "message_instance": instance,
+            "user": user,
+        },
+    )
 
 
 # an e-mail notification will be spawned for every post

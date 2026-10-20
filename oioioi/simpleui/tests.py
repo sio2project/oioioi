@@ -95,6 +95,26 @@ class TestContestDashboard(TestCase):
         regex = re.compile(regex, self.compile_flags)
         self.assertTrue(regex.match(content))
 
+    def test_private_message_badge_uses_bootstrap_text_background(self):
+        user = User.objects.get(username="test_user")
+        contest = Contest.objects.get(id="c")
+        make_user_contest_admin(user, contest)
+        message = Message.objects.create(
+            round=contest.round_set.get(),
+            author=user,
+            kind="PRIVATE",
+            topic="private-message",
+            content="private-message-body",
+        )
+        message.recipients.add(User.objects.get(username="test_user2"))
+
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get("/c/c/")
+        response = self.client.get(reverse("simpleui_contest_dashboard"))
+
+        self.assertContains(response, "badge text-bg-light")
+        self.assertNotContains(response, "badge-light")
+
     def test_open_contest_dashboard(self):
         user = User.objects.get(username="test_user")
         contest = Contest.objects.get(id="c")
