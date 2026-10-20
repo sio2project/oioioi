@@ -1,3 +1,4 @@
+import atexit
 import importlib.util
 import os
 import shutil
@@ -21,6 +22,7 @@ from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import empty
 from django.utils.translation import gettext_lazy as _
 
 try:
@@ -279,17 +281,22 @@ class StyledBrowserTestCase(BrowserTestCase):
     :meth:`screenshot` saves full-page screenshots to the ``OIOIOI_SCREENSHOT_DIR`` directory, if it is set.
     """
 
+    _compress_root = None
+
     @classmethod
     def setUpClass(cls):
         from oioioi import default_settings
 
-        cls._compress_root = tempfile.mkdtemp(prefix="oioioi-compress-")
         cls._styled_settings = override_settings(
             COMPRESS_ENABLED=True,
             COMPRESS_PRECOMPILERS=default_settings.COMPRESS_PRECOMPILERS,
-            COMPRESS_ROOT=cls._compress_root,
+            COMPRESS_ROOT=cls._get_compress_root(),
+            # Changing STATIC_ROOT (to the same value) makes Django drop the cached storages and staticfiles finders,
+            # which keep the COMPRESS_ROOT they were created with.
+            STATIC_ROOT=settings.STATIC_ROOT,
         )
         cls._styled_settings.enable()
+        cls._reset_compressor_storage()
         try:
             super().setUpClass()
         except BaseException:
@@ -306,7 +313,21 @@ class StyledBrowserTestCase(BrowserTestCase):
     @classmethod
     def _disable_styled_settings(cls):
         cls._styled_settings.disable()
-        shutil.rmtree(cls._compress_root, ignore_errors=True)
+        cls._reset_compressor_storage()
+
+    @staticmethod
+    def _get_compress_root():
+        """Returns a temporary directory for the compiled stylesheets, shared by all classes and removed at exit."""
+        if StyledBrowserTestCase._compress_root is None:
+            StyledBrowserTestCase._compress_root = tempfile.mkdtemp(prefix="oioioi-compress-")
+            atexit.register(shutil.rmtree, StyledBrowserTestCase._compress_root, ignore_errors=True)
+        return StyledBrowserTestCase._compress_root
+
+    @staticmethod
+    def _reset_compressor_storage():
+        from compressor.storage import default_storage
+
+        default_storage._wrapped = empty
 
     def screenshot(self, page, name):
         """Saves a full-page screenshot as ``<OIOIOI_SCREENSHOT_DIR>/<name>.png``; does nothing if the variable is unset."""

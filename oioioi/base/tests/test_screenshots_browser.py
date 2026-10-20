@@ -18,13 +18,19 @@ VIEWPORT = {"width": 1280, "height": 800}
 
 
 class ScreenshotTestCase(StyledBrowserTestCase):
+    def setUp(self):
+        super().setUp()
+        self.page_errors = []
+
     def open(self, url, username=None, viewport=VIEWPORT):
-        """Returns a page showing ``url``; it is closed together with its context at the end of the test."""
+        """Returns a page showing ``url``; it is closed together with its context at the end of the test.
+
+        JavaScript errors from all pages opened in a test are collected in ``page_errors``.
+        """
         context = self.new_browser_context(username, viewport=viewport)
         self.addCleanup(context.close)
         page = context.new_page()
-        self.page_errors = []
-        page.on("pageerror", lambda exc: self.page_errors.append(str(exc)))
+        page.on("pageerror", lambda exc: self.page_errors.append(f"{url}: {exc}"))
         response = page.goto(self.live_server_url + url, wait_until="networkidle")
         self.assertLess(response.status, 400, url)
         return page
@@ -89,6 +95,12 @@ class TestContestPages(ScreenshotTestCase):
     def test_delete_account(self):
         page = self.open(reverse("delete_account"), "test_user")
         self.screenshot(page, "delete-account")
+
+    def test_markdown_editor(self):
+        page = self.open(reverse("add_news"), "test_admin")
+        page.wait_for_selector(".md-editor")
+        page.locator(".md-editor > textarea").first.fill("Some **news** text.\nSecond line.")
+        self.screenshot(page, "markdown-editor")
 
     def test_download_problems_packages(self):
         from django.core.files.base import ContentFile
@@ -184,11 +196,16 @@ class TestBootstrapBehaviour(ScreenshotTestCase):
         page.click("[data-bs-target='#hidden-reports']")
         page.wait_for_selector("#hidden-reports.show")
         button = page.locator("[data-bs-target^='#hidden-report-']").first
+        icon_class = button.locator("i").get_attribute("class")
         target = page.locator(button.get_attribute("data-bs-target"))
         button.click()
-        page.wait_for_function("el => el.classList.contains('show')", arg=target.element_handle())
+        page.wait_for_function("el => el.classList.contains('show') && !el.classList.contains('collapsing')", arg=target.element_handle())
+        # After loading, the button gets its icon back and behaves like any Bootstrap collapse trigger.
+        self.assertEqual(button.locator("i").get_attribute("class"), icon_class)
+        self.assertEqual(button.get_attribute("aria-expanded"), "true")
         button.click()
         page.wait_for_function("el => !el.classList.contains('show') && !el.classList.contains('collapsing')", arg=target.element_handle())
+        self.assertEqual(button.get_attribute("aria-expanded"), "false")
         button.click()
         page.wait_for_function("el => el.classList.contains('show')", arg=target.element_handle())
         self.assertNoPageErrors()
@@ -218,6 +235,33 @@ class TestBootstrapBehaviour(ScreenshotTestCase):
             self.assertFalse(page.is_visible(f"#{field_id}"), field_id)
         page.uncheck("#id_no_prizes")
         self.assertTrue(page.is_visible("#id_address"))
+
+        # The fields are also hidden when the form is shown with the box already checked (e.g. after a form error).
+        page.check("#id_no_prizes")
+        page.eval_on_selector("#id_no_prizes", "el => { el.form.noValidate = true; }")
+        with page.expect_navigation():
+            page.click("form button[type=submit]")
+        page.wait_for_load_state("networkidle")
+        self.assertTrue(page.is_visible(".invalid-feedback, .is-invalid, .alert-danger"))
+        self.assertTrue(page.is_checked("#id_no_prizes"))
+        self.assertFalse(page.is_visible("#id_address"))
+        self.assertNoPageErrors()
+
+
+class TestAddSchoolForm(ScreenshotTestCase):
+    fixtures = ["test_users", "test_contest", "test_schools"]
+
+    def test_similar_schools_check(self):
+        contest = Contest.objects.get(id="c")
+        contest.controller_name = "oioioi.oi.controllers.OIContestController"
+        contest.save()
+        page = self.open(reverse("add_school"), "test_user")
+        page.fill("#id_city", "Warszawa")
+        page.eval_on_selector("#add-school-form", "form => { form.noValidate = true; }")
+        page.click("#add-school-button")
+        # Submitting first looks for similar schools and asks for confirmation instead of posting the form.
+        page.wait_for_selector("#confirm-modal.show")
+        self.assertFalse(page.is_disabled("#add-school-button"))
         self.assertNoPageErrors()
 
 

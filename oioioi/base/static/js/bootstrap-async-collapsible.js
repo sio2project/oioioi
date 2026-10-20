@@ -28,14 +28,15 @@ $(function(){
                 t.html('<div class="alert alert-danger"><pre>' + response +
                        '</pre></div>');
             }
-            t.collapse('show');
+            // Bootstrap finds the triggers of a collapsible when it creates it, so set data-bs-toggle first.
             s.each(function(){
                 var e = $(this);
-                var span = $('span', this);
+                var span = $('span, i', this);
                 e.attr('data-bs-toggle', 'collapse');
                 e.toggleClass('loading disabled');
                 span.prop('class', e.data('prev-icon'));
             });
+            t.collapse('show');
         });
 
 
