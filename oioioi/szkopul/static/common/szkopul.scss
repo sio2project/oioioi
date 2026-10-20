@@ -100,12 +100,13 @@
   #supporters {
     flex-direction: column;
   }
+
   #projekt-map {
     width: 80%;
   }
 }
 
-@media screen and (min-width: 720px){
+@media screen and (min-width: 720px) {
   #jane-street-logo {
     width: 20%;
   }
@@ -117,14 +118,25 @@
   }
 }
 
-@media screen and (min-width: 360px) and (max-width: 540px){
+@media screen and (min-width: 360px) and (max-width: 540px) {
   #jane-street-logo {
     width: 40%;
   }
 }
 
-@media screen and (max-width: 360px){
+@media screen and (max-width: 360px) {
   #jane-street-logo {
     width: 50%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .oioioi-navbar>.oioioi-navbar__brand {
+    min-width: 3.5rem;
+
+    >img {
+      max-width: 100%;
+      height: auto;
+    }
   }
 }
