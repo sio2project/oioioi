@@ -90,6 +90,20 @@ class TestContestPages(ScreenshotTestCase):
         page = self.open(reverse("delete_account"), "test_user")
         self.screenshot(page, "delete-account")
 
+    def test_download_problems_packages(self):
+        from django.core.files.base import ContentFile
+
+        from oioioi.problems.models import Problem, ProblemPackage
+
+        ProblemPackage.objects.create(
+            problem=Problem.objects.get(id=1),
+            contest=Contest.objects.get(id="c"),
+            package_file=ContentFile(b"package", name="package.zip"),
+            status="OK",
+        )
+        page = self.open(reverse("download_problems_packages", kwargs={"contest_id": "c"}) + "?ids=1", "test_admin")
+        self.screenshot(page, "download-problems-packages")
+
     def test_navbar_breakpoints(self):
         for width in (800, 1100):
             page = self.open(reverse("contest_dashboard", kwargs={"contest_id": "c"}), "test_user", viewport={"width": width, "height": 600})
@@ -158,3 +172,61 @@ class TestTeacherPages(ScreenshotTestCase):
         add_user_to_contest_as(User.objects.get(username="test_user"), contest, "teacher")
         page = self.open(reverse("show_members", kwargs={"contest_id": "c", "member_type": "pupil"}), "test_user")
         self.screenshot(page, "teachers-members")
+
+
+class TestBootstrapBehaviour(ScreenshotTestCase):
+    """Checks Bootstrap 5 JavaScript behaviour that used to break silently (#874)."""
+
+    fixtures = ["test_users", "test_contest", "test_full_package", "test_problem_instance", "test_submission"]
+
+    def test_async_collapsible_toggles_after_load(self):
+        page = self.open(reverse("submission", kwargs={"contest_id": "c", "submission_id": 1}), "test_admin")
+        page.click("[data-bs-target='#hidden-reports']")
+        page.wait_for_selector("#hidden-reports.show")
+        button = page.locator("[data-bs-target^='#hidden-report-']").first
+        target = page.locator(button.get_attribute("data-bs-target"))
+        button.click()
+        page.wait_for_function("el => el.classList.contains('show')", arg=target.element_handle())
+        button.click()
+        page.wait_for_function("el => !el.classList.contains('show') && !el.classList.contains('collapsing')", arg=target.element_handle())
+        button.click()
+        page.wait_for_function("el => el.classList.contains('show')", arg=target.element_handle())
+        self.assertNoPageErrors()
+
+    def test_admin_changelist_search_width(self):
+        widths = {}
+        # The search form takes the whole row only below 576px (media-breakpoint-down(sm)).
+        for width in (400, 1000):
+            page = self.open(reverse("oioioiadmin:auth_user_changelist"), "test_admin", viewport={"width": width, "height": 800})
+            widths[width] = page.eval_on_selector("#changelist-search", "el => el.offsetWidth / el.parentElement.offsetWidth")
+        self.assertGreater(widths[400], 0.95)
+        self.assertLess(widths[1000], 0.95)
+
+    def test_menu_reachable_at_every_width(self):
+        # The side menu is shown from 992px up (d-lg-block); below that the navbar must show its menu button.
+        for width in (600, 800, 1000):
+            page = self.open(reverse("contest_dashboard", kwargs={"contest_id": "c"}), "test_user", viewport={"width": width, "height": 800})
+            self.assertTrue(page.is_visible("#menu") or page.is_visible(".oioioi-navbar__menu"), f"no menu at {width}px")
+
+    def test_pa_registration_hides_prize_fields(self):
+        contest = Contest.objects.get(id="c")
+        contest.controller_name = "oioioi.pa.controllers.PAContestController"
+        contest.save()
+        page = self.open(reverse("participants_register", kwargs={"contest_id": "c"}), "test_user")
+        page.check("#id_no_prizes")
+        for field_id in ("id_address", "id_postal_code", "id_city", "id_t_shirt_size"):
+            self.assertFalse(page.is_visible(f"#{field_id}"), field_id)
+        page.uncheck("#id_no_prizes")
+        self.assertTrue(page.is_visible("#id_address"))
+        self.assertNoPageErrors()
+
+
+class TestTaskArchiveBehaviour(ScreenshotTestCase):
+    fixtures = ["test_task_archive", "test_users", "admin_admin", "test_task_archive_progress_labels"]
+
+    def test_copy_link_tooltip(self):
+        page = self.open(reverse("task_archive_tag", args=("oi",)))
+        self.screenshot(page, "task-archive-tag")
+        page.locator(".link-getter").first.click()
+        page.wait_for_selector(".tooltip-inner:has-text('Copied link!')")
+        self.assertNoPageErrors()

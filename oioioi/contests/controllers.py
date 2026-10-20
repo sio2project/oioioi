@@ -52,7 +52,7 @@ STATUS_CLASSES = {
     "OK100": "text-bg-success",
     "OK": "text-bg-success",
     "INI_OK": "text-bg-success",
-    "TESTRUN_OK": "text=bg-success",
+    "TESTRUN_OK": "text-bg-success",
     "OK75": "text-bg-warning",
     "OK50": "text-bg-warning",
     "OK25": "text-bg-danger",
@@ -73,7 +73,7 @@ STATUS_CLASSES = {
 
 
 def get_badge_class(display_type):
-    return STATUS_CLASSES.get(display_type, "badge-secondary")
+    return STATUS_CLASSES.get(display_type, "text-bg-secondary")
 
 
 def submission_template_context(request, submission):

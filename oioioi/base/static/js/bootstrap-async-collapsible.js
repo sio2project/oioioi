@@ -32,7 +32,7 @@ $(function(){
             s.each(function(){
                 var e = $(this);
                 var span = $('span', this);
-                e.attr('data-toggle', 'collapse');
+                e.attr('data-bs-toggle', 'collapse');
                 e.toggleClass('loading disabled');
                 span.prop('class', e.data('prev-icon'));
             });

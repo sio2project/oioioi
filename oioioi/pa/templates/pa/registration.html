@@ -11,8 +11,10 @@
             
             prizeFieldsIDs.forEach(function (id) {
                 var input = document.getElementById(id);
-                var formGroup = input.closest(".form-group");
-                formGroup.style.display = hidePrizeFields ? "none" : "block";
+                var field = input.closest(".oioioi-form-field");
+                if (field) {
+                    field.style.display = hidePrizeFields ? "none" : "";
+                }
             });
         }
 

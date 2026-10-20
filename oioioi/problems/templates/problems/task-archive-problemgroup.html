@@ -6,7 +6,7 @@
     {% if parent_id %}
     <a class="collapse-toggle{% if collapse %} collapsed{% endif %}"
         data-bs-toggle="collapse"
-        data-parent="#{{parent_id}}"
+        data-bs-parent="#{{parent_id}}"
         href="#{{id}}">
         <span class="text-muted"><i class="fa-solid fa-chevron-down"></i></span>
         {{ value.full_value }}

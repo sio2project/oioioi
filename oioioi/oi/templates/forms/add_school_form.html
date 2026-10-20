@@ -19,12 +19,12 @@
                 const bindFormValidation = function() {
                     $('#add-school-form').one('submit', function() {
                         const form = this;
-                        $('#add-school-button').button('loading');
+                        set_button_loading('#add-school-button', true);
                         $('.schools-similar-list').load(
                             '{% url 'schools_similar' %}',
                             $('#add-school-form').serializeArray(),
                             function(data) {
-                                $('#add-school-button').button('reset');
+                                set_button_loading('#add-school-button', false);
                                 if (data) {
                                     $('#confirm-modal').modal('show');
                                 } else {

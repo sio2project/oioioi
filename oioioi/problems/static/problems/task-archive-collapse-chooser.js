@@ -20,13 +20,14 @@ function createLink(link) {
 }
 
 function showMessage(el) {
-    const prevTitle = el.dataset.originalTitle;
-    el.title = "Copied link!";
-    $(el).tooltip('fixTitle').tooltip('show');
+    // Bootstrap moves the title to data-bs-original-title and reads it from there each time the tooltip is shown.
+    const prevTitle = el.getAttribute('data-bs-original-title');
+    el.setAttribute('data-bs-original-title', gettext("Copied link!"));
+    $(el).tooltip('show');
 
     const restoreTitle = function () {
-        el.title = prevTitle;
-        $(el).tooltip('fixTitle').tooltip('hide');
+        el.setAttribute('data-bs-original-title', prevTitle);
+        $(el).tooltip('hide');
     };
 
     setTimeout(function () {
