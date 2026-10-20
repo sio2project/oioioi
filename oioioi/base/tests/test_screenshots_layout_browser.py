@@ -22,12 +22,14 @@ class TestLayoutScreenshots(ScreenshotTestCase):
         "test_extra_rounds",
     ]
 
-    def _pages(self, pages, users=(None, "test_admin")):
+    def _pages(self, pages, users=(None, "test_admin"), widths=(1280,)):
         for user in users:
             for name, url in pages:
-                page = self.open(url, user)
-                self.screenshot(page, f"{name}-{user or 'anonymous'}")
-                self.assertNoPageErrors()
+                for width in widths:
+                    page = self.open(url, user, viewport={"width": width, "height": 800})
+                    suffix = "" if width == 1280 else f"-{width}px"
+                    self.screenshot(page, f"{name}-{user or 'anonymous'}{suffix}")
+        self.assertNoPageErrors()
 
     def test_public_pages(self):
         self._pages(
@@ -35,7 +37,8 @@ class TestLayoutScreenshots(ScreenshotTestCase):
                 ("index", reverse("index")),
                 ("contest-dashboard", reverse("contest_dashboard", kwargs={"contest_id": "c"})),
                 ("problemset", reverse("problemset_main")),
-            ]
+            ],
+            widths=(1280, 800, 400),
         )
 
     def test_logged_in_pages(self):
@@ -47,5 +50,6 @@ class TestLayoutScreenshots(ScreenshotTestCase):
                 ("simpleui-contest", reverse("simpleui_contest_dashboard", kwargs={"contest_id": "c"})),
             ],
             users=("test_admin",),
+            widths=(1280, 800, 400),
         )
         self._pages([("submission", reverse("submission", kwargs={"contest_id": "c", "submission_id": 1}))], users=("test_user",))
