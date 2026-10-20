@@ -21,12 +21,16 @@ function createLink(link) {
 
 function showMessage(el) {
     // Bootstrap moves the title to data-bs-original-title and reads it from there each time the tooltip is shown.
-    const prevTitle = el.getAttribute('data-bs-original-title');
-    el.setAttribute('data-bs-original-title', gettext("Copied link!"));
+    const prevTitle = el.dataset.bsOriginalTitle;
+    el.dataset.bsOriginalTitle = gettext("Copied link!");
     $(el).tooltip('show');
 
     const restoreTitle = function () {
-        el.setAttribute('data-bs-original-title', prevTitle);
+        if (prevTitle === undefined) {
+            delete el.dataset.bsOriginalTitle;
+        } else {
+            el.dataset.bsOriginalTitle = prevTitle;
+        }
         $(el).tooltip('hide');
     };
 

@@ -271,6 +271,12 @@ class TestTaskArchiveBehaviour(ScreenshotTestCase):
     def test_copy_link_tooltip(self):
         page = self.open(reverse("task_archive_tag", args=("oi",)))
         self.screenshot(page, "task-archive-tag")
-        page.locator(".link-getter").first.click()
+        link = page.locator(".link-getter").first
+        title = link.get_attribute("data-bs-original-title")
+        link.click()
         page.wait_for_selector(".tooltip-inner:has-text('Copied link!')")
+        # When the tooltip closes, the link gets its original title back.
+        page.mouse.move(0, 0)
+        page.wait_for_selector(".tooltip", state="detached")
+        self.assertEqual(link.get_attribute("data-bs-original-title"), title)
         self.assertNoPageErrors()
