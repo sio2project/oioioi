@@ -834,7 +834,7 @@ class ProgrammingProblemController(ProblemController):
         show_scores = any(s.score is not None for s in submissions)
         can_admin = can_admin_problem_instance(request, submission.problem_instance)
 
-        if not queryset.exists():
+        if not submissions:
             return super_footer
         return super_footer + render_to_string(
             "programs/other_submissions.html",
