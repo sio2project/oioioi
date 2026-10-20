@@ -1,6 +1,8 @@
 import importlib.util
 import os
+import shutil
 import sys
+import tempfile
 import threading
 import urllib.parse
 from contextlib import contextmanager
@@ -15,6 +17,7 @@ from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.test import TestCase as DjangoTestCase
+from django.test import override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
@@ -253,11 +256,60 @@ class BrowserTestCase(StaticLiveServerTestCase):
             else:
                 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = cls._old_async_unsafe
 
-    def new_browser_context(self, username=None):
-        """Returns a new browser context, logged in as ``username`` if given."""
-        context = self.browser.new_context()
+    def new_browser_context(self, username=None, **kwargs):
+        """Returns a new browser context, logged in as ``username`` if given.
+
+        ``kwargs`` are passed to Playwright's ``Browser.new_context`` (e.g. ``viewport``).
+        """
+        context = self.browser.new_context(**kwargs)
         if username is not None:
             self.client.force_login(User.objects.get(username=username))
             session_cookie = self.client.cookies[settings.SESSION_COOKIE_NAME]
             context.add_cookies([{"name": session_cookie.key, "value": session_cookie.value, "url": self.live_server_url}])
         return context
+
+
+class StyledBrowserTestCase(BrowserTestCase):
+    """A :class:`BrowserTestCase` that serves the real stylesheets, as in production.
+
+    The test settings disable django-compressor, so pages link the raw ``.scss`` files and the browser ignores them.
+    This class turns the compressor and the SCSS precompiler back on, so pages look as they do in production.
+    Use it for screenshots and for tests that depend on CSS (visibility, layout at a given viewport width).
+
+    :meth:`screenshot` saves full-page screenshots to the ``OIOIOI_SCREENSHOT_DIR`` directory, if it is set.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from oioioi import default_settings
+
+        cls._compress_root = tempfile.mkdtemp(prefix="oioioi-compress-")
+        cls._styled_settings = override_settings(
+            COMPRESS_ENABLED=True,
+            COMPRESS_PRECOMPILERS=default_settings.COMPRESS_PRECOMPILERS,
+            COMPRESS_ROOT=cls._compress_root,
+        )
+        cls._styled_settings.enable()
+        try:
+            super().setUpClass()
+        except BaseException:
+            cls._disable_styled_settings()
+            raise
+
+    @classmethod
+    def tearDownClass(cls):
+        try:
+            super().tearDownClass()
+        finally:
+            cls._disable_styled_settings()
+
+    @classmethod
+    def _disable_styled_settings(cls):
+        cls._styled_settings.disable()
+        shutil.rmtree(cls._compress_root, ignore_errors=True)
+
+    def screenshot(self, page, name):
+        """Saves a full-page screenshot as ``<OIOIOI_SCREENSHOT_DIR>/<name>.png``; does nothing if the variable is unset."""
+        directory = os.environ.get("OIOIOI_SCREENSHOT_DIR")
+        if directory:
+            page.screenshot(path=os.path.join(directory, f"{name}.png"), full_page=True)
