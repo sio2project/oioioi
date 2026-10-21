@@ -130,7 +130,7 @@
   }
 }
 
-@media (max-width: 767.98px) {
+@include media-breakpoint-down(md) {
   .oioioi-navbar>.oioioi-navbar__brand {
     min-width: 3.5rem;
 
