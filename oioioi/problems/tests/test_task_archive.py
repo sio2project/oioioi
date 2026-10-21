@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.staticfiles import finders
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -110,6 +111,28 @@ class TestTaskArchive(TestCase):
         self.assertNotContains(response, "problemgroups-xxv-s2")
         self.assertNotContains(response, "-d1")
         self.assertNotContains(response, "-d2")
+
+    def test_task_archive_group_tables_use_fixed_layout(self):
+        url = reverse("task_archive_tag", args=("oi",))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+
+        # Every problem group renders its own table, so all of them need the
+        # shared class that fixes the score column width in task_archive.css.
+        self.assertGreater(html.count("task-archive-table"), 1)
+        self.assertNotIn(
+            '<table class="table table-sm table--auto-collapse-horizontal table--borderless mb-0">',
+            html,
+        )
+
+        # The stylesheet defining the fixed table layout must exist.
+        css_path = finders.find("common/task_archive.css")
+        self.assertIsNotNone(css_path)
+        with open(css_path, encoding="utf-8") as css_file:
+            css = css_file.read()
+        self.assertIn(".task-archive-table", css)
+        self.assertIn("table-layout: fixed", css)
 
     def test_task_archive_tag_filter(self):
         def assert_problem_found(filters, found=True):

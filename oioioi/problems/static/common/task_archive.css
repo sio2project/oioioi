@@ -12,6 +12,20 @@
     padding-left: 1em;
 }
 
+.task-archive-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.task-archive-table td:first-child {
+    overflow-wrap: anywhere;
+}
+
+.task-archive-table td:last-child {
+    width: 5em;
+    white-space: nowrap;
+}
+
 .percentage-info {
     font-weight: normal;
 }
