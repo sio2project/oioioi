@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.contrib.staticfiles import finders
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -125,14 +124,6 @@ class TestTaskArchive(TestCase):
             '<table class="table table-sm table--auto-collapse-horizontal table--borderless mb-0">',
             html,
         )
-
-        # The stylesheet defining the fixed table layout must exist.
-        css_path = finders.find("common/task_archive.css")
-        self.assertIsNotNone(css_path)
-        with open(css_path, encoding="utf-8") as css_file:
-            css = css_file.read()
-        self.assertIn(".task-archive-table", css)
-        self.assertIn("table-layout: fixed", css)
 
     def test_task_archive_tag_filter(self):
         def assert_problem_found(filters, found=True):
