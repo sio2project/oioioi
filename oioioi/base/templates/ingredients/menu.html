@@ -20,7 +20,7 @@
                 <div id="menu-{{ forloop.counter }}" class="card-collapse collapse {% if forloop.last %}show{% endif %}"
                      role="tabpanel" aria-labelledby="menu-heading-{{ forloop.counter }}"
                      aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}"
-                     data-parent="#menu-accordion">
+                     data-bs-parent="#menu-accordion">
                     <div class="list-group list-group-flush border-top">
                     {% for item in menu %}
                         <a href="{{ item.url }}" class="list-group-item list-group-item-action {% active_url item.url %}" {{ item.attrs }}>

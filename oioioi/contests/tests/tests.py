@@ -28,6 +28,7 @@ from rest_framework.test import APITestCase
 from oioioi.base.permissions import is_superuser
 from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time, needs_linux
 from oioioi.base.tests.tests import TestPublicMessage
+from oioioi.contests.controllers import STATUS_CLASSES, get_badge_class
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import (
@@ -107,6 +108,14 @@ class TestModels(TestCase):
         pi.save()
         self.assertEqual(pi.contest, contest)
         self.assertEqual(pi.short_name, "a")
+
+
+class TestBadgeClasses(TestCase):
+    def test_badge_classes_exist_in_bootstrap_5(self):
+        # Bootstrap 5 has no badge-<color> classes; a badge needs text-bg-<color> to get a background.
+        for status, badge_class in STATUS_CLASSES.items():
+            self.assertRegex(badge_class, r"^text-bg-[a-z]+$", status)
+        self.assertEqual(get_badge_class("?"), "text-bg-secondary")
 
 
 class TestScores(TestCase):

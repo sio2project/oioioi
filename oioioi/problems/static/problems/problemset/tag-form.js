@@ -33,9 +33,6 @@ $(document).ready(function () {
         $inputContainer.css('margin-bottom', '4rem');
     }
 
-    // enable tooltips
-    $('[data-toggle="tooltip"]').tooltip();
-
     // show tag proposal form to the user if it's the first time they qualify
     if ($formOpen.length && !Cookies.get('shown_proposal_popup')) {
         $form.modal('toggle');
