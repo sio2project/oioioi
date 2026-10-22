@@ -27,6 +27,10 @@ jobs:
         # webpack/concurrently crash on a half-installed node_modules.
         run: |
           pnpm install --frozen-lockfile
+          # The Cypress binary lives in ~/.cache/Cypress, outside the cached pnpm store.
+          # On a store cache hit pnpm's side-effects cache skips cypress's postinstall,
+          # so the binary is never downloaded. `cypress install` is a no-op if it exists.
+          pnpm --dir oioioi_cypress exec cypress install
 
       - name: Build OIOIOI
         run: |
