@@ -52,11 +52,14 @@ def activate_contest(request, contest):
         # user in case session data outlives a change of the logged-in user.
         marker = [request.real_user.id, contest.id]
         if request.session.get("recorded_contest_view") != marker:
-            cv, created = ContestView.objects.get_or_create(user=request.real_user, contest=contest)
+            latest_cv = ContestView.objects.filter(user=request.real_user).first()
             # Do not repeatedly update timestamp for latest contest.
-            if created or cv != ContestView.objects.filter(user=request.real_user).latest():
-                cv.timestamp = request.timestamp
-                cv.save()
+            if not latest_cv or latest_cv.contest_id != contest.id:
+                ContestView.objects.update_or_create(
+                    user=request.real_user,
+                    contest=contest,
+                    defaults={"timestamp": request.timestamp},
+                )
             request.session["recorded_contest_view"] = marker
 
 

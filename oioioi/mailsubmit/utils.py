@@ -5,7 +5,7 @@ from django.conf import settings
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
-from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import visible_problem_instances
 from oioioi.default_settings import MAILSUBMIT_CONFIRMATION_HASH_LENGTH
 from oioioi.mailsubmit.models import MailSubmissionConfig
 
@@ -37,7 +37,7 @@ def has_any_mailsubmittable_problem(request):
 @request_cached
 def mailsubmittable_problem_instances(request):
     controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("round")
+    queryset = visible_problem_instances(request)
     return [pi for pi in queryset if controller.can_submit(request, pi, check_round_times=False)]
 
 

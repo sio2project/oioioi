@@ -2,10 +2,10 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.fields import EnumRegistry
 from oioioi.contests.controllers import ContestController
-from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import (
     is_contest_admin,
     is_contest_observer,
+    problem_instances_in_contest,
     rounds_times,
     visible_problem_instances,
 )
@@ -185,7 +185,7 @@ class StatisticsMixinForProgrammingContestController:
 
     def statistics_available_plot_groups(self, request):
         result = []
-        contest_pis = ProblemInstance.objects.filter(contest=request.contest).select_related("problem").prefetch_related("contest", "round")
+        contest_pis = problem_instances_in_contest(request)
 
         can_see_all_problems = True
         for pi in contest_pis:
@@ -194,7 +194,7 @@ class StatisticsMixinForProgrammingContestController:
             else:
                 can_see_all_problems = False
 
-        if can_see_all_problems and contest_pis.exists():
+        if can_see_all_problems and contest_pis:
             result.insert(0, ("CONTEST", request.contest.id, request.contest))
         return result
 
