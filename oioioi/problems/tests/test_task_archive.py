@@ -1,3 +1,7 @@
+import re
+from pathlib import Path
+
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -117,12 +121,26 @@ class TestTaskArchive(TestCase):
         self.assertEqual(response.status_code, 200)
         html = response.content.decode("utf-8")
 
+        css = (
+            Path(settings.BASE_DIR)
+            / "oioioi/problems/static/common/task_archive.css"
+        ).read_text(encoding="utf-8")
+        self.assertIn("table-layout: fixed", css)
+        self.assertIn("overflow-wrap: break-word", css)
+        self.assertIn(".task-archive-score", css)
+
         # Every problem group renders its own table, so all of them need the
-        # shared class that fixes the score column width in task_archive.css.
-        self.assertGreater(html.count("task-archive-table"), 1)
-        self.assertNotIn(
-            '<table class="table table-sm table--auto-collapse-horizontal table--borderless mb-0">',
-            html,
+        # shared class and the explicit cell classes used by task_archive.css.
+        tables = re.findall(r"<table\b[^>]*>", html)
+        problem_tables = [table for table in tables if 'id="filters"' not in table]
+        self.assertGreater(len(problem_tables), 1)
+        for table in problem_tables:
+            self.assertIn("task-archive-table", table)
+
+        self.assertGreater(html.count('class="task-archive-problem-name"'), 1)
+        self.assertEqual(
+            html.count('class="task-archive-problem-name"'),
+            html.count('class="task-archive-score"'),
         )
 
     def test_task_archive_tag_filter(self):

@@ -14,15 +14,16 @@
 
 .task-archive-table {
     table-layout: fixed;
-    width: 100%;
+    width: 32em;
+    max-width: 100%;
 }
 
-.task-archive-table td:first-child {
-    overflow-wrap: anywhere;
+.task-archive-problem-name {
+    overflow-wrap: break-word;
 }
 
-.task-archive-table td:last-child {
-    width: 5em;
+.task-archive-score {
+    width: 6em;
     white-space: nowrap;
 }
 

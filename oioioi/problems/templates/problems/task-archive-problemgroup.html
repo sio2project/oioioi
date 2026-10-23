@@ -41,12 +41,12 @@
     <tbody>
         {% for problem, result in problems.problem_info %}
         <tr>
-            <td>
+            <td class="task-archive-problem-name">
                 <a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}">
                     {{ problem }}
                 </a>
             </td>
-            <td>
+            <td class="task-archive-score">
                 {% if result.exists %}
                     {% if result.score == result.max_score %}
                         <a class="badge text-bg-success" href="{{ result.submission_url }}"> {{ result.score }}</a>
