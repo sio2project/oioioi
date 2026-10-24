@@ -4,18 +4,25 @@
 {% block title %}{% trans "Workers list" %}{% endblock %}
 
 {% block main-content %}
-<script type="text/javascript" src="{% static "highcharts/highcharts.js" %}"></script>
-<script type="text/javascript" src="{% static "charts/highcharts_defaults.js" %}"></script>
-<script type="text/javascript" src="{% static "highcharts/modules/pattern-fill.js" %}"></script>
-<script type="text/javascript" src="{% static "common/load_chart.js" %}"></script>
-<script type="text/javascript">
-    $(function() {
-        make_load_chart('{% url 'get_load_json' %}', 'worker_load_plot');
-    });
-</script>
+{% if not connection_error %}
+    <script type="text/javascript" src="{% static "highcharts/highcharts.js" %}"></script>
+    <script type="text/javascript" src="{% static "charts/highcharts_defaults.js" %}"></script>
+    <script type="text/javascript" src="{% static "highcharts/modules/pattern-fill.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/load_chart.js" %}"></script>
+    <script type="text/javascript">
+        $(function() {
+            make_load_chart('{% url 'get_load_json' %}', 'worker_load_plot');
+        });
+    </script>
+{% endif %}
 
 <h1>{% trans "System load" %}</h1>
 
+{% if connection_error %}
+    <div class="alert alert-danger" role="alert">
+        {{ connection_error }}
+    </div>
+{% else %}
 <div id="worker_load_plot" class="highcharts_plot">
 </div>
 
@@ -29,6 +36,12 @@
 {% if announce %}
     <div class="alert alert-info">
         {{ announce }}
+    </div>
+{% endif %}
+
+{% if delete_error %}
+    <div class="alert alert-danger">
+        {{ delete_error }}
     </div>
 {% endif %}
 
@@ -90,5 +103,6 @@
         {% endif %}
     </div>
 </form>
+{% endif %}
 
 {% endblock %}

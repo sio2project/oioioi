@@ -25,7 +25,7 @@ function make_load_chart(ajax_url, target_div) {
                 // Displaying a detailed error message isn't really necessary -
                 // the worker list view uses the same function to query
                 // sioworkersd, so after a refresh the user will see
-                // an exception page anyway, with the same error.
+                // the same error there.
                 var msg = $('<div class="alert alert-danger"></div>').text(
                     gettext(
                     "Couldn't get data from server. Please refresh the page."));
