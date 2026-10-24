@@ -16,6 +16,10 @@ server = xmlrpc.client.ServerProxy(settings.SIOWORKERSD_URL, allow_none=True)
 # Errors meaning that sioworkersd can't be reached. An xmlrpc.client.Fault
 # is different: it is an error reported by a running sioworkersd.
 UNAVAILABLE_ERRORS = (OSError, xmlrpc.client.ProtocolError)
+SERVICE_ERRORS = (*UNAVAILABLE_ERRORS, xmlrpc.client.Fault)
+
+UNAVAILABLE_MESSAGE = _("The workers service is unavailable. Check that sioworkersd is running and try again.")
+FAULT_MESSAGE = _("The workers service returned an error: %(error)s")
 
 
 def get_info_about_workers():
@@ -39,6 +43,26 @@ def del_worker(value):
     return failed
 
 
+def service_error_message(error):
+    if isinstance(error, xmlrpc.client.Fault):
+        return FAULT_MESSAGE % {"error": error.faultString}
+    return UNAVAILABLE_MESSAGE
+
+
+def delete_selected_workers(request):
+    """Deletes the workers selected in the form. Returns a pair
+    (announce, error), one of which is None.
+    """
+    try:
+        selected = [x for x in get_all_names() if request.POST.get(f"work-{x}")]
+        failed = del_worker(selected)
+    except SERVICE_ERRORS as e:
+        return None, service_error_message(e)
+    if failed:
+        return None, _("Could not delete some workers: %(failed)s") % {"failed": "; ".join(f"{name} ({error})" for name, error in failed)}
+    return _("Successfully deleted selected workers"), None
+
+
 @enforce_condition(is_superuser)
 def show_info_about_workers(request):
     readonly = False
@@ -47,7 +71,6 @@ def show_info_about_workers(request):
     connection_error = None
     delete_error = None
     delete = False
-    unavailable_message = _("The workers service is unavailable. Check that sioworkersd is running and try again.")
     if request.method == "POST":
         if request.POST.get("delete"):
             readonly = True
@@ -57,26 +80,12 @@ def show_info_about_workers(request):
             )
             delete = True
         if request.POST.get("confirm"):
-            try:
-                selected = [x for x in get_all_names() if request.POST.get(f"work-{x}")]
-                failed = del_worker(selected)
-            except UNAVAILABLE_ERRORS:
-                delete_error = unavailable_message
-            except xmlrpc.client.Fault as e:
-                delete_error = _("The workers service returned an error: %(error)s") % {"error": e.faultString}
-            else:
-                if failed:
-                    delete_error = _("Could not delete some workers: %(failed)s") % {"failed": "; ".join(f"{name} ({error})" for name, error in failed)}
-                else:
-                    announce = _("Successfully deleted selected workers")
+            announce, delete_error = delete_selected_workers(request)
     try:
         workers_info = get_info_about_workers()
-    except UNAVAILABLE_ERRORS:
+    except SERVICE_ERRORS as e:
         workers_info = []
-        connection_error = unavailable_message
-    except xmlrpc.client.Fault as e:
-        workers_info = []
-        connection_error = _("The workers service returned an error: %(error)s") % {"error": e.faultString}
+        connection_error = service_error_message(e)
 
     def transform_dict(d):
         select = request.POST.get("work-" + d["name"])
@@ -118,7 +127,7 @@ def get_load_json(request):
         )
     except xmlrpc.client.Fault as e:
         return JsonResponse(
-            {"error": gettext("The workers service returned an error: %(error)s") % {"error": e.faultString}},
+            {"error": service_error_message(e)},
             status=502,
         )
     capacity = 0
