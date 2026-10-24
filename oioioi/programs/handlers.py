@@ -288,6 +288,7 @@ def run_tests(env, kind=None, **kwargs):
         if env.get("num_processes"):
             job["num_processes"] = env["num_processes"]
         job["untrusted_checker"] = env["untrusted_checker"]
+        job["problem_short_name"] = env["problem_short_name"]
         jobs[test_name] = job
     extra_args = env.get("sioworkers_extra_args", {}).get(kind, {})
     env["workers_jobs"] = jobs

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from oioioi.balloons.models import BalloonDelivery, BalloonsDeliveryAccessData
-from oioioi.base.tests import TestCase, fake_time
+from oioioi.base.tests import TestCase, fake_time, needs_linux
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.participants.models import Participant
 from oioioi.sinolpack.tests import get_test_filename
@@ -102,6 +102,7 @@ class TestBalloons(TestCase):
         self.assertFalse(delivery.delivered)
         self.assertEqual(delivery.first_accepted_solution, first)
 
+    @needs_linux
     def test_balloon_request_creation(self):
         self.assertTrue(self.client.login(username="test_user"))
         user = User.objects.get(username="test_user")

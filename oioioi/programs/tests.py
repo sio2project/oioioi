@@ -26,6 +26,7 @@ from oioioi.base.tests import (
     check_is_accessible,
     check_not_accessible,
     fake_time,
+    needs_linux,
 )
 from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
@@ -45,6 +46,7 @@ from oioioi.programs.models import (
     LanguageOverrideForTest,
     ModelSolution,
     ProblemAllowedLanguage,
+    ProgramsConfig,
     ProgramSubmission,
     ReportActionsConfig,
     Test,
@@ -151,6 +153,78 @@ class TestProgrammingContestController(TestCase):
         self.assertEqual(contest.controller.get_safe_exec_mode(), "sio2jail")
 
 
+class TestProblemInstanceExecutionMode(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+    ]
+
+    def test_problem_instance_execution_mode_override(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        ProgramsConfig.objects.update_or_create(
+            contest=contest,
+            defaults={"execution_mode": "cpu"},
+        )
+
+        problem_instance.execution_mode = "sio2jail"
+        problem_instance.save()
+        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), "sio2jail")
+
+        problem_instance.execution_mode = "AUTO"
+        problem_instance.save()
+        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), "cpu")
+
+    def test_contestless_problem_instance_fallback(self):
+        problem = Problem.objects.get()
+        problem_instance = ProblemInstance.objects.create(
+            problem=problem,
+            short_name=f"detached{problem.id}",
+        )
+        self.assertEqual(
+            problem_instance.controller.get_safe_exec_mode(),
+            problem.controller.get_safe_exec_mode(),
+        )
+
+        problem_instance.execution_mode = "cpu"
+        problem_instance.save()
+        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), "cpu")
+
+    def test_problem_instance_default_execution_mode(self):
+        problem = Problem.objects.get()
+        contest_round = Round.objects.get()
+        problem_instance = ProblemInstance.objects.create(
+            round=contest_round,
+            problem=problem,
+            short_name=f"autoexec{contest_round.id}",
+        )
+        self.assertEqual(problem_instance.execution_mode, "AUTO")
+
+
+class TestProgrammingExecModeUnsafe(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_permissions",
+        "test_submission",
+    ]
+
+    @override_settings(USE_UNSAFE_EXEC=True)
+    def test_unsafe_exec_overrides_problem_instance(self):
+        submission = Submission.objects.get(pk=1)
+        submission.problem_instance.execution_mode = "cpu"
+        submission.problem_instance.save()
+
+        environ = {"extra_args": []}
+        submission.problem_instance.problem.controller.generate_base_environ(environ, submission)
+        self.assertEqual(environ["exec_mode"], "unsafe")
+
+
 class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = [
         "test_users",
@@ -228,6 +302,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
+    @needs_linux
     def test_model_solutions_view(self):
         pi = ProblemInstance.objects.get()
         ModelSolution.objects.recreate_model_submissions(pi)
@@ -1306,6 +1381,7 @@ class TestUserOutsGenerating(TestCase):
         self.assertNotContains(response, "[generate out]")
         self.assertContains(response, "[processing]", count=1)
 
+    @needs_linux
     def test_generate_and_download_user_permission(self):
         self.assertTrue(self.client.login(username="test_user"))
         self.client.get("/c/c/")  # 'c' becomes the current contest
@@ -1854,6 +1930,13 @@ class TestReportDisplayTypes(TestCase):
         self.assertContains(response, "submission--OK50", count=2)
         self.assertContains(response, "submission--OK25", count=2)
         self.assertContains(response, "submission--OK0", count=3)
+
+    def test_signal_hint(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("submission", kwargs={"contest_id": "oi", "submission_id": 7})
+        response = self.client.get(url, follow=True)
+
+        self.assertContains(response, "Most common causes of the SIGABRT signal")
 
     def test_acm_display(self):
         self.assertTrue(self.client.login(username="admin"))

@@ -16,7 +16,7 @@
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    {% if not inline %}<div class="mb-3">{% endif %}
+    {% if not inline %}<div class="mb-3 oioioi-form-field">{% endif %}
     {% if field|is_checkbox %}
         <div class="form-check {% if inline %}me-sm-2 mb-2{% endif %}">
             {% if field.errors %}

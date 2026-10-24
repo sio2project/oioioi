@@ -239,7 +239,7 @@ MIDDLEWARE = (
     'oioioi.su.middleware.SuFirstTimeRedirectionMiddleware',
     'oioioi.base.middleware.UserInfoInErrorMessage',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'dj_pagination.middleware.PaginationMiddleware',
+    'pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
     'oioioi.base.middleware.HttpResponseNotAllowedMiddleware',
     'oioioi.base.middleware.CheckLoginMiddleware',
@@ -305,7 +305,7 @@ INSTALLED_APPS = (
     'registration',
     'django_extensions',
     'compressor',
-    'dj_pagination',
+    'pagination',
     'mptt',
 
     'django.contrib.admin',
@@ -389,9 +389,9 @@ FILETRACKER_URL = os.getenv('FILETRACKER_URL', 'http://127.0.0.1:9999')
 
 SUPERVISOR_AUTORELOAD_PATTERNS = [".py", ".pyc", ".pyo"]
 
-# For dj_pagination
-PAGINATION_DEFAULT_WINDOW = 4
-PAGINATION_DEFAULT_MARGIN = 1
+# For django-pagination-py3. The first and last PAGINATION_DEFAULT_WINDOW pages
+# are always shown, plus a window of pages around the current one.
+PAGINATION_DEFAULT_WINDOW = 3
 FILES_ON_PAGE = 100
 PROBLEMS_ON_PAGE = 100
 CONTESTS_ON_PAGE = 20
@@ -475,7 +475,9 @@ SUBMITTABLE_LANGUAGES = {
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_LANGUAGES.
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
-                          'Java': ['java'], 'Python': ['py'], 'Output-only': ['txt', 'out']}
+                          'Java': ['java'], 'Python': ['py'],
+                          'Output-only': ['txt', 'out', 'zip', 'tar', 'tar.gz',
+                                          'tar.bz2', 'tgz', 'tbz2', 'gz', 'bz2']}
 
 # This setting specifies which compilers are available in sioworkers.
 # By default that means ones defined here:
@@ -689,9 +691,33 @@ LOGGING = {
 # Celery configuration
 
 CELERY_QUEUES = {}
-CELERY_RESULT_BACKEND = 'rpc'
+# Task results are never read (only task ids are stored), so there is no
+# result backend. The 'rpc' backend declared transient non-exclusive reply
+# queues, which RabbitMQ 4 no longer allows by default.
+CELERY_RESULT_BACKEND = None
+CELERY_IGNORE_RESULT = True
 CELERY_ACKS_LATE = True
 CELERY_SEND_EVENTS = True
+# Remote control (pidbox) and event receiver queues are exclusive instead of
+# transient non-exclusive, for the same reason.
+CONTROL_QUEUE_EXCLUSIVE = True
+CELERY_EVENT_QUEUE_EXCLUSIVE = True
+# Queue types: 'classic' or 'quorum'. Quorum queues are replicated, so they
+# are needed for a highly available RabbitMQ cluster.
+# CELERY_CREATE_MISSING_QUEUE_TYPE applies to the OIOIOI task queues
+# (evalmgr, unpackmgr, evalmgr-zeus), which are created from task routes.
+# CELERY_DEFAULT_QUEUE_TYPE applies only to the default 'celery' queue (and
+# only while CELERY_QUEUES is empty). Set both to the same value.
+# RabbitMQ does not change the type of an existing queue: before switching,
+# stop all Celery workers and delete the old queues.
+CELERY_DEFAULT_QUEUE_TYPE = 'classic'
+CELERY_CREATE_MISSING_QUEUE_TYPE = 'classic'
+# With AMQP, queueing a task waits until RabbitMQ confirms the message. If no
+# confirm arrives within this many seconds, publishing is retried once and
+# then fails, so it blocks (e.g. a request holding a transaction) for at most
+# about twice this time. A timeout means the outcome is unknown: the message
+# may still be enqueued once RabbitMQ recovers.
+TASK_PUBLISH_CONFIRM_TIMEOUT = 10
 
 BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
                                               'celerydb.sqlite')

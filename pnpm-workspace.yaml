@@ -2,6 +2,10 @@ packages:
   - .
   - oioioi_cypress
 
-settings:
-  minimumReleaseAge: 10080 # 7 days in minutes
-  minimumReleaseAgeStrict: true
+minimumReleaseAge: 10080 # 7 days in minutes
+minimumReleaseAgeStrict: true
+
+# Dependency build scripts are blocked unless listed here (pnpm >= 11).
+# cypress needs its postinstall to download the Cypress binary.
+allowBuilds:
+  cypress: true

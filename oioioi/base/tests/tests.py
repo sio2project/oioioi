@@ -52,11 +52,13 @@ from oioioi.base.permissions import (
 from oioioi.base.tests import TestCase
 from oioioi.base.utils import (
     RegisteredSubclassesBase,
+    _parents_are_packages,
     archive,
     split_extension,
     strip_num_or_hash,
 )
 from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
@@ -93,6 +95,18 @@ class TestPermsTemplateTags(TestCase):
         template = Template('{% load check_perm %}{% check_perm "auth.add_user" for "whatever" as p %}{% if p %}yes{% endif %}')
         self.assertEqual(template.render(Context({"user": admin})), "yes")
         self.assertEqual(template.render(Context({"user": user})), "")
+
+
+class TestAceEditorWidget(TestCase):
+    def test_ace_assets_are_local(self):
+        rendered = AceEditorWidget(attrs={}).render("code", "")
+
+        self.assertIn("ace-builds/src-min-noconflict/ace.js", rendered)
+        self.assertIn(
+            "ace-builds/src-min-noconflict/ext-language_tools.js",
+            rendered,
+        )
+        self.assertNotIn("cdnjs.cloudflare.com", rendered)
 
 
 class TestIndex(TestCase):
@@ -599,6 +613,14 @@ class TestFields(TestCase):
             return
         TestDottedFieldClass.load_subclasses()
         self.assertIn("oioioi.base.tests.test_dotted_field_classes", sys.modules)
+
+    def test_load_subclasses_skips_plain_modules(self):
+        # oioioi.questions.tests is a plain module, so it cannot contain
+        # tests.test_dotted_field_classes and must not be executed.
+        self.assertTrue(_parents_are_packages("oioioi.base.tests.test_dotted_field_classes", "oioioi.base"))
+        self.assertTrue(_parents_are_packages("oioioi.contests.controllers", "oioioi.contests"))
+        self.assertFalse(_parents_are_packages("oioioi.questions.tests.test_dotted_field_classes", "oioioi.questions"))
+        self.assertFalse(_parents_are_packages("oioioi.questions.nonexistent.module", "oioioi.questions"))
 
 
 class TestEnumField(TestCase):

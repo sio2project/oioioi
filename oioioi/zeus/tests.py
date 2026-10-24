@@ -4,7 +4,7 @@ import urllib.parse
 import pytest
 from django.urls import reverse
 
-from oioioi.base.tests import TestCase, TestsUtilsMixin
+from oioioi.base.tests import TestCase, TestsUtilsMixin, needs_linux
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.evalmgr.models import SavedEnviron
 from oioioi.problems.models import Problem
@@ -226,6 +226,7 @@ class ZeusViewsTest(TestCase):
 class TestZeusProblemUpload(TestCase):
     fixtures = ["test_users", "test_contest"]
 
+    @needs_linux
     def test_upload_package(self):
         ProblemInstance.objects.all().delete()
 

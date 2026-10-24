@@ -1,0 +1,48 @@
+name: Copilot setup steps
+
+# Prepares the environment of the GitHub Copilot coding agent, so it can run
+# the tests and linters. Copilot reads the instructions from AGENTS.md.
+# See https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-environment
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # The job must be named exactly `copilot-setup-steps` to be picked up by Copilot.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    env:
+      # Needed to build filetracker's Berkeley DB bindings.
+      YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION: "1"
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - uses: ./.github/actions/setup-env
+
+    - uses: ./.github/actions/setup-pnpm
+
+    - name: Install node dependencies
+      run: pnpm install --frozen-lockfile
+
+    # Checks that the environment works. Skipped when Copilot runs the job,
+    # so that the agent starts faster.
+    - name: Smoke test
+      if: contains(fromJSON('["push", "pull_request", "workflow_dispatch"]'), github.event_name)
+      run: |
+        ruff check .
+        ./test.sh -n auto oioioi/base -m "not browser"
