@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -110,6 +112,28 @@ class TestTaskArchive(TestCase):
         self.assertNotContains(response, "problemgroups-xxv-s2")
         self.assertNotContains(response, "-d1")
         self.assertNotContains(response, "-d2")
+
+    def test_task_archive_group_tables_use_fixed_layout(self):
+        url = reverse("task_archive_tag", args=("oi",))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+
+        # Every problem group renders its own table, so all of them need the
+        # shared class and the explicit cell classes used by task_archive.css.
+        # How the stylesheet lays those classes out is not asserted here: the
+        # classes on the emitted markup are the contract.
+        tables = re.findall(r"<table\b[^>]*>", html)
+        problem_tables = [table for table in tables if 'id="filters"' not in table]
+        self.assertGreater(len(problem_tables), 1)
+        for table in problem_tables:
+            self.assertIn("task-archive-table", table)
+
+        self.assertGreater(html.count('class="task-archive-problem-name"'), 1)
+        self.assertEqual(
+            html.count('class="task-archive-problem-name"'),
+            html.count('class="task-archive-score"'),
+        )
 
     def test_task_archive_tag_filter(self):
         def assert_problem_found(filters, found=True):

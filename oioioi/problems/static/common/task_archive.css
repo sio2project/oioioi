@@ -12,6 +12,24 @@
     padding-left: 1em;
 }
 
+.task-archive-table {
+    table-layout: fixed;
+    max-width: 100%;
+}
+
+/* The name column sizes the table, so nested groups (each problemgroup-body
+   adds padding-left) keep their score columns at one offset from the table
+   edge instead of drifting by depth. */
+.task-archive-problem-name {
+    width: 26em;
+    overflow-wrap: break-word;
+}
+
+.task-archive-score {
+    width: 6em;
+    white-space: nowrap;
+}
+
 .percentage-info {
     font-weight: normal;
 }
