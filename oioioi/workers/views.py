@@ -13,6 +13,10 @@ from oioioi.base.permissions import enforce_condition, is_superuser
 
 server = xmlrpc.client.ServerProxy(settings.SIOWORKERSD_URL, allow_none=True)
 
+# Errors meaning that sioworkersd can't be reached. An xmlrpc.client.Fault
+# is different: it is an error reported by a running sioworkersd.
+UNAVAILABLE_ERRORS = (OSError, xmlrpc.client.ProtocolError)
+
 
 def get_info_about_workers():
     return server.get_workers()
@@ -23,8 +27,16 @@ def get_all_names():
 
 
 def del_worker(value):
+    """Forgets the given workers. Returns a list of (name, fault string)
+    pairs for the workers that sioworkersd refused to forget.
+    """
+    failed = []
     for i in value:
-        server.forget_worker(i)
+        try:
+            server.forget_worker(i)
+        except xmlrpc.client.Fault as e:
+            failed.append((i, e.faultString))
+    return failed
 
 
 @enforce_condition(is_superuser)
@@ -33,24 +45,38 @@ def show_info_about_workers(request):
     announce = None
     warning = None
     connection_error = None
+    delete_error = None
     delete = False
-    try:
-        if request.method == "POST":
-            if request.POST.get("delete"):
-                readonly = True
-                announce = _(
-                    """You are about to delete the selected workers.
-                    Please confirm"""
-                )
-                delete = True
-            if request.POST.get("confirm"):
+    unavailable_message = _("The workers service is unavailable. Check that sioworkersd is running and try again.")
+    if request.method == "POST":
+        if request.POST.get("delete"):
+            readonly = True
+            announce = _(
+                """You are about to delete the selected workers.
+                Please confirm"""
+            )
+            delete = True
+        if request.POST.get("confirm"):
+            try:
                 selected = [x for x in get_all_names() if request.POST.get(f"work-{x}")]
-                del_worker(selected)
-                announce = _("Successfully deleted selected workers")
+                failed = del_worker(selected)
+            except UNAVAILABLE_ERRORS:
+                delete_error = unavailable_message
+            except xmlrpc.client.Fault as e:
+                delete_error = _("The workers service returned an error: %(error)s") % {"error": e.faultString}
+            else:
+                if failed:
+                    delete_error = _("Could not delete some workers: %(failed)s") % {"failed": "; ".join(f"{name} ({error})" for name, error in failed)}
+                else:
+                    announce = _("Successfully deleted selected workers")
+    try:
         workers_info = get_info_about_workers()
-    except (OSError, xmlrpc.client.Error):
+    except UNAVAILABLE_ERRORS:
         workers_info = []
-        connection_error = _("The workers service is unavailable. Check that sioworkersd is running and try again.")
+        connection_error = unavailable_message
+    except xmlrpc.client.Fault as e:
+        workers_info = []
+        connection_error = _("The workers service returned an error: %(error)s") % {"error": e.faultString}
 
     def transform_dict(d):
         select = request.POST.get("work-" + d["name"])
@@ -75,6 +101,7 @@ def show_info_about_workers(request):
         "announce": announce,
         "warning": warning,
         "connection_error": connection_error,
+        "delete_error": delete_error,
         "delete": delete,
     }
     return render(request, "workers/list_workers.html", context)
@@ -84,10 +111,15 @@ def show_info_about_workers(request):
 def get_load_json(request):
     try:
         data = get_info_about_workers()
-    except (OSError, xmlrpc.client.Error):
+    except UNAVAILABLE_ERRORS:
         return JsonResponse(
             {"error": gettext("The workers service is unavailable.")},
             status=503,
+        )
+    except xmlrpc.client.Fault as e:
+        return JsonResponse(
+            {"error": gettext("The workers service returned an error: %(error)s") % {"error": e.faultString}},
+            status=502,
         )
     capacity = 0
     load = 0

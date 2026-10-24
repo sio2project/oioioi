@@ -23,8 +23,8 @@
         {{ connection_error }}
     </div>
 {% else %}
-    <div id="worker_load_plot" class="highcharts_plot">
-    </div>
+<div id="worker_load_plot" class="highcharts_plot">
+</div>
 
 
 {% if warning %}
@@ -39,7 +39,13 @@
     </div>
 {% endif %}
 
-    <h1>{% trans "Workers list" %}</h1>
+{% if delete_error %}
+    <div class="alert alert-danger">
+        {{ delete_error }}
+    </div>
+{% endif %}
+
+<h1>{% trans "Workers list" %}</h1>
 
 <form method="post" action="{% url 'show_workers' %}" class="empty-space-filler-bottom">
     {% csrf_token %}
@@ -96,7 +102,7 @@
             </button>
         {% endif %}
     </div>
-    </form>
+</form>
 {% endif %}
 
 {% endblock %}
