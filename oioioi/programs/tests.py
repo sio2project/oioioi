@@ -1959,17 +1959,19 @@ class TestReportDisplayTypes(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=2)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=3)
         self.assertContains(response, "submission--WA", count=2)
 
-        self.assertContains(response, "submission--OK", count=13)
+        self.assertContains(response, "submission--OK", count=18)
         self.assertContains(response, 'submission--OK"', count=2)
 
-        self.assertContains(response, "submission--OK100", count=2)
-        self.assertContains(response, "submission--OK75", count=2)
-        self.assertContains(response, "submission--OK50", count=2)
-        self.assertContains(response, "submission--OK25", count=2)
-        self.assertContains(response, "submission--OK0", count=3)
+        # Partial scores and half-time notes each add one status cell.
+        self.assertContains(response, "submission--OK100", count=3)
+        self.assertContains(response, "submission--OK75", count=3)
+        self.assertContains(response, "submission--OK50", count=3)
+        self.assertContains(response, "submission--OK25", count=3)
+        self.assertContains(response, "submission--OK0", count=4)
 
     def test_signal_hint(self):
         self.assertTrue(self.client.login(username="test_user"))
@@ -1984,7 +1986,8 @@ class TestReportDisplayTypes(TestCase):
         response = self.client.get(url, follow=True)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=3)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=4)
         self.assertContains(response, "submission--WA", count=2)
 
         self.assertContains(response, "submission--OK", count=12)
@@ -2003,7 +2006,8 @@ class TestReportDisplayTypes(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=2)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=3)
         self.assertContains(response, "submission--WA", count=2)
 
         self.assertContains(response, "submission--OK", count=13)
