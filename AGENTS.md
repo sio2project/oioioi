@@ -28,6 +28,7 @@ OIOIOI is the Django web frontend of the SIO2 contest system.
   - Tests marked `@pytest.mark.slow` are skipped unless you pass `--runslow` (the nightly build runs them).
   - Decorate Linux-only tests with `needs_linux` from `oioioi.base.tests`; they are skipped on other systems. The bare `pytest.mark.needs_linux` marker does not skip anything.
   - Browser smoke tests (`oioioi/base/tests/test_smoke_browser.py`, base class `BrowserTestCase` in `oioioi.base.tests`) carry the `browser` marker and need `pnpm run build`, `uv sync --group browser` and `uv run playwright install chromium`; without them they are skipped. Run them with `./test.sh -m browser`. CI runs them in `smoke.yml` and deselects them elsewhere with `-m "not browser"`.
+  - `oioioi/base/tests/test_scss.py` compiles every non-partial `.scss` file with the production compiler and renders a few pages with `{% compress %}` on (`test_settings.py` turns both off). It needs `pnpm install --frozen-lockfile` (Bootstrap comes from `node_modules`) and is skipped without it. CI runs it in `smoke.yml`, together with the browser tests.
   - CI runs `./test.sh -n auto --migrations -m "not browser"`.
 - Python lint and format: `ruff check . --fix && ruff format .`.
 - JS lint: `pnpm run lint` (ESLint).

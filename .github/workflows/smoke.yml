@@ -1,7 +1,8 @@
-name: Browser smoke test
+name: Frontend checks
 
-# Opens key pages in headless Chromium and fails on JavaScript errors (tests marked `browser`).
-# Unit tests (pytest.yml) deselect these tests, because they need the webpack build and a browser.
+# Opens key pages in headless Chromium and fails on JavaScript errors (tests marked `browser`), and compiles every
+# stylesheet with the production SCSS compiler (oioioi/base/tests/test_scss.py).
+# Unit tests (pytest.yml) deselect or skip these tests, because they need node_modules, the webpack build and a browser.
 
 on:
   push:
@@ -55,3 +56,12 @@ jobs:
         OIOIOI_BROWSER_TESTS_REQUIRED: "1"
       run: |
         ./test.sh -m browser
+
+    # Runs even if the browser tests failed, so that both results are reported.
+    - name: Compile stylesheets
+      if: ${{ !cancelled() }}
+      env:
+        # Fail instead of skipping when node_modules is missing.
+        OIOIOI_SCSS_TESTS_REQUIRED: "1"
+      run: |
+        ./test.sh oioioi/base/tests/test_scss.py
