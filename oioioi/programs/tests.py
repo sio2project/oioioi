@@ -771,6 +771,33 @@ class TestSubmission(TestCase, SubmitFileMixin):
         field = response.context["form"].fields[form_field_id_for_langs(problem_instance)]
         self.assertEqual(field.initial, "C++")
 
+    def test_dropped_file_overrides_preferred_programming_language(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        user = User.objects.get(username="test_user")
+        ensure_preferences_exist_for_user(user)
+        user.userpreferences.programming_language = "C++"
+        user.userpreferences.save()
+
+        url = reverse("submit", kwargs={"contest_id": contest.id})
+        field_name = form_field_id_for_langs(problem_instance)
+        for file_name, expected_language in [("sum.c", "C"), ("sum.xyz", "C++")]:
+            response = self.client.post(url, {"dropped_solution": "some code", "dropped_solution_name": file_name})
+            self.assertEqual(response.context["form"].fields[field_name].initial, expected_language)
+
+    def test_uploaded_file_overrides_chosen_programming_language(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        url = reverse("submit", kwargs={"contest_id": contest.id})
+        file = ContentFile(b"a" * 1024, name="submission.cpp")
+        response = self.client.post(
+            url,
+            {"problem_instance_id": problem_instance.id, "file": file, form_field_id_for_langs(problem_instance): "C"},
+        )
+        self._assertSubmitted(contest, response)
+        submission = ProgramSubmission.objects.latest("pk")
+        self.assertTrue(submission.source_file.name.endswith(".cpp"))
+
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_pasting_unicode_code(self):
         contest = Contest.objects.get()
@@ -2073,6 +2100,12 @@ class TestAllowedLanguages(TestCase, SubmitFileMixin):
         response = self.client.get(reverse("submit", kwargs={"contest_id": contest.id}))
         field = response.context["form"].fields[form_field_id_for_langs(self.problem_instance)]
         self.assertIsNone(field.initial)
+
+        user.userpreferences.programming_language = "C"
+        user.userpreferences.save()
+        response = self.client.get(reverse("submit", kwargs={"contest_id": contest.id}))
+        field = response.context["form"].fields[form_field_id_for_langs(self.problem_instance)]
+        self.assertEqual(field.initial, "C")
 
 
 class TestLanguageOverrideForTest(TestCase):

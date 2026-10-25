@@ -17,7 +17,11 @@ from django.utils.translation import gettext_lazy as _
 from registration.forms import RegistrationForm
 
 from oioioi.base.models import Consents, PreferencesSaved
-from oioioi.base.preferences import PreferencesFactory, ensure_preferences_exist_for_user
+from oioioi.base.preferences import (
+    PreferencesFactory,
+    ensure_preferences_exist_for_user,
+    get_preferable_programming_languages,
+)
 from oioioi.base.utils.user import UNICODE_CATEGORY_LIST, USERNAME_REGEX
 from oioioi.base.utils.validators import UnicodeValidator, ValidationError
 
@@ -67,9 +71,7 @@ def _maybe_add_field(label, *args, **kwargs):
 def adjust_preferences_factory_fields():
     choices_not_translated = [("", "None")] + list(settings.LANGUAGES)
     choices = [(k, _(v)) for k, v in choices_not_translated]
-    programming_language_choices = [("", _("None"))] + [
-        (lang, lang_config["display_name"]) for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items() if lang_config.get("type", "main") == "main"
-    ]
+    programming_language_choices = [("", _("None"))] + list(get_preferable_programming_languages().items())
 
     def handle_preferred_language(user):
         if user is None:
@@ -129,8 +131,7 @@ def handle_new_preference_fields(request, user):
 
     if "programming_language" in request.POST:
         programming_language = request.POST["programming_language"]
-        allowed_programming_languages = [lang for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items() if lang_config.get("type", "main") == "main"]
-        if programming_language in allowed_programming_languages + [""]:
+        if programming_language == "" or programming_language in get_preferable_programming_languages():
             user.userpreferences.programming_language = programming_language
             changed = True
 

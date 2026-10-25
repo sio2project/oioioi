@@ -14,14 +14,6 @@ class Migration(migrations.Migration):
             name="programming_language",
             field=models.CharField(
                 blank=True,
-                choices=[
-                    ("C", "C"),
-                    ("C++", "C++"),
-                    ("Pascal", "Pascal"),
-                    ("Java", "Java"),
-                    ("Python", "Python"),
-                    ("", "None"),
-                ],
                 default="",
                 max_length=64,
                 verbose_name="preferred programming language",

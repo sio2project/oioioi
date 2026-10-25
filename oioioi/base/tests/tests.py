@@ -1329,7 +1329,7 @@ class TestPreferences(TestCase):
             "username": "test_user",
             "first_name": "fn",
             "last_name": "ln",
-            "email": "foo@bar.com",
+            "email": "test_user@example.com",
             "terms_accepted": True,
             "preferred_language": "pl",
         }
@@ -1354,7 +1354,7 @@ class TestPreferences(TestCase):
             "username": "test_user",
             "first_name": "fn",
             "last_name": "ln",
-            "email": "foo@bar.com",
+            "email": "test_user@example.com",
             "terms_accepted": True,
             "preferred_language": "",
             "programming_language": "C++",
@@ -1372,6 +1372,13 @@ class TestPreferences(TestCase):
 
             user.userpreferences.refresh_from_db()
             self.assertEqual(user.userpreferences.programming_language, "C++")
+
+        # Preferences are not saved when the rest of the form is invalid.
+        data.update({"programming_language": "Python", "email": "not-an-email"})
+        response = self.client.post(url, data, follow=True)
+        self.assertContains(response, "Enter a valid email address")
+        user.userpreferences.refresh_from_db()
+        self.assertEqual(user.userpreferences.programming_language, "C++")
 
     def test_registration_preferences(self):
         response = self.client.get(reverse("sign-up"))

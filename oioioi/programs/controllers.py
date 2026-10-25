@@ -450,7 +450,9 @@ class ProgrammingProblemController(ProblemController):
         if langs_field_name not in cleaned_data:
             cleaned_data[langs_field_name] = None
 
-        if not cleaned_data[langs_field_name] and is_file_chosen:
+        # For uploaded files the language is always determined by the extension,
+        # regardless of the (possibly preselected) language picker value.
+        if is_file_chosen:
             ext = get_extension(cleaned_data["file"].name)
             cleaned_data[langs_field_name] = get_language_by_extension(problem_instance, ext)
 
@@ -648,7 +650,9 @@ class ProgrammingProblemController(ProblemController):
                 if "problem_instance_id" not in request.POST:
                     form.fields["problem_instance_id"].initial = parse_problem(problem)
                 if langs_field_name not in request.POST:
-                    form.fields[langs_field_name].initial = get_language_by_extension(problem_instance, ext)
+                    lang = get_language_by_extension(problem_instance, ext)
+                    if lang is not None:
+                        form.fields[langs_field_name].initial = lang
 
         self._add_js(form, ("common/submit_view.js",))
 
