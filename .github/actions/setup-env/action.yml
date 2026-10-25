@@ -25,8 +25,14 @@ runs:
 
   - name: Install texlive
     if: inputs.install-texlive == 'true'
+    # Same packages as in the Dockerfile. Recommends would pull in ~800 MB
+    # (Java, texlive docs, unused languages), and docs are skipped as well.
     run: |
-      sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-lang-czechslovak texlive-latex-extra texlive-pstricks texlive-luatex
+      printf 'path-exclude=/usr/share/doc/*\npath-exclude=/usr/share/man/*\npath-exclude=/usr/share/info/*\n' | sudo tee /etc/dpkg/dpkg.cfg.d/01-nodoc
+      sudo apt-get install -y --no-install-recommends -o Acquire::Retries=3 \
+        texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-lang-german \
+        texlive-lang-european texlive-lang-czechslovak texlive-pstricks \
+        texlive-fonts-recommended tex-gyre ghostscript
     shell: sh
 
   - name: Install uv
