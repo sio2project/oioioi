@@ -11,8 +11,8 @@ Some mistakes compile without an error (see #874):
   browsers drop the declaration.
 
 The stylesheets import Bootstrap from ``node_modules``, so the tests need ``pnpm install --frozen-lockfile``.
-Without it they are skipped, unless ``OIOIOI_SCSS_TESTS_REQUIRED`` is set (as in the ``scss.yml`` CI job), in
-which case they fail. ``pytest.yml`` doesn't install the JS dependencies, so ``scss.yml`` runs them.
+Without it they are skipped, unless ``OIOIOI_SCSS_TESTS_REQUIRED`` is set (as in the ``smoke.yml`` CI job), in
+which case they fail. ``pytest.yml`` doesn't install the JS dependencies, so ``smoke.yml`` runs them.
 """
 
 import os
