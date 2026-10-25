@@ -109,7 +109,7 @@
                     {% trans "Hmm... there doesn't seem to be anything here..." %}
                 </div>
             {% else %}
-                {% include "problems/task-archive-problemgroup.html" with problems=problems %}
+                {% include "problems/task-archive-problemgroup.html" with problems=problems depth=1 %}
             {% endif %}
         </div>
     </div>

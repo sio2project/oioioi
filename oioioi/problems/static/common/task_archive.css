@@ -12,16 +12,18 @@
     padding-left: 1em;
 }
 
+/* Each problemgroup-body adds 1em of padding-left, so a table at nesting
+   depth --depth (set by the template) is that much narrower. This keeps the
+   score columns of all groups at the same horizontal position. The width
+   also overrides the 100% from Bootstrap's .table, which would push the
+   scores to the right edge of the page. */
 .task-archive-table {
     table-layout: fixed;
+    width: calc(32em - var(--depth, 0) * 1em);
     max-width: 100%;
 }
 
-/* The name column sizes the table, so nested groups (each problemgroup-body
-   adds padding-left) keep their score columns at one offset from the table
-   edge instead of drifting by depth. */
 .task-archive-problem-name {
-    width: 26em;
     overflow-wrap: break-word;
 }
 

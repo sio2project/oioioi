@@ -28,16 +28,16 @@
     {% for subnode in problems.subnodes|dictsort:"value.order" %}
         {% with value=subnode.value subdict=subnode.child %}
             {% if value.value is None %}
-                {% include "problems/task-archive-problemgroup.html" with problems=subdict value=None %}
+                {% include "problems/task-archive-problemgroup.html" with problems=subdict value=None depth=depth %}
             {% elif id == "problemgroups" %}
-                {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=True parent_id=id value=value %}
+                {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=True parent_id=id value=value depth=depth|add:1 %}
             {% else %}
-                {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=False parent_id=id value=value %}
+                {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=False parent_id=id value=value depth=depth|add:1 %}
             {% endif %}
         {% endwith %}
     {% endfor %}
 {% else %}
-    <table class="table table-sm table--auto-collapse-horizontal table--borderless mb-0 task-archive-table">
+    <table class="table table-sm table--auto-collapse-horizontal table--borderless mb-0 task-archive-table" style="--depth: {{ depth }}">
     <tbody>
         {% for problem, result in problems.problem_info %}
         <tr>

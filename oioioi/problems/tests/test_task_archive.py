@@ -128,6 +128,11 @@ class TestTaskArchive(TestCase):
         self.assertGreater(len(problem_tables), 1)
         for table in problem_tables:
             self.assertIn("task-archive-table", table)
+        # The fixture has groups at several nesting depths, and every table
+        # gets the depth of the problemgroup-body it is rendered in.
+        depths = {int(d) for d in re.findall(r'style="--depth: (\d+)"', html)}
+        self.assertEqual(len(re.findall(r'style="--depth: \d+"', html)), len(problem_tables))
+        self.assertGreater(len(depths), 1)
 
         self.assertGreater(html.count('class="task-archive-problem-name"'), 1)
         self.assertEqual(
