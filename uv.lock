@@ -10,6 +10,10 @@ resolution-markers = [
 exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P7D"
 
+[[manifest.dependency-metadata]]
+name = "bsddb3"
+version = "6.2.7"
+
 [[package]]
 name = "accessible-pygments"
 version = "0.0.5"

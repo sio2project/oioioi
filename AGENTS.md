@@ -45,7 +45,7 @@ OIOIOI is the Django web frontend of the SIO2 contest system.
 - `DEFAULT_AUTO_FIELD` must stay `django.db.models.AutoField` (32-bit ids). Changing it would generate migrations for every model.
 - Tests use `oioioi.test_settings`, not `default_settings`, and run with `--nomigrations` (both set in `pytest.ini`). Pass `--migrations` to check that migrations apply, as CI does.
 - `DeprecationWarning`, `PendingDeprecationWarning` and `RuntimeWarning` raised from `oioioi` code are errors in tests.
-- Building `bsddb3` (pulled in by filetracker) needs Berkeley DB (`libdb-dev` on Debian/Ubuntu, `berkeley-db@5` on macOS plus `BERKELEYDB_DIR`) and `YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION=1`.
+- Building `bsddb3` (pulled in by filetracker) needs Berkeley DB (`libdb-dev` on Debian/Ubuntu, `berkeley-db@5` on macOS plus `BERKELEYDB_DIR`) and `YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION=1`. `uv lock` doesn't build it, thanks to the `[[tool.uv.dependency-metadata]]` entry in `pyproject.toml`; keep that entry's version equal to the bsddb3 pin in filetracker/sioworkers.
 - pre-commit and CI run `ruff check --fix --exit-non-zero-on-fix`, so a file that ruff had to fix still fails the check. Commit the fixes.
 - CI pins ruff 0.15.1 (`.github/workflows/ruff.yml`, `.pre-commit-config.yaml`), while the `dev` group pins an older one. To match CI, use `pre-commit run --all-files` or `uvx ruff@0.15.1`.
 - The Docker build runs `pnpm install --frozen-lockfile`: commit `pnpm-lock.yaml` together with any `package.json` change. Likewise commit `uv.lock` with `pyproject.toml` changes. CI checks both lockfiles.
