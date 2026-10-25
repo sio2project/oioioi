@@ -1,12 +1,22 @@
+import mistune
 from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, get_language_from_request
 from django.utils.translation import gettext_lazy as _
-from mistune import Markdown
+from mistune.util import safe_entity
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 
 check_django_app_dependencies(__name__, ["oioioi.portals"])
+
+
+class NewsRenderer(mistune.HTMLRenderer):
+    def text(self, text):
+        # Keep HTML entities written by authors (e.g. &nbsp;) working, as in mistune 0.8.
+        return safe_entity(text)
+
+
+_markdown = mistune.create_markdown(renderer=NewsRenderer(escape=True), plugins=["strikethrough", "footnotes", "table", "url"])
 
 
 class News(models.Model):
@@ -35,7 +45,7 @@ class NewsLanguageVersion(models.Model):
     content = models.TextField(verbose_name=_("content"))
 
     def rendered_content(self):
-        return mark_safe(Markdown(escape=True).render(self.content))
+        return mark_safe(_markdown(self.content))
 
     def save(self, *args, **kwargs):
         try:

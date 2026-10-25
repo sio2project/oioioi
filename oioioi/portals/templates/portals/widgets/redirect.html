@@ -2,7 +2,7 @@
 
 {% if not is_portal_admin %}
     <script type="application/javascript">
-        window.location.replace('{{ redirect_url }}');
+        window.location.replace('{{ redirect_url|escapejs }}');
     </script>
 {% else %}
     <div class="bg-warning">

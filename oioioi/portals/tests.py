@@ -1,3 +1,7 @@
+import re
+import time
+from types import SimpleNamespace
+
 from django.contrib.auth.models import AnonymousUser
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -6,7 +10,7 @@ from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.actions import portal_url
 from oioioi.portals.models import Node, Portal
-from oioioi.portals.widgets import register_widget, render_panel
+from oioioi.portals.widgets import _markdown, register_widget, render_panel
 from oioioi.problems.models import Problem, ProblemSite
 
 
@@ -523,6 +527,59 @@ class TestMarkdown(TestCase):
         with self.assertRaises(ValueError):
             register_widget(Widget("problem_table"))
 
+    def test_tag_regex_flags(self):
+        class Widget:
+            name = "flag_test"
+            compiled_tag_regex = re.compile(r"\[\[flagtest\|(\w+)\]\]", re.IGNORECASE)
+
+            def render(self, request, m):
+                return f"<b>flag {m.group(1)}</b>"
+
+        # The flags would be lost in mistune's combined regex.
+        with self.assertRaises(ValueError):
+            register_widget(Widget())
+        self.assertNotIn("flag_test", _markdown.inline.rules)
+
+    def test_widget_adversarial_input_is_fast(self):
+        for tag in ["[[YouTube|", "[[Redirect|", "[[ProblemTable|", "[[ProblemTable:"]:
+            start = time.perf_counter()
+            render_panel(self.request, tag * 20000)
+            # About 0.2 s now; the old quadratic patterns took 10 s or more.
+            self.assertLess(time.perf_counter() - start, 5, tag)
+
+    def test_youtube_widget_title_with_brackets(self):
+        rendered = render_panel(self.request, "[[YouTube|Final [HD]|https://www.youtube.com/watch?v=pB0CTz5QlOw]]")
+        self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered)
+
+    def test_table_with_widget_and_uneven_rows(self):
+        url = "https://www.youtube.com/watch?v=pB0CTz5QlOw"
+        rendered = render_panel(self.request, f"| a | b |\n|---|---|\n| [[YouTube|{url}]] | x |\n| short |\n| 1 | 2 | 3 |\n")
+        self.assertIn("<table", rendered)
+        self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered)
+        self.assertIn("<td>x</td>", rendered)
+        self.assertIn("<td>short</td>\n  <td></td>", rendered)
+        self.assertIn("<td>3</td>", rendered)
+        self.assertNotIn("|", rendered)
+
+    def test_indented_code_is_not_center_or_spoiler(self):
+        rendered = render_panel(self.request, "    ->indented code\n    <-\n\n    >![s]\n    >!body\n")
+        self.assertNotIn("text-center", rendered)
+        self.assertNotIn("<details>", rendered)
+        self.assertIn("<pre><code>-&gt;indented code", rendered)
+
+    def test_invalid_tag(self):
+        class Widget:
+            name = "bad-name"
+            compiled_tag_regex = re.compile(r"\[\[Bad\]\]")
+
+        with self.assertRaises(ValueError):
+            register_widget(Widget())
+        Widget.name = "bad_pattern"
+        Widget.compiled_tag_regex = re.compile(r"(?i)\[\[Bad\]\]")
+        with self.assertRaises(ValueError):
+            register_widget(Widget())
+        self.assertIn("<p>[[Bad]]</p>", render_panel(self.request, "[[Bad]]"))
+
     def test_block_spoiler(self):
         rendered_markdown = render_panel(self.request, ">![spoiler text]\n>!spoiler body\n")
 
@@ -557,6 +614,103 @@ class TestMarkdown(TestCase):
         self.assertIn("<tbody>", rendered_markdown)
         self.assertIn("<th>a</th>", rendered_markdown)
         self.assertIn("<td>1</td>", rendered_markdown)
+
+    def test_redirect_widget(self):
+        class MockUser:
+            is_superuser = True
+
+        self.request.portal = SimpleNamespace(owner=None)
+        rendered = render_panel(self.request, "[[Redirect|/p/default/]]")
+        self.assertIn("window.location.replace('/p/default/')", rendered)
+
+        self.request.user = MockUser()
+        rendered = render_panel(self.request, "[[Redirect|/p/default/]]")
+        self.assertNotIn("window.location.replace", rendered)
+        self.assertIn('Users who do not have permission to edit this portal would now get redirected to: "/p/default/".', rendered)
+
+        for url in ["https://example.com/", "//example.com/", "/\\example.com/", "javascript:alert(1)", "JavaScript:alert(1)"]:
+            rendered = render_panel(self.request, f"[[Redirect|{url}]]")
+            self.assertIn("[[Redirect: only relative URLs allowed]]", rendered)
+            self.assertNotIn("example.com", rendered)
+            self.assertNotIn("alert", rendered)
+
+        self.request.user = AnonymousUser()
+        rendered = render_panel(self.request, "[[Redirect|/a');alert(1);('/]]")
+        self.assertNotIn("('/a');alert", rendered)
+        self.assertIn("window.location.replace('/a\\u0027)\\u003Balert(1)\\u003B(\\u0027/')", rendered)
+
+    def test_block_center(self):
+        rendered_markdown = render_panel(self.request, "->centered **bold**<-\n\nafter\n")
+        self.assertIn('<div class="text-center">centered <strong>bold</strong></div>', rendered_markdown)
+        self.assertIn("<p>after</p>", rendered_markdown)
+
+    def test_widget_inside_spoiler(self):
+        url = "https://www.youtube.com/watch?v=pB0CTz5QlOw"
+        rendered = render_panel(self.request, f">![video]\n>!see [[YouTube|{url}]] here\n")
+        self.assertIn('<summary class="btn btn-link">video</summary>', rendered)
+        self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered)
+
+    def test_block_spoiler_depth_limit(self):
+        depth = 10
+        panel = "".join(">!" * i + f">![level {i}]\n" for i in range(depth)) + ">!" * depth + "deep\n"
+        rendered_markdown = render_panel(self.request, panel)
+        self.assertEqual(rendered_markdown.count("<details>"), 6)
+        self.assertEqual(rendered_markdown.count("</details>"), 6)
+        self.assertIn('<summary class="btn btn-link">level 5</summary>', rendered_markdown)
+        self.assertNotIn('<summary class="btn btn-link">level 6</summary>', rendered_markdown)
+        # The too deeply nested spoiler stays as text, not as stray block quotes.
+        self.assertNotIn("<blockquote>", rendered_markdown)
+        self.assertIn("&gt;![level 6]", rendered_markdown)
+
+    def test_block_spoiler_summary_entities(self):
+        rendered_markdown = render_panel(self.request, ">![a &amp; b <i>c</i>]\n>!body\n")
+        self.assertIn('<summary class="btn btn-link">a &amp; b &lt;i&gt;c&lt;/i&gt;</summary>', rendered_markdown)
+        # Entities without a semicolon stay literal, like in the body.
+        rendered_markdown = render_panel(self.request, ">![a &para b ?x=1&copy=2]\n>!body\n")
+        self.assertIn('<summary class="btn btn-link">a &amp;para b ?x=1&amp;copy=2</summary>', rendered_markdown)
+
+    def test_block_spoiler_in_nested_lists(self):
+        panel = "".join("  " * i + f"- level {i}\n" for i in range(6)) + "  " * 6 + ">![s]\n" + "  " * 6 + ">!body\n"
+        rendered_markdown = render_panel(self.request, panel)
+        self.assertIn('<summary class="btn btn-link">s</summary>', rendered_markdown)
+        self.assertNotIn("&gt;![s]", rendered_markdown)
+
+    def test_spoiler_and_center_in_block_quote_and_list(self):
+        rendered_markdown = render_panel(self.request, "> >![quoted]\n> >!quoted body\n>\n> ->quoted center<-\n")
+        self.assertIn('<summary class="btn btn-link">quoted</summary>', rendered_markdown)
+        self.assertIn("<p>quoted body</p>", rendered_markdown)
+        self.assertIn('<div class="text-center">quoted center</div>', rendered_markdown)
+        rendered_markdown = render_panel(self.request, "- item\n\n  ->listed center<-\n")
+        self.assertIn('<div class="text-center">listed center</div>', rendered_markdown)
+
+    def test_block_center_boundaries(self):
+        rendered_markdown = render_panel(self.request, "-> step one\n\n```r\nx <- 5\n```\n")
+        self.assertNotIn("text-center", rendered_markdown)
+        self.assertIn('<code class="language-r">x &lt;- 5\n</code>', rendered_markdown)
+        rendered_markdown = render_panel(self.request, "foo\n->c<-\nbar\n")
+        self.assertNotIn("text-center", rendered_markdown)
+        self.assertIn("<p>foo\n-&gt;c&lt;-\nbar</p>", rendered_markdown)
+        rendered_markdown = render_panel(self.request, "->two\nlines<-\n")
+        self.assertIn('<div class="text-center">two\nlines</div>', rendered_markdown)
+        # Like in mistune 0.8, a blank line doesn't end a centered block.
+        rendered_markdown = render_panel(self.request, "->a\n\nb<-\n")
+        self.assertIn('<div class="text-center">a\nb</div>', rendered_markdown)
+        rendered_markdown = render_panel(self.request, "->x\n" * 3)
+        self.assertNotIn("text-center", rendered_markdown)
+        self.assertIn("<p>-&gt;x\n-&gt;x\n-&gt;x</p>", rendered_markdown)
+
+    def test_html_and_javascript_links_escaped(self):
+        rendered = render_panel(
+            self.request,
+            '<script>alert(1)</script>\n\n<b onclick="x()">b</b> [link](javascript:alert(1)) [link2](JaVaScRiPt:alert%281%29)\n',
+        )
+        self.assertNotIn("<script>", rendered)
+        self.assertIn("&lt;script&gt;", rendered)
+        self.assertNotIn("<b ", rendered)
+        self.assertNotIn('href="javascript:', rendered.lower())
+        self.assertIn("<p>a\xa0b &amp; &lt;c&gt;</p>", render_panel(self.request, "a&nbsp;b &amp; <c>"))
+        rendered_summary = render_panel(self.request, ">![<i>x</i>]\n>!body\n")
+        self.assertIn('<summary class="btn btn-link">&lt;i&gt;x&lt;/i&gt;</summary>', rendered_summary)
 
 
 class TestMainPageAndPublicPortals(TestCase):
