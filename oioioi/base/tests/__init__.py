@@ -16,9 +16,11 @@ from django.contrib.staticfiles import finders as staticfiles_finders
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core.cache import cache
 from django.core.exceptions import ImproperlyConfigured
+from django.core.servers.basehttp import WSGIServer
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.test import TestCase as DjangoTestCase
 from django.test import override_settings
+from django.test.testcases import LiveServerThread, QuietWSGIRequestHandler
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
@@ -195,15 +197,43 @@ def needs_linux(fn):
     return pytest.mark.skipif(sys.platform not in ("linux", "linux2"), reason="This test needs Linux")(fn)
 
 
+class _SerializedWSGIServer(WSGIServer):
+    """A single-threaded WSGI server that holds ``lock`` while it handles a request."""
+
+    def __init__(self, *args, lock, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.lock = lock
+
+    def process_request(self, request, client_address):
+        with self.lock:
+            super().process_request(request, client_address)
+
+
+class _SerializedLiveServerThread(LiveServerThread):
+    # With in-memory SQLite, the live server and the test thread share one database connection. Django's default
+    # ThreadedWSGIServer lets a page's parallel requests (e.g. /status and the message polling) use it at the same
+    # time, so their ATOMIC_REQUESTS transactions interleave and fail with "no such savepoint".
+    lock = threading.Lock()
+
+    def _create_server(self, connections_override=None):
+        return _SerializedWSGIServer((self.host, self.port), QuietWSGIRequestHandler, allow_reuse_address=False, lock=self.lock)
+
+
 class BrowserTestCase(StaticLiveServerTestCase):
     """Base class for tests that open pages of a live server in headless Chromium (Playwright).
 
     The tests are marked with ``browser`` (deselect them with ``-m "not browser"``). They are skipped when
     Playwright, the webpack bundles (``dist_webpack/``) or the browser is missing, unless
     ``OIOIOI_BROWSER_TESTS_REQUIRED`` is set (as in CI), in which case they fail.
+
+    The live server handles one request at a time. Code in the test thread that may run while a page is still
+    sending requests (e.g. polling) should hold ``server_lock``, as :meth:`new_browser_context` and the database
+    flush after each test do.
     """
 
     pytestmark = pytest.mark.browser
+    server_thread_class = _SerializedLiveServerThread
+    server_lock = _SerializedLiveServerThread.lock
 
     @classmethod
     def _skip(cls, reason):
@@ -245,6 +275,11 @@ class BrowserTestCase(StaticLiveServerTestCase):
         finally:
             cls._close_browser()
 
+    def _fixture_teardown(self):
+        # A request sent by a page just before its context was closed may still be running.
+        with self.server_lock:
+            super()._fixture_teardown()
+
     @classmethod
     def _close_browser(cls):
         try:
@@ -265,7 +300,8 @@ class BrowserTestCase(StaticLiveServerTestCase):
         """
         context = self.browser.new_context(**kwargs)
         if username is not None:
-            self.client.force_login(User.objects.get(username=username))
+            with self.server_lock:
+                self.client.force_login(User.objects.get(username=username))
             session_cookie = self.client.cookies[settings.SESSION_COOKIE_NAME]
             context.add_cookies([{"name": session_cookie.key, "value": session_cookie.value, "url": self.live_server_url}])
         return context
