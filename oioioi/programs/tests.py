@@ -2062,6 +2062,18 @@ class TestAllowedLanguages(TestCase, SubmitFileMixin):
         response = self.submit_code(contest, self.problem_instance, "some code", prog_lang="C")
         self._assertSubmitted(contest, response)
 
+    def test_disallowed_preferred_language_not_selected(self):
+        ProblemAllowedLanguage.objects.create(problem=self.problem, language="C")
+        user = User.objects.get(username="test_user")
+        ensure_preferences_exist_for_user(user)
+        user.userpreferences.programming_language = "Python"
+        user.userpreferences.save()
+
+        contest = Contest.objects.get()
+        response = self.client.get(reverse("submit", kwargs={"contest_id": contest.id}))
+        field = response.context["form"].fields[form_field_id_for_langs(self.problem_instance)]
+        self.assertIsNone(field.initial)
+
 
 class TestLanguageOverrideForTest(TestCase):
     fixtures = ["test_contest", "test_full_package", "test_problem_instance"]

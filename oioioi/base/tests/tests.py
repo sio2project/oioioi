@@ -1365,6 +1365,14 @@ class TestPreferences(TestCase):
         user = User.objects.get(username="test_user")
         self.assertEqual(user.userpreferences.programming_language, "C++")
 
+        for invalid_language in ["Output-only", "Brainfuck"]:
+            data["programming_language"] = invalid_language
+            response = self.client.post(url, data, follow=True)
+            self.assertEqual(response.status_code, 200)
+
+            user.userpreferences.refresh_from_db()
+            self.assertEqual(user.userpreferences.programming_language, "C++")
+
     def test_registration_preferences(self):
         response = self.client.get(reverse("sign-up"))
         self.assertContains(response, "Preferred language")
