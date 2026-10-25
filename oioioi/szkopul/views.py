@@ -7,7 +7,7 @@ from oioioi.base.navbar_links import navbar_links_registry
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import visible_contests
+from oioioi.contests.utils import visible_contests_as_django_queryset
 from oioioi.problems.utils import filter_my_all_visible_submissions
 
 navbar_links_registry.register(
@@ -29,9 +29,9 @@ navbar_links_registry.register(
 def main_page_view(request):
     to_show = getattr(settings, "NUM_RECENT_CONTESTS", 7)
     rcontests = recent_contests(request)
-    contests = list(visible_contests(request).difference(rcontests))
-    contests.sort(key=lambda x: x.creation_date, reverse=True)
-    contests = (rcontests + contests[:to_show])[:to_show]
+    # Let the database pick the newest contests, so that the page doesn't load every visible contest.
+    newest = visible_contests_as_django_queryset(request).exclude(id__in=[c.id for c in rcontests]).order_by("-creation_date")[:to_show]
+    contests = (rcontests + list(newest))[:to_show]
 
     submissions = []
     show_scores = False
