@@ -3,7 +3,11 @@ import os
 import six
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from fpdf import FPDF
+from fpdf import FPDF, set_global
+
+# Don't cache font metrics in a .pkl next to the font: fpdf stores the font's
+# absolute path in it, so a cache written in one checkout breaks the others.
+set_global("FPDF_CACHE_MODE", 1)
 
 FONT_DIR = os.path.join(os.path.dirname(__file__), "font")
 FONT = getattr(settings, "PRINTING_FONT", os.path.join(FONT_DIR, "DejaVuSerifCondensed.ttf"))
