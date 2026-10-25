@@ -1,4 +1,3 @@
-import html
 import re
 import urllib.parse
 
@@ -8,7 +7,7 @@ from django.template.loader import render_to_string
 from django.urls import resolve, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from mistune.util import safe_entity
+from mistune.util import safe_entity, unescape
 
 from oioioi.contests.models import UserResultForProblem
 from oioioi.portals.conditions import is_portal_admin
@@ -16,6 +15,10 @@ from oioioi.problems.models import Problem
 
 REGISTERED_WIDGETS = []
 _block_spoiler_leading_pattern = re.compile(r"^ *>! ?", flags=re.M)
+_block_center_close_pattern = re.compile(r"<-")
+# A centered block may span blank lines, but not a code fence.
+_block_center_boundary_pattern = re.compile(r"^[ \t]*(?:```|~~~)", flags=re.M)
+_block_center_trailing_pattern = re.compile(r"(?:[ \t]*\n)?")
 # Same limit as mistune 0.8 had for nested blocks.
 _max_spoiler_depth = 6
 
@@ -33,7 +36,7 @@ class PortalRenderer(mistune.HTMLRenderer):
             "portals/widgets/block-spoiler.html",
             # The template escapes the summary, so decode entities first
             # to keep them working like in the body text.
-            {"summary": html.unescape(summary), "body": mark_safe(text)},
+            {"summary": unescape(summary), "body": mark_safe(text)},
         )
 
     def table(self, text):
@@ -48,23 +51,52 @@ class PortalRenderer(mistune.HTMLRenderer):
         return text
 
 
+def _search_cached(state, pattern, pos):
+    """Return the start of the first match of ``pattern`` in ``state.src`` at or after ``pos``,
+    or ``len(state.src)`` if there is none.
+
+    The parser only moves forward, so the last result is reused while ``pos`` hasn't
+    passed it. Without that, every unclosed ``->`` line would rescan the rest of the input.
+    """
+    cache = state.__dict__.setdefault("portal_search_cache", {})
+    searched_from, found_at = cache.get(pattern, (None, None))
+    if searched_from is None or not searched_from <= pos <= found_at:
+        match = pattern.search(state.src, pos)
+        found_at = match.start() if match else len(state.src)
+        cache[pattern] = (pos, found_at)
+    return found_at
+
+
 def parse_block_center(block, m, state):
     last_token = state.last_token()
     if last_token and last_token["type"] == "paragraph":
         # Like in mistune 0.8, a centered block doesn't interrupt a paragraph.
         return None
-    state.append_token({"type": "block_center", "text": m.group("center_text")})
-    return m.end()
+    close = _search_cached(state, _block_center_close_pattern, m.end())
+    if close >= _search_cached(state, _block_center_boundary_pattern, m.end()):
+        return None
+    state.append_token({"type": "block_center", "text": state.src[m.end() : close]})
+    return _block_center_trailing_pattern.match(state.src, close + 2).end()
+
+
+def _spoiler_depth(state):
+    depth = 0
+    while state:
+        depth += getattr(state, "portal_spoiler", False)
+        state = state.parent
+    return depth
 
 
 def parse_block_spoiler(block, m, state):
-    if state.depth() >= _max_spoiler_depth:
+    # Count only spoilers, not list items or block quotes, like mistune 0.8.
+    if _spoiler_depth(state) >= _max_spoiler_depth:
         # Too deeply nested, render the whole spoiler as plain text.
         state.add_paragraph(m.group(0))
         return m.end()
     # Clean leading >!
     content = _block_spoiler_leading_pattern.sub("", m.group("spoiler_body")).lstrip("\n") + "\n"
     child = state.child_state(content)
+    child.portal_spoiler = True
     block.parse(child)
     state.append_token(
         {
@@ -85,11 +117,8 @@ _block_rules = {
         r"^ *>!\[(?P<spoiler_summary>[^\n]*)\] *(?P<spoiler_body>(?:\n *>![^\n]*)+)(?:[ \t]*\n)?",
         parse_block_spoiler,
     ),
-    # The centered text may span several lines, but not a blank line or a code fence.
-    "block_center": (
-        r"^ *->(?P<center_text>(?:[^\n]|\n(?![ \t]*(?:$|```|~~~)))*?)<-(?:[ \t]*\n)?",
-        parse_block_center,
-    ),
+    # Only the opening, parse_block_center finds the closing <-.
+    "block_center": (r"^ *->", parse_block_center),
 }
 for _name, (_pattern, _func) in _block_rules.items():
     _markdown.block.register(_name, _pattern, _func, before="fenced_code")

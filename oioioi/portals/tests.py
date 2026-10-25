@@ -617,6 +617,15 @@ class TestMarkdown(TestCase):
     def test_block_spoiler_summary_entities(self):
         rendered_markdown = render_panel(self.request, ">![a &amp; b <i>c</i>]\n>!body\n")
         self.assertIn('<summary class="btn btn-link">a &amp; b &lt;i&gt;c&lt;/i&gt;</summary>', rendered_markdown)
+        # Entities without a semicolon stay literal, like in the body.
+        rendered_markdown = render_panel(self.request, ">![a &para b ?x=1&copy=2]\n>!body\n")
+        self.assertIn('<summary class="btn btn-link">a &amp;para b ?x=1&amp;copy=2</summary>', rendered_markdown)
+
+    def test_block_spoiler_in_nested_lists(self):
+        panel = "".join("  " * i + f"- level {i}\n" for i in range(6)) + "  " * 6 + ">![s]\n" + "  " * 6 + ">!body\n"
+        rendered_markdown = render_panel(self.request, panel)
+        self.assertIn('<summary class="btn btn-link">s</summary>', rendered_markdown)
+        self.assertNotIn("&gt;![s]", rendered_markdown)
 
     def test_spoiler_and_center_in_block_quote_and_list(self):
         rendered_markdown = render_panel(self.request, "> >![quoted]\n> >!quoted body\n>\n> ->quoted center<-\n")
@@ -635,6 +644,12 @@ class TestMarkdown(TestCase):
         self.assertIn("<p>foo\n-&gt;c&lt;-\nbar</p>", rendered_markdown)
         rendered_markdown = render_panel(self.request, "->two\nlines<-\n")
         self.assertIn('<div class="text-center">two\nlines</div>', rendered_markdown)
+        # Like in mistune 0.8, a blank line doesn't end a centered block.
+        rendered_markdown = render_panel(self.request, "->a\n\nb<-\n")
+        self.assertIn('<div class="text-center">a\nb</div>', rendered_markdown)
+        rendered_markdown = render_panel(self.request, "->x\n" * 3)
+        self.assertNotIn("text-center", rendered_markdown)
+        self.assertIn("<p>-&gt;x\n-&gt;x\n-&gt;x</p>", rendered_markdown)
 
     def test_html_and_javascript_links_escaped(self):
         rendered = render_panel(
