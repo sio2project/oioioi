@@ -1,6 +1,7 @@
 from django.urls import resolve, reverse
 
 from oioioi.base.tests import TestCase
+from oioioi.newsfeed.models import NewsLanguageVersion
 
 
 class TestNewsfeedVisibility(TestCase):
@@ -150,3 +151,24 @@ class TestNewsfeedOptions(TestCase):
         response = self.client.get(url_delete_news, follow=True)
         self._assert_redirect_to_newsfeed(response)
         self.assertNotContains(response, "Test news")
+
+
+class TestNewsfeedRendering(TestCase):
+    def render(self, content):
+        return NewsLanguageVersion(content=content).rendered_content()
+
+    def test_markdown(self):
+        rendered = self.render("# Title\n\n**bold** and ~~old~~\n\n|a|b|\n|-|-|\n|1|2|\n")
+        self.assertIn("<h1>Title</h1>", rendered)
+        self.assertIn("<strong>bold</strong>", rendered)
+        self.assertIn("<del>old</del>", rendered)
+        self.assertIn("<th>a</th>", rendered)
+        self.assertIn("<td>1</td>", rendered)
+
+    def test_html_and_javascript_links_escaped(self):
+        rendered = self.render('<script>alert(1)</script>\n\n<img src=x onerror="x()"> [link](javascript:alert(1))\n')
+        self.assertNotIn("<script>", rendered)
+        self.assertIn("&lt;script&gt;", rendered)
+        self.assertNotIn("<img", rendered)
+        self.assertNotIn('href="javascript:', rendered.lower())
+        self.assertIn("<p>a\xa0b &amp; &lt;c&gt;</p>", self.render("a&nbsp;b &amp; <c>"))

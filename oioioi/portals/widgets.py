@@ -1,12 +1,14 @@
 import re
 import urllib.parse
 
+import mistune
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.urls import resolve, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
+from mistune.plugins import import_plugin
+from mistune.util import safe_entity
 
 from oioioi.contests.models import UserResultForProblem
 from oioioi.portals.conditions import is_portal_admin
@@ -14,129 +16,113 @@ from oioioi.problems.models import Problem
 
 REGISTERED_WIDGETS = []
 _block_spoiler_leading_pattern = re.compile(r"^ *>! ?", flags=re.M)
+# Same limit as mistune 0.8 had for nested blocks.
+_max_spoiler_depth = 6
 
 
-class PortalInlineGrammar(InlineGrammar):
-    pass
+class PortalRenderer(mistune.HTMLRenderer):
+    def text(self, text):
+        # Keep HTML entities written by authors (e.g. &nbsp;) working, as in mistune 0.8.
+        return safe_entity(text)
 
-
-class PortalRenderer(Renderer):
     def block_center(self, text):
         return render_to_string("portals/widgets/block-center.html", {"content": mark_safe(text)})
 
-    def block_spoiler(self, summary, body):
+    def block_spoiler(self, text, summary):
         return render_to_string(
             "portals/widgets/block-spoiler.html",
-            {"summary": summary, "body": mark_safe(body)},
+            {"summary": summary, "body": mark_safe(text)},
         )
 
-    def table(self, header, body):
-        """Rendering table element. Wrap header and body in it.
+    def table(self, text):
+        """Rendering table element. Wrap the header and body in it.
 
-        :param header: header part of the table.
-        :param body: body part of the table.
+        :param text: rendered ``<thead>`` and ``<tbody>`` of the table.
         """
-        return render_to_string(
-            "portals/widgets/table.html",
-            {"header": mark_safe(header), "body": mark_safe(body)},
-        )
+        return render_to_string("portals/widgets/table.html", {"content": mark_safe(text)})
+
+    def portal_widget(self, text):
+        # Already rendered by the widget, must not be escaped.
+        return text
 
 
-class PortalInlineLexer(InlineLexer):
-    default_rules = InlineLexer.default_rules[:]
-
-    def __init__(self, request, renderer, rules=None, **kwargs):
-        self.request = request
-        if rules is None:
-            rules = PortalInlineGrammar()
-        super().__init__(renderer, rules, **kwargs)
+def parse_block_center(block, m, state):
+    state.append_token({"type": "block_center", "text": m.group("center_text")})
+    return m.end()
 
 
-class PortalBlockLexer(BlockLexer):
-    default_rules = BlockLexer.default_rules[:]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._blockspoiler_depth = 0
-
-        self.rules.block_spoiler = re.compile(
-            r"^ *>!\[([^\n]*)\] *((?:\n *>![^\n]*)+)",
-            flags=re.DOTALL | re.M,
-        )
-        self.rules.block_center = re.compile(r"^ *->(.*?)<-", re.DOTALL)
-        # Insert before 'block_code'
-        if "block_center" not in self.default_rules:
-            self.default_rules.insert(self.default_rules.index("block_code"), "block_center")
-        if "block_spoiler" not in self.default_rules:
-            self.default_rules.insert(0, "block_spoiler")
-
-    def parse_block_center(self, m):
-        self.tokens.append(
-            {
-                "type": "block_center",
-                "text": m.group(1),
-            }
-        )
-
-    def parse_block_spoiler(self, m):
-        self._blockspoiler_depth += 1
-
-        if self._blockspoiler_depth > self._max_recursive_depth:
-            self.parse_text(m)
-        else:
-            self.tokens.append({"type": "block_spoiler", "summary": m.group(1)})
-            # Clean leading >!
-            content = _block_spoiler_leading_pattern.sub("", m.group(2))
-            self.parse(content)
-            self.tokens.append({"type": "block_spoiler_end"})
-
-        self._blockspoiler_depth -= 1
+def parse_block_spoiler(block, m, state):
+    if state.depth() >= _max_spoiler_depth:
+        # Too deeply nested, render the rest as a plain paragraph.
+        return None
+    # Clean leading >!
+    content = _block_spoiler_leading_pattern.sub("", m.group("spoiler_body")).lstrip("\n") + "\n"
+    child = state.child_state(content)
+    block.parse(child)
+    state.append_token(
+        {
+            "type": "block_spoiler",
+            "attrs": {"summary": m.group("spoiler_summary")},
+            "children": child.tokens,
+        }
+    )
+    return m.end()
 
 
-class PortalMarkdown(Markdown):
-    def __init__(self, request):
-        renderer = PortalRenderer(escape=True)
-        inline_lexer = PortalInlineLexer(request, renderer)
-        block_lexer = PortalBlockLexer()
-        super().__init__(renderer, inline=inline_lexer, block=block_lexer)
-
-    def output_block_center(self):
-        return self.renderer.block_center(self.inline(self.token["text"]))
-
-    def output_block_spoiler(self):
-        spoiler_summary = self.token["summary"]
-        body = self.renderer.placeholder()
-        while self.pop()["type"] != "block_spoiler_end":
-            body += self.tok()
-        return self.renderer.block_spoiler(spoiler_summary, body)
+_markdown = mistune.Markdown(
+    renderer=PortalRenderer(escape=True),
+    plugins=[import_plugin(name) for name in ("strikethrough", "footnotes", "table", "url")],
+)
+_markdown.block.register(
+    "block_spoiler",
+    r"^ *>!\[(?P<spoiler_summary>[^\n]*)\] *(?P<spoiler_body>(?:\n *>![^\n]*)+)(?:[ \t]*\n)?",
+    parse_block_spoiler,
+    before="fenced_code",
+)
+_markdown.block.register(
+    "block_center",
+    r"^ *->(?P<center_text>[\s\S]*?)<-(?:[ \t]*\n)?",
+    parse_block_center,
+    before="fenced_code",
+)
 
 
 def render_panel(request, panel):
-    return PortalMarkdown(request).render(panel)
+    state = _markdown.block.state_cls()
+    state.env["request"] = request
+    html, _ = _markdown.parse(panel, state)
+    return html
 
 
 def register_widget(widget):
     """
     Register markdown tag for a portal widget.
-    See ``mistune`` docs for more info.
+    The tag is added as an inline rule of the ``mistune`` 3 parser
+    and takes precedence over links and the other inline rules.
 
     :type widget: object containing the following:
-        * :attr:`widget.name` - name of the widget
+        * :attr:`widget.name` - name of the widget, unique among inline rules
         * :attr:`widget.compiled_tag_regex` - compiled regular expression
-            pattern used for identifying markdown tag
+            pattern used for identifying markdown tag.  Its pattern is
+            embedded into ``mistune``'s combined regex, so it must not use
+            ``^`` anchors, inline flags or named groups.
         * :meth:`widget.render` - method (or just function) accepting
-            corresponding :class:`re.MatchObject` instance as the only
-            parameter (named 'm').  Should return a string (rendered widget).
+            the current request and the corresponding :class:`re.Match`
+            instance (named 'm').  Should return a string (rendered widget).
     """
-    if hasattr(PortalInlineGrammar, widget.name):
+    if widget.name in _markdown.inline.rules or any(w.name == widget.name for w in REGISTERED_WIDGETS):
         raise ValueError(f"Inline tag for widget named {widget.name} has already been registered.")
-    PortalInlineLexer.default_rules.insert(0, widget.name)
-    setattr(PortalInlineGrammar, widget.name, widget.compiled_tag_regex)
 
-    def func(self, m):
-        return widget.render(self.request, m)
+    def parse(inline, m, state):
+        # Match again on its own, so that group numbers are the widget's
+        # and not the ones from the combined regex.
+        widget_match = widget.compiled_tag_regex.match(state.src, m.start())
+        if widget_match is None:
+            return None
+        state.append_token({"type": "portal_widget", "raw": widget.render(state.env["request"], widget_match)})
+        return widget_match.end()
 
-    setattr(PortalInlineLexer, "output_" + widget.name, func)
+    _markdown.inline.register(widget.name, widget.compiled_tag_regex.pattern, parse, before="link")
 
     REGISTERED_WIDGETS.append(widget)
 

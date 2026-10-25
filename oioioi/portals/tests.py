@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 from django.contrib.auth.models import AnonymousUser
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -557,6 +559,56 @@ class TestMarkdown(TestCase):
         self.assertIn("<tbody>", rendered_markdown)
         self.assertIn("<th>a</th>", rendered_markdown)
         self.assertIn("<td>1</td>", rendered_markdown)
+
+    def test_redirect_widget(self):
+        class MockUser:
+            is_superuser = True
+
+        self.request.portal = SimpleNamespace(owner=None)
+        rendered = render_panel(self.request, "[[Redirect|/p/default/]]")
+        self.assertIn("window.location.replace('/p/default/')", rendered)
+
+        self.request.user = MockUser()
+        rendered = render_panel(self.request, "[[Redirect|/p/default/]]")
+        self.assertNotIn("window.location.replace", rendered)
+        self.assertIn('Users who do not have permission to edit this portal would now get redirected to: "/p/default/".', rendered)
+
+        rendered = render_panel(self.request, "[[Redirect|https://example.com/]]")
+        self.assertIn("[[Redirect: only relative URLs allowed]]", rendered)
+        self.assertNotIn("example.com", rendered)
+
+    def test_block_center(self):
+        rendered_markdown = render_panel(self.request, "->centered **bold**<-\n\nafter\n")
+        self.assertIn('<div class="text-center">centered <strong>bold</strong></div>', rendered_markdown)
+        self.assertIn("<p>after</p>", rendered_markdown)
+
+    def test_widget_inside_spoiler(self):
+        url = "https://www.youtube.com/watch?v=pB0CTz5QlOw"
+        rendered = render_panel(self.request, f">![video]\n>!see [[YouTube|{url}]] here\n")
+        self.assertIn('<summary class="btn btn-link">video</summary>', rendered)
+        self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered)
+
+    def test_block_spoiler_depth_limit(self):
+        depth = 10
+        panel = "".join(">!" * i + f">![level {i}]\n" for i in range(depth)) + ">!" * depth + "deep\n"
+        rendered_markdown = render_panel(self.request, panel)
+        self.assertEqual(rendered_markdown.count("<details>"), 6)
+        self.assertEqual(rendered_markdown.count("</details>"), 6)
+        self.assertIn('<summary class="btn btn-link">level 5</summary>', rendered_markdown)
+        self.assertNotIn('<summary class="btn btn-link">level 6</summary>', rendered_markdown)
+
+    def test_html_and_javascript_links_escaped(self):
+        rendered = render_panel(
+            self.request,
+            '<script>alert(1)</script>\n\n<b onclick="x()">b</b> [link](javascript:alert(1)) [link2](JaVaScRiPt:alert%281%29)\n',
+        )
+        self.assertNotIn("<script>", rendered)
+        self.assertIn("&lt;script&gt;", rendered)
+        self.assertNotIn("<b ", rendered)
+        self.assertNotIn('href="javascript:', rendered.lower())
+        self.assertIn("<p>a\xa0b &amp; &lt;c&gt;</p>", render_panel(self.request, "a&nbsp;b &amp; <c>"))
+        rendered_summary = render_panel(self.request, ">![<i>x</i>]\n>!body\n")
+        self.assertIn('<summary class="btn btn-link">&lt;i&gt;x&lt;/i&gt;</summary>', rendered_summary)
 
 
 class TestMainPageAndPublicPortals(TestCase):
