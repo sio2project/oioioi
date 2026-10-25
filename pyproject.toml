@@ -28,7 +28,7 @@ dependencies = [
     "django-libsass>=0.9,<0.10",
     "django-debug-toolbar<6.0.0", # 6.1.0 causes an obscure test failure.
     "django-extensions>=4.1,<4.2",
-    "djangorestframework>=3.17.2,<3.18",
+    "djangorestframework>=3.18.2,<3.19",
     "django-oauth-toolkit>=3.2,<3.3",
     "Werkzeug",
     "setuptools>=61.0",
