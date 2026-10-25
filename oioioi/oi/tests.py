@@ -11,7 +11,7 @@ from django.core.management.base import CommandError
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
+from oioioi.base.tests import BrowserTestCase, TestCase, fake_time, fake_timezone_now
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, ProblemInstance, Round
@@ -278,6 +278,27 @@ class TestOIRegistration(TestCase):
         self.assertContains(response, "Postal code")
         self.assertContains(response, reg_data["address"])
         self.assertContains(response, "Lady of the Lake")
+
+
+class TestOIRegistrationFormBrowser(BrowserTestCase):
+    fixtures = ["test_users", "test_contest", "test_oi_registration", "test_terms_accepted_phrase"]
+
+    def setUp(self):
+        contest = Contest.objects.get()
+        contest.controller_name = "oioioi.oi.controllers.OIContestController"
+        contest.save()
+
+    def test_edit_keeps_selected_school(self):
+        """reg.js reloads the city and school options over AJAX and must re-select the saved ones."""
+        context = self.new_browser_context("test_user")
+        page = context.new_page()
+        page.goto(self.live_server_url + reverse("participants_register", kwargs={"contest_id": "c"}))
+        page.wait_for_load_state("networkidle")
+
+        self.assertEqual(page.input_value("#id_school_city"), "Warszawa")
+        self.assertEqual(page.input_value("#id_school"), "1")
+        self.assertIn("XIV LO", page.inner_text("#select2-id_school-container"))
+        context.close()
 
 
 class TestOIViews(TestCase):
