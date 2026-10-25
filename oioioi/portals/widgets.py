@@ -1,3 +1,4 @@
+import html
 import re
 import urllib.parse
 
@@ -7,7 +8,6 @@ from django.template.loader import render_to_string
 from django.urls import resolve, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from mistune.plugins import import_plugin
 from mistune.util import safe_entity
 
 from oioioi.contests.models import UserResultForProblem
@@ -31,7 +31,9 @@ class PortalRenderer(mistune.HTMLRenderer):
     def block_spoiler(self, text, summary):
         return render_to_string(
             "portals/widgets/block-spoiler.html",
-            {"summary": summary, "body": mark_safe(text)},
+            # The template escapes the summary, so decode entities first
+            # to keep them working like in the body text.
+            {"summary": html.unescape(summary), "body": mark_safe(text)},
         )
 
     def table(self, text):
@@ -47,14 +49,19 @@ class PortalRenderer(mistune.HTMLRenderer):
 
 
 def parse_block_center(block, m, state):
+    last_token = state.last_token()
+    if last_token and last_token["type"] == "paragraph":
+        # Like in mistune 0.8, a centered block doesn't interrupt a paragraph.
+        return None
     state.append_token({"type": "block_center", "text": m.group("center_text")})
     return m.end()
 
 
 def parse_block_spoiler(block, m, state):
     if state.depth() >= _max_spoiler_depth:
-        # Too deeply nested, render the rest as a plain paragraph.
-        return None
+        # Too deeply nested, render the whole spoiler as plain text.
+        state.add_paragraph(m.group(0))
+        return m.end()
     # Clean leading >!
     content = _block_spoiler_leading_pattern.sub("", m.group("spoiler_body")).lstrip("\n") + "\n"
     child = state.child_state(content)
@@ -69,22 +76,26 @@ def parse_block_spoiler(block, m, state):
     return m.end()
 
 
-_markdown = mistune.Markdown(
+_markdown = mistune.create_markdown(
     renderer=PortalRenderer(escape=True),
-    plugins=[import_plugin(name) for name in ("strikethrough", "footnotes", "table", "url")],
+    plugins=["strikethrough", "footnotes", "table", "url"],
 )
-_markdown.block.register(
-    "block_spoiler",
-    r"^ *>!\[(?P<spoiler_summary>[^\n]*)\] *(?P<spoiler_body>(?:\n *>![^\n]*)+)(?:[ \t]*\n)?",
-    parse_block_spoiler,
-    before="fenced_code",
-)
-_markdown.block.register(
-    "block_center",
-    r"^ *->(?P<center_text>[\s\S]*?)<-(?:[ \t]*\n)?",
-    parse_block_center,
-    before="fenced_code",
-)
+_block_rules = {
+    "block_spoiler": (
+        r"^ *>!\[(?P<spoiler_summary>[^\n]*)\] *(?P<spoiler_body>(?:\n *>![^\n]*)+)(?:[ \t]*\n)?",
+        parse_block_spoiler,
+    ),
+    # The centered text may span several lines, but not a blank line or a code fence.
+    "block_center": (
+        r"^ *->(?P<center_text>(?:[^\n]|\n(?![ \t]*(?:$|```|~~~)))*?)<-(?:[ \t]*\n)?",
+        parse_block_center,
+    ),
+}
+for _name, (_pattern, _func) in _block_rules.items():
+    _markdown.block.register(_name, _pattern, _func, before="fenced_code")
+    # Block quotes and list items are parsed with their own rule lists.
+    _markdown.block.insert_rule(_markdown.block.block_quote_rules, _name, before="fenced_code")
+    _markdown.block.insert_rule(_markdown.block.list_rules, _name, before="fenced_code")
 
 
 def render_panel(request, panel):
@@ -112,6 +123,15 @@ def register_widget(widget):
     """
     if widget.name in _markdown.inline.rules or any(w.name == widget.name for w in REGISTERED_WIDGETS):
         raise ValueError(f"Inline tag for widget named {widget.name} has already been registered.")
+
+    # Fail here rather than on every later render if the pattern can't be
+    # embedded into the combined regex (see compile_sc in mistune).
+    inline = _markdown.inline
+    patterns = {**inline.specification, widget.name: widget.compiled_tag_regex.pattern}
+    try:
+        re.compile("|".join(f"(?P<{name}>{patterns[name]})" for name in [*inline.rules, widget.name]), inline.sc_flag)
+    except re.error as e:
+        raise ValueError(f"Invalid inline tag for widget named {widget.name}: {e}") from e
 
     def parse(inline, m, state):
         # Match again on its own, so that group numbers are the widget's

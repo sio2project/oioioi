@@ -1,3 +1,4 @@
+import re
 from types import SimpleNamespace
 
 from django.contrib.auth.models import AnonymousUser
@@ -525,6 +526,19 @@ class TestMarkdown(TestCase):
         with self.assertRaises(ValueError):
             register_widget(Widget("problem_table"))
 
+    def test_invalid_tag(self):
+        class Widget:
+            name = "bad-name"
+            compiled_tag_regex = re.compile(r"\[\[Bad\]\]")
+
+        with self.assertRaises(ValueError):
+            register_widget(Widget())
+        Widget.name = "bad_pattern"
+        Widget.compiled_tag_regex = re.compile(r"(?i)\[\[Bad\]\]")
+        with self.assertRaises(ValueError):
+            register_widget(Widget())
+        self.assertIn("<p>[[Bad]]</p>", render_panel(self.request, "[[Bad]]"))
+
     def test_block_spoiler(self):
         rendered_markdown = render_panel(self.request, ">![spoiler text]\n>!spoiler body\n")
 
@@ -596,6 +610,31 @@ class TestMarkdown(TestCase):
         self.assertEqual(rendered_markdown.count("</details>"), 6)
         self.assertIn('<summary class="btn btn-link">level 5</summary>', rendered_markdown)
         self.assertNotIn('<summary class="btn btn-link">level 6</summary>', rendered_markdown)
+        # The too deeply nested spoiler stays as text, not as stray block quotes.
+        self.assertNotIn("<blockquote>", rendered_markdown)
+        self.assertIn("&gt;![level 6]", rendered_markdown)
+
+    def test_block_spoiler_summary_entities(self):
+        rendered_markdown = render_panel(self.request, ">![a &amp; b <i>c</i>]\n>!body\n")
+        self.assertIn('<summary class="btn btn-link">a &amp; b &lt;i&gt;c&lt;/i&gt;</summary>', rendered_markdown)
+
+    def test_spoiler_and_center_in_block_quote_and_list(self):
+        rendered_markdown = render_panel(self.request, "> >![quoted]\n> >!quoted body\n>\n> ->quoted center<-\n")
+        self.assertIn('<summary class="btn btn-link">quoted</summary>', rendered_markdown)
+        self.assertIn("<p>quoted body</p>", rendered_markdown)
+        self.assertIn('<div class="text-center">quoted center</div>', rendered_markdown)
+        rendered_markdown = render_panel(self.request, "- item\n\n  ->listed center<-\n")
+        self.assertIn('<div class="text-center">listed center</div>', rendered_markdown)
+
+    def test_block_center_boundaries(self):
+        rendered_markdown = render_panel(self.request, "-> step one\n\n```r\nx <- 5\n```\n")
+        self.assertNotIn("text-center", rendered_markdown)
+        self.assertIn('<code class="language-r">x &lt;- 5\n</code>', rendered_markdown)
+        rendered_markdown = render_panel(self.request, "foo\n->c<-\nbar\n")
+        self.assertNotIn("text-center", rendered_markdown)
+        self.assertIn("<p>foo\n-&gt;c&lt;-\nbar</p>", rendered_markdown)
+        rendered_markdown = render_panel(self.request, "->two\nlines<-\n")
+        self.assertIn('<div class="text-center">two\nlines</div>', rendered_markdown)
 
     def test_html_and_javascript_links_escaped(self):
         rendered = render_panel(
