@@ -58,7 +58,7 @@ class StaticHighchartsPlot(PlotType):
     """
 
     def head_libraries(self):
-        return ["highcharts/lib/highcharts.js"]
+        return ["highcharts/highcharts.js", "charts/highcharts_defaults.js"]
 
     def highcharts_options(self, data):
         """Function generating options for Highcharts chart, as specified in

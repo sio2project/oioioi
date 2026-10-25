@@ -6,7 +6,7 @@ from django.db import transaction
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.models import Contest, Submission
 from oioioi.evalmgr.models import QueuedJob, SavedEnviron
 from oioioi.evalmgr.tasks import create_environ, delay_environ, transfer_job
@@ -174,11 +174,13 @@ class TestRemoteJobs(TestCase):
     def test_multiple_source_file_evaluation_with_dummy_sioworkers(self):
         self._run_with_dummy_sioworkers(self.test_multiple_source_file_evaluation)
 
+    @needs_linux
     def test_full_source_file_evaluation(self):
         env = self.evaluation_env.copy()
         env = delay_environ_wrapper(env).get()
         self.assertEqual("OK", env["result_code"])
 
+    @needs_linux
     def test_multiple_source_file_evaluation(self):
         good_env = self.evaluation_env.copy()
         wrong_env = self.evaluation_env.copy()

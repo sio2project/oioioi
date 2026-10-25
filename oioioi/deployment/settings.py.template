@@ -37,7 +37,8 @@ ALLOWED_HOSTS = ['oioioi', '127.0.0.1', 'localhost', 'web']
 
 # The server to be run. Options are:
 # 'django' - django's http server
-# 'uwsgi' - uwsgi daemon
+# 'uwsgi' - uwsgi daemon (uwsgi protocol over a Unix socket)
+# 'uwsgi-tcp' - uwsgi daemon (uwsgi protocol over a TCP socket)
 # 'uwsgi-http' - uwsgi daemon with built-in http server
 # 'none' - nothing will be ran
 # SERVER = 'none'
@@ -271,9 +272,8 @@ FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 # FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
 # FILETRACKER_CACHE_SIZE = '8G'
 
-# For dj_pagination
-# PAGINATION_DEFAULT_WINDOW = 4
-# PAGINATION_DEFAULT_MARGIN = 1
+# For django-pagination-py3
+# PAGINATION_DEFAULT_WINDOW = 3
 # FILES_ON_PAGE = 100
 # PROBLEMS_ON_PAGE = 100
 # CONTESTS_ON_PAGE = 20
@@ -323,6 +323,11 @@ PROBLEM_SOURCES += (
 # Before this only system compilers can be used.
 # AVAILABLE_COMPILERS = SYSTEM_COMPILERS
 # DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
+
+USE_SYSTEM_COMPILERS = __USE_SYSTEM_COMPILERS__
+if USE_SYSTEM_COMPILERS:
+    AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+    DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same
@@ -410,6 +415,15 @@ CONTEST_MODE = ContestMode.neutral
 # Uncomment once RabbitMQ is installed. By default SQLAlchemy is used,
 # but this is unreliable and not intended for production.
 # BROKER_URL = 'amqp://oioioi:oioioi@broker:5672//'
+
+# Use quorum queues for Celery tasks, e.g. with a highly available RabbitMQ
+# cluster (RabbitMQ 3.10 or newer). CELERY_DEFAULT_QUEUE_TYPE covers only the
+# default 'celery' queue, CELERY_CREATE_MISSING_QUEUE_TYPE the task queues
+# (evalmgr, unpackmgr, evalmgr-zeus), so set both. RabbitMQ does not change
+# the type of an existing queue: stop all Celery workers and delete the old
+# task queues before switching.
+# CELERY_DEFAULT_QUEUE_TYPE = 'quorum'
+# CELERY_CREATE_MISSING_QUEUE_TYPE = 'quorum'
 
 # The logs for one specific logger 'oioioi.zeus' will be
 # stored in a specific file: `PROJECT_DIR/logs/zeus.log`.

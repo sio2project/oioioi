@@ -10,6 +10,7 @@ import tempfile
 import urllib.parse
 from contextlib import contextmanager
 from importlib import import_module
+from importlib.util import find_spec
 
 import six
 from django.forms.utils import flatatt
@@ -130,10 +131,28 @@ class RegisteredSubclassesBase(ClassInitBase):
             for name in modules_to_load:
                 try:
                     module = f"{app_module}.{name}"
+                    if not _parents_are_packages(module, app_module):
+                        continue
                     import_module(module)
                 except ImportError:
                     continue
         cls._subclasses_loaded = True
+
+
+def _parents_are_packages(module, root):
+    """Checks that every module between ``root`` and ``module`` is a package.
+
+    The check uses :func:`importlib.util.find_spec`, which does not execute
+    the module it looks up. Importing ``app.tests.foo`` where ``app.tests``
+    is a plain module would run ``app.tests`` (and its side effects) only to
+    fail with :exc:`ImportError`.
+    """
+    parts = module[len(root) + 1 :].split(".")[:-1]
+    for i in range(len(parts)):
+        spec = find_spec(".".join([root, *parts[: i + 1]]))
+        if spec is None or spec.submodule_search_locations is None:
+            return False
+    return True
 
 
 class _RemoveMixinsFromInitMixin:

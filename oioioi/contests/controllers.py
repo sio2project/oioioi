@@ -52,7 +52,7 @@ STATUS_CLASSES = {
     "OK100": "text-bg-success",
     "OK": "text-bg-success",
     "INI_OK": "text-bg-success",
-    "TESTRUN_OK": "text=bg-success",
+    "TESTRUN_OK": "text-bg-success",
     "OK75": "text-bg-warning",
     "OK50": "text-bg-warning",
     "OK25": "text-bg-danger",
@@ -73,7 +73,7 @@ STATUS_CLASSES = {
 
 
 def get_badge_class(display_type):
-    return STATUS_CLASSES.get(display_type, "badge-secondary")
+    return STATUS_CLASSES.get(display_type, "text-bg-secondary")
 
 
 def submission_template_context(request, submission):
@@ -92,7 +92,7 @@ def submission_template_context(request, submission):
 
     message = submission.get_status_display
 
-    display_type = submission.get_display_type()
+    display_type = submission.get_display_type(can_see_score)
     badge_class = get_badge_class(display_type)
 
     return {
@@ -619,6 +619,19 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if kind is None:
             kind = self.get_default_submission_kind(request)
         return problem_instance.problem.controller.get_submissions_left(request, problem_instance, kind)
+
+    def get_editorial_attachment(self, request, problem_instance):
+        # by default delegate to ProblemController
+        return problem_instance.problem.controller.get_editorial_attachment(request, problem_instance)
+
+    def can_access_editorial(self, request, problem_instance):
+        # by default delegate to ProblemController
+        editorial_accessible_for_problem = problem_instance.problem.controller.can_access_editorial(request, problem_instance)
+        # Teacher has manually hidden editorial for this problem instance.
+        editorial_accessible_for_instance = problem_instance.can_access_editorial
+        if not editorial_accessible_for_instance:
+            return False
+        return editorial_accessible_for_problem
 
     def is_submissions_limit_exceeded(self, request, problem_instance, kind=None):
         # by default delegate to ProblemController

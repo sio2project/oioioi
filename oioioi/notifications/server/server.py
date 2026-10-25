@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable
 from typing import NamedTuple
 from weakref import WeakValueDictionary
 
+from aiohttp import ClientResponseError
 from websockets.asyncio.server import ServerConnection, broadcast, serve
 from websockets.exceptions import ConnectionClosed
 
@@ -105,7 +106,13 @@ class Server:
             return user_id
 
         except Exception as e:
-            self.logger.error(f"Authentication error for session {session_id}: {type(e).__name__}, {e}")
+            msg = f"Authentication error for session {session_id}: {type(e).__name__}, {e}"
+            # 401 Unauthorized errors can happen if the user logs out in one tab, but doesn't
+            # refresh other ones, so we don't want error notifications in such cases.
+            if isinstance(e, ClientResponseError) and e.status == 401:
+                self.logger.warn(msg)
+            else:
+                self.logger.error(msg)
             return None
 
     async def _unregister_connection(self, user_id: str | None, websocket: ServerConnection) -> None:

@@ -11,7 +11,7 @@ from oioioi.contests.models import (
 )
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import ProblemInstance
-from oioioi.programs.models import ProgramSubmission
+from oioioi.programs.models import ProgramSubmission, limit_mem_used
 
 submission_statuses.register("TESTRUN_OK", _("No error"))
 submission_kinds.register("TESTRUN", _("Test run"))
@@ -70,3 +70,7 @@ class TestRunReport(models.Model):
     test_time_limit = models.IntegerField(null=True, blank=True)
     test_mem_limit = models.IntegerField(null=True, blank=True)
     output_file = FileField(upload_to=make_custom_output_filename)
+
+    def save(self, *args, **kwargs):
+        self.mem_used = limit_mem_used(self.mem_used)
+        super().save(*args, **kwargs)

@@ -3,31 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/uuid": "^8.3.4",
-    "uuid": "^14.0.0",
-    "wait-on": "^6.0.1"
+    "uuid": "^14.0.3",
+    "wait-on": "^9.5.1"
   },
   "scripts": {
-    "cy:run": "set NODE_ENV=development& cypress run",
-    "cy:verify": "set NODE_ENV=development& cypress verify",
-    "cy:open": "set NODE_ENV=development& cypress open"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "cy:run": "cypress run",
+    "cy:verify": "cypress verify",
+    "cy:open": "cypress open"
   },
   "devDependencies": {
-    "@types/node": "^20.12.7",
-    "cypress": "^13.7.2",
-    "cypress-file-upload": "^5.0.8",
-    "typescript": "^5.4.4"
+    "@types/node": "^24.0.0",
+    "cypress": "^16.1.0",
+    "typescript": "^5.9.3"
   }
 }

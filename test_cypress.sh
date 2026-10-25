@@ -26,8 +26,10 @@ pushd oioioi_cypress
     # Resolve dependencies
     pnpm install
 
-    # Wait for a server
-    pnpm exec wait-on http://localhost:8000 --timeout 30000
+    # Wait for a server. Poll one request at a time: by default wait-on sends
+    # a new request every 250 ms without waiting for the previous one, which
+    # piles up on the slow dev server until it runs out of DB connections.
+    pnpm exec wait-on http://localhost:8000 --simultaneous 1 --interval 1000 --httpTimeout 10000 --timeout 120000
 
     # Run tests
     CYPRESS_baseUrl=http://localhost:8000 pnpm run cy:${gui}

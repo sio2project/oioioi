@@ -5,17 +5,22 @@ on:
     - cron: '15 5 * * *'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - uses: ./.github/actions/setup-env
       with:
         install-texlive: "true"
 
     - name: Run tests
       run: |
-        ./test.sh -n auto --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v
+        ./test.sh -n auto --cov-report term --cov-report xml:coverage.xml --cov=oioioi --migrations --runslow -v -m "not browser"

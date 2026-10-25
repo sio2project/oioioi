@@ -1,5 +1,4 @@
 @import "scss/utility";
-@import "bootstrap/scss/bootstrap";
 
 .round {
   &__header {
@@ -20,6 +19,6 @@
   }
 
   &__info {
-    @extend .text-muted;
+    color: var(--#{$prefix}secondary-color);
   }
 }

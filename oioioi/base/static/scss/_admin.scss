@@ -80,7 +80,7 @@
   }
 }
 
-@include media-breakpoint-down(xs) {
+@include media-breakpoint-down(sm) {
   #changelist-search, #changelist-actions {
     width: 100%;
   }

@@ -180,18 +180,16 @@
                 <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
 
                 <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <button class="btn btn-success" type="submit">
-                            {% if member_type == 'teacher' %}
-                                {% trans "Add a teacher" %}
-                            {% else %}
-                                {% trans "Add a pupil" %}
-                            {% endif %}
-                        </button>
-                    </div>
+                    <button class="btn btn-success" type="submit">
+                        {% if member_type == 'teacher' %}
+                            {% trans "Add a teacher" %}
+                        {% else %}
+                            {% trans "Add a pupil" %}
+                        {% endif %}
+                    </button>
                     <input type="text" name="user" id="new-user" class="form-control" placeholder="{% trans "Username" %}" data-hints-url="{% url 'teachers_get_appendable_users' contest_id=contest.id member_type=member_type %}">
-                    <script>init_user_selection("new-user", {{ num_hints }})</script>
                 </div>
+                <script>init_user_selection("new-user", {{ num_hints }})</script>
             </form>
 
             {% if member_type == 'pupil' and usergroups_active and members %}

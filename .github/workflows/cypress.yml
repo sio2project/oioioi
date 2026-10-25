@@ -5,6 +5,9 @@ on:
     - cron: "30 5 * * 1,3,5"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,11 +15,22 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          version: "latest"
+          persist-credentials: false
+      - uses: ./.github/actions/setup-pnpm
+
+      - name: Install Cypress dependencies
+        # Install before the containers start. The web container mounts a volume over
+        # node_modules; installing into the empty host directory later (as test_cypress.sh
+        # does) replaces what the container sees while the dev server is starting, and
+        # webpack/concurrently crash on a half-installed node_modules.
+        run: |
+          pnpm install --frozen-lockfile
+          # The Cypress binary lives in ~/.cache/Cypress, outside the cached pnpm store.
+          # On a store cache hit pnpm's side-effects cache skips cypress's postinstall,
+          # so the binary is never downloaded. `cypress install` is a no-op if it exists.
+          pnpm --dir oioioi_cypress exec cypress install
 
       - name: Build OIOIOI
         run: |
@@ -36,14 +50,25 @@ jobs:
 
       - name: Run test server
         run: |
-          python easy_toolbox.py run --no-input &
+          # `easy_toolbox.py run` starts webpack and runserver through `concurrently` (`conc`).
+          # Output of a background process is not shown in the job log, so keep it in a file.
+          date -u +"started at %H:%M:%S" > runserver.log
+          python -u easy_toolbox.py run --no-input >> runserver.log 2>&1 &
 
       - name: Run tests
         run: |
           ./test_cypress.sh
 
+      - name: Show test server logs
+        if: failure()
+        run: |
+          echo "::group::runserver.log"; cat runserver.log || true; echo "::endgroup::"
+          echo "::group::docker compose ps"; docker compose -f docker-compose-dev.yml ps -a || true; echo "::endgroup::"
+          echo "::group::web container logs"; docker compose -f docker-compose-dev.yml logs --tail=200 web || true; echo "::endgroup::"
+          echo "::group::curl http://localhost:8000/"; curl -sS -v -m 15 -o /dev/null http://localhost:8000/ 2>&1 || true; echo "::endgroup::"
+
       - name: Upload screenshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
           name: cypress-screenshots

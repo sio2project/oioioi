@@ -6,6 +6,7 @@ import re
 import urllib.parse
 import zipfile
 from datetime import UTC, datetime, timedelta  # pylint: disable=E0611
+from unittest.mock import patch
 
 import bs4
 import pytest
@@ -25,8 +26,9 @@ from django.urls import NoReverseMatch, reverse
 from rest_framework.test import APITestCase
 
 from oioioi.base.permissions import is_superuser
-from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time
+from oioioi.base.tests import TestCase, TestsUtilsMixin, check_not_accessible, fake_time, needs_linux
 from oioioi.base.tests.tests import TestPublicMessage
+from oioioi.contests.controllers import STATUS_CLASSES, get_badge_class
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import (
@@ -106,6 +108,14 @@ class TestModels(TestCase):
         pi.save()
         self.assertEqual(pi.contest, contest)
         self.assertEqual(pi.short_name, "a")
+
+
+class TestBadgeClasses(TestCase):
+    def test_badge_classes_exist_in_bootstrap_5(self):
+        # Bootstrap 5 has no badge-<color> classes; a badge needs text-bg-<color> to get a background.
+        for status, badge_class in STATUS_CLASSES.items():
+            self.assertRegex(badge_class, r"^text-bg-[a-z]+$", status)
+        self.assertEqual(get_badge_class("?"), "text-bg-secondary")
 
 
 class TestScores(TestCase):
@@ -303,6 +313,7 @@ class TestSubmissionListFilters(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "0 submissions")
 
+    @needs_linux
     def test_search(self):
         self.url = reverse(
             "noncontest:oioioiadmin:contests_submission_changelist",
@@ -602,6 +613,49 @@ class TestContestViews(TestCase):
         contests = [cv.contest for cv in ContestView.objects.all()]
         self.assertEqual(contests, [invisible_contest, contest])
 
+    def test_contest_view_recorded_once(self):
+        contest = Contest.objects.get()
+        url = f"/c/{contest.id}/dashboard/"
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get(url)  # first view after logging in is not recorded
+        self.client.get(url)
+        views = ContestView.objects.filter(user__username="test_user", contest=contest)
+        self.assertTrue(views.exists())
+
+        # Staying in the same contest does not touch ContestView at all,
+        # so a deleted row is not recreated.
+        views.delete()
+        self.client.get(url)
+        self.assertFalse(views.exists())
+
+    def test_no_session_for_anonymous_visitor(self):
+        contest = Contest.objects.get()
+        self.client.get(f"/c/{contest.id}/dashboard/")
+        self.assertNotIn(settings.SESSION_COOKIE_NAME, self.client.cookies)
+        self.assertEqual(self.client.cookies["recent_contests"].value, contest.id)
+
+    def test_contest_view_updated_on_contest_change(self):
+        contest = Contest.objects.get()
+        other_contest = Contest(id="other", name="Other Contest", controller_name=contest.controller_name)
+        other_contest.save()
+
+        self.assertTrue(self.client.login(username="test_user"))
+        for c in [contest, contest, other_contest, contest]:
+            self.client.get(f"/c/{c.id}/dashboard/")
+        contests = [cv.contest for cv in ContestView.objects.filter(user__username="test_user")]
+        self.assertEqual(contests, [contest, other_contest])
+
+    def test_recent_contests_cookie_moves_to_session_on_login(self):
+        contest = Contest.objects.get()
+        url = f"/c/{contest.id}/dashboard/"
+        self.client.get(url)
+        self.assertEqual(self.client.cookies["recent_contests"].value, contest.id)
+
+        self.assertTrue(self.client.login(username="test_user"))
+        self.client.get(url)
+        self.assertEqual(self.client.cookies["recent_contests"].value, "")
+        self.assertEqual(self.client.session["recent_contests"], [contest.id])
+
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_contest_visibility(self):
         invisible_contest = Contest(
@@ -710,6 +764,32 @@ class TestContestViews(TestCase):
         self.assertEqual(len(re_match), 1)
         self.assertEqual(len(wa_match), 1)
         self.assertContains(response, "program exited with code 1")
+
+    def test_submission_status_visibility(self):
+        contest = Contest.objects.get()
+        submission = Submission.objects.get(pk=1)
+        self.assertTrue(self.client.login(username="test_user"))
+        kwargs = {"contest_id": contest.id, "submission_id": submission.id}
+
+        def count_matches(css_class):
+            status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
+            response = self.client.get(reverse("submission", kwargs=kwargs))
+            self.assertEqual(response.status_code, 200)
+            content = response.content.decode("utf-8")
+            return len(re.findall(status_pattern % (css_class, "OK"), content))
+
+        self.assertEqual(count_matches("OK25"), 1)
+
+        submission.score = IntegerScore(24)
+        submission.save()
+        self.assertEqual(count_matches("OK0"), 1)
+        self.assertEqual(count_matches("OK25"), 0)
+
+        round = submission.problem_instance.round
+        round.results_date = datetime(4444, 4, 4, 4, 4, tzinfo=UTC)
+        round.save()
+        for score in (0, 25, 50, 75, 100):
+            self.assertEqual(count_matches("OK" + str(score)), 0)
 
     def test_submissions_permissions(self):
         contest = Contest.objects.get()
@@ -3160,6 +3240,44 @@ class TestProblemInstanceView(TestCase):
         for element in elements_to_find:
             self.assertContains(response, element)
 
+    def test_execution_mode_editable_only_for_superuser(self):
+        problem_instance = ProblemInstance.objects.get()
+
+        self.assertTrue(self.client.login(username="test_contest_basicadmin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'name="execution_mode"')
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="execution_mode"')
+
+    def test_execution_mode_post_ignored_for_basicadmin(self):
+        problem_instance = ProblemInstance.objects.get()
+        problem_instance.execution_mode = "sio2jail"
+        problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_contest_basicadmin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        url = reverse("oioioiadmin:contests_probleminstance_change", args=(problem_instance.id,))
+        post_data = {
+            "round": problem_instance.round_id or "",
+            "short_name": problem_instance.short_name,
+            "submissions_limit": problem_instance.submissions_limit,
+            "execution_mode": "cpu",
+            "_save": "Save",
+        }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        problem_instance.refresh_from_db()
+        self.assertEqual(problem_instance.execution_mode, "sio2jail")
+
     def separate_main_problem_instance(self):
         # in fixtures there is only one ProblemInstance
         # unfortunately it's already attached to contest and it's
@@ -3276,6 +3394,36 @@ class TestReattachingProblems(TestCase):
         for test in Problem.objects.get().main_problem_instance.test_set.all():
             test.delete()
         self.assertTrue(Test.objects.count() > 0)
+
+    def test_reattaching_problem_preserves_execution_mode_from_main_instance(self):
+        source_problem_instance = ProblemInstance.objects.get(id=1)
+        source_problem_instance.problem.main_problem_instance.execution_mode = "cpu"
+        source_problem_instance.problem.main_problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+
+        url = reverse("reattach_problem_confirm", args=("c2",)) + f"/?ids={source_problem_instance.id}"
+        response = self.client.post(url, data={"submit": True}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        copied_problem_instance = ProblemInstance.objects.filter(contest__id="c2", problem=source_problem_instance.problem).latest("id")
+        self.assertEqual(copied_problem_instance.execution_mode, "cpu")
+
+    def test_reattaching_problem_with_copy_limits_preserves_execution_mode(self):
+        source_problem_instance = ProblemInstance.objects.get(id=1)
+        source_problem_instance.execution_mode = "sio2jail"
+        source_problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+
+        url = reverse("reattach_problem_confirm", args=("c2",)) + f"/?ids={source_problem_instance.id}"
+        response = self.client.post(url, data={"submit": True, "copy-limits": "on"}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        copied_problem_instance = ProblemInstance.objects.filter(contest__id="c2", problem=source_problem_instance.problem).latest("id")
+        self.assertEqual(copied_problem_instance.execution_mode, "sio2jail")
 
     def test_reattaching_problems(self):
         c2 = Contest.objects.get(id="c2")
@@ -4255,11 +4403,6 @@ class TestAPIGetProblemId(APITestCase):
 
 class TestAPISubmitBase(APITestCase):
     fixtures = ["test_users", "test_contest", "test_full_package", "test_submission"]
-    extra_fixtures = []
-
-    def __init__(self, *args, **kwargs):
-        self.fixtures += self.extra_fixtures
-        super().__init__(*args, **kwargs)
 
     def setUp(self):
         self.client.force_authenticate(user=User.objects.get(username="test_user"))
@@ -4288,7 +4431,7 @@ class TestAPISubmitBase(APITestCase):
 
 
 class TestAPIContestSubmit(TestAPISubmitBase):
-    extra_fixtures = ["test_problem_instance"]
+    fixtures = TestAPISubmitBase.fixtures + ["test_problem_instance"]
 
     def contest_submit(self, contest, pi, *args, **kwargs):
         return self.submit_file("api_contest_submit", {"contest_name": contest.id, "problem_short_name": pi.short_name}, *args, **kwargs)
@@ -4303,7 +4446,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
         with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
-            self.assertContains(response, "Permission denied", status_code=400)
+            self.assertEqual(response.status_code, 404)
 
         with fake_time(datetime(2012, 7, 31, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
@@ -4320,6 +4463,30 @@ class TestAPIContestSubmit(TestAPISubmitBase):
         with fake_time(datetime(2012, 8, 11, tzinfo=UTC)):
             response = self.contest_submit(contest, problem_instance)
             self.assertContains(response, "Permission denied", status_code=400)
+
+    def test_hidden_contest_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        with patch(
+            "oioioi.contests.api.visible_contests_as_django_queryset",
+            return_value=Contest.objects.none(),
+        ):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_hidden_problem_cannot_be_submitted_to(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        round = Round.objects.get()
+        round.start_date = datetime(2012, 7, 31, tzinfo=UTC)
+        round.save()
+
+        with fake_time(datetime(2012, 7, 10, tzinfo=UTC)):
+            response = self.contest_submit(contest, problem_instance)
+
+        self.assertEqual(response.status_code, 404)
 
     def test_submissions_limitation(self):
         contest = Contest.objects.get()
@@ -4356,7 +4523,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
 
 class TestAPIProblemsetSubmit(TestAPISubmitBase):
-    extra_fixtures = ["test_problem_site", "test_problem_instance_with_no_contest"]
+    fixtures = TestAPISubmitBase.fixtures + ["test_problem_site", "test_problem_instance_with_no_contest"]
 
     # As problemset submissions share most of the logic with contest submissions
     # they have only few simple tests
