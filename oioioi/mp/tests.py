@@ -66,6 +66,26 @@ class TestMPRanking(TestCase):
             self.assertFalse(re.search(b"<td[^>]*>Test User4", response.content))
 
 
+class TestMPForum(TestCase):
+    fixtures = ["test_mp_users", "test_mp_contest"]
+
+    def _contest_page(self, controller_name):
+        contest = Contest.objects.get()
+        contest.controller_name = controller_name
+        contest.save()
+        self.assertTrue(self.client.login(username="test_user1"))
+        response = self.client.get(reverse("default_contest_view", kwargs={"contest_id": contest.id}), follow=True)
+        return response, reverse("forum", kwargs={"contest_id": contest.id})
+
+    def test_no_forum_before_2025(self):
+        response, forum_url = self._contest_page("oioioi.mp.controllers.MP2024ContestController")
+        self.assertNotContains(response, forum_url)
+
+    def test_mp2025_has_forum(self):
+        response, forum_url = self._contest_page("oioioi.mp.controllers.MP2025ContestController")
+        self.assertContains(response, forum_url)
+
+
 class TestNoRoundProblem(TestCase):
     fixtures = ["test_mp_users", "test_mp_contest"]
 
