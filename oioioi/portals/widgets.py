@@ -5,6 +5,7 @@ import mistune
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.urls import resolve, reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from mistune.util import safe_entity, unescape
@@ -14,6 +15,7 @@ from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
 
 REGISTERED_WIDGETS = []
+_scoped_regex_flags = [(re.IGNORECASE, "i"), (re.MULTILINE, "m"), (re.DOTALL, "s"), (re.VERBOSE, "x")]
 _block_spoiler_leading_pattern = re.compile(r"^ *>! ?", flags=re.M)
 _block_center_close_pattern = re.compile(r"<-")
 # A centered block may span blank lines, but not a code fence.
@@ -156,7 +158,12 @@ def register_widget(widget):
     # Fail here rather than on every later render if the pattern can't be
     # embedded into the combined regex (see compile_sc in mistune).
     inline = _markdown.inline
-    patterns = {**inline.specification, widget.name: widget.compiled_tag_regex.pattern}
+    pattern = widget.compiled_tag_regex.pattern
+    # Only the pattern goes into the combined regex, so keep the widget's flags as a scoped group.
+    flags = "".join(letter for flag, letter in _scoped_regex_flags if widget.compiled_tag_regex.flags & flag)
+    if flags:
+        pattern = f"(?{flags}:{pattern})"
+    patterns = {**inline.specification, widget.name: pattern}
     try:
         re.compile("|".join(f"(?P<{name}>{patterns[name]})" for name in [*inline.rules, widget.name]), inline.sc_flag)
     except re.error as e:
@@ -171,7 +178,7 @@ def register_widget(widget):
         state.append_token({"type": "portal_widget", "raw": widget.render(state.env["request"], widget_match)})
         return widget_match.end()
 
-    _markdown.inline.register(widget.name, widget.compiled_tag_regex.pattern, parse, before="link")
+    _markdown.inline.register(widget.name, pattern, parse, before="link")
 
     REGISTERED_WIDGETS.append(widget)
 
@@ -179,7 +186,7 @@ def register_widget(widget):
 class YouTubeWidget:
     name = "youtube"
     compiled_tag_regex = re.compile(
-        r"\[\[" r"YouTube\|([\s\S]+?)" r"\]\](?!\])"  # [[  # YouTube|<url>  # ]]
+        r"\[\[" r"YouTube\|([^\[\]]+)" r"\]\](?!\])"  # [[  # YouTube|<url>  # ]]
     )
 
     def render(self, request, m):
@@ -290,7 +297,8 @@ class RedirectWidget:
     @staticmethod
     def render(request, match):
         redirect_url = match.group(1).strip()
-        if urllib.parse.urlparse(redirect_url).netloc:
+        # Rejects other hosts (also "//host" and "/\host") and schemes such as javascript:.
+        if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
             return "[[Redirect: only relative URLs allowed]]"
 
         return render_to_string(

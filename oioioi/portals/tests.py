@@ -1,4 +1,5 @@
 import re
+import time
 from types import SimpleNamespace
 
 from django.contrib.auth.models import AnonymousUser
@@ -9,7 +10,7 @@ from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.actions import portal_url
 from oioioi.portals.models import Node, Portal
-from oioioi.portals.widgets import register_widget, render_panel
+from oioioi.portals.widgets import REGISTERED_WIDGETS, _markdown, register_widget, render_panel
 from oioioi.problems.models import Problem, ProblemSite
 
 
@@ -526,6 +527,25 @@ class TestMarkdown(TestCase):
         with self.assertRaises(ValueError):
             register_widget(Widget("problem_table"))
 
+    def test_tag_regex_flags(self):
+        class Widget:
+            name = "flag_test"
+            compiled_tag_regex = re.compile(r"\[\[flagtest\|(\w+)\]\]", re.IGNORECASE)
+
+            def render(self, request, m):
+                return f"<b>flag {m.group(1)}</b>"
+
+        widget = Widget()
+        register_widget(widget)
+        self.addCleanup(REGISTERED_WIDGETS.remove, widget)
+        self.addCleanup(_markdown.inline.rules.remove, widget.name)
+        self.assertIn("<b>flag ok</b>", render_panel(self.request, "[[FlagTest|ok]]"))
+
+    def test_youtube_widget_adversarial_input_is_fast(self):
+        start = time.perf_counter()
+        render_panel(self.request, "[[YouTube|" * 5000)
+        self.assertLess(time.perf_counter() - start, 1)
+
     def test_invalid_tag(self):
         class Widget:
             name = "bad-name"
@@ -587,9 +607,16 @@ class TestMarkdown(TestCase):
         self.assertNotIn("window.location.replace", rendered)
         self.assertIn('Users who do not have permission to edit this portal would now get redirected to: "/p/default/".', rendered)
 
-        rendered = render_panel(self.request, "[[Redirect|https://example.com/]]")
-        self.assertIn("[[Redirect: only relative URLs allowed]]", rendered)
-        self.assertNotIn("example.com", rendered)
+        for url in ["https://example.com/", "//example.com/", "/\\example.com/", "javascript:alert(1)", "JavaScript:alert(1)"]:
+            rendered = render_panel(self.request, f"[[Redirect|{url}]]")
+            self.assertIn("[[Redirect: only relative URLs allowed]]", rendered)
+            self.assertNotIn("example.com", rendered)
+            self.assertNotIn("alert", rendered)
+
+        self.request.user = AnonymousUser()
+        rendered = render_panel(self.request, "[[Redirect|/a');alert(1);('/]]")
+        self.assertNotIn("('/a');alert", rendered)
+        self.assertIn("window.location.replace('/a\\u0027)\\u003Balert(1)\\u003B(\\u0027/')", rendered)
 
     def test_block_center(self):
         rendered_markdown = render_panel(self.request, "->centered **bold**<-\n\nafter\n")
