@@ -525,6 +525,13 @@ class ProgrammingProblemController(ProblemController):
             problem_instance.controller.judge(submission)
         return submission
 
+    @staticmethod
+    def _get_preferred_language(request):
+        if request.user.is_anonymous:
+            return ""
+        ensure_preferences_exist_for_user(request.user)
+        return request.user.userpreferences.programming_language
+
     # This method is a large bottleneck in the submit view for large contests,
     # as for every problem_instance, `.get_compiler_for_language()`
     # and `.get_allowed_languages_for_problem()` execute DB queries.
@@ -559,11 +566,9 @@ class ProgrammingProblemController(ProblemController):
             choices=choices,
             widget=forms.Select(attrs={"disabled": "disabled"}),
         )
-        if not request.user.is_anonymous:
-            ensure_preferences_exist_for_user(request.user)
-            preferred_language = request.user.userpreferences.programming_language
-            if preferred_language in allowed_languages:
-                form.fields[field_name].initial = preferred_language
+        preferred_language = self._get_preferred_language(request)
+        if preferred_language in allowed_languages:
+            form.fields[field_name].initial = preferred_language
         narrow_input_field(form.fields[field_name])
         form.set_custom_field_attributes(field_name, problem_instance)
 
