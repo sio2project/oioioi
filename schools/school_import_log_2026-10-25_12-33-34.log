@@ -1,0 +1,31 @@
+﻿INFO: Read 0 records from the RSPO database backup.
+INFO: Read 25 records from the currently imported RSPO database.
+Warning: There are still 25 schools left that did not have an active counterpart in the SIO database.
+Note: A new school [rspo: 271907] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 39652] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 105317] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 39649] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 46647] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 29142] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 6593] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 12098] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 25801] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 23747] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 105809] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 91549] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 118799] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 7610] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 18942] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 16424] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 19684] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 25446] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 86621] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 25627] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 28061] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 22778] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 58882] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 11174] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Note: A new school [rspo: 15300] has been found, which previously was not in the RSPO database. It has been added to the SIO database.
+Warning: Keep in mind that schools with wrong type in RSPO database are not taken into account!
+Rows affected: 0
+New records: 25

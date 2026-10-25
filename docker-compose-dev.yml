@@ -14,6 +14,12 @@ services:
     volumes:
       - postgress-data-dev:/var/lib/postgresql/data
     stop_grace_period: 1m
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U oioioi -d oioioi" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
   web:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/oioioi_init.sh", "--dev"]
@@ -47,21 +53,24 @@ services:
 #      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
     # Healthy once oioioi_init.sh has built assets and applied migrations.
+    #&& curl -fsS -o /dev/null http://localhost:8000/ || exit 1
     healthcheck:
-      test: ["CMD", "test", "-f", "/tmp/oioioi_init_done"]
-      interval: 5s
-      timeout: 3s
+      test: ["CMD-SHELL", "test -f /tmp/oioioi_init_done && /sio2/oioioi/healthcheck.sh || exit 1"]
+      interval: 10s
+      timeout: 10s
       retries: 3
       start_period: 15m
     depends_on:
-      - db
-      - broker
-      - s3dedup
+      broker:
+          condition: service_healthy
+      s3dedup:
+          condition: service_healthy
+      db:
+          condition: service_healthy
   worker:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/worker_init.sh"]
     environment:
-      WEB_URL: "web:8000"
       <<: *common-envs
     volumes:
       - .:/sio2/oioioi
@@ -69,13 +78,20 @@ services:
     cap_add:
       - ALL
     depends_on:
-      - db
+      web:
+        condition: service_healthy
   broker:
     image: library/rabbitmq:3.8
     environment:
       RABBITMQ_DEFAULT_USER: oioioi
       RABBITMQ_DEFAULT_PASS: oioioi
     stop_grace_period: 1m
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
   rustfs:
     image: rustfs/rustfs:1.0.1
     environment:
@@ -126,7 +142,7 @@ services:
     # so it has to be overridden to check the port the server actually listens on.
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9999/health || exit 1"]
-      interval: 30s
+      interval: 5s
       timeout: 3s
       start_period: 5s
       retries: 3
