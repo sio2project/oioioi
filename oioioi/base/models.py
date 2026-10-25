@@ -44,6 +44,13 @@ class UserPreferences(models.Model):
         default=False,
     )
 
+    programming_language = models.CharField(
+        _("preferred programming language"),
+        max_length=64,
+        default="",
+        blank=True,
+    )
+
 
 @receiver(post_save, sender=Consents)
 def _log_consent_change(sender, instance, created, raw, **kwargs):

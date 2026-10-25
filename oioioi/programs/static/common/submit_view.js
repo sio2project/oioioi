@@ -15,6 +15,9 @@ $(function() {
     const codeField = $('#id_code');
     const progLangs = new Map(Array.from(piIds, x => [x, '#id_prog_lang_' + x]));
     const languageFields = $(Array.from(progLangs.values()).join());
+    // Initial values hold the user's preferred language, restored when the file is cleared.
+    const initialLangs = new Map(Array.from(progLangs, ([piId, progLang]) => [piId, $(progLang).val()]));
+    let hadFile = false;
 
     function userInput() {
         const fileFieldVal = fileField.val();
@@ -34,10 +37,15 @@ $(function() {
             const dict = {pi_ids: piIds, filename: fileFieldVal, problemsite_key: window.problemsiteKey};
             $.getJSON(hints_url, dict, function(data) {
                 progLangs.forEach(function(progLang, piId) {
-                    $(progLang).val(data[piId]);
+                    $(progLang).val(data[piId] ?? '');
                 });
             });
+        } else if (hadFile) {
+            progLangs.forEach(function(progLang, piId) {
+                $(progLang).val(initialLangs.get(piId));
+            });
         }
+        hadFile = Boolean(fileFieldVal);
     }
 
     if(fileField.length && codeField.length && languageFields.length) {

@@ -106,9 +106,8 @@ def edit_profile_view(request):
             allow_login_change=not has_valid_username(request.user),
         )
 
-        handle_new_preference_fields(request, request.user)
-
         if form.is_valid():
+            handle_new_preference_fields(request, request.user)
             form.save()
             return redirect("index")
     else:

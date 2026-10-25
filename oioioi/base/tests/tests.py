@@ -1329,7 +1329,7 @@ class TestPreferences(TestCase):
             "username": "test_user",
             "first_name": "fn",
             "last_name": "ln",
-            "email": "foo@bar.com",
+            "email": "test_user@example.com",
             "terms_accepted": True,
             "preferred_language": "pl",
         }
@@ -1342,6 +1342,43 @@ class TestPreferences(TestCase):
 
         response = self.client.get("/")
         self.assertContains(response, "Edycja profilu")
+
+    def test_programming_language_preferences(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("edit_profile")
+        response = self.client.get(url)
+        self.assertContains(response, "Preferred programming language")
+        self.assertNotContains(response, "Output-only")
+
+        data = {
+            "username": "test_user",
+            "first_name": "fn",
+            "last_name": "ln",
+            "email": "test_user@example.com",
+            "terms_accepted": True,
+            "preferred_language": "",
+            "programming_language": "C++",
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user = User.objects.get(username="test_user")
+        self.assertEqual(user.userpreferences.programming_language, "C++")
+
+        for invalid_language in ["Output-only", "Brainfuck"]:
+            data["programming_language"] = invalid_language
+            response = self.client.post(url, data, follow=True)
+            self.assertEqual(response.status_code, 200)
+
+            user.userpreferences.refresh_from_db()
+            self.assertEqual(user.userpreferences.programming_language, "C++")
+
+        # Preferences are not saved when the rest of the form is invalid.
+        data.update({"programming_language": "Python", "email": "not-an-email"})
+        response = self.client.post(url, data, follow=True)
+        self.assertContains(response, "Enter a valid email address")
+        user.userpreferences.refresh_from_db()
+        self.assertEqual(user.userpreferences.programming_language, "C++")
 
     def test_registration_preferences(self):
         response = self.client.get(reverse("sign-up"))
