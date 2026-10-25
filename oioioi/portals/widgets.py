@@ -8,6 +8,7 @@ from django.urls import resolve, reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from mistune.plugins.table import NP_TABLE_PATTERN, TABLE_PATTERN, table
 from mistune.util import safe_entity, unescape
 
 from oioioi.contests.models import UserResultForProblem
@@ -15,7 +16,6 @@ from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
 
 REGISTERED_WIDGETS = []
-_scoped_regex_flags = [(re.IGNORECASE, "i"), (re.MULTILINE, "m"), (re.DOTALL, "s"), (re.VERBOSE, "x")]
 _block_spoiler_leading_pattern = re.compile(r"^ *>! ?", flags=re.M)
 _block_center_close_pattern = re.compile(r"<-")
 # A centered block may span blank lines, but not a code fence.
@@ -23,6 +23,12 @@ _block_center_boundary_pattern = re.compile(r"^[ \t]*(?:```|~~~)", flags=re.M)
 _block_center_trailing_pattern = re.compile(r"(?:[ \t]*\n)?")
 # Same limit as mistune 0.8 had for nested blocks.
 _max_spoiler_depth = 6
+_table_aligns = [
+    ("center", re.compile(r"^ *:-+: *$")),
+    ("left", re.compile(r"^ *:-+ *$")),
+    ("right", re.compile(r"^ *-+: *$")),
+    (None, re.compile(r"^ *-* *$")),
+]
 
 
 class PortalRenderer(mistune.HTMLRenderer):
@@ -110,17 +116,109 @@ def parse_block_spoiler(block, m, state):
     return m.end()
 
 
+def _split_table_cells(text):
+    """Split a table row at ``|``, except escaped ones and ones inside widget tags like ``[[YouTube|...]]``."""
+    cells = []
+    start = pos = 0
+    in_tag = False
+    last_tag_end = text.rfind("]]")
+    while pos < len(text):
+        if text[pos] == "\\":
+            pos += 2
+            continue
+        if not in_tag and text.startswith("[[", pos) and pos < last_tag_end:
+            in_tag = True
+            pos += 2
+            continue
+        if in_tag and text.startswith("]]", pos):
+            in_tag = False
+            pos += 2
+            continue
+        if text[pos] == "|" and not in_tag:
+            cells.append(text[start:pos].strip())
+            start = pos + 1
+        pos += 1
+    cells.append(text[start:].strip())
+    return cells
+
+
+def _strip_pipe_table_row(line):
+    text = line.strip(" \t\n")
+    if len(text) < 2 or not text.startswith("|") or not text.endswith("|"):
+        return None
+    return text[1:-1]
+
+
+def _strip_nptable_row(line):
+    text = line.rstrip(" \t\n")
+    if "|" not in text:
+        return None
+    return text
+
+
+def _table_cells(cells, aligns, head):
+    return [{"type": "table_cell", "text": text, "attrs": {"align": aligns[i] if i < len(aligns) else None, "head": head}} for i, text in enumerate(cells)]
+
+
+def _make_table_parser(strip_row):
+    def parse(block, m, state):
+        header = strip_row(m.group(0))
+        pos = m.end()
+        delimiter_line = state.get_line(pos)
+        delimiter = strip_row(delimiter_line)
+        if header is None or delimiter is None:
+            return None
+        headers = _split_table_cells(header)
+        aligns = []
+        for cell in _split_table_cells(delimiter):
+            align = next((align for align, pattern in _table_aligns if pattern.match(cell)), False)
+            if align is False:
+                return None
+            aligns.append(align)
+        if len(aligns) != len(headers):
+            return None
+        pos += len(delimiter_line)
+
+        rows = []
+        while pos < state.cursor_max:
+            line = state.get_line(pos)
+            row = strip_row(line)
+            if row is None:
+                break
+            cells = _split_table_cells(row)
+            # Like mistune 0.8, a row with too few or too many cells still belongs to the table.
+            cells += [""] * (len(aligns) - len(cells))
+            rows.append({"type": "table_row", "children": _table_cells(cells, aligns, head=False)})
+            pos += len(line)
+
+        head = {"type": "table_head", "children": _table_cells(headers, aligns, head=True)}
+        state.append_token({"type": "table", "children": [head, {"type": "table_body", "children": rows}]})
+        return pos
+
+    return parse
+
+
+def table_plugin(md):
+    """mistune's table plugin, but with rows parsed like in mistune 0.8 and widget tags kept in one cell.
+
+    mistune 3 drops the whole table when a row has a different number of cells than the header.
+    """
+    table(md)
+    md.block.register("table", TABLE_PATTERN, _make_table_parser(_strip_pipe_table_row))
+    md.block.register("nptable", NP_TABLE_PATTERN, _make_table_parser(_strip_nptable_row))
+
+
 _markdown = mistune.create_markdown(
     renderer=PortalRenderer(escape=True),
-    plugins=["strikethrough", "footnotes", "table", "url"],
+    plugins=["strikethrough", "footnotes", table_plugin, "url"],
 )
 _block_rules = {
     "block_spoiler": (
-        r"^ *>!\[(?P<spoiler_summary>[^\n]*)\] *(?P<spoiler_body>(?:\n *>![^\n]*)+)(?:[ \t]*\n)?",
+        r"^ {0,3}>!\[(?P<spoiler_summary>[^\n]*)\] *(?P<spoiler_body>(?:\n *>![^\n]*)+)(?:[ \t]*\n)?",
         parse_block_spoiler,
     ),
     # Only the opening, parse_block_center finds the closing <-.
-    "block_center": (r"^ *->", parse_block_center),
+    "block_center": (r"^ {0,3}->", parse_block_center),
 }
 for _name, (_pattern, _func) in _block_rules.items():
     _markdown.block.register(_name, _pattern, _func, before="fenced_code")
@@ -147,7 +245,7 @@ def register_widget(widget):
         * :attr:`widget.compiled_tag_regex` - compiled regular expression
             pattern used for identifying markdown tag.  Its pattern is
             embedded into ``mistune``'s combined regex, so it must not use
-            ``^`` anchors, inline flags or named groups.
+            ``^`` anchors, flags (also inline ones) or named groups.
         * :meth:`widget.render` - method (or just function) accepting
             the current request and the corresponding :class:`re.Match`
             instance (named 'm').  Should return a string (rendered widget).
@@ -159,10 +257,9 @@ def register_widget(widget):
     # embedded into the combined regex (see compile_sc in mistune).
     inline = _markdown.inline
     pattern = widget.compiled_tag_regex.pattern
-    # Only the pattern goes into the combined regex, so keep the widget's flags as a scoped group.
-    flags = "".join(letter for flag, letter in _scoped_regex_flags if widget.compiled_tag_regex.flags & flag)
-    if flags:
-        pattern = f"(?{flags}:{pattern})"
+    # Only the pattern goes into the combined regex, so flags would be silently lost.
+    if widget.compiled_tag_regex.flags & ~re.UNICODE:
+        raise ValueError(f"Inline tag for widget named {widget.name} must not use regex flags.")
     patterns = {**inline.specification, widget.name: pattern}
     try:
         re.compile("|".join(f"(?P<{name}>{patterns[name]})" for name in [*inline.rules, widget.name]), inline.sc_flag)
@@ -186,7 +283,7 @@ def register_widget(widget):
 class YouTubeWidget:
     name = "youtube"
     compiled_tag_regex = re.compile(
-        r"\[\[" r"YouTube\|([^\[\]]+)" r"\]\](?!\])"  # [[  # YouTube|<url>  # ]]
+        r"\[\[" r"YouTube\|((?:[^\[\]]|\[[^\[\]]*\])+)" r"\]\](?!\])"  # [[  # YouTube|<url>  # ]]
     )
 
     def render(self, request, m):
@@ -213,7 +310,8 @@ class ProblemTableWidget:
     compiled_tag_regex = re.compile(
         r"\[\["  # [[
         # ProblemTable|... or ProblemTable:<Header>|...
-        r"ProblemTable(:.*)?\|(.*)"
+        # The parts can't contain brackets, so that a tag without ]] fails fast.
+        r"ProblemTable(:[^\[\]|\n]*)?\|([^\[\]\n]*)"
         r"\]\](?!\])"  # ]]
     )
 
@@ -291,7 +389,7 @@ register_widget(ProblemTableWidget())
 class RedirectWidget:
     name = "redirect"
     compiled_tag_regex = re.compile(
-        r"\[\[" r"Redirect\|(.*)" r"\]\]"  # [[  # Redirect|<url>  # ]]
+        r"\[\[" r"Redirect\|([^\[\]\n]*)" r"\]\]"  # [[  # Redirect|<url>  # ]]
     )
 
     @staticmethod

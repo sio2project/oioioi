@@ -10,7 +10,7 @@ from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.actions import portal_url
 from oioioi.portals.models import Node, Portal
-from oioioi.portals.widgets import REGISTERED_WIDGETS, _markdown, register_widget, render_panel
+from oioioi.portals.widgets import _markdown, register_widget, render_panel
 from oioioi.problems.models import Problem, ProblemSite
 
 
@@ -535,16 +535,36 @@ class TestMarkdown(TestCase):
             def render(self, request, m):
                 return f"<b>flag {m.group(1)}</b>"
 
-        widget = Widget()
-        register_widget(widget)
-        self.addCleanup(REGISTERED_WIDGETS.remove, widget)
-        self.addCleanup(_markdown.inline.rules.remove, widget.name)
-        self.assertIn("<b>flag ok</b>", render_panel(self.request, "[[FlagTest|ok]]"))
+        # The flags would be lost in mistune's combined regex.
+        with self.assertRaises(ValueError):
+            register_widget(Widget())
+        self.assertNotIn("flag_test", _markdown.inline.rules)
 
-    def test_youtube_widget_adversarial_input_is_fast(self):
-        start = time.perf_counter()
-        render_panel(self.request, "[[YouTube|" * 5000)
-        self.assertLess(time.perf_counter() - start, 1)
+    def test_widget_adversarial_input_is_fast(self):
+        for tag in ["[[YouTube|", "[[Redirect|", "[[ProblemTable|", "[[ProblemTable:"]:
+            start = time.perf_counter()
+            render_panel(self.request, tag * 5000)
+            self.assertLess(time.perf_counter() - start, 1, tag)
+
+    def test_youtube_widget_title_with_brackets(self):
+        rendered = render_panel(self.request, "[[YouTube|Final [HD]|https://www.youtube.com/watch?v=pB0CTz5QlOw]]")
+        self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered)
+
+    def test_table_with_widget_and_uneven_rows(self):
+        url = "https://www.youtube.com/watch?v=pB0CTz5QlOw"
+        rendered = render_panel(self.request, f"| a | b |\n|---|---|\n| [[YouTube|{url}]] | x |\n| short |\n| 1 | 2 | 3 |\n")
+        self.assertIn("<table", rendered)
+        self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered)
+        self.assertIn("<td>x</td>", rendered)
+        self.assertIn("<td>short</td>\n  <td></td>", rendered)
+        self.assertIn("<td>3</td>", rendered)
+        self.assertNotIn("|", rendered)
+
+    def test_indented_code_is_not_center_or_spoiler(self):
+        rendered = render_panel(self.request, "    ->indented code\n    <-\n\n    >![s]\n    >!body\n")
+        self.assertNotIn("text-center", rendered)
+        self.assertNotIn("<details>", rendered)
+        self.assertIn("<pre><code>-&gt;indented code", rendered)
 
     def test_invalid_tag(self):
         class Widget:
