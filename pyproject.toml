@@ -113,6 +113,15 @@ oioioi-create-config = "oioioi.deployment.create_config:main"
 
 [tool.uv]
 exclude-newer = "P7D"
+# TEMPORARY exception to the 7-day cooldown above, for security fixes only.
+# certifi < 2026.10.19 (GHSA-6q48-6c7w-9gw2) and uv < 0.13.4
+# (GHSA-hq85-5cpj-mr62) trust the emSign ECC Root CA - G3, whose
+# intermediate CA keys are compromised. The fixed releases were uploaded on
+# 2026-10-20, so the cutoff only goes up to 2026-10-21 (certifi 2026.10.19,
+# uv 0.13.4) and doesn't pull in anything newer. Remove this table after
+# 2026-10-28, once P7D covers both fixes:
+# https://github.com/sio2project/oioioi/issues/900
+exclude-newer-package = { certifi = "2026-10-21T00:00:00Z", uv = "2026-10-21T00:00:00Z" }
 
 # bsddb3 (from filetracker[server] and sioworkers) only ships an sdist whose
 # build needs Berkeley DB headers. Static metadata lets `uv lock` resolve
