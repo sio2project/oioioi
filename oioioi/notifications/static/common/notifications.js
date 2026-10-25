@@ -16,7 +16,7 @@ TranslationClient.prototype.translate = function (originalText) {
         if (!this.translationQueue[originalText]) {
             this.translationQueue[originalText] = [];
             $.get('/translate/', { query: originalText }, 'json')
-                .success(function (data) {
+                .done(function (data) {
                     tClient.translationCache[originalText] = data.answer;
                     for (let request of tClient.translationQueue[originalText]) {
                         request.resolve(data.answer);
@@ -151,7 +151,7 @@ NotificationsClient.prototype.renderMessages = function () {
     this.dropdownUpToDate = true;
     this.HEADER_REFRESH_SPINNER.addClass("spinner");
     $.get('/latest_submissions/', {}, 'html')
-        .success((data) => {
+        .done((data) => {
             this.dropdownLoading = false;
             this.HEADER_REFRESH_SPINNER.removeClass("spinner");
             this.TABLE_NOTIFICATIONS.html(data);

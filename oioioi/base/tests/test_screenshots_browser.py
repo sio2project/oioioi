@@ -58,6 +58,8 @@ class TestContestPages(ScreenshotTestCase):
         self.screenshot(page, "questions-public-message")
         page = self.open(reverse("message", kwargs={"contest_id": "c", "message_id": 1}), "test_admin")
         self.screenshot(page, "questions-question")
+        # The message pages poll for new answers (messages.js) once they load.
+        self.assertNoPageErrors()
 
     def test_simpleui_contest_dashboard(self):
         page = self.open(reverse("simpleui_contest_dashboard", kwargs={"contest_id": "c"}), "test_admin")
