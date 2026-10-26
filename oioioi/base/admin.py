@@ -23,7 +23,7 @@ from oioioi.base.forms import OioioiUserChangeForm, OioioiUserCreationForm
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
 from oioioi.base.models import Consents
 from oioioi.base.permissions import is_superuser
-from oioioi.base.utils import ClassInitMeta, ObjectWithMixins
+from oioioi.base.utils import ClassInitMeta, ObjectWithMixins, get_complete_user_name
 from oioioi.base.utils.redirect import safe_redirect
 
 NO_CATEGORY = "__no_category__"
@@ -300,10 +300,7 @@ class OioioiAutocompleteJsonView(AutocompleteJsonView):
     def serialize_result(self, obj, to_field_name):
         result = super().serialize_result(obj, to_field_name)
         if isinstance(obj, User):
-            if obj.get_full_name():
-                result["text"] = f"{obj.get_full_name()} ({obj.username})"
-            else:
-                result["text"] = obj.username
+            result["text"] = get_complete_user_name(obj)
         return result
 
 
