@@ -128,3 +128,14 @@
     width: 50%;
   }
 }
+
+@include media-breakpoint-down(md) {
+  .oioioi-navbar > .oioioi-navbar__brand {
+    min-width: 3.5rem;
+
+    > img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+}
