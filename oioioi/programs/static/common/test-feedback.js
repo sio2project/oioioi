@@ -18,7 +18,7 @@ $(function () {
     }
 
     function setFeedbackOpen($toggle, open) {
-        const $panel = $($toggle.attr("data-feedback-target"));
+        const $panel = $toggle.closest(".submission-report").find($toggle.attr("data-feedback-target"));
         const $row = $panel.closest("tr");
         if (!$panel.length) {
             return;
