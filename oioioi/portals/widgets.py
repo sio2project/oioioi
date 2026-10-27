@@ -15,6 +15,7 @@ from mistune.plugins.table import (
     render_table_cell,
     render_table_head,
     render_table_row,
+    table_in_quote,
 )
 from mistune.util import safe_entity, unescape
 
@@ -238,6 +239,7 @@ def table_plugin(md):
     """
     md.block.register("table", TABLE_PATTERN, _make_table_parser(_strip_pipe_table_row))
     md.block.register("nptable", NP_TABLE_PATTERN, _make_table_parser(_strip_nptable_row))
+    table_in_quote(md)
 
 
 _markdown = mistune.create_markdown(
