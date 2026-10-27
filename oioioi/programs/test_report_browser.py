@@ -42,12 +42,16 @@ class TestReportFeedback(StyledBrowserTestCase):
         for feedback in loaded.locator(".test-feedback-clip").all():
             expect(feedback).not_to_be_visible()
 
-    def test_print_shows_collapsed_feedback(self):
+    def test_print_shows_open_and_collapsed_feedback(self):
         from playwright.sync_api import expect
 
         panels = self.page.locator(".test-feedback-clip")
-        self.assertGreater(panels.count(), 0)
+        self.assertGreater(panels.count(), 1)
         for panel in panels.all():
+            expect(panel).not_to_be_visible()
+        self.page.locator(".test-feedback-toggle").first.click()
+        expect(panels.first).to_be_visible()
+        for panel in panels.all()[1:]:
             expect(panel).not_to_be_visible()
         self.page.emulate_media(media="print")
         for panel in panels.all():
@@ -55,5 +59,6 @@ class TestReportFeedback(StyledBrowserTestCase):
         for button in self.page.locator(".test-feedback-toggle, .test-feedback-expand-all").all():
             expect(button).not_to_be_visible()
         self.page.emulate_media(media="screen")
-        for panel in panels.all():
+        expect(panels.first).to_be_visible()
+        for panel in panels.all()[1:]:
             expect(panel).not_to_be_visible()

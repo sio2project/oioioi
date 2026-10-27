@@ -1,21 +1,21 @@
+function setTestFeedbackExpandAllState($report) {
+    const $btn = $report.find(".test-feedback-expand-all");
+    if (!$btn.length) {
+        return;
+    }
+    const $toggles = $report.find(".test-feedback-toggle");
+    const allOpen = $toggles.length > 0 && $toggles.filter('[aria-expanded="true"]').length === $toggles.length;
+    $btn.attr("data-expanded", allOpen ? "true" : "false");
+    $btn.find(".test-feedback-expand-all-label").text(
+        allOpen ? $btn.attr("data-label-collapse") : $btn.attr("data-label-expand")
+    );
+    $btn.find("i").toggleClass("fa-chevron-up", allOpen).toggleClass("fa-chevron-down", !allOpen);
+}
+
 $(function () {
     // Keep this above the 0.16s grid-template-rows transition. visibility:collapse
     // drops the empty row, so it must wait until the panel has finished closing.
     const COLLAPSE_VISIBILITY_DELAY_MS = 200;
-
-    function setExpandAllState($report) {
-        const $btn = $report.find(".test-feedback-expand-all");
-        if (!$btn.length) {
-            return;
-        }
-        const $toggles = $report.find(".test-feedback-toggle");
-        const allOpen = $toggles.length > 0 && $toggles.filter('[aria-expanded="true"]').length === $toggles.length;
-        $btn.attr("data-expanded", allOpen ? "true" : "false");
-        $btn.find(".test-feedback-expand-all-label").text(
-            allOpen ? $btn.attr("data-label-collapse") : $btn.attr("data-label-expand")
-        );
-        $btn.find("i").toggleClass("fa-chevron-up", allOpen).toggleClass("fa-chevron-down", !allOpen);
-    }
 
     function setFeedbackOpen($toggle, open) {
         const $panel = $toggle.closest(".submission-report").find($toggle.attr("data-feedback-target"));
@@ -28,7 +28,7 @@ $(function () {
         if (open) {
             $row.removeClass("is-collapsed");
             // Force a reflow so the 0fr → 1fr transition starts from a closed row.
-            $panel[0].offsetHeight;
+            $panel[0].getBoundingClientRect();
             $panel.addClass("is-open");
         } else {
             $panel.removeClass("is-open");
@@ -38,7 +38,7 @@ $(function () {
                 }
             }, COLLAPSE_VISIBILITY_DELAY_MS));
         }
-        setExpandAllState($toggle.closest(".submission-report"));
+        setTestFeedbackExpandAllState($toggle.closest(".submission-report"));
     }
 
     $("body").on("click", ".test-feedback-toggle", function () {

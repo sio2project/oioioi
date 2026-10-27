@@ -100,13 +100,14 @@
     visibility: visible;
   }
 
-  .test-feedback-clip {
-    grid-template-rows: 1fr !important;
+  .table-report .test-feedback-clip {
+    grid-template-rows: 1fr;
+    transition: none;
   }
 
   .test-feedback-expand-all,
   .test-feedback-toggle {
-    display: none !important;
+    display: none;
   }
 }
 
