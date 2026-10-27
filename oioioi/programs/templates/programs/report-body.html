@@ -40,9 +40,9 @@
                             {% if record.has_textual_feedback %}
                                 <button type="button"
                                         class="test-feedback-toggle"
-                                        data-feedback-target="#test-feedback-{{ test.id }}"
+                                        data-feedback-target="#test-feedback-{{ report_dom_id }}-{{ test.id }}"
                                         aria-expanded="false"
-                                        aria-controls="test-feedback-{{ test.id }}"
+                                        aria-controls="test-feedback-{{ report_dom_id }}-{{ test.id }}"
                                         aria-label='{% trans "Show feedback for this test" %}'
                                         title='{% trans "Show feedback for this test" %}'>
                                     <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
@@ -125,7 +125,7 @@
                         <tr class="test-feedback-row is-collapsed">
                             <td class="submission__margin submission--{{ record.display_type }}"></td>
                             <td colspan="{% if show_mem_used %}4{% else %}3{% endif %}">
-                                <div id="test-feedback-{{ test.id }}" class="test-feedback-clip">
+                                <div id="test-feedback-{{ report_dom_id }}-{{ test.id }}" class="test-feedback-clip">
                                     <div class="test-feedback-clip-inner">
                                         <div class="test-feedback small text-muted">
                                             {% include "programs/report-test-details.html" %}

@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import logging
 from operator import attrgetter  # pylint: disable=E0611
+from uuid import uuid4
 
 from django import forms
 from django.conf import settings
@@ -785,6 +786,8 @@ class ProgrammingProblemController(ProblemController):
             request=request,
             context={
                 "report": report,
+                # Active reports can also be loaded in the hidden reports section of the same page.
+                "report_dom_id": f"submission-report-{report.pk}-{uuid4().hex}",
                 "score_report": score_report,
                 "compilation_report": compilation_report,
                 "groups": groups,

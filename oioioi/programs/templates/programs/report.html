@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load runtimeformat %}
 
-<article class="submission-report" id="submission-report-{{ report.id }}">
+<article class="submission-report" id="{{ report_dom_id }}">
     {% if report.kind == 'INITIAL' %}
         <h4>{% trans "Initial testing report" %}</h4>
     {% elif report.kind == 'NORMAL' %}
