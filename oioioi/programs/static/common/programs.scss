@@ -24,6 +24,7 @@
   }
   .group-score {
     vertical-align: middle;
+    white-space: nowrap;
   }
 
   // Detail rows stay in the table so the group score rowspan stays valid.
@@ -93,6 +94,7 @@
   padding: ($spacer * 0.25) 0 ($spacer * 0.5);
   font-size: 0.875rem;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 @media print {
