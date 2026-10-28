@@ -58,6 +58,8 @@ from oioioi.contests.utils import (
     administered_contests,
     all_non_trial_public_results_visible,
     all_public_results_visible,
+    can_admin_contest,
+    can_admin_contest_id,
     can_enter_contest,
     can_see_personal_data,
     is_contest_admin,
@@ -2119,6 +2121,10 @@ class TestPermissions(TestCase):
         check_perms(self.observer, [is_contest_observer, can_enter_contest])
         check_perms(self.pdata, [can_see_personal_data, can_enter_contest])
         check_perms(self.user, [])
+
+        self.assertTrue(is_contest_basicadmin(self.factory(self.badmin)))
+        self.assertTrue(can_admin_contest(self.badmin, self.contest))
+        self.assertTrue(can_admin_contest_id(self.badmin, self.contest.id))
 
     def test_privilege_manipulation(self):
         def check_perms(user, perms):

@@ -493,6 +493,14 @@ def can_admin_contest(user, contest):
     return user.has_perm("contests.contest_basicadmin", contest)
 
 
+def can_admin_contest_id(user, contest_id):
+    """Same as can_admin_contest, but useful when one want to avoid a DB query
+    for getting the contest when only the ID is known."""
+    # Since contests/auth.py only checks IDs of contests anyway, this is fine.
+    # If that changes, support for pairs (type, id) could be added there.
+    return user.has_perm("contests.contest_basicadmin", Contest(id=contest_id))
+
+
 @make_request_condition
 @request_cached
 def is_contest_basicadmin(request):
