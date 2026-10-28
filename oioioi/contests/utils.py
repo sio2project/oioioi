@@ -197,8 +197,9 @@ def has_any_rounds(request_or_context):
 @make_request_condition
 @request_cached
 def has_any_active_round(request):
-    for rtime in generic_rounds_times(request).values():
-        if rtime.is_active(request.timestamp):
+    for round in rounds_in_contest(request):
+        rtimes = request.contest.controller.get_round_times(request, round)
+        if rtimes.is_active(request.timestamp):
             return True
     return False
 
