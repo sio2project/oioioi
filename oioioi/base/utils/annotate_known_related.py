@@ -36,12 +36,30 @@ def annotate_known_related(objs, related_name, related_obj):
     related_name_parts = related_name.split("__")
     attrname = related_name_parts[-1]
     id_attrname = attrname + "_id"
+    subobjs_with_missing_related = []
+    # Handle related None.
+    related_obj_id = getattr(related_obj, "id", None)
+
     for obj in objs:
         subobj = _get_subobject(obj, related_name_parts[:-1])
         if subobj is None:
             continue
-        assert getattr(subobj, id_attrname) == related_obj.id
-        setattr(subobj, attrname, related_obj)
+        if getattr(subobj, id_attrname) == related_obj_id:
+            setattr(subobj, attrname, related_obj)
+        else:
+            subobjs_with_missing_related.append(subobj)
+
+    if subobjs_with_missing_related:
+        subobjs_logged = subobjs_with_missing_related[:3]
+        subobjs_logged_ids = [getattr(subobj, id_attrname) for subobj in subobjs_logged]
+        logger.warning(
+            f"annotate_known_related for {related_name} relation called with (partially) missing "
+            f"related_obj. Object type is {str(type(objs[0]))}. Some of the subobjects with related "
+            f"objects different than the expected {related_obj} (id={related_obj_id}): "
+            f"{subobjs_logged}. The ids of their related objects: {subobjs_logged_ids}."
+        )
+        prefetch_related_objects(subobjs_with_missing_related, attrname)
+
     return objs
 
 
@@ -68,11 +86,14 @@ def annotate_known_related_many(objs, related_name, related_list):
             setattr(subobj, attrname, related_obj)
 
     if subobjs_with_missing_related:
+        subobjs_logged = subobjs_with_missing_related[:3]
+        subobjs_logged_ids = [getattr(subobj, attrname + "_id") for subobj in subobjs_logged]
         logger.warning(
             f"annotate_known_related_many for {related_name} relation called with an "
             f"incomplete related_list. Object type is {str(type(objs[0]))}. Some of the "
-            f"subobjects with missing related objects: {subobjs_with_missing_related[:3]}."
+            f"subobjects with missing related objects: {subobjs_logged}. The ids of their "
+            f"related objects: {subobjs_logged_ids}"
         )
-        prefetch_related_objects(subobjs_with_missing_related, related_name_parts[-1])
+        prefetch_related_objects(subobjs_with_missing_related, attrname)
 
     return objs
