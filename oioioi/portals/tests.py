@@ -559,6 +559,9 @@ class TestMarkdown(TestCase):
             name = "bad[name"
             param_regex = re.compile(r"\[\[Bad\]\]")
 
+            def render(self, _r, _m) -> str:
+                raise RuntimeError()
+
         with self.assertRaises(ValueError):
             register_widget(Widget())
         self.assertIn("<p>[[Bad]]</p>", render_panel(self.request, "[[Bad]]"))
