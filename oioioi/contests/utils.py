@@ -162,6 +162,7 @@ def generic_rounds_times(request=None, contest=None):
             setattr(request, cache_attribute, {})
         elif contest.id in getattr(request, cache_attribute):
             return getattr(request, cache_attribute)[contest.id]
+        assert contest is None or request.contest == contest
         rounds = rounds_in_contest(request)
     else:
         rounds = rounds_in_contest_norequest(contest)
