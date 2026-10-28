@@ -1,5 +1,7 @@
 {% load static %}
 
-<a class="oioioi-navbar__brand {% if always_visible %}oioioi-navbar__brand--always{% endif %}" href="{% url 'index' contest_id=None %}">
+{# always_visible is ignored here on purpose: #}
+{# Szkopuł logo fits next to the menu button on narrow screens (unlike the default text brand). #}
+<a class="oioioi-navbar__brand oioioi-navbar__brand--always" href="{% url 'index' contest_id=None %}">
     <img src="{% static "szkopul/napis.png" %}" alt="SZKOpuł">
 </a>
