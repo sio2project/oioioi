@@ -8,17 +8,19 @@ from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 
 from oioioi.base.tests import BrowserTestCase, TestCase, fake_time, fake_timezone_now
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.handlers import update_user_results
-from oioioi.contests.models import Contest, ProblemInstance, Round
+from oioioi.contests.models import Contest, ProblemInstance, Round, Submission, SubmissionReport, UserResultForProblem
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.oi.management.commands import import_schools
 from oioioi.oi.models import OIRegistration, School
 from oioioi.participants.models import Participant, TermsAcceptedPhrase
+from oioioi.programs.models import ProgramSubmission
 from oioioi.programs.tests import SubmitFileMixin
 
 
@@ -666,3 +668,62 @@ class TestUserInfo(TestCase):
                     self.assertContains(response, reg_data[k])
                 else:
                     self.assertNotContains(response, reg_data[k], status_code=403)
+
+
+class TestGirlsCampController(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+        "test_another_submission",
+    ]
+
+    def setUp(self):
+        super().setUp()
+        self.contest = Contest.objects.get()
+        self.contest.controller_name = "oioioi.oi.controllers.GirlsCampController"
+        self.contest.save()
+        self.round = Round.objects.get()
+        self.round.results_date = datetime(2012, 7, 31, tzinfo=UTC)
+        self.round.save()
+
+    def _request(self, username, timestamp):
+        request = RequestFactory().get("/")
+        request.user = User.objects.get(username=username)
+        request.contest = self.contest
+        request.timestamp = timestamp
+        return request
+
+    def test_best_submission_is_counted(self):
+        # The latest submission (34 points) is worse than an earlier one (42 points).
+        Submission.objects.filter(id=1).update(date=datetime(2012, 6, 3, tzinfo=UTC))
+        Submission.objects.filter(id=2).update(date=datetime(2012, 6, 2, tzinfo=UTC))
+        submission = Submission.objects.get(id=1)
+        self.contest.controller.update_user_results(submission.user, submission.problem_instance)
+        result = UserResultForProblem.objects.get(user=submission.user, problem_instance=submission.problem_instance)
+        self.assertEqual(result.score.to_int(), 42)
+        self.assertEqual(result.submission_report.submission_id, 2)
+
+    def test_discrete_scoring(self):
+        controller = self.contest.controller
+        self.assertFalse(controller.uses_threshold_linear_scoring())
+        environ = create_environ()
+        environ["extra_args"] = []
+        controller.fill_evaluation_environ(environ, ProgramSubmission.objects.get(id=1))
+        self.assertEqual(environ["test_scorer"], "oioioi.programs.utils.discrete_test_scorer")
+
+    def test_test_comments_hidden_until_results(self):
+        controller = self.contest.controller
+        report = SubmissionReport.objects.get(submission_id=1, kind="NORMAL")
+        before = datetime(2012, 7, 30, tzinfo=UTC)
+        after = datetime(2012, 8, 1, tzinfo=UTC)
+        self.assertFalse(controller.can_see_test_comments(self._request("test_user", before), report))
+        self.assertTrue(controller.can_see_test_comments(self._request("test_user", after), report))
+        self.assertTrue(controller.can_see_test_comments(self._request("test_admin", before), report))
+
+    def test_final_test_reports_visible(self):
+        submission = Submission.objects.get(id=1)
+        request = self._request("test_user", datetime(2012, 7, 30, tzinfo=UTC))
+        self.assertEqual(self.contest.controller.get_visible_reports_kinds(request, submission), ["USER_OUTS", "INITIAL", "NORMAL"])
