@@ -131,15 +131,23 @@ class RoundTimes:
         )
 
 
-# The argument is a contest instead of a request so that this can be used in generic_rounds_times
-# and possibly other functions that may be called from e.g. rankingsd without a proper request.
-def rounds_in_contest(contest):
+def _get_rounds_in_contest(contest):
     if not contest:
         return []
+    return annotate_known_related(contest.round_set.all(), "contest", contest)
+
+
+@request_cached
+def rounds_in_contest(request):
+    return _get_rounds_in_contest(request.contest)
+
+
+# The argument is a contest instead of a request so that this can be used in generic_rounds_times
+# and possibly other functions that may be called from e.g. rankingsd without a proper request.
+def rounds_in_contest_norequest(contest):
     cache_key = "_rounds_cache"
     if not hasattr(contest, cache_key):
-        rounds = annotate_known_related(contest.round_set.all(), "contest", contest)
-        setattr(contest, cache_key, rounds)
+        setattr(contest, cache_key, _get_rounds_in_contest(contest))
     return getattr(contest, cache_key)
 
 
@@ -154,7 +162,9 @@ def generic_rounds_times(request=None, contest=None):
             setattr(request, cache_attribute, {})
         elif contest.id in getattr(request, cache_attribute):
             return getattr(request, cache_attribute)[contest.id]
-    rounds = rounds_in_contest(contest)
+        rounds = rounds_in_contest(request)
+    else:
+        rounds = rounds_in_contest_norequest(contest)
     rids = [r.id for r in rounds]
     if not request or not hasattr(request, "user") or request.user.is_anonymous:
         rtexts = {}
@@ -191,7 +201,7 @@ def contest_exists(request):
 
 @make_request_condition
 def has_any_rounds(request_or_context):
-    return len(rounds_in_contest(request_or_context.contest)) > 0
+    return len(rounds_in_contest_norequest(request_or_context.contest)) > 0
 
 
 @make_request_condition
@@ -268,7 +278,7 @@ def problem_instances_in_contest(request):
             request.contest,
         ),
         "round",
-        rounds_in_contest(request.contest),
+        rounds_in_contest(request),
     )
 
 
@@ -291,7 +301,7 @@ def visible_rounds(request, no_admin=False):
     controller = request.contest.controller
     return [
         r
-        for r in rounds_in_contest(request.contest)
+        for r in rounds_in_contest(request)
         if controller.can_see_round(
             request,
             r,
@@ -309,7 +319,7 @@ def are_rules_visible(request):
 @request_cached
 def get_number_of_rounds(request):
     """Returns the number of rounds in the current contest."""
-    return len(rounds_in_contest(request.contest))
+    return len(rounds_in_contest(request))
 
 
 def get_contest_dates(request):
@@ -580,7 +590,7 @@ def best_round_to_display(request, allow_past_rounds=False):
     past_rtimes = None
 
     if timestamp and contest:
-        rtimes = {round: contest.controller.get_round_times(request, round) for round in rounds_in_contest(request.contest)}
+        rtimes = {round: contest.controller.get_round_times(request, round) for round in rounds_in_contest(request)}
         next_rtimes = [(r, rt) for r, rt in rtimes.items() if rt.is_future(timestamp)]
         next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [(r, rt) for r, rt in rtimes if rt.is_active(timestamp) and rt.get_end()]
