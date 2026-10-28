@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.models import PreferencesSaved
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
-from oioioi.base.utils.annotate_known_related import annotate_known_related_many
+from oioioi.base.utils.annotate_known_related import annotate_known_related, annotate_known_related_many
 from oioioi.contests.controllers import ContestController, ContestControllerContext
 from oioioi.contests.models import Contest, ProblemInstance, UserResultForProblem
 from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer, visible_rounds
@@ -407,11 +407,11 @@ class DefaultRankingController(RankingController):
     def serialize_ranking(self, key):
         partial_key = self.get_partial_key(key)
         rounds = list(self._rounds_for_key(key))
-        pis = annotate_known_related_many(
-            self._filter_pis_for_ranking(partial_key, ProblemInstance.objects.filter(round__in=rounds)).select_related("problem"),
-            "round",
-            rounds,
-        )
+        pis = ProblemInstance.objects.filter(round__in=rounds).select_related("problem")
+        pis = self._filter_pis_for_ranking(partial_key, pis)
+        pis = annotate_known_related_many(pis, "round", rounds)
+        pis = annotate_known_related(pis, "contest", self.contest)
+
         users = self.filter_users_for_ranking(key, User.objects.all()).distinct()
         results = annotate_known_related_many(
             UserResultForProblem.objects.filter(problem_instance__in=pis, user__in=users).select_related("submission_report"),
