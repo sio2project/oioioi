@@ -1,4 +1,5 @@
 import urllib.parse
+from unittest.mock import patch
 
 import pytest
 from django.core.files.base import ContentFile
@@ -206,6 +207,76 @@ class TestAPIProblemUploadQuery(TransactionTestCase):
 @override_settings(PROBLEM_PACKAGE_BACKENDS=("oioioi.problems.tests.DummyPackageBackend",))
 class TestProblemUpload(TransactionTestCase):
     fixtures = ["test_users", "test_contest"]
+
+    def test_contest_bulk_upload_requires_at_least_one_package(self):
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username="test_admin"))
+
+        url = make_add_update_problem_url(contest, {"key": "upload"})
+        response = self.client.post(
+            url,
+            {"visibility": Problem.VISIBILITY_FRIENDS},
+        )
+
+        self.assertContains(response, "This field is required.")
+        self.assertFalse(ProblemPackage.objects.exists())
+
+    def test_contest_upload_accepts_multiple_packages_for_one_round(self):
+        ProblemInstance.objects.all().delete()
+        contest = Contest.objects.get()
+        selected_round = Round.objects.create(contest=contest, name="Bulk upload round")
+        self.assertTrue(self.client.login(username="test_admin"))
+
+        url = make_add_update_problem_url(contest, {"key": "upload"})
+        response = self.client.get(url)
+        self.assertContains(response, 'name="package_file" multiple')
+
+        response = self.client.post(
+            url,
+            {
+                "package_file": [
+                    ContentFile("first package", name="first.zip"),
+                    ContentFile("second package", name="second.zip"),
+                ],
+                "round_id": selected_round.id,
+                "visibility": Problem.VISIBILITY_FRIENDS,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ProblemPackage.objects.count(), 2)
+        self.assertEqual(Problem.objects.count(), 2)
+        contest_instances = ProblemInstance.objects.filter(contest=contest)
+        self.assertEqual(contest_instances.count(), 2)
+        self.assertEqual(
+            set(contest_instances.values_list("round_id", flat=True)),
+            {selected_round.id},
+        )
+
+    @patch("oioioi.problems.problem_sources.UploadedPackageSource.process_package")
+    def test_contest_bulk_upload_continues_after_package_failure(self, process_package):
+        process_package.side_effect = [11, ValueError("unrecognized format"), 13]
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username="test_admin"))
+
+        url = make_add_update_problem_url(contest, {"key": "upload"})
+        response = self.client.post(
+            url,
+            {
+                "package_file": [
+                    ContentFile("first package", name="first.zip"),
+                    ContentFile("bad package", name="bad.zip"),
+                    ContentFile("third package", name="third.zip"),
+                ],
+                "visibility": Problem.VISIBILITY_FRIENDS,
+            },
+            follow=True,
+        )
+
+        self.assertEqual(process_package.call_count, 3)
+        self.assertContains(response, "Queued for processing: first.zip, third.zip.")
+        self.assertContains(response, "Failed to queue: bad.zip: unrecognized format.")
 
     def test_successful_upload(self):
         ProblemInstance.objects.all().delete()

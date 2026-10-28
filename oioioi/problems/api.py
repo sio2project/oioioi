@@ -116,10 +116,10 @@ class BasePackageUploadView(APIView):
             if form_data.get("round_id"):
                 form.data["round_id"] = form_data["round_id"]
 
-            package_id = self.submit_upload_form(form, request, contest, existing_problem)
+            result = self.submit_upload_form(form, request, contest, existing_problem)
 
-            if package_id is not None:
-                return Response({"package_id": package_id}, status=status.HTTP_201_CREATED)
+            if result is not None and result.package_ids:
+                return Response({"package_id": result.package_ids[0]}, status=status.HTTP_201_CREATED)
             else:
                 return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
