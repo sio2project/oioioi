@@ -24,6 +24,7 @@ from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify
+from oioioi.base.utils.annotate_known_related import annotate_known_related_many
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.attachment_registration import attachment_registry
@@ -52,11 +53,12 @@ from oioioi.contests.utils import (
     can_enter_contest,
     can_see_personal_data,
     contest_exists,
+    eval_contest_submissions_qs_with_common_related,
     filter_last_submissions,
     get_contest_dates,
     get_files_message,
     get_number_of_rounds,
-    get_problems_sumbmission_limit,
+    get_problems_submission_limit,
     get_results_visibility,
     get_scoring_desription,
     get_submission_message,
@@ -124,7 +126,7 @@ def contest_rules_view(request):
     scoring_description = get_scoring_desription(request)
     results_visibility = get_results_visibility(request)
     contest_dates = get_contest_dates(request)
-    submission_limit = get_problems_sumbmission_limit(request)
+    submission_limit = get_problems_submission_limit(request)
 
     return TemplateResponse(
         request,
@@ -185,16 +187,13 @@ def problems_list_view(request):
             )
             .prefetch_related(
                 "submission_report__scorereport_set",
-                "submission_report__submission__problem_instance__problem",
-                "submission_report__submission__problem_instance__round",
-                "submission_report__submission__problem_instance__contest",
             )
         )
-        if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
-            user_results_qs = user_results_qs.select_related(
-                "submission_report__submission__revealed",
-            ).prefetch_related("submission_report__submission__problem_instance__scores_reveal_config")
-
+        user_results_qs = eval_contest_submissions_qs_with_common_related(
+            request,
+            user_results_qs,
+            "submission_report__submission",
+        )
         for r in user_results_qs:
             # Some controllers may hide score even if UserResultForProblem exists
             if r and r.submission_report and controller.can_see_submission_score(request, r.submission_report.submission):
@@ -214,11 +213,15 @@ def problems_list_view(request):
 
         last_submission_map = {
             s.problem_instance_id: s
-            for s in Submission.objects.filter(
-                user=request.user,
-                problem_instance__in=problem_instances,
-                kind="NORMAL",
-                id=Subquery(latest_sub_id_sq),
+            for s in annotate_known_related_many(
+                Submission.objects.filter(
+                    user=request.user,
+                    problem_instance__in=problem_instances,
+                    kind="NORMAL",
+                    id=Subquery(latest_sub_id_sq),
+                ),
+                "problem_instance",
+                problem_instances,
             )
         }
 
@@ -226,9 +229,6 @@ def problems_list_view(request):
         submission = last_submission_map.get(pi.id, None)
         if not submission:
             return None
-        # This is a substitute for doing a large select_related/prefetch_related
-        # for the last_submission_map. visible_problem_instances already does it for us.
-        submission.problem_instance = pi
         return submission_template_context(request, submission)
 
     prefetch_related_objects(problem_instances, "problem__attachments")
@@ -405,31 +405,20 @@ def edit_submit_message_view(request):
 @menu_registry.register_decorator(_("My submissions"), lambda request: reverse("my_submissions"), order=400)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def my_submissions_view(request):
-    queryset = (
-        Submission.objects.filter(problem_instance__contest=request.contest)
-        .order_by("-date")
-        .prefetch_related(
-            "problem_instance",
-            "problem_instance__contest",
-            "problem_instance__round",
-            "problem_instance__problem",
-            "problem_instance__problem__names",
-        )
-    )
-    if "oioioi.scoresreveal" in settings.INSTALLED_APPS:
-        queryset = queryset.select_related("revealed").prefetch_related("problem_instance__scores_reveal_config")
+    queryset = Submission.objects.filter(problem_instance__contest=request.contest).order_by("-date")
     controller = request.contest.controller
     queryset = controller.filter_my_visible_submissions(request, queryset)
-    header = controller.render_my_submissions_header(request, queryset.all())
-    submissions = [submission_template_context(request, s) for s in queryset]
-    show_scores = any(s["can_see_score"] for s in submissions)
+    submissions = eval_contest_submissions_qs_with_common_related(request, queryset)
+    header = controller.render_my_submissions_header(request, submissions)
+    submission_contexts = [submission_template_context(request, s) for s in submissions]
+    show_scores = any(s["can_see_score"] for s in submission_contexts)
 
     return TemplateResponse(
         request,
         "contests/my_submissions.html",
         {
             "header": header,
-            "submissions": submissions,
+            "submissions": submission_contexts,
             "show_scores": show_scores,
             "submissions_on_page": getattr(settings, "SUBMISSIONS_ON_PAGE", 100),
             "is_contest_archived": is_contest_archived(request),
@@ -609,17 +598,17 @@ def contest_files_view(request):
         contest_files = contest_files_without_admin
     contest_files_without_admin = set(contest_files_without_admin)
 
-    problem_ids = [pi.problem_id for pi in visible_problem_instances(request)]
+    problems = [pi.problem for pi in visible_problem_instances(request)]
+    problem_ids = [p.id for p in problems]
     if is_admin:
         problem_ids_without_admin = {pi.problem_id for pi in visible_problem_instances(request, no_admin=True)}
     else:
         problem_ids_without_admin = set(problem_ids)
-    problem_files = (
-        ProblemAttachment.objects.filter(problem_id__in=problem_ids, is_editorial=False).select_related("problem").prefetch_related("problem__names")
-    )
+    problem_files = ProblemAttachment.objects.filter(problem_id__in=problem_ids, is_editorial=False)
+    problem_files = annotate_known_related_many(problem_files, "problem", problems)
 
-    round_file_exists = contest_files.filter(round__isnull=False).exists()
-    add_category_field = round_file_exists or problem_files.exists()
+    round_file_exists = any(file.round for file in contest_files)
+    add_category_field = round_file_exists or len(problem_files) > 0
     rows = sorted(
         [
             {
