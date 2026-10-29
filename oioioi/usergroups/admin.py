@@ -8,12 +8,9 @@ from django.utils.translation import gettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.menu import personal_menu_registry
 from oioioi.base.permissions import is_superuser
+from oioioi.base.utils import get_complete_user_name
 from oioioi.contests.admin import NO_CATEGORY, ContestAdmin
 from oioioi.usergroups.models import UserGroup, UserGroupRanking
-
-
-def get_user_name_and_login_bounded(self, user):
-    return f"{user.get_full_name()} ({user.username})"
 
 
 class UserGroupAdmin(admin.ModelAdmin):
@@ -28,7 +25,7 @@ class UserGroupAdmin(admin.ModelAdmin):
             formfield.queryset = User.objects.exclude(teacher=None) | User.objects.filter(is_superuser=True)
 
         if isinstance(db_field, models.ManyToManyField):
-            formfield.label_from_instance = types.MethodType(get_user_name_and_login_bounded, formfield)
+            formfield.label_from_instance = types.MethodType(lambda _, user: get_complete_user_name(user), formfield)
 
         return formfield
 

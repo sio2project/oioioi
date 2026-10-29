@@ -626,6 +626,15 @@ def generate_key():
 # User-related
 
 
+def get_complete_user_name(user):
+    """This method returns user's full name together with the username in
+    brackets if the full name is available, and only the username otherwise."""
+    if user.get_full_name():
+        return f"{user.get_full_name()} ({user.username})"
+    else:
+        return f"{user.username}"
+
+
 def get_user_display_name(user):
     """This method returns the full user name if available and
     the username otherwise.
