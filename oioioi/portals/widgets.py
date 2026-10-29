@@ -24,7 +24,7 @@ from oioioi.contests.models import UserResultForProblem
 from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
 
-REGISTERED_WIDGETS = []
+REGISTERED_WIDGETS: list["Widget"] = []
 _block_spoiler_leading_pattern = re.compile(r"^ *>! ?", flags=re.M)
 _block_center_close_pattern = re.compile(r"<-")
 # A centered block may span blank lines, but not a code fence.
@@ -171,7 +171,13 @@ def _split_table_cells(text: str):
                     next_tag_end = None
                     continue
 
-            pos = next_tag_end + 2
+            found = False
+            for widget in REGISTERED_WIDGETS:
+                if widget.param_regex.fullmatch(text, pos + 2, next_tag_end):
+                    found = True
+                    break
+
+            pos = (next_tag_end if found else pos) + 2
         elif text[pos] == "\\":
             pos += 2
         elif text[pos] == "|":
