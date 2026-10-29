@@ -7,8 +7,6 @@ set -x
 INIT_DONE_MARKER=/tmp/oioioi_init_done
 rm -f "$INIT_DONE_MARKER"
 
-/sio2/oioioi/wait-for-it.sh -t 60 "${DATABASE_HOST:-db}:${DATABASE_PORT:-5432}"
-
 if [ "$1" == "--dev" ]; then
     echo "Checking frontend dependencies..."
 
@@ -31,12 +29,12 @@ if [ "$1" == "--dev" ]; then
     SANDBOX_MARKER="/sio2/deployment/media/.sandboxes_uploaded"
     if [ ! -f "$SANDBOX_MARKER" ]; then
         echo "Uploading sandboxes to filetracker (this may take ~30 seconds)..."
-        # Extract filetracker host from FILETRACKER_URL (format: http://host:port/path)
-        FT_HOST=$(echo $FILETRACKER_URL | sed 's|http://||' | sed 's|/.*||')
-        /sio2/oioioi/wait-for-it.sh -t 120 "$FT_HOST" && \
-            ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes && \
-            touch "$SANDBOX_MARKER" && \
-            echo "Sandboxes uploaded successfully"
+        if ! ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes; then
+            echo "Failed to upload sandboxes to filetracker" >&2
+            exit 1
+        fi
+        touch "$SANDBOX_MARKER"
+        echo "Sandboxes uploaded successfully"
     else
         echo "Sandboxes already uploaded, skipping..."
     fi
@@ -45,4 +43,12 @@ fi
 echo "Init Finished"
 touch "$INIT_DONE_MARKER"
 
+umask 077
+if ! ./manage.py supervisor getconfig > /tmp/supervisord.conf; then
+    echo "Failed to generate Supervisor configuration" >&2
+    exit 1
+fi
+
 exec ./manage.py supervisor --logfile=/sio2/deployment/logs/supervisor.log
+
+
