@@ -1959,17 +1959,19 @@ class TestReportDisplayTypes(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=2)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=3)
         self.assertContains(response, "submission--WA", count=2)
 
-        self.assertContains(response, "submission--OK", count=13)
+        self.assertContains(response, "submission--OK", count=18)
         self.assertContains(response, 'submission--OK"', count=2)
 
-        self.assertContains(response, "submission--OK100", count=2)
-        self.assertContains(response, "submission--OK75", count=2)
-        self.assertContains(response, "submission--OK50", count=2)
-        self.assertContains(response, "submission--OK25", count=2)
-        self.assertContains(response, "submission--OK0", count=3)
+        # Partial scores and half-time notes each add one status cell.
+        self.assertContains(response, "submission--OK100", count=3)
+        self.assertContains(response, "submission--OK75", count=3)
+        self.assertContains(response, "submission--OK50", count=3)
+        self.assertContains(response, "submission--OK25", count=3)
+        self.assertContains(response, "submission--OK0", count=4)
 
     def test_signal_hint(self):
         self.assertTrue(self.client.login(username="test_user"))
@@ -1984,7 +1986,8 @@ class TestReportDisplayTypes(TestCase):
         response = self.client.get(url, follow=True)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=3)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=4)
         self.assertContains(response, "submission--WA", count=2)
 
         self.assertContains(response, "submission--OK", count=12)
@@ -2003,7 +2006,8 @@ class TestReportDisplayTypes(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=2)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=3)
         self.assertContains(response, "submission--WA", count=2)
 
         self.assertContains(response, "submission--OK", count=13)
@@ -2023,6 +2027,8 @@ class TestReportDisplayTypes(TestCase):
         # Tests 1c (7216ms), 1b (5159ms), 2a (8108ms), 2b (8787ms) all have
         # time_used * 2 > test_time_limit (10000ms) and status OK.
         self.assertContains(response, "Half of the time limit exceeded.", count=4)
+        self.assertContains(response, "test-feedback-toggle")
+        self.assertContains(response, "Expand all")
 
     def test_half_time_exceeded_not_shown_for_non_threshold_contest(self):
         self.assertTrue(self.client.login(username="admin"))
@@ -2039,7 +2045,8 @@ class TestReportDisplayTypes(TestCase):
         # Test 1a (pk=57) has result_percentage_numerator=75, result_percentage_denominator=1
         # so result_percentage="75" → "Checker granted <b>75%</b> points." appears once.
         self.assertContains(response, "Checker granted", count=1)
-        self.assertContains(response, "75%", count=2)  # once in the table and once in the comment
+        self.assertContains(response, "75%", count=2)  # once in the table and once in the feedback
+        self.assertContains(response, 'id="test-feedback-')
 
 
 class TestAllowedLanguages(TestCase, SubmitFileMixin):
