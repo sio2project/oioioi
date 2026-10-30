@@ -44,7 +44,12 @@ app.config_from_object("django.conf:settings")
 @app.on_after_configure.connect
 def enable_publisher_confirms(sender, **kwargs):
     conf = sender.conf
-    if conf.broker_url and conf.broker_url.split("://", 1)[0] in ("amqp", "amqps", "pyamqp"):
+    # BROKER_URL can also be a list or a ";"-separated string of failover URLs.
+    # Kombu picks the transport from the first one, so check only that.
+    url = conf.broker_url
+    if isinstance(url, (list, tuple)):
+        url = url[0] if url else None
+    if url and url.split(";", 1)[0].split("://", 1)[0] in ("amqp", "amqps", "pyamqp"):
         conf.broker_transport_options = {"confirm_publish": True, **(conf.broker_transport_options or {})}
 
 
