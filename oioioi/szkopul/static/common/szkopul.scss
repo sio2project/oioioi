@@ -128,3 +128,92 @@
     width: 50%;
   }
 }
+
+// Navbar layout (#823): the logo, the menu buttons, the language picker and the user menu (with
+// the username capped at 120px) have a fixed width; the contest name (also the plain link of
+// portal pages and exclusive contests) and the countdown shrink, name first, down to the width of
+// an icon-only item; the 60px gaps around the countdown are the two spacers, not padding, so they
+// go first; below 576px item padding drops to 4px; the site links collapse into their menu
+// button below 1200px instead of 992px; the admin badges (admin time, switched user,
+// maintenance) show only their icon below 1400px instead of 992px.
+// Selectors start with header.oioioi-navbar: forum.scss and rankings.scss re-import scss/navbar,
+// so the base navbar rules are emitted again after this file.
+header.oioioi-navbar {
+  > .oioioi-navbar__brand,
+  > .oioioi-navbar__menu,
+  > .oioioi-navbar__lang,
+  > .oioioi-navbar__user-su,
+  > .oioioi-navbar__user {
+    flex-shrink: 0;
+  }
+
+  > .oioioi-navbar__contests {
+    flex-shrink: 100;
+
+    &:has(> *) {
+      min-width: 3.5rem;
+    }
+
+    > .dropdown,
+    > .dropdown > .contest-picker {
+      min-width: 0;
+    }
+
+    > a {
+      @include text-overflow();
+      display: block;
+    }
+  }
+
+  > .oioioi-navbar__countdown {
+    flex-shrink: 100;
+    padding: 0;
+  }
+
+  > .oioioi-navbar__flex {
+    flex-basis: 60px;
+    flex-shrink: 1000;
+  }
+
+  @include media-breakpoint-down(lg) {
+    > .oioioi-navbar__brand > img {
+      height: 20px;
+    }
+  }
+
+  @include media-breakpoint-up(sm) {
+    > .oioioi-navbar__user .username {
+      @include text-overflow();
+      display: inline-block;
+      max-width: 120px;
+      vertical-align: middle;
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    > a,
+    .dropdown > a {
+      padding: 0 4px;
+    }
+  }
+
+  @include media-breakpoint-only(lg) {
+    > .oioioi-navbar__menu-uncollapsed {
+      display: none;
+    }
+
+    > .oioioi-navbar__menu-uncollapsed + .oioioi-navbar__menu {
+      display: block;
+    }
+  }
+
+  @include media-breakpoint-down(xxl) {
+    .badge-full {
+      display: none;
+    }
+
+    .badge-short {
+      display: inline;
+    }
+  }
+}
