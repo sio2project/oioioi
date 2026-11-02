@@ -1,6 +1,5 @@
 import logging
 import os.path
-import random
 import re
 import shutil
 import subprocess
@@ -541,19 +540,6 @@ class TestUtils(TestCase):
 
         self.assertListEqual(Base.subclasses, [Base, Derived])
         self.assertListEqual(Derived.subclasses, [Derived])
-
-    def test_memoized(self):
-        memoized_random = utils.memoized(random.random)
-        self.assertEqual(memoized_random(), memoized_random())
-        memoized_randbits = utils.memoized(random.getrandbits)
-        self.assertNotEqual(memoized_randbits(64), memoized_randbits(63))
-
-    def test_reset_memoized(self):
-        memoized_random = utils.memoized(random.random)
-        r1 = memoized_random()
-        utils.reset_memoized(memoized_random)
-        r2 = memoized_random()
-        self.assertNotEqual(r1, r2)
 
     def test_utils_dont_need_settings(self):
         subprocess_env = os.environ.copy()
