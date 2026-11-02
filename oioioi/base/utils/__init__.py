@@ -316,22 +316,7 @@ class ObjectWithMixins(ClassInitBase):
         cls._fixup_subclasses()
 
 
-# Memoized-related bits copied from SqlAlchemy.
-
-
-class memoized_property:  # Copied from SqlAlchemy
-    """A read-only @property that is only evaluated once."""
-
-    def __init__(self, fget, doc=None):
-        self.fget = fget
-        self.__doc__ = doc or fget.__doc__
-        self.__name__ = fget.__name__
-
-    def __get__(self, obj, cls):
-        if obj is None:
-            return None
-        obj.__dict__[self.__name__] = result = self.fget(obj)
-        return result
+# Memoization / caching
 
 
 def memoized(fn):
