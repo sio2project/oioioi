@@ -13,7 +13,7 @@ from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
-from django.test import RequestFactory
+from django.test import RequestFactory, SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone as django_timezone
@@ -40,10 +40,11 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import _sanitize_comment, collect_tests
+from oioioi.programs.handlers import collect_tests, make_report
 from oioioi.programs.models import (
     CheckerFormatForContest,
     CheckerFormatForProblem,
+    CompilationReport,
     LanguageOverrideForTest,
     ModelSolution,
     ProblemAllowedLanguage,
@@ -55,7 +56,7 @@ from oioioi.programs.models import (
     check_compilers_config,
 )
 from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
-from oioioi.programs.utils import form_field_id_for_langs, get_checker_format
+from oioioi.programs.utils import form_field_id_for_langs, get_checker_format, sanitize_worker_text
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.models import ExtraConfig
 from oioioi.sinolpack.tests import get_test_filename
@@ -1058,15 +1059,58 @@ class TestNotifications(TestCase):
         NotificationHandler.send_notification = send_notification_backup
 
 
-class TestSanitizeComment:
+class TestSanitizeWorkerText(SimpleTestCase):
     def test_nul_and_surrogates(self):
-        assert _sanitize_comment("a\x00b", 255) == "a\ufffdb"
-        assert _sanitize_comment("a\udcffb", 255) == "a?b"
-        assert _sanitize_comment("Zła odpowiedź", 255) == "Zła odpowiedź"
+        self.assertEqual(sanitize_worker_text("a\x00b\udcffc"), "a\ufffdb\ufffdc")
+        self.assertEqual(sanitize_worker_text("Zła odpowiedź"), "Zła odpowiedź")
 
     def test_truncation(self):
-        assert _sanitize_comment("x" * 10, 10) == "x" * 10
-        assert _sanitize_comment("x" * 11, 10) == "x" * 9 + "…"
+        self.assertEqual(sanitize_worker_text("x" * 10, 10), "x" * 10)
+        self.assertEqual(sanitize_worker_text("x" * 11, 10), "x" * 9 + "…")
+        self.assertEqual(sanitize_worker_text("x" * 1000), "x" * 1000)
+
+
+class TestMakeReportSanitizesWorkerText(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def _make_env(self, compilation_result, compilation_message):
+        return {
+            "submission_id": Submission.objects.get().id,
+            "status": "WA",
+            "score": None,
+            "max_score": None,
+            "compilation_result": compilation_result,
+            "compilation_message": compilation_message,
+            "tests": {"1a": {"group": "1"}},
+            "test_results": {
+                "1a": {
+                    "exec_time_limit": 1000,
+                    "exec_mem_limit": 65536,
+                    "max_score": None,
+                    "score": None,
+                    "status": "WA",
+                    "time_used": 1,
+                    "mem_used": 1,
+                    "result_string": "bad\x00output\udcff",
+                },
+            },
+        }
+
+    def test_checker_comment(self):
+        env = make_report(self._make_env("OK", ""))
+        report = TestReport.objects.get(submission_report_id=env["report_id"])
+        self.assertEqual(report.comment, "bad\ufffdoutput\ufffd")
+
+    def test_compiler_output(self):
+        env = make_report(self._make_env("CE", "a.cpp:1:1: error: 'x\x00y'"))
+        report = CompilationReport.objects.get(submission_report_id=env["report_id"])
+        self.assertEqual(report.compiler_output, "a.cpp:1:1: error: 'x\ufffdy'")
 
 
 class TestScorers(TestCase):

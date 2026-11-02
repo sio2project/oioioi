@@ -8,9 +8,9 @@ from oioioi.filetracker.utils import (
 from oioioi.programs.handlers import (
     _get_submission_or_skip,
     _make_base_report,
-    _sanitize_comment,
     _skip_on_compilation_error,
 )
+from oioioi.programs.utils import sanitize_worker_text
 from oioioi.testrun.models import TestRunConfig, TestRunProgramSubmission, TestRunReport
 
 
@@ -102,7 +102,7 @@ def make_report(env, **kwargs):
 
     testrun_report = TestRunReport(submission_report=submission_report)
     testrun_report.status = env["status"]
-    testrun_report.comment = _sanitize_comment(comment, TestRunReport._meta.get_field("comment").max_length)
+    testrun_report.comment = sanitize_worker_text(comment, TestRunReport._meta.get_field("comment").max_length)
     testrun_report.time_used = test_result["time_used"]
     testrun_report.mem_used = test_result["mem_used"]
     testrun_report.test_time_limit = test.get("exec_time_limit")
