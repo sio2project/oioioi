@@ -132,8 +132,10 @@ def fake_time(timestamp):
     timestamp, regardless of the real wall clock time."""
     cache.clear()
     FakeTimeMiddleware._fake_timestamp.value = timestamp
-    yield
-    del FakeTimeMiddleware._fake_timestamp.value
+    try:
+        yield
+    finally:
+        del FakeTimeMiddleware._fake_timestamp.value
 
 
 @contextmanager

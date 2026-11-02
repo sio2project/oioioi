@@ -492,10 +492,12 @@ def uploaded_file_name(uploaded_file):
         yield uploaded_file.temporary_file_path()
     else:
         f = tempfile.NamedTemporaryFile(suffix=os.path.basename(uploaded_file.name))
-        shutil.copyfileobj(uploaded_file, f)
-        f.flush()
-        yield f.name
-        f.close()
+        try:
+            shutil.copyfileobj(uploaded_file, f)
+            f.flush()
+            yield f.name
+        finally:
+            f.close()
 
 
 def split_extension(filename):
