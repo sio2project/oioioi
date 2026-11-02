@@ -564,9 +564,10 @@ class TestMarkdown(TestCase):
 
     def test_footnotes(self):
         rendered = render_panel(self.request, "text[^1]\n\n[^1]: note\n")
-        self.assertIn('<a href="#fn-1">1</a>', rendered)
-        self.assertIn('<section class="footnotes">', rendered)
-        self.assertIn('<li id="fn-1"><p>note', rendered)
+        # Only the parts that matter, not mistune's exact markup.
+        self.assertIn('href="#fn-1"', rendered)
+        self.assertIn('class="footnotes"', rendered)
+        self.assertRegex(rendered, r'id="fn-1"[^<]*><p>note')
 
     def test_table_with_widget_and_uneven_rows(self):
         url = "https://www.youtube.com/watch?v=pB0CTz5QlOw"
