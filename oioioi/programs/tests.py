@@ -40,7 +40,7 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import collect_tests
+from oioioi.programs.handlers import _sanitize_comment, collect_tests
 from oioioi.programs.models import (
     CheckerFormatForContest,
     CheckerFormatForProblem,
@@ -1056,6 +1056,17 @@ class TestNotifications(TestCase):
         self.assertNotIn("was judged", messages[0][0])
 
         NotificationHandler.send_notification = send_notification_backup
+
+
+class TestSanitizeComment:
+    def test_nul_and_surrogates(self):
+        assert _sanitize_comment("a\x00b", 255) == "a\ufffdb"
+        assert _sanitize_comment("a\udcffb", 255) == "a?b"
+        assert _sanitize_comment("Zła odpowiedź", 255) == "Zła odpowiedź"
+
+    def test_truncation(self):
+        assert _sanitize_comment("x" * 10, 10) == "x" * 10
+        assert _sanitize_comment("x" * 11, 10) == "x" * 9 + "…"
 
 
 class TestScorers(TestCase):

@@ -57,6 +57,20 @@ def _make_filename(env, base_name):
     return "{}/{}-{}".format(env["eval_dir"], env["job_id"], base_name)
 
 
+def _sanitize_comment(comment, max_length):
+    """Make a checker comment safe to store in a text column.
+
+    PostgreSQL rejects NUL characters and the UTF-8 codec rejects lone
+    surrogates, both of which a checker can emit. Too long comments are
+    truncated to ``max_length``.
+    """
+    comment = comment.replace("\x00", "\ufffd")
+    comment = comment.encode("utf-8", "replace").decode("utf-8")
+    if len(comment) > max_length:
+        comment = comment[: max_length - 1] + "…"
+    return comment
+
+
 def _skip_on_compilation_error(fn):
     """A decorator which skips the decorated function if the
     compilation fails.
@@ -634,8 +648,7 @@ def make_report(env, kind="NORMAL", save_scores=True, **kwargs):
         comment = result.get("result_string", "")
         if comment.lower() in ["ok", "time limit exceeded"]:  # Annoying
             comment = ""
-        max_comment_length = TestReport._meta.get_field("comment").max_length
-        test_report.comment = (comment[: max_comment_length - 1] + "…") if len(comment) > max_comment_length else comment
+        test_report.comment = _sanitize_comment(comment, TestReport._meta.get_field("comment").max_length)
         if env.get("save_outputs", False):
             test_report.output_file = filetracker_to_django_file(result["out_file"])
         test_report.save()
