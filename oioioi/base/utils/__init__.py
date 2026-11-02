@@ -319,31 +319,6 @@ class ObjectWithMixins(ClassInitBase):
 # Memoization / caching
 
 
-def memoized(fn):
-    """Simple wrapper that adds result caching for functions with positional
-    arguments only.
-
-    The arguments must be hashable so that they can be stored as keys in
-    a dict.
-    """
-    cache = {}
-
-    @functools.wraps(fn)
-    def memoizer(*args):
-        if args not in cache:
-            cache[args] = fn(*args)
-        return cache[args]
-
-    memoizer.cache = cache
-    return memoizer
-
-
-def reset_memoized(memoized_fn):
-    """Clear the memoization cache of a function decorated by
-    :fun:`memoized`."""
-    memoized_fn.cache.clear()
-
-
 def request_cached(fn):
     """Adds per-request caching for functions which operate on sole request."""
 
