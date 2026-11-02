@@ -464,7 +464,7 @@ def split_extension(filename):
     special_extensions = [".tar.gz", ".tar.bz2", ".tar.xz"]
     for ext in special_extensions:
         if filename.endswith(ext):
-            return (filename.rstrip(ext), ext)
+            return (filename.removesuffix(ext), ext)
     return os.path.splitext(filename)
 
 

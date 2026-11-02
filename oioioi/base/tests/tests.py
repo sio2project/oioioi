@@ -1447,9 +1447,17 @@ class TestFileUtils(TestCase):
             ours = split_extension(name)
             self.assertEqual(ours, their)
 
-        weird = ["test.tar.gz", "test.tar.xz", "/a/b/c/test.tar.bz2"]
-        for name in weird:
-            self.assertNotIn(".", split_extension(name)[0])
+        weird = {
+            "test.tar.gz": ("test", ".tar.gz"),
+            "test.tar.xz": ("test", ".tar.xz"),
+            "/a/b/c/test.tar.bz2": ("/a/b/c/test", ".tar.bz2"),
+            "paczka.tar.gz": ("paczka", ".tar.gz"),
+            "data.tar.xz": ("data", ".tar.xz"),
+            "tar.tar.gz": ("tar", ".tar.gz"),
+        }
+        for name, expected in weird.items():
+            with self.subTest(name=name):
+                self.assertEqual(split_extension(name), expected)
 
     def test_strip_num_or_hash(self):
         cases = {
