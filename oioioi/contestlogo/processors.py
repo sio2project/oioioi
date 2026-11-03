@@ -1,8 +1,9 @@
+import functools
+
 from django.template import loader
 from django.urls import reverse
 from django.utils.functional import lazy
 
-from oioioi.base.utils import memoized
 from oioioi.contestlogo.models import ContestIcon, ContestLogo
 from oioioi.contests.utils import is_contest_admin
 
@@ -14,7 +15,7 @@ def logo_processor(request):
     if is_contest_admin(request):
         return {}
 
-    @memoized
+    @functools.cache
     def generator():
         try:
             instance = ContestLogo.objects.get(contest=request.contest)
@@ -40,7 +41,7 @@ def icon_processor(request):
     if not getattr(request, "contest", None):
         return {}
 
-    @memoized
+    @functools.cache
     def generator():
         icon_list = ContestIcon.objects.filter(contest=request.contest).order_by("pk")
         urls = [

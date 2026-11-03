@@ -1,3 +1,4 @@
+import functools
 import os
 import re
 import urllib
@@ -29,7 +30,6 @@ from oioioi.base.tests import (
     fake_time,
     needs_linux,
 )
-from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.handlers import send_notification_judged
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
@@ -1234,14 +1234,14 @@ class TestScorers(TestCase):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_unequal_max_scores, strict=False))))
         self.assertEqual(self.t_expected_unequal_max_scores, results)
 
-    @memoized_property
+    @functools.cached_property
     def g_results_ok(self):
         # Tested elsewhere
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_ok[:4], strict=False))))
         dicts = [{"score": sc.serialize(), "max_score": msc.serialize(), "status": st, "order": i} for i, (sc, msc, st) in enumerate(results)]
         return dict(list(zip(list(range(len(dicts))), dicts, strict=False)))
 
-    @memoized_property
+    @functools.cached_property
     def g_results_wrong(self):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_wrong, strict=False))))
         dicts = list(self.g_results_ok.values())
@@ -1256,7 +1256,7 @@ class TestScorers(TestCase):
         ]
         return dict(list(zip(list(range(len(dicts))), dicts, strict=False)))
 
-    @memoized_property
+    @functools.cached_property
     def g_results_unequal_max_scores(self):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_unequal_max_scores, strict=False))))
         dicts = list(self.g_results_wrong.values())

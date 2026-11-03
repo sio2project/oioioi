@@ -1,3 +1,4 @@
+import functools
 import logging
 import os.path
 from contextlib import contextmanager
@@ -14,7 +15,6 @@ from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.encoding import force_str
-from django.utils.functional import cached_property
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
@@ -103,7 +103,7 @@ class Problem(models.Model):
         on_delete=models.CASCADE,
     )
 
-    @cached_property
+    @functools.cached_property
     def name(self):
         # We fetch all of self.names and filter by language in Python instead of Django.
         # This allows us to do prefetch_related('names'), which considerably speeds up
