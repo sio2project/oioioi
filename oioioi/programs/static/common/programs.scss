@@ -105,6 +105,9 @@
 
 .test-feedback-clip {
   display: grid;
+  // A spanning feedback cell must not redistribute the result columns' widths.
+  // Size it from the test rows and wrap the comment within the available space.
+  contain: inline-size;
   grid-template-rows: 0fr;
   // Bootstrap collapse measures scrollHeight as 0 inside a table cell, so the
   // panel waits for the whole transition and then jumps. Grid rows animate

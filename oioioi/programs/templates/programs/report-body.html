@@ -48,14 +48,9 @@
                                     <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
                                 </button>
                             {% endif %}
-                            {% if record.has_out_link %}
-                                <small class="test-out-link">
-                                    {% if test.generate_status == 'OK' %}
-                                        <a href="{% url 'download_user_output' testreport_id=test.id %}"
-                                           title='{% trans "Download user output for this test" %}'>
-                                            {% trans "[download out]" %}
-                                        </a>
-                                    {% elif test.generate_status == '?' %}
+                            {% if record.has_out_link and test.generate_status != 'OK' %}
+                                <small class="test-out-link{% if test.generate_status != '?' %} test-actions{% endif %}">
+                                    {% if test.generate_status == '?' %}
                                         <span>[{% trans "processing" %}]</span>
                                     {% else %}
                                         <a href="#" data-post-url="{% url 'generate_user_output' testreport_id=test.id %}"

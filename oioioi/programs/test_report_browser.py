@@ -6,7 +6,7 @@ from unittest import skipUnless
 from django.urls import reverse
 
 from oioioi.base.tests import StyledBrowserTestCase
-from oioioi.programs.models import GroupReport, TestReport
+from oioioi.programs.models import GroupReport, TestReport, UserOutGenStatus
 
 
 class TestReportFeedback(StyledBrowserTestCase):
@@ -76,25 +76,88 @@ class TestReportFeedback(StyledBrowserTestCase):
             expect(panel).not_to_be_visible()
         self.assert_report_geometry(self.page.locator(".submission-report .table-report").first)
 
+    def test_user_output_actions_show_on_hover_but_processing_stays_visible(self):
+        from playwright.sync_api import expect
+
+        download_url = reverse("download_user_output", kwargs={"contest_id": "oi", "testreport_id": 57})
+        for status, label in ((None, "[generate out]"), ("OK", "usr-out"), ("?", "[processing]")):
+            with self.subTest(status=status):
+                with self.server_lock:
+                    TestReport.objects.filter(pk=57).update(output_file="generated.out" if status == "OK" else "")
+                    if status is not None:
+                        UserOutGenStatus.objects.update_or_create(testreport_id=57, defaults={"status": status})
+                self.page.reload()
+                self.page.mouse.move(0, 0)
+                report = self.page.locator(".submission-report").first
+                cell = report.locator(".test-actions-toggler").filter(has=self.page.locator('[data-feedback-target$="-57"]'))
+                action = cell.locator(".test-out-link")
+                if status == "OK":
+                    expect(action).to_have_count(0)
+                    action = cell.locator(f'a[href="{download_url}"]')
+                    expect(action).to_have_count(1)
+                expect(action).to_have_text(label)
+                if status == "?":
+                    expect(action).to_be_visible()
+                else:
+                    expect(action).not_to_be_visible()
+                initial_width = cell.bounding_box()["width"]
+                cell.hover()
+                expect(action).to_be_visible()
+                self.assertEqual(cell.bounding_box()["width"], initial_width)
+                self.page.mouse.move(0, 0)
+                if status == "?":
+                    expect(action).to_be_visible()
+                else:
+                    expect(action).not_to_be_visible()
+
+        # An OK test without feedback still needs its existing usr-out link.
+        with self.server_lock:
+            TestReport.objects.filter(pk=57).update(
+                status="OK", comment="", result_percentage_numerator=None, result_percentage_denominator=None, time_used=0, output_file="generated.out"
+            )
+            UserOutGenStatus.objects.filter(testreport_id=57).update(status="OK")
+        self.page.reload()
+        download = report.locator(f'a[href="{download_url}"]')
+        expect(download).to_have_count(1)
+        expect(download).to_have_text("usr-out")
+
     def test_scores_stay_on_one_line_with_long_feedback(self):
         from playwright.sync_api import expect
 
         with self.server_lock:
             TestReport.objects.filter(pk=57).update(comment="Dodatkowy kontekst. " * 4 + "https://example.invalid/" + "x" * 150)
+            report_id = TestReport.objects.get(pk=57).submission_report_id
         report = self.page.locator(".submission-report").first
         toggle = report.locator(".test-feedback-toggle").first
         feedback = report.locator(".test-feedback").first
 
-        for width in (1280, 400):
-            with self.subTest(width=width):
+        for show_scores, show_memory, width in product((True, False), (False, True), (1280, 768, 400)):
+            with self.subTest(scores=show_scores, memory=show_memory, width=width):
+                with self.server_lock:
+                    if not show_scores:
+                        GroupReport.objects.filter(submission_report_id=report_id).update(score=None)
+                    TestReport.objects.filter(pk=57).update(mem_used=2048 if show_memory else 0)
                 self.page.set_viewport_size({"width": width, "height": 800})
                 self.page.reload()
+                columns = report.locator("thead th")
+                closed_widths = columns.evaluate_all("cells => cells.map(cell => cell.getBoundingClientRect().width)")
                 for expanded in (True, False):
                     toggle.click()
                     expect(toggle).to_have_attribute("aria-expanded", str(expanded).lower())
                     if expanded:
                         expect(feedback).to_be_visible()
+                        feedback.evaluate("el => Promise.all(el.closest('.test-feedback-clip').getAnimations().map(animation => animation.finished))")
+                        self.assertTrue(
+                            feedback.evaluate("el => el.parentElement.clientHeight >= el.getBoundingClientRect().height - 1"),
+                            "Feedback is clipped after expansion",
+                        )
                         self.assertTrue(feedback.evaluate("el => el.scrollWidth <= el.clientWidth + 1"), "Feedback overflows its cell")
+                        self.screenshot(self.page, f"report-widths-{self.browser_name}-{width}-memory-{show_memory}-scores-{show_scores}")
+                    else:
+                        expect(report.locator(".test-feedback-row").first).to_have_css("display", "none")
+                    widths = columns.evaluate_all("cells => cells.map(cell => cell.getBoundingClientRect().width)")
+                    for closed, current in zip(closed_widths, widths, strict=True):
+                        self.assertAlmostEqual(closed, current, delta=1, msg=f"Column widths changed: {closed_widths} -> {widths}")
                     # Count the actual rendered lines of the score, rather than checking a CSS declaration.
                     scores = report.locator(".group-score").evaluate_all(
                         r"""cells => cells.map(cell => {
@@ -106,9 +169,14 @@ class TestReportFeedback(StyledBrowserTestCase):
                             return {text: node.textContent.trim(), lines: range.getClientRects().length};
                         })"""
                     )
-                    self.assertTrue(scores)
+                    self.assertEqual(bool(scores), show_scores)
                     for score in scores:
                         self.assertEqual(score["lines"], 1, score)
+                # Feedback rows must not change the layout relative to a table without them.
+                report.locator(".test-feedback-row").evaluate_all("rows => rows.forEach(row => row.remove())")
+                without_feedback = columns.evaluate_all("cells => cells.map(cell => cell.getBoundingClientRect().width)")
+                for closed, current in zip(closed_widths, without_feedback, strict=True):
+                    self.assertAlmostEqual(closed, current, delta=1)
 
     def assert_report_geometry(self, table):
         failures = table.evaluate(
