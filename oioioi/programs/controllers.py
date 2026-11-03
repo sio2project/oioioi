@@ -119,7 +119,7 @@ def get_signal_from_comment(comment):
     return None
 
 
-def test_report_detail_flags(test, allow_test_comments, allow_download_out):
+def report_test_detail_flags(test, allow_test_comments, allow_download_out):
     """Split the old per-test note under the report into two flags.
 
     Textual feedback (comment, checker percentage, half time limit) is shown
@@ -130,13 +130,11 @@ def test_report_detail_flags(test, allow_test_comments, allow_download_out):
     has_percentage = bool(getattr(test, "result_percentage", None))
     half_time_exceeded = test.was_half_time_limit_exceeded()
     has_textual_feedback = allow_test_comments and (has_comment or has_percentage or half_time_exceeded)
-    listed_for_output = (
-        has_comment
-        or has_percentage
-        or (half_time_exceeded and allow_test_comments)
-        or (test.get_status_display() != "OK" and allow_download_out and bool(test.test_id))
+    has_out_link = bool(
+        allow_download_out
+        and test.test_id
+        and (has_comment or has_percentage or (half_time_exceeded and allow_test_comments) or test.get_status_display() != "OK")
     )
-    has_out_link = bool(allow_download_out and test.test_id and listed_for_output)
     return has_textual_feedback, has_out_link
 
 
@@ -759,7 +757,7 @@ class ProgrammingProblemController(ProblemController):
 
             tests_records = []
             for test in tests_list:
-                has_textual_feedback, has_out_link = test_report_detail_flags(test, allow_test_comments, allow_download_out)
+                has_textual_feedback, has_out_link = report_test_detail_flags(test, allow_test_comments, allow_download_out)
                 tests_records.append(
                     {
                         "display_type": get_report_display_type(request, test),
