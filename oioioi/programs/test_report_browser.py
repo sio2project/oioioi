@@ -38,12 +38,18 @@ class TestReportFeedback(StyledBrowserTestCase):
         self.assertNotEqual(panel.get_attribute("id"), original_id)
         expect(toggle).to_have_attribute("aria-controls", panel.get_attribute("id"))
 
-        loaded.locator(".test-feedback-expand-all").click()
+        expand_all = loaded.locator(".test-feedback-expand-all")
+        initial_width = expand_all.bounding_box()["width"]
+        expand_all.click()
+        expect(expand_all).to_have_accessible_name("Collapse all")
+        self.assertEqual(expand_all.bounding_box()["width"], initial_width)
         for feedback in loaded.locator(".test-feedback-clip").all():
             expect(feedback).to_be_visible()
         for feedback in original.locator(".test-feedback-clip").all():
             expect(feedback).not_to_be_visible()
-        loaded.locator(".test-feedback-expand-all").click()
+        expand_all.click()
+        expect(expand_all).to_have_accessible_name("Expand all")
+        self.assertEqual(expand_all.bounding_box()["width"], initial_width)
         for feedback in loaded.locator(".test-feedback-clip").all():
             expect(feedback).not_to_be_visible()
 
