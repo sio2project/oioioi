@@ -1,6 +1,7 @@
 import os
 
 from celery.signals import setup_logging
+from kombu import Connection
 
 from celery import Celery, Task
 
@@ -44,7 +45,12 @@ app.config_from_object("django.conf:settings")
 @app.on_after_configure.connect
 def enable_publisher_confirms(sender, **kwargs):
     conf = sender.conf
-    if conf.broker_url and conf.broker_url.split("://", 1)[0] in ("amqp", "amqps", "pyamqp"):
+    # Let kombu resolve the transport exactly as Celery's connections will (failover
+    # lists, ";"-separated URLs, scheme case, BROKER_TRANSPORT, the amqp default for
+    # an empty URL). Creating a Connection does not connect. The read and write
+    # connections share the transport options, so both have to be AMQP.
+    transports = {Connection(url, transport=conf.broker_transport).transport_cls for url in (conf.broker_read_url, conf.broker_write_url)}
+    if transports <= {"amqp", "amqps", "pyamqp"}:
         conf.broker_transport_options = {"confirm_publish": True, **(conf.broker_transport_options or {})}
 
 
