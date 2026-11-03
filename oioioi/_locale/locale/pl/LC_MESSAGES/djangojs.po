@@ -35,7 +35,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-11 15:30+0000\n"
+"POT-Creation-Date: 2026-11-03 17:29+0000\n"
 "PO-Revision-Date: 2013-02-20 14:35+0000\n"
 "Last-Translator: Maciej Dziurzyński, 2024\n"
 "Language-Team: Polish (http://app.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -45,35 +45,35 @@ msgstr ""
 "Language: pl\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
 
-#: balloons/static/balloons/delivery-panel.js:12
+#: balloons/static/balloons/delivery-panel.js:13
 msgid "Delivering..."
 msgstr "Dostarczanie..."
 
-#: balloons/static/balloons/delivery-panel.js:13
+#: balloons/static/balloons/delivery-panel.js:14
 msgid "Delivered"
 msgstr "Dostarczone"
 
-#: balloons/static/balloons/delivery-panel.js:17
+#: balloons/static/balloons/delivery-panel.js:18
 msgid "Taking back..."
 msgstr "Cofanie…"
 
-#: balloons/static/balloons/delivery-panel.js:18
+#: balloons/static/balloons/delivery-panel.js:19
 msgid "Not delivered"
 msgstr "Niedostarczone"
 
-#: balloons/static/balloons/delivery-panel.js:21
+#: balloons/static/balloons/delivery-panel.js:22
 msgid "First to solve"
 msgstr "Pierwsze rozwiązanie"
 
-#: balloons/static/balloons/delivery-panel.js:31
+#: balloons/static/balloons/delivery-panel.js:32
 msgid "No color"
 msgstr "Bez koloru"
 
-#: balloons/static/balloons/delivery-panel.js:66
+#: balloons/static/balloons/delivery-panel.js:67
 msgid "No connection"
 msgstr "Brak połączenia z serwerem"
 
-#: balloons/static/balloons/delivery-panel.js:80
+#: balloons/static/balloons/delivery-panel.js:81
 msgid "Corrupt data"
 msgstr "Uszkodzone dane"
 
@@ -113,27 +113,27 @@ msgstr "skopiowane!"
 msgid "Press Ctrl+C to copy"
 msgstr "Naciśnij Ctrl+C, żeby skopiować"
 
-#: clock/static/common/clocks.js:261
+#: clock/static/common/clocks.js:263
 #| msgid "end of the %(round_name)s"
 #| msgid_plural "end of the %(round_name)s"
 msgid "end of the %(round_name)s"
 msgstr " końca %(round_name)s"
 
-#: clock/static/common/clocks.js:264
+#: clock/static/common/clocks.js:266
 msgid "to the end"
 msgstr "do końca"
 
-#: clock/static/common/clocks.js:268
+#: clock/static/common/clocks.js:270
 #| msgid "start of the %(round_name)s"
 #| msgid_plural "start of the %(round_name)s"
 msgid "start of the %(round_name)s"
 msgstr "rozpoczęcia %(round_name)s"
 
-#: clock/static/common/clocks.js:271
+#: clock/static/common/clocks.js:273
 msgid "to the start"
 msgstr "do początku"
 
-#: clock/static/common/clocks.js:278
+#: clock/static/common/clocks.js:280
 msgid "%(seconds)s second "
 msgid_plural "%(seconds)s seconds "
 msgstr[0] "%(seconds)s sekunda "
@@ -141,11 +141,11 @@ msgstr[1] "%(seconds)s sekundy "
 msgstr[2] "%(seconds)s sekund "
 msgstr[3] "%(seconds)s sekund"
 
-#: clock/static/common/clocks.js:283
+#: clock/static/common/clocks.js:285
 msgid "%(seconds)ss "
 msgstr "%(seconds)ss "
 
-#: clock/static/common/clocks.js:290
+#: clock/static/common/clocks.js:292
 msgid "%(minutes)s minute "
 msgid_plural "%(minutes)s minutes "
 msgstr[0] "%(minutes)s minuta "
@@ -153,11 +153,11 @@ msgstr[1] "%(minutes)s minuty "
 msgstr[2] "%(minutes)s minut "
 msgstr[3] "%(minutes)s minut "
 
-#: clock/static/common/clocks.js:295
+#: clock/static/common/clocks.js:297
 msgid "%(minutes)sm "
 msgstr "%(minutes)sm "
 
-#: clock/static/common/clocks.js:302
+#: clock/static/common/clocks.js:304
 msgid "%(hours)s hour "
 msgid_plural "%(hours)s hours "
 msgstr[0] "%(hours)s godzina "
@@ -165,11 +165,11 @@ msgstr[1] "%(hours)s godziny "
 msgstr[2] "%(hours)s godzin "
 msgstr[3] "%(hours)s godzin "
 
-#: clock/static/common/clocks.js:306
+#: clock/static/common/clocks.js:308
 msgid "%(hours)sh "
 msgstr "%(hours)sh "
 
-#: clock/static/common/clocks.js:313
+#: clock/static/common/clocks.js:315
 msgid "%(days)s day "
 msgid_plural "%(days)s days "
 msgstr[0] "%(days)s dzień "
@@ -177,11 +177,11 @@ msgstr[1] "%(days)s dni "
 msgstr[2] "%(days)s dni "
 msgstr[3] "%(days)s dni "
 
-#: clock/static/common/clocks.js:318
+#: clock/static/common/clocks.js:320
 msgid "%(days)sd "
 msgstr "%(days)sd "
 
-#: clock/static/common/clocks.js:327
+#: clock/static/common/clocks.js:328
 msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s."
 msgstr[0] "Pozostał %(countdown_days)s do %(countdown_destination)s."
@@ -189,7 +189,7 @@ msgstr[1] "Pozostały %(countdown_days)s do %(countdown_destination)s."
 msgstr[2] "Pozostało %(countdown_days)s do %(countdown_destination)s."
 msgstr[3] "Pozostało %(countdown_days)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:339
+#: clock/static/common/clocks.js:340
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_hours)sleft to the %(countdown_destination)s."
@@ -199,7 +199,7 @@ msgstr[1] "zostało %(countdown_hours)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_hours)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_hours)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:350
+#: clock/static/common/clocks.js:351
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_minutes)sleft to the %(countdown_destination)s."
@@ -209,7 +209,7 @@ msgstr[1] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_minutes)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:360
+#: clock/static/common/clocks.js:361
 #| msgid "%(countdown_days)sleft to the %(countdown_destination)s."
 #| msgid_plural "ountdown_days)sleft to the %(countdown_destination)s."
 msgid "%(countdown_seconds)sleft to the %(countdown_destination)s."
@@ -219,11 +219,11 @@ msgstr[1] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 msgstr[2] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 msgstr[3] "zostało %(countdown_seconds)s do %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:367
+#: clock/static/common/clocks.js:368
 msgid "The round is over!"
 msgstr "Runda zakończona!"
 
-#: clock/static/common/clocks.js:371
+#: clock/static/common/clocks.js:372
 msgid "The round has started!"
 msgstr "Runda rozpoczęta!"
 
@@ -235,27 +235,31 @@ msgstr[1] "Zostało ci %(sub_num)s zgłoszeń."
 msgstr[2] "Zostało ci %(sub_num)s zgłoszeń."
 msgstr[3] "Zostało ci %(sub_num)s zgłoszeń."
 
-#: notifications/static/common/notifications.js:157
+#: notifications/static/common/notifications.js:164
 msgid "You don't have any submissions."
 msgstr "Nie masz żadnych zgłoszeń."
 
-#: notifications/static/common/notifications.js:166
+#: notifications/static/common/notifications.js:173
 msgid "A network error occurred. Recent submissions list could not be loaded"
 msgstr ""
 
-#: notifications/static/common/notifications.js:176
+#: notifications/static/common/notifications.js:183
 msgid ""
 "Would you like to enable desktop notifications (for submission results and "
 "more)?"
 msgstr "Czy chcesz właczyć powiadomienia systemowe (o wynikach zgłoszeń i nie tylko)?"
 
-#: notifications/static/common/notifications.js:179
+#: notifications/static/common/notifications.js:186
 msgid "Yes, please!"
 msgstr "Tak, poproszę!"
 
-#: notifications/static/common/notifications.js:195
+#: notifications/static/common/notifications.js:202
 msgid "Never ask again on this computer"
 msgstr "Nigdy już nie pytaj na tym komputerze"
+
+#: problems/static/problems/task-archive-collapse-chooser.js:25
+msgid "Copied link!"
+msgstr ""
 
 #: programs/static/common/choose_compiler.js:27
 msgid "Compiler"
@@ -333,7 +337,7 @@ msgid ""
 "MB"
 msgstr "Limit czasu: <b>%(timeLimit)s</b>s<br>Limit pamięci: <b>%(memoryLimit)s</b>MB"
 
-#: timeline/static/timeline/timeline.js:35
+#: timeline/static/timeline/timeline.js:34
 #| msgid ""
 #| " date in a datebox by clicking the corresponding <span class=\"icon-"
 #| "ar\"></span> button. You can also use the keyboard: <br> <ul>     "
@@ -353,22 +357,26 @@ msgid ""
 "down\"></span> button."
 msgstr ""
 
-#: timeline/static/timeline/timeline.js:54
+#: timeline/static/timeline/timeline.js:53
 msgid "now"
 msgstr "teraz"
 
-#: workers/static/common/load_chart.js:28
+#: workers/static/common/load_chart.js:31
 msgid "Couldn't get data from server. Please refresh the page."
 msgstr "Nie udało się pobrać danych z serwera. Odśwież stronę."
 
-#: workers/static/common/load_chart.js:46
+#: workers/static/common/load_chart.js:52
 msgid "Load"
 msgstr "Obciążenie"
 
-#: workers/static/common/load_chart.js:60
+#: workers/static/common/load_chart.js:66
 msgid "Capacity"
 msgstr "Pojemność"
 
-#: workers/static/common/load_chart.js:63
+#: workers/static/common/load_chart.js:69
 msgid "Task load"
 msgstr "Obciążenie zadaniami"
+
+#: workers/static/common/load_chart.js:73
+msgid "CPU-exec load"
+msgstr ""
