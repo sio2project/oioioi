@@ -8,18 +8,6 @@ from django.template.response import TemplateResponse
 from oioioi.base.utils import is_ajax
 
 
-class AccessDenied:
-    """A ``False``-like class with additional response to use as the access
-    denied message.
-    """
-
-    def __init__(self, response=None):
-        self.response = response
-
-    def __nonzero__(self):
-        return False
-
-
 class Condition:
     r"""Class representing a condition (a function which returns a boolean
     based on its arguments) intended for use with views and menu items.
@@ -113,10 +101,6 @@ def enforce_condition(condition, template=None, login_redirect=True):
     ``login_redirect`` flag is set to ``True``, a redirect to the login
     page is issued, otherwise :exc:`PermissionDenied` is raised.
 
-    If the condition returns an instance of :class:`AccessDenied` with a
-    specific response to use, this response is used instead of calling the
-    decorated view.
-
     :param condition: condition to check
     :type condition: :class:`Condition`
     :param template: template name to return when ``condition`` fails
@@ -128,8 +112,6 @@ def enforce_condition(condition, template=None, login_redirect=True):
         @functools.wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
             decision = condition(request, *args, **kwargs)
-            if isinstance(decision, AccessDenied) and decision.response:
-                return decision.response
             if decision:
                 return view_func(request, *args, **kwargs)
             if template is not None:
