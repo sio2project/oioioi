@@ -63,8 +63,30 @@ class ProblemUploadForm(forms.Form):
         return cleaned_data
 
 
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    widget = MultipleFileInput
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            if not data:
+                return single_file_clean(None, initial)
+            return [single_file_clean(item, initial) for item in data]
+        return [single_file_clean(data, initial)]
+
+
 class PackageUploadForm(ProblemUploadForm):
     package_file = forms.FileField(label=_("Package file"))
+
+    def __init__(self, contest, existing_problem, *args, **kwargs):
+        bulk_upload = kwargs.pop("bulk_upload", False)
+        super().__init__(contest, existing_problem, *args, **kwargs)
+        if bulk_upload:
+            self.fields["package_file"] = MultipleFileField(label=_("Package files"))
 
 
 class ProblemStatementConfigForm(forms.ModelForm):
