@@ -13,8 +13,8 @@ function setTestFeedbackExpandAllState($report) {
 }
 
 $(function () {
-    // Keep this above the 0.16s grid-template-rows transition. visibility:collapse
-    // drops the empty row, so it must wait until the panel has finished closing.
+    // Keep this above the 0.16s grid-template-rows transition. display:none
+    // removes the row after its panel has finished closing.
     const COLLAPSE_VISIBILITY_DELAY_MS = 200;
 
     function setFeedbackOpen($toggle, open) {

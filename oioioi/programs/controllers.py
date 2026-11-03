@@ -775,7 +775,6 @@ class ProgrammingProblemController(ProblemController):
                     "tests": tests_records,
                     "report": gr,
                     "score_lowered_reason": compute_score_lowered_reason(tests_list, gr),
-                    "row_count": len(tests_records) + sum(record["has_textual_feedback"] for record in tests_records),
                 }
             )
 

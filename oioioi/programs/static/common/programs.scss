@@ -25,22 +25,22 @@
   .group-score {
     vertical-align: middle;
     white-space: nowrap;
+    // Firefox leaves a hole where a rowspan cell meets a row-owned bottom border.
+    border-bottom-width: var(--bs-border-width);
   }
 
-  // Detail rows stay in the table so the group score rowspan stays valid.
-  // font-size/line-height stay 0 so the empty margin cell does not keep a
-  // one-line strut open while the feedback height is animating.
+  // Keep the regular cell borders, including the divider beside the status
+  // stripe. Remove the empty cell's line box while the feedback animates.
   .test-feedback-row > td {
     padding: 0;
-    border: none;
     font-size: 0;
     line-height: 0;
   }
 
-  // An empty feedback row still occupies 1px, so the rule under an expandable
-  // test is twice as thick as under the others. Collapse hides that gap.
+  // Each group has its own tbody and rowspan=0, so removing a closed row
+  // cannot make its score cell extend into the following group.
   .test-feedback-row.is-collapsed {
-    visibility: collapse;
+    display: none;
   }
 }
 
@@ -91,7 +91,7 @@
 }
 
 .test-feedback {
-  padding: ($spacer * 0.25) 0 ($spacer * 0.5);
+  padding: ($spacer * 0.25) $table-cell-padding-x-sm ($spacer * 0.5);
   font-size: 0.875rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -99,7 +99,7 @@
 
 @media print {
   .table-report .test-feedback-row.is-collapsed {
-    visibility: visible;
+    display: table-row;
   }
 
   .table-report .test-feedback-clip {

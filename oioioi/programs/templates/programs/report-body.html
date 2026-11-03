@@ -29,8 +29,8 @@
                 {% endif %}
             </tr>
         </thead>
-        <tbody>
-            {% for group in groups %}
+        {% for group in groups %}
+            <tbody>
                 {% for record in group.tests %}
                 {% with test=record.test %}
                     <tr class="test-row-{{ group.report.id }}">
@@ -108,7 +108,8 @@
                         </td>
                         {% endif %}
                         {% if show_scores and forloop.first %}
-                            <td class="group-score text-end" rowspan="{{ group.row_count }}">
+                            {# Span this group, including whichever feedback rows are currently visible. #}
+                            <td class="group-score text-end" rowspan="0">
                                 {% if group.score_lowered_reason %}
                                     <span title="{{ group.score_lowered_reason }}"
                                           class="text-warning">
@@ -137,7 +138,7 @@
                     {% endif %}
                 {% endwith %}
                 {% endfor %}
-            {% endfor %}
-        </tbody>
+            </tbody>
+        {% endfor %}
     </table>
 </div>
