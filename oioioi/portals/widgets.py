@@ -9,6 +9,8 @@ from django.urls import resolve, reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from mistune.plugins.footnotes import render_footnote_item, render_footnote_ref, render_footnotes
+from mistune.plugins.formatting import render_strikethrough
 from mistune.plugins.table import (
     NP_TABLE_PATTERN,
     TABLE_PATTERN,
@@ -61,11 +63,15 @@ class PortalRenderer(mistune.HTMLRenderer):
         super().__init__(escape=True)
         self.request = request
         # Since we don't associate the renderer with our parser we have to manually
-        # add these renderer functions instead of using the table plugin.
+        # add these renderer functions instead of using the plugin functions.
         self.register("table_head", render_table_head)
         self.register("table_body", render_table_body)
         self.register("table_row", render_table_row)
         self.register("table_cell", render_table_cell)
+        self.register("strikethrough", render_strikethrough)
+        self.register("footnote_ref", render_footnote_ref)
+        self.register("footnote_item", render_footnote_item)
+        self.register("footnotes", render_footnotes)
 
     def text(self, text):
         # Keep HTML entities written by authors (e.g. &nbsp;) working, as in mistune 0.8.
