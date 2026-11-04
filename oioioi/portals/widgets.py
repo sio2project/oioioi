@@ -330,7 +330,7 @@ class YouTubeWidget:
 
     def render(self, _request, m):
         # 'https://www.youtube.com/watch?v=dVDk7PXNXB8'
-        youtube_url = m.group(1)
+        youtube_url = m.group(1).strip()
         # We must use the embed player, so if user just copies link
         # from the browser when he is on YT, we must transform
         # the link in order to be able to play the movie
