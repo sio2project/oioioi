@@ -26,7 +26,7 @@ from oioioi.contests.models import UserResultForProblem
 from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
 
-REGISTERED_WIDGETS: list["Widget"] = []
+REGISTERED_WIDGETS: dict[str, "Widget"] = {}
 _block_spoiler_leading_pattern = re.compile(r"^ *>! ?", flags=re.M)
 _block_center_close_pattern = re.compile(r"<-")
 # A centered block may span blank lines, but not a code fence.
@@ -41,6 +41,9 @@ _table_aligns = [
     (None, re.compile(r"^ *-* *$")),
 ]
 _link_pattern = re.compile(mistune.InlineParser.SPECIFICATION["link"])
+# NOTE: This Pattern's original string is also used for constructing the widget parser
+#       pattern for mistune's inline parser.
+_valid_widget_name_pattern = re.compile(r"[\w-]+")
 _tag_closing_brackets_pattern = re.compile(r"\]\]")
 
 
@@ -102,7 +105,7 @@ class PortalRenderer(mistune.HTMLRenderer):
             return f'<span class="text-danger">[[{widget.name}: {mistune.escape(e.message)}]]</span>'
 
 
-def _search_cached(state, pattern, pos):
+def _search_cached(state: mistune.InlineState, pattern: re.Pattern[str], pos: int) -> int:
     """Return the start of the first match of ``pattern`` in ``state.src`` at or after ``pos``,
     or ``len(state.src)`` if there is none.
 
@@ -159,10 +162,6 @@ def parse_block_spoiler(block, m, state):
     return m.end()
 
 
-def _is_valid_widget_name(text: str):
-    return all(c.isalnum() or c in "_-" for c in text)
-
-
 def _split_table_cells(text: str):
     """Split a table row at ``|``, except escaped ones and ones inside widget tags like ``[[YouTube|...]]``."""
     cells = []
@@ -178,7 +177,7 @@ def _split_table_cells(text: str):
                     continue
 
             found = False
-            for widget in REGISTERED_WIDGETS:
+            for widget in REGISTERED_WIDGETS.values():
                 if widget.param_regex.fullmatch(text, pos + 2, next_tag_end):
                     found = True
                     break
@@ -253,7 +252,7 @@ def _make_table_parser(strip_row):
     return parse
 
 
-def table_plugin(md):
+def _table_plugin(md):
     """mistune's table plugin, but with rows parsed like in mistune 0.8 and widget tags kept in one cell.
 
     mistune 3 drops the whole table when a row has a different number of cells than the header.
@@ -263,9 +262,36 @@ def table_plugin(md):
     table_in_quote(md)
 
 
+def _try_parse_widget(m: re.Match[str], state: mistune.InlineState):
+    name = state.src[m.start() + 2 : m.end()]
+
+    if (widget := REGISTERED_WIDGETS.get(name, None)) is None:
+        return None
+
+    if (closing_start := _search_cached(state, _tag_closing_brackets_pattern, m.end())) == len(state.src):
+        return None
+
+    if not (match := widget.param_regex.fullmatch(state.src, m.start() + 2, closing_start)):
+        return None
+
+    state.append_token({"type": "portal_widget", "attrs": {"widget": widget, "match": match}, "raw": state.src[m.start() + 2 : closing_start]})
+    return closing_start + 2
+
+
+def _parse_widget(inline, m: re.Match[str], state: mistune.InlineState):
+    end = _try_parse_widget(m, state)
+    if end is None:
+        return inline.parse_link(_link_pattern.match(state.src, m.start()), state)
+    return end
+
+
+def _widget_plugin(md: mistune.Markdown):
+    md.inline.register("portal_widget", rf"\[\[{_valid_widget_name_pattern.pattern}", _parse_widget, before="link")
+
+
 _markdown = mistune.create_markdown(
     renderer=None,
-    plugins=["strikethrough", "footnotes", table_plugin, "url"],
+    plugins=["strikethrough", "footnotes", _table_plugin, _widget_plugin, "url"],
 )
 _block_rules = {
     "block_spoiler": (
@@ -307,26 +333,12 @@ def register_widget(widget: Widget):
     """
     if not isinstance(widget, Widget):
         raise ValueError("Widget has incorrect shape")
-    if not _is_valid_widget_name(widget.name):
+    if not _valid_widget_name_pattern.fullmatch(widget.name):
         raise ValueError(f"Invalid widget name {widget.name}")
-    if any(widget.name == w.name for w in REGISTERED_WIDGETS):
+    if widget.name in REGISTERED_WIDGETS.keys():
         raise ValueError(f"Widget named {widget.name} has already been registered")
 
-    def parse(inline, m, state):
-        end = _search_cached(state, _tag_closing_brackets_pattern, m.end())
-
-        # Fallback to parsing as a link if this does not look like a valid tag.
-        if end == len(state.src) or not (match := widget.param_regex.fullmatch(state.src, m.start() + 2, end)):
-            return inline.parse_link(_link_pattern.match(state.src, m.start()), state)
-
-        state.append_token({"type": "portal_widget", "attrs": {"widget": widget, "match": match}, "raw": state.src[m.start() + 2 : end]})
-        return end + 2
-
-    pattern = rf"\[\[{widget.name}"
-    parser_name = f"portal_widget{len(REGISTERED_WIDGETS)}"
-    _markdown.inline.register(parser_name, pattern, parse, before="link")
-
-    REGISTERED_WIDGETS.append(widget)
+    REGISTERED_WIDGETS[widget.name] = widget
 
 
 class YouTubeWidget:
