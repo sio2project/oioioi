@@ -1,4 +1,5 @@
 import os.path
+import re
 from fractions import Fraction
 from math import ceil
 from operator import itemgetter  # pylint: disable=E0611
@@ -155,6 +156,23 @@ def decode_str(str):
         decode_error = True
 
     return (str, decode_error)
+
+
+_UNSTORABLE_CHARS_RE = re.compile("[\x00\ud800-\udfff]")
+
+
+def sanitize_worker_text(text, max_length=None):
+    """Make text produced by a worker (checker comment, compiler output)
+    safe to store in a text column.
+
+    PostgreSQL rejects NUL characters and the UTF-8 codec rejects lone
+    surrogates (left after decoding invalid UTF-8), so both are replaced
+    with U+FFFD. If ``max_length`` is given, longer text is truncated.
+    """
+    text = _UNSTORABLE_CHARS_RE.sub("\ufffd", text)
+    if max_length is not None and len(text) > max_length:
+        text = text[: max_length - 1] + "…"
+    return text
 
 
 def get_submission_source_file_or_error(request, submission_id):

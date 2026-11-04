@@ -538,6 +538,24 @@ class TestMarkdown(TestCase):
         rendered = render_panel(self.request, "[[YouTube|Final [HD]|https://www.youtube.com/watch?v=pB0CTz5QlOw]]")
         self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered)
 
+    def test_youtube_widget_url_whitespace(self):
+        for tag in [
+            "[[YouTube| https://www.youtube.com/watch?v=pB0CTz5QlOw ]]",
+            "[[YouTube|title | https://www.youtube.com/watch?v=pB0CTz5QlOw ]]",
+        ]:
+            rendered = render_panel(self.request, tag)
+            self.assertIn('<iframe src="https://www.youtube.com/embed/pB0CTz5QlOw"', rendered, tag)
+
+    def test_strikethrough(self):
+        self.assertIn("<del>old</del>", render_panel(self.request, "~~old~~"))
+
+    def test_footnotes(self):
+        rendered = render_panel(self.request, "text[^1]\n\n[^1]: note\n")
+        # Only the parts that matter, not mistune's exact markup.
+        self.assertIn('href="#fn-1"', rendered)
+        self.assertIn('class="footnotes"', rendered)
+        self.assertRegex(rendered, r'id="fn-1"[^<]*><p>note')
+
     def test_table_with_widget_and_uneven_rows(self):
         url = "https://www.youtube.com/watch?v=pB0CTz5QlOw"
         rendered = render_panel(self.request, f"| a | b |\n|---|---|\n| [[YouTube|{url}]] | x |\n| short |\n| 1 | 2 | 3 |\n")

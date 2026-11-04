@@ -1,3 +1,4 @@
+import functools
 import os
 import re
 import urllib
@@ -13,7 +14,7 @@ from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.base import ContentFile
-from django.test import RequestFactory
+from django.test import RequestFactory, SimpleTestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone as django_timezone
@@ -29,7 +30,6 @@ from oioioi.base.tests import (
     fake_time,
     needs_linux,
 )
-from oioioi.base.utils import memoized_property
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.handlers import send_notification_judged
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
@@ -40,10 +40,11 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.handlers import collect_tests
+from oioioi.programs.handlers import collect_tests, make_report
 from oioioi.programs.models import (
     CheckerFormatForContest,
     CheckerFormatForProblem,
+    CompilationReport,
     LanguageOverrideForTest,
     ModelSolution,
     ProblemAllowedLanguage,
@@ -55,7 +56,7 @@ from oioioi.programs.models import (
     check_compilers_config,
 )
 from oioioi.programs.problem_instance_utils import get_allowed_languages_dict
-from oioioi.programs.utils import form_field_id_for_langs, get_checker_format
+from oioioi.programs.utils import form_field_id_for_langs, get_checker_format, sanitize_worker_text
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.models import ExtraConfig
 from oioioi.sinolpack.tests import get_test_filename
@@ -1058,6 +1059,60 @@ class TestNotifications(TestCase):
         NotificationHandler.send_notification = send_notification_backup
 
 
+class TestSanitizeWorkerText(SimpleTestCase):
+    def test_nul_and_surrogates(self):
+        self.assertEqual(sanitize_worker_text("a\x00b\udcffc"), "a\ufffdb\ufffdc")
+        self.assertEqual(sanitize_worker_text("Zła odpowiedź"), "Zła odpowiedź")
+
+    def test_truncation(self):
+        self.assertEqual(sanitize_worker_text("x" * 10, 10), "x" * 10)
+        self.assertEqual(sanitize_worker_text("x" * 11, 10), "x" * 9 + "…")
+        self.assertEqual(sanitize_worker_text("x" * 1000), "x" * 1000)
+
+
+class TestMakeReportSanitizesWorkerText(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def _make_env(self, compilation_result, compilation_message):
+        return {
+            "submission_id": Submission.objects.get().id,
+            "status": "WA",
+            "score": None,
+            "max_score": None,
+            "compilation_result": compilation_result,
+            "compilation_message": compilation_message,
+            "tests": {"1a": {"group": "1"}},
+            "test_results": {
+                "1a": {
+                    "exec_time_limit": 1000,
+                    "exec_mem_limit": 65536,
+                    "max_score": None,
+                    "score": None,
+                    "status": "WA",
+                    "time_used": 1,
+                    "mem_used": 1,
+                    "result_string": "bad\x00output\udcff",
+                },
+            },
+        }
+
+    def test_checker_comment(self):
+        env = make_report(self._make_env("OK", ""))
+        report = TestReport.objects.get(submission_report_id=env["report_id"])
+        self.assertEqual(report.comment, "bad\ufffdoutput\ufffd")
+
+    def test_compiler_output(self):
+        env = make_report(self._make_env("CE", "a.cpp:1:1: error: 'x\x00y'"))
+        report = CompilationReport.objects.get(submission_report_id=env["report_id"])
+        self.assertEqual(report.compiler_output, "a.cpp:1:1: error: 'x\ufffdy'")
+
+
 class TestScorers(TestCase):
     t_results_ok = (
         (
@@ -1179,14 +1234,14 @@ class TestScorers(TestCase):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_unequal_max_scores, strict=False))))
         self.assertEqual(self.t_expected_unequal_max_scores, results)
 
-    @memoized_property
+    @functools.cached_property
     def g_results_ok(self):
         # Tested elsewhere
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_ok[:4], strict=False))))
         dicts = [{"score": sc.serialize(), "max_score": msc.serialize(), "status": st, "order": i} for i, (sc, msc, st) in enumerate(results)]
         return dict(list(zip(list(range(len(dicts))), dicts, strict=False)))
 
-    @memoized_property
+    @functools.cached_property
     def g_results_wrong(self):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_wrong, strict=False))))
         dicts = list(self.g_results_ok.values())
@@ -1201,7 +1256,7 @@ class TestScorers(TestCase):
         ]
         return dict(list(zip(list(range(len(dicts))), dicts, strict=False)))
 
-    @memoized_property
+    @functools.cached_property
     def g_results_unequal_max_scores(self):
         results = list(map(utils.threshold_linear_test_scorer, *list(zip(*self.t_results_unequal_max_scores, strict=False))))
         dicts = list(self.g_results_wrong.values())
@@ -1376,7 +1431,8 @@ class TestUserOutsGenerating(TestCase):
         testreport.save()
         response = self.client.get(url)
         self.assertContains(response, "[generate out]", count=1)
-        self.assertContains(response, "[download out]", count=1)
+        self.assertNotContains(response, "[download out]")
+        self.assertContains(response, "usr-out", count=1)
 
         # test filtering reports to generate user outs
         factory = RequestFactory()
@@ -1411,7 +1467,8 @@ class TestUserOutsGenerating(TestCase):
         self.assertNotContains(response, "Processing")
         self.assertContains(response, "[generate out]", count=1)
         # one test has assigned output (e.g. generated by system)
-        self.assertContains(response, "[download out]", count=1)
+        self.assertNotContains(response, "[download out]")
+        self.assertContains(response, "usr-out", count=1)
         self.assertContains(response, "Generate all", count=4)
 
         # clicking generate on test which is already generated but by admin
@@ -1959,17 +2016,19 @@ class TestReportDisplayTypes(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=2)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=3)
         self.assertContains(response, "submission--WA", count=2)
 
-        self.assertContains(response, "submission--OK", count=13)
+        self.assertContains(response, "submission--OK", count=18)
         self.assertContains(response, 'submission--OK"', count=2)
 
-        self.assertContains(response, "submission--OK100", count=2)
-        self.assertContains(response, "submission--OK75", count=2)
-        self.assertContains(response, "submission--OK50", count=2)
-        self.assertContains(response, "submission--OK25", count=2)
-        self.assertContains(response, "submission--OK0", count=3)
+        # Partial scores and half-time notes each add one status cell.
+        self.assertContains(response, "submission--OK100", count=3)
+        self.assertContains(response, "submission--OK75", count=3)
+        self.assertContains(response, "submission--OK50", count=3)
+        self.assertContains(response, "submission--OK25", count=3)
+        self.assertContains(response, "submission--OK0", count=4)
 
     def test_signal_hint(self):
         self.assertTrue(self.client.login(username="test_user"))
@@ -1984,7 +2043,8 @@ class TestReportDisplayTypes(TestCase):
         response = self.client.get(url, follow=True)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=3)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=4)
         self.assertContains(response, "submission--WA", count=2)
 
         self.assertContains(response, "submission--OK", count=12)
@@ -2003,7 +2063,8 @@ class TestReportDisplayTypes(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, "submission--TLE", count=2)
-        self.assertContains(response, "submission--RE", count=2)
+        # The RE row also has a feedback margin cell with the same status class.
+        self.assertContains(response, "submission--RE", count=3)
         self.assertContains(response, "submission--WA", count=2)
 
         self.assertContains(response, "submission--OK", count=13)
@@ -2023,6 +2084,8 @@ class TestReportDisplayTypes(TestCase):
         # Tests 1c (7216ms), 1b (5159ms), 2a (8108ms), 2b (8787ms) all have
         # time_used * 2 > test_time_limit (10000ms) and status OK.
         self.assertContains(response, "Half of the time limit exceeded.", count=4)
+        self.assertContains(response, "test-feedback-toggle")
+        self.assertContains(response, "Expand all")
 
     def test_half_time_exceeded_not_shown_for_non_threshold_contest(self):
         self.assertTrue(self.client.login(username="admin"))
@@ -2039,7 +2102,8 @@ class TestReportDisplayTypes(TestCase):
         # Test 1a (pk=57) has result_percentage_numerator=75, result_percentage_denominator=1
         # so result_percentage="75" → "Checker granted <b>75%</b> points." appears once.
         self.assertContains(response, "Checker granted", count=1)
-        self.assertContains(response, "75%", count=2)  # once in the table and once in the comment
+        self.assertContains(response, "75%", count=2)  # once in the table and once in the feedback
+        self.assertContains(response, 'id="test-feedback-')
 
 
 class TestAllowedLanguages(TestCase, SubmitFileMixin):

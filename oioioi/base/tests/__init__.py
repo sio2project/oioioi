@@ -132,8 +132,10 @@ def fake_time(timestamp):
     timestamp, regardless of the real wall clock time."""
     cache.clear()
     FakeTimeMiddleware._fake_timestamp.value = timestamp
-    yield
-    del FakeTimeMiddleware._fake_timestamp.value
+    try:
+        yield
+    finally:
+        del FakeTimeMiddleware._fake_timestamp.value
 
 
 @contextmanager
@@ -220,7 +222,9 @@ class _SerializedLiveServerThread(LiveServerThread):
 
 
 class BrowserTestCase(StaticLiveServerTestCase):
-    """Base class for tests that open pages of a live server in headless Chromium (Playwright).
+    """Base class for tests that open pages of a live server in a headless browser (Playwright).
+
+    Chromium is the default; override ``browser_name`` to test another Playwright browser.
 
     The tests are marked with ``browser`` (deselect them with ``-m "not browser"``). They are skipped when
     Playwright, the webpack bundles (``dist_webpack/``) or the browser is missing, unless
@@ -232,6 +236,7 @@ class BrowserTestCase(StaticLiveServerTestCase):
     """
 
     pytestmark = pytest.mark.browser
+    browser_name = "chromium"
     server_thread_class = _SerializedLiveServerThread
     server_lock = _SerializedLiveServerThread.lock
 
@@ -253,10 +258,10 @@ class BrowserTestCase(StaticLiveServerTestCase):
 
         cls._playwright = sync_playwright().start()
         try:
-            cls.browser = cls._playwright.chromium.launch()
+            cls.browser = getattr(cls._playwright, cls.browser_name).launch()
         except Error as e:
             cls._playwright.stop()
-            cls._skip(f"Cannot launch Chromium (run `uv run playwright install --with-deps chromium`): {e}")
+            cls._skip(f"Cannot launch {cls.browser_name} (run `uv run playwright install --with-deps {cls.browser_name}`): {e}")
 
         # Playwright's sync API runs an event loop in this thread, so Django would refuse ORM calls
         # (SynchronousOnlyOperation) without this.

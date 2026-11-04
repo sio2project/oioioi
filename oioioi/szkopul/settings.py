@@ -348,6 +348,8 @@ INSTALLED_APPS = (
     #    'oioioi.pa',
     'oioioi.notifications',
     #    'oioioi.mailsubmit',
+    # Before oioioi.portals: szkopul overrides portals/navbar-logo-with-menu.html.
+    'oioioi.szkopul',
     'oioioi.portals',
     #    'oioioi.gamification',
     'oioioi.similarsubmits',
@@ -358,7 +360,6 @@ INSTALLED_APPS = (
     'oioioi.simpleui',
     #    'yet_another_django_profiler',
     #    'oioioi.mainreportimporter',
-    'oioioi.szkopul',
     'oioioi.problemsharing',
     'oioioi.usergroups',
     'oioioi.usercontests',

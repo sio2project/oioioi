@@ -1,12 +1,13 @@
 import logging
 import os.path
-import random
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from datetime import UTC, datetime  # pylint: disable=E0611
 from importlib import import_module, reload
+from unittest.mock import patch
 
 import pytest
 from captcha.models import CaptchaStore
@@ -49,7 +50,7 @@ from oioioi.base.permissions import (
     make_condition,
     make_request_condition,
 )
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import FakeTimeMiddleware, TestCase, fake_time
 from oioioi.base.utils import (
     RegisteredSubclassesBase,
     _parents_are_packages,
@@ -542,19 +543,6 @@ class TestUtils(TestCase):
         self.assertListEqual(Base.subclasses, [Base, Derived])
         self.assertListEqual(Derived.subclasses, [Derived])
 
-    def test_memoized(self):
-        memoized_random = utils.memoized(random.random)
-        self.assertEqual(memoized_random(), memoized_random())
-        memoized_randbits = utils.memoized(random.getrandbits)
-        self.assertNotEqual(memoized_randbits(64), memoized_randbits(63))
-
-    def test_reset_memoized(self):
-        memoized_random = utils.memoized(random.random)
-        r1 = memoized_random()
-        utils.reset_memoized(memoized_random)
-        r2 = memoized_random()
-        self.assertNotEqual(r1, r2)
-
     def test_utils_dont_need_settings(self):
         subprocess_env = os.environ.copy()
         subprocess_env.pop("DJANGO_SETTINGS_MODULE", None)
@@ -704,6 +692,33 @@ class TestMisc(TestCase):
             self.assertTrue(name.endswith("whatever"))
             self.assertEqual(open(name, "rb").read(), b"hello42")
         self.assertFalse(os.path.exists(name))
+
+    def test_uploaded_file_name_cleanup_on_exception(self):
+        # Keep a reference to the temporary file, so that garbage collection
+        # can't close it in place of uploaded_file_name.
+        created_files = []
+        named_temporary_file = tempfile.NamedTemporaryFile
+
+        def tracking_named_temporary_file(*args, **kwargs):
+            f = named_temporary_file(*args, **kwargs)
+            created_files.append(f)
+            self.addCleanup(f.close)
+            return f
+
+        mem_file = SimpleUploadedFile("whatever", b"hello42")
+        with patch.object(tempfile, "NamedTemporaryFile", tracking_named_temporary_file):
+            with self.assertRaises(RuntimeError), utils.uploaded_file_name(mem_file) as name:
+                self.assertTrue(os.path.exists(name))
+                raise RuntimeError
+        self.assertTrue(created_files[0].closed)
+        self.assertFalse(os.path.exists(name))
+
+    def test_fake_time_cleanup_on_exception(self):
+        timestamp = datetime(2012, 7, 31, 20, 27, 58, tzinfo=UTC)
+        with self.assertRaises(RuntimeError), fake_time(timestamp):
+            self.assertEqual(FakeTimeMiddleware._fake_timestamp.value, timestamp)
+            raise RuntimeError
+        self.assertFalse(hasattr(FakeTimeMiddleware._fake_timestamp, "value"))
 
     def test_make_html_links(self):
         test = [("url1", "name1"), ("url2", "name2"), ("url3", "name3", "POST")]
