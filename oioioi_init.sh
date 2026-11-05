@@ -5,7 +5,8 @@ set -x
 
 # Marker checked by the docker-compose healthcheck; removed so a restarted container is not reported healthy too early.
 INIT_DONE_MARKER=/tmp/oioioi_init_done
-rm -f "$INIT_DONE_MARKER"
+SUPERVISOR_CONF=/tmp/supervisord.conf
+rm -f "$INIT_DONE_MARKER" "$SUPERVISOR_CONF"
 
 if [ "$1" == "--dev" ]; then
     echo "Checking frontend dependencies..."
@@ -28,13 +29,20 @@ if [ "$1" == "--dev" ]; then
     # Upload sandboxes to filetracker (s3dedup) on first run
     SANDBOX_MARKER="/sio2/deployment/media/.sandboxes_uploaded"
     if [ ! -f "$SANDBOX_MARKER" ]; then
-        echo "Uploading sandboxes to filetracker (this may take ~30 seconds)..."
-        if ! ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes; then
-            echo "Failed to upload sandboxes to filetracker" >&2
-            exit 1
-        fi
-        touch "$SANDBOX_MARKER"
-        echo "Sandboxes uploaded successfully"
+      uploaded=
+        for attempt in 1 2 3; do
+            if ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes; then
+                uploaded=1
+                break
+            fi
+            echo "Sandbox upload attempt $attempt failed, retrying in 10s..." >&2
+            sleep 10
+        done
+      if [ -z "$uploaded" ]; then
+          echo "Failed to upload sandboxes to filetracker" >&2
+          exit 1
+      fi
+      touch "$SANDBOX_MARKER"
     else
         echo "Sandboxes already uploaded, skipping..."
     fi
@@ -43,8 +51,7 @@ fi
 echo "Init Finished"
 touch "$INIT_DONE_MARKER"
 
-umask 077
-if ! ./manage.py supervisor getconfig > /tmp/supervisord.conf; then
+if ! (umask 077 && ./manage.py supervisor getconfig > /tmp/supervisord.conf); then
     echo "Failed to generate Supervisor configuration" >&2
     exit 1
 fi
