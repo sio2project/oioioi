@@ -34,7 +34,7 @@ RAW_COMMANDS = [
         "build {extra_args}",
         "This may result in the loss of local modifications inside containers.",
     ),
-    ("up", "Run all SIO2 containers", "up -d"),
+    ("up", "Run all SIO2 containers and wait until migrations are applied", "up -d --wait"),
     ("down", "Stop and remove all SIO2 containers", "down"),
     (
         "wipe",
@@ -42,6 +42,9 @@ RAW_COMMANDS = [
         "down -v",
         "This will stop all SIO2 containers and DESTROY all data.",
     ),
+    # `conc` is the short binary of the `concurrently` npm devDependency (package.json),
+    # on PATH in the container via node_modules/.bin. It runs webpack watch (`js`) and
+    # runserver (`py`) side by side; `-k` stops both when one exits.
     (
         "run",
         "Run django server and webpack",

@@ -4,9 +4,6 @@ export default defineConfig({
   chromeWebSecurity: false,
   browser: 'electron',
   video: false,
-  e2e: {
-    setupNodeEvents(on, config) {
-      return require('./cypress/plugins/index.ts')(on, config)
-    },
-  },
+  // Required even if empty: without it Cypress reports e2e as not configured.
+  e2e: {},
 })

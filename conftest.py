@@ -1,5 +1,6 @@
 import pytest
 from django.conf import settings
+from django.utils import translation
 from oioioi.base.tests import pytest_plugin as base_plugin
 from oioioi.contests.tests import pytest_plugin as contests_plugin
 
@@ -50,3 +51,11 @@ def require_migrations_flag(request):
 
     if nomigrations_enabled_flag:
         pytest.skip("Test requires the --migrations flag to run.")
+
+
+@pytest.fixture(autouse=True)
+def reset_active_language():
+    # Middleware activates the request's language (e.g. from the lang cookie)
+    # in the test thread and nothing resets it, so it would leak into later tests.
+    yield
+    translation.deactivate()

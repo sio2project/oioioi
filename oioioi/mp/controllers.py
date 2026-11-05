@@ -265,6 +265,7 @@ class MP2024ContestController(MPContestController):
 
 class MP2025ContestController(MP2024ContestController):
     description = _("Master of Programming 2025")
+    create_forum = True
 
     def uses_threshold_linear_scoring(self):
         return True

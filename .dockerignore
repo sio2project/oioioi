@@ -28,6 +28,12 @@
 /.fleet/
 /dist_webpack/
 /node_modules/
+/oioioi_cypress/node_modules/
+
+# AI agents: local context and per-user settings
+/internal/
+**/CLAUDE.local.md
+/.claude/settings.local.json
 
 # docker specific
 
@@ -42,3 +48,6 @@
 !/test_report.css
 /*.rst
 /rst/
+/AGENTS.md
+/CLAUDE.md
+/.claude/

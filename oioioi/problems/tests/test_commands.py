@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 
+from oioioi.base.tests import needs_linux
 from oioioi.contests.models import Contest, Submission
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -83,6 +84,29 @@ class TestMassCreateTool(TestCase):
         call_command("mass_create_tool", "--wipe", stdout=out)
         self._assert_model_counts({})
 
+    def test_max_proposals(self):
+        out = StringIO()
+
+        # As many proposals as there are unique (problem, user, tag) triples and
+        # (problem, user) pairs, which is the worst case for drawing them at random.
+        mct_args = (
+            "--problems",
+            "3",
+            "--users",
+            "3",
+            "--algotags",
+            "2",
+            "--difftags",
+            "2",
+            "--algoproposals",
+            "18",
+            "--diffproposals",
+            "9",
+        )
+        call_command("mass_create_tool", *mct_args, stdout=out)
+        expected_counts = {name[2:]: int(value) for name, value in zip(mct_args[::2], mct_args[1::2], strict=False)}
+        self._assert_model_counts(expected_counts)
+
     def _contest_test_template(self, users, submissions_per_user, submission_files=("sum-correct.cpp", "sum-various-results.cpp")):
         out = StringIO()
         call_command(
@@ -108,11 +132,13 @@ class TestMassCreateTool(TestCase):
             "submissions": users * submissions_per_user,
         }
 
+    @needs_linux
     def test_contest_basic(self):
         expected_counts = self._contest_test_template(users=1, submissions_per_user=1, submission_files=("sum-correct.cpp",))
         self._assert_model_counts(expected_counts, check_problem_names=False)
 
     @pytest.mark.slow
+    @needs_linux
     def test_contest_bigger(self):
         expected_counts = self._contest_test_template(users=2, submissions_per_user=3)
         self._assert_model_counts(expected_counts, check_problem_names=False)
@@ -258,6 +284,34 @@ class TestMassCreateTool(TestCase):
                 "1",
                 "-dp",
                 "1",
+                stdout=out,
+            )
+
+        # More proposals than there are unique combinations to draw from.
+        with self.assertRaises(CommandError):
+            call_command(
+                "mass_create_tool",
+                "-p",
+                "2",
+                "-u",
+                "2",
+                "-at",
+                "2",
+                "-ap",
+                "9",
+                stdout=out,
+            )
+        with self.assertRaises(CommandError):
+            call_command(
+                "mass_create_tool",
+                "-p",
+                "2",
+                "-u",
+                "2",
+                "-dt",
+                "2",
+                "-dp",
+                "5",
                 stdout=out,
             )
 

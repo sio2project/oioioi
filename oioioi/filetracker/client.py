@@ -1,3 +1,5 @@
+import functools
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.dispatch import receiver
@@ -5,10 +7,9 @@ from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
 
 from filetracker.client import Client as FiletrackerClient
-from oioioi.base.utils import memoized, reset_memoized
 
 
-@memoized
+@functools.cache
 def get_client():
     """Constructs a Filetracker client.
 
@@ -40,7 +41,7 @@ def get_client():
 @receiver(setting_changed)
 def _on_setting_changed(sender, setting, **kwargs):
     if setting == "FILETRACKER_CLIENT_FACTORY":
-        reset_memoized(get_client)
+        get_client.cache_clear()
 
 
 def remote_storage_factory():

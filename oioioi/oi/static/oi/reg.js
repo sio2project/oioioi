@@ -72,21 +72,21 @@ $(document).ready(function() {
     });
 
     if (province.val()) {
-        previous_city = city.val();
+        const previous_city = city.val();
         $.get('oicities/',
                 {'province': province.val()},
                 function(options) {
                     city.html(options);
-                    city.find('option[value="' + previous_city + '"]').prop('selected', true);
+                    city.val(previous_city).trigger('change.select2');
                 });
     }
     if (province.val() && city.val()) {
-        previous_school = school.val();
+        const previous_school = school.val();
         $.get('oischools/',
                 {'province': province.val(), 'city': city.val()},
                 function(options) {
                     school.html(options);
-                    school.find('option[value="' + previous_school + '"]').prop('selected', true);
+                    school.val(previous_school).trigger('change.select2');
                 });
     }
 });

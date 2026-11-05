@@ -219,6 +219,35 @@ OIOnsiteContestController.mix_in(OnsiteContestControllerMixin)
 OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)
 
 
+def update_result_with_best_submission(result):
+    """Counts the highest-scored submission to a problem, ignoring
+    compilation errors, instead of the latest one.
+    """
+    submissions = (
+        Submission.objects.filter(problem_instance=result.problem_instance)
+        .filter(user=result.user)
+        .filter(score__isnull=False)
+        .exclude(status="CE")
+        .filter(kind="NORMAL")
+    )
+
+    if submissions:
+        max_submission = submissions.order_by("-score")[0]
+
+        try:
+            report = SubmissionReport.objects.get(submission=max_submission, status="ACTIVE", kind="NORMAL")
+        except SubmissionReport.DoesNotExist:
+            report = None
+
+        result.score = max_submission.score
+        result.status = max_submission.status
+        result.submission_report = report
+    else:
+        result.score = None
+        result.status = None
+        result.submission_report = None
+
+
 class OIFinalOnsiteContestController(OIOnsiteContestController):
     description = _("Polish Olympiad in Informatics - Onsite - Finals")
     scoring_description = _(
@@ -233,29 +262,36 @@ class OIFinalOnsiteContestController(OIOnsiteContestController):
         return True
 
     def update_user_result_for_problem(self, result):
-        submissions = (
-            Submission.objects.filter(problem_instance=result.problem_instance)
-            .filter(user=result.user)
-            .filter(score__isnull=False)
-            .exclude(status="CE")
-            .filter(kind="NORMAL")
-        )
+        update_result_with_best_submission(result)
 
-        if submissions:
-            max_submission = submissions.order_by("-score")[0]
 
-            try:
-                report = SubmissionReport.objects.get(submission=max_submission, status="ACTIVE", kind="NORMAL")
-            except SubmissionReport.DoesNotExist:
-                report = None
+class GirlsCampController(OIOnsiteContestController):
+    description = _("Girls Camp")
+    scoring_description = _(
+        "The solutions are judged with sio2jail. They can be scored from 0 to 100 points.\n"
+        "The score for a group of test cases is the minimum score for any of the test cases.\n"
+        "The best submission is counted.\n"
+        "The ranking is determined by the total score.\n"
+        "Until the end of the contest, participants can only see scoring of their submissions on example test cases. "
+        "Full scoring is available after the end of the contest."
+    )
 
-            result.score = max_submission.score
-            result.status = max_submission.status
-            result.submission_report = report
-        else:
-            result.score = None
-            result.status = None
-            result.submission_report = None
+    def uses_threshold_linear_scoring(self):
+        return False
+
+    def fill_evaluation_environ(self, environ, submission):
+        super().fill_evaluation_environ(environ, submission)
+        environ["test_scorer"] = "oioioi.programs.utils.discrete_test_scorer"
+
+    def update_user_result_for_problem(self, result):
+        update_result_with_best_submission(result)
+
+    def can_see_test_comments(self, request, submissionreport):
+        submission = submissionreport.submission
+        return is_contest_admin(request) or is_contest_observer(request) or self.results_visible(request, submission)
+
+    def get_visible_reports_kinds(self, request, submission):
+        return ["USER_OUTS", "INITIAL", "NORMAL"]
 
 
 class BOIOnsiteContestController(OIOnsiteContestController):

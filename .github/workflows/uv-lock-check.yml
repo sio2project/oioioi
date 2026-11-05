@@ -1,0 +1,27 @@
+name: Uv lock check
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-uv-lock:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - uses: ./.github/actions/setup-uv  # activate is not needed for uv lock --check
+
+    - name: Run uv lock --check
+      run: |
+        uv lock --check

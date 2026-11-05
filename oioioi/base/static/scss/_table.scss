@@ -17,7 +17,7 @@ $oioioi-table-narrow-max-width: map-get($grid-breakpoints, "md") !default;
   max-width: $oioioi-table-narrow-max-width;
 }
 
-@include media-breakpoint-down(sm) {
+@include media-breakpoint-down(md) {
   .table--narrow {
     max-width: none;
   }

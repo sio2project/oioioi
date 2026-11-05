@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import TestCase, needs_linux
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import Contest, ProblemInstance
@@ -81,6 +81,7 @@ class TestProblemsharing(TestCase):
         self.assertContains(response, "Visibility")
         self.assertContains(response, "Add problem")
 
+    @needs_linux
     def test_visibility_default_preference(self):
         Problem.objects.all().delete()
         ProblemSite.objects.all().delete()

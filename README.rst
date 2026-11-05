@@ -191,6 +191,11 @@ Supported args:
 * ``-x`` - exit after first failure
 * ``-lf`` - runs only tests that failed last time
 * ``--runslow`` - runs also tests marked as slow
+* ``-m "not needs_linux"`` - deselects tests that need Linux (judging, package upload);
+  for diagnostics only, do not use it on Linux or in CI, where these tests must run
+
+To run the tests directly on macOS, see "Running tests on macOS (Homebrew)"
+in `INSTALL`_. Tests that need Linux are skipped there automatically.
 
 Usage
 -----
@@ -218,8 +223,6 @@ Contact us
 
 Here are some useful links:
 
-* `our mailing list`_
 * `GitHub issues system`_ (English only)
 
-.. _our mailing list: sio2-project@googlegroups.com
 .. _GitHub issues system: http://github.com/sio2project/oioioi/issues

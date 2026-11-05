@@ -922,6 +922,7 @@ class TestJudging(TestCase):
         "test_problem_instance",
     ]
 
+    @needs_linux
     def test_judging(self):
         self.assertTrue(self.client.login(username="test_user"))
         contest = Contest.objects.get()

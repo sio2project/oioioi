@@ -1,5 +1,7 @@
 from collections import OrderedDict
 
+from django.conf import settings
+
 from oioioi.base.models import UserPreferences
 
 
@@ -85,3 +87,16 @@ class PreferencesFactory:
 def ensure_preferences_exist_for_user(user):
     if not hasattr(user, "userpreferences"):
         UserPreferences.objects.get_or_create(user=user)
+
+
+def get_preferable_programming_languages():
+    """Returns ``{language: display_name}`` for the main submittable languages
+    which have file extensions configured, i.e. the languages a user can choose
+    as their preferred programming language.
+    """
+    extensions = getattr(settings, "SUBMITTABLE_EXTENSIONS", {})
+    return {
+        lang: lang_config["display_name"]
+        for lang, lang_config in settings.SUBMITTABLE_LANGUAGES.items()
+        if lang_config.get("type", "main") == "main" and lang in extensions
+    }

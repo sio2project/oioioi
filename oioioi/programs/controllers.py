@@ -2,6 +2,7 @@ import hashlib
 import itertools
 import logging
 from operator import attrgetter  # pylint: disable=E0611
+from uuid import uuid4
 
 from django import forms
 from django.conf import settings
@@ -99,6 +100,42 @@ def get_report_display_type(request, test_report):
         display_type = test_report.status
 
     return display_type
+
+
+def get_signal_from_comment(comment):
+    # Sioworkers doesn't give us exit codes or signals explicitly. Neither does sio2jail.
+    # This detection mechanism is similar to the one sioworkers uses to give a RE verdict:
+    # https://github.com/sio2project/sioworkers/blob/55776ac98613ff2b11bd63397be536029616b9bb/sio/workers/executors.py#L670
+    for signal_exit_msg in (
+        "process exited due to signal ",
+        "program exited due to signal ",
+    ):
+        if comment.startswith(signal_exit_msg):
+            try:
+                return int(comment[len(signal_exit_msg) :])
+            except ValueError:
+                return None
+
+    return None
+
+
+def report_test_detail_flags(test, allow_test_comments, allow_download_out):
+    """Split the old per-test note under the report into two flags.
+
+    Textual feedback (comment, checker percentage, half time limit) is shown
+    from the test row. A user-output link stays directly in that row, for the
+    same tests that used to list one.
+    """
+    has_comment = bool(test.comment)
+    has_percentage = bool(getattr(test, "result_percentage", None))
+    half_time_exceeded = test.was_half_time_limit_exceeded()
+    has_textual_feedback = allow_test_comments and (has_comment or has_percentage or half_time_exceeded)
+    has_out_link = bool(
+        allow_download_out
+        and test.test_id
+        and (has_comment or has_percentage or (half_time_exceeded and allow_test_comments) or test.get_status_display() != "OK")
+    )
+    return has_textual_feedback, has_out_link
 
 
 class ProgrammingProblemController(ProblemController):
@@ -433,7 +470,9 @@ class ProgrammingProblemController(ProblemController):
         if langs_field_name not in cleaned_data:
             cleaned_data[langs_field_name] = None
 
-        if not cleaned_data[langs_field_name] and is_file_chosen:
+        # For uploaded files the language is always determined by the extension,
+        # regardless of the (possibly preselected) language picker value.
+        if is_file_chosen:
             ext = get_extension(cleaned_data["file"].name)
             cleaned_data[langs_field_name] = get_language_by_extension(problem_instance, ext)
 
@@ -506,6 +545,13 @@ class ProgrammingProblemController(ProblemController):
             problem_instance.controller.judge(submission)
         return submission
 
+    @staticmethod
+    def _get_preferred_language(request):
+        if request.user.is_anonymous:
+            return ""
+        ensure_preferences_exist_for_user(request.user)
+        return request.user.userpreferences.programming_language
+
     # This method is a large bottleneck in the submit view for large contests,
     # as for every problem_instance, `.get_compiler_for_language()`
     # and `.get_allowed_languages_for_problem()` execute DB queries.
@@ -515,7 +561,8 @@ class ProgrammingProblemController(ProblemController):
         controller = problem_instance.controller
 
         choices = [("", "")]
-        for lang in get_allowed_languages_dict(problem_instance).keys():
+        allowed_languages = get_allowed_languages_dict(problem_instance)
+        for lang in allowed_languages.keys():
             compiler_name = None
             compiler = controller.get_compiler_for_language(problem_instance, lang)
             if compiler is not None:
@@ -539,6 +586,9 @@ class ProgrammingProblemController(ProblemController):
             choices=choices,
             widget=forms.Select(attrs={"disabled": "disabled"}),
         )
+        preferred_language = self._get_preferred_language(request)
+        if preferred_language in allowed_languages:
+            form.fields[field_name].initial = preferred_language
         narrow_input_field(form.fields[field_name])
         form.set_custom_field_attributes(field_name, problem_instance)
 
@@ -625,7 +675,9 @@ class ProgrammingProblemController(ProblemController):
                 if "problem_instance_id" not in request.POST:
                     form.fields["problem_instance_id"].initial = parse_problem(problem)
                 if langs_field_name not in request.POST:
-                    form.fields[langs_field_name].initial = get_language_by_extension(problem_instance, ext)
+                    lang = get_language_by_extension(problem_instance, ext)
+                    if lang is not None:
+                        form.fields[langs_field_name].initial = lang
 
         self._add_js(form, ("common/submit_view.js",))
 
@@ -691,27 +743,29 @@ class ProgrammingProblemController(ProblemController):
 
         groups = []
         signals_to_explain = set()
-        # Sioworkers doesn't give us exit codes or signals explicitly. Neither does sio2jail.
-        # This detection mechanism is similar to the one sioworkers uses to give a RE verdict:
-        # https://github.com/sio2project/sioworkers/blob/55776ac98613ff2b11bd63397be536029616b9bb/sio/workers/executors.py#L670
-        signal_exit_msg = "process exited due to signal "
         for group_name, tests in itertools.groupby(test_reports, attrgetter("test_group")):
             tests_list = list(tests)
 
             for test in tests_list:
                 test.generate_status = picontroller._out_generate_status(request, test)
                 all_outs_generated &= test.generate_status == "OK"
-                # Extract all error signals from the test report according to the format
-                if test.comment.startswith(signal_exit_msg):
-                    try:
-                        signal = int(test.comment[len(signal_exit_msg) :])
-                        signals_to_explain.add(signal)
-                    except ValueError:
-                        pass
+                signal = get_signal_from_comment(test.comment)
+                if signal is not None:
+                    signals_to_explain.add(signal)
                 if test.result_percentage_numerator and test.result_percentage_denominator:
                     test.result_percentage = f"""{round(test.result_percentage_numerator / test.result_percentage_denominator, 2):g}"""
 
-            tests_records = [{"display_type": get_report_display_type(request, test), "test": test} for test in tests_list]
+            tests_records = []
+            for test in tests_list:
+                has_textual_feedback, has_out_link = report_test_detail_flags(test, allow_test_comments, allow_download_out)
+                tests_records.append(
+                    {
+                        "display_type": get_report_display_type(request, test),
+                        "test": test,
+                        "has_textual_feedback": has_textual_feedback,
+                        "has_out_link": has_out_link,
+                    }
+                )
 
             gr = group_reports[group_name]
             groups.append(
@@ -722,11 +776,15 @@ class ProgrammingProblemController(ProblemController):
                 }
             )
 
+        has_test_details = any(record["has_textual_feedback"] for group in groups for record in group["tests"])
+
         return render_to_string(
             "programs/report.html",
             request=request,
             context={
                 "report": report,
+                # Active reports can also be loaded in the hidden reports section of the same page.
+                "report_dom_id": f"submission-report-{report.pk}-{uuid4().hex}",
                 "score_report": score_report,
                 "compilation_report": compilation_report,
                 "groups": groups,
@@ -737,6 +795,7 @@ class ProgrammingProblemController(ProblemController):
                 "is_admin": picontroller.is_admin(request, report),
                 "signals_to_explain": signals_to_explain,
                 "show_mem_used": show_mem_used,
+                "has_test_details": has_test_details,
             },
         )
 

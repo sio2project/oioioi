@@ -1,3 +1,5 @@
+{% load static %}
+
 <style type="text/css">
     #{{ editor_id }} {
         display: none;
@@ -40,15 +42,8 @@
         var ace_script = document.createElement('script');
         var lang_tools_script = document.createElement('script');
 
-        ace_script.src = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js";
-        ace_script.integrity = "sha512-6ts6Fu561/yzWvD6uwQp3XVYwiWNpWnZ0hdeQrETqtnQiGjTfOS06W76aUDnq51hl1SxXtJaqy7IsZ3oP/uZEg==";
-        ace_script.crossOrigin = "anonymous";
-        ace_script.referrerPolicy = "no-referrer";
-
-        lang_tools_script.src = "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ext-language_tools.min.js";
-        lang_tools_script.integrity = "sha512-S7Whi8oQAQu/MK6AhBWufIJIyOvqORj+/1YDM9MaHeRalsZjzyYS7Usk4fsh+6J77PUhuk5v/BxaMDXRdWd1KA==";
-        lang_tools_script.crossOrigin = "anonymous";
-        lang_tools_script.referrerPolicy = "no-referrer";
+        ace_script.src = "{% static 'ace-builds/src-min-noconflict/ace.js' %}";
+        lang_tools_script.src = "{% static 'ace-builds/src-min-noconflict/ext-language_tools.js' %}";
 
         ace_script.onload = function () {
             document.documentElement.firstChild.appendChild(lang_tools_script);

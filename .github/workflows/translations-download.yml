@@ -9,14 +9,22 @@ env:
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
 
   build:
 
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
     - uses: ./.github/actions/setup-env
 
     - name: Install gettext
@@ -24,9 +32,18 @@ jobs:
         sudo apt-get install -y gettext
 
     - name: Install TX client
+      env:
+        # Pinned for reproducibility; bump by hand (Dependabot does not track this).
+        # Take the checksum of tx-linux-amd64.tar.gz from the release's checksums.txt.
+        TX_VERSION: v1.6.17
+        TX_SHA256: 002dec5b9e71248a7e6a0808118e9da940205828d5a33ce88e04bb57a967164d
       run: |
         cd ..
-        curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+        curl -fsSL --proto '=https' --tlsv1.2 -o tx.tar.gz "https://github.com/transifex/cli/releases/download/${TX_VERSION}/tx-linux-amd64.tar.gz"
+        echo "${TX_SHA256}  tx.tar.gz" | sha256sum -c -
+        tar -xzf tx.tar.gz tx
+        rm tx.tar.gz
+        ./tx --version
 
     - name: Update repository
       run: |
@@ -53,4 +70,4 @@ jobs:
         fi
 
     - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v4
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1

@@ -1,12 +1,15 @@
 import re
 import urllib.parse
 
+import mistune
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.urls import resolve, reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
+from mistune.plugins.table import NP_TABLE_PATTERN, TABLE_PATTERN, table
+from mistune.util import safe_entity, unescape
 
 from oioioi.contests.models import UserResultForProblem
 from oioioi.portals.conditions import is_portal_admin
@@ -14,129 +17,265 @@ from oioioi.problems.models import Problem
 
 REGISTERED_WIDGETS = []
 _block_spoiler_leading_pattern = re.compile(r"^ *>! ?", flags=re.M)
+_block_center_close_pattern = re.compile(r"<-")
+# A centered block may span blank lines, but not a code fence.
+_block_center_boundary_pattern = re.compile(r"^[ \t]*(?:```|~~~)", flags=re.M)
+_block_center_trailing_pattern = re.compile(r"(?:[ \t]*\n)?")
+# Same limit as mistune 0.8 had for nested blocks.
+_max_spoiler_depth = 6
+_table_aligns = [
+    ("center", re.compile(r"^ *:-+: *$")),
+    ("left", re.compile(r"^ *:-+ *$")),
+    ("right", re.compile(r"^ *-+: *$")),
+    (None, re.compile(r"^ *-* *$")),
+]
 
 
-class PortalInlineGrammar(InlineGrammar):
-    pass
+class PortalRenderer(mistune.HTMLRenderer):
+    def text(self, text):
+        # Keep HTML entities written by authors (e.g. &nbsp;) working, as in mistune 0.8.
+        return safe_entity(text)
 
-
-class PortalRenderer(Renderer):
     def block_center(self, text):
         return render_to_string("portals/widgets/block-center.html", {"content": mark_safe(text)})
 
-    def block_spoiler(self, summary, body):
+    def block_spoiler(self, text, summary):
         return render_to_string(
             "portals/widgets/block-spoiler.html",
-            {"summary": summary, "body": mark_safe(body)},
+            # The template escapes the summary, so decode entities first
+            # to keep them working like in the body text.
+            {"summary": unescape(summary), "body": mark_safe(text)},
         )
 
-    def table(self, header, body):
-        """Rendering table element. Wrap header and body in it.
+    def table(self, text):
+        """Rendering table element. Wrap the header and body in it.
 
-        :param header: header part of the table.
-        :param body: body part of the table.
+        :param text: rendered ``<thead>`` and ``<tbody>`` of the table.
         """
-        return render_to_string(
-            "portals/widgets/table.html",
-            {"header": mark_safe(header), "body": mark_safe(body)},
-        )
+        return render_to_string("portals/widgets/table.html", {"content": mark_safe(text)})
+
+    def portal_widget(self, text):
+        # Already rendered by the widget, must not be escaped.
+        return text
 
 
-class PortalInlineLexer(InlineLexer):
-    default_rules = InlineLexer.default_rules[:]
+def _search_cached(state, pattern, pos):
+    """Return the start of the first match of ``pattern`` in ``state.src`` at or after ``pos``,
+    or ``len(state.src)`` if there is none.
 
-    def __init__(self, request, renderer, rules=None, **kwargs):
-        self.request = request
-        if rules is None:
-            rules = PortalInlineGrammar()
-        super().__init__(renderer, rules, **kwargs)
-
-
-class PortalBlockLexer(BlockLexer):
-    default_rules = BlockLexer.default_rules[:]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._blockspoiler_depth = 0
-
-        self.rules.block_spoiler = re.compile(
-            r"^ *>!\[([^\n]*)\] *((?:\n *>![^\n]*)+)",
-            flags=re.DOTALL | re.M,
-        )
-        self.rules.block_center = re.compile(r"^ *->(.*?)<-", re.DOTALL)
-        # Insert before 'block_code'
-        if "block_center" not in self.default_rules:
-            self.default_rules.insert(self.default_rules.index("block_code"), "block_center")
-        if "block_spoiler" not in self.default_rules:
-            self.default_rules.insert(0, "block_spoiler")
-
-    def parse_block_center(self, m):
-        self.tokens.append(
-            {
-                "type": "block_center",
-                "text": m.group(1),
-            }
-        )
-
-    def parse_block_spoiler(self, m):
-        self._blockspoiler_depth += 1
-
-        if self._blockspoiler_depth > self._max_recursive_depth:
-            self.parse_text(m)
-        else:
-            self.tokens.append({"type": "block_spoiler", "summary": m.group(1)})
-            # Clean leading >!
-            content = _block_spoiler_leading_pattern.sub("", m.group(2))
-            self.parse(content)
-            self.tokens.append({"type": "block_spoiler_end"})
-
-        self._blockspoiler_depth -= 1
+    The parser only moves forward, so the last result is reused while ``pos`` hasn't
+    passed it. Without that, every unclosed ``->`` line would rescan the rest of the input.
+    """
+    cache = state.__dict__.setdefault("portal_search_cache", {})
+    searched_from, found_at = cache.get(pattern, (None, None))
+    if searched_from is None or not searched_from <= pos <= found_at:
+        match = pattern.search(state.src, pos)
+        found_at = match.start() if match else len(state.src)
+        cache[pattern] = (pos, found_at)
+    return found_at
 
 
-class PortalMarkdown(Markdown):
-    def __init__(self, request):
-        renderer = PortalRenderer(escape=True)
-        inline_lexer = PortalInlineLexer(request, renderer)
-        block_lexer = PortalBlockLexer()
-        super().__init__(renderer, inline=inline_lexer, block=block_lexer)
+def parse_block_center(block, m, state):
+    last_token = state.last_token()
+    if last_token and last_token["type"] == "paragraph":
+        # Like in mistune 0.8, a centered block doesn't interrupt a paragraph.
+        return None
+    close = _search_cached(state, _block_center_close_pattern, m.end())
+    if close >= _search_cached(state, _block_center_boundary_pattern, m.end()):
+        return None
+    state.append_token({"type": "block_center", "text": state.src[m.end() : close]})
+    return _block_center_trailing_pattern.match(state.src, close + 2).end()
 
-    def output_block_center(self):
-        return self.renderer.block_center(self.inline(self.token["text"]))
 
-    def output_block_spoiler(self):
-        spoiler_summary = self.token["summary"]
-        body = self.renderer.placeholder()
-        while self.pop()["type"] != "block_spoiler_end":
-            body += self.tok()
-        return self.renderer.block_spoiler(spoiler_summary, body)
+def _spoiler_depth(state):
+    depth = 0
+    while state:
+        depth += getattr(state, "portal_spoiler", False)
+        state = state.parent
+    return depth
+
+
+def parse_block_spoiler(block, m, state):
+    # Count only spoilers, not list items or block quotes, like mistune 0.8.
+    if _spoiler_depth(state) >= _max_spoiler_depth:
+        # Too deeply nested, render the whole spoiler as plain text.
+        state.add_paragraph(m.group(0))
+        return m.end()
+    # Clean leading >!
+    content = _block_spoiler_leading_pattern.sub("", m.group("spoiler_body")).lstrip("\n") + "\n"
+    child = state.child_state(content)
+    child.portal_spoiler = True
+    block.parse(child)
+    state.append_token(
+        {
+            "type": "block_spoiler",
+            "attrs": {"summary": m.group("spoiler_summary")},
+            "children": child.tokens,
+        }
+    )
+    return m.end()
+
+
+def _split_table_cells(text):
+    """Split a table row at ``|``, except escaped ones and ones inside widget tags like ``[[YouTube|...]]``."""
+    cells = []
+    start = pos = 0
+    in_tag = False
+    last_tag_end = text.rfind("]]")
+    while pos < len(text):
+        if text[pos] == "\\":
+            pos += 2
+            continue
+        if not in_tag and text.startswith("[[", pos) and pos < last_tag_end:
+            in_tag = True
+            pos += 2
+            continue
+        if in_tag and text.startswith("]]", pos):
+            in_tag = False
+            pos += 2
+            continue
+        if text[pos] == "|" and not in_tag:
+            cells.append(text[start:pos].strip())
+            start = pos + 1
+        pos += 1
+    cells.append(text[start:].strip())
+    return cells
+
+
+def _strip_pipe_table_row(line):
+    text = line.strip(" \t\n")
+    if len(text) < 2 or not text.startswith("|") or not text.endswith("|"):
+        return None
+    return text[1:-1]
+
+
+def _strip_nptable_row(line):
+    text = line.rstrip(" \t\n")
+    if "|" not in text:
+        return None
+    return text
+
+
+def _table_cells(cells, aligns, head):
+    return [{"type": "table_cell", "text": text, "attrs": {"align": aligns[i] if i < len(aligns) else None, "head": head}} for i, text in enumerate(cells)]
+
+
+def _make_table_parser(strip_row):
+    def parse(block, m, state):
+        header = strip_row(m.group(0))
+        pos = m.end()
+        delimiter_line = state.get_line(pos)
+        delimiter = strip_row(delimiter_line)
+        if header is None or delimiter is None:
+            return None
+        headers = _split_table_cells(header)
+        aligns = []
+        for cell in _split_table_cells(delimiter):
+            align = next((align for align, pattern in _table_aligns if pattern.match(cell)), False)
+            if align is False:
+                return None
+            aligns.append(align)
+        if len(aligns) != len(headers):
+            return None
+        pos += len(delimiter_line)
+
+        rows = []
+        while pos < state.cursor_max:
+            line = state.get_line(pos)
+            row = strip_row(line)
+            if row is None:
+                break
+            cells = _split_table_cells(row)
+            # Like mistune 0.8, a row with too few or too many cells still belongs to the table.
+            cells += [""] * (len(aligns) - len(cells))
+            rows.append({"type": "table_row", "children": _table_cells(cells, aligns, head=False)})
+            pos += len(line)
+
+        head = {"type": "table_head", "children": _table_cells(headers, aligns, head=True)}
+        state.append_token({"type": "table", "children": [head, {"type": "table_body", "children": rows}]})
+        return pos
+
+    return parse
+
+
+def table_plugin(md):
+    """mistune's table plugin, but with rows parsed like in mistune 0.8 and widget tags kept in one cell.
+
+    mistune 3 drops the whole table when a row has a different number of cells than the header.
+    """
+    table(md)
+    md.block.register("table", TABLE_PATTERN, _make_table_parser(_strip_pipe_table_row))
+    md.block.register("nptable", NP_TABLE_PATTERN, _make_table_parser(_strip_nptable_row))
+
+
+_markdown = mistune.create_markdown(
+    renderer=PortalRenderer(escape=True),
+    plugins=["strikethrough", "footnotes", table_plugin, "url"],
+)
+_block_rules = {
+    "block_spoiler": (
+        r"^ {0,3}>!\[(?P<spoiler_summary>[^\n]*)\] *(?P<spoiler_body>(?:\n *>![^\n]*)+)(?:[ \t]*\n)?",
+        parse_block_spoiler,
+    ),
+    # Only the opening, parse_block_center finds the closing <-.
+    "block_center": (r"^ {0,3}->", parse_block_center),
+}
+for _name, (_pattern, _func) in _block_rules.items():
+    _markdown.block.register(_name, _pattern, _func, before="fenced_code")
+    # Block quotes and list items are parsed with their own rule lists.
+    _markdown.block.insert_rule(_markdown.block.block_quote_rules, _name, before="fenced_code")
+    _markdown.block.insert_rule(_markdown.block.list_rules, _name, before="fenced_code")
 
 
 def render_panel(request, panel):
-    return PortalMarkdown(request).render(panel)
+    state = _markdown.block.state_cls()
+    state.env["request"] = request
+    html, _ = _markdown.parse(panel, state)
+    return html
 
 
 def register_widget(widget):
     """
     Register markdown tag for a portal widget.
-    See ``mistune`` docs for more info.
+    The tag is added as an inline rule of the ``mistune`` 3 parser
+    and takes precedence over links and the other inline rules.
 
     :type widget: object containing the following:
-        * :attr:`widget.name` - name of the widget
+        * :attr:`widget.name` - name of the widget, unique among inline rules
         * :attr:`widget.compiled_tag_regex` - compiled regular expression
-            pattern used for identifying markdown tag
+            pattern used for identifying markdown tag.  Its pattern is
+            embedded into ``mistune``'s combined regex, so it must not use
+            ``^`` anchors, flags (also inline ones) or named groups.
         * :meth:`widget.render` - method (or just function) accepting
-            corresponding :class:`re.MatchObject` instance as the only
-            parameter (named 'm').  Should return a string (rendered widget).
+            the current request and the corresponding :class:`re.Match`
+            instance (named 'm').  Should return a string (rendered widget).
     """
-    if hasattr(PortalInlineGrammar, widget.name):
+    if widget.name in _markdown.inline.rules or any(w.name == widget.name for w in REGISTERED_WIDGETS):
         raise ValueError(f"Inline tag for widget named {widget.name} has already been registered.")
-    PortalInlineLexer.default_rules.insert(0, widget.name)
-    setattr(PortalInlineGrammar, widget.name, widget.compiled_tag_regex)
 
-    def func(self, m):
-        return widget.render(self.request, m)
+    # Fail here rather than on every later render if the pattern can't be
+    # embedded into the combined regex (see compile_sc in mistune).
+    inline = _markdown.inline
+    pattern = widget.compiled_tag_regex.pattern
+    # Only the pattern goes into the combined regex, so flags would be silently lost.
+    if widget.compiled_tag_regex.flags & ~re.UNICODE:
+        raise ValueError(f"Inline tag for widget named {widget.name} must not use regex flags.")
+    patterns = {**inline.specification, widget.name: pattern}
+    try:
+        re.compile("|".join(f"(?P<{name}>{patterns[name]})" for name in [*inline.rules, widget.name]), inline.sc_flag)
+    except re.error as e:
+        raise ValueError(f"Invalid inline tag for widget named {widget.name}: {e}") from e
 
-    setattr(PortalInlineLexer, "output_" + widget.name, func)
+    def parse(inline, m, state):
+        # Match again on its own, so that group numbers are the widget's
+        # and not the ones from the combined regex.
+        widget_match = widget.compiled_tag_regex.match(state.src, m.start())
+        if widget_match is None:
+            return None
+        state.append_token({"type": "portal_widget", "raw": widget.render(state.env["request"], widget_match)})
+        return widget_match.end()
+
+    _markdown.inline.register(widget.name, pattern, parse, before="link")
 
     REGISTERED_WIDGETS.append(widget)
 
@@ -144,7 +283,7 @@ def register_widget(widget):
 class YouTubeWidget:
     name = "youtube"
     compiled_tag_regex = re.compile(
-        r"\[\[" r"YouTube\|([\s\S]+?)" r"\]\](?!\])"  # [[  # YouTube|<url>  # ]]
+        r"\[\[" r"YouTube\|((?:[^\[\]]|\[[^\[\]]*\])+)" r"\]\](?!\])"  # [[  # YouTube|<url>  # ]]
     )
 
     def render(self, request, m):
@@ -171,7 +310,8 @@ class ProblemTableWidget:
     compiled_tag_regex = re.compile(
         r"\[\["  # [[
         # ProblemTable|... or ProblemTable:<Header>|...
-        r"ProblemTable(:.*)?\|(.*)"
+        # The parts can't contain brackets, so that a tag without ]] fails fast.
+        r"ProblemTable(:[^\[\]|\n]*)?\|([^\[\]\n]*)"
         r"\]\](?!\])"  # ]]
     )
 
@@ -249,13 +389,14 @@ register_widget(ProblemTableWidget())
 class RedirectWidget:
     name = "redirect"
     compiled_tag_regex = re.compile(
-        r"\[\[" r"Redirect\|(.*)" r"\]\]"  # [[  # Redirect|<url>  # ]]
+        r"\[\[" r"Redirect\|([^\[\]\n]*)" r"\]\]"  # [[  # Redirect|<url>  # ]]
     )
 
     @staticmethod
     def render(request, match):
         redirect_url = match.group(1).strip()
-        if urllib.parse.urlparse(redirect_url).netloc:
+        # Rejects other hosts (also "//host" and "/\host") and schemes such as javascript:.
+        if not url_has_allowed_host_and_scheme(redirect_url, allowed_hosts=None):
             return "[[Redirect: only relative URLs allowed]]"
 
         return render_to_string(

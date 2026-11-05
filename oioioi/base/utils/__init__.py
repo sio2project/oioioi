@@ -10,6 +10,7 @@ import tempfile
 import urllib.parse
 from contextlib import contextmanager
 from importlib import import_module
+from importlib.util import find_spec
 
 import six
 from django.forms.utils import flatatt
@@ -130,10 +131,28 @@ class RegisteredSubclassesBase(ClassInitBase):
             for name in modules_to_load:
                 try:
                     module = f"{app_module}.{name}"
+                    if not _parents_are_packages(module, app_module):
+                        continue
                     import_module(module)
                 except ImportError:
                     continue
         cls._subclasses_loaded = True
+
+
+def _parents_are_packages(module, root):
+    """Checks that every module between ``root`` and ``module`` is a package.
+
+    The check uses :func:`importlib.util.find_spec`, which does not execute
+    the module it looks up. Importing ``app.tests.foo`` where ``app.tests``
+    is a plain module would run ``app.tests`` (and its side effects) only to
+    fail with :exc:`ImportError`.
+    """
+    parts = module[len(root) + 1 :].split(".")[:-1]
+    for i in range(len(parts)):
+        spec = find_spec(".".join([root, *parts[: i + 1]]))
+        if spec is None or spec.submodule_search_locations is None:
+            return False
+    return True
 
 
 class _RemoveMixinsFromInitMixin:
@@ -297,47 +316,7 @@ class ObjectWithMixins(ClassInitBase):
         cls._fixup_subclasses()
 
 
-# Memoized-related bits copied from SqlAlchemy.
-
-
-class memoized_property:  # Copied from SqlAlchemy
-    """A read-only @property that is only evaluated once."""
-
-    def __init__(self, fget, doc=None):
-        self.fget = fget
-        self.__doc__ = doc or fget.__doc__
-        self.__name__ = fget.__name__
-
-    def __get__(self, obj, cls):
-        if obj is None:
-            return None
-        obj.__dict__[self.__name__] = result = self.fget(obj)
-        return result
-
-
-def memoized(fn):
-    """Simple wrapper that adds result caching for functions with positional
-    arguments only.
-
-    The arguments must be hashable so that they can be stored as keys in
-    a dict.
-    """
-    cache = {}
-
-    @functools.wraps(fn)
-    def memoizer(*args):
-        if args not in cache:
-            cache[args] = fn(*args)
-        return cache[args]
-
-    memoizer.cache = cache
-    return memoizer
-
-
-def reset_memoized(memoized_fn):
-    """Clear the memoization cache of a function decorated by
-    :fun:`memoized`."""
-    memoized_fn.cache.clear()
+# Memoization / caching
 
 
 def request_cached(fn):
@@ -473,10 +452,12 @@ def uploaded_file_name(uploaded_file):
         yield uploaded_file.temporary_file_path()
     else:
         f = tempfile.NamedTemporaryFile(suffix=os.path.basename(uploaded_file.name))
-        shutil.copyfileobj(uploaded_file, f)
-        f.flush()
-        yield f.name
-        f.close()
+        try:
+            shutil.copyfileobj(uploaded_file, f)
+            f.flush()
+            yield f.name
+        finally:
+            f.close()
 
 
 def split_extension(filename):

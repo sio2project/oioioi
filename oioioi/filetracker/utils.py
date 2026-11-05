@@ -1,3 +1,4 @@
+import functools
 import mimetypes
 import urllib
 import urllib.parse
@@ -6,7 +7,6 @@ from wsgiref.util import FileWrapper
 from django.core.files import File
 from django.core.files.storage import default_storage
 from django.http import StreamingHttpResponse
-from django.utils.functional import cached_property
 
 from oioioi.filetracker.filename import FiletrackerFilename
 
@@ -26,7 +26,7 @@ class FileInFiletracker(File):
         self.storage = storage
         self._size = None
 
-    @cached_property
+    @functools.cached_property
     def size(self):
         return self.storage.size(self.name)
 

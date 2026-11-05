@@ -30,6 +30,17 @@ class ProblemInstanceController:
     def __init__(self, problem_instance):
         self.problem_instance = problem_instance
 
+    def get_safe_exec_mode(self):
+        execution_mode = getattr(self.problem_instance, "execution_mode", "AUTO")
+        if execution_mode != "AUTO":
+            return execution_mode
+
+        problem = self.problem_instance.problem
+        contest = self.problem_instance.contest
+        if contest is not None:
+            return contest.controller.get_safe_exec_mode()
+        return problem.controller.get_safe_exec_mode()
+
     def __getattr__(self, name):
         problem = self.problem_instance.problem
         contest = self.problem_instance.contest

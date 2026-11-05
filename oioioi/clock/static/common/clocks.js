@@ -185,7 +185,7 @@ $(function() {
         }
 
         adminClock.on('click', function() {
-            let adminTimeValue = null;
+            let adminTimeValue;
             if (isAdminTimeSet) {
                 adminTimeValue = new Date(timestamp);
             } else {

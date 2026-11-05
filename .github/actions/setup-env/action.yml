@@ -1,5 +1,5 @@
-name: Setup enviroment
-description: Setup python environment with uv and install apt depdendencies
+name: Setup environment
+description: Setup python environment with uv and install apt dependencies
 
 inputs:
   install-texlive:
@@ -8,6 +8,10 @@ inputs:
     # Composite actions don't support boolean inputs yet.
     # See https://github.com/actions/runner/issues/2238
     default: "false"
+  dependency-groups:
+    description: "Space-separated uv dependency groups to install in addition to the default ones"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -21,18 +25,26 @@ runs:
 
   - name: Install texlive
     if: inputs.install-texlive == 'true'
+    # Same packages as in the Dockerfile. Recommends would pull in ~800 MB
+    # (Java, texlive docs, unused languages), and docs are skipped as well.
     run: |
-      sudo apt-get install -y texlive-latex-base texlive-lang-polish texlive-lang-czechslovak texlive-latex-extra texlive-pstricks texlive-luatex
+      printf 'path-exclude=/usr/share/doc/*\npath-exclude=/usr/share/man/*\npath-exclude=/usr/share/info/*\n' | sudo tee /etc/dpkg/dpkg.cfg.d/01-nodoc
+      sudo apt-get install -y --no-install-recommends -o Acquire::Retries=3 \
+        texlive-latex-base texlive-lang-polish texlive-latex-extra texlive-lang-german \
+        texlive-lang-european texlive-lang-czechslovak texlive-pstricks \
+        texlive-fonts-recommended tex-gyre ghostscript
     shell: sh
 
   - name: Install uv
-    uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+    uses: ./.github/actions/setup-uv
     with:
-      version: "latest"
-      python-version: "3.13"
-      activate-environment: true
+      activate-environment: "true"
 
   - name: Install python dependencies
+    env:
+      DEPENDENCY_GROUPS: ${{ inputs.dependency-groups }}
     run: |
-      uv sync
+      set --
+      for group in $DEPENDENCY_GROUPS; do set -- "$@" --group "$group"; done
+      uv sync --locked "$@"
     shell: sh

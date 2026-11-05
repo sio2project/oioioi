@@ -88,7 +88,7 @@ function checkAnswersInMeantime() {
             $('#alert_' + msg_id).fadeIn();
         });
     })
-    .complete(function () {
+    .always(function () {
         setTimeout(checkAnswersInMeantime, newAnswersConfig.pollingTimeout);
     });
     newAnswersConfig.loadDateSeconds = Date.now() / 1000;

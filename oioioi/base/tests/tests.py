@@ -1,12 +1,13 @@
 import logging
 import os.path
-import random
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+from datetime import UTC, datetime  # pylint: disable=E0611
 from importlib import import_module, reload
+from unittest.mock import patch
 
 import pytest
 from captcha.models import CaptchaStore
@@ -49,14 +50,16 @@ from oioioi.base.permissions import (
     make_condition,
     make_request_condition,
 )
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import FakeTimeMiddleware, TestCase, fake_time
 from oioioi.base.utils import (
     RegisteredSubclassesBase,
+    _parents_are_packages,
     archive,
     split_extension,
     strip_num_or_hash,
 )
 from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import is_contest_admin
 from oioioi.szkopul.views import main_page_view as szkopul_main_page
@@ -93,6 +96,18 @@ class TestPermsTemplateTags(TestCase):
         template = Template('{% load check_perm %}{% check_perm "auth.add_user" for "whatever" as p %}{% if p %}yes{% endif %}')
         self.assertEqual(template.render(Context({"user": admin})), "yes")
         self.assertEqual(template.render(Context({"user": user})), "")
+
+
+class TestAceEditorWidget(TestCase):
+    def test_ace_assets_are_local(self):
+        rendered = AceEditorWidget(attrs={}).render("code", "")
+
+        self.assertIn("ace-builds/src-min-noconflict/ace.js", rendered)
+        self.assertIn(
+            "ace-builds/src-min-noconflict/ext-language_tools.js",
+            rendered,
+        )
+        self.assertNotIn("cdnjs.cloudflare.com", rendered)
 
 
 class TestIndex(TestCase):
@@ -528,19 +543,6 @@ class TestUtils(TestCase):
         self.assertListEqual(Base.subclasses, [Base, Derived])
         self.assertListEqual(Derived.subclasses, [Derived])
 
-    def test_memoized(self):
-        memoized_random = utils.memoized(random.random)
-        self.assertEqual(memoized_random(), memoized_random())
-        memoized_randbits = utils.memoized(random.getrandbits)
-        self.assertNotEqual(memoized_randbits(64), memoized_randbits(63))
-
-    def test_reset_memoized(self):
-        memoized_random = utils.memoized(random.random)
-        r1 = memoized_random()
-        utils.reset_memoized(memoized_random)
-        r2 = memoized_random()
-        self.assertNotEqual(r1, r2)
-
     def test_utils_dont_need_settings(self):
         subprocess_env = os.environ.copy()
         subprocess_env.pop("DJANGO_SETTINGS_MODULE", None)
@@ -599,6 +601,14 @@ class TestFields(TestCase):
             return
         TestDottedFieldClass.load_subclasses()
         self.assertIn("oioioi.base.tests.test_dotted_field_classes", sys.modules)
+
+    def test_load_subclasses_skips_plain_modules(self):
+        # oioioi.questions.tests is a plain module, so it cannot contain
+        # tests.test_dotted_field_classes and must not be executed.
+        self.assertTrue(_parents_are_packages("oioioi.base.tests.test_dotted_field_classes", "oioioi.base"))
+        self.assertTrue(_parents_are_packages("oioioi.contests.controllers", "oioioi.contests"))
+        self.assertFalse(_parents_are_packages("oioioi.questions.tests.test_dotted_field_classes", "oioioi.questions"))
+        self.assertFalse(_parents_are_packages("oioioi.questions.nonexistent.module", "oioioi.questions"))
 
 
 class TestEnumField(TestCase):
@@ -682,6 +692,33 @@ class TestMisc(TestCase):
             self.assertTrue(name.endswith("whatever"))
             self.assertEqual(open(name, "rb").read(), b"hello42")
         self.assertFalse(os.path.exists(name))
+
+    def test_uploaded_file_name_cleanup_on_exception(self):
+        # Keep a reference to the temporary file, so that garbage collection
+        # can't close it in place of uploaded_file_name.
+        created_files = []
+        named_temporary_file = tempfile.NamedTemporaryFile
+
+        def tracking_named_temporary_file(*args, **kwargs):
+            f = named_temporary_file(*args, **kwargs)
+            created_files.append(f)
+            self.addCleanup(f.close)
+            return f
+
+        mem_file = SimpleUploadedFile("whatever", b"hello42")
+        with patch.object(tempfile, "NamedTemporaryFile", tracking_named_temporary_file):
+            with self.assertRaises(RuntimeError), utils.uploaded_file_name(mem_file) as name:
+                self.assertTrue(os.path.exists(name))
+                raise RuntimeError
+        self.assertTrue(created_files[0].closed)
+        self.assertFalse(os.path.exists(name))
+
+    def test_fake_time_cleanup_on_exception(self):
+        timestamp = datetime(2012, 7, 31, 20, 27, 58, tzinfo=UTC)
+        with self.assertRaises(RuntimeError), fake_time(timestamp):
+            self.assertEqual(FakeTimeMiddleware._fake_timestamp.value, timestamp)
+            raise RuntimeError
+        self.assertFalse(hasattr(FakeTimeMiddleware._fake_timestamp, "value"))
 
     def test_make_html_links(self):
         test = [("url1", "name1"), ("url2", "name2"), ("url3", "name3", "POST")]
@@ -1307,7 +1344,7 @@ class TestPreferences(TestCase):
             "username": "test_user",
             "first_name": "fn",
             "last_name": "ln",
-            "email": "foo@bar.com",
+            "email": "test_user@example.com",
             "terms_accepted": True,
             "preferred_language": "pl",
         }
@@ -1320,6 +1357,43 @@ class TestPreferences(TestCase):
 
         response = self.client.get("/")
         self.assertContains(response, "Edycja profilu")
+
+    def test_programming_language_preferences(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        url = reverse("edit_profile")
+        response = self.client.get(url)
+        self.assertContains(response, "Preferred programming language")
+        self.assertNotContains(response, "Output-only")
+
+        data = {
+            "username": "test_user",
+            "first_name": "fn",
+            "last_name": "ln",
+            "email": "test_user@example.com",
+            "terms_accepted": True,
+            "preferred_language": "",
+            "programming_language": "C++",
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        user = User.objects.get(username="test_user")
+        self.assertEqual(user.userpreferences.programming_language, "C++")
+
+        for invalid_language in ["Output-only", "Brainfuck"]:
+            data["programming_language"] = invalid_language
+            response = self.client.post(url, data, follow=True)
+            self.assertEqual(response.status_code, 200)
+
+            user.userpreferences.refresh_from_db()
+            self.assertEqual(user.userpreferences.programming_language, "C++")
+
+        # Preferences are not saved when the rest of the form is invalid.
+        data.update({"programming_language": "Python", "email": "not-an-email"})
+        response = self.client.post(url, data, follow=True)
+        self.assertContains(response, "Enter a valid email address")
+        user.userpreferences.refresh_from_db()
+        self.assertEqual(user.userpreferences.programming_language, "C++")
 
     def test_registration_preferences(self):
         response = self.client.get(reverse("sign-up"))

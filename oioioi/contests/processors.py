@@ -2,6 +2,7 @@ from django.conf import settings
 from django.utils.functional import lazy
 
 from oioioi.base.utils import request_cached
+from oioioi.contests.middleware import get_recent_contest_ids
 from oioioi.contests.models import Contest, ContestView
 from oioioi.contests.utils import visible_contests
 
@@ -25,7 +26,7 @@ def register_current_contest(request):
 @request_cached
 def recent_contests(request):
     if request.real_user.is_anonymous:
-        ids = request.session.get("recent_contests", [])
+        ids = get_recent_contest_ids(request)
         mapping = Contest.objects.in_bulk(ids)
         return [c for c in (mapping.get(id) for id in ids) if c is not None and c != request.contest]
     else:

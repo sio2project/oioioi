@@ -1,6 +1,5 @@
 /// <reference types="cypress" />
 
-import "cypress-file-upload";
 import { v4 as uuidv4 } from "uuid";
 
 const TYPE_OPTIONS = {
@@ -54,8 +53,8 @@ const addProblem = () => {
 
   cy.fixture("submit").then((data) => {
     cy.get("input[type='file']")
-      .attachFile(data.problem.package, {
-        subjectType: "drag-n-drop",
+      .selectFile(`cypress/fixtures/${data.problem.package}`, {
+        action: "drag-drop",
       })
       .then(() => {
         cy.get("button").contains("Submit").click();
@@ -70,8 +69,8 @@ const submit = () => {
   cy.fixture("submit").then((data) => {
     cy.get("#id_problem_instance_id").select(data.problem.name);
     cy.get("input[type='file']")
-      .attachFile(data.problem.solution, {
-        subjectType: "drag-n-drop",
+      .selectFile(`cypress/fixtures/${data.problem.solution}`, {
+        action: "drag-drop",
       })
       .then(() => {
         cy.get("button").contains("Submit").click();

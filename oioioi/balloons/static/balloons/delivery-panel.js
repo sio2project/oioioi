@@ -1,3 +1,4 @@
+/* global set_button_loading */
 $(function() {
     var rowTemplate =
         '<tr>' +
@@ -76,12 +77,12 @@ $(function() {
                 row.detach();
                 moveRow(row);
             } else {
-                btn.button('reset');
+                set_button_loading(btn, false);
                 showRequestError(gettext('Corrupt data'));
             }
         };
         var buttonOnclick = function(btn, newDelivered, moveRow) {
-            btn.button('loading');
+            set_button_loading(btn, true);
             var row = btn.closest('tr');
             var id = row.data('id');
             $.ajax({
@@ -94,7 +95,7 @@ $(function() {
                 url: setDeliveredUrl,
                 success: function(data) { afterRequest(btn, data, moveRow); },
                 error: function(jqXHR) {
-                    btn.button('reset');
+                    set_button_loading(btn, false);
                     showRequestError(jqXHR.status);
                 }
             });

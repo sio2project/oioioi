@@ -4,9 +4,9 @@ $countdown-height: 10px !default;
 
 $countdown-fill-empty-color: $gray-200 !default;
 
-$countdown-fill-success: theme-color("success") !default;
-$countdown-fill-warning: theme-color("warning") !default;
-$countdown-fill-danger: theme-color("danger") !default;
+$countdown-fill-success: $success !default;
+$countdown-fill-warning: $warning !default;
+$countdown-fill-danger: $danger !default;
 
 .countdown-time {
   overflow: hidden;
