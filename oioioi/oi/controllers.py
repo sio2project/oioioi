@@ -4,6 +4,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base.utils.query_helpers import Q_always_true
@@ -19,8 +20,10 @@ from oioioi.contests.utils import (
     is_contest_observer,
 )
 from oioioi.oi.models import OIRegistration
+from oioioi.oi.utils import get_participant_requiring_data_confirmation
 from oioioi.participants.controllers import (
     OnsiteContestControllerMixin,
+    OnsiteRegistrationController,
     ParticipantsController,
 )
 from oioioi.participants.models import Participant
@@ -248,6 +251,14 @@ def update_result_with_best_submission(result):
         result.submission_report = None
 
 
+class OIFinalOnsiteRegistrationController(OnsiteRegistrationController):
+    @property
+    def participant_admin(self):
+        from oioioi.oi.admin import OIFinalOnsiteParticipantAdmin
+
+        return OIFinalOnsiteParticipantAdmin
+
+
 class OIFinalOnsiteContestController(OIOnsiteContestController):
     description = _("Polish Olympiad in Informatics - Onsite - Finals")
     scoring_description = _(
@@ -257,6 +268,14 @@ class OIFinalOnsiteContestController(OIOnsiteContestController):
         "The ranking is determined by the total score.\n"
         "Full scoring of the submissions can be revealed during the contest."
     )
+
+    def registration_controller(self):
+        return OIFinalOnsiteRegistrationController(self.contest)
+
+    def default_view(self, request):
+        if get_participant_requiring_data_confirmation(request) is not None:
+            return reverse("oi_confirm_data", kwargs={"contest_id": self.contest.id})
+        return super().default_view(request)
 
     def can_see_submission_score(self, request, submission):
         return True

@@ -161,7 +161,6 @@ def confirm_data_view(request):
         "oi/confirm_data.html",
         {
             "form": form,
-            "email": request.user.email,
         },
     )
 

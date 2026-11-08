@@ -115,7 +115,7 @@ class OIRegistrationForm(_OIRegistrationFormBase):
 class OIDataConfirmationForm(_OIRegistrationFormBase):
     first_name = forms.CharField(label=_("First name"), max_length=150, disabled=True, required=False)
     last_name = forms.CharField(label=_("Last name"), max_length=150, disabled=True, required=False)
-    email = forms.CharField(label=_("Email"), max_length=254, disabled=True, required=False)
+    email = forms.EmailField(label=_("Email"), max_length=254, disabled=True, required=False)
 
     # Prefilled from the participant's qualifying-round registration.
     _OI_PREFILL_FIELDS = (

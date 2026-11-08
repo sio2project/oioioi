@@ -16,10 +16,12 @@ from oioioi.base.tests import BrowserTestCase, TestCase, fake_time, fake_timezon
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission, SubmissionReport, UserResultForProblem
+from oioioi.contests.tests import make_empty_contest_formset
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.oi.management.commands import import_schools
 from oioioi.oi.models import OIDataConfirmation, OIDataConfirmationSettings, OIRegistration, School
 from oioioi.participants.models import Participant, TermsAcceptedPhrase
+from oioioi.participants.utils import contest_is_onsite
 from oioioi.programs.models import ProgramSubmission
 from oioioi.programs.tests import SubmitFileMixin
 
@@ -845,6 +847,216 @@ class TestOIDataConfirmation(TestCase):
         response = self.client.get(url, follow=True)
         self.assertContains(response, f'<option value="{self.contest.id}">')
         self.assertNotContains(response, "Other contest")
+
+    def test_confirm_page_redirects_non_participant(self):
+        self.assertTrue(self.client.login(username="test_user2"))
+        response = self.client.get(self.confirm_url)
+        self.assertRedirects(response, self.contest_url, fetch_redirect_response=False)
+
+    def test_confirm_page_redirects_contest_admin(self):
+        self.assertTrue(self.client.login(username="test_contest_admin"))
+        response = self.client.get(self.confirm_url)
+        self.assertRedirects(response, self.contest_url, fetch_redirect_response=False)
+
+    def _confirm_data_with_source_registration(self, source_contest_configured):
+        user = User.objects.get(username="test_user2")
+        other_contest = Contest.objects.create(id="other", name="Other contest", controller_name="oioioi.oi.controllers.OIContestController")
+        other_participant = Participant.objects.create(contest=other_contest, user=user, status="ACTIVE")
+        source_registration = OIRegistration.objects.create(
+            participant=other_participant,
+            address="Old Address",
+            postal_code="00-000",
+            city="Oldtown",
+            birthday="1970-01-01",
+            birthplace="Nowhere",
+            t_shirt_size="S",
+            school_id=1,
+            class_type="1LO",
+        )
+        if source_contest_configured:
+            OIDataConfirmationSettings.objects.filter(contest=self.contest).update(source_contest=other_contest)
+        # No finals registration yet: the form is prefilled from the source one.
+        Participant.objects.create(contest=self.contest, user=user, status="ACTIVE")
+
+        self.assertTrue(self.client.login(username="test_user2"))
+        post_data = {
+            "address": "New Address",
+            "postal_code": "31-337",
+            "city": "Newtown",
+            "phone": "000-000-000",
+            "birthday_day": "1",
+            "birthday_month": "1",
+            "birthday_year": "1980",
+            "birthplace": "Galles",
+            "t_shirt_size": "M",
+            "school": "1",
+            "class_type": "2LO",
+        }
+        response = self.client.post(self.confirm_url, post_data)
+        self.assertRedirects(response, self.contest_url, fetch_redirect_response=False)
+        self.assertEqual(OIRegistration.objects.get(participant__user=user, participant__contest=self.contest).city, "Newtown")
+        source_registration.refresh_from_db()
+        return source_registration
+
+    def test_confirmation_updates_configured_source_registration(self):
+        source_registration = self._confirm_data_with_source_registration(source_contest_configured=True)
+        self.assertEqual(source_registration.address, "New Address")
+        self.assertEqual(source_registration.city, "Newtown")
+
+    def test_confirmation_keeps_source_registration_without_configured_contest(self):
+        source_registration = self._confirm_data_with_source_registration(source_contest_configured=False)
+        self.assertEqual(source_registration.address, "Old Address")
+        self.assertEqual(source_registration.city, "Oldtown")
+
+    def test_confirmed_participant_lands_on_regular_default_view(self):
+        participant = Participant.objects.get(user__username="test_user")
+        OIDataConfirmation.objects.create(participant=participant, data_confirmed_at=datetime(2031, 3, 4, 12, 0, tzinfo=UTC))
+
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(self.contest_url)
+        self.assertRedirects(response, reverse("contest_dashboard", kwargs={"contest_id": self.contest.id}), fetch_redirect_response=False)
+
+    def test_contest_admin_lands_on_regular_default_view(self):
+        self.assertTrue(self.client.login(username="test_contest_admin"))
+        response = self.client.get(self.contest_url)
+        self.assertRedirects(response, reverse("contest_dashboard", kwargs={"contest_id": self.contest.id}), fetch_redirect_response=False)
+
+    def test_admin_changelist_shows_confirmation_time(self):
+        participant = Participant.objects.get(user__username="test_user")
+        OIDataConfirmation.objects.create(participant=participant, data_confirmed_at=datetime(2031, 3, 4, 12, 0, tzinfo=UTC))
+
+        self.client.get(self.contest_url)  # the contest becomes the current one
+        self.assertTrue(self.client.login(username="test_contest_admin"))
+        response = self.client.get(reverse("oioioiadmin:participants_participant_changelist"))
+        self.assertContains(response, "Data confirmed at")
+        self.assertContains(response, "2031")
+
+    def test_admin_changelist_renders_without_confirmation(self):
+        self.assertFalse(OIDataConfirmation.objects.exists())
+
+        self.client.get(self.contest_url)  # the contest becomes the current one
+        self.assertTrue(self.client.login(username="test_contest_admin"))
+        response = self.client.get(reverse("oioioiadmin:participants_participant_changelist"))
+        self.assertContains(response, "Data confirmed at")
+        self.assertContains(response, "test_user")
+
+    def test_finals_are_still_onsite(self):
+        self.client.get(self.contest_url)  # the contest becomes the current one
+        self.assertTrue(self.client.login(username="test_contest_admin"))
+        response = self.client.get(reverse("oioioiadmin:participants_participant_changelist"))
+        self.assertTrue(contest_is_onsite(response.wsgi_request))
+
+
+class TestOIDataConfirmationSettingsInline(TestCase):
+    fixtures = ["test_users", "test_contest", "test_permissions"]
+
+    final_controller = "oioioi.oi.controllers.OIFinalOnsiteContestController"
+    inline_group = "oi_data_confirmation_settings-group"
+    is_enabled_input = 'name="oi_data_confirmation_settings-0-is_enabled"'
+
+    def setUp(self):
+        self.contest = Contest.objects.get()
+
+    def _set_controller(self, controller_name):
+        self.contest.controller_name = controller_name
+        self.contest.save()
+
+    def _get_change_page(self, username):
+        self.assertTrue(self.client.login(username=username))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+        self.url = reverse("oioioiadmin:contests_contest_change", args=(quote(self.contest.id),))
+        return self.client.get(self.url)
+
+    def _post_data(self, name):
+        post_data = make_empty_contest_formset()
+        post_data.update({"name": name, "default_submissions_limit": 10, "programs_config-TOTAL_FORMS": 0, "programs_config-INITIAL_FORMS": 0})
+        return post_data
+
+    def test_editable_for_contest_admin_and_superuser_in_finals(self):
+        self._set_controller(self.final_controller)
+        for username in ("test_contest_admin", "test_admin"):
+            response = self._get_change_page(username)
+            self.assertContains(response, self.inline_group)
+            self.assertContains(response, self.is_enabled_input)
+
+    def test_hidden_for_basic_admin_in_finals(self):
+        self._set_controller(self.final_controller)
+        response = self._get_change_page("test_contest_basicadmin")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.inline_group)
+
+    def test_basic_admin_save_keeps_settings_in_finals(self):
+        self._set_controller(self.final_controller)
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=True)
+        self._get_change_page("test_contest_basicadmin")
+        response = self.client.post(self.url, self._post_data("new name"), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.contest.refresh_from_db()
+        self.assertEqual(self.contest.name, "new name")
+        self.assertTrue(OIDataConfirmationSettings.objects.get(contest=self.contest).is_enabled)
+
+    def _settings_post_data(self, source_contest):
+        post_data = self._post_data(self.contest.name)
+        post_data.update(
+            {
+                "oi_data_confirmation_settings-TOTAL_FORMS": 1,
+                "oi_data_confirmation_settings-INITIAL_FORMS": 1,
+                "oi_data_confirmation_settings-MIN_NUM_FORMS": 0,
+                "oi_data_confirmation_settings-MAX_NUM_FORMS": 1,
+                "oi_data_confirmation_settings-0-contest": self.contest.id,
+                "oi_data_confirmation_settings-0-is_enabled": "on",
+                "oi_data_confirmation_settings-0-source_contest": source_contest,
+            }
+        )
+        return post_data
+
+    def test_source_contest_set_by_superuser_survives_contest_admin_save(self):
+        self._set_controller(self.final_controller)
+        foreign_contest = Contest.objects.create(id="foreign", name="Foreign contest", controller_name="oioioi.oi.controllers.OIContestController")
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=True, source_contest=foreign_contest)
+
+        response = self._get_change_page("test_contest_admin")
+        self.assertContains(response, '<option value="foreign" selected>')
+
+        response = self.client.post(self.url, self._settings_post_data("foreign"), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Select a valid choice")
+        self.assertEqual(OIDataConfirmationSettings.objects.get(contest=self.contest).source_contest, foreign_contest)
+
+    def test_source_contest_not_offered_after_being_cleared(self):
+        self._set_controller(self.final_controller)
+        foreign_contest = Contest.objects.create(id="foreign", name="Foreign contest", controller_name="oioioi.oi.controllers.OIContestController")
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=True, source_contest=foreign_contest)
+        self._get_change_page("test_contest_admin")
+
+        self.client.post(self.url, self._settings_post_data(""), follow=True)
+        self.assertIsNone(OIDataConfirmationSettings.objects.get(contest=self.contest).source_contest)
+        self.assertNotContains(self.client.get(self.url), "Foreign contest")
+
+    def test_hidden_for_other_controllers(self):
+        for controller_name in (
+            "oioioi.oi.controllers.OIContestController",
+            "oioioi.oi.controllers.OIOnsiteContestController",
+            "oioioi.acm.controllers.ACMContestController",
+            "oioioi.programs.controllers.ProgrammingContestController",
+        ):
+            self._set_controller(controller_name)
+            self.assertNotContains(self._get_change_page("test_admin"), self.inline_group)
+
+    def test_hidden_when_adding_contest(self):
+        self.assertTrue(self.client.login(username="test_admin"))
+        response = self.client.get(reverse("oioioiadmin:contests_contest_add"), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.inline_group)
+
+    def test_readonly_in_archived_finals(self):
+        self._set_controller(self.final_controller)
+        self.contest.is_archived = True
+        self.contest.save()
+        OIDataConfirmationSettings.objects.create(contest=self.contest, is_enabled=True)
+        response = self._get_change_page("test_admin")
+        self.assertContains(response, self.inline_group)
+        self.assertNotContains(response, self.is_enabled_input)
 
 
 class TestGirlsCampController(TestCase):

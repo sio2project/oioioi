@@ -2,7 +2,6 @@ from oioioi.contests.models import Round
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, rounds_times
 from oioioi.oi.models import OIDataConfirmation, OIDataConfirmationSettings, School
 from oioioi.participants.models import Participant
-from oioioi.participants.utils import is_participant
 
 
 def get_schools(request):
@@ -32,18 +31,14 @@ def get_participant_requiring_data_confirmation(request):
         return None
     if is_contest_admin(request) or is_contest_observer(request):
         return None
-    if not is_participant(request):
+    participant = Participant.objects.filter(user=request.user, contest=request.contest, status="ACTIVE").first()
+    if participant is None:
         return None
 
     trial_rounds = Round.objects.filter(contest=request.contest, is_trial=True)
     rtimes = rounds_times(request, request.contest)
     active_trial = any(rtimes[r].is_active(request.timestamp) for r in trial_rounds if r in rtimes)
     if not active_trial:
-        return None
-
-    try:
-        participant = Participant.objects.get(user=request.user, contest=request.contest)
-    except Participant.DoesNotExist:
         return None
 
     confirmation = OIDataConfirmation.objects.filter(participant=participant).first()

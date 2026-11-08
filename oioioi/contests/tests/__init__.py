@@ -78,7 +78,6 @@ def make_empty_contest_formset():
         ("programs_config", 1, 1, 0, 1),
         ("contestcompiler_set", 0, 0, 0, 1000),
         ("checkerformatforcontest", 0, 0, 0, 1),
-        ("oi_data_confirmation_settings", 1, 0, 0, 1),
     )
     data = {}
     for name, total, initial, min_num, max_num in formsets:
