@@ -1,6 +1,7 @@
 import atexit
 import importlib.util
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -31,6 +32,56 @@ try:
     from unittest.mock import patch
 except ImportError:
     from unittest.mock import patch
+
+
+class parametrize:
+    """Turn a ``TestCase`` method into one test method per case.
+
+    ``pytest.mark.parametrize`` does not work on ``unittest.TestCase`` methods,
+    so use this instead. The arguments are the same as in pytest::
+
+        class TestUtils(TestCase):
+            @parametrize(("filename", "expected"), [("a.tar.gz", ("a", ".tar.gz")), ("b.zip", ("b", ".zip"))])
+            def test_split(self, filename, expected):
+                self.assertEqual(split_extension(filename), expected)
+
+    creates ``test_split_0_a_tar_gz`` and ``test_split_1_b_zip`` and removes
+    ``test_split``, so each case passes or fails on its own and can be selected
+    with ``-k``. It has to be the outermost decorator of the method.
+    """
+
+    def __init__(self, argnames, argvalues):
+        if isinstance(argnames, str):
+            argnames = [name.strip() for name in argnames.split(",")]
+        self.argnames = tuple(argnames)
+        self.argvalues = list(argvalues)
+        self.func = None
+
+    def __call__(self, func):
+        self.func = func
+        return self
+
+    def __set_name__(self, owner, name):
+        for index, values in enumerate(self.argvalues):
+            if len(self.argnames) == 1:
+                values = (values,)
+            kwargs = dict(zip(self.argnames, values, strict=True))
+            case_id = re.sub(r"\W+", "_", str(values[0])).strip("_")[:40]
+            case_name = f"{name}_{index}_{case_id}" if case_id else f"{name}_{index}"
+            setattr(owner, case_name, self._make_case(owner, case_name, kwargs))
+        delattr(owner, name)
+
+    def _make_case(self, owner, case_name, kwargs):
+        func = self.func
+
+        def case(self):
+            return func(self, **kwargs)
+
+        case.__name__ = case_name
+        case.__qualname__ = f"{owner.__qualname__}.{case_name}"
+        case.__module__ = func.__module__
+        case.__doc__ = func.__doc__
+        return case
 
 
 # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L30

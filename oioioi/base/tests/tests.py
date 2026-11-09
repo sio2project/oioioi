@@ -50,7 +50,7 @@ from oioioi.base.permissions import (
     make_condition,
     make_request_condition,
 )
-from oioioi.base.tests import FakeTimeMiddleware, TestCase, fake_time
+from oioioi.base.tests import FakeTimeMiddleware, TestCase, fake_time, parametrize
 from oioioi.base.utils import (
     RegisteredSubclassesBase,
     _parents_are_packages,
@@ -1429,8 +1429,9 @@ class TestTranslate(TestCase):
 
 
 class TestFileUtils(TestCase):
-    def test_split_ext(self):
-        normal = [
+    @parametrize(
+        "filename",
+        [
             "a.b.c.d.pdf",
             ".bashrc",
             ".a.conf",
@@ -1441,40 +1442,81 @@ class TestFileUtils(TestCase):
             "_ab_123.jpg",
             "abc.tar",
             "my_file",
-        ]
-        for name in normal:
-            their = os.path.splitext(name)
-            ours = split_extension(name)
-            self.assertEqual(ours, their)
+        ],
+    )
+    def test_split_extension_matches_splitext(self, filename):
+        self.assertEqual(split_extension(filename), os.path.splitext(filename))
 
-        weird = {
-            "test.tar.gz": ("test", ".tar.gz"),
-            "test.tar.xz": ("test", ".tar.xz"),
-            "/a/b/c/test.tar.bz2": ("/a/b/c/test", ".tar.bz2"),
-            "paczka.tar.gz": ("paczka", ".tar.gz"),
-            "data.tar.xz": ("data", ".tar.xz"),
-            "tar.tar.gz": ("tar", ".tar.gz"),
-        }
-        for name, expected in weird.items():
-            with self.subTest(name=name):
-                self.assertEqual(split_extension(name), expected)
+    @parametrize(
+        ("filename", "expected"),
+        [
+            ("test.tar.gz", ("test", ".tar.gz")),
+            ("test.tar.xz", ("test", ".tar.xz")),
+            ("/a/b/c/test.tar.bz2", ("/a/b/c/test", ".tar.bz2")),
+            ("paczka.tar.gz", ("paczka", ".tar.gz")),
+            ("data.tar.xz", ("data", ".tar.xz")),
+            ("tar.tar.gz", ("tar", ".tar.gz")),
+        ],
+    )
+    def test_split_extension_archives(self, filename, expected):
+        self.assertEqual(split_extension(filename), expected)
 
-    def test_strip_num_or_hash(self):
-        cases = {
-            "abc_1.pdf": "abc.pdf",
-            "abc_123.pdf": "abc.pdf",
-            "abc_45HKmyT.pdf": "abc.pdf",
-            "abc_1.tar.gz": "abc.tar.gz",
-            "abc_45HKmyT.tar.gz": "abc.tar.gz",
-            "abc.tar_1.gz": "abc.tar.gz",
-            "abc.tar.gz": "abc.tar.gz",
-            "/a/b/abc.tar.gz": "/a/b/abc.tar.gz",
-            "my_file": "my_file",
-            "a_1_2.pdf": "a_1.pdf",
-        }
+    @parametrize(
+        ("filename", "expected"),
+        [
+            ("abc_1.pdf", "abc.pdf"),
+            ("abc_123.pdf", "abc.pdf"),
+            ("abc_45HKmyT.pdf", "abc.pdf"),
+            ("abc_1.tar.gz", "abc.tar.gz"),
+            ("abc_45HKmyT.tar.gz", "abc.tar.gz"),
+            ("abc.tar_1.gz", "abc.tar.gz"),
+            ("abc.tar.gz", "abc.tar.gz"),
+            ("/a/b/abc.tar.gz", "/a/b/abc.tar.gz"),
+            ("my_file", "my_file"),
+            ("a_1_2.pdf", "a_1.pdf"),
+        ],
+    )
+    def test_strip_num_or_hash(self, filename, expected):
+        self.assertEqual(strip_num_or_hash(filename), expected)
 
-        for before, after in cases.items():
-            self.assertEqual(strip_num_or_hash(before), after)
+
+class TestParametrize(TestCase):
+    def test_generates_one_method_per_case(self):
+        class Example(TestCase):
+            @parametrize(("a", "b"), [(1, 2), ("x.tar.gz", None)])
+            def test_case(self, a, b):
+                """Docstring."""
+                self.calls.append((a, b))
+
+        names = [name for name in dir(Example) if name.startswith("test_case")]
+        self.assertEqual(names, ["test_case_0_1", "test_case_1_x_tar_gz"])
+        self.assertEqual(Example.test_case_0_1.__doc__, "Docstring.")
+
+        example = Example()
+        example.calls = []
+        example.test_case_0_1()
+        example.test_case_1_x_tar_gz()
+        self.assertEqual(example.calls, [(1, 2), ("x.tar.gz", None)])
+
+    def test_single_argname_takes_plain_values(self):
+        class Example(TestCase):
+            @parametrize("a", [(1, 2), "b"])
+            def test_case(self, a):
+                self.calls.append(a)
+
+        example = Example()
+        example.calls = []
+        example.test_case_0_1_2()
+        example.test_case_1_b()
+        self.assertEqual(example.calls, [(1, 2), "b"])
+
+    def test_wrong_number_of_values_fails_at_class_creation(self):
+        with self.assertRaises(ValueError):
+
+            class Example(TestCase):
+                @parametrize(("a", "b"), [(1,)])
+                def test_case(self, a, b):
+                    pass
 
 
 class TestUserDeactivationLogout(TestCase):
