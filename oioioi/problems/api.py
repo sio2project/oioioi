@@ -1,7 +1,12 @@
+import os
+
 from django.db import transaction
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_safe
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
@@ -12,6 +17,7 @@ from rest_framework.views import APIView
 
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import can_admin_contest
+from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import PackageUploadForm
 from oioioi.problems.models import Problem, ProblemPackage
 from oioioi.problems.problem_sources import UploadedPackageSource
@@ -20,6 +26,7 @@ from oioioi.problems.serializers import (
     PackageUploadSerializer,
 )
 from oioioi.problems.utils import can_admin_problem
+from oioioi.programs.models import Test
 
 
 def _check_permissions(request, contest=None, existing_problem=None):
@@ -176,3 +183,65 @@ class PackageReuploadView(BasePackageUploadView):
         }
 
         return data
+
+
+@require_safe
+def problem_site_example_tests_view(request, site_key):
+    problem = get_object_or_404(Problem, problemsite__url_key=site_key)
+    tests = Test.objects.filter(
+        problem_instance=problem.main_problem_instance,
+        kind="EXAMPLE",
+    ).order_by("order", "name")
+
+    result = []
+    for test in tests:
+        basename = f"{problem.short_name}{test.name}"
+        result.append(
+            {
+                "name": test.name,
+                "in_url": reverse(
+                    "problem_site_example_test_file",
+                    kwargs={"site_key": site_key, "filename": f"{basename}.in"},
+                )
+                if test.input_file
+                else None,
+                "out_url": reverse(
+                    "problem_site_example_test_file",
+                    kwargs={"site_key": site_key, "filename": f"{basename}.out"},
+                )
+                if test.output_file
+                else None,
+            }
+        )
+
+    return JsonResponse(result, safe=False)
+
+
+@require_safe
+def problem_site_example_test_file_view(request, site_key, filename):
+    problem = get_object_or_404(Problem, problemsite__url_key=site_key)
+
+    base, ext = os.path.splitext(filename)
+    if ext not in (".in", ".out"):
+        raise Http404
+
+    short_name = problem.short_name
+    if not base.startswith(short_name):
+        raise Http404
+    test_name = base[len(short_name) :]
+
+    test = get_object_or_404(
+        Test,
+        problem_instance=problem.main_problem_instance,
+        kind="EXAMPLE",
+        name=test_name,
+    )
+
+    if ext == ".in":
+        if not test.input_file:
+            raise Http404
+        return stream_file(test.input_file, filename)
+    else:
+        if not test.output_file:
+            raise Http404
+        return stream_file(test.output_file, filename)
