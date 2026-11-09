@@ -323,6 +323,8 @@ def register_widget(widget: Widget):
             Will be used as the keyword when looking for matching tags.
         * :attr:`widget.param_regex` - compiled regular expression
             pattern used for parsing tag contents.
+            Must start with the widget name (e.g. `YouTube|...`) since it
+            is matched against the tag's full content between `[[` and `]]`.
         * :meth:`widget.render` - method (or just function) accepting
             the current request and the corresponding :class:`re.Match`
             instance (named 'm').  Should return a string (rendered widget).
