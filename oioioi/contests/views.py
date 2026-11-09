@@ -307,6 +307,15 @@ def problem_statement_view(request, problem_instance):
     return stream_file(statement.content, statement.download_name)
 
 
+def _can_access_editorial(request, pi):
+    """Archived contests show editorials regardless of their publication date,
+    but an editorial hidden for this problem instance stays hidden.
+    """
+    if is_contest_archived(request) and pi.can_access_editorial:
+        return True
+    return request.contest.controller.can_access_editorial(request, pi)
+
+
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_editorial_view(request, problem_instance):
     controller = request.contest.controller
@@ -318,6 +327,9 @@ def problem_editorial_view(request, problem_instance):
     editorial_attachment = pi.controller.get_editorial_attachment(request, pi)
     if not editorial_attachment:
         return TemplateResponse(request, "contests/no_problem_editorial.html", {"problem_instance": pi})
+
+    if not _can_access_editorial(request, pi):
+        raise PermissionDenied
 
     if not is_contest_archived(request):
         if editorial_attachment.pub_date and editorial_attachment.pub_date > request.timestamp:
@@ -705,6 +717,12 @@ def problem_attachment_view(request, attachment_id):
     problem_ids = [pi.problem_id for pi in problem_instances]
     if attachment.problem_id not in problem_ids:
         raise PermissionDenied
+    if attachment.is_editorial:
+        same_problem = [pi for pi in problem_instances if pi.problem_id == attachment.problem_id]
+        if not any(_can_access_editorial(request, pi) for pi in same_problem):
+            raise PermissionDenied
+        if not is_contest_archived(request) and attachment.pub_date and attachment.pub_date > request.timestamp:
+            raise PermissionDenied
     return stream_file(attachment.content, attachment.download_name)
 
 
