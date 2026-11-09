@@ -2121,7 +2121,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.18.2,<3.19" },
     { name = "dnslib", specifier = ">=0.9,<0.10" },
     { name = "drf-spectacular", specifier = ">=0.28.0" },
-    { name = "filetracker", specifier = ">=2.3.1,<3.0" },
+    { name = "filetracker", specifier = ">=2.3.3,<3.0" },
     { name = "fontawesomefree", specifier = ">=6.4,<6.5" },
     { name = "fpdf", specifier = ">=1.7,<1.8" },
     { name = "humanize", specifier = "<=4.9.0" },
