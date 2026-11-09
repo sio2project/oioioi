@@ -1,6 +1,6 @@
 import re
 import urllib.parse
-from typing import Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 import mistune
 from django.http import Http404
@@ -41,10 +41,11 @@ _table_aligns = [
     (None, re.compile(r"^ *-* *$")),
 ]
 _link_pattern = re.compile(mistune.InlineParser.SPECIFICATION["link"])
-# NOTE: This Pattern's original string is also used for constructing the widget parser
-#       pattern for mistune's inline parser.
 _valid_widget_name_pattern = re.compile(r"[\w-]+")
-_tag_closing_brackets_pattern = re.compile(r"\]\]")
+# NOTE: This Pattern's original string is also used as the widget parser
+#       pattern for mistune's inline parser.
+_widget_start_pattern = re.compile(rf"\[\[{_valid_widget_name_pattern.pattern}")
+_widget_closing_brackets_pattern = re.compile(r"\]\]")
 
 
 class WidgetError(Exception):
@@ -166,23 +167,13 @@ def _split_table_cells(text: str):
     """Split a table row at ``|``, except escaped ones and ones inside widget tags like ``[[YouTube|...]]``."""
     cells = []
     start = pos = 0
-    next_tag_end = -1
+    state = mistune.InlineState({})
+    state.src = text
 
     while pos < len(text):
-        if next_tag_end is not None and text.startswith("[[", pos):
-            if next_tag_end < pos:
-                next_tag_end = text.find("]]", pos + 2)
-                if next_tag_end == -1:
-                    next_tag_end = None
-                    continue
-
-            found = False
-            for widget in REGISTERED_WIDGETS.values():
-                if widget.param_regex.fullmatch(text, pos + 2, next_tag_end):
-                    found = True
-                    break
-
-            pos = (next_tag_end if found else pos) + 2
+        if m := _widget_start_pattern.match(text, pos):
+            token, end = _try_parse_widget(m, state)
+            pos = end if token is not None else pos + 2
         elif text[pos] == "\\":
             pos += 2
         elif text[pos] == "|":
@@ -262,31 +253,32 @@ def _table_plugin(md):
     table_in_quote(md)
 
 
-def _try_parse_widget(m: re.Match[str], state: mistune.InlineState):
+def _try_parse_widget(m: re.Match[str], state: mistune.InlineState) -> tuple[dict[str, Any] | None, int]:
     name = state.src[m.start() + 2 : m.end()]
 
     if (widget := REGISTERED_WIDGETS.get(name, None)) is None:
-        return None
+        return None, -1
 
-    if (closing_start := _search_cached(state, _tag_closing_brackets_pattern, m.end())) == len(state.src):
-        return None
+    if (closing_start := _search_cached(state, _widget_closing_brackets_pattern, m.end())) == len(state.src):
+        return None, -1
 
     if not (match := widget.param_regex.fullmatch(state.src, m.start() + 2, closing_start)):
-        return None
+        return None, -1
 
-    state.append_token({"type": "portal_widget", "attrs": {"widget": widget, "match": match}, "raw": state.src[m.start() + 2 : closing_start]})
-    return closing_start + 2
+    token = {"type": "portal_widget", "attrs": {"widget": widget, "match": match}, "raw": state.src[m.start() + 2 : closing_start]}
+    return token, closing_start + 2
 
 
 def _parse_widget(inline, m: re.Match[str], state: mistune.InlineState):
-    end = _try_parse_widget(m, state)
-    if end is None:
+    token, end = _try_parse_widget(m, state)
+    if token is None:
         return inline.parse_link(_link_pattern.match(state.src, m.start()), state)
+    state.append_token(token)
     return end
 
 
 def _widget_plugin(md: mistune.Markdown):
-    md.inline.register("portal_widget", rf"\[\[{_valid_widget_name_pattern.pattern}", _parse_widget, before="link")
+    md.inline.register("portal_widget", _widget_start_pattern.pattern, _parse_widget, before="link")
 
 
 _markdown = mistune.create_markdown(
