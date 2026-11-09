@@ -1,4 +1,5 @@
 import atexit
+import functools
 import importlib.util
 import os
 import re
@@ -77,10 +78,11 @@ class parametrize:
         def case(self):
             return func(self, **kwargs)
 
+        # Copies __module__, __doc__, __dict__ (pytest marks such as @pytest.mark.slow,
+        # @unittest.expectedFailure) and sets __wrapped__ (pytest reports the original location).
+        functools.update_wrapper(case, func)
         case.__name__ = case_name
         case.__qualname__ = f"{owner.__qualname__}.{case_name}"
-        case.__module__ = func.__module__
-        case.__doc__ = func.__doc__
         return case
 
 

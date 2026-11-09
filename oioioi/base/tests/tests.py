@@ -1518,6 +1518,21 @@ class TestParametrize(TestCase):
                 def test_case(self, a, b):
                     pass
 
+    def test_keeps_function_attributes(self):
+        # Decorators such as @pytest.mark.slow or @unittest.expectedFailure
+        # store their data as attributes of the function.
+        def tag(func):
+            func.tag = "kept"
+            return func
+
+        class Example(TestCase):
+            @parametrize("a", [1])
+            @tag
+            def test_case(self, a):
+                pass
+
+        self.assertEqual(Example.test_case_0_1.tag, "kept")
+
 
 class TestUserDeactivationLogout(TestCase):
     fixtures = ["test_users", "test_contest"]
