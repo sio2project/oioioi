@@ -1,6 +1,6 @@
 /* The only change comparing to the original file is in line 161. */
 
-/*global gettext, interpolate, ngettext*/
+/*global Actions*/
 'use strict';
 {
     function show(selector) {
