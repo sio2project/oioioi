@@ -1,5 +1,3 @@
-import types
-
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
@@ -25,7 +23,7 @@ class UserGroupAdmin(admin.ModelAdmin):
             formfield.queryset = User.objects.exclude(teacher=None) | User.objects.filter(is_superuser=True)
 
         if isinstance(db_field, models.ManyToManyField):
-            formfield.label_from_instance = types.MethodType(lambda _, user: get_complete_user_name(user), formfield)
+            formfield.label_from_instance = get_complete_user_name
 
         return formfield
 
