@@ -1,4 +1,5 @@
 import functools
+import importlib.metadata
 import os
 import re
 import urllib
@@ -21,6 +22,7 @@ from django.utils import timezone as django_timezone
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 
+from oioioi import default_settings
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.preferences import ensure_preferences_exist_for_user
 from oioioi.base.tests import (
@@ -1945,6 +1947,43 @@ class TestCompiler(TestCase):
     def test_check_compiler_config_no_compiler(self):
         with self.assertRaises(ImproperlyConfigured):
             check_compilers_config()
+
+
+# sioworkers v1.5.11 registers no Python compiler entry point; these ids are configured
+# in default_settings but not yet provided by sioworkers (see #934).
+COMPILERS_MISSING_FROM_SIOWORKERS = {"python", "system-python"}
+
+
+class TestDefaultSettingsCompilerIds(SimpleTestCase):
+    """Compiler ids in default_settings must exist in the installed sioworkers (#934).
+
+    test_settings replaces AVAILABLE_COMPILERS and DEFAULT_COMPILERS, so the production
+    dicts are otherwise never checked against sioworkers.
+    """
+
+    def _sioworkers_compilers(self):
+        names = {ep.name for ep in importlib.metadata.entry_points(group="sio.compilers")}
+        self.assertTrue(names, "sioworkers is not installed or registers no compilers")
+        return names
+
+    def _check(self, available, defaults):
+        known = self._sioworkers_compilers()
+        for language, compilers in available.items():
+            for compiler_id in compilers:
+                if compiler_id in COMPILERS_MISSING_FROM_SIOWORKERS:
+                    continue
+                with self.subTest(language=language, compiler=compiler_id):
+                    # sio.compilers.job looks the compiler up by the part before the first dot.
+                    self.assertIn(compiler_id.split(".")[0], known)
+        for language, compiler_id in defaults.items():
+            with self.subTest(default_for=language):
+                self.assertIn(compiler_id, available[language])
+
+    def test_available_compilers_exist_in_sioworkers(self):
+        self._check(default_settings.AVAILABLE_COMPILERS, default_settings.DEFAULT_COMPILERS)
+
+    def test_system_compilers_exist_in_sioworkers(self):
+        self._check(default_settings.SYSTEM_COMPILERS, default_settings.SYSTEM_DEFAULT_COMPILERS)
 
 
 @pytest.mark.skip(reason="Migrations have already been applied at the production")
