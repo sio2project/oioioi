@@ -9,7 +9,7 @@ import tempfile
 import threading
 import urllib.parse
 from contextlib import contextmanager
-from unittest import SkipTest, mock
+from unittest import SkipTest, mock, skip
 
 import pytest
 from django.conf import settings
@@ -49,11 +49,27 @@ class parametrize:
     creates ``test_split_0_a_tar_gz`` and ``test_split_1_b_zip`` and removes
     ``test_split``, so each case passes or fails on its own and can be selected
     with ``-k``. It has to be the outermost decorator of the method.
+
+    The names and values follow the same rules as in pytest:
+
+    - the names are a tuple or list, or a comma-separated string (``"a, b"``;
+      empty names are ignored, so ``"a,b,"`` is ``("a", "b")``);
+    - with a single name in a string without a trailing comma (``"a"``), each
+      value is the argument itself; otherwise (``"a,"``, ``("a",)``, ``"a, b"``)
+      each value is a sequence with one item per name;
+    - an empty list of values gives one skipped test instead of no test.
+
+    Only plain values are supported: ``pytest.param(...)`` (ids, marks) and
+    the ``ids`` and ``indirect`` arguments of ``pytest.mark.parametrize`` are not.
     """
 
     def __init__(self, argnames, argvalues):
         if isinstance(argnames, str):
-            argnames = [name.strip() for name in argnames.split(",")]
+            has_trailing_comma = argnames.rstrip().endswith(",")
+            argnames = [name.strip() for name in argnames.split(",") if name.strip()]
+            self.plain_values = len(argnames) == 1 and not has_trailing_comma
+        else:
+            self.plain_values = False
         self.argnames = tuple(argnames)
         self.argvalues = list(argvalues)
         self.func = None
@@ -63,11 +79,26 @@ class parametrize:
         return self
 
     def __set_name__(self, owner, name):
+        test_name = f"{owner.__qualname__}.{name}"
+        if not self.argvalues:
+            reason = f"got empty parameter set for ({', '.join(self.argnames)})"
+            setattr(owner, name, skip(reason)(self._make_case(owner, name, {})))
+            return
         for index, values in enumerate(self.argvalues):
-            if len(self.argnames) == 1:
+            if self.plain_values:
                 values = (values,)
+            try:
+                count = len(values)
+            except TypeError:
+                raise TypeError(
+                    f"{test_name}: case {index}: expected a sequence of values, "
+                    f"for a single value use a one-element tuple like ('value',), got {type(values).__name__}: {values!r}"
+                ) from None
+            if count != len(self.argnames):
+                raise ValueError(f"{test_name}: case {index} has {count} values {values!r} for {len(self.argnames)} names {self.argnames!r}")
             kwargs = dict(zip(self.argnames, values, strict=True))
-            case_id = re.sub(r"\W+", "_", str(values[0])).strip("_")[:40]
+            # With no names, the values are empty: name the case by index only.
+            case_id = re.sub(r"\W+", "_", str(values[0])).strip("_")[:40] if count else ""
             case_name = f"{name}_{index}_{case_id}" if case_id else f"{name}_{index}"
             setattr(owner, case_name, self._make_case(owner, case_name, kwargs))
         delattr(owner, name)

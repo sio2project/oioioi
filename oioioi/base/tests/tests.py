@@ -1510,6 +1510,20 @@ class TestParametrize(TestCase):
         example.test_case_1_b()
         self.assertEqual(example.calls, [(1, 2), "b"])
 
+    def test_argnames_as_comma_separated_string(self):
+        for argnames in ["a, b", " a ,b ", "a,b,"]:
+            with self.subTest(argnames=argnames):
+
+                class Example(TestCase):
+                    @parametrize(argnames, [(1, 2)])
+                    def test_case(self, a, b):
+                        self.calls.append((a, b))
+
+                example = Example()
+                example.calls = []
+                example.test_case_0_1()
+                self.assertEqual(example.calls, [(1, 2)])
+
     def test_wrong_number_of_values_fails_at_class_creation(self):
         with self.assertRaises(ValueError):
 
@@ -1517,6 +1531,55 @@ class TestParametrize(TestCase):
                 @parametrize(("a", "b"), [(1,)])
                 def test_case(self, a, b):
                     pass
+
+    def test_single_name_in_tuple_or_with_trailing_comma_takes_sequences(self):
+        for argnames in ["a,", ("a",)]:
+            with self.subTest(argnames=argnames):
+
+                class Example(TestCase):
+                    @parametrize(argnames, [(1,), ("x",)])
+                    def test_case(self, a):
+                        self.calls.append(a)
+
+                example = Example()
+                example.calls = []
+                example.test_case_0_1()
+                example.test_case_1_x()
+                self.assertEqual(example.calls, [1, "x"])
+
+    def test_plain_value_for_single_name_tuple_fails_at_class_creation(self):
+        with self.assertRaisesRegex(TypeError, "expected a sequence of values"):
+
+            class Example(TestCase):
+                @parametrize(("a",), [1])
+                def test_case(self, a):
+                    pass
+
+    def test_empty_values_give_a_skipped_test(self):
+        class Example(TestCase):
+            @parametrize(("a", "b"), [])
+            def test_case(self, a, b):
+                pass
+
+        self.assertEqual([name for name in dir(Example) if name.startswith("test_case")], ["test_case"])
+        self.assertTrue(Example.test_case.__unittest_skip__)
+        self.assertEqual(Example.test_case.__unittest_skip_why__, "got empty parameter set for (a, b)")
+
+    def test_no_names_repeats_the_test(self):
+        for argnames in [(), ""]:
+            with self.subTest(argnames=argnames):
+
+                class Example(TestCase):
+                    @parametrize(argnames, [(), ()])
+                    def test_case(self):
+                        self.calls += 1
+
+                self.assertEqual([name for name in dir(Example) if name.startswith("test_case")], ["test_case_0", "test_case_1"])
+                example = Example()
+                example.calls = 0
+                example.test_case_0()
+                example.test_case_1()
+                self.assertEqual(example.calls, 2)
 
     def test_keeps_function_attributes(self):
         # Decorators such as @pytest.mark.slow or @unittest.expectedFailure
