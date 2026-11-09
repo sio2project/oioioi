@@ -2,10 +2,13 @@ import random
 import re
 import string
 
-from django.core.management.base import BaseCommand
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.translation import get_language
 
+from oioioi.contests.models import ScoreReport, Submission, SubmissionReport, UserResultForProblem
+from oioioi.contests.scores import IntegerScore
 from oioioi.problems.models import (
     OriginInfoCategory,
     OriginInfoValue,
@@ -380,6 +383,109 @@ def create_origin_info_categories(origin_tag, levels):
     return categories
 
 
+RESULT_KINDS = ["pass", "partial", "fail"]
+
+
+def choose_results(problems, group_count):
+    """Choose the problems that get a result and the kind of each result.
+
+    The problems are split into group_count groups of equal size. There is at
+    least one result of each kind, results in at least two groups, and at
+    least one problem without a result.
+    """
+    # One result of each kind, plus a random number of random ones, but
+    # never as many as there are problems.
+    results_count = random.randint(len(RESULT_KINDS), len(problems) - 1)
+    kinds = RESULT_KINDS + [random.choice(RESULT_KINDS) for _ in range(results_count - len(RESULT_KINDS))]
+    random.shuffle(kinds)
+
+    # recurse() returns the problems depth-first, so the groups of each level
+    # are contiguous slices. Take one problem from each of two random groups.
+    group_size = len(problems) // group_count
+    groups = [problems[i : i + group_size] for i in range(0, len(problems), group_size)]
+    chosen = [random.choice(group) for group in random.sample(groups, 2)]
+
+    # Distribute the rest of the results randomly.
+    chosen += random.sample([p for p in problems if p not in chosen], results_count - len(chosen))
+
+    return list(zip(chosen, kinds, strict=True))
+
+
+def create_mock_problem(with_instances):
+    """Create a problem with a random name and an empty problem site."""
+    words = [random.choice(WORDS), random.choice(WORDS)]
+    problem_name = "Problem {} {} {}".format(words[0], words[1], "".join(random.choices(string.digits, k=6)))
+    # The short name will be the first word in lower case
+    short_name = words[0].lower()
+    if with_instances:
+        p = Problem.create(short_name=short_name, controller_name="oioioi.problems.controllers.ProblemController")
+    else:
+        p = Problem(short_name=short_name)
+
+    name = ProblemName(problem=p, language=get_language(), name=problem_name)
+
+    p.save()
+    name.save()
+
+    # Assign an empty fake problem site for a problem.
+    # Use a random ID large enough, that the Birthday Paradox won't be a problem
+    ProblemSite(problem=p, url_key=str(random.randrange(2**40))).save()
+
+    return p
+
+
+def get_results_user(options):
+    """Validate "--results-for" and return its user, or None if it was not given."""
+    if options["user"] is None:
+        return None
+    if not options["with_instances"]:
+        raise CommandError('You must run with "--with-instances" when using "--results-for".')
+    if options["branches"] < 1 or (options["branches"] < 2 and options["levels"] < 2):
+        raise CommandError('"--results-for" needs at least 2 branches or 2 levels, so that the results are in several groups.')
+    try:
+        return User.objects.get(username=options["user"])
+    except User.DoesNotExist:
+        raise CommandError(f"User '{options['user']}' does not exist.")
+
+
+def populate_mock_results(problems, levels, user):
+    """Create results for user on some of the problems, spread over the groups of the first level that branches."""
+    group_count = next(n for n in levels if n > 1)
+    for problem, kind in choose_results(problems, group_count):
+        populate_results(problem.main_problem_instance, user, kind)
+
+
+def populate_results(problem_instance, user, kind):
+    if kind == "pass":
+        score = 100
+    elif kind == "partial":
+        score = random.randint(1, 99)
+    else:
+        score = 0
+    status = "OK" if score == 100 else "WA"
+
+    sub = Submission(
+        problem_instance=problem_instance,
+        user=user,
+        score=IntegerScore(score),
+        max_score=IntegerScore(100),
+        status=status,
+    )
+    sub.save()
+
+    sub_report = SubmissionReport(submission=sub, kind="FINAL", status="ACTIVE")
+    sub_report.save()
+
+    ScoreReport(
+        submission_report=sub_report,
+        status=status,
+        score=IntegerScore(score),
+        max_score=IntegerScore(100),
+    ).save()
+
+    UserResultForProblem(user=user, problem_instance=problem_instance, score=IntegerScore(score), status=status, submission_report=sub_report).save()
+
+
 def create_origin_info_values(origin_tag, levels, categories):
     """Create levels[level] values for each category"""
     info_values = [[] for i in range(len(levels))]
@@ -439,6 +545,24 @@ class Command(BaseCommand):
 
         parser.add_argument("-s", "--seed", type=int, action="store", dest="seed", help="Random seed to use for problem name randomization.")
 
+        parser.add_argument(
+            "--with-instances",
+            action="store_true",
+            dest="with_instances",
+            help="Give each problem a controller and a main problem instance, so that its problem page can be opened.",
+        )
+
+        parser.add_argument(
+            "--results-for",
+            type=str,
+            action="store",
+            dest="user",
+            metavar="USERNAME",
+            help="Create random results for a subset of the problems for the given user: at least one full, partial and zero score, "
+            "in at least two groups, and at least one problem without a result. "
+            "Requires --with-instances and at least 2 branches or 2 levels.",
+        )
+
     @transaction.atomic
     def handle(self, *args, **options):
         if options["seed"] is not None:
@@ -448,6 +572,9 @@ class Command(BaseCommand):
         levels = [1]
         levels.append(options["branches"])
         levels += [3] * (options["levels"] - 1)
+
+        with_instances = options["with_instances"]
+        results_user = get_results_user(options)
 
         PROBLEMS_PER_LEAF = 3
 
@@ -463,22 +590,8 @@ class Command(BaseCommand):
             if level == len(levels):
                 # Reached bottom level - create problems
                 for _i in range(PROBLEMS_PER_LEAF):
-                    words = [random.choice(WORDS), random.choice(WORDS)]
-                    problem_name = "Problem {} {} {}".format(words[0], words[1], "".join(random.choices(string.digits, k=6)))
-                    p = Problem(
-                        # The short name will be the first word in lower case
-                        short_name=words[0].lower()
-                    )
+                    p = create_mock_problem(with_instances)
                     problems.append(p)
-
-                    name = ProblemName(problem=p, language=get_language(), name=problem_name)
-
-                    p.save()
-                    name.save()
-
-                    # Assign an empty fake problem site for a problem.
-                    # Use a random ID large enough, that the Birthday Paradox won't be a problem
-                    ProblemSite(problem=p, url_key=str(random.randrange(2**40))).save()
 
                     # Add the problem to the competition origin tag.
                     origin_tag.problems.add(p)
@@ -499,4 +612,7 @@ class Command(BaseCommand):
 
             return problems
 
-        recurse(0, "")
+        problems = recurse(0, "")
+
+        if results_user is not None:
+            populate_mock_results(problems, levels, results_user)
