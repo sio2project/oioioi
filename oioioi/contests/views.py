@@ -772,7 +772,7 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
     last_only = params.get("last_only") == "on"
 
     if problem_instance_id is not None:
-        problem_instances = [get_object_or_404(ProblemInstance, id=problem_instance_id)]
+        problem_instances = [get_object_or_404(ProblemInstance, id=problem_instance_id, contest=request.contest)]
     else:
         problem_ids = request.POST.get("ids") or request.GET.get("ids")
         problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
@@ -833,7 +833,7 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def change_needs_rejudge_val(request, problem_instance_id, val: bool):
-    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
+    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id, contest=request.contest)
 
     if request.POST:
         problem_instance.needs_rejudge = val
@@ -864,7 +864,7 @@ def mark_for_rejudge_view(request, problem_instance_id):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
-    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
+    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id, contest=request.contest)
     if request.POST:
         update_tests_from_main_pi(problem_instance)
         messages.success(request, _("Tests limits reset successfully"))
