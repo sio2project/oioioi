@@ -531,6 +531,8 @@ class TestMarkdown(TestCase):
         for tag in ["[[YouTube|", "[[Redirect|", "[[ProblemTable|", "[[ProblemTable:"]:
             start = time.perf_counter()
             render_panel(self.request, tag * 20000)
+            render_panel(self.request, tag * 20000 + "]]")
+            render_panel(self.request, tag * 20000 + "\n]]")
             # About 0.2 s now; the old quadratic patterns took 10 s or more.
             self.assertLess(time.perf_counter() - start, 5, tag)
 
@@ -624,7 +626,7 @@ class TestMarkdown(TestCase):
             is_superuser = True
 
         self.request.portal = SimpleNamespace(owner=None)
-        for url in ["/p/default/", "/a/[many] [[brackets"]:
+        for url in ["/p/default/", "/a/[many] [brackets"]:
             rendered = render_panel(self.request, f"[[Redirect|{url}]]")
             self.assertIn(f"window.location.replace('{url}')", rendered)
 

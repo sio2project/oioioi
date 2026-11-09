@@ -262,6 +262,11 @@ def _try_parse_widget(m: re.Match[str], state: mistune.InlineState) -> tuple[dic
     if (closing_start := _search_cached(state, _widget_closing_brackets_pattern, m.end())) == len(state.src):
         return None, -1
 
+    # Interior opening brackets are disallowed to prevent running the below fullmatch a linear
+    # number of times in a case like "[[Widget[[Widget<...>]]" which would be quadratic.
+    if state.src.find("[[", m.end(), closing_start) != -1:
+        return None, -1
+
     if not (match := widget.param_regex.fullmatch(state.src, m.start() + 2, closing_start)):
         return None, -1
 
