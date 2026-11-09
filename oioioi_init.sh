@@ -29,7 +29,7 @@ if [ "$1" == "--dev" ]; then
     # Upload sandboxes to filetracker (s3dedup) on first run
     SANDBOX_MARKER="/sio2/deployment/media/.sandboxes_uploaded"
     if [ ! -f "$SANDBOX_MARKER" ]; then
-      uploaded=
+        uploaded=
         for attempt in 1 2 3; do
             if ./manage.py upload_sandboxes_to_filetracker -d /sio2/sandboxes; then
                 uploaded=1
@@ -38,11 +38,11 @@ if [ "$1" == "--dev" ]; then
             echo "Sandbox upload attempt $attempt failed, retrying in 10s..." >&2
             sleep 10
         done
-      if [ -z "$uploaded" ]; then
-          echo "Failed to upload sandboxes to filetracker" >&2
-          exit 1
-      fi
-      touch "$SANDBOX_MARKER"
+        if [ -z "$uploaded" ]; then
+            echo "Failed to upload sandboxes to filetracker" >&2
+            exit 1
+        fi
+        touch "$SANDBOX_MARKER"
     else
         echo "Sandboxes already uploaded, skipping..."
     fi
@@ -51,11 +51,9 @@ fi
 echo "Init Finished"
 touch "$INIT_DONE_MARKER"
 
-if ! (umask 077 && ./manage.py supervisor getconfig > /tmp/supervisord.conf); then
+if ! (umask 077 && ./manage.py supervisor getconfig > "$SUPERVISOR_CONF"); then
     echo "Failed to generate Supervisor configuration" >&2
     exit 1
 fi
 
 exec ./manage.py supervisor --logfile=/sio2/deployment/logs/supervisor.log
-
-
