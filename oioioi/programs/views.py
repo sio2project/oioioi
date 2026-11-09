@@ -57,6 +57,10 @@ fnmatch._MAXCACHE = sys.maxsize
 logger = logging.getLogger(__name__)
 
 
+# Extensions of the sources that the "Show formatted code" button can format (with clang-format).
+FORMATTABLE_EXTENSIONS = {"c", "cc", "cpp"}
+
+
 @enforce_condition(~contest_exists | can_enter_contest)
 def show_submission_source_view(request, submission_id):
     source_file = get_submission_source_file_or_error(request, submission_id)
@@ -81,6 +85,7 @@ def show_submission_source_view(request, submission_id):
             "source": formatted_source,
             "css": formatted_source_css,
             "is_source_safe": is_source_safe,
+            "can_format": is_source_safe and get_extension(filename).lower() in FORMATTABLE_EXTENSIONS,
             "download_url": download_url,
             "decode_error": decode_error,
             "submission_id": submission_id,
