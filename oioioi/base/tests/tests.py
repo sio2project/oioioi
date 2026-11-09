@@ -1,3 +1,4 @@
+import json
 import logging
 import os.path
 import re
@@ -5,9 +6,10 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 from datetime import UTC, datetime  # pylint: disable=E0611
 from importlib import import_module, reload
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 import pytest
 from captcha.models import CaptchaStore
@@ -1103,6 +1105,17 @@ class TestBackendMiddleware(TestCase):
 class TestNotifications(TestCase):
     fixtures = ["test_users"]
 
+    def setUp(self):
+        # The RabbitMQ connection is kept per thread and connection attempts
+        # are rate-limited per process, so start every test from a clean state.
+        for patcher in (
+            patch("oioioi.base.notification.thread_data", threading.local()),
+            patch.object(NotificationHandler, "last_connection_check", 0),
+        ):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+        self.user = User.objects.get(username="test_user")
+
     def test_notification_registration(self):
         flags = {}
         flags["got_notification"] = False
@@ -1118,6 +1131,35 @@ class TestNotifications(TestCase):
         logger = logging.getLogger("oioioi")
         logger.info("Test notification", extra={"notification": "test_notification"})
         self.assertTrue(flags["got_notification"])
+
+    @override_settings(NOTIFICATIONS_SERVER_ENABLED=False)
+    @patch("oioioi.base.notification.BlockingConnection")
+    def test_no_connection_when_server_disabled(self, connection_mock):
+        NotificationHandler.send_notification(self.user, "test_notification", "Test", {})
+        connection_mock.assert_not_called()
+
+    @override_settings(NOTIFICATIONS_SERVER_ENABLED=True)
+    @patch("oioioi.base.notification.BlockingConnection")
+    def test_notification_sent_when_server_enabled(self, connection_mock):
+        NotificationHandler.send_notification(self.user, "test_notification", "Test", {"details": "Details"})
+        connection_mock.assert_called_once()
+        channel = connection_mock.return_value.channel.return_value
+        queue_name = f"_notifs_{self.user.pk}"
+        channel.queue_declare.assert_called_once_with(queue=queue_name, durable=True)
+        channel.basic_publish.assert_called_once_with(exchange="", routing_key=queue_name, body=ANY)
+        message = json.loads(channel.basic_publish.call_args.kwargs["body"])
+        self.assertEqual(message["type"], "test_notification")
+        self.assertEqual(message["message"], "Test")
+        self.assertEqual(message["details"], "Details")
+
+    @patch("oioioi.base.notification.BlockingConnection")
+    def test_open_connection_not_used_when_server_disabled(self, connection_mock):
+        channel = connection_mock.return_value.channel.return_value
+        with override_settings(NOTIFICATIONS_SERVER_ENABLED=True):
+            NotificationHandler.send_notification(self.user, "test_notification", "Test", {})
+        with override_settings(NOTIFICATIONS_SERVER_ENABLED=False):
+            NotificationHandler.send_notification(self.user, "test_notification", "Test", {})
+        channel.basic_publish.assert_called_once()
 
 
 class TestCondition(TestCase):
