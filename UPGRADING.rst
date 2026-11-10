@@ -1161,7 +1161,10 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
             # network, not to 127.0.0.1.
             import socket
 
-            _, _, _addresses = socket.gethostbyname_ex(socket.gethostname())
+            try:
+                _, _, _addresses = socket.gethostbyname_ex(socket.gethostname())
+            except socket.gaierror:
+                _addresses = []
             INTERNAL_IPS = [
                 *INTERNAL_IPS,
                 *(address.rsplit('.', 1)[0] + '.1' for address in _addresses),

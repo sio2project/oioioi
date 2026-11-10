@@ -24,7 +24,14 @@ if DEBUG:
     # gateways to INTERNAL_IPS, as the django-debug-toolbar docs recommend.
     import socket
 
-    _, _, _addresses = socket.gethostbyname_ex(socket.gethostname())
+    try:
+        _, _, _addresses = socket.gethostbyname_ex(socket.gethostname())
+    except socket.gaierror:
+        # A hostname that does not resolve only means this is not a container,
+        # so there is no gateway to guess at. Keeping INTERNAL_IPS unchanged
+        # preserves the previous behaviour instead of failing on every
+        # management command, which imports this module.
+        _addresses = []
     INTERNAL_IPS = [
         *INTERNAL_IPS,
         *(address.rsplit('.', 1)[0] + '.1' for address in _addresses),
