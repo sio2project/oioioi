@@ -1532,6 +1532,17 @@ class TestParametrize(TestCase):
                 def test_case(self, a, b):
                     pass
 
+    def test_generated_name_collision_fails_at_class_creation(self):
+        with self.assertRaisesRegex(ValueError, "generated test name 'test_case_0_0' already exists"):
+
+            class Example(TestCase):
+                @parametrize("value", [0])
+                def test_case(self, value):
+                    pass
+
+                def test_case_0_0(self):
+                    pass
+
     def test_single_name_in_tuple_or_with_trailing_comma_takes_sequences(self):
         for argnames in ["a,", ("a",)]:
             with self.subTest(argnames=argnames):

@@ -49,6 +49,7 @@ class parametrize:
     creates ``test_split_0_a_tar_gz`` and ``test_split_1_b_zip`` and removes
     ``test_split``, so each case passes or fails on its own and can be selected
     with ``-k``. It has to be the outermost decorator of the method.
+    A generated name that already exists on the class is an error.
 
     The names and values follow the same rules as in pytest:
 
@@ -84,6 +85,7 @@ class parametrize:
             reason = f"got empty parameter set for ({', '.join(self.argnames)})"
             setattr(owner, name, skip(reason)(self._make_case(owner, name, {})))
             return
+        cases = []
         for index, values in enumerate(self.argvalues):
             if self.plain_values:
                 values = (values,)
@@ -100,6 +102,10 @@ class parametrize:
             # With no names, the values are empty: name the case by index only.
             case_id = re.sub(r"\W+", "_", str(values[0])).strip("_")[:40] if count else ""
             case_name = f"{name}_{index}_{case_id}" if case_id else f"{name}_{index}"
+            if case_name in vars(owner):
+                raise ValueError(f"{test_name}: generated test name {case_name!r} already exists on {owner.__qualname__}")
+            cases.append((case_name, kwargs))
+        for case_name, kwargs in cases:
             setattr(owner, case_name, self._make_case(owner, case_name, kwargs))
         delattr(owner, name)
 
