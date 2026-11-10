@@ -46,8 +46,8 @@ class CanEnterContest(permissions.BasePermission):
         contest_id = view.kwargs.get("contest_id", view.kwargs.get("contest_name"))
         if contest_id is None:
             return True
-        # Middleware picks the contest from the session and sees no token user,
-        # so everything it has computed for this request is about somebody else.
+        # The middleware ran with the session user, not the token user,
+        # so drop anything it has cached for this request.
         request._request.contest = get_object_or_404(Contest, id=contest_id)
         request._request._cache = {}
         return can_enter_contest(request)
