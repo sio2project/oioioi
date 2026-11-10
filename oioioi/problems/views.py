@@ -594,8 +594,19 @@ def problemset_add_to_contest_view(request, site_key):
     )
 
 
-def get_report_HTML_view(request, submission_id):
+def _get_submission_of_current_contest(request, submission_id):
+    """Permissions are checked against request.contest, so a submission from
+    another contest must not be judged by them.
+    """
     submission = get_object_or_404(Submission, id=submission_id)
+    contest_id = submission.problem_instance.contest_id
+    if contest_id and request.contest and request.contest.id != contest_id:
+        raise Http404
+    return submission
+
+
+def get_report_HTML_view(request, submission_id):
+    submission = _get_submission_of_current_contest(request, submission_id)
     controller = submission.problem_instance.controller
     if not controller.filter_my_visible_submissions(request, Submission.objects.filter(id=submission_id)).exists():
         raise Http404
@@ -612,7 +623,7 @@ def get_report_HTML_view(request, submission_id):
 
 @require_http_methods(["POST"])
 def get_report_row_begin_HTML_view(request, submission_id):
-    submission = get_object_or_404(Submission, id=submission_id)
+    submission = _get_submission_of_current_contest(request, submission_id)
     controller = submission.problem_instance.controller
     if not controller.filter_my_visible_submissions(request, Submission.objects.filter(id=submission_id)).exists():
         raise Http404
@@ -867,16 +878,16 @@ def rejudge_model_solutions_view(request, problem_instance_id):
 
 @enforce_condition(not_anonymous)
 def get_last_submissions(request):
-    queryset = (
-        Submission.objects.filter(user=request.user)
-        .order_by("-date")
-        .select_related(
-            "problem_instance",
-            "problem_instance__contest",
-            "problem_instance__round",
-            "problem_instance__problem",
-        )[:5]
-    )
+    queryset = Submission.objects.filter(user=request.user)
+    if request.contest:
+        # Results are revealed according to request.contest.
+        queryset = queryset.filter(Q(problem_instance__contest=request.contest) | Q(problem_instance__contest__isnull=True))
+    queryset = queryset.order_by("-date").select_related(
+        "problem_instance",
+        "problem_instance__contest",
+        "problem_instance__round",
+        "problem_instance__problem",
+    )[:5]
     submissions = [submission_template_context(request, s) for s in queryset]
     return TemplateResponse(
         request,
@@ -1195,7 +1206,10 @@ def download_problem_package_file_view(request, package_id, file_name):
     try:
         archive.extract(to_path=dir_path)
         filepath = os.path.join(dir_path, file_name)
+        if not os.path.realpath(filepath).startswith(os.path.realpath(dir_path) + os.sep):
+            raise Http404
         if os.path.isfile(filepath):
             return stream_file(File(open(filepath)), os.path.basename(os.path.normpath(file_name)))
+        raise Http404
     finally:
         shutil.rmtree(dir_path)

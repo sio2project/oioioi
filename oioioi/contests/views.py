@@ -307,6 +307,15 @@ def problem_statement_view(request, problem_instance):
     return stream_file(statement.content, statement.download_name)
 
 
+def _can_access_editorial(request, pi):
+    """Archived contests show editorials regardless of their publication date,
+    but an editorial hidden for this problem instance stays hidden.
+    """
+    if is_contest_archived(request) and pi.can_access_editorial:
+        return True
+    return request.contest.controller.can_access_editorial(request, pi)
+
+
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_editorial_view(request, problem_instance):
     controller = request.contest.controller
@@ -318,6 +327,9 @@ def problem_editorial_view(request, problem_instance):
     editorial_attachment = pi.controller.get_editorial_attachment(request, pi)
     if not editorial_attachment:
         return TemplateResponse(request, "contests/no_problem_editorial.html", {"problem_instance": pi})
+
+    if not _can_access_editorial(request, pi):
+        raise PermissionDenied
 
     if not is_contest_archived(request):
         if editorial_attachment.pub_date and editorial_attachment.pub_date > request.timestamp:
@@ -705,6 +717,12 @@ def problem_attachment_view(request, attachment_id):
     problem_ids = [pi.problem_id for pi in problem_instances]
     if attachment.problem_id not in problem_ids:
         raise PermissionDenied
+    if attachment.is_editorial:
+        same_problem = [pi for pi in problem_instances if pi.problem_id == attachment.problem_id]
+        if not any(_can_access_editorial(request, pi) for pi in same_problem):
+            raise PermissionDenied
+        if not is_contest_archived(request) and attachment.pub_date and attachment.pub_date > request.timestamp:
+            raise PermissionDenied
     return stream_file(attachment.content, attachment.download_name)
 
 
@@ -772,7 +790,7 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
     last_only = params.get("last_only") == "on"
 
     if problem_instance_id is not None:
-        problem_instances = [get_object_or_404(ProblemInstance, id=problem_instance_id)]
+        problem_instances = [get_object_or_404(ProblemInstance, id=problem_instance_id, contest=request.contest)]
     else:
         problem_ids = request.POST.get("ids") or request.GET.get("ids")
         problem_instances = _get_problem_instances_from_problem_ids(problem_ids)
@@ -833,7 +851,7 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id=None):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def change_needs_rejudge_val(request, problem_instance_id, val: bool):
-    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
+    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id, contest=request.contest)
 
     if request.POST:
         problem_instance.needs_rejudge = val
@@ -864,7 +882,7 @@ def mark_for_rejudge_view(request, problem_instance_id):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
-    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
+    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id, contest=request.contest)
     if request.POST:
         update_tests_from_main_pi(problem_instance)
         messages.success(request, _("Tests limits reset successfully"))

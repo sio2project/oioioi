@@ -174,6 +174,10 @@ def query_zip(statement, path):
     content_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
     response = HttpResponse(zip.read(path), content_type=content_type)
     response["Content-Length"] = info.file_size
+    # Written by the package author and served from our origin. The index goes
+    # through the statement page; this only limits files opened directly.
+    response["Content-Security-Policy"] = "sandbox"
+    response["X-Content-Type-Options"] = "nosniff"
     return response
 
 

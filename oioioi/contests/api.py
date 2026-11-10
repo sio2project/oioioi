@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
@@ -26,7 +27,6 @@ from oioioi.contests.utils import (
     visible_contests,
     visible_contests_as_django_queryset,
 )
-from oioioi.default_settings import MIDDLEWARE
 from oioioi.problems.models import Problem, ProblemInstance
 from oioioi.problems.utils import query_statement
 from oioioi.programs.models import ProgramSubmission
@@ -42,13 +42,20 @@ def contest_list(request):
 
 
 class CanEnterContest(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
+        contest_id = view.kwargs.get("contest_id", view.kwargs.get("contest_name"))
+        if contest_id is None:
+            return True
+        # The middleware ran with the session user, not the token user,
+        # so drop anything it has cached for this request.
+        request._request.contest = get_object_or_404(Contest, id=contest_id)
+        request._request._cache = {}
         return can_enter_contest(request)
 
 
 class UnsafeApiAllowed(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return not any("IpDnsAuthMiddleware" in x for x in MIDDLEWARE)
+    def has_permission(self, request, view):
+        return not any("IpDnsAuthMiddleware" in x for x in settings.MIDDLEWARE)
 
 
 class GetContestRounds(views.APIView):
@@ -65,7 +72,7 @@ class GetContestRounds(views.APIView):
     )
     def get(self, request, contest_id):
         contest = get_object_or_404(Contest, id=contest_id)
-        rounds = contest.round_set.all()
+        rounds = [r for r in contest.round_set.all() if contest.controller.can_see_round(request, r)]
         serializer = RoundSerializer(rounds, many=True)
         return Response(serializer.data)
 
@@ -94,6 +101,7 @@ class GetContestProblems(views.APIView):
         # 7) can access editorial
         # 8) editorial attachment
         # Sorted by (start_date, end_date, round name, problem name)
+        problem_instances = [pi for pi in problem_instances if controller.can_see_problem(request, pi)]
         problem_statements = get_problem_statements(request, controller, problem_instances)
 
         data = []
@@ -231,6 +239,8 @@ class GetProblemIdView(views.APIView):
         """
         contest = get_object_or_404(Contest, id=contest_id)
         problem_instance = get_object_or_404(ProblemInstance, contest=contest, problem__short_name=problem_short_name)
+        if not contest.controller.can_see_problem(request, problem_instance):
+            raise Http404
         problem = problem_instance.problem
         response_data = {
             "problem_id": problem.id,
