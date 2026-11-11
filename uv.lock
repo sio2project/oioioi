@@ -2152,10 +2152,9 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-browser = [{ name = "playwright", specifier = ">=1.63,<2" }]
+browser = [{ name = "playwright", specifier = ">=1.64,<2" }]
 dev = [
     { name = "coverage", specifier = ">=7.4.0" },
-    { name = "coverage", extras = ["toml"], specifier = ">=7.4.0" },
     { name = "elastic-apm" },
     { name = "inquirer", specifier = ">=3.4.1" },
     { name = "pre-commit", specifier = "==4.2.0" },
