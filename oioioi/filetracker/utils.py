@@ -2,6 +2,7 @@ import functools
 import mimetypes
 import urllib
 import urllib.parse
+import warnings
 from wsgiref.util import FileWrapper
 
 from django.core.files import File
@@ -101,7 +102,10 @@ def stream_file(django_file, name=None, showable=None):
         name = str(django_file.name.rsplit("/", 1)[-1])
     content_type = mimetypes.guess_type(name)[0] or "application/octet-stream"
     response = StreamingHttpResponse(FileWrapper(django_file), content_type=content_type)
-    response["Content-Length"] = django_file.size
+    if (mode := getattr(django_file, "mode", None)) and "b" not in mode:
+        warnings.warn(f"File passed to `stream_file` opened with non-binary mode '{django_file.mode}', Content-Length omitted.", stacklevel=2)
+    else:
+        response["Content-Length"] = django_file.size
     showable_exts = ["pdf", "ps", "txt"]
     if showable is None:
         extension = name.rsplit(".")[-1]
