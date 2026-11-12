@@ -1,11 +1,11 @@
-from oioioi.base.cache import FaultTolerantPyLibMCCache
+from oioioi.base.cache import FaultTolerantPyMemcacheCache
 from oioioi.base.tests import TestCase
 
 
-class TestFaultTolerantPyLibMCCache(TestCase):
+class TestFaultTolerantPyMemcacheCache(TestCase):
     def test_unreachable_server_is_a_miss(self):
         # Nothing listens on port 1, so every operation fails to connect.
-        cache = FaultTolerantPyLibMCCache("127.0.0.1:1", {})
+        cache = FaultTolerantPyMemcacheCache("127.0.0.1:1", {})
         with self.assertLogs("oioioi.base.cache", "WARNING"):
             self.assertIsNone(cache.get("key"))
         self.assertEqual(cache.get("key", "default"), "default")

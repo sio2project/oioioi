@@ -420,7 +420,7 @@ PROBLEM_SOURCES = PROBLEM_SOURCES + (
 # To use the more efficient memcached, install it and uncomment the following:
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'BACKEND': 'oioioi.base.cache.FaultTolerantPyMemcacheCache',
         'LOCATION': '127.0.0.1:11211',
     }
 }

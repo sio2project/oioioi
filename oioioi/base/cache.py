@@ -1,13 +1,13 @@
 import logging
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
-from django.core.cache.backends.memcached import PyLibMCCache
+from django.core.cache.backends.memcached import PyMemcacheCache
 
 logger = logging.getLogger(__name__)
 
 
-class FaultTolerantPyLibMCCache(PyLibMCCache):
-    """PyLibMCCache that treats an unreachable memcached as a cache miss.
+class FaultTolerantPyMemcacheCache(PyMemcacheCache):
+    """PyMemcacheCache that treats an unreachable memcached as a cache miss.
 
     The stock backend raises on connection errors, so a memcached restart
     turns every request touching the cache (including sessions with
@@ -16,10 +16,13 @@ class FaultTolerantPyLibMCCache(PyLibMCCache):
     ``incr`` and ``decr`` still raise, because callers rely on their result.
     """
 
+    def __init__(self, server, params) -> None:
+        super().__init__(server, params)
+
     def _call(self, method, default, *args, **kwargs):
         try:
             return getattr(super(), method)(*args, **kwargs)
-        except self._lib.Error:
+        except (self._lib.exceptions.MemcacheError, OSError):
             logger.warning("memcached %s failed", method, exc_info=True)
             return default
 
@@ -49,3 +52,7 @@ class FaultTolerantPyLibMCCache(PyLibMCCache):
 
     def delete_many(self, keys, version=None):
         return self._call("delete_many", None, keys, version)
+
+
+# compatibility alias
+FaultTolerantPyLibMCCache = FaultTolerantPyMemcacheCache
