@@ -50,7 +50,7 @@ function addPygmentsLikeMarks(code) {
         const previous = node.previousSibling;
         if (parent.classList.contains('hljs-string') && parent.textContent.startsWith('"')) {
             wrapMatches(node, /\\(?:x[0-9a-fA-F]{1,2}|[0-7]{1,3}|[\s\S])/g, 'hljs-escape', (m) => [m.index, m.index + m[0].length]);
-        } else if (previous && previous.classList && previous.classList.contains('hljs-keyword')) {
+        } else if (previous?.classList?.contains('hljs-keyword')) {
             if (previous.textContent === 'namespace') {
                 wrapMatches(node, nameAfterKeyword, 'hljs-namespace', wholeName);
             } else if (previous.textContent === 'typename') {
