@@ -1209,7 +1209,7 @@ def download_problem_package_file_view(request, package_id, file_name):
         if not os.path.realpath(filepath).startswith(os.path.realpath(dir_path) + os.sep):
             raise Http404
         if os.path.isfile(filepath):
-            return stream_file(File(open(filepath)), os.path.basename(os.path.normpath(file_name)))
+            return stream_file(File(open(filepath, "rb")), os.path.basename(os.path.normpath(file_name)))
         raise Http404
     finally:
         shutil.rmtree(dir_path)
