@@ -16,7 +16,19 @@ class FaultTolerantPyMemcacheCache(PyMemcacheCache):
     ``incr`` and ``decr`` still raise, because callers rely on their result.
     """
 
+    DEFAULT_OPTIONS = {
+        "connect_timeout": 0.200,
+        # send/recv timeout
+        "timeout": 0.100,
+        # Delay before attempt to reconnect to a dead node
+        "dead_timeout": 10,
+    }
+
     def __init__(self, server, params) -> None:
+        options = params.get("OPTIONS", {})
+        options = {**self.DEFAULT_OPTIONS, **options}
+        params = {**params, "OPTIONS": options}
+
         super().__init__(server, params)
 
     def _call(self, method, default, *args, **kwargs):
