@@ -1150,26 +1150,6 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
      * Remove all sentry and raven reminiscent from settings.py in LOGGING SECTION.
 
-#. * django-debug-toolbar in the Docker dev setup: added the container network
-     gateways to *INTERNAL_IPS* in *deployment/settings.py*, inside the existing
-     ``if DEBUG:`` block, so the toolbar appears without hand-patching the
-     container. This change is optional and only matters for development::
-
-        if DEBUG:
-            # In Docker, a request from the host browser reaches the web
-            # container with REMOTE_ADDR set to the gateway of the container's
-            # network, not to 127.0.0.1.
-            import socket
-
-            try:
-                _, _, _addresses = socket.gethostbyname_ex(socket.gethostname())
-            except socket.gaierror:
-                _addresses = []
-            INTERNAL_IPS = [
-                *INTERNAL_IPS,
-                *(address.rsplit('.', 1)[0] + '.1' for address in _addresses),
-            ]
-
 Migrating from Filetracker to s3dedup (currently only for docker-compose-dev.yml deployments)
 ----------------------------------------------------------------
 
