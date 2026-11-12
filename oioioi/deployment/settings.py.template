@@ -18,6 +18,25 @@ DEBUG = True
 # SITE_ID = 1
 
 if DEBUG:
+    # In Docker, a request from the host browser reaches the web container with
+    # REMOTE_ADDR set to the gateway of the container's network, not to
+    # 127.0.0.1, so django-debug-toolbar's show_toolbar rejects it. Add those
+    # gateways to INTERNAL_IPS, as the django-debug-toolbar docs recommend.
+    import socket
+
+    try:
+        _, _, _addresses = socket.gethostbyname_ex(socket.gethostname())
+    except socket.gaierror:
+        # A hostname that does not resolve only means this is not a container,
+        # so there is no gateway to guess at. Keeping INTERNAL_IPS unchanged
+        # preserves the previous behaviour instead of failing on every
+        # management command, which imports this module.
+        _addresses = []
+    INTERNAL_IPS = [
+        *INTERNAL_IPS,
+        *(address.rsplit('.', 1)[0] + '.1' for address in _addresses),
+    ]
+
     TEMPLATES[0]['OPTIONS']['loaders'] = UNCACHED_TEMPLATE_LOADERS
 else:
     # Cache compiled templates in production environment.
