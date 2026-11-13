@@ -50,7 +50,7 @@ from oioioi.base.permissions import (
     make_condition,
     make_request_condition,
 )
-from oioioi.base.tests import FakeTimeMiddleware, TestCase, fake_time
+from oioioi.base.tests import FakeTimeMiddleware, TestCase, fake_time, parametrize
 from oioioi.base.utils import (
     RegisteredSubclassesBase,
     _parents_are_packages,
@@ -1429,8 +1429,9 @@ class TestTranslate(TestCase):
 
 
 class TestFileUtils(TestCase):
-    def test_split_ext(self):
-        normal = [
+    @parametrize(
+        "filename",
+        [
             "a.b.c.d.pdf",
             ".bashrc",
             ".a.conf",
@@ -1441,40 +1442,170 @@ class TestFileUtils(TestCase):
             "_ab_123.jpg",
             "abc.tar",
             "my_file",
-        ]
-        for name in normal:
-            their = os.path.splitext(name)
-            ours = split_extension(name)
-            self.assertEqual(ours, their)
+        ],
+    )
+    def test_split_extension_matches_splitext(self, filename):
+        self.assertEqual(split_extension(filename), os.path.splitext(filename))
 
-        weird = {
-            "test.tar.gz": ("test", ".tar.gz"),
-            "test.tar.xz": ("test", ".tar.xz"),
-            "/a/b/c/test.tar.bz2": ("/a/b/c/test", ".tar.bz2"),
-            "paczka.tar.gz": ("paczka", ".tar.gz"),
-            "data.tar.xz": ("data", ".tar.xz"),
-            "tar.tar.gz": ("tar", ".tar.gz"),
-        }
-        for name, expected in weird.items():
-            with self.subTest(name=name):
-                self.assertEqual(split_extension(name), expected)
+    @parametrize(
+        ("filename", "expected"),
+        [
+            ("test.tar.gz", ("test", ".tar.gz")),
+            ("test.tar.xz", ("test", ".tar.xz")),
+            ("/a/b/c/test.tar.bz2", ("/a/b/c/test", ".tar.bz2")),
+            ("paczka.tar.gz", ("paczka", ".tar.gz")),
+            ("data.tar.xz", ("data", ".tar.xz")),
+            ("tar.tar.gz", ("tar", ".tar.gz")),
+        ],
+    )
+    def test_split_extension_archives(self, filename, expected):
+        self.assertEqual(split_extension(filename), expected)
 
-    def test_strip_num_or_hash(self):
-        cases = {
-            "abc_1.pdf": "abc.pdf",
-            "abc_123.pdf": "abc.pdf",
-            "abc_45HKmyT.pdf": "abc.pdf",
-            "abc_1.tar.gz": "abc.tar.gz",
-            "abc_45HKmyT.tar.gz": "abc.tar.gz",
-            "abc.tar_1.gz": "abc.tar.gz",
-            "abc.tar.gz": "abc.tar.gz",
-            "/a/b/abc.tar.gz": "/a/b/abc.tar.gz",
-            "my_file": "my_file",
-            "a_1_2.pdf": "a_1.pdf",
-        }
+    @parametrize(
+        ("filename", "expected"),
+        [
+            ("abc_1.pdf", "abc.pdf"),
+            ("abc_123.pdf", "abc.pdf"),
+            ("abc_45HKmyT.pdf", "abc.pdf"),
+            ("abc_1.tar.gz", "abc.tar.gz"),
+            ("abc_45HKmyT.tar.gz", "abc.tar.gz"),
+            ("abc.tar_1.gz", "abc.tar.gz"),
+            ("abc.tar.gz", "abc.tar.gz"),
+            ("/a/b/abc.tar.gz", "/a/b/abc.tar.gz"),
+            ("my_file", "my_file"),
+            ("a_1_2.pdf", "a_1.pdf"),
+        ],
+    )
+    def test_strip_num_or_hash(self, filename, expected):
+        self.assertEqual(strip_num_or_hash(filename), expected)
 
-        for before, after in cases.items():
-            self.assertEqual(strip_num_or_hash(before), after)
+
+class TestParametrize(TestCase):
+    def test_generates_one_method_per_case(self):
+        class Example(TestCase):
+            @parametrize(("a", "b"), [(1, 2), ("x.tar.gz", None)])
+            def test_case(self, a, b):
+                """Docstring."""
+                self.calls.append((a, b))
+
+        names = [name for name in dir(Example) if name.startswith("test_case")]
+        self.assertEqual(names, ["test_case_0_1", "test_case_1_x_tar_gz"])
+        self.assertEqual(Example.test_case_0_1.__doc__, "Docstring.")
+
+        example = Example()
+        example.calls = []
+        example.test_case_0_1()
+        example.test_case_1_x_tar_gz()
+        self.assertEqual(example.calls, [(1, 2), ("x.tar.gz", None)])
+
+    def test_single_argname_takes_plain_values(self):
+        class Example(TestCase):
+            @parametrize("a", [(1, 2), "b"])
+            def test_case(self, a):
+                self.calls.append(a)
+
+        example = Example()
+        example.calls = []
+        example.test_case_0_1_2()
+        example.test_case_1_b()
+        self.assertEqual(example.calls, [(1, 2), "b"])
+
+    def test_argnames_as_comma_separated_string(self):
+        for argnames in ["a, b", " a ,b ", "a,b,"]:
+            with self.subTest(argnames=argnames):
+
+                class Example(TestCase):
+                    @parametrize(argnames, [(1, 2)])
+                    def test_case(self, a, b):
+                        self.calls.append((a, b))
+
+                example = Example()
+                example.calls = []
+                example.test_case_0_1()
+                self.assertEqual(example.calls, [(1, 2)])
+
+    def test_wrong_number_of_values_fails_at_class_creation(self):
+        with self.assertRaises(ValueError):
+
+            class Example(TestCase):
+                @parametrize(("a", "b"), [(1,)])
+                def test_case(self, a, b):
+                    pass
+
+    def test_generated_name_collision_fails_at_class_creation(self):
+        with self.assertRaisesRegex(ValueError, "generated test name 'test_case_0_0' already exists"):
+
+            class Example(TestCase):
+                @parametrize("value", [0])
+                def test_case(self, value):
+                    pass
+
+                def test_case_0_0(self):
+                    pass
+
+    def test_single_name_in_tuple_or_with_trailing_comma_takes_sequences(self):
+        for argnames in ["a,", ("a",)]:
+            with self.subTest(argnames=argnames):
+
+                class Example(TestCase):
+                    @parametrize(argnames, [(1,), ("x",)])
+                    def test_case(self, a):
+                        self.calls.append(a)
+
+                example = Example()
+                example.calls = []
+                example.test_case_0_1()
+                example.test_case_1_x()
+                self.assertEqual(example.calls, [1, "x"])
+
+    def test_plain_value_for_single_name_tuple_fails_at_class_creation(self):
+        with self.assertRaisesRegex(TypeError, "expected a sequence of values"):
+
+            class Example(TestCase):
+                @parametrize(("a",), [1])
+                def test_case(self, a):
+                    pass
+
+    def test_empty_values_give_a_skipped_test(self):
+        class Example(TestCase):
+            @parametrize(("a", "b"), [])
+            def test_case(self, a, b):
+                pass
+
+        self.assertEqual([name for name in dir(Example) if name.startswith("test_case")], ["test_case"])
+        self.assertTrue(Example.test_case.__unittest_skip__)
+        self.assertEqual(Example.test_case.__unittest_skip_why__, "got empty parameter set for (a, b)")
+
+    def test_no_names_repeats_the_test(self):
+        for argnames in [(), ""]:
+            with self.subTest(argnames=argnames):
+
+                class Example(TestCase):
+                    @parametrize(argnames, [(), ()])
+                    def test_case(self):
+                        self.calls += 1
+
+                self.assertEqual([name for name in dir(Example) if name.startswith("test_case")], ["test_case_0", "test_case_1"])
+                example = Example()
+                example.calls = 0
+                example.test_case_0()
+                example.test_case_1()
+                self.assertEqual(example.calls, 2)
+
+    def test_keeps_function_attributes(self):
+        # Decorators such as @pytest.mark.slow or @unittest.expectedFailure
+        # store their data as attributes of the function.
+        def tag(func):
+            func.tag = "kept"
+            return func
+
+        class Example(TestCase):
+            @parametrize("a", [1])
+            @tag
+            def test_case(self, a):
+                pass
+
+        self.assertEqual(Example.test_case_0_1.tag, "kept")
 
 
 class TestUserDeactivationLogout(TestCase):

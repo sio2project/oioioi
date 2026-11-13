@@ -1,13 +1,15 @@
 import atexit
+import functools
 import importlib.util
 import os
+import re
 import shutil
 import sys
 import tempfile
 import threading
 import urllib.parse
 from contextlib import contextmanager
-from unittest import SkipTest, mock
+from unittest import SkipTest, mock, skip
 
 import pytest
 from django.conf import settings
@@ -31,6 +33,94 @@ try:
     from unittest.mock import patch
 except ImportError:
     from unittest.mock import patch
+
+
+class parametrize:
+    """Turn a ``TestCase`` method into one test method per case.
+
+    ``pytest.mark.parametrize`` does not work on ``unittest.TestCase`` methods,
+    so use this instead. The arguments are the same as in pytest::
+
+        class TestUtils(TestCase):
+            @parametrize(("filename", "expected"), [("a.tar.gz", ("a", ".tar.gz")), ("b.zip", ("b", ".zip"))])
+            def test_split(self, filename, expected):
+                self.assertEqual(split_extension(filename), expected)
+
+    creates ``test_split_0_a_tar_gz`` and ``test_split_1_b_zip`` and removes
+    ``test_split``, so each case passes or fails on its own and can be selected
+    with ``-k``. It has to be the outermost decorator of the method.
+    A generated name that already exists on the class is an error.
+
+    The names and values follow the same rules as in pytest:
+
+    - the names are a tuple or list, or a comma-separated string (``"a, b"``;
+      empty names are ignored, so ``"a,b,"`` is ``("a", "b")``);
+    - with a single name in a string without a trailing comma (``"a"``), each
+      value is the argument itself; otherwise (``"a,"``, ``("a",)``, ``"a, b"``)
+      each value is a sequence with one item per name;
+    - an empty list of values gives one skipped test instead of no test.
+
+    Only plain values are supported: ``pytest.param(...)`` (ids, marks) and
+    the ``ids`` and ``indirect`` arguments of ``pytest.mark.parametrize`` are not.
+    """
+
+    def __init__(self, argnames, argvalues):
+        if isinstance(argnames, str):
+            has_trailing_comma = argnames.rstrip().endswith(",")
+            argnames = [name.strip() for name in argnames.split(",") if name.strip()]
+            self.plain_values = len(argnames) == 1 and not has_trailing_comma
+        else:
+            self.plain_values = False
+        self.argnames = tuple(argnames)
+        self.argvalues = list(argvalues)
+        self.func = None
+
+    def __call__(self, func):
+        self.func = func
+        return self
+
+    def __set_name__(self, owner, name):
+        test_name = f"{owner.__qualname__}.{name}"
+        if not self.argvalues:
+            reason = f"got empty parameter set for ({', '.join(self.argnames)})"
+            setattr(owner, name, skip(reason)(self._make_case(owner, name, {})))
+            return
+        cases = []
+        for index, values in enumerate(self.argvalues):
+            if self.plain_values:
+                values = (values,)
+            try:
+                count = len(values)
+            except TypeError:
+                raise TypeError(
+                    f"{test_name}: case {index}: expected a sequence of values, "
+                    f"for a single value use a one-element tuple like ('value',), got {type(values).__name__}: {values!r}"
+                ) from None
+            if count != len(self.argnames):
+                raise ValueError(f"{test_name}: case {index} has {count} values {values!r} for {len(self.argnames)} names {self.argnames!r}")
+            kwargs = dict(zip(self.argnames, values, strict=True))
+            # With no names, the values are empty: name the case by index only.
+            case_id = re.sub(r"\W+", "_", str(values[0])).strip("_")[:40] if count else ""
+            case_name = f"{name}_{index}_{case_id}" if case_id else f"{name}_{index}"
+            if case_name in vars(owner):
+                raise ValueError(f"{test_name}: generated test name {case_name!r} already exists on {owner.__qualname__}")
+            cases.append((case_name, kwargs))
+        for case_name, kwargs in cases:
+            setattr(owner, case_name, self._make_case(owner, case_name, kwargs))
+        delattr(owner, name)
+
+    def _make_case(self, owner, case_name, kwargs):
+        func = self.func
+
+        def case(self):
+            return func(self, **kwargs)
+
+        # Copies __module__, __doc__, __dict__ (pytest marks such as @pytest.mark.slow,
+        # @unittest.expectedFailure) and sets __wrapped__ (pytest reports the original location).
+        functools.update_wrapper(case, func)
+        case.__name__ = case_name
+        case.__qualname__ = f"{owner.__qualname__}.{case_name}"
+        return case
 
 
 # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L30
