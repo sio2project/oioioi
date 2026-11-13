@@ -15,6 +15,7 @@ from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import (
     administered_contests,
     can_admin_contest,
+    can_admin_contest_id,
     is_contest_admin,
     is_contest_basicadmin,
 )
@@ -76,7 +77,7 @@ def can_admin_problem(request, problem):
         return True
     # If a user is administering a contest where the task was initially added,
     # he is considered to be a co-author of the task, giving him rights to admin it.
-    if problem.contest and can_admin_contest(request.user, problem.contest):
+    if problem.contest_id and can_admin_contest_id(request.user, problem.contest_id):
         return True
     if problem.author_id and request.user.id == problem.author_id:
         return True

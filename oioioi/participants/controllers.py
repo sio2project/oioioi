@@ -27,6 +27,19 @@ from oioioi.participants.models import (
 auditLogger = logging.getLogger(__name__ + ".audit")
 
 
+# This isn't in .utils, as that would cause a circular import.
+@request_cached
+def participated_contest_ids(request):
+    if not request.user.is_authenticated:
+        return []
+    return list(
+        Participant.objects.filter(
+            user_id=request.user.id,
+            status="ACTIVE",
+        ).values_list("contest_id", flat=True)
+    )
+
+
 class ParticipantsController(RegistrationController):
     registration_template = "participants/registration.html"
 
@@ -54,16 +67,7 @@ class ParticipantsController(RegistrationController):
         return queryset.filter(participant__contest=self.contest, participant__status="ACTIVE")
 
     def user_contests_query(self, request):
-        if not request.user.is_authenticated:
-            return Q(pk__isnull=True)  # (False)
-        # Django's laziness makes this execute together with the outer query.
-        participated_contest_ids = Participant.objects.filter(
-            user_id=request.user.id,
-            status="ACTIVE",
-        ).values_list("contest_id", flat=True)
-        return Q(id__in=participated_contest_ids)
-        # This made the outer query a few hundred ms on SZKOpuł.
-        # return Q(participant__user__id=request.user.id, participant__status="ACTIVE")
+        return Q(id__in=participated_contest_ids(request))
 
     def filter_users_with_accessible_personal_data(self, queryset):
         return self.filter_participants(queryset)

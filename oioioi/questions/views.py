@@ -58,6 +58,10 @@ def visible_messages(request, author=None, category=None, kind=None):
     if kind:
         q_expression = q_expression & Q(kind=kind)
     messages = Message.objects.filter(q_expression).order_by("-date")
+    # Narrowing down to the current contest makes this fancy query far easier
+    # for the DB (5ms --> 1ms execution time).
+    # It was implicitly done anyway by filtering for visible rounds.
+    messages = messages.filter(contest=request.contest)
     if not is_contest_basicadmin(request):
         q_expression = Q(kind="PUBLIC")
         if request.user.is_authenticated:
