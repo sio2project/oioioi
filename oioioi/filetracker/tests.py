@@ -122,7 +122,10 @@ class TestStreamingMixin:
 
     def streamingContent(self, response):
         self.assertTrue(response.streaming)
-        return b"".join(response.streaming_content)
+        content = b"".join(response.streaming_content)
+        if length := response.headers.get("Content-Length", None):
+            self.assertEqual(int(length), len(content))
+        return content
 
 
 class TestFileStorageViews(TestCase, TestStreamingMixin):

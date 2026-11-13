@@ -309,7 +309,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
     def test_package_file_view_stays_in_archive(self):
         archive = io.BytesIO()
         with zipfile.ZipFile(archive, "w") as zip_file:
-            zip_file.writestr("abc/doc/abcsol.txt", "solution")
+            zip_file.writestr("abc/doc/abcsol.txt", "solution\r\n")
         package = ProblemPackage.objects.get(pk=1)
         package.package_file = ContentFile(archive.getvalue(), name="abc.zip")
         package.save()
@@ -320,7 +320,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
             return reverse("download_package_file", kwargs={"package_id": package.id, "file_name": file_name})
 
         response = self.client.get(url("abc/doc/abcsol.txt"))
-        self.assertEqual(self.streamingContent(response), b"solution")
+        self.assertStreamingEqual(response, b"solution\r\n")
         self.assertEqual(self.client.get(url("abc/doc/missing.txt")).status_code, 404)
 
         # The archive is extracted to a fresh directory in the temporary directory.
