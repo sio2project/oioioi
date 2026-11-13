@@ -69,7 +69,13 @@ RAW_COMMANDS = [
         "Run coverage tests.",
         "{exec} 'web' ../oioioi/test.sh oioioi/problems --cov-report term --cov-report xml:coverage.xml --cov=oioioi {extra_args}",
     ),
-    ("cypress-apply-settings", "Apply settings for CyPress.", '{exec} web bash -c "echo >> settings.py && echo CAPTCHA_TEST_MODE=True >> settings.py"'),
+    # The debug toolbar covers the navbar's "Log in" link, so Cypress cannot click it.
+    (
+        "cypress-apply-settings",
+        "Apply settings for CyPress.",
+        '{exec} web bash -c "echo >> settings.py && echo CAPTCHA_TEST_MODE=True >> settings.py'
+        ' && echo \'DEBUG_TOOLBAR_CONFIG = {{\\"SHOW_TOOLBAR_CALLBACK\\": lambda request: False}}\' >> settings.py"',
+    ),
     ("npm", "Run npm command.", "{exec} web npm --prefix ../oioioi {extra_args}"),
     ("eslint", "Run javascript linter.", "{exec} web npm --prefix ../oioioi run lint"),
     (
