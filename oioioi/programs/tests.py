@@ -237,6 +237,29 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         "test_submission",
     ]
 
+    def _get_source_page(self, file_name=None):
+        self.assertTrue(self.client.login(username="test_user"))
+        submission = ProgramSubmission.objects.get(pk=1)
+        if file_name is not None:
+            submission.source_file.save(file_name, ContentFile(b"print(1)\n"))
+        kwargs = {
+            "contest_id": submission.problem_instance.contest.id,
+            "submission_id": submission.id,
+        }
+        response = self.client.get(reverse("show_submission_source", kwargs=kwargs))
+        self.assertEqual(response.status_code, 200)
+        return response
+
+    def test_format_button_shown_for_cpp(self):
+        response = self._get_source_page()
+        self.assertContains(response, 'id="format_btn"')
+        self.assertContains(response, "code_formatter.bundle.js")
+
+    def test_format_button_hidden_for_python(self):
+        response = self._get_source_page("file.py")
+        self.assertNotContains(response, 'id="format_btn"')
+        self.assertNotContains(response, "code_formatter.bundle.js")
+
     def test_submission_views(self):
         self.assertTrue(self.client.login(username="test_user"))
         submission = ProgramSubmission.objects.get(pk=1)

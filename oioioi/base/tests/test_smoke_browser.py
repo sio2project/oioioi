@@ -10,9 +10,11 @@ from unittest import mock
 from urllib.parse import urlparse
 
 from django.contrib.admin.utils import quote
+from django.core.files.base import ContentFile
 from django.urls import reverse
 
 from oioioi.base.tests import BrowserTestCase
+from oioioi.programs.models import ProgramSubmission
 from oioioi.workers import views as workers_views
 from oioioi.workers.tests import TestServer
 
@@ -107,3 +109,35 @@ class TestBrowserSmoke(BrowserTestCase):
             ],
             username="test_admin",
         )
+
+    def test_format_source_button(self):
+        """Formats a C++ source with the WebAssembly clang-format and switches back to the original."""
+        from playwright.sync_api import expect
+
+        source = b'#include <iostream>\nusing namespace std;\ntemplate <typename T> T id(T x) { return x; }\nint main() { cout << "a\\n"; }\n'
+        ProgramSubmission.objects.get(pk=1).source_file.save("main.cpp", ContentFile(source))
+        kwargs = {"contest_id": "c", "submission_id": 1}
+        context = self.new_browser_context("test_user")
+        errors = []
+        try:
+            page = context.new_page()
+            page.on("pageerror", lambda exc: errors.append(f"uncaught exception: {exc}"))
+            page.on("console", lambda msg: msg.type == "error" and errors.append(f"console.error: {msg.text}"))
+            page.goto(self.live_server_url + reverse("show_submission_source", kwargs=kwargs))
+            button = page.locator("#format_btn")
+            expect(button).to_have_text("Show formatted code")
+            button.click()
+            expect(button).to_have_text("Show original code", timeout=30000)
+            expect(page.locator("#source_view td.linenos")).to_be_visible()
+            expect(page.locator("#source_view code.hljs")).to_contain_text("int main()")
+            # The parts that Pygments shows in bold are marked as well.
+            expect(page.locator("#source_view .hljs-namespace")).to_have_text("std")
+            expect(page.locator("#source_view .hljs-escape")).to_have_text("\\n")
+            expect(page.locator("#source_view .hljs-title.class_")).to_have_text("T")
+            button.click()
+            expect(button).to_have_text("Show formatted code")
+            expect(page.locator("#source_view td.linenos")).to_have_count(1)
+            expect(page.locator("#source_view code.hljs")).to_have_count(0)
+        finally:
+            context.close()
+        self.assertEqual(errors, [])

@@ -11,6 +11,9 @@ importers:
       '@eonasdan/tempus-dominus':
         specifier: ^6.10.2
         version: 6.10.4(@popperjs/core@2.11.8)
+      '@wasm-fmt/clang-format':
+        specifier: ^23.1.1
+        version: 23.1.1
       ace-builds:
         specifier: 1.4.14
         version: 1.4.14
@@ -270,6 +273,11 @@ packages:
 
   '@types/tmp@0.2.6':
     resolution: {integrity: sha512-chhaNf2oKHlRkDGt+tiKE2Z5aJ6qalm7Z9rlLdBwmOiAAf09YQvvoLXjWK4HWPF1xU/fqvMgfNfpVoBscA/tKA==}
+
+  '@wasm-fmt/clang-format@23.1.1':
+    resolution: {integrity: sha512-SPA6H8DI/MOJAr0CfpbFBoqI5sfrimu3SlovuAAy36mq9vs9TOkS48lpUsNaPLeZzeQVEGe+pfbJHXKxiroP/g==}
+    engines: {node: '>=16.17.0'}
+    hasBin: true
 
   '@webassemblyjs/ast@1.14.1':
     resolution: {integrity: sha512-nuBEDgQfm1ccRp/8bCQrx1frohyufl4JlbMMZ4P1wpeOfDhF6FQkxZJ1b/e+PLwr6X1Nhw6OLme5usuBWYBvuQ==}
@@ -1771,6 +1779,8 @@ snapshots:
   '@types/sizzle@2.3.10': {}
 
   '@types/tmp@0.2.6': {}
+
+  '@wasm-fmt/clang-format@23.1.1': {}
 
   '@webassemblyjs/ast@1.14.1':
     dependencies:

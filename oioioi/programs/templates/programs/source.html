@@ -5,6 +5,23 @@
 {{ block.super }}
 <style type="text/css">
     {{ css|safe }}
+    {% if can_format %}
+    /* The formatted view is coloured by highlight.js. Give its tokens the colours of the default Pygments style,
+       so that switching between the original and the formatted code does not change the colours. */
+    .syntax-highlight .hljs { background: transparent; color: inherit; padding: 0; }
+    .syntax-highlight .hljs-keyword, .syntax-highlight .hljs-literal { color: #008000; font-weight: bold; }
+    .syntax-highlight .hljs-built_in { color: #008000; }
+    .syntax-highlight .hljs-type { color: #B00040; font-weight: normal; }
+    .syntax-highlight .hljs-string { color: #BA2121; }
+    .syntax-highlight .hljs-number { color: #666; }
+    .syntax-highlight .hljs-comment { color: #3D7B7B; font-style: italic; }
+    .syntax-highlight .hljs-title { color: #00F; }
+    .syntax-highlight .hljs-title.class_, .syntax-highlight .hljs-namespace { font-weight: bold; }
+    .syntax-highlight .hljs-namespace { color: #00F; }
+    .syntax-highlight .hljs-escape { color: #AA5D1F; font-weight: bold; }
+    .syntax-highlight .hljs-meta, .syntax-highlight .hljs-meta .hljs-keyword { color: #9C6500; font-weight: normal; }
+    .syntax-highlight .hljs-meta .hljs-string { color: #3D7B7B; font-style: italic; }
+    {% endif %}
 </style>
 {% endblock %}
 
@@ -16,14 +33,27 @@
     {% if decode_error %}
         {% include "programs/file_decoding_error.html" %}
     {% endif %}
-    <button class="btn btn-outline-secondary" id="cpy_btn" style="margin-bottom: 3px" onclick="copyCodeToClipboard()">
-        {% trans "Copy to clipboard" %}
-    </button>
+    <div class="d-flex flex-wrap gap-2 mb-1">
+        <button class="btn btn-outline-secondary" id="cpy_btn" onclick="copyCodeToClipboard()">
+            {% trans "Copy to clipboard" %}
+        </button>
+        {% if can_format %}
+            <button class="btn btn-outline-secondary" id="format_btn" type="button"
+                    data-label-formatted="{% trans 'Show original code' %}"
+                    data-label-original="{% trans 'Show formatted code' %}"
+                    data-label-error="{% trans 'Unable to format the code' %}">
+                {% trans "Show formatted code" %}
+            </button>
+        {% endif %}
+    </div>
     {% if is_source_safe %}
         <pre hidden id="raw_source">{{ raw_source }}</pre>
-        <div class="h-scrollable">{{ source|safe }}</div>
+        <div class="h-scrollable" id="source_view">{{ source|safe }}</div>
     {% else %}
         <pre id="raw_source">{{ raw_source }}</pre>
     {% endif %}
     <script type="application/javascript" src="{% static 'common/clipboard.js' %}"></script>
+    {% if can_format %}
+        <script src="{% static 'code_formatter.bundle.js' %}"></script>
+    {% endif %}
 {% endblock %}
