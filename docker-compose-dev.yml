@@ -14,6 +14,13 @@ services:
     volumes:
       - postgress-data-dev:/var/lib/postgresql/data
     stop_grace_period: 1m
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -h localhost -U oioioi -d oioioi" ]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+      start_interval: 1s
   web:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/oioioi_init.sh", "--dev"]
@@ -48,20 +55,23 @@ services:
     stop_grace_period: 3m
     # Healthy once oioioi_init.sh has built assets and applied migrations.
     healthcheck:
-      test: ["CMD", "test", "-f", "/tmp/oioioi_init_done"]
-      interval: 5s
-      timeout: 3s
+      test: ["CMD", "bash", "/sio2/oioioi/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
       retries: 3
       start_period: 15m
+      start_interval: 5s
     depends_on:
-      - db
-      - broker
-      - s3dedup
+      broker:
+          condition: service_healthy
+      s3dedup:
+          condition: service_healthy
+      db:
+          condition: service_healthy
   worker:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/worker_init.sh"]
     environment:
-      WEB_URL: "web:8000"
       <<: *common-envs
     volumes:
       - .:/sio2/oioioi
@@ -69,13 +79,21 @@ services:
     cap_add:
       - ALL
     depends_on:
-      - db
+      web:
+        condition: service_healthy
   broker:
     image: library/rabbitmq:3.8
     environment:
       RABBITMQ_DEFAULT_USER: oioioi
       RABBITMQ_DEFAULT_PASS: oioioi
     stop_grace_period: 1m
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q check_port_connectivity" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 1s
   rustfs:
     image: rustfs/rustfs:1.0.1
     environment:
@@ -92,10 +110,11 @@ services:
       - "9001:9001"  # RustFS Console
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
-      interval: 5s
+      interval: 30s
       timeout: 3s
       retries: 10
-      start_period: 5s
+      start_period: 30s
+      start_interval: 1s
     stop_grace_period: 1m
   s3dedup:
     image: ghcr.io/sio2project/s3dedup:latest-dev
@@ -128,7 +147,8 @@ services:
       test: ["CMD-SHELL", "curl -f http://localhost:9999/health || exit 1"]
       interval: 30s
       timeout: 3s
-      start_period: 5s
+      start_period: 30s
+      start_interval: 1s
       retries: 3
     restart: on-failure:5
     stop_grace_period: 1m
