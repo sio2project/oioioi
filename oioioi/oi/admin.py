@@ -1,14 +1,20 @@
 import urllib.parse
 
 from django.contrib import messages
+from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
+from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.models import Contest
+from oioioi.contests.utils import administered_contests, get_inline_for_contest, is_contest_admin
+from oioioi.oi.controllers import OIFinalOnsiteContestController
 from oioioi.oi.forms import OIRegistrationForm
-from oioioi.oi.models import OIRegistration, School
-from oioioi.participants.admin import ParticipantAdmin
+from oioioi.oi.models import OIDataConfirmation, OIDataConfirmationSettings, OIRegistration, School
+from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin, ParticipantAdmin
 
 
 class SchoolAdmin(admin.ModelAdmin):
@@ -124,8 +130,14 @@ class OIRegistrationInline(admin.StackedInline):
     form = OIRegistrationForm
     can_delete = False
     inline_classes = ("collapse open",)
-    # We don't allow admins to change users' acceptance of contest's terms.
     exclude = ("terms_accepted",)
+
+
+class OIDataConfirmationInline(admin.StackedInline):
+    model = OIDataConfirmation
+    fk_name = "participant"
+    can_delete = False
+    inline_classes = ("collapse open",)
 
 
 class OIRegistrationParticipantAdmin(ParticipantAdmin):
@@ -134,7 +146,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
         "school_city",
         "school_province",
     ]
-    inlines = tuple(ParticipantAdmin.inlines) + (OIRegistrationInline,)
+    inlines = tuple(ParticipantAdmin.inlines) + (OIRegistrationInline, OIDataConfirmationInline)
     readonly_fields = ["user"]
     search_fields = ParticipantAdmin.search_fields + [
         "oi_oiregistration__school__name",
@@ -183,3 +195,63 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
+
+
+class OIFinalOnsiteParticipantAdmin(OnsiteRegistrationParticipantAdmin):
+    list_display = OnsiteRegistrationParticipantAdmin.list_display + ["data_confirmed_at"]
+
+    def get_custom_list_select_related(self):
+        return super().get_custom_list_select_related() + ["oi_data_confirmation"]
+
+    def data_confirmed_at(self, instance):
+        return instance.oi_data_confirmation.data_confirmed_at
+
+    data_confirmed_at.short_description = _("Data confirmed at")
+    data_confirmed_at.admin_order_field = "oi_data_confirmation__data_confirmed_at"
+
+
+class OIDataConfirmationSettingsInline(admin.StackedInline):
+    model = OIDataConfirmationSettings
+    fk_name = "contest"
+    can_delete = False
+    max_num = 1
+    category = _("Advanced")
+
+    def has_add_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        source_contest = formset.form.base_fields.get("source_contest")
+        if source_contest is not None and obj is not None:
+            # Keep a value set by someone who administers more contests than this user.
+            current = OIDataConfirmationSettings.objects.filter(contest=obj).values("source_contest")
+            source_contest.queryset = Contest.objects.filter(Q(id__in=[c.id for c in administered_contests(request)]) | Q(id__in=current))
+        return formset
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
+        if db_field.name == "source_contest" and isinstance(formfield.widget, RelatedFieldWidgetWrapper):
+            formfield.widget = formfield.widget.widget
+        return formfield
+
+
+class OIDataConfirmationSettingsAdminMixin:
+    """Adds :class:`~oioioi.oi.models.OIDataConfirmationSettings` to an admin
+    panel when contest controller is OIFinalOnsiteContestController.
+    """
+
+    def get_inlines(self, request, obj):
+        inlines = super().get_inlines(request, obj)
+        if hasattr(obj, "controller") and isinstance(obj.controller, OIFinalOnsiteContestController):
+            return inlines + [get_inline_for_contest(OIDataConfirmationSettingsInline, obj)]
+        return inlines
+
+
+ContestAdmin.mix_in(OIDataConfirmationSettingsAdminMixin)
