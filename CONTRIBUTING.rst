@@ -35,6 +35,56 @@ AI tools
 Maintainers may close pull requests that don't follow these rules.
 
 
+Populating the Task Archive locally
+-----------------------------------
+
+The Task Archive (``/task_archive/``) lists the problems attached to an origin tag,
+grouped by the tag's origin info categories. The score badges show the results of the
+logged-in user. There are three ways to fill it in the Docker setup.
+
+Mock competition
+    ::
+
+        ./easy_toolbox.py exec python manage.py create_mock_competition -b 3 -l 2 --with-instances --results-for admin
+
+    Creates an origin tag with a tree of problems: ``-b`` top-level branches, ``-l`` levels,
+    3 problems per leaf group. ``--with-instances`` makes the problem pages open.
+    ``--results-for USERNAME`` (requires ``--with-instances``) adds results for that user:
+    at least one full, partial and zero score, in at least two groups, and at least one
+    problem without a result. ``-s SEED`` makes the data reproducible; use a different seed
+    for each run on the same database.
+
+    The problems have no statements or tests: you cannot submit to them, and the
+    submission pages behind the badges cannot be opened.
+
+Real problems
+    Add a package, e.g. one of the samples in ``oioioi/sinolpack/files/``::
+
+        ./easy_toolbox.py exec python manage.py addproblem ../oioioi/oioioi/sinolpack/files/test_full_package.tgz
+
+    As a superuser in the admin panel, create a tag under *Origin tags*, a category under
+    *Origin tags - information categories* (set its *grouping order*, otherwise the archive
+    does not group by it) and a value under *Origin tags - information values*. Each of them
+    needs a name in every language. Then add the tag and the value to the problem on its
+    edit page, under *Origin tags* and *Additional origin information*.
+
+    Badges appear only for your own judged submissions.
+
+Fixtures
+    ::
+
+        ./easy_toolbox.py exec python manage.py loaddata test_users test_task_archive
+        ./easy_toolbox.py exec python manage.py loaddata test_task_archive_progress_labels
+
+    Keep the two commands separate: loaded together on PostgreSQL, the second fixture's
+    problems silently end up without a tag. Load them into a fresh database only, as they
+    use fixed ids and overwrite existing rows; they also need the user with id 1 (``admin``
+    in the Docker setup). The test users have no password, so set one with
+    ``./easy_toolbox.py exec python manage.py changepassword test_user``. ``test_user`` and
+    ``test_user2`` have results in the ``oi`` tag; only its problems ``hel``, ``sum`` and
+    ``sim`` can be opened.
+
+
 SIO2 Translator's Guide
 -----------------------
 
