@@ -23,7 +23,7 @@ no longer creates transient non-exclusive queues, so RabbitMQ 4 works without
 
 Task queues can now be quorum queues (``CELERY_DEFAULT_QUEUE_TYPE`` and
 ``CELERY_CREATE_MISSING_QUEUE_TYPE``, see ``settings.py.template``), which is
-needed for a highly available RabbitMQ cluster. RabbitMQ dplusoes not change the
+needed for a highly available RabbitMQ cluster. RabbitMQ does not change the
 type of an existing queue, so before switching stop all Celery workers, make
 sure the queues are empty and delete them (``evalmgr``, ``unpackmgr``,
 ``evalmgr-zeus`` if Zeus is enabled, and any other task queue), e.g. with
