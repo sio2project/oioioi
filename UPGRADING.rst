@@ -12,6 +12,22 @@ Then run::
 
 and restart the judging machines.
 
+New C, C++ and their compiler versions in default settings.
+-----------------------------------------------------------
+
+C and C++ standards and their compiler version have been updated in default settings. If you have custom settings, this should not concern you.
+G++/GCC compiler was updated to version 14.2.0, new default C standard is GNU C17, and new default C++ standard is C++23, you can see the changes in:
+
+* ``oioioi/default_settings.py``
+* ``oioioi/deployment/settings.py.template``
+
+All these changes are backward compatible, so you can still use older standards and compilers if you want to.
+Problems that were created with older standards will continue to use those older versions of compilers and standards,
+if you want to change the standards for older problems, you can do it with a data migration,
+however it is not recommended, because older code might not compile with newer standards.
+
+Problems that are created after the upgrade will use the new standards and compilers by default.
+
 Celery 5.6 and RabbitMQ 4
 -------------------------
 
@@ -68,22 +84,6 @@ After these steps, you will achieve a consistent database state without waiting 
     python manage.py migrate forum 0021 --fake
 
     python manage.py migrate contests 0013 --fake
-
-New C, C++ and their compilers versions in defult settings.
------------------------------------
-
-C and C++ standards and their compilers version have been updated in default settings. If you have custom settings, this should not concern you.
-G++/GCC compiler was updated to version 14.2.0, new default C standard is GNU C17, and new default C++ standard is C++23, you can see the changes in:
-
-* ``oioioi/default_settings.py``
-* ``oioioi/deployment/settings.py.template``
-
-All these changes are backward compatible, so you can still use older standards and compilers if you want to.
-Problems that were created with older standards will continue to use those older versions of compilers and standards,
-if you want to change the standards for older problems, you can do it with a data migration,
-however it is not reccommended, because older code might not compile with newer standards.
-
-Problems that are created after the upgrade will use the new standards and compilers by default.
 
 Changes in the deployment directory
 -----------------------------------
