@@ -491,7 +491,7 @@ AVAILABLE_COMPILERS = {
         'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
     },
     'C++': {
-        'g++14_2_cpp23_amd64': {'display_name': 'g++:14.2 std=c++23 x64'},
+        'g++14_2_cpp23_amd64': {'display_name': 'g++:14.2.0 std=c++23 x64'},
         'g++4_8_2_cpp11': {'display_name': 'g++:4.8.2 std=c++11'}
     },
     'Pascal': {
