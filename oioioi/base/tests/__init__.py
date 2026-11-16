@@ -50,6 +50,12 @@ class parametrize:
     ``test_split``, so each case passes or fails on its own and can be selected
     with ``-k``. It has to be the outermost decorator of the method.
     A generated name that already exists on the class is an error.
+    Readable name suffixes are only added for plain strings, bytes, numbers
+    and booleans; other values use the case index to keep collection stable
+    across parallel workers.
+
+    A class-level ``@patch`` cannot be combined with a method-level ``@patch``
+    below ``@parametrize``, because the generated methods share its ``patchings`` list.
 
     The names and values follow the same rules as in pytest:
 
@@ -99,8 +105,10 @@ class parametrize:
             if count != len(self.argnames):
                 raise ValueError(f"{test_name}: case {index} has {count} values {values!r} for {len(self.argnames)} names {self.argnames!r}")
             kwargs = dict(zip(self.argnames, values, strict=True))
-            # With no names, the values are empty: name the case by index only.
-            case_id = re.sub(r"\W+", "_", str(values[0])).strip("_")[:40] if count else ""
+            # Only built-in scalar types have a stable representation across workers.
+            first = values[0] if count else None
+            simple = type(first) in (str, bytes, int, float, bool)
+            case_id = re.sub(r"\W+", "_", str(first)).strip("_")[:40] if simple else ""
             case_name = f"{name}_{index}_{case_id}" if case_id else f"{name}_{index}"
             if case_name in vars(owner):
                 raise ValueError(f"{test_name}: generated test name {case_name!r} already exists on {owner.__qualname__}")

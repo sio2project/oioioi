@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from contextlib import contextmanager
 from datetime import UTC, datetime  # pylint: disable=E0611
 from importlib import import_module, reload
 from unittest.mock import patch
@@ -1481,6 +1482,15 @@ class TestFileUtils(TestCase):
 
 
 class TestParametrize(TestCase):
+    @contextmanager
+    def assertRaisesAtClassCreation(self, exc_type, regex):
+        # Before Python 3.12, errors from __set_name__ are wrapped in RuntimeError.
+        with self.assertRaises(Exception) as cm:
+            yield
+        error = cm.exception.__cause__ or cm.exception
+        self.assertIsInstance(error, exc_type)
+        self.assertRegex(str(error), regex)
+
     def test_generates_one_method_per_case(self):
         class Example(TestCase):
             @parametrize(("a", "b"), [(1, 2), ("x.tar.gz", None)])
@@ -1506,7 +1516,7 @@ class TestParametrize(TestCase):
 
         example = Example()
         example.calls = []
-        example.test_case_0_1_2()
+        example.test_case_0()
         example.test_case_1_b()
         self.assertEqual(example.calls, [(1, 2), "b"])
 
@@ -1524,8 +1534,39 @@ class TestParametrize(TestCase):
                 example.test_case_0_1()
                 self.assertEqual(example.calls, [(1, 2)])
 
+    def test_unstable_representations_use_index_only(self):
+        class UnstableString(str):
+            def __str__(self):
+                raise AssertionError("Custom string representations must not be used in test names")
+
+        values = [object(), {"a", "b", "c"}, lambda: None, UnstableString("text")]
+
+        class Example(TestCase):
+            @parametrize("value", values)
+            def test_case(self, value):
+                self.calls.append(value)
+
+        names = [name for name in dir(Example) if name.startswith("test_case")]
+        self.assertEqual(names, ["test_case_0", "test_case_1", "test_case_2", "test_case_3"])
+        example = Example()
+        example.calls = []
+        for name in names:
+            getattr(example, name)()
+        self.assertEqual(example.calls, values)
+
+    def test_builtin_scalars_keep_readable_suffixes(self):
+        class Example(TestCase):
+            @parametrize("value", ["a.tar.gz", b"bytes", 42, 1.5, True])
+            def test_case(self, value):
+                pass
+
+        self.assertEqual(
+            [name for name in dir(Example) if name.startswith("test_case")],
+            ["test_case_0_a_tar_gz", "test_case_1_b_bytes", "test_case_2_42", "test_case_3_1_5", "test_case_4_True"],
+        )
+
     def test_wrong_number_of_values_fails_at_class_creation(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesAtClassCreation(ValueError, "has 1 values"):
 
             class Example(TestCase):
                 @parametrize(("a", "b"), [(1,)])
@@ -1533,7 +1574,7 @@ class TestParametrize(TestCase):
                     pass
 
     def test_generated_name_collision_fails_at_class_creation(self):
-        with self.assertRaisesRegex(ValueError, "generated test name 'test_case_0_0' already exists"):
+        with self.assertRaisesAtClassCreation(ValueError, "generated test name 'test_case_0_0' already exists"):
 
             class Example(TestCase):
                 @parametrize("value", [0])
@@ -1559,7 +1600,7 @@ class TestParametrize(TestCase):
                 self.assertEqual(example.calls, [1, "x"])
 
     def test_plain_value_for_single_name_tuple_fails_at_class_creation(self):
-        with self.assertRaisesRegex(TypeError, "expected a sequence of values"):
+        with self.assertRaisesAtClassCreation(TypeError, "expected a sequence of values"):
 
             class Example(TestCase):
                 @parametrize(("a",), [1])
