@@ -12,6 +12,14 @@ Then run::
 
 and restart the judging machines.
 
+Notifications
+-------------
+
+``NOTIFICATIONS_SERVER_ENABLED`` now also controls whether Django sends
+notifications to RabbitMQ. If you use notifications, set it to ``True`` on
+every machine that runs Django, even when the notifications server runs
+elsewhere.
+
 Celery 5.6 and RabbitMQ 4
 -------------------------
 
