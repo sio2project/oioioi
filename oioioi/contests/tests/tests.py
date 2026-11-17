@@ -1444,6 +1444,26 @@ class TestRejudgeTypesView(TestCase):
         self.assertNotContains(response, "Tests:")
 
 
+class TestRejudgeViewPermissions(TestCase):
+    fixtures = ["test_users", "test_contest", "test_full_package", "test_problem_instance", "test_submission", "test_permissions"]
+
+    def _rejudge(self, contest_id="c"):
+        url = reverse("oioioiadmin:contests_submission_changelist", kwargs={"contest_id": contest_id}) + "rejudge/"
+        with patch("oioioi.programs.controllers.ProgrammingProblemController.judge") as judge:
+            self.client.post(url, {"submissions": ["1"], "rejudge_type": "FULL"})
+        return judge.call_count
+
+    def test_permissions(self):
+        self.assertEqual(self._rejudge(), 0)  # anonymous
+        self.client.login(username="test_user")
+        self.assertEqual(self._rejudge(), 0)
+        other = Contest.objects.create(id="other", name="Other", controller_name="oioioi.programs.controllers.ProgrammingContestController")
+        ContestPermission.objects.create(user=User.objects.get(username="test_user"), contest=other, permission="contests.contest_admin")
+        self.assertEqual(self._rejudge("other"), 0)  # submission 1 is in contest "c"
+        self.client.login(username="test_contest_basicadmin")
+        self.assertEqual(self._rejudge(), 1)
+
+
 class TestContestAdmin(TestCase):
     fixtures = ["test_users"]
 
