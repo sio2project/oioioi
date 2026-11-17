@@ -6,6 +6,7 @@ from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.suspendjudge.handlers import check_problem_instance_state
+from oioioi.suspendjudge.models import SuspendedProblem
 
 
 class TestSuspendjudgeSuper(TestCase):
@@ -44,6 +45,16 @@ class TestViews(TestSuspendjudgeSuper):
             for view in views:
                 response = self._empty_post(login, view, problem_instance)
                 self.assertEqual(response.status_code, login_codes[login])
+
+    def test_problem_of_another_contest(self):
+        problem_instance = ProblemInstance.objects.get()
+        other = Contest.objects.create(id="other", name="Other", controller_name="oioioi.programs.controllers.ProgrammingContestController")
+        ProblemInstance.objects.filter(pk=problem_instance.pk).update(contest=other, round=None)
+        self.assertTrue(self.client.login(username="test_contest_admin"))
+        for view in ["suspend_all", "resume_and_rejudge", "suspend_all_but_init", "resume_and_clear"]:
+            url = reverse("oioioiadmin:suspendjudge_" + view, kwargs={"contest_id": "c", "problem_instance_id": problem_instance.id})
+            self.assertEqual(self.client.post(url).status_code, 404)
+        self.assertFalse(SuspendedProblem.objects.exists())
 
 
 class TestSuspending(TestSuspendjudgeSuper):
