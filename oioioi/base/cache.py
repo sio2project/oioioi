@@ -12,8 +12,9 @@ class FaultTolerantPyMemcacheCache(PyMemcacheCache):
     The stock backend raises on connection errors, so a memcached restart
     turns every request touching the cache (including sessions with
     ``cached_db``) into an error 500. Here reads return the default, writes
-    are dropped and the caller falls back to the database.
-    ``incr`` and ``decr`` still raise, because callers rely on their result.
+    are dropped and the caller falls back to the database. ``incr``, ``decr``,
+    ``delete``, and `delete_many` still raise, because callers rely on their
+    result.
     """
 
     DEFAULT_OPTIONS = {
@@ -22,6 +23,9 @@ class FaultTolerantPyMemcacheCache(PyMemcacheCache):
         "timeout": 0.100,
         # Delay before attempt to reconnect to a dead node
         "dead_timeout": 10,
+        # Without this, pymemcache will sometimes swallow errors in HashClient.
+        # Maybe treats all ops between retries as misses?
+        "retry_attempts": 0,
     }
 
     def __init__(self, server, params) -> None:
@@ -58,12 +62,6 @@ class FaultTolerantPyMemcacheCache(PyMemcacheCache):
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         return self._call("touch", False, key, timeout, version)
-
-    def delete(self, key, version=None):
-        return self._call("delete", False, key, version)
-
-    def delete_many(self, keys, version=None):
-        return self._call("delete_many", None, keys, version)
 
 
 # compatibility alias

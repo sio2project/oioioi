@@ -15,8 +15,18 @@ class TestFaultTolerantPyMemcacheCache(TestCase):
         self.assertFalse(cache.add("key", 1))
         cache.set("key", 1)
         self.assertEqual(cache.set_many({"a": 1}), ["a"])
-        self.assertFalse(cache.delete("key"))
-        cache.delete_many(["a"])
+
+    def test_unreachable_server_incr_decr_and_deletes_fail(self):
+        cache = FaultTolerantPyMemcacheCache("127.0.0.1:1", {})
+
+        with self.assertRaises((cache._lib.exceptions.MemcacheError, OSError)):
+            cache.incr("key")
+        with self.assertRaises((cache._lib.exceptions.MemcacheError, OSError)):
+            cache.decr("key")
+        with self.assertRaises((cache._lib.exceptions.MemcacheError, OSError)):
+            cache.delete("key")
+        with self.assertRaises((cache._lib.exceptions.MemcacheError, OSError)):
+            cache.delete_many(["a"])
 
     def test_unresponsive_server_times_out_quickly(self):
         # address in TEST-NET-2 range for documentation and examples, shouldn't be reachable
