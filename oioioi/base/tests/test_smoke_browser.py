@@ -17,7 +17,11 @@ from oioioi.workers import views as workers_views
 from oioioi.workers.tests import TestServer
 
 # Regexes of console.error messages that are not bugs. Keep it short and explain each entry.
-ALLOWED_CONSOLE_ERRORS = []
+ALLOWED_CONSOLE_ERRORS = [
+    # Chromium (Playwright >= 1.65) blocks `unload` handlers, and Django 5.2's admin RelatedObjectLookups.js still
+    # registers one. Django main switched it to `pagehide` (ticket #35943); drop this entry after upgrading to it.
+    r"^Permissions policy violation: unload is not allowed in this document\.$",
+]
 
 
 class TestBrowserSmoke(BrowserTestCase):
