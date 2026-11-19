@@ -46,7 +46,7 @@ def match_problem(problem_instances, problem):
 def submit_view(request):
     try:
         token = request.POST["token"]
-        current_token = SubmitServiceToken.objects.filter(token=token)
+        current_token = SubmitServiceToken.objects.filter(token=token, user__is_active=True)
         if not current_token.exists():
             raise PermissionDenied("AUTHORIZATION_FAILED")
         request.user = current_token[0].user
