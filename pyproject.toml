@@ -67,7 +67,7 @@ dependencies = [
     "cryptography>=50.0.0,<51",
     "legacy-cgi",
     "sioworkers@https://github.com/sio2project/sioworkers/archive/refs/tags/v1.5.11.tar.gz",
-    "pylibmc",
+    "pymemcache>=4,<5",
     "psycopg2-binary",
     "aiohttp>=3.14.3,<3.15",
     "aio-pika>=9.5.5,<9.6.0",
@@ -80,7 +80,6 @@ dependencies = [
 dev = [
     "ruff==0.13.2",
     "elastic-apm",
-    "python-memcached",
     "pre-commit==4.2.0",
     "tox>=4.0.0",
     "tox-uv>=1.0.0",

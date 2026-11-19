@@ -2042,7 +2042,7 @@ dependencies = [
     { name = "pika" },
     { name = "psycopg2-binary" },
     { name = "pygments" },
-    { name = "pylibmc" },
+    { name = "pymemcache" },
     { name = "python-dateutil" },
     { name = "pytz" },
     { name = "pyyaml" },
@@ -2075,7 +2075,6 @@ dev = [
     { name = "pytest-html" },
     { name = "pytest-metadata" },
     { name = "pytest-xdist" },
-    { name = "python-memcached" },
     { name = "ruff" },
     { name = "tox" },
     { name = "tox-uv" },
@@ -2133,7 +2132,7 @@ requires-dist = [
     { name = "pika", specifier = ">=1.3,<1.4" },
     { name = "psycopg2-binary" },
     { name = "pygments", specifier = ">=2.20,<2.22" },
-    { name = "pylibmc" },
+    { name = "pymemcache", specifier = ">=4,<5" },
     { name = "python-dateutil", specifier = ">=2.8,<2.9" },
     { name = "pytz", specifier = ">=2023.3,<2023.4" },
     { name = "pyyaml", specifier = ">=6.0.3,<6.1" },
@@ -2164,7 +2163,6 @@ dev = [
     { name = "pytest-html", specifier = ">=4.2,<4.3" },
     { name = "pytest-metadata", specifier = ">=3.0,<4.0" },
     { name = "pytest-xdist", specifier = ">=3.8,<3.9" },
-    { name = "python-memcached" },
     { name = "ruff", specifier = "==0.13.2" },
     { name = "tox", specifier = ">=4.0.0" },
     { name = "tox-uv", specifier = ">=1.0.0" },
@@ -2764,15 +2762,12 @@ wheels = [
 ]
 
 [[package]]
-name = "pylibmc"
-version = "1.6.3"
+name = "pymemcache"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ad/eb/8767d00eef0d4012e63a1b76025da5dbf307888246b2b50476841416c12b/pylibmc-1.6.3.tar.gz", hash = "sha256:eefa46115537abad65fbe2e032acd1b3463d9bf9e335af4b0916df4e4d3206e0", size = 63224, upload-time = "2022-08-30T07:33:38.884Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/b6/4541b664aeaad025dfb8e851dcddf8e25ab22607e674dd2b562ea3e3586f/pymemcache-4.0.0.tar.gz", hash = "sha256:27bf9bd1bbc1e20f83633208620d56de50f14185055e49504f4f5e94e94aff94", size = 70176, upload-time = "2022-10-17T16:53:07.726Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/20/55/c6c66d6c54e185463514a2d45c60115ee39193a6466bcd89d6bdc543e68b/pylibmc-1.6.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:3c35816082848723455071670770d89b5a531d40e9063fe4e942ea456f86da49", size = 206686, upload-time = "2022-08-30T07:33:08.877Z" },
-    { url = "https://files.pythonhosted.org/packages/d1/74/91958c0cfbab6dd40a770ef1fa283f63fb3efc78f3d69a0f2ebd9a343ab6/pylibmc-1.6.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:9d2ff6d702eb5ae502e29d97772dc85c749d596c6cb8c82a5d18f175fd4eabcc", size = 205913, upload-time = "2022-08-30T07:33:10.16Z" },
-    { url = "https://files.pythonhosted.org/packages/03/81/12de24d610512264318f180209a63131b9b9e7eb033b93baf7b9c613f51b/pylibmc-1.6.3-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e589b7e70dec4daf0da1216789713c753d85611d70cfcd32574161cc75b1527e", size = 1177563, upload-time = "2022-08-30T07:33:12.469Z" },
-    { url = "https://files.pythonhosted.org/packages/35/00/dc4d8c01b13a81e25f779271ed0d88f800f111d71ac3b010f6f8b4dc1b50/pylibmc-1.6.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7b93e381dec1520a3fec922765e04679ac553d2f3fda830a5faa7cdc527280a2", size = 1226742, upload-time = "2022-08-30T07:33:14.123Z" },
+    { url = "https://files.pythonhosted.org/packages/41/ba/2f7b22d8135b51c4fefb041461f8431e1908778e6539ff5af6eeaaee367a/pymemcache-4.0.0-py2.py3-none-any.whl", hash = "sha256:f507bc20e0dc8d562f8df9d872107a278df049fa496805c1431b926f3ddd0eab", size = 60772, upload-time = "2022-10-17T16:53:04.388Z" },
 ]
 
 [[package]]
@@ -2899,15 +2894,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/82/ed/0301aeeac3e5353ef3d94b6ec08bbcabd04a72018415dcb29e588514bba8/python_dotenv-1.2.2.tar.gz", hash = "sha256:2c371a91fbd7ba082c2c1dc1f8bf89ca22564a087c2c287cd9b662adde799cf3", size = 50135, upload-time = "2026-03-01T16:00:26.196Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl", hash = "sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a", size = 22101, upload-time = "2026-03-01T16:00:25.09Z" },
-]
-
-[[package]]
-name = "python-memcached"
-version = "1.62"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e8/3c/204e5c6087efc85b52a68edce8678d44eb28718f5f145e036c277beb467c/python-memcached-1.62.tar.gz", hash = "sha256:0285470599b7f593fbf3bec084daa1f483221e68c1db2cf1d846a9f7c2655103", size = 28591, upload-time = "2024-01-14T15:56:03.134Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/1b/3b15a37831ae34a264d7d5b71f3ae9fe74a81251453a3ec2135e76888ef1/python_memcached-1.62-py2.py3-none-any.whl", hash = "sha256:1bdd8d2393ff53e80cd5e9442d750e658e0b35c3eebb3211af137303e3b729d1", size = 15136, upload-time = "2024-01-14T15:56:01.725Z" },
 ]
 
 [[package]]

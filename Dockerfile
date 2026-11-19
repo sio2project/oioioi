@@ -13,7 +13,6 @@ RUN apt-get update && \
         libpq-dev \
         postgresql-client \
         libdb-dev \
-        libmemcached-dev \
         texlive-latex-base \
         texlive-lang-polish \
         texlive-latex-extra \
