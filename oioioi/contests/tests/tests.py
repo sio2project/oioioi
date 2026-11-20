@@ -1152,6 +1152,12 @@ class TestSubmitButtonInProblemsList(TestCase):
             status_code=200,
         )
 
+    def test_submit_url_with_non_numeric_problem_instance_id(self):
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(f"/c/{contest.id}/submit/abc/")
+        self.assertEqual(response.status_code, 404)
+
     def test_with_no_submissions_left(self):
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()

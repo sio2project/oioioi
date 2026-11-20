@@ -84,6 +84,25 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
 
         self.assertEqual(MailSubmission.objects.count(), 1)
 
+    def test_mailsubmission_document_with_tex_special_characters(self):
+        user = User.objects.get(username="test_user")
+        user.first_name = 'Jan \\ "Q" & Co'
+        user.last_name = "O'Brien"
+        user.save()
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        MailSubmissionConfig(
+            contest=contest,
+            enabled=True,
+            start_date=datetime(2012, 8, 12, tzinfo=UTC),
+            end_date=datetime(2012, 8, 14, tzinfo=UTC),
+        ).save()
+
+        with fake_time(datetime(2012, 8, 13, tzinfo=UTC)):
+            response = self.submit_file(contest, problem_instance)
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(response["Content-Type"], "application/pdf")
+
     def test_accepting_mailsubmissions(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()

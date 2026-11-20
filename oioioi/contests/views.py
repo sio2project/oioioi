@@ -381,7 +381,7 @@ def submit_view(request, problem_instance_id=None):
     else:
         initial = {}
         if problem_instance_id is not None:
-            initial = {"problem_instance_id": int(problem_instance_id)}
+            initial = {"problem_instance_id": problem_instance_id}
         form = SubmissionForm(request, initial=initial)
 
     pis = form.get_problem_instances()

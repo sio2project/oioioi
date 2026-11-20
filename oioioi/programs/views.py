@@ -199,7 +199,12 @@ def download_output_file_view(request, test_id):
 
 def download_checker_exe_view(request, checker_id):
     checker = get_object_or_404(OutputChecker, id=checker_id)
-    if not checker.problem_instance.controller.can_see_checker_exe(request, checker):
+    # A checker belongs to a problem. The contest controller decides only
+    # when the problem is used in the current contest.
+    allowed = checker.problem.controller.can_see_checker_exe(request, checker)
+    if not allowed and request.contest is not None and ProblemInstance.objects.filter(contest=request.contest, problem=checker.problem).exists():
+        allowed = request.contest.controller.can_see_checker_exe(request, checker)
+    if not allowed:
         raise PermissionDenied
     if not checker.exe_file:
         raise Http404

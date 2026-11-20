@@ -1538,6 +1538,11 @@ class TestObtainingAPIToken(TestCase):
         self.assertContains(response, str(new_token))
         self.assertNotContains(response, str(old_token))
 
+    def test_api_token_regeneration_anonymous(self):
+        self.client.logout()
+        response = self.client.post(reverse("api_regenerate_key"))
+        self.assertEqual(response.status_code, 403)
+
 
 class TestDocsEndpoints(APITestCase):
     def test_docs(self):
