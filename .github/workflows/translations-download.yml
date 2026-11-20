@@ -2,9 +2,6 @@
 
 name: Transifex translations download
 
-env:
-  TX_TOKEN: ${{ secrets.TRANSIFEX_API_TOKEN }}
-
 # This job should be only ran by hand.
 on:
   workflow_dispatch:
@@ -45,7 +42,10 @@ jobs:
         rm tx.tar.gz
         ./tx --version
 
+    # The token is only given to the steps that run tx, not to setup-env and other dependencies.
     - name: Update repository
+      env:
+        TX_TOKEN: ${{ secrets.TRANSIFEX_API_TOKEN }}
       run: |
         ../tx pull -af
         git diff HEAD
