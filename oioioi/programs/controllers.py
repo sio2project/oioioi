@@ -20,6 +20,7 @@ from oioioi.base.widgets import AceEditorWidget
 from oioioi.contests.controllers import ContestController, submission_template_context
 from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.utils import (
+    can_admin_contest,
     get_submission_message,
     is_contest_admin,
     is_contest_archived,
@@ -500,7 +501,7 @@ class ProgrammingProblemController(ProblemController):
 
         if controller.check_repeated_submission(request, problem_instance, form):
             lines = iter(code.splitlines())
-            md5 = hashlib.md5()
+            md5 = hashlib.md5(usedforsecurity=False)
             for line in lines:
                 md5.update(line)
             md5 = md5.hexdigest()
@@ -1018,7 +1019,7 @@ class ProgrammingContestController(ContestController):
         return can_admin_problem_instance(request, test.problem_instance)
 
     def can_see_checker_exe(self, request, checker):
-        return can_admin_problem_instance(request, checker.problem_instance)
+        return can_admin_contest(request.user, self.contest)
 
     def get_visible_reports_kinds(self, request, submission):
         if self.results_visible(request, submission):

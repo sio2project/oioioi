@@ -113,11 +113,7 @@ c_patterns = [
         name="reset_tests_limits_for_probleminstance",
     ),
     path("submit/", views.submit_view, name="submit"),
-    re_path(
-        r"^submit/(?P<problem_instance_id>[a-z0-9_-]+)/$",
-        views.submit_view,
-        name="submit",
-    ),
+    path("submit/<int:problem_instance_id>/", views.submit_view, name="submit"),
     path(
         "submit_edit_message/",
         views.edit_submit_message_view,

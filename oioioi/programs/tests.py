@@ -32,7 +32,7 @@ from oioioi.base.tests import (
 )
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.handlers import send_notification_judged
-from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.contests.models import Contest, ContestPermission, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.evalmgr.tasks import create_environ
@@ -47,6 +47,7 @@ from oioioi.programs.models import (
     CompilationReport,
     LanguageOverrideForTest,
     ModelSolution,
+    OutputChecker,
     ProblemAllowedLanguage,
     ProgramsConfig,
     ProgramSubmission,
@@ -303,6 +304,30 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
             url = reverse(view, kwargs={"test_id": test.id})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
+
+    def test_checker_exe_download(self):
+        checker = OutputChecker.objects.get(problem__pk=1)
+        kwargs = {"contest_id": "c", "checker_id": checker.id}
+        check_not_accessible(self, "download_checker_file", kwargs=kwargs)
+        for username in ["test_user", "test_observer"]:
+            self.assertTrue(self.client.login(username=username))
+            check_not_accessible(self, "download_checker_file", kwargs=kwargs)
+
+        # Same rule as for tests: admins of a contest that uses the problem.
+        for username in ["test_contest_basicadmin", "test_contest_admin"]:
+            self.assertTrue(self.client.login(username=username))
+            response = self.client.get(reverse("download_checker_file", kwargs=kwargs))
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(self.streamingContent(response).startswith(b"#!/bin/bash"))
+
+        # The problem is not used in this contest, so its admins can't download the checker.
+        other = Contest.objects.create(id="other", name="Other", controller_name=Contest.objects.get().controller_name)
+        ContestPermission.objects.create(user=User.objects.get(username="test_contest_admin"), contest=other, permission="contests.contest_admin")
+        check_not_accessible(self, "download_checker_file", kwargs={"contest_id": other.id, "checker_id": checker.id})
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        response = self.client.get(reverse("download_checker_file", kwargs={"checker_id": checker.id}))
+        self.assertEqual(response.status_code, 200)
 
     @needs_linux
     def test_model_solutions_view(self):
