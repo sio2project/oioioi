@@ -4,9 +4,6 @@ set -x
 
 sudo apt install -y proot
 
-/sio2/oioioi/wait-for-it.sh -t 60 "${DATABASE_HOST}:${DATABASE_PORT}"
-/sio2/oioioi/wait-for-it.sh -t 0  "${WEB_URL}"
-
 mkdir -pv /sio2/deployment/logs/database
 
 echo "LOG: Launching worker at `hostname`"
