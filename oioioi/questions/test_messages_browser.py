@@ -29,6 +29,9 @@ class TestMessagePageScripts(BrowserTestCase):
         context, page = self._open_message()
         try:
             link = page.locator("a.include-reply-template")
+            link.wait_for(state="attached")
+            # The templates are in a dropdown menu, hidden until it is opened.
+            page.locator(".include-template .dropdown-toggle").click()
             link.wait_for()
             self.assertEqual(link.inner_text(), "<b>name</b>")
             self.assertEqual(link.get_attribute("title"), '<i>"content"</i>')
