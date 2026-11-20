@@ -1,15 +1,18 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils import timezone
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.participants.models import Participant
-from oioioi.rankings.models import Ranking
+from oioioi.rankings.models import Ranking, choose_for_recalculation, recalculate
 from oioioi.teachers.tests import change_contest_type
 from oioioi.usergroups import utils
 from oioioi.usergroups.models import ActionConfig, UserGroup
@@ -653,6 +656,22 @@ class TestUserGroupRankings(TestCase):
         usergroup_ranking.refresh_from_db()
         self.assertFalse(contest_ranking.is_up_to_date())
         self.assertFalse(usergroup_ranking.is_up_to_date())
+
+    def test_recalculating_ranking_of_deleted_user_group(self):
+        contest = Contest.objects.get(id="c")
+        Ranking.objects.create(contest=contest, key="admin#g2001")
+
+        # The stored ranking of a deleted user group stays in the database
+        # and is invalidated together with the rest of the contest.
+        UserGroup.objects.get(id=2001).delete()
+        Ranking.invalidate_contest(contest)
+        Ranking.objects.update(cooldown_date=timezone.now() - timedelta(seconds=1))
+
+        recalculate(choose_for_recalculation())
+
+        ranking = Ranking.objects.get(contest=contest, key="admin#g2001")
+        self.assertTrue(ranking.is_up_to_date())
+        self.assertEqual(ranking.serialized["rows"], [])
 
 
 class RemoveUserGroupRankingsTest(TestCase):

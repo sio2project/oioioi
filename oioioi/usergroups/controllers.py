@@ -80,9 +80,12 @@ class UserGroupsDefaultRankingControllerMixin:
         partial_key = self.get_partial_key(key)
 
         if partial_key[0] == USER_GROUP_RANKING_PREFIX:
-            user_group = UserGroup.objects.get(id=int(partial_key[1:]))
-            users = user_group.members.all()
-            queryset = queryset & users
+            # The ranking of a deleted user group can still be stored and
+            # invalidated, so it must not fail when the group is gone.
+            user_group = UserGroup.objects.filter(id=int(partial_key[1:])).first()
+            if user_group is None:
+                return queryset.none()
+            queryset = queryset & user_group.members.all()
         return queryset
 
 
