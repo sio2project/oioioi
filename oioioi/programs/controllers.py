@@ -501,7 +501,7 @@ class ProgrammingProblemController(ProblemController):
 
         if controller.check_repeated_submission(request, problem_instance, form):
             lines = iter(code.splitlines())
-            md5 = hashlib.md5()
+            md5 = hashlib.md5(usedforsecurity=False)
             for line in lines:
                 md5.update(line)
             md5 = md5.hexdigest()
