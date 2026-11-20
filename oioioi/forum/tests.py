@@ -758,6 +758,17 @@ class TestPost(TestCase):
         self.assertContains(response, "Test User 3, Test User 2 and others")
 
 
+class TestForumAdminWithoutForum(TestCase):
+    fixtures = ["test_users", "test_contest"]
+
+    def test_change_views_without_forum(self):
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username="test_admin"))
+        for model in ["category", "thread", "post", "ban"]:
+            response = self.client.get(f"/c/{contest.id}/admin/forum/{model}/1/change/")
+            self.assertIn(response.status_code, (302, 403, 404), model)
+
+
 class TestBan(TestCase):
     fixtures = ["test_users", "test_contest"]
 

@@ -7,6 +7,7 @@ from django.http import HttpResponseNotAllowed
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone, translation
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -168,11 +169,11 @@ class CheckLoginMiddleware:
             return
 
         storage = messages.get_messages(request)
-        check_login_message = _("Your login - %(login)s - contains forbidden characters. ") % {"login": request.user.username}
+        check_login_message = _("Your login - %(login)s - contains forbidden characters. ") % {"login": escape(request.user.username)}
 
         check_name_message = _("Your name - %(name)s %(surname)s - contains forbidden characters. ") % {
-            "name": request.user.first_name,
-            "surname": request.user.last_name,
+            "name": escape(request.user.first_name),
+            "surname": escape(request.user.last_name),
         }
 
         message_appendix = _("Please click <a href='%(link)s'>here</a> to change it. It will take only a while.") % {"link": reverse("edit_profile")}

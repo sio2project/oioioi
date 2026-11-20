@@ -1,4 +1,5 @@
 import os.path
+import tempfile
 import urllib.parse
 import zipfile
 from io import BytesIO
@@ -999,6 +1000,33 @@ class TestLimits(TestCase):
             response,
             escape(f"Memory limit mustn't be greater than {settings.MAX_MEMORY_LIMIT_FOR_TEST}KiB."),
         )
+
+
+class TestExtraFilesInsideProg(TestCase):
+    def _package(self, root):
+        os.makedirs(os.path.join(root, "prog"))
+        package = SinolPackage.__new__(SinolPackage)
+        package.rootdir = root
+        return package
+
+    def _assert_rejected(self, package, filename):
+        with self.assertRaises(ProblemPackageError):
+            package._find_and_save_files([filename])
+
+    def test_paths_outside_prog_are_rejected(self):
+        with tempfile.TemporaryDirectory() as root:
+            package = self._package(root)
+            secret = os.path.join(root, "secret")
+            open(secret, "w").close()
+            os.symlink(secret, os.path.join(root, "prog", "link"))
+            self._assert_rejected(package, secret)
+            self._assert_rejected(package, "../secret")
+            self._assert_rejected(package, "link")
+
+    def test_missing_file_is_reported(self):
+        with tempfile.TemporaryDirectory() as root:
+            package = self._package(root)
+            self.assertEqual(package._find_and_save_files(["sub/missing.h"]), ["sub/missing.h"])
 
 
 class TestValidateSubtaskDependencies(TestCase):

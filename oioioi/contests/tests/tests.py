@@ -1152,6 +1152,12 @@ class TestSubmitButtonInProblemsList(TestCase):
             status_code=200,
         )
 
+    def test_submit_url_with_non_numeric_problem_instance_id(self):
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(f"/c/{contest.id}/submit/abc/")
+        self.assertEqual(response.status_code, 404)
+
     def test_with_no_submissions_left(self):
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
@@ -1442,6 +1448,26 @@ class TestRejudgeTypesView(TestCase):
         self.assertContains(response, "You have selected 3 submission(s) from 2 problem(s)")
         self.assertNotContains(response, "Rejudge submissions on judged tests only")
         self.assertNotContains(response, "Tests:")
+
+
+class TestRejudgeViewPermissions(TestCase):
+    fixtures = ["test_users", "test_contest", "test_full_package", "test_problem_instance", "test_submission", "test_permissions"]
+
+    def _rejudge(self, contest_id="c"):
+        url = reverse("oioioiadmin:contests_submission_changelist", kwargs={"contest_id": contest_id}) + "rejudge/"
+        with patch("oioioi.programs.controllers.ProgrammingProblemController.judge") as judge:
+            self.client.post(url, {"submissions": ["1"], "rejudge_type": "FULL"})
+        return judge.call_count
+
+    def test_permissions(self):
+        self.assertEqual(self._rejudge(), 0)  # anonymous
+        self.client.login(username="test_user")
+        self.assertEqual(self._rejudge(), 0)
+        other = Contest.objects.create(id="other", name="Other", controller_name="oioioi.programs.controllers.ProgrammingContestController")
+        ContestPermission.objects.create(user=User.objects.get(username="test_user"), contest=other, permission="contests.contest_admin")
+        self.assertEqual(self._rejudge("other"), 0)  # submission 1 is in contest "c"
+        self.client.login(username="test_contest_basicadmin")
+        self.assertEqual(self._rejudge(), 1)
 
 
 class TestContestAdmin(TestCase):
@@ -3344,6 +3370,21 @@ class TestProblemInstanceView(TestCase):
     def test_mark_for_rejudge(self):
         self._test_needs_rejudge_action("mark_for_rejudge", True)
 
+    def test_actions_limited_to_current_contest(self):
+        pi = ProblemInstance.objects.get()
+        current_contest_id = pi.contest.pk
+        other = Contest.objects.create(id="other", name="Other", controller_name=pi.contest.controller_name)
+        ProblemInstance.objects.filter(pk=pi.pk).update(contest=other, needs_rejudge=True)
+
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get(f"/c/{current_contest_id}/")
+        for action_name in ("rejudge_not_needed", "reset_tests_limits_for_probleminstance", "rejudge_all_submissions_for_problem"):
+            url = reverse(action_name, kwargs={"contest_id": current_contest_id, "problem_instance_id": pi.id})
+            response = self.client.post(url, data={"submit": True})
+            self.assertEqual(response.status_code, 404, action_name)
+        pi.refresh_from_db()
+        self.assertTrue(pi.needs_rejudge)
+
 
 class TestReattachingProblems(TestCase):
     fixtures = [
@@ -4464,6 +4505,25 @@ class TestAPIContestSubmit(TestAPISubmitBase):
             response = self.contest_submit(contest, problem_instance)
             self.assertContains(response, "Permission denied", status_code=400)
 
+    def test_contest_must_be_enterable(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        submissions = Submission.objects.count()
+        with patch("oioioi.contests.api.can_enter_contest", return_value=False):
+            response = self.contest_submit(contest, problem_instance)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Submission.objects.count(), submissions)
+
+    def test_unsafe_api_disabled_with_ip_dns_auth(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        submissions = Submission.objects.count()
+        fake_settings = type("Settings", (), {"MIDDLEWARE": ["oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware"]})
+        with patch("oioioi.contests.api.settings", fake_settings):
+            response = self.contest_submit(contest, problem_instance)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Submission.objects.count(), submissions)
+
     def test_hidden_contest_cannot_be_submitted_to(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
@@ -4581,6 +4641,14 @@ class TestAPIRoundList(TestCase):
         self.assertTrue(json_data_0["is_active"])
         self.assertFalse(json_data_0["is_trial"])
 
+    def test_future_round_is_hidden(self):
+        contest = Contest.objects.get(pk="c")
+        Round.objects.create(contest=contest, name="Future round", start_date=datetime(2100, 1, 1, tzinfo=UTC))
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(reverse("api_round_list", args=(contest.id,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(["Round 1"], [r["name"] for r in response.json()])
+
 
 class TestAPIProblemList(TestCase):
     fixtures = [
@@ -4613,6 +4681,22 @@ class TestAPIProblemList(TestCase):
         self.assertEqual(10, json_data_0["submissions_left"])
         self.assertTrue(json_data_0["can_submit"])
         self.assertEqual(".pdf", json_data_0["statement_extension"])
+
+    def test_problems_from_future_rounds_are_hidden(self):
+        contest = Contest.objects.get(pk="c")
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        future_round = Round.objects.create(contest=contest, name="Future round", start_date=datetime(2100, 1, 1, tzinfo=UTC))
+        problem_instance.round = future_round
+        problem_instance.save()
+
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(reverse("api_problem_list", args=(contest.id,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([], response.json())
+
+        url = reverse("api_contest_get_problem_id", args=(contest.id, problem_instance.problem.short_name))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
 
 class TestAPIProblemSubmissionList(TestCase):

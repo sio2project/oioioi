@@ -1,3 +1,8 @@
+import io
+import os
+import tempfile
+import zipfile
+
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, Permission, User
 from django.contrib.contenttypes.models import ContentType
@@ -8,7 +13,7 @@ from django.urls import reverse
 
 from oioioi.base.tests import TestCase, check_not_accessible, needs_linux
 from oioioi.contests.current_contest import ContestMode
-from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.contests.models import Contest, ContestPermission, ProblemInstance, Submission
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import (
     AlgorithmTag,
@@ -301,6 +306,30 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         content = self.streamingContent(response)
         self.assertEqual(content, b"eloziom")
 
+    def test_package_file_view_stays_in_archive(self):
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, "w") as zip_file:
+            zip_file.writestr("abc/doc/abcsol.txt", "solution")
+        package = ProblemPackage.objects.get(pk=1)
+        package.package_file = ContentFile(archive.getvalue(), name="abc.zip")
+        package.save()
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.client.get("/c/c/")  # 'c' becomes the current contest
+
+        def url(file_name):
+            return reverse("download_package_file", kwargs={"package_id": package.id, "file_name": file_name})
+
+        response = self.client.get(url("abc/doc/abcsol.txt"))
+        self.assertEqual(self.streamingContent(response), b"solution")
+        self.assertEqual(self.client.get(url("abc/doc/missing.txt")).status_code, 404)
+
+        # The archive is extracted to a fresh directory in the temporary directory.
+        with tempfile.NamedTemporaryFile(dir=tempfile.gettempdir()) as outside:
+            outside.write(b"secret")
+            outside.flush()
+            response = self.client.get(url("../" + os.path.basename(outside.name)))
+            self.assertEqual(response.status_code, 404)
+
     def test_package_traceback_view(self):
         package = ProblemPackage.objects.get(pk=2)
         package.traceback = ContentFile(b"eloziom", name="foo")
@@ -495,6 +524,39 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         content = self.streamingContent(response)
         self.assertEqual(content, open(new_statement_filename, "rb").read())
+
+    @override_settings(SINOLPACK_RESTRICT_HTML=True, USE_SINOLPACK_MAKEFILES=False)
+    def test_statement_replacement_restricts_html(self):
+        url = reverse("problem_site", kwargs={"site_key": "123"}) + "?key=replace_problem_statement"
+        user = User.objects.get(username="test_user")
+        user.user_permissions.add(Permission.objects.get(codename="problems_db_admin"))
+
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.post(
+            url,
+            {
+                "file_name": "sum_7.pdf",
+                "file_replacement": ContentFile(b"<script></script>", name="statement.html.zip"),
+            },
+        )
+        self.assertContains(response, "HTML problem statements are not allowed.")
+        statement = ProblemStatement.objects.get(problem_id=1)
+        self.assertTrue(statement.content.name.endswith("sum_7.pdf"))
+
+    def test_statement_zip_files_are_sandboxed(self):
+        archive = io.BytesIO()
+        with zipfile.ZipFile(archive, "w") as zip_file:
+            zip_file.writestr("index.html", "<html></html>")
+            zip_file.writestr("script.js", "alert(1)")
+        statement = ProblemStatement.objects.get(problem_id=1)
+        statement.content = ContentFile(archive.getvalue(), name="statement.zip")
+        statement.save()
+
+        url = reverse("problem_site_statement_zip", kwargs={"site_key": "123", "path": "script.js"})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Security-Policy"], "sandbox")
+        self.assertEqual(response["X-Content-Type-Options"], "nosniff")
 
     def test_add_new_tab(self):
         tab_title = "Test tab"
@@ -862,3 +924,37 @@ class TestProblemName(TestCase):
             with override_settings(LANGUAGE_CODE=lang_code):
                 for problem in Problem.objects.all():
                     self.assertEqual(problem.name, problem_name(problem, lang_code))
+
+
+class TestSubmissionsFromOtherContests(TestCase):
+    fixtures = [
+        "test_users",
+        "test_contest",
+        "test_full_package",
+        "test_problem_instance",
+        "test_submission",
+    ]
+
+    def setUp(self):
+        contest = Contest.objects.get()
+        self.other = Contest.objects.create(id="other", name="Other", controller_name=contest.controller_name)
+        self.submission = Submission.objects.get(pk=1)
+
+    def test_report_of_submission_from_other_contest(self):
+        # The author of the submission administers another contest, where reports are always visible.
+        ContestPermission.objects.create(user=self.submission.user, contest=self.other, permission="contests.contest_admin")
+        self.assertTrue(self.client.login(username=self.submission.user.username))
+        own_contest = self.submission.problem_instance.contest_id
+        url = reverse("get_report_HTML", kwargs={"contest_id": own_contest, "submission_id": self.submission.id})
+        self.assertEqual(self.client.get(url).status_code, 200)
+        url = reverse("get_report_HTML", kwargs={"contest_id": self.other.id, "submission_id": self.submission.id})
+        self.assertEqual(self.client.get(url).status_code, 404)
+        url = reverse("get_report_row_begin_HTML", kwargs={"contest_id": self.other.id, "submission_id": self.submission.id})
+        self.assertEqual(self.client.post(url).status_code, 404)
+
+    def test_latest_submissions_of_current_contest(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(reverse("latest_submissions", kwargs={"contest_id": self.submission.problem_instance.contest_id}))
+        self.assertEqual([s["submission"].id for s in response.context["submissions"]], [self.submission.id])
+        response = self.client.get(reverse("latest_submissions", kwargs={"contest_id": self.other.id}))
+        self.assertEqual(response.context["submissions"], [])

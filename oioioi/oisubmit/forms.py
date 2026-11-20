@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.forms import ValidationError
+from django.utils.crypto import constant_time_compare
 from django.utils.translation import gettext_lazy as _
 
 from oioioi.contests.forms import SubmissionForm
@@ -18,7 +19,7 @@ class OISubmitSubmissionForm(SubmissionForm):
 
     def clean_magickey(self):
         data = self.cleaned_data["magickey"]
-        if data != settings.OISUBMIT_MAGICKEY:
+        if not constant_time_compare(data, settings.OISUBMIT_MAGICKEY):
             raise ValidationError(_("Magic key is not valid."))
 
         return data

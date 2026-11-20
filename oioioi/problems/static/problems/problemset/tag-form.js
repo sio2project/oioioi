@@ -221,7 +221,6 @@ $(document).ready(function () {
             tags: tags,
             difficulty: difficulty,
             problem: $(this).data('problem'),
-            user: $(this).data('user'),
             csrfmiddlewaretoken: Cookies.get('csrftoken'),
         };
 

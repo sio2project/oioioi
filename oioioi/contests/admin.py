@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter, action
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
+from django.core.exceptions import PermissionDenied
 from django.db.models import Case, Count, Exists, F, OuterRef, Q, Subquery, Value, When
 from django.db.models.functions import Coalesce
 from django.forms import ModelForm
@@ -776,14 +777,16 @@ class SubmissionAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_urls(self):
-        urls = [path("rejudge/", self.rejudge_view)]
+        urls = [path("rejudge/", self.admin_site.admin_view(self.rejudge_view))]
         return urls + super().get_urls()
 
     def rejudge_view(self, request):
+        if not self.has_rejudge_permission(request):
+            raise PermissionDenied
         tests = request.POST.getlist("tests", [])
         subs_ids = [int(x) for x in request.POST.getlist("submissions", [])]
         rejudge_type = request.POST["rejudge_type"]
-        submissions = Submission.objects.in_bulk(subs_ids)
+        submissions = self.get_queryset(request).in_bulk(subs_ids)
         all_reports_exist = True
         for sub in submissions.values():
             if not SubmissionReport.objects.filter(submission=sub, status="ACTIVE").exists():

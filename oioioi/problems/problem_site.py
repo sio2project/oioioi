@@ -283,6 +283,15 @@ def problem_site_add_to_contest(request, problem):
     )
 
 
+def _html_statement_disallowed(request, filename):
+    """The same rule as SinolPackage._html_disallowed, for a replaced statement."""
+    if not settings.SINOLPACK_RESTRICT_HTML or settings.USE_SINOLPACK_MAKEFILES:
+        return False
+    if request.user.is_superuser or request.user.has_perm("teachers.teacher"):
+        return False
+    return os.path.splitext(filename)[1].lower() in (".zip", ".html", ".htm", ".svg")
+
+
 @problem_site_tab(
     _("Replace problem statement"),
     key="replace_problem_statement",
@@ -298,9 +307,11 @@ def problem_site_replace_statement(request, problem):
         if form.is_valid():
             statement_filename = form.cleaned_data["file_name"]
             statements = [s for s in statements if s.filename == statement_filename]
-            if statements:
+            new_statement_file = form.cleaned_data["file_replacement"]
+            if new_statement_file and _html_statement_disallowed(request, new_statement_file.name):
+                form.add_error("file_replacement", _("HTML problem statements are not allowed."))
+            elif statements:
                 statement = statements[0]
-                new_statement_file = form.cleaned_data["file_replacement"]
                 statement.content = new_statement_file
                 statement.save()
                 url = reverse("problem_site", kwargs={"site_key": problem.problemsite.url_key})

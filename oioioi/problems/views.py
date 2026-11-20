@@ -10,7 +10,6 @@ from operator import attrgetter
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.files.base import File
 from django.db import transaction
@@ -594,8 +593,19 @@ def problemset_add_to_contest_view(request, site_key):
     )
 
 
-def get_report_HTML_view(request, submission_id):
+def _get_submission_of_current_contest(request, submission_id):
+    """Permissions are checked against request.contest, so a submission from
+    another contest must not be judged by them.
+    """
     submission = get_object_or_404(Submission, id=submission_id)
+    contest_id = submission.problem_instance.contest_id
+    if contest_id and request.contest and request.contest.id != contest_id:
+        raise Http404
+    return submission
+
+
+def get_report_HTML_view(request, submission_id):
+    submission = _get_submission_of_current_contest(request, submission_id)
     controller = submission.problem_instance.controller
     if not controller.filter_my_visible_submissions(request, Submission.objects.filter(id=submission_id)).exists():
         raise Http404
@@ -612,7 +622,7 @@ def get_report_HTML_view(request, submission_id):
 
 @require_http_methods(["POST"])
 def get_report_row_begin_HTML_view(request, submission_id):
-    submission = get_object_or_404(Submission, id=submission_id)
+    submission = _get_submission_of_current_contest(request, submission_id)
     controller = submission.problem_instance.controller
     if not controller.filter_my_visible_submissions(request, Submission.objects.filter(id=submission_id)).exists():
         raise Http404
@@ -867,16 +877,16 @@ def rejudge_model_solutions_view(request, problem_instance_id):
 
 @enforce_condition(not_anonymous)
 def get_last_submissions(request):
-    queryset = (
-        Submission.objects.filter(user=request.user)
-        .order_by("-date")
-        .select_related(
-            "problem_instance",
-            "problem_instance__contest",
-            "problem_instance__round",
-            "problem_instance__problem",
-        )[:5]
-    )
+    queryset = Submission.objects.filter(user=request.user)
+    if request.contest:
+        # Results are revealed according to request.contest.
+        queryset = queryset.filter(Q(problem_instance__contest=request.contest) | Q(problem_instance__contest__isnull=True))
+    queryset = queryset.order_by("-date").select_related(
+        "problem_instance",
+        "problem_instance__contest",
+        "problem_instance__round",
+        "problem_instance__problem",
+    )[:5]
     submissions = [submission_template_context(request, s) for s in queryset]
     return TemplateResponse(
         request,
@@ -1143,48 +1153,53 @@ def get_algorithm_tag_label_view(request):
     return [tag.full_name for tag in tags]
 
 
+@require_http_methods(["POST"])
+@enforce_condition(not_anonymous)
 def save_proposals_view(request):
-    if request.method == "POST":
-        tags = request.POST.getlist("tags[]", None)
-        difficulty = request.POST.get("difficulty", None)
-        if difficulty:
-            # Trimming should have been done by JavaScript code by now,
-            # but some users may have tag-form.js file cached.
-            difficulty = difficulty.strip()
-        user = User.objects.all().filter(username=request.POST.get("user", None)).first()
-        problem = Problem.objects.all().filter(pk=request.POST.get("problem", None)).first()
+    tags = request.POST.getlist("tags[]", None)
+    difficulty = request.POST.get("difficulty", None)
+    if difficulty:
+        # Trimming should have been done by JavaScript code by now,
+        # but some users may have tag-form.js file cached.
+        difficulty = difficulty.strip()
+    user = request.user
+    problem = Problem.objects.all().filter(pk=request.POST.get("problem", None)).first()
 
-        if not tags or not difficulty or not user or not problem:
+    if not tags or not difficulty or not problem:
+        return HttpResponseBadRequest()
+
+    if DifficultyTagProposal.objects.filter(problem=problem, user=user).exists() or AlgorithmTagProposal.objects.filter(problem=problem, user=user).exists():
+        return HttpResponseBadRequest()
+
+    # Proposals are accepted only from users who are shown the form,
+    # i.e. those who solved the problem.
+    if not show_proposal_form(problem, user):
+        raise PermissionDenied
+
+    algorithm_tags = []
+    for tag in tags:
+        algorithm_tag_localization = AlgorithmTagLocalization.objects.filter(full_name=tag, language=get_language()).first()
+        if not algorithm_tag_localization:
             return HttpResponseBadRequest()
+        algorithm_tags.append(algorithm_tag_localization.algorithm_tag)
 
-        if DifficultyTagProposal.objects.filter(problem=problem, user=user).exists():
-            return HttpResponseBadRequest()
+    difficulty_tag_localization = DifficultyTagLocalization.objects.filter(full_name=difficulty, language=get_language()).first()
 
-        for tag in tags:
-            algorithm_tag = AlgorithmTagLocalization.objects.filter(full_name=tag, language=get_language()).first().algorithm_tag
+    if not difficulty_tag_localization:
+        # Difficulty parameter in the HTTP request should be the name
+        # of an existing DifficultyTagLocalization object, so
+        # difficulty_tag_localization should not be None. However, some users
+        # may have tag-form.js file cached and therefore may be able to pick
+        # the 'Normal' difficulty, whereas there is no DifficultyTagLocalization
+        # object with this name in the database.
+        return HttpResponseBadRequest()
 
-            if AlgorithmTagProposal.objects.filter(problem=problem, tag=algorithm_tag, user=user).exists():
-                return HttpResponseBadRequest()
+    with transaction.atomic():
+        for algorithm_tag in set(algorithm_tags):
+            AlgorithmTagProposal(problem=problem, tag=algorithm_tag, user=user).save()
+        DifficultyTagProposal(problem=problem, tag=difficulty_tag_localization.difficulty_tag, user=user).save()
 
-            algorithm_tag_proposal = AlgorithmTagProposal(problem=problem, tag=algorithm_tag, user=user)
-            algorithm_tag_proposal.save()
-
-        difficulty_tag_localization = DifficultyTagLocalization.objects.filter(full_name=difficulty, language=get_language()).first()
-
-        if not difficulty_tag_localization:
-            # Difficulty parameter in the HTTP request should be the name
-            # of an existing DifficultyTagLocalization object, so
-            # difficulty_tag_localization should not be None. However, some users
-            # may have tag-form.js file cached and therefore may be able to pick
-            # the 'Normal' difficulty, whereas there is no DifficultyTagLocalization
-            # object with this name in the database.
-            return HttpResponseBadRequest()
-
-        difficulty_tag = difficulty_tag_localization.difficulty_tag
-        difficulty_tag_proposal = DifficultyTagProposal(problem=problem, tag=difficulty_tag, user=user)
-        difficulty_tag_proposal.save()
-
-        return HttpResponse("success\n" + str(tags))
+    return HttpResponse("success\n" + str(tags))
 
 
 def download_problem_package_file_view(request, package_id, file_name):
@@ -1195,7 +1210,10 @@ def download_problem_package_file_view(request, package_id, file_name):
     try:
         archive.extract(to_path=dir_path)
         filepath = os.path.join(dir_path, file_name)
+        if not os.path.realpath(filepath).startswith(os.path.realpath(dir_path) + os.sep):
+            raise Http404
         if os.path.isfile(filepath):
             return stream_file(File(open(filepath)), os.path.basename(os.path.normpath(file_name)))
+        raise Http404
     finally:
         shutil.rmtree(dir_path)

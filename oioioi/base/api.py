@@ -54,6 +54,7 @@ def api_token(request, regenerated=False):
     return TemplateResponse(request, "api-key.html", {"token": token, "regenerated": regenerated})
 
 
+@enforce_condition(not_anonymous, login_redirect=False)
 def regenerate_token(request):
     if request.method != "POST":
         return api_token(request)

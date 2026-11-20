@@ -13,6 +13,8 @@ from oioioi.problems.models import (
     DifficultyTag,
     DifficultyTagProposal,
     Problem,
+    ProblemStatistics,
+    UserStatistics,
 )
 
 
@@ -135,6 +137,15 @@ class TestSaveProposals(TestCase):
     ]
     url = reverse("save_proposals")
 
+    def setUp(self):
+        problem_statistics = ProblemStatistics.objects.create(problem=Problem.objects.get(pk=0))
+        for username in ["test_admin", "test_user", "test_user2"]:
+            UserStatistics.objects.create(problem_statistics=problem_statistics, user=User.objects.get(username=username), has_solved=True)
+
+    def _post_as(self, username, data):
+        self.assertTrue(self.client.login(username=username))
+        return self.client.post(self.url, data)
+
     def test_save_proposals_view(self):
         problem = Problem.objects.get(pk=0)
         user = User.objects.get(username="test_admin")
@@ -144,12 +155,11 @@ class TestSaveProposals(TestCase):
         self.assertEqual(DifficultyTagProposal.objects.count(), 0)
         self.assertEqual(AggregatedDifficultyTagProposal.objects.count(), 0)
 
-        response = self.client.post(
-            self.url,
+        response = self._post_as(
+            "test_admin",
             {
                 "tags[]": ["Dynamic programming", "Knapsack problem"],
                 "difficulty": "  \r    \t\n        Easy   \n     \t  ",
-                "user": "test_admin",
                 "problem": "0",
             },
         )
@@ -179,12 +189,11 @@ class TestSaveProposals(TestCase):
         problem = Problem.objects.get(pk=0)
         user = User.objects.get(username="test_user")
 
-        response = self.client.post(
-            self.url,
+        response = self._post_as(
+            "test_user",
             {
                 "tags[]": ["Longest common increasing subsequence", "Dynamic programming", "Greedy"],
                 "difficulty": "  \t    \r\n Medium   \t     \n  ",
-                "user": "test_user",
                 "problem": "0",
             },
         )
@@ -215,12 +224,11 @@ class TestSaveProposals(TestCase):
         problem = Problem.objects.get(pk=0)
         user = User.objects.get(username="test_user2")
 
-        response = self.client.post(
-            self.url,
+        response = self._post_as(
+            "test_user2",
             {
                 "tags[]": ["Greedy"],
                 "difficulty": " Medium  \n  ",
-                "user": "test_user2",
                 "problem": "0",
             },
         )
@@ -239,56 +247,81 @@ class TestSaveProposals(TestCase):
             {"easy": 1, "medium": 2},
         )
 
+    def test_invalid_requests(self):
         invalid_query_data = [
             {},
             {
                 "difficulty": "Easy",
-                "user": "test_admin",
                 "problem": "0",
             },
             {
                 "tags[]": ["Dynamic programming", "Knapsack problem"],
-                "user": "test_admin",
-                "problem": "0",
-            },
-            {
-                "tags[]": ["Dynamic programming", "Knapsack problem"],
-                "difficulty": "Easy",
                 "problem": "0",
             },
             {
                 "tags[]": ["Dynamic programming", "Knapsack problem"],
                 "difficulty": "Easy",
-                "user": "test_admin",
+            },
+            {
+                "tags[]": ["Dynamic programming", "No such tag"],
+                "difficulty": "Easy",
+                "problem": "0",
+            },
+            {
+                "tags[]": ["Dynamic programming"],
+                "difficulty": "No such difficulty",
+                "problem": "0",
             },
         ]
 
         for q_data in invalid_query_data:
-            response = self.client.post(self.url, q_data)
+            response = self._post_as("test_user", q_data)
             self.assertEqual(response.status_code, 400)
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 0)
+
+    def test_anonymous_rejected(self):
+        response = self.client.post(self.url, {"tags[]": ["Greedy"], "difficulty": "Easy", "problem": "0", "user": "test_user"})
+        self.assertNotEqual(response.status_code, 200)
+        self.assertEqual(AlgorithmTagProposal.objects.count(), 0)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 0)
+
+    def test_user_field_ignored(self):
+        response = self._post_as("test_user", {"tags[]": ["Greedy"], "difficulty": "Easy", "problem": "0", "user": "test_user2"})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(DifficultyTagProposal.objects.filter(user__username="test_user").exists())
+        self.assertFalse(DifficultyTagProposal.objects.filter(user__username="test_user2").exists())
+
+    def test_unsolved_problem_rejected(self):
+        UserStatistics.objects.filter(user__username="test_user").update(has_solved=False)
+        response = self._post_as("test_user", {"tags[]": ["Greedy"], "difficulty": "Easy", "problem": "0"})
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(DifficultyTagProposal.objects.count(), 0)
+
+    def test_get_not_allowed(self):
+        self.assertTrue(self.client.login(username="test_user"))
+        self.assertEqual(self.client.get(self.url).status_code, 405)
 
     def test_duplicate_difficulty_proposal_rejected(self):
         problem = Problem.objects.get(pk=0)
         user = User.objects.get(username="test_admin")
 
-        response = self.client.post(
-            self.url,
+        response = self._post_as(
+            "test_admin",
             {
                 "tags[]": ["Dynamic programming"],
                 "difficulty": "Easy",
-                "user": "test_admin",
                 "problem": "0",
             },
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(DifficultyTagProposal.objects.filter(problem=problem, user=user).count(), 1)
 
-        response = self.client.post(
-            self.url,
+        response = self._post_as(
+            "test_admin",
             {
                 "tags[]": ["Greedy"],
                 "difficulty": "Medium",
-                "user": "test_admin",
                 "problem": "0",
             },
         )

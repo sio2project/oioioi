@@ -570,7 +570,13 @@ class Command(BaseCommand):
             candidate_prefix="user_",
             random_length=10,
             uniqueness_fn=lambda s: not User.objects.filter(username=s).exists(),
-            create_instance_fn=lambda candidate: User.objects.create_user(username=candidate, email=f"{candidate}@example.com", password="password"),
+            create_instance_fn=lambda candidate: User.objects.create_user(
+                username=candidate,
+                email=f"{candidate}@example.com",
+                password="password",
+                first_name="Test",
+                last_name=candidate.replace("_", " ").title(),
+            ),
             verbose_name="User",
             verbosity=verbosity,
         )

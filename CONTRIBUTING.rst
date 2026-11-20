@@ -7,6 +7,33 @@ How to create Pull Request
 
 Follow generic guidelines from https://docs.github.com/en/pull-requests/collaborating-with-pull-requests
 
+Before you start
+    Pick an issue and say in a comment that you want to work on it.
+    Wait until a maintainer assigns the issue to you, then start.
+    If you want to fix something that has no issue yet, open the issue first.
+    A pull request for an issue that is not assigned to you may be closed without review.
+    Small fixes, such as typos in the documentation, don't need an issue.
+
+What a pull request should contain
+    One issue per pull request. Link it in the description (``Fixes #123``).
+    Describe what you changed and why in your own words; don't copy the text of the issue.
+    Follow the code style and run the checks described in ``README.rst`` and ``AGENTS.md``
+    (ruff, the tests for the apps you touched, migrations and lockfiles committed with the change).
+
+Run your change
+    Before you open the pull request, run the change yourself, not only the unit tests.
+    If the issue lists steps to check the change, do them and report the results.
+    Write in the description what you ran and what you saw.
+    If you could not run something (for example, you have no Docker), say so.
+    A pull request that was never run is not ready: open it as a draft.
+
+AI tools
+    You may use AI coding assistants, but you are responsible for the result.
+    You must understand every line of your change and be able to explain it in the review.
+    Say in the description which tools you used and for what.
+
+Maintainers may close pull requests that don't follow these rules.
+
 
 SIO2 Translator's Guide
 -----------------------

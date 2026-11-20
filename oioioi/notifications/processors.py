@@ -1,16 +1,16 @@
-import random
 import string
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.template.loader import render_to_string
+from django.utils.crypto import get_random_string
 from django.utils.functional import lazy
 
 from oioioi.notifications.models import NotificationsSession
 
 
 def generate_token():
-    new_token = "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
+    new_token = get_random_string(32, allowed_chars=string.ascii_uppercase + string.digits)
     # It is very improbable, but it could happen that the generated token
     # is already present in the dictionary. Let's generate new one.
     if NotificationsSession.objects.filter(uid=new_token).exists():

@@ -574,8 +574,11 @@ class SinolPackage:
         :return: List of files that were not found.
         """
         not_found = []
+        prog_dir = os.path.realpath(os.path.join(self.rootdir, "prog"))
         for filename in files:
-            fn = os.path.join(self.rootdir, "prog", filename)
+            fn = os.path.join(prog_dir, filename)
+            if os.path.isabs(filename) or ".." in filename.split("/") or not os.path.realpath(fn).startswith(prog_dir + os.sep):
+                raise ProblemPackageError(_("Invalid extra file name: %r") % (filename,))
             if not os.path.isfile(fn):
                 not_found.append(filename)
             else:

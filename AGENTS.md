@@ -55,6 +55,7 @@ OIOIOI is the Django web frontend of the SIO2 contest system.
 ## Workflow
 
 - Work on a feature branch and open a PR against `master`.
+- Follow "How to create Pull Request" in `CONTRIBUTING.rst`: before working on an issue, check that it is assigned to the user you are working for, and don't open a PR for a change that was never run. Fill in `.github/pull_request_template.md`, including the "AI tools" section.
 - Before opening a PR, run ruff and the tests for the apps you touched.
 - When you change models, add a migration (`./manage.py makemigrations <app>`, e.g. via `./easy_toolbox.py exec python manage.py makemigrations <app>`) and commit it.
 - Keep local notes, reports and context files in `internal/`, and personal Claude Code instructions in `CLAUDE.local.md`. Both are ignored by git and Docker.

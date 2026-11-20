@@ -83,3 +83,29 @@ class PasswordGrantTestCase(TestCase):
         self.api_client.credentials()
         response = self.api_client.get("/api/auth_ping")
         self.assertEqual(response.status_code, 403)
+
+
+class TestInactiveUserToken(TestCase):
+    fixtures = ["test_users", "test_contest"]
+
+    def test_token_of_inactive_user(self):
+        user = User.objects.get(username="test_user")
+        application = Application.objects.create(
+            name="Test App",
+            user=user,
+            client_type=Application.CLIENT_CONFIDENTIAL,
+            authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
+            redirect_uris="",
+        )
+        AccessToken.objects.create(user=user, application=application, token="test_token", expires=timezone.now() + timedelta(days=1), scope="read")
+        api_client = APIClient()
+        api_client.credentials(HTTP_AUTHORIZATION="Bearer test_token")
+        url = reverse("api_problem_list", args=("c",))
+
+        response = api_client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        user.is_active = False
+        user.save()
+        response = api_client.get(url)
+        self.assertEqual(response.status_code, 401)

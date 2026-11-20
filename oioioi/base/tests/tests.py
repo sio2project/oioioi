@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import zipfile
 from datetime import UTC, datetime  # pylint: disable=E0611
 from importlib import import_module, reload
 from unittest.mock import ANY, patch
@@ -850,6 +851,19 @@ class TestArchive(TestCase):
         finally:
             shutil.rmtree(tmpdir)
 
+    def test_member_in_sibling_directory_with_common_prefix(self):
+        tmpdir = tempfile.mkdtemp()
+        try:
+            target = os.path.join(tmpdir, "target")
+            os.mkdir(target)
+            zip_path = os.path.join(tmpdir, "sibling.zip")
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.writestr("../targetX/f", "foo")
+            with self.assertRaises(archive.UnsafeArchive):
+                archive.extract(zip_path, target)
+        finally:
+            shutil.rmtree(tmpdir)
+
     def test_size_calc(self):
         for good_file, expected_size in zip(self.good_files, (8, 8), strict=False):
             filename = os.path.join(self.base_dir, good_file)
@@ -1302,6 +1316,19 @@ class TestLoginChange(TestCase):
             response = self.client.get(self.url_index, follow=True)
             self.assertNotContains(response, "contains forbidden characters")
 
+    def test_message_escapes_user_data(self):
+        self.user.username = "<b>login</b>"
+        self.user.first_name = "<i>first</i>"
+        self.user.save()
+
+        response = self.client.get(self.url_index, follow=True)
+        self.assertContains(response, "contains forbidden characters")
+        self.assertContains(response, "&lt;b&gt;login&lt;/b&gt;")
+        self.assertContains(response, "&lt;i&gt;first&lt;/i&gt;")
+        self.assertNotContains(response, "<b>login</b>")
+        self.assertNotContains(response, "<i>first</i>")
+        self.assertContains(response, f"href='{self.url_edit_profile}'")
+
     def test_can_change_login_from_invalid(self):
         for value in self.invalid_logins:
             self.user.username = value
@@ -1489,9 +1516,17 @@ class TestFileUtils(TestCase):
             ours = split_extension(name)
             self.assertEqual(ours, their)
 
-        weird = ["test.tar.gz", "test.tar.xz", "/a/b/c/test.tar.bz2"]
-        for name in weird:
-            self.assertNotIn(".", split_extension(name)[0])
+        weird = {
+            "test.tar.gz": ("test", ".tar.gz"),
+            "test.tar.xz": ("test", ".tar.xz"),
+            "/a/b/c/test.tar.bz2": ("/a/b/c/test", ".tar.bz2"),
+            "paczka.tar.gz": ("paczka", ".tar.gz"),
+            "data.tar.xz": ("data", ".tar.xz"),
+            "tar.tar.gz": ("tar", ".tar.gz"),
+        }
+        for name, expected in weird.items():
+            with self.subTest(name=name):
+                self.assertEqual(split_extension(name), expected)
 
     def test_strip_num_or_hash(self):
         cases = {
@@ -1571,6 +1606,11 @@ class TestObtainingAPIToken(TestCase):
         self.assertContains(response, "was regenerated")
         self.assertContains(response, str(new_token))
         self.assertNotContains(response, str(old_token))
+
+    def test_api_token_regeneration_anonymous(self):
+        self.client.logout()
+        response = self.client.post(reverse("api_regenerate_key"))
+        self.assertEqual(response.status_code, 403)
 
 
 class TestDocsEndpoints(APITestCase):

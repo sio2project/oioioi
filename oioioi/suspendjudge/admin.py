@@ -42,6 +42,7 @@ class SuspendJudgeProblemInstanceAdminMixin:
     @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def resume_and_rejudge_view(self, request, problem_instance_id):
+        get_object_or_404(ProblemInstance, pk=problem_instance_id, contest=request.contest)
         self._resume(problem_instance_id)
         self._rejudge(problem_instance_id)
         return redirect("oioioiadmin:contests_probleminstance_changelist")
@@ -49,6 +50,7 @@ class SuspendJudgeProblemInstanceAdminMixin:
     @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def resume_and_clear_view(self, request, problem_instance_id):
+        get_object_or_404(ProblemInstance, pk=problem_instance_id, contest=request.contest)
         self._resume(problem_instance_id)
         self._clear_queue(problem_instance_id)
         return redirect("oioioiadmin:contests_probleminstance_changelist")
@@ -56,12 +58,14 @@ class SuspendJudgeProblemInstanceAdminMixin:
     @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def suspend_all_view(self, request, problem_instance_id):
+        get_object_or_404(ProblemInstance, pk=problem_instance_id, contest=request.contest)
         self._suspend(problem_instance_id)
         return redirect("oioioiadmin:contests_probleminstance_changelist")
 
     @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def suspend_all_but_init_view(self, request, problem_instance_id):
+        get_object_or_404(ProblemInstance, pk=problem_instance_id, contest=request.contest)
         self._suspend(problem_instance_id, False)
         return redirect("oioioiadmin:contests_probleminstance_changelist")
 

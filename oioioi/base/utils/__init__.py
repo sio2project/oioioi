@@ -464,7 +464,7 @@ def split_extension(filename):
     special_extensions = [".tar.gz", ".tar.bz2", ".tar.xz"]
     for ext in special_extensions:
         if filename.endswith(ext):
-            return (filename.rstrip(ext), ext)
+            return (filename.removesuffix(ext), ext)
     return os.path.splitext(filename)
 
 
@@ -586,6 +586,15 @@ def generate_key():
 
 
 # User-related
+
+
+def get_complete_user_name(user):
+    """This method returns user's full name together with the username in
+    brackets if the full name is available, and only the username otherwise."""
+    if user.get_full_name():
+        return f"{user.get_full_name()} ({user.username})"
+    else:
+        return f"{user.username}"
 
 
 def get_user_display_name(user):
