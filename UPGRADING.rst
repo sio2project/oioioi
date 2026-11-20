@@ -12,6 +12,16 @@ Then run::
 
 and restart the judging machines.
 
+OAuth2 tokens of inactive users
+-------------------------------
+
+If OAuth2 is enabled, replace
+``'oauth2_provider.contrib.rest_framework.OAuth2Authentication'`` in
+``REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES']`` with
+``'oioioi.oauth.authentication.ActiveUserOAuth2Authentication'`` (see
+``settings.py.template``). Unlike the original class, it refuses access tokens
+of deactivated users, as API tokens already are.
+
 Celery 5.6 and RabbitMQ 4
 -------------------------
 

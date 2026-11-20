@@ -61,6 +61,7 @@ class Command(BaseCommand):
                     # pylint: disable=broad-except
                     except Exception as e:
                         warnings.append(f"Invalid IP={ip} (ZAW={zaw_id}): {e}")
+                        continue
 
                     mapping.append(f"{zaw_id} {ip} {user.username}")
 
