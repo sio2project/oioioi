@@ -1,6 +1,3 @@
-// Overwrite bootstrap property to disable navbar collapse
-$grid-float-breakpoint: 0;
-
 // Custom properties
 $countdown-height: 5px;
 
@@ -16,8 +13,4 @@ $padding-base-horizontal: 12px !default;
 $padding-large-vertical:    10px !default;
 $padding-large-horizontal:  16px !default;
 
-$padding-small-vertical:    5px !default;
 $padding-small-horizontal:  10px !default;
-
-$padding-xs-vertical:       1px !default;
-$padding-xs-horizontal:     5px !default;
