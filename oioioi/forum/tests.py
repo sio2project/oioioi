@@ -3,6 +3,7 @@ from datetime import timedelta  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -21,6 +22,7 @@ from oioioi.forum.models import (
     PostReaction,
     Thread,
 )
+from oioioi.forum.utils import is_forum_moderator
 from oioioi.participants.models import Participant
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -1048,3 +1050,21 @@ class TestContestArchived(TestCase):
 
         self.client.post(thread_url, {"content": "lorem ipsum?"})
         self.assertFalse(Post.objects.filter(author=self.user).exists())
+
+
+class TestIsForumModerator(TestCase):
+    fixtures = ["test_users", "test_contest", "test_permissions"]
+
+    def test_does_not_change_request_user(self):
+        contest = Contest.objects.get(id="c")
+        basicadmin = User.objects.get(username="test_contest_basicadmin")
+        plain_user = User.objects.get(username="test_user")
+
+        request = RequestFactory().get("/")
+        request.user = plain_user
+        request.contest = contest
+
+        self.assertTrue(is_forum_moderator(request, basicadmin))
+        self.assertEqual(request.user, plain_user)
+        self.assertFalse(is_forum_moderator(request, plain_user))
+        self.assertEqual(request.user, plain_user)
