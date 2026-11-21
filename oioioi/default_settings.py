@@ -19,7 +19,7 @@ import oioioi
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-INSTALLATION_CONFIG_VERSION = 49
+INSTALLATION_CONFIG_VERSION = 50
 
 # Enable debugging features.
 #
