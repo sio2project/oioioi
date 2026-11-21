@@ -42,13 +42,13 @@ RAW_COMMANDS = [
         "down -v",
         "This will stop all SIO2 containers and DESTROY all data.",
     ),
-    # `conc` is the short binary of the `concurrently` npm devDependency (package.json),
+    # `conc` is the short binary of the `concurrently` pnpm devDependency (package.json),
     # on PATH in the container via node_modules/.bin. It runs webpack watch (`js`) and
     # runserver (`py`) side by side; `-k` stops both when one exits.
     (
         "run",
         "Run django server and webpack",
-        '{exec} web conc -n js,py -c yellow,green -k "npm --prefix ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"',
+        '{exec} web conc -n js,py -c yellow,green -k "pnpm --dir ../oioioi run -s watch" "python3 manage.py runserver 0.0.0.0:8000"',
     ),
     ("stop", "Stop all SIO2 containers", "stop"),
     ("bash", "Open command prompt on web container.", "{exec} web bash"),
@@ -76,8 +76,8 @@ RAW_COMMANDS = [
         '{exec} web bash -c "echo >> settings.py && echo CAPTCHA_TEST_MODE=True >> settings.py'
         ' && echo \'DEBUG_TOOLBAR_CONFIG = {{\\"SHOW_TOOLBAR_CALLBACK\\": lambda request: False}}\' >> settings.py"',
     ),
-    ("npm", "Run npm command.", "{exec} web npm --prefix ../oioioi {extra_args}"),
-    ("eslint", "Run javascript linter.", "{exec} web npm --prefix ../oioioi run lint"),
+    ("pnpm", "Run pnpm command.", "{exec} web pnpm --dir ../oioioi {extra_args}"),
+    ("eslint", "Run javascript linter.", "{exec} web pnpm --dir ../oioioi run lint"),
     (
         "ruff",
         "Run Ruff, a linter and formatter. You can add `--fix` to automatically fix some errors.",
