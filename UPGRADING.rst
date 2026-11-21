@@ -97,6 +97,12 @@ directory is up-to-date, change *CONFIG_VERSION* in your custom
 
 List of changes since the *CONFIG_VERSION* numbering was introduced:
 
+#. * In *deployment/settings.py*, when *DEBUG* is True, the gateways of the
+     container's own networks are added to *INTERNAL_IPS*, so
+     django-debug-toolbar is shown in the Docker dev setup. This change is
+     optional and only matters for development. Bumped
+     *INSTALLATION_CONFIG_VERSION* from 49 to 50.
+
 #. * Added *unpackmgr* queue entry to *deployment/supervisord.conf*::
 
        [program:unpackmgr]
