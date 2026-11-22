@@ -16,9 +16,6 @@
     .syntax-highlight .hljs-number { color: #666; }
     .syntax-highlight .hljs-comment { color: #3D7B7B; font-style: italic; }
     .syntax-highlight .hljs-title { color: #00F; }
-    .syntax-highlight .hljs-title.class_, .syntax-highlight .hljs-namespace { font-weight: bold; }
-    .syntax-highlight .hljs-namespace { color: #00F; }
-    .syntax-highlight .hljs-escape { color: #AA5D1F; font-weight: bold; }
     .syntax-highlight .hljs-meta, .syntax-highlight .hljs-meta .hljs-keyword { color: #9C6500; font-weight: normal; }
     .syntax-highlight .hljs-meta .hljs-string { color: #3D7B7B; font-style: italic; }
     {% endif %}
@@ -41,7 +38,8 @@
             <button class="btn btn-outline-secondary" id="format_btn" type="button"
                     data-label-formatted="{% trans 'Show original code' %}"
                     data-label-original="{% trans 'Show formatted code' %}"
-                    data-label-error="{% trans 'Unable to format the code' %}">
+                    data-label-error="{% trans 'Unable to format the code' %}"
+                    data-language="{{ source_language }}">
                 {% trans "Show formatted code" %}
             </button>
         {% endif %}

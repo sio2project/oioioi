@@ -253,7 +253,12 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
     def test_format_button_shown_for_cpp(self):
         response = self._get_source_page()
         self.assertContains(response, 'id="format_btn"')
+        self.assertContains(response, 'data-language="cpp"')
         self.assertContains(response, "code_formatter.bundle.js")
+
+    def test_format_button_language_for_c(self):
+        response = self._get_source_page("file.c")
+        self.assertContains(response, 'data-language="c"')
 
     def test_format_button_hidden_for_python(self):
         response = self._get_source_page("file.py")

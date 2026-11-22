@@ -14,55 +14,9 @@ const CLANG_FORMAT_STYLE = JSON.stringify({
     ColumnLimit: 80,
 });
 
-// Splits a text node around the parts matched by `regex` and wraps those parts in <span class="className">.
-// `pick` returns the [start, end) range of the text to wrap inside a match.
-function wrapMatches(node, regex, className, pick) {
-    const text = node.data;
-    const fragment = document.createDocumentFragment();
-    let last = 0;
-    for (const match of text.matchAll(regex)) {
-        const [start, end] = pick(match);
-        fragment.append(text.slice(last, start));
-        const span = document.createElement('span');
-        span.className = className;
-        span.textContent = text.slice(start, end);
-        fragment.append(span);
-        last = end;
-    }
-    if (last > 0) {
-        fragment.append(text.slice(last));
-        node.replaceWith(fragment);
-    }
-}
-
-// highlight.js does not mark everything that Pygments does, so mark the bold parts of the
-// Pygments style here: escape sequences in strings and names after `namespace` / `typename`.
-function addPygmentsLikeMarks(code) {
-    const textNodes = [];
-    const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT);
-    while (walker.nextNode()) {
-        textNodes.push(walker.currentNode);
-    }
-    const nameAfterKeyword = /^\s*[A-Za-z_]\w*/g;
-    const wholeName = (match) => [match[0].search(/\S/), match[0].length];
-    for (const node of textNodes) {
-        const parent = node.parentElement;
-        const previous = node.previousSibling;
-        if (parent.classList.contains('hljs-string') && parent.textContent.startsWith('"')) {
-            wrapMatches(node, /\\(?:x[0-9a-fA-F]{1,2}|[0-7]{1,3}|[\s\S])/g, 'hljs-escape', (m) => [m.index, m.index + m[0].length]);
-        } else if (previous?.classList?.contains('hljs-keyword')) {
-            if (previous.textContent === 'namespace') {
-                wrapMatches(node, nameAfterKeyword, 'hljs-namespace', wholeName);
-            } else if (previous.textContent === 'typename') {
-                wrapMatches(node, nameAfterKeyword, 'hljs-title class_', wholeName);
-            }
-        }
-    }
-}
-
 // Builds the same markup that Pygments generates for the original view (see HtmlFormatter(linenos=True) in
 // programs/views.py), so that the site's styles for `.syntax-highlighttable` apply to both views.
-function buildFormattedView(formattedSource) {
+function buildFormattedView(formattedSource, language) {
     const lineCount = formattedSource.replace(/\n$/, '').split('\n').length;
 
     // Pad the numbers with spaces (the box is monospace), so that they are right-aligned: 9 above 10, not next to it.
@@ -82,12 +36,11 @@ function buildFormattedView(formattedSource) {
     numbersCell.appendChild(numbersBox);
 
     const code = document.createElement('code');
-    code.className = 'language-cpp';
+    code.className = `language-${language}`;
     code.textContent = formattedSource;
     const codePre = document.createElement('pre');
     codePre.appendChild(code);
     hljs.highlightElement(code);
-    addPygmentsLikeMarks(code);
     const codeBox = document.createElement('div');
     codeBox.appendChild(codePre);
     const codeCell = document.createElement('td');
@@ -134,8 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             if (formattedView === null) {
                 await initClangFormat();
-                const formatted = format(rawSource.textContent, 'main.cpp', CLANG_FORMAT_STYLE);
-                formattedView = buildFormattedView(formatted);
+                const formatted = format(rawSource.textContent, `main.${button.dataset.language}`, CLANG_FORMAT_STYLE);
+                formattedView = buildFormattedView(formatted, button.dataset.language);
             }
             show([formattedView]);
             showingFormatted = true;

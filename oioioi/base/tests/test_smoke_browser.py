@@ -114,7 +114,7 @@ class TestBrowserSmoke(BrowserTestCase):
         """Formats a C++ source with the WebAssembly clang-format and switches back to the original."""
         from playwright.sync_api import expect
 
-        source = b'#include <iostream>\nusing namespace std;\ntemplate <typename T> T id(T x) { return x; }\nint main() { cout << "a\\n"; }\n'
+        source = b'#include <iostream>\nint main() { std::cout << "a\\n"; }\n'
         ProgramSubmission.objects.get(pk=1).source_file.save("main.cpp", ContentFile(source))
         kwargs = {"contest_id": "c", "submission_id": 1}
         context = self.new_browser_context("test_user")
@@ -130,10 +130,10 @@ class TestBrowserSmoke(BrowserTestCase):
             expect(button).to_have_text("Show original code", timeout=30000)
             expect(page.locator("#source_view td.linenos")).to_be_visible()
             expect(page.locator("#source_view code.hljs")).to_contain_text("int main()")
-            # The parts that Pygments shows in bold are marked as well.
-            expect(page.locator("#source_view .hljs-namespace")).to_have_text("std")
-            expect(page.locator("#source_view .hljs-escape")).to_have_text("\\n")
-            expect(page.locator("#source_view .hljs-title.class_")).to_have_text("T")
+            # The language passed by the view (data-language) selects the highlight.js grammar.
+            expect(button).to_have_attribute("data-language", "cpp")
+            expect(page.locator("#source_view code")).to_have_class(re.compile(r"\blanguage-cpp\b"))
+            expect(page.locator("#source_view .hljs-keyword").first).to_be_visible()
             button.click()
             expect(button).to_have_text("Show formatted code")
             expect(page.locator("#source_view td.linenos")).to_have_count(1)
