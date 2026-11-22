@@ -197,5 +197,4 @@ def get_new_post_message(request):
 
 
 def is_forum_moderator(request, user):
-    request.user = user
     return can_admin_contest(user, request.contest)
