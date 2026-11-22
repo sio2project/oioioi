@@ -1466,8 +1466,16 @@ class TestRejudgeViewPermissions(TestCase):
         other = Contest.objects.create(id="other", name="Other", controller_name="oioioi.programs.controllers.ProgrammingContestController")
         ContestPermission.objects.create(user=User.objects.get(username="test_user"), contest=other, permission="contests.contest_admin")
         self.assertEqual(self._rejudge("other"), 0)  # submission 1 is in contest "c"
+        self.client.login(username="test_observer")
+        self.assertEqual(self._rejudge(), 0)  # observers can view but not rejudge
         self.client.login(username="test_contest_basicadmin")
         self.assertEqual(self._rejudge(), 1)
+
+    def test_get_is_rejected(self):
+        self.client.login(username="test_contest_basicadmin")
+        url = reverse("oioioiadmin:contests_submission_changelist", kwargs={"contest_id": "c"}) + "rejudge/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 405)
 
 
 class TestContestAdmin(TestCase):

@@ -15,12 +15,14 @@ from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
+from django.utils.decorators import method_decorator
 from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.http import urlencode
 from django.utils.text import capfirst
 from django.utils.translation import get_language, ngettext_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
 
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY, delete_selected
@@ -780,6 +782,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         urls = [path("rejudge/", self.admin_site.admin_view(self.rejudge_view))]
         return urls + super().get_urls()
 
+    @method_decorator(require_POST)
     def rejudge_view(self, request):
         if not self.has_rejudge_permission(request):
             raise PermissionDenied
