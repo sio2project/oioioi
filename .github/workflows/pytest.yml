@@ -3,6 +3,7 @@ name: Unit tests
 on:
   push:
     branches:
+      - 905-latex-tests
       - master
   pull_request:
   workflow_dispatch:
