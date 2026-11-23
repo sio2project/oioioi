@@ -199,6 +199,11 @@ def needs_linux(fn):
     return pytest.mark.skipif(sys.platform not in ("linux", "linux2"), reason="This test needs Linux")(fn)
 
 
+def needs_latex(fn):
+    fn = pytest.mark.needs_latex(fn)
+    return pytest.mark.skipif(shutil.which('pdflatex') is None, reason="This test needs Latex")(fn)
+
+
 class _SerializedWSGIServer(WSGIServer):
     """A single-threaded WSGI server that holds ``lock`` while it handles a request."""
 

@@ -2,17 +2,26 @@ from datetime import UTC, datetime  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from django.urls import reverse
+from django.test.client import Client
+from unittest.mock import patch
 
-from oioioi.base.tests import TestCase, fake_time
+from oioioi.base.utils.pdf import extract_text_from_pdf
+from oioioi.base.tests import TestCase, fake_time, needs_latex
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.mailsubmit.models import MailSubmission, MailSubmissionConfig
 from oioioi.mailsubmit.utils import mail_submission_hashes
 from oioioi.participants.models import Participant
 from oioioi.problems.models import Problem
 
+import io
+
+def fake_generate_pdf(doc, filename, *args, **kwargs):
+    return HttpResponse(b"%PDF-1.4 fake pdf", content_type="application/pdf")
 
 class MailSubmitFileMixin:
+    client: Client
     def submit_file(
         self,
         contest,
@@ -35,6 +44,8 @@ class MailSubmitFileMixin:
                     "user": user,
                 }
             )
+
+
         return self.client.post(url, post_data)
 
 
@@ -49,7 +60,8 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
     def setUp(self):
         self.assertTrue(self.client.login(username="test_user"))
 
-    def test_simple_mailsubmission(self):
+    @patch("oioioi.mailsubmit.views.generate_pdf", side_effect=fake_generate_pdf)
+    def test_simple_mailsubmission(self, _mock_generate_pdf):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
         problem_instance.submissions_limit = 0
@@ -84,7 +96,8 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
 
         self.assertEqual(MailSubmission.objects.count(), 1)
 
-    def test_accepting_mailsubmissions(self):
+    @patch("oioioi.mailsubmit.views.generate_pdf", side_effect=fake_generate_pdf)
+    def test_accepting_mailsubmissions(self, _mock_generate_pdf):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
         problem_instance.submissions_limit = 0
@@ -137,7 +150,8 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         ms = MailSubmission.objects.get()
         self.assertEqual(ms.accepted_by, User.objects.get(username="test_admin"))
 
-    def test_mailsubmit_permissions(self):
+    @patch("oioioi.mailsubmit.views.generate_pdf", side_effect=fake_generate_pdf)
+    def test_mailsubmit_permissions(self, _mock_generate_pdf):
         contest = Contest.objects.get()
         contest.controller_name = "oioioi.participants.tests.ParticipantsContestController"
         contest.save()
@@ -180,6 +194,34 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
             self.assertEqual(200, response.status_code)
 
             self.assertEqual(MailSubmission.objects.count(), 1)
+
+    @needs_latex
+    def test_mailsubmission_pdf_generation(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        problem_instance.submissions_limit = 0
+        problem_instance.save()
+        MailSubmissionConfig.objects.create(
+            contest=contest,
+            enabled=True,
+            start_date=datetime(2012, 8, 12, tzinfo=UTC),
+            end_date=datetime(2012, 8, 14, tzinfo=UTC),
+        )
+
+        with fake_time(datetime(2012, 8, 13, tzinfo=UTC)):
+            response = self.submit_file(contest, problem_instance)
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(response["Content-Type"], "application/pdf")
+
+        ms = MailSubmission.objects.get()
+        _ms_source_hash, ms_submission_hash = mail_submission_hashes(ms)
+
+        pdf_bytes = io.BytesIO(b"".join(response.streaming_content))
+        pdf_text = b"".join(extract_text_from_pdf(pdf_bytes)).decode("utf-8")
+
+        self.assertIn(contest.name, pdf_text)
+        self.assertIn(problem_instance.problem.name, pdf_text)
+        self.assertIn(ms_submission_hash, pdf_text)
 
     def test_mailsubmissions_list(self):
         c1 = Contest(

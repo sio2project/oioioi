@@ -20,9 +20,6 @@ jobs:
       with:
         persist-credentials: false
     - uses: ./.github/actions/setup-env
-      with:
-        install-texlive: "true"
-
     - name: Run tests
       run: |
         ./test.sh -n auto --migrations -m "not browser"
