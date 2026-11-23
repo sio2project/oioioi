@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import os.path
 import re
@@ -5,7 +6,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from contextlib import contextmanager
 from datetime import UTC, datetime  # pylint: disable=E0611
 from importlib import import_module, reload
 from unittest.mock import patch
@@ -1482,7 +1482,7 @@ class TestFileUtils(TestCase):
 
 
 class TestParametrize(TestCase):
-    @contextmanager
+    @contextlib.contextmanager
     def assertRaisesAtClassCreation(self, exc_type, regex):
         # Before Python 3.12, errors from __set_name__ are wrapped in RuntimeError.
         with self.assertRaises(Exception) as cm:
