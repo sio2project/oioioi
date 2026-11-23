@@ -163,7 +163,7 @@ Production configuration
    to install dependencies:
 
    * memcached (Ubuntu package: *memcached*)
-   * python-memcached (*uv pip install python-memcached*)
+   * pymemcache (*uv pip install pymemcache*)
 
    Next, you have to uncomment the corresponding lines under "Cache" in
    *settings.py* and set the address of your memcached instance. Note that you
@@ -256,23 +256,22 @@ The unit tests can be run directly on a Mac, without Docker. This gives a
 faster edit-test loop and works with native debuggers. Install the build
 dependencies with `Homebrew`_ and the Xcode command line tools (clang)::
 
-  brew install uv berkeley-db@5 libmemcached
+  brew install uv berkeley-db@5
   xcode-select --install
 
 Then install the Python dependencies and run the tests::
 
   export BERKELEYDB_DIR="$(brew --prefix berkeley-db@5)"
   export YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION=1
-  export LIBMEMCACHED="$(brew --prefix libmemcached)"
   uv sync --group dev
   ./test.sh -n auto
 
-The environment variables are only needed while *bsddb3* and *pylibmc* are
-being built (``BERKELEYDB_DIR`` and ``YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION``
-for *bsddb3*, ``LIBMEMCACHED`` for *pylibmc*). The tests themselves use
-in-memory SQLite, the local-memory cache and a dummy filetracker client, so
-PostgreSQL, RabbitMQ and memcached are not needed. The RabbitMQ "Connection
-refused" messages in the test log are expected and harmless.
+The environment variables are only needed while *bsddb3* is being built
+(``BERKELEYDB_DIR`` and ``YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION``
+for *bsddb3*). The tests themselves use in-memory SQLite, the local-memory cache
+and a dummy filetracker client, so PostgreSQL, RabbitMQ and memcached are not
+needed. The RabbitMQ "Connection refused" messages in the test log are expected
+and harmless.
 
 Optional tools: ``brew install --cask basictex`` provides *pdflatex* (used by
 *oireports*; it is installed into */Library/TeX/texbin*, which is on ``PATH``

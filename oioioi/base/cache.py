@@ -1,25 +1,44 @@
 import logging
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT
-from django.core.cache.backends.memcached import PyLibMCCache
+from django.core.cache.backends.memcached import PyMemcacheCache
 
 logger = logging.getLogger(__name__)
 
 
-class FaultTolerantPyLibMCCache(PyLibMCCache):
-    """PyLibMCCache that treats an unreachable memcached as a cache miss.
+class FaultTolerantPyMemcacheCache(PyMemcacheCache):
+    """PyMemcacheCache that treats an unreachable memcached as a cache miss.
 
     The stock backend raises on connection errors, so a memcached restart
     turns every request touching the cache (including sessions with
     ``cached_db``) into an error 500. Here reads return the default, writes
-    are dropped and the caller falls back to the database.
-    ``incr`` and ``decr`` still raise, because callers rely on their result.
+    are dropped and the caller falls back to the database. ``incr``, ``decr``,
+    ``delete``, and `delete_many` still raise, because callers rely on their
+    result.
     """
+
+    DEFAULT_OPTIONS = {
+        "connect_timeout": 0.200,
+        # send/recv timeout
+        "timeout": 0.100,
+        # Delay before attempt to reconnect to a dead node
+        "dead_timeout": 10,
+        # Without this, pymemcache will sometimes swallow errors in HashClient.
+        # Maybe treats all ops between retries as misses?
+        "retry_attempts": 0,
+    }
+
+    def __init__(self, server, params) -> None:
+        options = params.get("OPTIONS", {})
+        options = {**self.DEFAULT_OPTIONS, **options}
+        params = {**params, "OPTIONS": options}
+
+        super().__init__(server, params)
 
     def _call(self, method, default, *args, **kwargs):
         try:
             return getattr(super(), method)(*args, **kwargs)
-        except self._lib.Error:
+        except (self._lib.exceptions.MemcacheError, OSError):
             logger.warning("memcached %s failed", method, exc_info=True)
             return default
 
@@ -44,8 +63,6 @@ class FaultTolerantPyLibMCCache(PyLibMCCache):
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
         return self._call("touch", False, key, timeout, version)
 
-    def delete(self, key, version=None):
-        return self._call("delete", False, key, version)
 
-    def delete_many(self, keys, version=None):
-        return self._call("delete_many", None, keys, version)
+# compatibility alias
+FaultTolerantPyLibMCCache = FaultTolerantPyMemcacheCache
