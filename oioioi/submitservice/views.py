@@ -1,11 +1,11 @@
 import os
-import random
 import string
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -46,7 +46,7 @@ def match_problem(problem_instances, problem):
 def submit_view(request):
     try:
         token = request.POST["token"]
-        current_token = SubmitServiceToken.objects.filter(token=token)
+        current_token = SubmitServiceToken.objects.filter(token=token, user__is_active=True)
         if not current_token.exists():
             raise PermissionDenied("AUTHORIZATION_FAILED")
         request.user = current_token[0].user
@@ -111,7 +111,7 @@ def view_user_token(request):
 
 
 def generate_token():
-    new_token = "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(32))
+    new_token = get_random_string(32, allowed_chars=string.ascii_uppercase + string.digits)
     # It is very improbable, but it could happen that the generated token
     # is already present in the dictionary. Let's generate new one.
     if SubmitServiceToken.objects.filter(token=new_token).exists():

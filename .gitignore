@@ -35,3 +35,5 @@
 /internal/
 **/CLAUDE.local.md
 /.claude/settings.local.json
+/package-lock.json
+/yarn.lock

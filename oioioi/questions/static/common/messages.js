@@ -25,15 +25,14 @@ function get_reply_templates(url, inc_url) {
         }
         var items = [];
         $.each(data, function(_index, val) {
-            items.push('<li><a data-id="' + val.id + '" ' +
-                              'href="#" ' +
-                              'class="include-reply-template" ' +
-                              'id="reply_template_' + val.id + '" ' +
-                              'title="' + val.content + '">' +
-                              val.name +
-                              '</a></li>');
+            var link = $('<a href="#" class="include-reply-template"></a>')
+                .attr('data-id', val.id)
+                .attr('id', 'reply_template_' + val.id)
+                .attr('title', val.content)
+                .text(val.name);
+            items.push($('<li></li>').append(link));
         });
-        $('.template-replies').html(items);
+        $('.template-replies').empty().append(items);
         $('a.include-reply-template').click(function() {
             include_reply_template($(this).data('id'), inc_url);
             return false;
@@ -79,10 +78,8 @@ function checkAnswersInMeantime() {
             $('#submitter').prop('disabled', true);
             $("#disabled-text").show();
             newAnswersConfig.visited[msg_id] = true;
-            var alertFormatted = alertText
-                    .replace('%content%', msg)
-                    .replace('%id%', msg_id)
-                    .replace('%id%', msg_id);
+            var alertFormatted = $(alertText.replace(/%id%/g, msg_id));
+            alertFormatted.find('.oioioi-message__body').text(msg);
             $('#alerts').append(alertFormatted);
             $('#alert_' + msg_id).hide();
             $('#alert_' + msg_id).fadeIn();

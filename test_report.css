@@ -32,6 +32,6 @@ a, span.expander::after, span.collapser::after {
 }
 
 /* This is needed to hide annoying 'environment' table */
-p+h2, #environment { /* csslint allow: qualified-headings, unique-headings */
+p+h2, #environment {
     display: none;
 }

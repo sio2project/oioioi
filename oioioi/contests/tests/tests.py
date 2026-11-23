@@ -1152,6 +1152,12 @@ class TestSubmitButtonInProblemsList(TestCase):
             status_code=200,
         )
 
+    def test_submit_url_with_non_numeric_problem_instance_id(self):
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username="test_user"))
+        response = self.client.get(f"/c/{contest.id}/submit/abc/")
+        self.assertEqual(response.status_code, 404)
+
     def test_with_no_submissions_left(self):
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
@@ -1460,8 +1466,16 @@ class TestRejudgeViewPermissions(TestCase):
         other = Contest.objects.create(id="other", name="Other", controller_name="oioioi.programs.controllers.ProgrammingContestController")
         ContestPermission.objects.create(user=User.objects.get(username="test_user"), contest=other, permission="contests.contest_admin")
         self.assertEqual(self._rejudge("other"), 0)  # submission 1 is in contest "c"
+        self.client.login(username="test_observer")
+        self.assertEqual(self._rejudge(), 0)  # observers can view but not rejudge
         self.client.login(username="test_contest_basicadmin")
         self.assertEqual(self._rejudge(), 1)
+
+    def test_get_is_rejected(self):
+        self.client.login(username="test_contest_basicadmin")
+        url = reverse("oioioiadmin:contests_submission_changelist", kwargs={"contest_id": "c"}) + "rejudge/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 405)
 
 
 class TestContestAdmin(TestCase):

@@ -1,6 +1,6 @@
-========================
-Webpack and NPM packages
-========================
+=========================
+Webpack and pnpm packages
+=========================
 
 Overview
 --------
@@ -8,8 +8,8 @@ Overview
 Initially, this project did not use Webpack or any JavaScript bundling tools. 
 All libraries were installed by manually copying their source code into the project and including them with `<script>` tags. 
 
-The project was migrated to use NPM for managing dependencies and Webpack for bundling JavaScript modules. 
-While most packages have been migrated to NPM downloads, there is still a significant amount of JavaScript code that is not managed by Webpack. 
+The project was migrated to use pnpm for managing dependencies and Webpack for bundling JavaScript modules. 
+While most packages have been migrated to pnpm downloads, there is still a significant amount of JavaScript code that is not managed by Webpack. 
 
 For new JavaScript code, it is recommended to write it as a JavaScript file and bundle it using Webpack. 
 
@@ -22,8 +22,8 @@ The configuration is designed to work alongside the existing Django application.
 Webpack starts with the webserver automatically when using `./easy_toolbox.py run`, but you can also run it manually:
     ::
 
-        $ ./easy_toolbox.py npm run build # generate the production build
-        $ ./easy_toolbox.py npm run watch # generate the development build and watch for changes
+        $ ./easy_toolbox.py pnpm run build # generate the production build
+        $ ./easy_toolbox.py pnpm run watch # generate the development build and watch for changes
 
 Managing JavaScript with Webpack
 --------------------------------
@@ -37,13 +37,15 @@ Managing JavaScript with Webpack
         {% load static %}
         <script src="{% static '[entry-name].bundle.js' %}"></script>
 
-NPM packages
-------------
+pnpm packages
+-------------
 
 Installing New Packages:
     ::
 
-        $ ./easy_toolbox.py npm install package-name
+        $ ./easy_toolbox.py pnpm add package-name
+
+    Commit `package.json` and `pnpm-lock.yaml` together when adding a dependency (use `pnpm add -D package-name` for dev dependencies).
 
 Importing Packages in JavaScript managed by Webpack:
     .. code-block:: javascript

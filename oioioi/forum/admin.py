@@ -175,7 +175,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        qs = qs.filter(forum=request.contest.forum)
+        qs = qs.filter(forum__contest=request.contest)
         return qs
 
 
@@ -240,7 +240,7 @@ class ThreadAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        qs = qs.filter(category__forum=request.contest.forum)
+        qs = qs.filter(category__forum__contest=request.contest)
         return qs
 
 
@@ -364,7 +364,7 @@ class PostAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        qs = qs.filter(thread__category__forum=request.contest.forum)
+        qs = qs.filter(thread__category__forum__contest=request.contest)
         return qs
 
 
@@ -384,7 +384,7 @@ class BanAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        qs = qs.filter(forum=request.contest.forum)
+        qs = qs.filter(forum__contest=request.contest)
         return qs
 
 

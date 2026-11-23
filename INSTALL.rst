@@ -33,8 +33,8 @@ Using uv (recommended, faster)::
   cd oioioi
   curl -LsSf https://astral.sh/uv/install.sh | sh
   uv sync --all-groups
-  npm install
-  npm run build
+  pnpm install --frozen-lockfile
+  pnpm run build
 
 OIOIOI is a set of Django applications, therefore you need to create a folder with
 Django settings and other deployment configuration::

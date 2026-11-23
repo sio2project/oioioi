@@ -16,6 +16,5 @@ contest_patterns = [
         name="statistics_view_without_object",
     ),
     path("stat/", views.statistics_view, name="statistics_main"),
-    path("stat/", views.statistics_view, name="statistics_main"),
     path("monitoring/", views.monitoring_view, name="monitoring"),
 ]
