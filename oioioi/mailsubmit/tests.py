@@ -1,27 +1,29 @@
+import io
 from datetime import UTC, datetime  # pylint: disable=E0611
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
-from django.urls import reverse
 from django.test.client import Client
-from unittest.mock import patch
+from django.urls import reverse
 
-from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.base.tests import TestCase, fake_time, needs_latex
+from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.mailsubmit.models import MailSubmission, MailSubmissionConfig
 from oioioi.mailsubmit.utils import mail_submission_hashes
 from oioioi.participants.models import Participant
 from oioioi.problems.models import Problem
 
-import io
 
 def fake_generate_pdf(doc, filename, *args, **kwargs):
     return HttpResponse(b"%PDF-1.4 fake pdf", content_type="application/pdf")
 
+
 class MailSubmitFileMixin:
     client: Client
+
     def submit_file(
         self,
         contest,
@@ -44,7 +46,6 @@ class MailSubmitFileMixin:
                     "user": user,
                 }
             )
-
 
         return self.client.post(url, post_data)
 

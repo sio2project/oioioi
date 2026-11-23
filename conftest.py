@@ -1,9 +1,11 @@
+import shutil
+
 import pytest
 from django.conf import settings
 from django.utils import translation
 from oioioi.base.tests import pytest_plugin as base_plugin
 from oioioi.contests.tests import pytest_plugin as contests_plugin
-import shutil
+
 
 def pytest_addoption(parser):
     parser.addoption("--runslow", action="store_true", default=False, help="run slow tests")
@@ -41,6 +43,7 @@ def pytest_collection_modifyitems(config, items):
 
         if not has_pdflatex and "needs_latex" in item.keywords:
             item.add_marker(latex_marker)
+
 
 # Removing links column from html report
 @pytest.hookimpl(optionalhook=True)

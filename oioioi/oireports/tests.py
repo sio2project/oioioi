@@ -4,7 +4,7 @@ from io import BytesIO
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from oioioi.base.tests import TestCase, fake_time, needs_linux, needs_latex
+from oioioi.base.tests import TestCase, fake_time, needs_latex
 from oioioi.base.utils.pdf import extract_text_from_pdf
 from oioioi.contests.models import Contest
 from oioioi.filetracker.tests import TestStreamingMixin
