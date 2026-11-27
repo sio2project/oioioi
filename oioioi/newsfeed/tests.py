@@ -172,3 +172,8 @@ class TestNewsfeedRendering(TestCase):
         self.assertNotIn("<img", rendered)
         self.assertNotIn('href="javascript:', rendered.lower())
         self.assertIn("<p>a\xa0b &amp; &lt;c&gt;</p>", self.render("a&nbsp;b &amp; <c>"))
+
+    def test_quoted_table(self):
+        rendered = self.render("> |a|b|\n> |-|-|\n> |1|2|\n")
+        self.assertIn("<th>a</th>", rendered)
+        self.assertIn("<td>1</td>", rendered)

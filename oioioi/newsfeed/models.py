@@ -16,7 +16,9 @@ class NewsRenderer(mistune.HTMLRenderer):
         return safe_entity(text)
 
 
-_markdown = mistune.create_markdown(renderer=NewsRenderer(escape=True), plugins=["strikethrough", "footnotes", "table", "url"])
+_markdown = mistune.create_markdown(
+    renderer=NewsRenderer(escape=True), plugins=["strikethrough", "footnotes", "table", "mistune.plugins.table.table_in_quote", "url"]
+)
 
 
 class News(models.Model):
