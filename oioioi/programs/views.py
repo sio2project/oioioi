@@ -57,12 +57,26 @@ fnmatch._MAXCACHE = sys.maxsize
 logger = logging.getLogger(__name__)
 
 
+# Submittable languages (keys of settings.SUBMITTABLE_EXTENSIONS) that the "Show formatted code" button can format
+# (with clang-format), mapped to the language name used by the formatter and the highlighter.
+FORMATTABLE_LANGUAGES = {"C": "c", "C++": "cpp"}
+
+
+def get_source_language(filename):
+    extension = get_extension(filename).lower()
+    for language, extensions in settings.SUBMITTABLE_EXTENSIONS.items():
+        if extension in extensions:
+            return FORMATTABLE_LANGUAGES.get(language)
+    return None
+
+
 @enforce_condition(~contest_exists | can_enter_contest)
 def show_submission_source_view(request, submission_id):
     source_file = get_submission_source_file_or_error(request, submission_id)
     raw_source, decode_error = decode_str(source_file.read())
     filename = source_file.file.name
     is_source_safe = False
+    source_language = get_source_language(filename)
     try:
         lexer = guess_lexer_for_filename(filename, raw_source)
         formatter = HtmlFormatter(linenos=True, line_number_chars=3, cssclass="syntax-highlight")
@@ -81,6 +95,8 @@ def show_submission_source_view(request, submission_id):
             "source": formatted_source,
             "css": formatted_source_css,
             "is_source_safe": is_source_safe,
+            "can_format": is_source_safe and source_language is not None,
+            "source_language": source_language,
             "download_url": download_url,
             "decode_error": decode_error,
             "submission_id": submission_id,

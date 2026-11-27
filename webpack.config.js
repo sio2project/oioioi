@@ -9,6 +9,7 @@ module.exports = {
     portal_tree: './oioioi/portals/static/portals/portal_tree.js',
     timeline: './oioioi/timeline/static/timeline/timeline.js',
     darkreader: './oioioi/base/static/js/darkreader.js',
+    code_formatter: './oioioi/programs/static/programs/code_formatter.js',
   },
   output: {
     filename: '[name].bundle.js',
