@@ -9,7 +9,7 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.scoresreveal.models import ScoreReveal
-from oioioi.scoresreveal.utils import has_scores_reveal, is_revealed
+from oioioi.scoresreveal.utils import get_scores_reveal_config_for_problem_instance, has_scores_reveal, is_revealed
 
 
 class ScoresRevealContestControllerMixin:
@@ -28,10 +28,10 @@ class ScoresRevealContestControllerMixin:
         return Submission.objects.filter(user=user, problem_instance=problem_instance, revealed__isnull=False)
 
     def get_scores_reveals_disable_time(self, problem_instance):
-        return problem_instance.scores_reveal_config.disable_time
+        return get_scores_reveal_config_for_problem_instance(problem_instance).disable_time
 
     def get_scores_reveals_limit(self, problem_instance):
-        return problem_instance.scores_reveal_config.reveal_limit
+        return get_scores_reveal_config_for_problem_instance(problem_instance).reveal_limit
 
     def is_scores_reveals_limit_reached(self, user, problem_instance):
         limit = self.get_scores_reveals_limit(problem_instance)
