@@ -91,7 +91,8 @@ class NotificationHandler(logging.StreamHandler):
         notification_message_arguments,
     ):
         """This function sends a notification to the specified user
-        by sending a message to RabbitMQ.
+        by sending a message to RabbitMQ. It does nothing if
+        ``NOTIFICATIONS_SERVER_ENABLED`` is ``False``.
 
         :param user: User, to whom the notification will be sent.
 
@@ -115,6 +116,9 @@ class NotificationHandler(logging.StreamHandler):
                     for the user about the event.
                 * "popup" -- if set the related dropdown will be opened in ui.
         """
+
+        if not settings.NOTIFICATIONS_SERVER_ENABLED:
+            return
 
         NotificationHandler._check_connection()
 

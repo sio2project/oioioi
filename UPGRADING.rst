@@ -12,6 +12,18 @@ Then run::
 
 and restart the judging machines.
 
+Notifications
+-------------
+
+``NOTIFICATIONS_SERVER_ENABLED`` now also controls whether Django sends
+notifications to RabbitMQ. If you use notifications, set it to ``True`` on
+every machine that runs Django, even when the notifications server runs
+elsewhere.
+
+This flag also enables the local notifications server in the generated
+supervisord configuration. Review that configuration when using an external
+notifications server to avoid starting an unintended local instance.
+
 OAuth2 tokens of inactive users
 -------------------------------
 

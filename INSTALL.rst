@@ -271,8 +271,7 @@ The environment variables are only needed while *bsddb3* and *pylibmc* are
 being built (``BERKELEYDB_DIR`` and ``YES_I_HAVE_THE_RIGHT_TO_USE_THIS_BERKELEY_DB_VERSION``
 for *bsddb3*, ``LIBMEMCACHED`` for *pylibmc*). The tests themselves use
 in-memory SQLite, the local-memory cache and a dummy filetracker client, so
-PostgreSQL, RabbitMQ and memcached are not needed. The RabbitMQ "Connection
-refused" messages in the test log are expected and harmless.
+PostgreSQL, RabbitMQ and memcached are not needed.
 
 Optional tools: ``brew install --cask basictex`` provides *pdflatex* (used by
 *oireports*; it is installed into */Library/TeX/texbin*, which is on ``PATH``

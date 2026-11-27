@@ -541,7 +541,9 @@ ZEUS_INSTANCES = {
 # It should contain actual URL available from remote machines.
 # NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
-# Notifications configuration (server)
+# Enables the notifications server (supervisord) and sending from Django.
+# When False, NotificationHandler.send_notification does nothing.
+# Set this to True on Django hosts that use an external notifications server.
 # NOTIFICATIONS_SERVER_ENABLED = True
 
 # URL connection string to a Notifications Server instance

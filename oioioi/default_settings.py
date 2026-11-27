@@ -828,7 +828,9 @@ RANKING_MAX_COOLDOWN = 100  # seconds
 # It should contain actual URL available from remote machines.
 NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
 
-# Notifications configuration (server)
+# Enables the notifications server (supervisord) and sending from Django.
+# When False, NotificationHandler.send_notification does nothing.
+# Set True on Django hosts using an external notifications server.
 NOTIFICATIONS_SERVER_ENABLED = False
 
 # URL connection string to a Notifications Server instance
