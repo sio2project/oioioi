@@ -4,10 +4,12 @@ import pytest
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
+from django.db import transaction
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from oioioi.base.tests import needs_linux
-from oioioi.contests.models import Contest, Submission
+from oioioi.contests.models import Contest, Submission, UserResultForProblem
 from oioioi.problems.models import (
     AlgorithmTag,
     AlgorithmTagProposal,
@@ -15,6 +17,8 @@ from oioioi.problems.models import (
     DifficultyTag,
     DifficultyTagProposal,
     DifficultyTagThrough,
+    OriginInfoValue,
+    OriginTag,
     Problem,
     ProblemName,
 )
@@ -326,3 +330,109 @@ class TestMassCreateTool(TestCase):
         seed_snapshot = _get_snapshot()
         seed_snapshot2 = _get_snapshot(("--wipe",))
         self.assertEqual(seed_snapshot, seed_snapshot2)
+
+
+class TestCreateMockCompetition(TestCase):
+    fixtures = ["test_users"]
+
+    def _create_competition(self, name, *args):
+        call_command("create_mock_competition", "-n", name, *args)
+        return OriginTag.objects.get(name=name).problems.all()
+
+    def _groups_with_results(self, problems, category):
+        """Values of the category (archive groups) which contain a problem with a result."""
+        problems_with_results = UserResultForProblem.objects.filter(problem_instance__problem__in=problems).values_list("problem_instance__problem", flat=True)
+        return set(OriginInfoValue.objects.filter(category__name=category, problems__in=problems_with_results).values_list("value", flat=True))
+
+    def _results_snapshot(self, seed):
+        """Create a competition with the seed, return its problems and results, and roll it all back.
+
+        Running the same seed twice in one database would repeat the problem site keys.
+        """
+        with transaction.atomic():
+            problems = self._create_competition("mock", "-b", "3", "-l", "2", "-s", str(seed), "--with-instances", "--results-for", "test_user")
+            snapshot = sorted(
+                (problem.names.get().name, result.score.to_int() if result else None)
+                for problem in problems
+                for result in [UserResultForProblem.objects.filter(problem_instance=problem.main_problem_instance).first()]
+            )
+            transaction.set_rollback(True)
+        return snapshot
+
+    def test_without_flags(self):
+        problems = self._create_competition("plain", "-b", "3", "-l", "2", "-s", "0")
+
+        self.assertEqual(problems.count(), 27)
+        for problem in problems:
+            self.assertEqual(problem.controller_name, "")
+            self.assertIsNone(problem.main_problem_instance)
+        self.assertFalse(Submission.objects.exists())
+
+    def test_with_instances(self):
+        problems = self._create_competition("mock", "-b", "3", "-l", "2", "-s", "0", "--with-instances")
+
+        self.assertEqual(problems.count(), 27)
+        for problem in problems:
+            self.assertEqual(problem.controller_name, "oioioi.problems.controllers.ProblemController")
+            self.assertIsNotNone(problem.main_problem_instance)
+            self.assertIsNone(problem.main_problem_instance.contest)
+            response = self.client.get(reverse("problem_site", args=(problem.problemsite.url_key,)), follow=True)
+            self.assertEqual(response.status_code, 200)
+        self.assertFalse(Submission.objects.exists())
+        self.assertFalse(UserResultForProblem.objects.exists())
+
+    def test_archive_shows_all_badge_colours(self):
+        self._create_competition("mock", "-b", "3", "-l", "2", "-s", "0", "--with-instances", "--results-for", "test_user")
+        self.assertTrue(self.client.login(username="test_user"))
+
+        response = self.client.get(reverse("task_archive_tag", args=("mock",)), follow=True)
+        self.assertEqual(response.status_code, 200)
+        for badge in ("text-bg-success", "text-bg-warning", "text-bg-danger"):
+            self.assertContains(response, badge)
+
+    def test_results_spread(self):
+        """There is a result of each kind, results in at least two groups, and
+        at least one problem without a result. Checked on several seeds and
+        tree shapes.
+        """
+        # (branches, levels, category of the groups the results are spread over)
+        shapes = [(2, 1, "level1"), (3, 2, "level1"), (1, 2, "level2")]
+        for i, (branches, levels, category) in enumerate(shapes):
+            # The guarantees must not depend on the seed. Each run needs its
+            # own seed, as the seed also determines the problem site keys.
+            for seed in range(10 * i, 10 * i + 5):
+                with self.subTest(branches=branches, levels=levels, seed=seed):
+                    name = f"mock{seed}"
+                    problems = self._create_competition(
+                        name, "-b", str(branches), "-l", str(levels), "-s", str(seed), "--with-instances", "--results-for", "test_user"
+                    )
+                    results = UserResultForProblem.objects.filter(problem_instance__problem__in=problems, user__username="test_user")
+
+                    self.assertGreaterEqual(results.count(), 3)
+                    self.assertLess(results.count(), problems.count())
+                    self.assertGreaterEqual(len(self._groups_with_results(problems, category)), 2)
+
+                    scores = [result.score.to_int() for result in results]
+                    self.assertIn(100, scores)
+                    self.assertIn(0, scores)
+                    self.assertTrue(any(0 < score < 100 for score in scores))
+
+    def test_results_seed_repeatability(self):
+        self.assertEqual(self._results_snapshot(7), self._results_snapshot(7))
+        self.assertNotEqual(self._results_snapshot(7), self._results_snapshot(8))
+
+    def test_results_for_unknown_user(self):
+        with self.assertRaises(CommandError):
+            call_command("create_mock_competition", "-b", "3", "--with-instances", "--results-for", "nobody")
+        self.assertFalse(OriginTag.objects.exists())
+
+    def test_results_without_instances(self):
+        with self.assertRaises(CommandError):
+            call_command("create_mock_competition", "-b", "3", "--results-for", "test_user")
+        self.assertFalse(OriginTag.objects.exists())
+
+    def test_results_with_too_few_groups(self):
+        for branches, levels in [(1, 1), (0, 3)]:
+            with self.subTest(branches=branches, levels=levels), self.assertRaises(CommandError):
+                call_command("create_mock_competition", "-b", str(branches), "-l", str(levels), "--with-instances", "--results-for", "test_user")
+        self.assertFalse(OriginTag.objects.exists())
